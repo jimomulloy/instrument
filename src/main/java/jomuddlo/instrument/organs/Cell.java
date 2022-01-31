@@ -1,4 +1,4 @@
-package jomuddlo.instrument;
+package jomuddlo.instrument.organs;
 
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
