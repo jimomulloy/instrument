@@ -1,4 +1,4 @@
-package jomuddlo.pbrain;
+package jomuddlo.instrument;
 
 public class Controller {
 

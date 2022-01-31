@@ -1,4 +1,4 @@
-package jomuddlo.pbrain;
+package jomuddlo.instrument;
 
 import java.io.Serializable;
 import java.util.List;

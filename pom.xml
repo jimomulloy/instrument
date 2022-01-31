@@ -6,10 +6,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>jomuddlo</groupId>
-	<artifactId>pbrain</artifactId>
+	<artifactId>instrument</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>pbrain</name>
+	<name>instrument</name>
 	<!-- FIXME change it to the project's website -->
 	<url>http://www.example.com</url>
 

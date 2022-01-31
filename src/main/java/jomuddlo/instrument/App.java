@@ -1,4 +1,4 @@
-package jomuddlo.pbrain;
+package jomuddlo.instrument;
 
 import net.beadsproject.beads.core.*;
 

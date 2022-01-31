@@ -1,4 +1,4 @@
-package jomuddlo.pbrain;
+package jomuddlo.instrument;
 
 /**
  * LayerClassification Denotes the layer of a given NuCell

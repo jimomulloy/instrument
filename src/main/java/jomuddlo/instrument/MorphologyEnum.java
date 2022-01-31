@@ -1,4 +1,4 @@
-package jomuddlo.pbrain;
+package jomuddlo.instrument;
 
 /**
  * MorphologyEnum enum representing the 4 main different types of NuCell
