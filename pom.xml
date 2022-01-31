@@ -17,6 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
+		<directory>C:\Users\jim\git\instrument</directory>
 	</properties>
 
 	<dependencies>
@@ -32,7 +33,7 @@
 			<artifactId>beads</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/beads.jar</systemPath>
+			<systemPath>${directory}/library/beads.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -40,7 +41,7 @@
 			<artifactId>beads-io</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/beads-io.jar</systemPath>
+			<systemPath>${directory}/library/beads-io.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -48,7 +49,7 @@
 			<artifactId>jarjar</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/jarjar-1.0.jar</systemPath>
+			<systemPath>${directory}/library/jarjar-1.0.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -56,7 +57,7 @@
 			<artifactId>jl</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/jl1.0.1.jar</systemPath>
+			<systemPath>${directory}/library/jl1.0.1.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -64,7 +65,7 @@
 			<artifactId>jna</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/jna.jar</systemPath>
+			<systemPath>${directory}/library/jna.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -72,7 +73,7 @@
 			<artifactId>org-jaudiolibs-audioservers</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/org-jaudiolibs-audioservers.jar</systemPath>
+			<systemPath>${directory}/library/org-jaudiolibs-audioservers.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -80,7 +81,7 @@
 			<artifactId>org-jaudiolibs-audioservers-jack</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/org-jaudiolibs-audioservers-jack.jar</systemPath>
+			<systemPath>${directory}/library/org-jaudiolibs-audioservers-jack.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -88,7 +89,7 @@
 			<artifactId>org-jaudiolibs-audioservers-javasound</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/org-jaudiolibs-audioservers-javasound.jar</systemPath>
+			<systemPath>${directory}/library/org-jaudiolibs-audioservers-javasound.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -96,7 +97,7 @@
 			<artifactId>org-jaudiolibs-jnajack</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/org-jaudiolibs-jnajack.jar</systemPath>
+			<systemPath>${directory}/library/org-jaudiolibs-jnajack.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -104,7 +105,7 @@
 			<artifactId>tools</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/tools.jar</systemPath>
+			<systemPath>${directory}/library/tools.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -112,7 +113,7 @@
 			<artifactId>tritonus_aos</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/tritonus_aos-0.3.6.jar</systemPath>
+			<systemPath>${directory}/library/tritonus_aos-0.3.6.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -120,7 +121,7 @@
 			<artifactId>tritonus_share</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/tritonus_share.jar</systemPath>
+			<systemPath>${directory}/library/tritonus_share.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -128,7 +129,7 @@
 			<artifactId>mp3spi</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>D:/pbrain/eclipsews/pbrain/library/mp3spi1.9.4.jar</systemPath>
+			<systemPath>${directory}/library/mp3spi1.9.4.jar</systemPath>
 		</dependency>
 
 		<dependency>
