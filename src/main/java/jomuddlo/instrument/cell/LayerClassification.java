@@ -1,4 +1,4 @@
-package jomuddlo.instrument.organs;
+package jomuddlo.instrument.cell;
 
 /**
  * LayerClassification Denotes the layer of a given NuCell

@@ -1,4 +1,4 @@
-package jomuddlo.instrument.organs;
+package jomuddlo.instrument.cell;
 
 /**
  * MorphologyEnum enum representing the 4 main different types of NuCell

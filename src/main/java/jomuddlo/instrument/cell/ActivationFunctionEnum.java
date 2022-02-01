@@ -1,4 +1,4 @@
-package jomuddlo.instrument.organs;
+package jomuddlo.instrument.cell;
 
 public enum ActivationFunctionEnum {
 

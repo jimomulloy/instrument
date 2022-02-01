@@ -1,5 +1,5 @@
 package jomuddlo.instrument.organs;
 
-public class CellGroup {
+public class Context {
 
 }

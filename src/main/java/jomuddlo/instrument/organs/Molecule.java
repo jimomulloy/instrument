@@ -1,5 +1,5 @@
 package jomuddlo.instrument.organs;
 
-public class molecule {
+public class Molecule {
 
 }
