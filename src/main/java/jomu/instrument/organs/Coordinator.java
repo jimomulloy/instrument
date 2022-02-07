@@ -9,10 +9,15 @@ public class Coordinator {
 	public void initialise() {
 		hearing = new Hearing();
 		hearing.initialise();
+		hearing.start();
 		voice = new Voice();
 		voice.initialise();
 		cortex = new Cortex();
 		cortex.initialise();
+	}
+	
+	public void start() {
+		hearing.start();
 	}
 
 

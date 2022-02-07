@@ -16,6 +16,7 @@ public class Instrument {
 	public void initialise() {
 		coordinator = new Coordinator();
 		coordinator.initialise();
+		coordinator.start();
 	}
 
 }

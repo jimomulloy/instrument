@@ -6,7 +6,10 @@ PowerSpectrum ps;
 
 void setup() {
   size(300,300);
-  ac = new AudioContext();
+  JavaSoundAudioIO.printMixerInfo();
+    JavaSoundAudioIO jsaIO = new JavaSoundAudioIO();
+    jsaIO.selectMixer(2);
+    ac = new AudioContext(jsaIO);
   selectInput("Select an audio file:", "fileSelected");
 }
 

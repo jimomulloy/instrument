@@ -27,15 +27,11 @@
 			<version>3.3.7</version>
 			<type>pom</type>
 		</dependency>
-		  <dependency>
-		
-		    <groupId>net.beadsproject</groupId>
-		
-		    <artifactId>beads</artifactId>
-		
-		    <version>3.2</version>
-		
-		  </dependency>
+		<dependency>
+			<groupId>net.beadsproject</groupId>
+			<artifactId>beads</artifactId>
+			<version>3.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -48,11 +44,8 @@
 			<version>3.6.1</version>
 		</dependency>
 
-		<!--dependency>
-			<groupId>net.beadsproject</groupId>
-			<artifactId>beads</artifactId>
-			<version>3.2</version>
-		</dependency-->
+		<!--dependency> <groupId>net.beadsproject</groupId> <artifactId>beads</artifactId> 
+			<version>3.2</version> </dependency -->
 
 		<dependency>
 			<groupId>jomuddlo</groupId>
@@ -194,8 +187,8 @@
 
 	<build>
 		<pluginManagement>
-		<!-- lock down plugins versions to avoid using Maven 
-				defaults (may be moved to parent pom) -->
+			<!-- lock down plugins versions to avoid using Maven defaults (may be 
+				moved to parent pom) -->
 			<plugins>
 				<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
 				<plugin>
@@ -239,13 +232,14 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	
-	  <repositories>
-	  <repository>
-	
-	    <id>clojars_repo</id>
-	
-	    <url>https://clojars.org/repo/</url>
-	
-	  </repository>  </repositories>
+
+	<repositories>
+		<repository>
+
+			<id>clojars_repo</id>
+
+			<url>https://clojars.org/repo/</url>
+
+		</repository>
+	</repositories>
 </project>
