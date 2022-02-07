@@ -1,0 +1,46 @@
+package jomu.instrument.tonemap;
+
+import java.io.*;
+import java.util.*;
+
+
+/**
+  * The class contains a list of Note data derived from the NoteList by the MidiModel 
+  * processing function in a form used to write MIDI messages to a MIDI Sequence.
+  *	
+  * @version 1.0 01/01/01
+  * @author Jim O'Mulloy
+  */
+public class NoteSequence {
+
+	public NoteSequenceElement get(int index) {
+					
+		this.index = index;
+		return (NoteSequenceElement)noteSequence.get(index);
+		
+	}
+	
+	public void add(NoteSequenceElement element) {
+	
+		noteSequence.add(element);
+		
+	}
+	
+	public int size() {
+	
+		return noteSequence.size();
+	
+	}
+
+	public void sort() {
+	
+		Collections.sort(noteSequence);
+	
+	}
+	
+	
+	private ArrayList noteSequence = new ArrayList();
+	private NoteSequenceElement element;
+	private int index;
+	
+} // End NoteSequence
