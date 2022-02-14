@@ -21,7 +21,7 @@
 package com.synthbot.jasiohost;
 
 /**
- * This is a protected class meant only to encapsulate the returned values from 
+ * This is a protected class meant only to encapsulate the returned values from
  * <code>AsioDriver.ASIOInit()</code>.
  */
 public class AsioDriverInfo {
@@ -30,39 +30,46 @@ public class AsioDriverInfo {
 	private final int driverVersion;
 	private final String driverName;
 	private final String errorMessage;
-	
+
 	protected AsioDriverInfo(int asioVersion, int driverVersion, String driverName, String errorMessage) {
 		this.asioVersion = asioVersion;
 		this.driverVersion = driverVersion;
 		this.driverName = driverName;
 		this.errorMessage = errorMessage;
 	}
-	
+
 	public int getAsioVersion() {
 		return asioVersion;
 	}
-	
+
 	public int getDriverVersion() {
 		return driverVersion;
 	}
-	
+
 	public String getDriverName() {
 		return driverName;
 	}
-	
+
 	public String getErrorMessage() {
 		return errorMessage;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("=== ASIO Driver Information ===\n");
-		sb.append("ASIO Version: "); sb.append(Integer.toString(asioVersion)); sb.append("\n");
-		sb.append("Driver Version: "); sb.append(Integer.toString(driverVersion)); sb.append("\n");
-		sb.append("Driver Name: "); sb.append(driverName); sb.append("\n");
-		sb.append("Error Message: "); sb.append(errorMessage);
+		sb.append("ASIO Version: ");
+		sb.append(Integer.toString(asioVersion));
+		sb.append("\n");
+		sb.append("Driver Version: ");
+		sb.append(Integer.toString(driverVersion));
+		sb.append("\n");
+		sb.append("Driver Name: ");
+		sb.append(driverName);
+		sb.append("\n");
+		sb.append("Error Message: ");
+		sb.append(errorMessage);
 		return sb.toString();
 	}
-	
+
 }

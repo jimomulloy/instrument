@@ -12,13 +12,11 @@ package jomu.instrument.tonemap.filters;
 
 public abstract class IIRFilterDesignBase {
 
-	public IIRFilterDesignBase(int frequency, 
-							   int sampleRate,
-							   double parameter) {
+	public IIRFilterDesignBase(int frequency, int sampleRate, double parameter) {
 		// Save incoming
 		this.frequency = frequency;
 		this.sampleRate = sampleRate;
-		
+
 		// Damping factor for highpass and lowpass, q for bandpass
 		this.parameter = parameter;
 	}
@@ -31,21 +29,19 @@ public abstract class IIRFilterDesignBase {
 
 	// Return the radians per sample at the frequency of interest
 	protected double getThetaZero() {
-		
+
 		return calcRadiansPerSample(frequency);
 	}
 
 	// Do the design of the filter. Filter response controlled by
 	// just three coefficients: alpha, beta and gamma.
 	public abstract void doFilterDesign();
-	
+
 	// Print all three IIR coefficients
 	public void printCoefficients() {
 
 		System.out.println("Filter Specifications:");
-		System.out.println("\tSample Rate: " + sampleRate +
-						   ", Frequency: " + frequency + 
-						   ", d/q: " + parameter);
+		System.out.println("\tSample Rate: " + sampleRate + ", Frequency: " + frequency + ", d/q: " + parameter);
 
 		System.out.println("\tAlpha: " + alpha);
 		System.out.println("\tBeta: " + beta);
@@ -69,7 +65,7 @@ public abstract class IIRFilterDesignBase {
 
 		return gamma;
 	}
-	
+
 	// Private class data
 	protected int frequency;
 	protected int sampleRate;

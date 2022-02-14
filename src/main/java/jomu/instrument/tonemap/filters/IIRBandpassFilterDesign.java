@@ -12,10 +12,8 @@ package jomu.instrument.tonemap.filters;
 
 public class IIRBandpassFilterDesign extends IIRFilterDesignBase {
 
-	public IIRBandpassFilterDesign(int centerFrequency, 
-								   int sampleRate,
-								   double q) {
-		
+	public IIRBandpassFilterDesign(int centerFrequency, int sampleRate, double q) {
+
 		super(centerFrequency, sampleRate, q);
 	}
 
@@ -31,37 +29,34 @@ public class IIRBandpassFilterDesign extends IIRFilterDesignBase {
 
 		// Beta relates gain to bandwidth (and therefore q) at -3 db points
 		beta = 0.5 * ((1.0 - theTan) / (1.0 + theTan));
-		
+
 		// For unity gain at center frequency
 		alpha = (0.5 - beta) / 2.0;
 
 		// Final filter coefficient
 		gamma = (0.5 + beta) * Math.cos(thetaZero);
 	}
-	
+
 	// Entry point for testing
-	public static void main(String [] args) {
+	public static void main(String[] args) {
 
 		if (args.length != 3) {
 			System.out.println("\nIIR Bandpass Filter Design Program");
 			System.out.println("\nUsage:");
-			System.out.println("\tIIRBandpassFilterDesign " +
-							   "centerFrequency sampleRate q");
+			System.out.println("\tIIRBandpassFilterDesign " + "centerFrequency sampleRate q");
 
 			System.exit(1);
 		}
 		// Parse the command line arguments
-		int centerFrequency	= new Integer(args[0]).intValue();
-		int sampleRate		= new Integer(args[1]).intValue();
-		double q			= new Double(args[2]).doubleValue();
+		int centerFrequency = new Integer(args[0]).intValue();
+		int sampleRate = new Integer(args[1]).intValue();
+		double q = new Double(args[2]).doubleValue();
 
 		// Instantiate bandpass filter designer
-		IIRBandpassFilterDesign d = 
-			new IIRBandpassFilterDesign(centerFrequency, 
-										sampleRate, q);
+		IIRBandpassFilterDesign d = new IIRBandpassFilterDesign(centerFrequency, sampleRate, q);
 		// Do the design
 		d.doFilterDesign();
-		
+
 		// Print out the coefficients
 		d.printCoefficients();
 	}

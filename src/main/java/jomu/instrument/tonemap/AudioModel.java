@@ -1,19 +1,21 @@
 package jomu.instrument.tonemap;
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import java.io.*;
-import java.util.Vector;
-import java.util.Enumeration;
-import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
+import javax.swing.JPanel;
 
 /**
- * This class defines the Audio Sub System Data Model processing functions 
- * for the ToneMap including file reading, Audio data transformation, Playback
+ * This class defines the Audio Sub System Data Model processing functions for
+ * the ToneMap including file reading, Audio data transformation, Playback
  * implementation and control settings management through the AudioPanel class.
  *
  * @version 1.0 01/01/01
@@ -24,14 +26,14 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	// Inner class to handle Audio playback line listener
 	private class ClipListener implements LineListener {
 		public void update(LineEvent event) {
-			
+
 			if (event.getType() == LineEvent.Type.STOP && playState != PAUSED) {
 				audioEOM = true;
-				if (playState != STOPPED) { 
+				if (playState != STOPPED) {
 					clip.stop();
 					playState = EOM;
 				}
-			
+
 			}
 		}
 	}
@@ -51,14 +53,14 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	public int pitchHigh = INIT_PITCH_HIGH;
 	public int pitchLow = INIT_PITCH_LOW;
 	public int gainSetting = INIT_VOLUME_SETTING;
-	public int resolution=1;
-	public int tFactor=50;
-	public int pFactor=100;
-	public int pOffset=0;
-	public int transformMode=TRANSFORM_MODE_JAVA;
+	public int resolution = 1;
+	public int tFactor = 50;
+	public int pFactor = 100;
+	public int pOffset = 0;
+	public int transformMode = TRANSFORM_MODE_JAVA;
 	public int powerHigh = 100;
 	public int oscType = Oscillator.SINEWAVE;
-	
+
 	public int powerLow = 0;
 	public boolean logSwitch = false;
 	public boolean osc1Switch = false;
@@ -67,7 +69,6 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	public boolean t2Switch = false;
 	public boolean t3Switch = false;
 	public boolean t4Switch = false;
-	
 
 	private int playState = STOPPED;
 
@@ -77,9 +78,9 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	private ToneMapMatrix toneMapMatrix;
 	private ToneMapElement element;
 	private int matrixLength;
-	
+
 	private double amplitude;
-	
+
 	private int index;
 	private NoteSequence noteSequence;
 	private NoteSequenceElement noteSequenceElement;
@@ -104,12 +105,12 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	private AudioFormat format = null;
 	private AudioInputStream outAudioStream;
 	private AudioFormat outFormat = null;
-	
+
 	private AudioFormat playFormat = null;
 	private int[] audioData = null;
 	private byte[] audioBytes = null;
 	private byte[] outAudioBytes = null;
-	
+
 	private int nlengthInSamples;
 	private double[] audioFTPower = null;
 	private double[] pitchFreqSet;
@@ -118,7 +119,7 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	private int pitchRange;
 
 	private double transTime;
-   
+
 	private String fileName = "untitled";
 	private File file;
 
@@ -128,33 +129,33 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	private boolean audioEOM;
 
 	/**
- 	* AudioModel constructor.
- 	* Test Java Sound Audio System available
- 	* Instantiate AudioPanel
- 	*/
+	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
+	 * AudioPanel
+	 */
 	public AudioModel(ToneMapFrame toneMapFrame) {
 
 		this.toneMapFrame = toneMapFrame;
-		
-		try { 
-		   
+
+		try {
+
 			if (AudioSystem.getMixer(null) == null) {
 				toneMapFrame.reportStatus(EC_AUDIO_SYSTEM);
 				return;
 			}
 		} catch (Exception ex) {
 			toneMapFrame.reportStatus(EC_AUDIO_SYSTEM);
-			return; 
+			return;
 		}
-		
+
 		audioPanel = new AudioPanel(this);
-		if (toneMapFrame.getJNIStatus()) audioPanel.jniB.setEnabled(true);
+		if (toneMapFrame.getJNIStatus())
+			audioPanel.jniB.setEnabled(true);
 
 	}
-	
+
 	/**
- 	* Get configuration parameters  
-	*/
+	 * Get configuration parameters
+	 */
 	public void getConfig(ToneMapConfig config) {
 		config.timeStart = this.timeStart;
 		config.timeEnd = this.timeEnd;
@@ -168,33 +169,33 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	}
 
 	/**
- 	* Set configuration parameters  
-	*/
+	 * Set configuration parameters
+	 */
 	public void setConfig(ToneMapConfig config) {
 		audioPanel.timeControl.setTimeStart(config.timeStart);
 		audioPanel.timeControl.setTimeEnd(config.timeEnd);
-		audioPanel.timeControl.setTimeMax((int)(config.timeEnd-config.timeStart));
+		audioPanel.timeControl.setTimeMax((int) (config.timeEnd - config.timeStart));
 		audioPanel.pitchControl.setPitchLow(config.pitchLow);
 		audioPanel.pitchControl.setPitchHigh(config.pitchHigh);
-		//audioPanel.pitchControl.setPitchRange(config.pitchLow, config.pitchHigh);
-		audioPanel.sampleSizeSlider.setValue((int)config.sampleTimeSize);
+		// audioPanel.pitchControl.setPitchRange(config.pitchLow, config.pitchHigh);
+		audioPanel.sampleSizeSlider.setValue((int) config.sampleTimeSize);
 		audioPanel.resolutionSlider.setValue(config.resolution);
 		audioPanel.tFactorSlider.setValue(config.tFactor);
 		audioPanel.pFactorSlider.setValue(config.pFactor);
 		load(config.audioFile);
-		audioPanel.fileNameField.setText(config.audioFile.getParent()+"\\"+getFileName());
+		audioPanel.fileNameField.setText(config.audioFile.getParent() + "\\" + getFileName());
 		audioPanel.durationField.setText(String.valueOf(getDuration()));
 		audioPanel.sampleRateField.setText(String.valueOf(getSampleRate()));
 		audioPanel.bitSizeField.setText(String.valueOf(getSampleBitSize()));
 		audioPanel.channelsField.setText(String.valueOf(getNumChannels()));
-				
+
 	}
-	
+
 	/**
- 	* Clear current AudioModel objects after Reset
- 	*/
-	
- 	public void clear() {
+	 * Clear current AudioModel objects after Reset
+	 */
+
+	public void clear() {
 		playStop();
 		clip = null;
 		audioBytes = null;
@@ -209,56 +210,69 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		audioPanel.channelsField.setText("");
 		audioPanel.timeControl.setTimeMax(INIT_TIME_MAX);
 	}
-	
+
 	/**
- 	* Open File and load audio data.
- 	*/
+	 * Open File and load audio data.
+	 */
 	public boolean openFile() {
 		return audioPanel.openFile();
 	}
-	 
+
 	public double[] getAudioFTPower() {
 		return audioFTPower;
 	}
+
 	public double getDuration() {
 		return duration;
 	}
+
 	public double getEndTime() {
 		return timeEnd;
 	}
+
 	public File getFile() {
 		return file;
 	}
+
 	public String getFileName() {
 		return fileName;
 	}
+
 	public int getHighPitch() {
 		return pitchHigh;
 	}
+
 	public int getLowPitch() {
 		return pitchLow;
 	}
+
 	public int getNumChannels() {
 		return numChannels;
 	}
+
 	public JPanel getPanel() {
 		return audioPanel;
 	}
+
 	public double getSampleBitSize() {
 		return sampleBitSize;
 	}
+
 	public double getSampleRate() {
 		return sampleRate;
 	}
+
 	public double getSampleTimeSize() {
 		return sampleTimeSize;
 	}
+
 	public double getStartTime() {
 		return timeStart;
 	}
+
 	/**
- 	* Load Audio file data into audioData Array.
- 	*/
+	 * Load Audio file data into audioData Array.
+	 */
 	public boolean load(File file) {
 
 		this.file = file;
@@ -272,7 +286,7 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 				// get Audio file format
 				format = audioInputStream.getFormat();
 				playFormat = null;
-				
+
 			} catch (Exception ex) {
 				toneMapFrame.reportStatus(EC_AUDIO_OPEN);
 				this.file = null;
@@ -298,18 +312,19 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 			fileName = null;
 			return false;
 		}
-		long milliseconds =
-					(long) ((frameLength * 1000)/audioInputStream.getFormat().getFrameRate());
+		long milliseconds = (long) ((frameLength * 1000) / audioInputStream.getFormat().getFrameRate());
 		double audioFileDuration = milliseconds / 1000.0;
-		 
-		if (audioFileDuration > MAX_AUDIO_DURATION) duration = MAX_AUDIO_DURATION;
-		else duration = audioFileDuration;
-		
-		frameLength = (int)Math.floor((duration/audioFileDuration)*(double)frameLength);
-		
+
+		if (audioFileDuration > MAX_AUDIO_DURATION)
+			duration = MAX_AUDIO_DURATION;
+		else
+			duration = audioFileDuration;
+
+		frameLength = (int) Math.floor((duration / audioFileDuration) * (double) frameLength);
+
 		// extract sampled data from audio file into audioBytes array
 		try {
-			audioBytes = new byte[(int)frameLength * format.getFrameSize()];
+			audioBytes = new byte[(int) frameLength * format.getFrameSize()];
 			audioInputStream.mark(audioBytes.length);
 			audioInputStream.read(audioBytes);
 		} catch (Exception ex) {
@@ -318,70 +333,73 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 			toneMapFrame.reportStatus(EC_AUDIO_OPEN_READ);
 			return false;
 		}
-		
+
 		// convert audioBytes to standard format in audioData array
 		getAudioData();
-		
+
 		// merge 2 channel stereo data into one channel
-		if (numChannels == 2) stereoToMono();
-		
+		if (numChannels == 2)
+			stereoToMono();
+
 		return true;
 	}
-	
-	// convert audioBytes sampled audio data into standard format in audioData array.
+
+	// convert audioBytes sampled audio data into standard format in audioData
+	// array.
 	private void getOutAudioBytes(double[] outAudioData) {
-		
+
 		if (format.getSampleSizeInBits() == 16) {
-			outAudioBytes = new byte[outAudioData.length*2];
+			outAudioBytes = new byte[outAudioData.length * 2];
 			if (format.isBigEndian()) {
 				for (int i = 0; i < outAudioData.length; i++) {
-					// First byte is MSB (high order) 
-					int MSB = 255 & (((int)(outAudioData[i]))>>8); 
-					outAudioBytes[2 * i] = (byte)MSB;
-					// Second byte is LSB (low order) 
-					int LSB = 255 & ((int)(outAudioData[i]));
-					outAudioBytes[2 * i + 1] = (byte)LSB;
+					// First byte is MSB (high order)
+					int MSB = 255 & (((int) (outAudioData[i])) >> 8);
+					outAudioBytes[2 * i] = (byte) MSB;
+					// Second byte is LSB (low order)
+					int LSB = 255 & ((int) (outAudioData[i]));
+					outAudioBytes[2 * i + 1] = (byte) LSB;
 				}
 			} else {
 				for (int i = 0; i < outAudioData.length; i++) {
-				// First byte is MSB (high order) 
-					int MSB = 255 & (((int)(outAudioData[i]))>>8); 
-					outAudioBytes[2 * i+1] = (byte)MSB;
-					// Second byte is LSB (low order) 
-					int LSB = 255 & ((int)(outAudioData[i]));
-					outAudioBytes[2 * i] = (byte)LSB;
+					// First byte is MSB (high order)
+					int MSB = 255 & (((int) (outAudioData[i])) >> 8);
+					outAudioBytes[2 * i + 1] = (byte) MSB;
+					// Second byte is LSB (low order)
+					int LSB = 255 & ((int) (outAudioData[i]));
+					outAudioBytes[2 * i] = (byte) LSB;
 				}
 			}
 		} else {
 		}
 	}
-	// merge 2 channel stereo data into one  
+
+	// merge 2 channel stereo data into one
 	private void stereoToMono() {
-		int j=0;
-		for (int i = 0; i < audioData.length; i+=2) {
-			audioData[j] = (audioData[i] + audioData[i+1])/2;
+		int j = 0;
+		for (int i = 0; i < audioData.length; i += 2) {
+			audioData[j] = (audioData[i] + audioData[i + 1]) / 2;
 			j++;
 		}
 	}
 
 	private void getAudioData() {
-		
+
 		if (format.getSampleSizeInBits() == 16) {
-			nlengthInSamples = audioBytes.length/2;
+			nlengthInSamples = audioBytes.length / 2;
 			audioData = new int[nlengthInSamples];
 			if (format.isBigEndian()) {
 				for (int i = 0; i < nlengthInSamples; i++) {
-					// First byte is MSB (high order) 
+					// First byte is MSB (high order)
 					int MSB = (int) audioBytes[2 * i];
-					// Second byte is LSB (low order) 
+					// Second byte is LSB (low order)
 					int LSB = (int) audioBytes[2 * i + 1];
 					audioData[i] = MSB << 8 | (255 & LSB);
 				}
 			} else {
 				for (int i = 0; i < nlengthInSamples; i++) {
-					// First byte is LSB (low order) 
+					// First byte is LSB (low order)
 					int LSB = (int) audioBytes[2 * i];
-					// Second byte is MSB (high order) 
+					// Second byte is MSB (high order)
 					int MSB = (int) audioBytes[2 * i + 1];
 					audioData[i] = MSB << 8 | (255 & LSB);
 				}
@@ -402,73 +420,69 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 			}
 		}
 	}
-	
+
 	public boolean play() {
 
 		try {
-			if (playState != STOPPED) playStop();
+			if (playState != STOPPED)
+				playStop();
 
-			if (audioBytes == null) return false;
+			if (audioBytes == null)
+				return false;
 
 			if (playFormat == null) {
-				
+
 				playFormat = format;
-				if (playFormat == null) return false;
-   
-  	   	       /**
-  	  	        * Java Sound can't yet open the device for ALAW/ULAW playback,
-  	    	    * convert ALAW/ULAW to PCM
-   		         */
-	   			if ((format.getEncoding() == AudioFormat.Encoding.ULAW) ||
-		 	        (format.getEncoding() == AudioFormat.Encoding.ALAW)) {
-  			
-			 	   	playFormat = new AudioFormat(
-								 AudioFormat.Encoding.PCM_SIGNED, 
-								 format.getSampleRate(),
-								 format.getSampleSizeInBits()*2,
-								 format.getChannels(),
-								 format.getFrameSize()*2,
-								 format.getFrameRate(),
-								 true);
-			  		audioInputStream.reset();
-			   		audioInputStream.mark(audioBytes.length);
-			   		AudioInputStream stream = AudioSystem.getAudioInputStream(playFormat, audioInputStream);
-			   		audioBytes = new byte[(int)stream.getFrameLength() * playFormat.getFrameSize()];
-			   		stream.mark(audioBytes.length);
-			   		stream.read(audioBytes);
-			   		
-		   		}
+				if (playFormat == null)
+					return false;
+
+				/**
+				 * Java Sound can't yet open the device for ALAW/ULAW playback, convert
+				 * ALAW/ULAW to PCM
+				 */
+				if ((format.getEncoding() == AudioFormat.Encoding.ULAW)
+						|| (format.getEncoding() == AudioFormat.Encoding.ALAW)) {
+
+					playFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(),
+							format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2,
+							format.getFrameRate(), true);
+					audioInputStream.reset();
+					audioInputStream.mark(audioBytes.length);
+					AudioInputStream stream = AudioSystem.getAudioInputStream(playFormat, audioInputStream);
+					audioBytes = new byte[(int) stream.getFrameLength() * playFormat.getFrameSize()];
+					stream.mark(audioBytes.length);
+					stream.read(audioBytes);
+
+				}
 
 			}
-				
-			DataLine.Info info =
-					new DataLine.Info(
-						Clip.class,
-						playFormat);
+
+			DataLine.Info info = new DataLine.Info(Clip.class, playFormat);
 
 			clip = (Clip) AudioSystem.getLine(info);
 			clip.addLineListener(new ClipListener());
 			System.out.println("audio play 1");
-			long clipStart = (long)(audioBytes.length*getStartTime()/(getDuration()*1000.0));
-			long clipEnd = (long)(audioBytes.length*getEndTime()/(getDuration()*1000.0));
-			if ((clipEnd-clipStart)>MAX_CLIP_LENGTH) clipEnd = clipStart + MAX_CLIP_LENGTH;
-	        byte[] clipBytes = new byte[(int)(clipEnd-clipStart)];
-   			System.out.println("audio play 2 "+clipBytes.length);
+			long clipStart = (long) (audioBytes.length * getStartTime() / (getDuration() * 1000.0));
+			long clipEnd = (long) (audioBytes.length * getEndTime() / (getDuration() * 1000.0));
+			if ((clipEnd - clipStart) > MAX_CLIP_LENGTH)
+				clipEnd = clipStart + MAX_CLIP_LENGTH;
+			byte[] clipBytes = new byte[(int) (clipEnd - clipStart)];
+			System.out.println("audio play 2 " + clipBytes.length);
 
-	        System.arraycopy(audioBytes, (int)clipStart, clipBytes, 0, clipBytes.length);
-   			System.out.println("audio play 3 "+clipEnd+", "+clipStart);
-	
-   			clip.open(playFormat, clipBytes, 0, clipBytes.length);
+			System.arraycopy(audioBytes, (int) clipStart, clipBytes, 0, clipBytes.length);
+			System.out.println("audio play 3 " + clipEnd + ", " + clipStart);
+
+			clip.open(playFormat, clipBytes, 0, clipBytes.length);
 			System.out.println("audio play 4");
 
-			double playStartTime = (player.getSeekTime()/100)*(playGetLength());
+			double playStartTime = (player.getSeekTime() / 100) * (playGetLength());
 			setGain();
 			setPan();
-			clip.setMicrosecondPosition((long)playStartTime);
+			clip.setMicrosecondPosition((long) playStartTime);
 			clip.start();
 			playState = PLAYING;
 			return true;
-			
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			playState = STOPPED;
@@ -481,69 +495,65 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	public boolean playOut() {
 
 		try {
-			if (playState != STOPPED) playStop();
+			if (playState != STOPPED)
+				playStop();
 
-			if (outAudioBytes == null) return false;
+			if (outAudioBytes == null)
+				return false;
 
 			if (playFormat == null) {
-				
+
 				playFormat = outFormat;
-				if (playFormat == null) return false;
-   
-  	   	       /**
-  	  	        * Java Sound can't yet open the device for ALAW/ULAW playback,
-  	    	    * convert ALAW/ULAW to PCM
-   		         */
-	   			if ((outFormat.getEncoding() == AudioFormat.Encoding.ULAW) ||
-		 	        (outFormat.getEncoding() == AudioFormat.Encoding.ALAW)) {
-  			
-			 	   	playFormat = new AudioFormat(
-								 AudioFormat.Encoding.PCM_SIGNED, 
-								 outFormat.getSampleRate(),
-								 outFormat.getSampleSizeInBits()*2,
-								 outFormat.getChannels(),
-								 outFormat.getFrameSize()*2,
-								 outFormat.getFrameRate(),
-								 true);
-			  		outAudioStream.reset();
-			   		outAudioStream.mark(outAudioBytes.length);
-			   		AudioInputStream stream = AudioSystem.getAudioInputStream(playFormat, outAudioStream);
-			   		outAudioBytes = new byte[(int)stream.getFrameLength() * playFormat.getFrameSize()];
-			   		stream.mark(outAudioBytes.length);
-			   		stream.read(outAudioBytes);
-			   		
-		   		}
+				if (playFormat == null)
+					return false;
+
+				/**
+				 * Java Sound can't yet open the device for ALAW/ULAW playback, convert
+				 * ALAW/ULAW to PCM
+				 */
+				if ((outFormat.getEncoding() == AudioFormat.Encoding.ULAW)
+						|| (outFormat.getEncoding() == AudioFormat.Encoding.ALAW)) {
+
+					playFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, outFormat.getSampleRate(),
+							outFormat.getSampleSizeInBits() * 2, outFormat.getChannels(), outFormat.getFrameSize() * 2,
+							outFormat.getFrameRate(), true);
+					outAudioStream.reset();
+					outAudioStream.mark(outAudioBytes.length);
+					AudioInputStream stream = AudioSystem.getAudioInputStream(playFormat, outAudioStream);
+					outAudioBytes = new byte[(int) stream.getFrameLength() * playFormat.getFrameSize()];
+					stream.mark(outAudioBytes.length);
+					stream.read(outAudioBytes);
+
+				}
 
 			}
-				
-			DataLine.Info info =
-					new DataLine.Info(
-						Clip.class,
-						playFormat);
+
+			DataLine.Info info = new DataLine.Info(Clip.class, playFormat);
 
 			clip = (Clip) AudioSystem.getLine(info);
 			clip.addLineListener(new ClipListener());
 			System.out.println("audio out play 1");
-			long clipStart = (long)(outAudioBytes.length*getStartTime()/(getDuration()*1000.0));
-			long clipEnd = (long)(outAudioBytes.length*getEndTime()/(getDuration()*1000.0));
-			if ((clipEnd-clipStart)>MAX_CLIP_LENGTH) clipEnd = clipStart + MAX_CLIP_LENGTH;
-	        byte[] clipBytes = new byte[(int)(clipEnd-clipStart)];
-   			System.out.println("audio play 2 "+clipBytes.length);
+			long clipStart = (long) (outAudioBytes.length * getStartTime() / (getDuration() * 1000.0));
+			long clipEnd = (long) (outAudioBytes.length * getEndTime() / (getDuration() * 1000.0));
+			if ((clipEnd - clipStart) > MAX_CLIP_LENGTH)
+				clipEnd = clipStart + MAX_CLIP_LENGTH;
+			byte[] clipBytes = new byte[(int) (clipEnd - clipStart)];
+			System.out.println("audio play 2 " + clipBytes.length);
 
-	        System.arraycopy(outAudioBytes, (int)clipStart, clipBytes, 0, clipBytes.length);
-   			System.out.println("audio play 3 "+clipEnd+", "+clipStart);
-	
-   			clip.open(playFormat, clipBytes, 0, clipBytes.length);
+			System.arraycopy(outAudioBytes, (int) clipStart, clipBytes, 0, clipBytes.length);
+			System.out.println("audio play 3 " + clipEnd + ", " + clipStart);
+
+			clip.open(playFormat, clipBytes, 0, clipBytes.length);
 			System.out.println("audio play 4");
 
-			double playStartTime = (player.getSeekTime()/100)*(playGetLength());
+			double playStartTime = (player.getSeekTime() / 100) * (playGetLength());
 			setGain();
 			setPan();
-			clip.setMicrosecondPosition((long)playStartTime);
+			clip.setMicrosecondPosition((long) playStartTime);
 			clip.start();
 			playState = PLAYING;
 			return true;
-			
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			playState = STOPPED;
@@ -553,19 +563,16 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		}
 	}
 
-	
 	public void setGain() {
 		if (clip != null) {
 			try {
-				double value = (double)gainSetting/100.0;
-				FloatControl gainControl =
-					(FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-				float dB =
-					(float) (Math.log(value == 0.0 ? 0.0001 : value) / Math.log(10.0) * 20.0);
+				double value = (double) gainSetting / 100.0;
+				FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+				float dB = (float) (Math.log(value == 0.0 ? 0.0001 : value) / Math.log(10.0) * 20.0);
 				gainControl.setValue(dB);
 			} catch (Exception ex) {
 				return;
-			}		
+			}
 		}
 	}
 
@@ -573,18 +580,18 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		if (clip != null) {
 			try {
 				FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
-				panControl.setValue((float)panSetting / 100.0f);
+				panControl.setValue((float) panSetting / 100.0f);
 			} catch (Exception ex) {
 				return;
 			}
 		}
 	}
-	
+
 	public void setReverbReturn() {
 		if (clip != null) {
 			try {
 				FloatControl reverbControl = (FloatControl) clip.getControl(FloatControl.Type.REVERB_RETURN);
-				reverbControl.setValue((float)reverbRSetting / 100.0f);
+				reverbControl.setValue((float) reverbRSetting / 100.0f);
 			} catch (Exception ex) {
 				return;
 			}
@@ -595,17 +602,16 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		if (clip != null) {
 			try {
 				FloatControl reverbControl = (FloatControl) clip.getControl(FloatControl.Type.REVERB_SEND);
-				reverbControl.setValue((float)reverbSSetting / 100.0f);
+				reverbControl.setValue((float) reverbSSetting / 100.0f);
 			} catch (Exception ex) {
 				return;
 			}
 		}
 	}
 
-
 	public double playGetLength() {
 		if (clip != null) {
-			return clip.getMicrosecondLength()*1000000.0;
+			return clip.getMicrosecondLength() * 1000000.0;
 		}
 		return 0.0;
 	}
@@ -615,19 +621,21 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		return playState;
 
 	}
+
 	public double playGetTime() {
 
 		if (clip != null) {
-			return ((double)clip.getMicrosecondPosition())/1000.0;
+			return ((double) clip.getMicrosecondPosition()) / 1000.0;
 		}
 		return 0;
 	}
+
 	public void playLoop() {
 
 		if (clip != null) {
-			
-			double playStartTime = (player.getSeekTime()/100)*(playGetLength());
-			clip.setMicrosecondPosition((long)playStartTime);
+
+			double playStartTime = (player.getSeekTime() / 100) * (playGetLength());
+			clip.setMicrosecondPosition((long) playStartTime);
 			if (playState != PLAYING) {
 				clip.start();
 				playState = PLAYING;
@@ -635,6 +643,7 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 
 		}
 	}
+
 	public void playPause() {
 
 		if (clip != null) {
@@ -643,9 +652,10 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 				clip.stop();
 				playState = PAUSED;
 
-			} 
+			}
 		}
 	}
+
 	public void playResume() {
 
 		if (clip != null) {
@@ -654,18 +664,21 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 				clip.start();
 				playState = PLAYING;
 
-			} 
+			}
 		}
 	}
+
 	public void playSetPlayer(Player player) {
-	
+
 		this.player = player;
 	}
+
 	public void playSetSeek(double seekTime) {
 		if (clip != null && playState == PLAYING) {
-			clip.setMicrosecondPosition((long)(seekTime*1000.0));
+			clip.setMicrosecondPosition((long) (seekTime * 1000.0));
 		}
 	}
+
 	public void playStop() {
 
 		if (clip != null) {
@@ -678,21 +691,22 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		}
 
 	}
-	
+
 	public void setTime(TimeSet timeSet) {
-		
-		audioPanel.timeControl.setTimeMax((int)(timeSet.getEndTime()-timeSet.getStartTime()));
-		
+
+		audioPanel.timeControl.setTimeMax((int) (timeSet.getEndTime() - timeSet.getStartTime()));
+
 	}
-	
+
 	public void setPitch(PitchSet pitchSet) {
-		audioPanel.pitchControl.setPitchRange((int)(pitchSet.getLowNote()), (int)(pitchSet.getHighNote()));
-		
+		audioPanel.pitchControl.setPitchRange((int) (pitchSet.getLowNote()), (int) (pitchSet.getHighNote()));
+
 	}
+
 	/**
- 	* Transform audioData from raw sampled form in audioData into Frequency/Time 
- 	* domain defined by data contained in audioFTPower object.
- 	*/
+	 * Transform audioData from raw sampled form in audioData into Frequency/Time
+	 * domain defined by data contained in audioFTPower object.
+	 */
 	public boolean transform(ProgressListener progressListener) {
 
 		toneMap = toneMapFrame.getToneMap();
@@ -700,72 +714,48 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		pitchSet = toneMap.getPitchSet();
 		timeRange = timeSet.getRange();
 		pitchRange = pitchSet.getRange();
-		
+
 		pitchFreqSet = pitchSet.getFreqSet();
-		audioFTPower = new double[timeRange * (pitchRange+1)];
+		audioFTPower = new double[timeRange * (pitchRange + 1)];
 
 		int startSample = timeSet.getStartSample();
 		int endSample = timeSet.getEndSample();
-		int sampleLength = (int)Math.floor((endSample - startSample)/((double)resolution));
+		int sampleLength = (int) Math.floor((endSample - startSample) / ((double) resolution));
 		double[] audioSamples = new double[sampleLength];
-		
+
 		double min, max;
 		min = 0;
 		max = 0;
 		for (int i = 0; i < sampleLength; i++) {
-			audioSamples[i] = (double) audioData[startSample + i*resolution];
-			if (min >audioSamples[i]) min = audioSamples[i];
-			if (max <audioSamples[i]) max = audioSamples[i];
+			audioSamples[i] = (double) audioData[startSample + i * resolution];
+			if (min > audioSamples[i])
+				min = audioSamples[i];
+			if (max < audioSamples[i])
+				max = audioSamples[i];
 		}
-		System.out.println("Audio Samples min/max: "+min+", "+max);
+		System.out.println("Audio Samples min/max: " + min + ", " + max);
 
-		int sampleIndexSize = (int)Math.floor((double)timeSet.getSampleIndexSize()/(double)resolution);
-		
-		double dt = (double)resolution/sampleRate;
+		int sampleIndexSize = (int) Math.floor((double) timeSet.getSampleIndexSize() / (double) resolution);
+
+		double dt = (double) resolution / sampleRate;
 		if (transformMode == TRANSFORM_MODE_JAVA) {
-			wavelet.convert(
-				audioFTPower,
-				audioSamples,
-				pitchFreqSet,
-				dt,
-				sampleIndexSize,
-				sampleLength,
-				pitchRange,
-				progressListener,
-				(double)pFactor,
-				(double)tFactor,
-				(double)pOffset,
-				(double)t1Setting,
-				(double)t2Setting,
-				(double)t3Setting,
-				(double)t3Setting,
-				t1Switch,
-				t2Switch,
-				t3Switch,
-				t4Switch
-				);
+			wavelet.convert(audioFTPower, audioSamples, pitchFreqSet, dt, sampleIndexSize, sampleLength, pitchRange,
+					progressListener, (double) pFactor, (double) tFactor, (double) pOffset, (double) t1Setting,
+					(double) t2Setting, (double) t3Setting, (double) t3Setting, t1Switch, t2Switch, t3Switch, t4Switch);
 		} else {
-			
+
 			WaveletJNI waveletJNI = new WaveletJNI();
-			
-			waveletJNI.waveletConvert( audioFTPower, 
-						audioSamples, 
-						pitchFreqSet, 
-						dt, 
-						(double)pFactor, 
-						(double)tFactor, 
-						sampleIndexSize, 
-						sampleLength, 
-						pitchRange,
-						progressListener);	
+
+			waveletJNI.waveletConvert(audioFTPower, audioSamples, pitchFreqSet, dt, (double) pFactor, (double) tFactor,
+					sampleIndexSize, sampleLength, pitchRange, progressListener);
 		}
 
 		return true;
 	}
-	
+
 	/**
- 	* Create audio output stream from ToneMap data
- 	*/
+	 * Create audio output stream from ToneMap data
+	 */
 	public boolean writeStream(NoteList noteList) {
 
 		toneMap = toneMapFrame.getToneMap();
@@ -774,47 +764,47 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		timeRange = timeSet.getRange();
 		pitchRange = pitchSet.getRange();
 		toneMapMatrix = toneMap.getMatrix();
-		
+
 		pitchFreqSet = pitchSet.getFreqSet();
-	
+
 		int startSample = timeSet.getStartSample();
 		int endSample = timeSet.getEndSample();
-		int sampleLength = (int)Math.floor(endSample - startSample);
-		double[] audioOutSamples = new double[sampleLength];	
-		for (int i=0; i<sampleLength;i++) {
+		int sampleLength = (int) Math.floor(endSample - startSample);
+		double[] audioOutSamples = new double[sampleLength];
+		for (int i = 0; i < sampleLength; i++) {
 			audioOutSamples[i] = 0;
 		}
-		System.out.println("Write sream samples: "+sampleLength);
+		System.out.println("Write sream samples: " + sampleLength);
 
-		long frameLength = 0;	
+		long frameLength = 0;
 		int x, y, xa1, xa2, ya1, ya2;
 		int note;
 		double time, frequency;
 		double maxSumPower = 0;
-		double  minSumPower = 0;
+		double minSumPower = 0;
 		double maxSumAmp = 0;
-		double  minSumAmp = 0;
+		double minSumAmp = 0;
 		double sumAmp = 0;
-		double  sumPower = 0;
-		int numPitches=0;
-		boolean condition=false;
+		double sumPower = 0;
+		int numPitches = 0;
+		boolean condition = false;
 		if (toneMapMatrix != null) {
-				
+
 			mapIterator = toneMapMatrix.newIterator();
 			mapIterator.firstTime();
-			
+
 			do {
 				sumAmp = 0;
 				sumPower = 0;
-				numPitches=0;
-		
+				numPitches = 0;
+
 				mapIterator.firstPitch();
 				x = mapIterator.getTimeIndex();
 				y = mapIterator.getPitchIndex();
 				time = timeSet.getTime(x);
 				frequency = pitchSet.getFreq(y);
 				note = pitchSet.getNote(y);
-				System.out.println("pitch/time: "+y+", "+x+", "+note+", "+frequency+", "+time);
+				System.out.println("pitch/time: " + y + ", " + x + ", " + note + ", " + frequency + ", " + time);
 				do {
 					toneMapElement = mapIterator.getElement();
 					if (toneMapElement != null) {
@@ -825,9 +815,10 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 						frequency = pitchSet.getFreq(y);
 						note = pitchSet.getNote(y);
 						noteListElement = toneMapElement.noteListElement;
-						if(osc1Switch){
-							condition = (toneMapElement.preAmplitude == -1 || noteListElement == null || noteListElement.underTone);
-						} else 	{
+						if (osc1Switch) {
+							condition = (toneMapElement.preAmplitude == -1 || noteListElement == null
+									|| noteListElement.underTone);
+						} else {
 							condition = (toneMapElement.preAmplitude == -1);
 						}
 						if (!condition) {
@@ -837,18 +828,22 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 						numPitches++;
 
 					}
-				} while ( mapIterator.nextPitch());
-				if (maxSumPower < sumPower) maxSumPower = sumPower; 
-				if (minSumPower > sumPower) minSumPower = sumPower; 
-				if (maxSumAmp < sumAmp) maxSumAmp = sumAmp; 
-				if (minSumAmp > sumAmp) minSumAmp = sumAmp; 
-			
-			} while ( mapIterator.nextTime());
+				} while (mapIterator.nextPitch());
+				if (maxSumPower < sumPower)
+					maxSumPower = sumPower;
+				if (minSumPower > sumPower)
+					minSumPower = sumPower;
+				if (maxSumAmp < sumAmp)
+					maxSumAmp = sumAmp;
+				if (minSumAmp > sumAmp)
+					minSumAmp = sumAmp;
+
+			} while (mapIterator.nextTime());
 		}
-		System.out.println("min/max sums: "+maxSumPower+", "+minSumPower+", "+maxSumAmp+", "+minSumAmp);
+		System.out.println("min/max sums: " + maxSumPower + ", " + minSumPower + ", " + maxSumAmp + ", " + minSumAmp);
 		Oscillator[] oscillators = new Oscillator[numPitches];
 		if (toneMapMatrix != null) {
-				
+
 			mapIterator = toneMapMatrix.newIterator();
 			mapIterator.firstTime();
 			mapIterator.firstPitch();
@@ -861,27 +856,27 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 				time = timeSet.getTime(x);
 				frequency = pitchSet.getFreq(y);
 				note = pitchSet.getNote(y);
-				oscillators[i] = new Oscillator(oscType, (int)frequency, (int)sampleRate, 1); 
+				oscillators[i] = new Oscillator(oscType, (int) frequency, (int) sampleRate, 1);
 				i++;
-			} while ( mapIterator.nextPitch());
+			} while (mapIterator.nextPitch());
 		}
-		System.out.println("min/max sums: "+maxSumPower+", "+minSumPower+", "+maxSumAmp+", "+minSumAmp);
+		System.out.println("min/max sums: " + maxSumPower + ", " + minSumPower + ", " + maxSumAmp + ", " + minSumAmp);
 		int i, iStart, iEnd;
 		iStart = 0;
 		iEnd = 0;
 		i = 0;
 		double maxPower = 0;
 		double[] lastAmps = new double[numPitches];
-		for (int j=0; j<numPitches; j++) {
+		for (int j = 0; j < numPitches; j++) {
 			lastAmps[j] = 0;
 		}
 		if (toneMapMatrix != null) {
-			
+
 			mapIterator = toneMapMatrix.newIterator();
 			mapIterator.firstTime();
 			double lastSample = 0;
-			double ampFactor=0;
-			double ampAdjust=0;
+			double ampFactor = 0;
+			double ampAdjust = 0;
 			do {
 				mapIterator.firstPitch();
 				x = mapIterator.getTimeIndex();
@@ -889,69 +884,67 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 				time = timeSet.getTime(x);
 				frequency = pitchSet.getFreq(y);
 				note = pitchSet.getNote(y);
-				System.out.println("pitch/time: "+y+", "+x+", "+note+", "+frequency+", "+time);
+				System.out.println("pitch/time: " + y + ", " + x + ", " + note + ", " + frequency + ", " + time);
 				iStart = iEnd;
-				if(iStart > (int)(time*sampleRate/1000.0)) iStart = (int)(time*sampleRate/1000.0);
-				iEnd = iStart + (int)(timeSet.getSampleTimeSize()*sampleRate/1000.0);
+				if (iStart > (int) (time * sampleRate / 1000.0))
+					iStart = (int) (time * sampleRate / 1000.0);
+				iEnd = iStart + (int) (timeSet.getSampleTimeSize() * sampleRate / 1000.0);
 				double power;
-				System.out.println("istart/end: "+iStart+", "+iEnd);
-						
+				System.out.println("istart/end: " + iStart + ", " + iEnd);
+
 				do {
-					lastSample= 0;
+					lastSample = 0;
 					ampAdjust = 0;
 					ampFactor = 0;
 					toneMapElement = mapIterator.getElement();
 					if (toneMapElement != null) {
 						amplitude = toneMapElement.postAmplitude;
-						power = toneMapElement.preFTPower; 
+						power = toneMapElement.preFTPower;
 						x = mapIterator.getTimeIndex();
 						y = mapIterator.getPitchIndex();
 						time = timeSet.getTime(x);
 						frequency = pitchSet.getFreq(y);
 						note = pitchSet.getNote(y);
 						noteListElement = toneMapElement.noteListElement;
-						if(osc1Switch){
-							condition = (toneMapElement.preAmplitude == -1 || noteListElement == null || noteListElement.underTone);
-						} else 	{
+						if (osc1Switch) {
+							condition = (toneMapElement.preAmplitude == -1 || noteListElement == null
+									|| noteListElement.underTone);
+						} else {
 							condition = (toneMapElement.preAmplitude == -1);
 						}
 						if (condition) {
 							power = 0;
 						}
 						if (power != 0 || lastAmps[y] != 0) {
-							//System.out.println("testing : "+power+", "+lastAmps[y]+", "+frequency+", "+time/1000.0+", "+sampleRate+", "+timeSet.getSampleTimeSize()/1000.0);
-							for (i = iStart; i < iEnd ; i++) {
-								ampFactor = (double)(i - iStart)/(double)(iEnd-iStart);
-								ampAdjust = lastAmps[y] + ampFactor*(power - lastAmps[y]);
-								oscillators[y].setAmplitudeAdj(ampAdjust/(double)maxSumPower);
+							// System.out.println("testing : "+power+", "+lastAmps[y]+", "+frequency+",
+							// "+time/1000.0+", "+sampleRate+", "+timeSet.getSampleTimeSize()/1000.0);
+							for (i = iStart; i < iEnd; i++) {
+								ampFactor = (double) (i - iStart) / (double) (iEnd - iStart);
+								ampAdjust = lastAmps[y] + ampFactor * (power - lastAmps[y]);
+								oscillators[y].setAmplitudeAdj(ampAdjust / (double) maxSumPower);
 								lastSample = oscillators[y].getSample();
 								audioOutSamples[i] += lastSample;
-							} 
+							}
 						}
 					}
-					if (ampAdjust == 0) oscillators[y].reset(); 
+					if (ampAdjust == 0)
+						oscillators[y].reset();
 					lastAmps[y] = ampAdjust;
-				} while ( mapIterator.nextPitch());
-				System.out.println("maxPower "+maxPower);
-					
-			} while ( mapIterator.nextTime());
+				} while (mapIterator.nextPitch());
+				System.out.println("maxPower " + maxPower);
+
+			} while (mapIterator.nextTime());
 		}
 		System.out.println("getout audio bytes");
 		getOutAudioBytes(audioOutSamples);
-		outFormat = new AudioFormat(
-						 AudioFormat.Encoding.PCM_SIGNED, 
-						 format.getSampleRate(),
-						 format.getSampleSizeInBits()*2,
-						 format.getChannels(),
-						 format.getFrameSize()*2,
-						 format.getFrameRate(),
-						 true);
-						 
+		outFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, format.getSampleRate(),
+				format.getSampleSizeInBits() * 2, format.getChannels(), format.getFrameSize() * 2,
+				format.getFrameRate(), true);
+
 		ByteArrayInputStream bais = new ByteArrayInputStream(outAudioBytes);
-		outAudioStream = new AudioInputStream(bais, outFormat, outAudioBytes.length/outFormat.getFrameSize());
+		outAudioStream = new AudioInputStream(bais, outFormat, outAudioBytes.length / outFormat.getFrameSize());
 		System.out.println("made new out audio stream");
-	
-		
+
 		return true;
 	}
-} 
+}

@@ -27,10 +27,10 @@ public class IIRBandpassFilter extends IIRFilterBase {
 	public IIRBandpassFilter(double alpha, double beta, double gamma) {
 
 		super(alpha, beta, gamma);
-		
+
 	}
 
-	// Filter coefficients can also be extracted by passing in 
+	// Filter coefficients can also be extracted by passing in
 	// design object.
 	public IIRBandpassFilter(IIRBandpassFilterDesign fd) {
 
@@ -38,53 +38,51 @@ public class IIRBandpassFilter extends IIRFilterBase {
 	}
 
 	// Run the filter algorithm
-	public void doFilter(double[] inBuffer, double [] outBuffer,
-						 int length) {
+	public void doFilter(double[] inBuffer, double[] outBuffer, int length) {
 
-		for (int index=0; index < length; index++) {
+		for (int index = 0; index < length; index++) {
 
 			// Fetch sample
 			inArray[iIndex] = (double) inBuffer[index];
-			
+
 			// Do indices maintainance
 			jIndex = iIndex - 2;
-			if (jIndex < 0) jIndex += HISTORYSIZE;
+			if (jIndex < 0)
+				jIndex += HISTORYSIZE;
 			kIndex = iIndex - 1;
-			if (kIndex < 0) kIndex += HISTORYSIZE;
+			if (kIndex < 0)
+				kIndex += HISTORYSIZE;
 
 			// Run the difference equation
-			double out = outArray[iIndex] = 
-				2 * (alpha * (inArray[iIndex] - inArray[jIndex]) + 
-				gamma * outArray[kIndex] -
-				beta  * outArray[jIndex]);
-			
+			double out = outArray[iIndex] = 2 * (alpha * (inArray[iIndex] - inArray[jIndex]) + gamma * outArray[kIndex]
+					- beta * outArray[jIndex]);
+
 			outBuffer[index] = out;
 
 			iIndex = (iIndex + 1) % HISTORYSIZE;
 		}
 	}
-	
-	// Run the filter algorithm
-	public void doFilter(short[] inBuffer, double [] outBuffer,
-						 int length) {
 
-		for (int index=0; index < length; index++) {
+	// Run the filter algorithm
+	public void doFilter(short[] inBuffer, double[] outBuffer, int length) {
+
+		for (int index = 0; index < length; index++) {
 
 			// Fetch sample
 			inArray[iIndex] = (double) inBuffer[index];
-			
+
 			// Do indices maintainance
 			jIndex = iIndex - 2;
-			if (jIndex < 0) jIndex += HISTORYSIZE;
+			if (jIndex < 0)
+				jIndex += HISTORYSIZE;
 			kIndex = iIndex - 1;
-			if (kIndex < 0) kIndex += HISTORYSIZE;
+			if (kIndex < 0)
+				kIndex += HISTORYSIZE;
 
 			// Run the difference equation
-			double out = outArray[iIndex] = 
-				2 * (alpha * (inArray[iIndex] - inArray[jIndex]) + 
-				gamma * outArray[kIndex] -
-				beta  * outArray[jIndex]);
-			
+			double out = outArray[iIndex] = 2 * (alpha * (inArray[iIndex] - inArray[jIndex]) + gamma * outArray[kIndex]
+					- beta * outArray[jIndex]);
+
 			outBuffer[index] = out;
 
 			iIndex = (iIndex + 1) % HISTORYSIZE;

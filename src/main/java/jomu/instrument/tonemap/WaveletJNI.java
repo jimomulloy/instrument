@@ -1,19 +1,11 @@
 package jomu.instrument.tonemap;
 
 /**
- *  WaveletJNI analysis class
+ * WaveletJNI analysis class
  */
 
 public final class WaveletJNI {
 
-	public native void waveletConvert(	double[] wave,
-					double[] s,
-	   	 			double[] freq,
-	   	 			double dt,
-	   	 			double pFactor,
-	   	 			double tFactor,   
-	   				int	 skip,
-	   				int	 mm,
-	   				int	 nn, 
-	   				ProgressListener progressListener);
+	public native void waveletConvert(double[] wave, double[] s, double[] freq, double dt, double pFactor,
+			double tFactor, int skip, int mm, int nn, ProgressListener progressListener);
 }

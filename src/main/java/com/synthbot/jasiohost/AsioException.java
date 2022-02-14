@@ -21,15 +21,16 @@
 package com.synthbot.jasiohost;
 
 /**
- * This exception is thrown when something goes wrong while performing a native operation to the
- * ASIO driver. This may include loading or unload the driver, or also while managing its operation.
+ * This exception is thrown when something goes wrong while performing a native
+ * operation to the ASIO driver. This may include loading or unload the driver,
+ * or also while managing its operation.
  */
 public class AsioException extends RuntimeException {
 
-  private static final long serialVersionUID = 1L;
-  
-  protected AsioException(String message) {
-    super(message);
-  }
-	
+	private static final long serialVersionUID = 1L;
+
+	protected AsioException(String message) {
+		super(message);
+	}
+
 }

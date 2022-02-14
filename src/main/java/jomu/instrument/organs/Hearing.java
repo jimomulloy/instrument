@@ -2,19 +2,18 @@ package jomu.instrument.organs;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.beadsproject.beads.analysis.Analyzer;
+import jomu.instrument.audio.analysis.Analyzer;
+import jomu.instrument.audio.analysis.FeatureSet;
 import net.beadsproject.beads.analysis.FeatureExtractor;
-import net.beadsproject.beads.analysis.FeatureSet;
 import net.beadsproject.beads.analysis.featureextractors.BasicDataWriter;
 import net.beadsproject.beads.analysis.featureextractors.FFT;
 import net.beadsproject.beads.analysis.featureextractors.Frequency;
+import net.beadsproject.beads.analysis.featureextractors.MelSpectrum;
 import net.beadsproject.beads.analysis.featureextractors.PowerSpectrum;
 import net.beadsproject.beads.analysis.segmenters.ShortFrameSegmenter;
 import net.beadsproject.beads.core.AudioContext;
@@ -38,22 +37,26 @@ public class Hearing {
 		// set up the parent AudioContext object
 		JavaSoundAudioIO.printMixerInfo();
 		JavaSoundAudioIO jsaIO = new JavaSoundAudioIO();
-		jsaIO.selectMixer(5);
+		jsaIO.selectMixer(2);
 		ac = new AudioContext(jsaIO);
-		
-		List<Class<? extends FeatureExtractor<?,?>>> extractors = new ArrayList<>();
-		extractors.add(PowerSpectrum.class);
-		
+
+		List<Class<? extends FeatureExtractor<?, ?>>> extractors = new ArrayList<>();
+		extractors.add(MelSpectrum.class);
+
 		analyzer = new Analyzer(ac, extractors);
+
+		ToneMapper toneMapper = new ToneMapper(analyzer);
+
+		analyzer.addSegmentListener(toneMapper);
 
 		// get a microphone input unit generator
 		UGen microphoneIn = ac.getAudioInput();
-		
+
 		analyzer.listenTo(microphoneIn);
 		analyzer.updateFrom(ac.out);
 		// connect the WavePlayer to the master gain
 	}
-	
+
 	public void initialise1() {
 		// TODO Auto-generated method stub
 		// set up the parent AudioContext object
@@ -66,11 +69,11 @@ public class Hearing {
 		UGen microphoneIn = ac.getAudioInput();
 
 		// connect the WavePlayer to the master gain
-		//g.addInput(microphoneIn);
+		// g.addInput(microphoneIn);
 
 		// set up a master gain object
-		//Gain g = new Gain(ac, 2, 0.5F);
-		//ac.out.addInput(g);
+		// Gain g = new Gain(ac, 2, 0.5F);
+		// ac.out.addInput(g);
 		ac.out.addInput(microphoneIn);
 	}
 
@@ -91,9 +94,9 @@ public class Hearing {
 		// set up the WavePlayer and the Glide that will control
 		// its frequency
 		frequencyGlide = new Glide(ac, 50, 10);
-		//WavePlayer wp = new WavePlayer(ac, frequencyGlide, Buffer.SINE);
+		// WavePlayer wp = new WavePlayer(ac, frequencyGlide, Buffer.SINE);
 		// connect the WavePlayer to the master gain
-		//g.addInput(wp);
+		// g.addInput(wp);
 		// In this block of code, we build an analysis chain
 		// the ShortFrameSegmenter breaks the audio into short,
 		// discrete chunks.
@@ -122,7 +125,7 @@ public class Hearing {
 		//
 		ac.out.addDependent(sfs);
 	}
-	
+
 	public void initialise3() {
 		// TODO Auto-generated method stub
 		// set up the parent AudioContext object
@@ -214,13 +217,13 @@ public class Hearing {
 			// in other words, data over 3000Hz will usually be
 			// erroneous (if we are using microphone input and
 			// instrumental/vocal sounds)
-			//if (inputFrequency < 3000F) {
-				// store a running average
-				meanFrequency = (0.4F * inputFrequency) + (0.6F * meanFrequency);
-				// set the frequency stored in the Glide object
-				frequencyGlide.setValue(meanFrequency);
-				System.out.println(">>meanFrequency: " + meanFrequency);
-			//}
+			// if (inputFrequency < 3000F) {
+			// store a running average
+			meanFrequency = (0.4F * inputFrequency) + (0.6F * meanFrequency);
+			// set the frequency stored in the Glide object
+			frequencyGlide.setValue(meanFrequency);
+			System.out.println(">>meanFrequency: " + meanFrequency);
+			// }
 		}
 	}
 

@@ -4,6 +4,8 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import net.beadsproject.beads.core.BeadArray;
+
 public abstract class Cell<I, O> {
 
 	/** True if the Bead is paused. */

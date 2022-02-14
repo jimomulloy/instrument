@@ -1,7 +1,10 @@
 package jomu.instrument.cell;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class Dendrites implements Serializable {
 	private static final long serialVersionUID = 1002;

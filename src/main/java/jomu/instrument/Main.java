@@ -1,7 +1,5 @@
 package jomu.instrument;
 
-import net.beadsproject.beads.core.*;
-
 /**
  * Hello world!
  *

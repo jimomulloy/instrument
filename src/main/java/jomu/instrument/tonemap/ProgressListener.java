@@ -7,7 +7,7 @@ package jomu.instrument.tonemap;
  * @version 1.0 01/01/01
  * @author Jim O'Mulloy
  */
- 
+
 public interface ProgressListener {
 
 	public void setProgress(int progressValue);

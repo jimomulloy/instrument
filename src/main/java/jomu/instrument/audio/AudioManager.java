@@ -1,8 +1,5 @@
 package jomu.instrument.audio;
 
-import com.synthbot.jasiohost.*;
-
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -12,6 +9,12 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
+
+import com.synthbot.jasiohost.AsioChannel;
+import com.synthbot.jasiohost.AsioDriver;
+import com.synthbot.jasiohost.AsioDriverListener;
+import com.synthbot.jasiohost.AsioDriverState;
+import com.synthbot.jasiohost.AsioException;
 
 //import org.quifft.fft.*;
 

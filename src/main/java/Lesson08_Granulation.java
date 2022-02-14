@@ -1,5 +1,4 @@
 
-
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.io.JavaSoundAudioIO;
 import net.beadsproject.beads.data.SampleManager;
@@ -18,21 +17,18 @@ public class Lesson08_Granulation {
 		jsaIO.selectMixer(8);
 		ac = new AudioContext(jsaIO);
 		/*
-		 * In lesson 4 we played back samples. This example is almost the same
-		 * but uses GranularSamplePlayer instead of SamplePlayer. See some of
-		 * the controls below.
+		 * In lesson 4 we played back samples. This example is almost the same but uses
+		 * GranularSamplePlayer instead of SamplePlayer. See some of the controls below.
 		 */
 		String audioFile = "audio/1234.aif";
-		GranularSamplePlayer player = new GranularSamplePlayer(ac,
-				SampleManager.sample(audioFile));
+		GranularSamplePlayer player = new GranularSamplePlayer(ac, SampleManager.sample(audioFile));
 		/*
 		 * Have some fun with the controls.
 		 */
 		// loop the sample at its end points
 		player.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
 		player.getLoopStartUGen().setValue(0);
-		player.getLoopEndUGen().setValue(
-				(float)SampleManager.sample(audioFile).getLength());
+		player.getLoopEndUGen().setValue((float) SampleManager.sample(audioFile).getLength());
 		// control the rate of grain firing
 		Envelope grainIntervalEnvelope = new Envelope(ac, 100);
 		grainIntervalEnvelope.addSegment(20, 10000);

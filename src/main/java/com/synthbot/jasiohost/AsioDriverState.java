@@ -21,30 +21,32 @@
 package com.synthbot.jasiohost;
 
 public enum AsioDriverState {
-  /**
-   * The driver is not loaded into memory. It is non-functional. Once a driver is in the 
-   * <code>UNLOADED</code> state, it can not be changed. Use <code>AsioDriver.getDriver(String)</code>
-   * in order to instantiate a new <code>AsioDriver</code>.
-   */
-  UNLOADED,
-  
-  /**
-   * The driver is loaded into memory.
-   */
-  LOADED,
-  
-  /**
-   * The driver it initialised and is ready to accept commands.
-   */
-  INITIALIZED,
-  
-  /**
-   * The audio buffers have been created and configured.
-   */
-  PREPARED,
-  
-  /**
-   * The driver is running and making calls to <code>AsioDriver.bufferSwitch()</code>.
-   */
-  RUNNING;
+	/**
+	 * The driver is not loaded into memory. It is non-functional. Once a driver is
+	 * in the <code>UNLOADED</code> state, it can not be changed. Use
+	 * <code>AsioDriver.getDriver(String)</code> in order to instantiate a new
+	 * <code>AsioDriver</code>.
+	 */
+	UNLOADED,
+
+	/**
+	 * The driver is loaded into memory.
+	 */
+	LOADED,
+
+	/**
+	 * The driver it initialised and is ready to accept commands.
+	 */
+	INITIALIZED,
+
+	/**
+	 * The audio buffers have been created and configured.
+	 */
+	PREPARED,
+
+	/**
+	 * The driver is running and making calls to
+	 * <code>AsioDriver.bufferSwitch()</code>.
+	 */
+	RUNNING;
 }
