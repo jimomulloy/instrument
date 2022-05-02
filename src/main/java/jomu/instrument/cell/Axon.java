@@ -9,8 +9,23 @@ public class Axon implements Serializable {
 
 	private List<NuCell> outputList = new ArrayList<>();
 
-	public Axon() {
+	private NuCell source;
 
+	public Axon(NuCell source) {
+		this.source = source;
+	}
+
+	public void send(String sequence, Object output) {
+		for (NuCell target : outputList) {
+			NuMessage qe = new NuMessage(source, sequence, output);
+			target.receive(qe);
+		}
+	}
+
+	public void send(NuMessage message) {
+		for (NuCell target : outputList) {
+			target.receive(message);
+		}
 	}
 
 	public void connect(NuCell n) {
@@ -49,6 +64,10 @@ public class Axon implements Serializable {
 			return 1.0d;
 		else
 			return d;
+	}
+
+	public NuCell getSource() {
+		return source;
 	}
 
 }

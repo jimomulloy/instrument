@@ -154,6 +154,13 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	}
 
 	/**
+	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
+	 * AudioPanel
+	 */
+	public AudioModel() {
+	}
+
+	/**
 	 * Get configuration parameters
 	 */
 	public void getConfig(ToneMapConfig config) {

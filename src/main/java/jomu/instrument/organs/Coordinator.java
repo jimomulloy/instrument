@@ -8,15 +8,28 @@ public class Coordinator {
 	public void initialise() {
 		hearing = new Hearing();
 		hearing.initialise();
-		hearing.start();
 		voice = new Voice();
 		voice.initialise();
 		cortex = new Cortex();
 		cortex.initialise();
+		hearing.start();
+		cortex.start();
+		voice.start();
 	}
 
 	public void start() {
 		hearing.start();
 	}
 
+	public Hearing getHearing() {
+		return hearing;
+	}
+
+	public Voice getVoice() {
+		return voice;
+	}
+
+	public Cortex getCortex() {
+		return cortex;
+	}
 }

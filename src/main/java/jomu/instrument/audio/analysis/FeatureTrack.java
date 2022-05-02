@@ -116,10 +116,33 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	}
 
 	/**
+	 * Get all feature frames in the given range.
+	 * 
+	 * @param startRangeMS the beginning of the range.
+	 * @param endRangeMS   the end of the range.
+	 */
+	public List<FeatureFrame> getRange(double startRangeMS, double endRangeMS) {
+		ArrayList<FeatureFrame> result = new ArrayList<FeatureFrame>();
+		FeatureFrame startFrame = getFrameAt(startRangeMS);
+		if (startFrame == null)
+			return new ArrayList<>();
+		result.add(startFrame);
+		for (FeatureFrame ff : frames.tailSet(startFrame)) {
+			if (ff.getStartTimeMS() < endRangeMS) {
+				result.add(ff);
+			} else {
+				break;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Remove all feature frames in the given range.
 	 * 
 	 * @param startRangeMS the beginning of the range.
 	 * @param endRangeMS   the end of the range.
+	 * @return
 	 */
 	public void removeRange(double startRangeMS, double endRangeMS) {
 		ArrayList<FeatureFrame> toRemove = new ArrayList<FeatureFrame>();
@@ -235,11 +258,11 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	 * {@link FeatureExtractor}s at this point.
 	 */
 	public void newSegment(TimeStamp startTime, TimeStamp endTime) {
-		System.out.println(">> new segment: " + startTime);
+		// System.out.println(">> new segment: " + startTime);
 		FeatureFrame ff = new FeatureFrame(startTime.getTimeMS(), endTime.getTimeMS());
 		for (FeatureExtractor<?, ?> e : extractors) {
 			Object features = e.getFeatures();
-			System.out.println(">> new segment feature: " + e);
+			// System.out.println(">> new segment feature: " + e);
 			try {
 				Method cloneMethod = features.getClass().getMethod("clone", new Class[] {});
 				ff.add(e.getName(), cloneMethod.invoke(features, new Object[] {}));

@@ -49,6 +49,14 @@
 
 		<dependency>
 			<groupId>jomuddlo</groupId>
+			<artifactId>tarsos</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${directory}/library/TarsosDSP-2.4.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>jomuddlo</groupId>
 			<artifactId>beads</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>

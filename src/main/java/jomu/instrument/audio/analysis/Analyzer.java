@@ -160,6 +160,10 @@ public class Analyzer implements SegmentMaker {
 		ugen.addDependent(sfs);
 	}
 
+	public void addFeatureExtractor(FeatureExtractor<?, float[]> fp) {
+		sfs.addListener(fp);
+	}
+
 	/**
 	 * Gets the last low level frame.
 	 *
@@ -211,6 +215,7 @@ public class Analyzer implements SegmentMaker {
 			AnalysisSettings settings) {
 		results = new FeatureSet();
 		FeatureTrack lowLevel = new FeatureTrack();
+		FeatureTrack tarsosTrack = new FeatureTrack();
 		FeatureTrack beats = new FeatureTrack();
 		results.add("Low Level", lowLevel);
 		results.add("Beats", beats);
@@ -245,7 +250,7 @@ public class Analyzer implements SegmentMaker {
 				}
 			}
 		}
-		// inisit on spectral diff
+		// insist on spectral diff
 		spectralDifference(extractorArrangement);
 		// add low level stuff
 		for (Class featureName : extractorArrangement.keySet()) {

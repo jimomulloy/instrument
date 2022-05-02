@@ -1,6 +1,7 @@
 package jomu.instrument.cell;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,15 +14,30 @@ public class Dendrites implements Serializable {
 	// to the output signal of a presynapitic NuCell
 	// key presynapitic NuCell can be null - yes
 	// value Double , weight can be null - yes
-	private Map<NuCell, Double> dendriteInputMap = new HashMap<>();
+	private Map<NuCell, Double> dendriteInputMap = new HashMap<NuCell, Double>();
 
-	public Dendrites() {
+	private ArrayList<Dendrite> dendriteList = new ArrayList<Dendrite>();
 
+	private NuCell target;
+
+	public Dendrites(NuCell target) {
+		this.target = target;
 	}
 
-	public void connect(NuCell n, Double d) {
-		// System.out.println("Dendrites connect d: " + d);
-		dendriteInputMap.put(n, d);
+	public void addDendrite(NuCell source) {
+		Dendrite dendrite = new Dendrite(source, target);
+		dendriteList.add(dendrite);
+	}
+
+	public void getDendrite(NuCell source) {
+		Dendrite dendrite = new Dendrite(source, target);
+		dendriteList.add(dendrite);
+		connect(source, 0D);
+	}
+
+	public void connect(NuCell source, Double d) {
+		addDendrite(source);
+		dendriteInputMap.put(source, d);
 	}
 
 	public void disconnect(NuCell n) {

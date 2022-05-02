@@ -2,15 +2,14 @@ package jomu.instrument.cell;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
-public abstract class NuCell extends Cell implements Serializable {
+public class NuCell extends Cell implements Serializable {
 	private static final long serialVersionUID = 1002;
-
-	// each NuCell will have a unique name to help the
-	// program find it and access it's state and functions
-	// SENS_XXX MOTO_XXX INTER_XXX, etc ...
-	protected String NuCellID;
 
 	// enum, one of ...
 	// UNIPOLAR, BIPOLAR, MULTIPOLAR, PSEUDOUNIPOLAR
@@ -21,15 +20,18 @@ public abstract class NuCell extends Cell implements Serializable {
 	// Class representing all of the Dendrite inputs
 	// Each Dendrite can receive a signal from the axon of another NuCell,
 	// and there is a weight associated with this relationship
-	protected Dendrites dendrites = new Dendrites();
+	protected Dendrites dendrites;
 
 	// Axon represents the physical Axon of a NuCell and
 	// it will hold references to all the NuCells it is
 	// outputting a signal to
-	protected Axon axon = new Axon();
+	protected Axon axon;
 
 	// Create ActivationFunction object
 	protected ActivationFunction activationFunction = new ActivationFunction();
+
+	// Processor
+	protected Consumer<List<NuMessage>> processor;
 
 	// Each NuCell can be a combination of the various types of
 	// NetworkRole
@@ -42,40 +44,31 @@ public abstract class NuCell extends Cell implements Serializable {
 	protected Double externalInputSignal = new Double(0.000d);
 	protected Double expectedOutputSignal = new Double(0.000d);
 
+	private BlockingQueue<Object> bq;
+
+	private HashMap<String, List<NuMessage>> sequenceMap = new HashMap<>();
+
 	// Most NuCells receive many input signals throughout their dendritic trees.
 	// A single NuCell may have more than one set of dendrites, and may receive
 	// many thousands of input signals. Whether or not a NuCell is excited into
 	// firing an impulse depends on the sum of all of the excitatory and inhibitory
 	// signals it receives. If the NuCell does end up firing, the nerve impulse,
-	// or action potential, is conducted down the axon.
-
-	// ==========================================
-	// NuCell ID ...this is unique for every NuCell
-	// ==========================================
-
-	/**
-	 * 
-	 * @param NuCellID
-	 */
-	public void setNuCellID(String NuCellID) {
-		this.NuCellID = NuCellID;
+	// or action potential, is conducted down the axon
+	public NuCell(CellTypes cellType) {
+		super(cellType);
+		dendrites = new Dendrites(this);
+		axon = new Axon(this);
+		bq = new LinkedBlockingQueue<Object>();
+		new Thread(new QueueConsumer()).start();
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getNuCellID() {
-		return NuCellID;
+	public void setProcessor(Consumer<List<NuMessage>> processor) {
+		this.processor = processor;
 	}
-
-	// defined in sublcass
-	public abstract String getType();
 
 	// ==========================================
 	// Layer Classification
 	// ==========================================
-
 	/**
 	 * 
 	 */
@@ -462,4 +455,49 @@ public abstract class NuCell extends Cell implements Serializable {
 		return expectedOutputSignal;
 	}
 
+	public void send(String sequence, Object output) {
+		axon.send(sequence, output);
+	}
+
+	public void send(NuMessage message) {
+		axon.send(message);
+	}
+
+	public void receive(NuMessage message) {
+		// System.out.println(">>receive : " + this);
+		// System.out.println(message);
+		bq.add(message);
+	}
+
+	private class QueueConsumer implements Runnable {
+
+		public void run() {
+			try {
+				while (true) {
+					NuMessage qe = (NuMessage) bq.take();
+					List<NuMessage> entries;
+					// System.out.println(">>sequence : " + qe.sequence);
+					if (sequenceMap.containsKey(qe.sequence)) {
+						// System.out.println(">>sequenceMap.containsKey : " + qe.sequence);
+						entries = sequenceMap.get(qe.sequence);
+						// System.out.println(">> entries A : " + entries.size());
+					} else {
+						entries = new ArrayList<>();
+						sequenceMap.put(qe.sequence, entries);
+					}
+					entries.add(qe);
+					// System.out.println(">> entries B : " + entries.size());
+					// System.out.println(">>consume : " + NuCell.this);
+					// System.out.println(qe);
+					// System.out.println(">> sizes : " + entries.size() + ", " +
+					// dendrites.getCount());
+					if (entries.size() >= dendrites.getCount()) {
+						processor.accept(entries);
+					}
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
 } // end NuCell

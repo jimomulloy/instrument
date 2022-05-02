@@ -1,12 +1,11 @@
 package jomu.instrument.cell;
 
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import net.beadsproject.beads.core.BeadArray;
 
-public abstract class Cell<I, O> {
+public abstract class Cell {
 
 	/** True if the Bead is paused. */
 	private boolean paused;
@@ -15,7 +14,7 @@ public abstract class Cell<I, O> {
 	private boolean deleted;
 
 	/** A Bead that gets informed when this Bead gets killed. */
-	private Cell<I, O> killListener;
+	private Cell killListener;
 
 	/** The name. */
 	private String name;
@@ -23,14 +22,20 @@ public abstract class Cell<I, O> {
 	/* Unique identification for this CellElement instance. */
 	private String ID;
 
-	private final BlockingQueue<I> messageQueue = new LinkedBlockingQueue<I>();
+	private CellTypes cellType;
+
+	public static enum CellTypes {
+		JUNCTION, PASS_THROUGH, SOURCE, SINK, AUDIO_PITCH, AUDIO_CQ
+
+	}
 
 	/**
 	 * Generate <code>Cell</code>. and registers the <code>Cell</code> to
 	 * <code>ECM<</code>. Every cell is identified by a unique cellID number.
 	 */
-	public Cell() {
+	public Cell(CellTypes cellType) {
 		ID = UUID.randomUUID().toString();
+		this.cellType = cellType;
 	}
 
 	/**
@@ -54,38 +59,13 @@ public abstract class Cell<I, O> {
 	}
 
 	/**
-	 * Process some data of type P (specified by the class def). This method must be
-	 * overidden by implementing classes.
-	 * 
-	 * @param data the data.
-	 */
-	public abstract void process();
-
-	/**
-	 * Process some data of type P (specified by the class def). This method must be
-	 * overidden by implementing classes.
-	 * 
-	 * @param data the data.
-	 */
-	public abstract void send();
-
-	/**
-	 * Process some data of type P (specified by the class def). This method must be
-	 * overidden by implementing classes.
-	 * 
-	 * @param data the data.
-	 */
-
-	public abstract void receive(I input);
-
-	/**
 	 * Send this Bead a message. Typically if another Bead was sending the message,
 	 * it would send itself as the argument.
 	 * 
 	 * @param message the Bead is the message.
 	 */
 
-	public final void message(Cell<I, O> message) {
+	public final void message(Cell message) {
 		if (!paused)
 			messageReceived(message);
 	}
@@ -97,7 +77,7 @@ public abstract class Cell<I, O> {
 	 * 
 	 * @param message the message
 	 */
-	protected void messageReceived(Cell<I, O> message) {
+	protected void messageReceived(Cell message) {
 		/*
 		 * To be subclassed, but not compulsory.
 		 */
@@ -118,7 +98,7 @@ public abstract class Cell<I, O> {
 	public void kill() {
 		if (!deleted) {
 			deleted = true;
-			Cell<I, O> killListener = this.killListener;
+			Cell killListener = this.killListener;
 			if (killListener != null) {
 				killListener.message(this);
 			}
@@ -149,7 +129,7 @@ public abstract class Cell<I, O> {
 	 * 
 	 * @param killListener the new kill listener.
 	 */
-	public void setKillListener(Cell<I, O> killListener) {
+	public void setKillListener(Cell killListener) {
 		this.killListener = killListener;
 	}
 
@@ -158,7 +138,7 @@ public abstract class Cell<I, O> {
 	 * 
 	 * @return the kill listener.
 	 */
-	public Cell<I, O> getKillListener() {
+	public Cell getKillListener() {
 		return killListener;
 	}
 
@@ -169,6 +149,32 @@ public abstract class Cell<I, O> {
 	 */
 	public boolean isDeleted() {
 		return deleted;
+	}
+
+	public CellTypes getCellType() {
+		return cellType;
+	}
+
+	@Override
+	public String toString() {
+		return "Cell [name=" + name + ", ID=" + ID + ", cellType=" + cellType + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(ID);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Cell other = (Cell) obj;
+		return Objects.equals(ID, other.ID);
 	}
 
 }
