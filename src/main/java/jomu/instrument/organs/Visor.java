@@ -62,9 +62,8 @@ import be.tarsos.dsp.ui.layers.SelectionLayer;
 import be.tarsos.dsp.ui.layers.SpectrumLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import jomu.instrument.InputPanel;
-import jomu.instrument.Instrument;
 
-public class Visor extends JFrame implements OscilloscopeEventHandler {
+public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeatureObserver {
 
 	/**
 	 * 
@@ -118,7 +117,6 @@ public class Visor extends JFrame implements OscilloscopeEventHandler {
 		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
 		spectrumPanel = createSpectrumPanel();
 		tabbedPane.addTab("Spectrum", spectrumPanel);
-		Instrument.getInstance().getCoordinator().getHearing().getToneMap().addObserver(this);
 	}
 
 	private LinkedPanel createSpectrumPanel() {
@@ -255,5 +253,11 @@ public class Visor extends JFrame implements OscilloscopeEventHandler {
 	public void handleEvent(float[] data, AudioEvent event) {
 		oscilloscopePanel.paint(data, event);
 		oscilloscopePanel.repaint();
+	}
+
+	@Override
+	public void pitchFrameAdded(PitchFrame pitchFrame) {
+		// TODO Auto-generated method stub
+
 	}
 }

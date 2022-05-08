@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -207,14 +206,14 @@ public class TarsosAudioIO extends AudioIO {
 				throw new Error(e);
 			}
 		} else {
-			audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth,
-				ioAudioFormat.inputs, ioAudioFormat.signed, ioAudioFormat.bigEndian);
-		}	
+			audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth, ioAudioFormat.inputs,
+					ioAudioFormat.signed, ioAudioFormat.bigEndian);
+		}
 		inputProcessor = new AudioIOProcessor(getContext(), audioFormat);
 		inputProcessor.initJSInput();
 		return inputProcessor;
 	}
-	
+
 	public void setAudioFile(File audioFile) {
 		this.audioFile = audioFile;
 	}
@@ -317,16 +316,16 @@ public class TarsosAudioIO extends AudioIO {
 			javaSoundInitialized = true;
 			interleavedSamples = new float[bufferSize * audioFormat.getChannels()];
 			bbuf = new byte[bufferSize * audioFormat.getFrameSize()];
-			
+
 			if (audioFile != null) {
 				try {
-					
+
 					GainProcessor gainProcessor = new GainProcessor(1.0);
-					AudioPlayer audioPlayer = new AudioPlayer(audioFormat);		
-					
+					AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
+
 					dispatcher = AudioDispatcherFactory.fromFile(audioFile, context.getBufferSize(), 0);
-					
-					//dispatcher.skip(startTime);
+
+					// dispatcher.skip(startTime);
 					dispatcher.addAudioProcessor(this);
 					dispatcher.addAudioProcessor(gainProcessor);
 					dispatcher.addAudioProcessor(audioPlayer);
@@ -426,9 +425,11 @@ public class TarsosAudioIO extends AudioIO {
 
 		@Override
 		public void processingFinished() {
-			inputMixer.close();
-			inputMixer = null;
-			dispatcher.stop();
+			if (inputMixer != null) {
+				inputMixer.close();
+				inputMixer = null;
+			}	
+			//dispatcher.stop();
 		}
 
 	}

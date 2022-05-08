@@ -22,6 +22,5 @@ public class PitchDetectorFeatures {
 	public List<PitchDetectionResult> getFeatures() {
 		return features;
 	}
-	
 
 }

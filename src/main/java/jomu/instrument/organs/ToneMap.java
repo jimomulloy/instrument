@@ -18,9 +18,7 @@ public class ToneMap implements SegmentListener {
 	private int lastTime = 0;
 	private int frameSequence = 0;
 	private int maxFrames = -1;
-	private PitchFrame currentPitchFrame;
-	private Druid druid; 
-	
+
 	private List<AudioFeatureObserver> observers = new ArrayList<>();
 
 	private final static Map<TimeStamp, PitchFrame> pitchFrames = new Hashtable<TimeStamp, PitchFrame>();
@@ -29,7 +27,7 @@ public class ToneMap implements SegmentListener {
 		this.analyzer = analyzer;
 		this.tarsosFeatures = tarsosFeatures;
 		analyzer.addSegmentListener(this);
-		druid = Instrument.getInstance().getDruid();
+		addObserver(Instrument.getInstance().getDruid().getVisor());
 	}
 
 	@Override
@@ -37,7 +35,6 @@ public class ToneMap implements SegmentListener {
 		// System.out.println(">>AudioFeatureMap segment at: " + start);
 		if (maxFrames > 0 && maxFrames > frameSequence) {
 			if ((int) start.getTimeMS() - lastTime >= interval) {
-				currentPitchFrame = createPitchFrame(start, end);
 				lastTime = (int) start.getTimeMS();
 				frameSequence++;
 				System.out.println(">> Create Pitch Frame: " + frameSequence);
@@ -106,10 +103,4 @@ public class ToneMap implements SegmentListener {
 	public static Map<TimeStamp, PitchFrame> getPitchframes() {
 		return pitchFrames;
 	}
-
-	public void addObserver(Visor visor) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
