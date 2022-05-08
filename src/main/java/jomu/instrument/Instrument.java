@@ -16,13 +16,12 @@ public class Instrument {
 	}
 
 	public void initialise() {
-		druid = new Druid();
-		druid.initialise();
-		druid.start();
 		coordinator = new Coordinator();
 		coordinator.initialise();
 		coordinator.start();
-
+		druid = new Druid();
+		druid.initialise();
+		druid.start();
 	}
 
 	public Coordinator getCoordinator() {

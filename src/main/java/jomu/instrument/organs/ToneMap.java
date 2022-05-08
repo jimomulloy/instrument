@@ -41,7 +41,6 @@ public class ToneMap implements SegmentListener {
 				lastTime = (int) start.getTimeMS();
 				frameSequence++;
 				System.out.println(">> Create Pitch Frame: " + frameSequence);
-				druid.getVisor().repaintSpectalInfo(currentPitchFrame.getSpectralPeaksFeatures().getSpectralInfo().get(0));
 			}
 		}
 	}
@@ -106,6 +105,11 @@ public class ToneMap implements SegmentListener {
 
 	public static Map<TimeStamp, PitchFrame> getPitchframes() {
 		return pitchFrames;
+	}
+
+	public void addObserver(Visor visor) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

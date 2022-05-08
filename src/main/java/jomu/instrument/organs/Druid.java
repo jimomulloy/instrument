@@ -13,6 +13,10 @@ public class Druid {
 
 	public void initialise() {
 		visor = new Visor();
+		visor.initialise();
+	}
+
+	public void start() {
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
@@ -27,9 +31,6 @@ public class Druid {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public void start() {
 	}
 
 	public OscilloscopeEventHandler getOscilloscopeHandler() {

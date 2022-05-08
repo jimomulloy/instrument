@@ -1,5 +1,6 @@
 package jomu.instrument.organs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -36,9 +37,11 @@ public class Hearing {
 		// set up the parent AudioContext object
 		tarsosIO = new TarsosAudioIO();
 		tarsosIO.selectMixer(2);
+		File file = new File("D:/audio/tonemap1.wav");
 		IOAudioFormat audioFormat = new IOAudioFormat(44100, 16, 1, 1, true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
 		// get a microphone input unit generator
+		tarsosIO.setAudioFile(file);
 		UGen microphoneIn = ac.getAudioInput();
 
 		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getDruid().getOscilloscopeHandler());

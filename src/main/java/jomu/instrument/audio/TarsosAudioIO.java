@@ -1,8 +1,11 @@
 package jomu.instrument.audio;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -12,10 +15,14 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.GainProcessor;
+import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
+import be.tarsos.dsp.io.jvm.AudioPlayer;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.AudioIO;
@@ -49,6 +56,8 @@ public class TarsosAudioIO extends AudioIO {
 	private AudioIOProcessor inputProcessor;
 
 	private Thread audioInThread;
+
+	private File audioFile;
 
 	public TarsosAudioIO() {
 		this(DEFAULT_SYSTEM_BUFFER_SIZE);
@@ -188,11 +197,26 @@ public class TarsosAudioIO extends AudioIO {
 		// final AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true,
 		// true);
 		IOAudioFormat ioAudioFormat = getContext().getAudioFormat();
-		AudioFormat audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth,
+		AudioFormat audioFormat;
+		if (audioFile != null) {
+			try {
+				audioFormat = AudioSystem.getAudioFileFormat(audioFile).getFormat();
+			} catch (UnsupportedAudioFileException e) {
+				throw new Error(e);
+			} catch (IOException e) {
+				throw new Error(e);
+			}
+		} else {
+			audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth,
 				ioAudioFormat.inputs, ioAudioFormat.signed, ioAudioFormat.bigEndian);
+		}	
 		inputProcessor = new AudioIOProcessor(getContext(), audioFormat);
 		inputProcessor.initJSInput();
 		return inputProcessor;
+	}
+	
+	public void setAudioFile(File audioFile) {
+		this.audioFile = audioFile;
 	}
 
 	/**
@@ -293,46 +317,67 @@ public class TarsosAudioIO extends AudioIO {
 			javaSoundInitialized = true;
 			interleavedSamples = new float[bufferSize * audioFormat.getChannels()];
 			bbuf = new byte[bufferSize * audioFormat.getFrameSize()];
-
-			Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
-			inputMixer = AudioSystem.getMixer(mixerinfo[5]);
-			if (inputMixer != null) {
-				System.out.print("JavaSoundAudioIO: Chosen mixer is ");
-				System.out.println(inputMixer.getMixerInfo().getName() + ".");
+			
+			if (audioFile != null) {
+				try {
+					
+					GainProcessor gainProcessor = new GainProcessor(1.0);
+					AudioPlayer audioPlayer = new AudioPlayer(audioFormat);		
+					
+					dispatcher = AudioDispatcherFactory.fromFile(audioFile, context.getBufferSize(), 0);
+					
+					//dispatcher.skip(startTime);
+					dispatcher.addAudioProcessor(this);
+					dispatcher.addAudioProcessor(gainProcessor);
+					dispatcher.addAudioProcessor(audioPlayer);
+				} catch (UnsupportedAudioFileException e) {
+					throw new Error(e);
+				} catch (IOException e) {
+					throw new Error(e);
+				} catch (LineUnavailableException e) {
+					throw new Error(e);
+				}
 			} else {
-				System.out.println("JavaSoundAudioIO: Failed to get mixer.");
-				return false;
+				Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
+				inputMixer = AudioSystem.getMixer(mixerinfo[5]);
+				if (inputMixer != null) {
+					System.out.print("JavaSoundAudioIO: Chosen mixer is ");
+					System.out.println(inputMixer.getMixerInfo().getName() + ".");
+				} else {
+					System.out.println("JavaSoundAudioIO: Failed to get mixer.");
+					return false;
+				}
+
+				float sampleRate = 44100;
+				int bufferSize = 1024;
+				int overlap = 0;
+				final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+				DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+				TargetDataLine targetDataLine = null;
+				int inputBufferSize = 1024;
+				try {
+					targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
+					targetDataLine.open(format, inputBufferSize);
+				} catch (LineUnavailableException e) {
+					System.out.println("no line");
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+				System.out.println(
+						"CHOSEN INPUT: " + targetDataLine.getLineInfo() + ", buffer size in bytes: " + inputBufferSize);
+				targetDataLine.start();
+				interleavedSamples = new float[bufferSize * format.getChannels()];
+				bbuf = new byte[bufferSize * format.getFrameSize()];
+
+				final AudioInputStream stream = new AudioInputStream(targetDataLine);
+				JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
+
+				// create a new dispatcher
+				dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+				// add a processor
+				dispatcher.addAudioProcessor(this);
 			}
-
-			float sampleRate = 44100;
-			int bufferSize = 1024;
-			int overlap = 0;
-			final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
-			DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-			TargetDataLine targetDataLine = null;
-			int inputBufferSize = 1024;
-			try {
-				targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
-				targetDataLine.open(format, inputBufferSize);
-			} catch (LineUnavailableException e) {
-				System.out.println("no line");
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-			System.out.println(
-					"CHOSEN INPUT: " + targetDataLine.getLineInfo() + ", buffer size in bytes: " + inputBufferSize);
-			targetDataLine.start();
-			interleavedSamples = new float[bufferSize * format.getChannels()];
-			bbuf = new byte[bufferSize * format.getFrameSize()];
-
-			final AudioInputStream stream = new AudioInputStream(targetDataLine);
-			JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
-
-			// create a new dispatcher
-			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
-			// add a processor
-			dispatcher.addAudioProcessor(this);
 
 			javaSoundInitialized = true;
 			return true;
