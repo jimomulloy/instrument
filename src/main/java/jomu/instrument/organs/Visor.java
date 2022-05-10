@@ -131,8 +131,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		tabbedPane.addTab("SP", spectralPeaksPanel);
 		oscilloscopePanel = new OscilloscopePanel();
 		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
-		//spectrumPanel = createSpectrumPanel();
-		//tabbedPane.addTab("Spectrum", spectrumPanel);
+		// spectrumPanel = createSpectrumPanel();
+		// tabbedPane.addTab("Spectrum", spectrumPanel);
 	}
 
 	private CoordinateSystem getCoordinateSystem(AxisUnit yUnits) {
@@ -168,7 +168,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			}
 		};
 		spectralPeaksPanel.getViewPort().addViewPortChangedListener(listener);
-		return spectralPeaksPanel;		
+		return spectralPeaksPanel;
 	}
 
 	private LinkedPanel createSpectrumPanel() {
@@ -234,7 +234,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	public void repaintSpectalInfo(SpectralInfo info) {
-	
+
 		spectrumLayer.clearPeaks();
 		spectrumLayer.setSpectrum(info.getMagnitudes());
 		noiseFloorLayer.setSpectrum(info.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
@@ -349,9 +349,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		}
 
 		public void update(PitchFrame pitchFrame) {
-			SwingUtilities.invokeLater(new Runnable(){
-			    public void run(){
-			    	ConstantQSource cqs = pitchFrame.getConstantQFeatures().getCqs();
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					ConstantQSource cqs = pitchFrame.getConstantQFeatures().getCqs();
 					binStartingPointsInCents = cqs.getBinStartingPointsInCents();
 					binWidth = cqs.getBinWidth();
 					binHeight = cqs.getBinHeight();
@@ -362,8 +362,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					for (java.util.Map.Entry<Double, float[]> entry : fs.entrySet()) {
 						cqFeatures.put(entry.getKey(), entry.getValue());
 					}
-			    }
-			}); 
+				}
+			});
 		}
 	}
 
@@ -380,7 +380,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		float noiseFloorFactor = 1.5F;
 		int numberOfSpectralPeaks = 7;
 		int minPeakSize = 5;
-	
+
 		public SpectrumPeaksLayer(CoordinateSystem cs) {
 			this.cs = cs;
 		}
@@ -411,10 +411,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 						float magnitude = peak.getMagnitude();
 						// only draw the visible frequency range
 						if (frequencyInCents >= cs.getMin(Axis.Y) && frequencyInCents <= cs.getMax(Axis.Y)) {
-							int greyValue = (int) (( magnitude / 100F ) * 255F );
-							//int greyValue = 255 - (int) (Math.log1p(magnitude)
-							//		 / Math.log1p(100) * 255);
-							//greyValue = Math.max(0, greyValue);
+							int greyValue = (int) ((magnitude / 100F) * 255F);
+							// int greyValue = 255 - (int) (Math.log1p(magnitude)
+							// / Math.log1p(100) * 255);
+							// greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
 							graphics.fillRect((int) Math.round(timeStart * 1000), frequencyInCents, markerWidth,
@@ -431,9 +431,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		}
 
 		public void update(PitchFrame pitchFrame) {
-			SwingUtilities.invokeLater(new Runnable(){
-			    public void run(){
-			    	SpectralPeaksSource sps = pitchFrame.getSpectralPeaksFeatures().getSps();
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					SpectralPeaksSource sps = pitchFrame.getSpectralPeaksFeatures().getSps();
 
 					noiseFloorMedianFilterLenth = sps.getNoiseFloorMedianFilterLenth();
 					noiseFloorFactor = sps.getNoiseFloorFactor();
@@ -449,8 +449,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					for (java.util.Map.Entry<Double, SpectralInfo> entry : fs.entrySet()) {
 						spFeatures.put(entry.getKey(), entry.getValue());
 					}
-			    }
-			}); 
+				}
+			});
 		}
 	}
 

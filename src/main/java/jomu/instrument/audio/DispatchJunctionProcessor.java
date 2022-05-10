@@ -205,8 +205,9 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 	@Override
 	public boolean process(AudioEvent incomingAudioEvent) {
-		System.out.println(">>DJP audio: " + incomingAudioEvent.getTimeStamp() + ", " + incomingAudioEvent.getSamplesProcessed());
-		
+		System.out.println(
+				">>DJP audio: " + incomingAudioEvent.getTimeStamp() + ", " + incomingAudioEvent.getSamplesProcessed());
+
 		// Passthrough
 		if (this.audioFloatBuffer.length == incomingAudioEvent.getBufferSize()
 				&& this.floatOverlap == incomingAudioEvent.getOverlap()) {
@@ -293,12 +294,15 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 		processedLength += copyLength;
 		if (processedLength == this.audioFloatBuffer.length) {
 			if (firstProcessed) {
-				audioEvent.setBytesProcessed((audioEvent.getSamplesProcessed() + processedLength) * format.getFrameSize());
+				audioEvent.setBytesProcessed(
+						(audioEvent.getSamplesProcessed() + processedLength) * format.getFrameSize());
 			} else {
-				audioEvent.setBytesProcessed((audioEvent.getSamplesProcessed() + this.floatStepSize) * format.getFrameSize());
+				audioEvent.setBytesProcessed(
+						(audioEvent.getSamplesProcessed() + this.floatStepSize) * format.getFrameSize());
 			}
 			for (final AudioProcessor processor : audioProcessors) {
-				System.out.println(">>Tarsos audio out: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
+				System.out.println(
+						">>Tarsos audio out: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
 				if (!processor.process(audioEvent)) {
 					// skip to the next audio processors if false is returned.
 					break;

@@ -376,7 +376,7 @@ public class TarsosAudioIO extends AudioIO {
 				bbuf = new byte[bufferSize * format.getFrameSize()];
 
 				inputStream = new AudioInputStream(targetDataLine);
-				
+
 				JVMAudioInputStream audioStream = new JVMAudioInputStream(inputStream);
 
 				// create a new dispatcher
@@ -405,7 +405,8 @@ public class TarsosAudioIO extends AudioIO {
 
 		@Override
 		public boolean process(AudioEvent audioEvent) {
-			System.out.println(">>Tarsos audio: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
+			System.out
+					.println(">>Tarsos audio: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
 			audioFloatbuffer = audioEvent.getFloatBuffer();
 
 			int bufferSizeInFrames = context.getBufferSize();
