@@ -27,9 +27,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -38,9 +41,9 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -58,12 +61,18 @@ import be.tarsos.dsp.ui.layers.AmplitudeAxisLayer;
 import be.tarsos.dsp.ui.layers.BackgroundLayer;
 import be.tarsos.dsp.ui.layers.DragMouseListenerLayer;
 import be.tarsos.dsp.ui.layers.HorizontalFrequencyAxisLayer;
+import be.tarsos.dsp.ui.layers.Layer;
+import be.tarsos.dsp.ui.layers.LayerUtilities;
+import be.tarsos.dsp.ui.layers.LegendLayer;
 import be.tarsos.dsp.ui.layers.SelectionLayer;
 import be.tarsos.dsp.ui.layers.SpectrumLayer;
+import be.tarsos.dsp.ui.layers.TimeAxisLayer;
+import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
+import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.InputPanel;
 
-public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeatureObserver {
+public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureObserver {
 
 	/**
 	 * 
@@ -84,14 +93,17 @@ public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeat
 	private float noiseFloorFactor;
 	private int numberOfSpectralPeaks;
 	private int minPeakSize;
+	private CoordinateSystem constantQCS;
+	private LinkedPanel constantQ;
+	private LegendLayer legend;
+	private LinkedPanel cqPanel;
+	private CQLayer cqLayer;
+	private int count = 0;
+	private LinkedPanel spectralPeaksPanel;
+	private SpectrumPeaksLayer spectralPeaksLayer;
 
 	public Visor() {
-	}
-
-	public void initialise() {
 		this.setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Visor");
 
 		JPanel inputPanel = new InputPanel();
 		// add(inputPanel);
@@ -113,14 +125,54 @@ public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeat
 		JTabbedPane tabbedPane = new JTabbedPane();
 		this.add(inputPanel, BorderLayout.NORTH);
 		this.add(tabbedPane, BorderLayout.CENTER);
+		cqPanel = createCQPanel();
+		tabbedPane.addTab("CQ", cqPanel);
+		spectralPeaksPanel = createSpectralPeaksPanel();
+		tabbedPane.addTab("SP", spectralPeaksPanel);
 		oscilloscopePanel = new OscilloscopePanel();
 		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
-		spectrumPanel = createSpectrumPanel();
-		tabbedPane.addTab("Spectrum", spectrumPanel);
+		//spectrumPanel = createSpectrumPanel();
+		//tabbedPane.addTab("Spectrum", spectrumPanel);
+	}
+
+	private CoordinateSystem getCoordinateSystem(AxisUnit yUnits) {
+		float minValue = -1000;
+		float maxValue = 1000;
+		if (yUnits == AxisUnit.FREQUENCY) {
+			minValue = 400;
+			maxValue = 12000;
+		}
+		return new CoordinateSystem(yUnits, minValue, maxValue);
+	}
+
+	private LinkedPanel createSpectralPeaksPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		spectralPeaksPanel = new LinkedPanel(cs);
+		spectralPeaksLayer = new SpectrumPeaksLayer(cs);
+		spectralPeaksPanel.addLayer(new BackgroundLayer(cs));
+		spectralPeaksPanel.addLayer(spectralPeaksLayer);
+		spectralPeaksPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		spectralPeaksPanel.addLayer(new ZoomMouseListenerLayer());
+		spectralPeaksPanel.addLayer(new DragMouseListenerLayer(cs));
+		spectralPeaksPanel.addLayer(new SelectionLayer(cs));
+		spectralPeaksPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		spectralPeaksPanel.addLayer(legend);
+		legend.addEntry("SpectralPeaks", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				spectralPeaksPanel.repaint();
+			}
+		};
+		spectralPeaksPanel.getViewPort().addViewPortChangedListener(listener);
+		return spectralPeaksPanel;		
 	}
 
 	private LinkedPanel createSpectrumPanel() {
-		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY, AxisUnit.AMPLITUDE, 0, 1000, false);
+		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY, AxisUnit.AMPLITUDE, 0, 10000, false);
 		cs.setMax(Axis.X, 4800);
 		cs.setMax(Axis.X, 13200);
 		spectrumLayer = new SpectrumLayer(cs, 1024, 44100, Color.red);
@@ -152,9 +204,37 @@ public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeat
 		return spectrumPanel;
 	}
 
-	public void repaintSpectalInfo(SpectralInfo info) {
-		System.out.println(">>repaintSpectalInfo");
+	private LinkedPanel createCQPanel() {
+		constantQCS = getCoordinateSystem(AxisUnit.FREQUENCY);
+		constantQCS.setMax(Axis.X, 20000);
+		constantQ = new LinkedPanel(constantQCS);
+		cqLayer = new CQLayer(constantQCS);
+		constantQ.addLayer(new BackgroundLayer(constantQCS));
+		constantQ.addLayer(cqLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,2048,0));
+		constantQ.addLayer(new VerticalFrequencyAxisLayer(constantQCS));
+		constantQ.addLayer(new ZoomMouseListenerLayer());
+		constantQ.addLayer(new DragMouseListenerLayer(constantQCS));
+		constantQ.addLayer(new SelectionLayer(constantQCS));
+		constantQ.addLayer(new TimeAxisLayer(constantQCS));
 
+		legend = new LegendLayer(constantQCS, 110);
+		constantQ.addLayer(legend);
+		legend.addEntry("ConstantQ", Color.BLACK);
+		legend.addEntry("Pitch estimations", Color.RED);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				constantQ.repaint();
+			}
+		};
+		constantQ.getViewPort().addViewPortChangedListener(listener);
+		return constantQ;
+	}
+
+	public void repaintSpectalInfo(SpectralInfo info) {
+	
 		spectrumLayer.clearPeaks();
 		spectrumLayer.setSpectrum(info.getMagnitudes());
 		noiseFloorLayer.setSpectrum(info.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
@@ -178,7 +258,6 @@ public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeat
 
 		}
 		// textArea.setText(sb.toString());
-		System.out.println(">>repaintSpectalInfo2: " + sb.toString());
 		this.spectrumPanel.repaint();
 	}
 
@@ -213,6 +292,165 @@ public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeat
 
 		public void paint(float[] data, AudioEvent event) {
 			this.data = data;
+		}
+	}
+
+	private static class CQLayer implements Layer {
+
+		private TreeMap<Double, float[]> cqFeatures;
+		private final CoordinateSystem cs;
+
+		private float[] binStartingPointsInCents;
+		private float binWidth;
+		private float binHeight;
+
+		public CQLayer(CoordinateSystem cs) {
+			this.cs = cs;
+		}
+
+		public void draw(Graphics2D graphics) {
+
+			if (cqFeatures != null) {
+				Map<Double, float[]> spectralInfoSubMap = cqFeatures.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
+
+				double currentMaxSpectralEnergy = 0;
+				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
+					float[] spectralEnergy = column.getValue();
+					for (int i = 0; i < spectralEnergy.length; i++) {
+						currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy, spectralEnergy[i]);
+					}
+				}
+				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
+					double timeStart = column.getKey();// in seconds
+					float[] spectralEnergy = column.getValue();// in cents
+					// draw the pixels
+					for (int i = 0; i < spectralEnergy.length; i++) {
+						Color color = Color.black;
+						float centsStartingPoint = binStartingPointsInCents[i];
+						// only draw the visible frequency range
+						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
+							int greyValue = 255 - (int) (Math.log1p(spectralEnergy[i])
+									/ Math.log1p(currentMaxSpectralEnergy) * 255);
+							greyValue = Math.max(0, greyValue);
+							color = new Color(greyValue, greyValue, greyValue);
+							graphics.setColor(color);
+							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
+									(int) Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public String getName() {
+			return "CQ Layer";
+		}
+
+		public void update(PitchFrame pitchFrame) {
+			SwingUtilities.invokeLater(new Runnable(){
+			    public void run(){
+			    	ConstantQSource cqs = pitchFrame.getConstantQFeatures().getCqs();
+					binStartingPointsInCents = cqs.getBinStartingPointsInCents();
+					binWidth = cqs.getBinWidth();
+					binHeight = cqs.getBinHeight();
+					TreeMap<Double, float[]> fs = pitchFrame.getConstantQFeatures().getFeatures();
+					if (cqFeatures == null) {
+						cqFeatures = new TreeMap<>();
+					}
+					for (java.util.Map.Entry<Double, float[]> entry : fs.entrySet()) {
+						cqFeatures.put(entry.getKey(), entry.getValue());
+					}
+			    }
+			}); 
+		}
+	}
+
+	private static class SpectrumPeaksLayer implements Layer {
+
+		private TreeMap<Double, SpectralInfo> spFeatures;
+		private float[] spectrum;
+		private List<Integer> peaksInBins;
+		private float multiplier = 10;
+		private int sampleRate;
+		private int fftSize;
+		private final CoordinateSystem cs;
+		int noiseFloorMedianFilterLenth = 17;
+		float noiseFloorFactor = 1.5F;
+		int numberOfSpectralPeaks = 7;
+		int minPeakSize = 5;
+	
+		public SpectrumPeaksLayer(CoordinateSystem cs) {
+			this.cs = cs;
+		}
+
+		public void draw(Graphics2D graphics) {
+
+			if (spFeatures != null && !spFeatures.isEmpty()) {
+				Map<Double, SpectralInfo> spectralInfoSubMap = spFeatures.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
+
+				for (Map.Entry<Double, SpectralInfo> column : spectralInfoSubMap.entrySet()) {
+					double timeStart = column.getKey();// in seconds
+					SpectralInfo spectralInfo = column.getValue();
+
+					List<SpectralPeak> peaks = spectralInfo.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
+							numberOfSpectralPeaks, minPeakSize);
+
+					int markerWidth = Math.round(LayerUtilities.pixelsToUnits(graphics, 7, true));
+					int markerheight = Math.round(LayerUtilities.pixelsToUnits(graphics, 7, false));
+					// draw the pixels
+					for (SpectralPeak peak : peaks) {
+						int bin = peak.getBin();
+						float hertzValue = (bin * sampleRate) / (float) fftSize;
+						int frequencyInCents = (int) Math
+								.round(PitchConverter.hertzToAbsoluteCent(hertzValue) - markerWidth / 2.0f);
+
+						Color color = Color.black;
+						float magnitude = peak.getMagnitude();
+						// only draw the visible frequency range
+						if (frequencyInCents >= cs.getMin(Axis.Y) && frequencyInCents <= cs.getMax(Axis.Y)) {
+							int greyValue = (int) (( magnitude / 100F ) * 255F );
+							//int greyValue = 255 - (int) (Math.log1p(magnitude)
+							//		 / Math.log1p(100) * 255);
+							//greyValue = Math.max(0, greyValue);
+							color = new Color(greyValue, greyValue, greyValue);
+							graphics.setColor(color);
+							graphics.fillRect((int) Math.round(timeStart * 1000), frequencyInCents, markerWidth,
+									markerheight);
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public String getName() {
+			return "CQ Layer";
+		}
+
+		public void update(PitchFrame pitchFrame) {
+			SwingUtilities.invokeLater(new Runnable(){
+			    public void run(){
+			    	SpectralPeaksSource sps = pitchFrame.getSpectralPeaksFeatures().getSps();
+
+					noiseFloorMedianFilterLenth = sps.getNoiseFloorMedianFilterLenth();
+					noiseFloorFactor = sps.getNoiseFloorFactor();
+					numberOfSpectralPeaks = sps.getNumberOfSpectralPeaks();
+					minPeakSize = sps.getMinPeakSize();
+					fftSize = sps.getTarsosIO().getContext().getBufferSize();
+					sampleRate = (int) sps.getTarsosIO().getContext().getSampleRate();
+
+					TreeMap<Double, SpectralInfo> fs = pitchFrame.getSpectralPeaksFeatures().getFeatures();
+					if (spFeatures == null) {
+						spFeatures = new TreeMap<>();
+					}
+					for (java.util.Map.Entry<Double, SpectralInfo> entry : fs.entrySet()) {
+						spFeatures.put(entry.getKey(), entry.getValue());
+					}
+			    }
+			}); 
 		}
 	}
 
@@ -257,7 +495,14 @@ public class Visor extends JFrame implements OscilloscopeEventHandler, AudioFeat
 
 	@Override
 	public void pitchFrameAdded(PitchFrame pitchFrame) {
-		// TODO Auto-generated method stub
-
+		cqLayer.update(pitchFrame);
+		spectralPeaksLayer.update(pitchFrame);
+		if (count % 10 == 0) {
+			this.cqPanel.repaint();
+			this.spectralPeaksPanel.repaint();
+		}
+		count++;
+		// SpectralPeaksFeatures specFeatures = pitchFrame.getSpectralPeaksFeatures();
+		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));
 	}
 }

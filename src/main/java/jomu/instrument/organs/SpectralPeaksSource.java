@@ -2,6 +2,7 @@ package jomu.instrument.organs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -23,6 +24,7 @@ public class SpectralPeaksSource {
 	int minPeakSize = 5;
 	List<SpectralInfo> spectralInfos = new ArrayList<SpectralInfo>();
 	SpectralPeakProcessor spectralPeakProcesser;
+	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
 
 	public SpectralPeaksSource(TarsosAudioIO tarsosIO) {
 		super();
@@ -56,9 +58,8 @@ public class SpectralPeaksSource {
 				currentFrame = frameCounter;
 				SpectralInfo si = new SpectralInfo(spectralPeakProcesser.getMagnitudes(),
 						spectralPeakProcesser.getFrequencyEstimates());
-				// System.out.println(">>SI: " + si);
 				spectralInfos.add(si);
-
+				features.put(audioEvent.getTimeStamp(), si);
 				SpectralInfo info = spectralInfos.get(currentFrame);
 
 				List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
@@ -71,16 +72,17 @@ public class SpectralPeaksSource {
 							peak.getRelativeFrequencyInCents(), peak.getMagnitude());
 					sb.append(message);
 				}
-				// System.out.println(">>repaintSpectalInfo2: " + sb.toString());
 				return true;
 			}
 		});
 
 		spectralInfos.clear();
+		features.clear();
 	}
 
 	void clear() {
 		spectralInfos.clear();
+		features.clear();
 	}
 
 	public TarsosAudioIO getTarsosIO() {
@@ -127,4 +129,11 @@ public class SpectralPeaksSource {
 		return spectralPeakProcesser;
 	}
 
+	public TreeMap<Double, SpectralInfo> getFeatures() {
+		TreeMap<Double, SpectralInfo> clonedFeatures = new TreeMap<>();
+		for (java.util.Map.Entry<Double, SpectralInfo> entry : features.entrySet()) {
+			clonedFeatures.put(entry.getKey(), entry.getValue());
+		}
+		return clonedFeatures;
+	}
 }

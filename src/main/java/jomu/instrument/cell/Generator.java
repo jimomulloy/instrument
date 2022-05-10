@@ -56,14 +56,14 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getAudioCQProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			System.out.println(">>getAudioCQProcessor");
-			System.out.println(cell.toString());
+			//System.out.println(">>getAudioCQProcessor");
+			//System.out.println(cell.toString());
 			String sequence = "";
 			Object output = null;
 			for (NuMessage message : messages) {
 				sequence = message.sequence;
 				output = message.input;
-				System.out.println("CQ process message: " + message);
+				//System.out.println("CQ process message: " + message);
 			}
 			cell.send(sequence, output);
 		};
@@ -72,20 +72,20 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getSinkProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			System.out.println(">>getSinkProcessor");
-			System.out.println(cell.toString());
+			//System.out.println(">>getSinkProcessor");
+			//System.out.println(cell.toString());
 			for (NuMessage message : messages) {
-				System.out.println("process message: " + message + ", input: " + message.input);
+				//System.out.println("process message: " + message + ", input: " + message.input);
 			}
 		};
 	}
 
 	private static Consumer<List<NuMessage>> getAudioPitchProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			System.out.println(">>getAudioPitchProcessor");
-			System.out.println(cell.toString());
+			//System.out.println(">>getAudioPitchProcessor");
+			//System.out.println(cell.toString());
 			for (NuMessage message : messages) {
-				System.out.println("send message: " + message);
+				//System.out.println("send message: " + message);
 				cell.send(message.sequence, message.input);
 			}
 		};
@@ -93,10 +93,10 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getSourceProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			System.out.println(">>getSourceProcessor");
-			System.out.println(cell.toString());
+			//System.out.println(">>getSourceProcessor");
+			//System.out.println(cell.toString());
 			for (NuMessage message : messages) {
-				System.out.println("send message: " + message);
+				//System.out.println("send message: " + message);
 				cell.send(message.sequence, message.input);
 			}
 		};
@@ -104,9 +104,9 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getJunctionProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			System.out.println(">>getJunctionProcessor");
+			//System.out.println(">>getJunctionProcessor");
 			for (NuMessage message : messages) {
-				System.out.println("send message: " + message);
+				//System.out.println("send message: " + message);
 				cell.send(message);
 			}
 		};

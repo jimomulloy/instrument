@@ -1,5 +1,8 @@
 package jomu.instrument.organs;
 
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
@@ -13,7 +16,6 @@ public class Druid {
 
 	public void initialise() {
 		visor = new Visor();
-		visor.initialise();
 	}
 
 	public void start() {
@@ -21,10 +23,16 @@ public class Druid {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					JFrame frame = visor;
+					JFrame frame = new JFrame();
+					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					frame.setTitle("Druid");
+					frame.add(visor);
 					frame.pack();
-					frame.setSize(1500, 1000);
+					Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+					frame.setSize(screenSize.width/2, screenSize.height/2);
 					frame.setVisible(true);
+				    frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+					
 				}
 			});
 		} catch (InvocationTargetException | InterruptedException e) {

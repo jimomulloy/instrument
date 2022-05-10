@@ -13,4 +13,12 @@ public class ConstantQFeatures {
 		cqs.clear();
 	}
 
+	public ConstantQSource getCqs() {
+		return cqs;
+	}
+
+	public TreeMap<Double, float[]> getFeatures() {
+		return features;
+	}
+
 }

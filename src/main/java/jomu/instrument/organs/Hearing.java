@@ -37,8 +37,8 @@ public class Hearing {
 		// set up the parent AudioContext object
 		tarsosIO = new TarsosAudioIO();
 		tarsosIO.selectMixer(2);
-		File file = new File("D:/audio/tonemap1.wav");
-		IOAudioFormat audioFormat = new IOAudioFormat(44100, 16, 1, 1, true, true);
+		File file = new File("D:/audio/tonemappianos.wav");
+		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1, true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
 		// get a microphone input unit generator
 		tarsosIO.setAudioFile(file);
@@ -54,7 +54,7 @@ public class Hearing {
 		extractors.add(MelSpectrum.class);
 		analyzer = new Analyzer(ac, extractors);
 		toneMap = new ToneMap(analyzer, tarsosFeatureSource);
-		toneMap.setMaxFrames(10);
+		toneMap.setMaxFrames(100);
 		analyzer.listenTo(microphoneIn);
 		analyzer.updateFrom(ac.out);
 	}

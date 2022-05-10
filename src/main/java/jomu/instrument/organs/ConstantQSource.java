@@ -13,7 +13,7 @@ import jomu.instrument.audio.TarsosAudioIO;
 public class ConstantQSource {
 
 	TarsosAudioIO tarsosIO;
-	int sampleRate = 44100;
+	float sampleRate; // = 44100;
 	int increment = 2048;
 	int minimumFrequencyInCents = 3600;
 	int maximumFrequencyInCents = 10800;
@@ -23,10 +23,16 @@ public class ConstantQSource {
 	private TreeMap<Double, float[]> features = new TreeMap<>();
 	double constantQLag;
 	ConstantQ constantQ;
+	private float binWidth;
+	private float binHeight;
+	private float[] startingPointsInHertz;
+	private float[] binStartingPointsInCents;
+	private int size;
 
 	public ConstantQSource(TarsosAudioIO tarsosIO) {
 		super();
 		this.tarsosIO = tarsosIO;
+		this.sampleRate = tarsosIO.getContext().getSampleRate();
 	}
 
 	void initialise() {
@@ -35,22 +41,22 @@ public class ConstantQSource {
 
 		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
 
-		float binWith = increment / sampleRate;
-		float binHeight = 1200 / (float) binsPerOctave;
+		binWidth = increment / sampleRate;
+		binHeight = 1200 / (float) binsPerOctave;
 
-		float[] startingPointsInHertz = constantQ.getFreqencies();
-		float[] binStartingPointsInCents = new float[startingPointsInHertz.length];
+		startingPointsInHertz = constantQ.getFreqencies();
+		binStartingPointsInCents = new float[startingPointsInHertz.length];
 		for (int i = 0; i < binStartingPointsInCents.length; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(startingPointsInHertz[i]);
 		}
 
-		int size = constantQ.getFFTlength();
+		size = constantQ.getFFTlength();
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - increment);
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 
-		constantQLag = size / djp.getFormat().getSampleRate() - binWith / 2.0;// in seconds
+		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;// in seconds
 		features = new TreeMap<Double, float[]>();
 
 		djp.addAudioProcessor(constantQ);
@@ -70,6 +76,8 @@ public class ConstantQSource {
 			}
 
 			public boolean process(AudioEvent audioEvent) {
+				System.out.println(
+						">>put audio event: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
 				features.put(audioEvent.getTimeStamp() - constantQLag, constantQ.getMagnitudes().clone());
 				// System.out.println(">>ConstantQ process");
 				return true;
@@ -77,6 +85,26 @@ public class ConstantQSource {
 		});
 
 		features.clear();
+	}
+
+	public float getBinWidth() {
+		return binWidth;
+	}
+
+	public float getBinHeight() {
+		return binHeight;
+	}
+
+	public float[] getStartingPointsInHertz() {
+		return startingPointsInHertz;
+	}
+
+	public float[] getBinStartingPointsInCents() {
+		return binStartingPointsInCents;
+	}
+
+	public int getSize() {
+		return size;
 	}
 
 	void clear() {
@@ -87,7 +115,7 @@ public class ConstantQSource {
 		return tarsosIO;
 	}
 
-	public int getSampleRate() {
+	public float getSampleRate() {
 		return sampleRate;
 	}
 

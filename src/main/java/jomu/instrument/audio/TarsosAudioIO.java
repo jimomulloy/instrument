@@ -58,6 +58,8 @@ public class TarsosAudioIO extends AudioIO {
 
 	private File audioFile;
 
+	private AudioInputStream inputStream;
+
 	public TarsosAudioIO() {
 		this(DEFAULT_SYSTEM_BUFFER_SIZE);
 	}
@@ -66,6 +68,10 @@ public class TarsosAudioIO extends AudioIO {
 		this.systemBufferSizeInFrames = systemBufferSize;
 		System.out.println("Beads System Buffer size=" + systemBufferSize);
 		setThreadPriority(Thread.MAX_PRIORITY);
+	}
+
+	public AudioInputStream getInputStream() {
+		return inputStream;
 	}
 
 	/**
@@ -369,8 +375,9 @@ public class TarsosAudioIO extends AudioIO {
 				interleavedSamples = new float[bufferSize * format.getChannels()];
 				bbuf = new byte[bufferSize * format.getFrameSize()];
 
-				final AudioInputStream stream = new AudioInputStream(targetDataLine);
-				JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
+				inputStream = new AudioInputStream(targetDataLine);
+				
+				JVMAudioInputStream audioStream = new JVMAudioInputStream(inputStream);
 
 				// create a new dispatcher
 				dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
@@ -398,6 +405,7 @@ public class TarsosAudioIO extends AudioIO {
 
 		@Override
 		public boolean process(AudioEvent audioEvent) {
+			System.out.println(">>Tarsos audio: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
 			audioFloatbuffer = audioEvent.getFloatBuffer();
 
 			int bufferSizeInFrames = context.getBufferSize();
@@ -428,8 +436,8 @@ public class TarsosAudioIO extends AudioIO {
 			if (inputMixer != null) {
 				inputMixer.close();
 				inputMixer = null;
-			}	
-			//dispatcher.stop();
+			}
+			// dispatcher.stop();
 		}
 
 	}

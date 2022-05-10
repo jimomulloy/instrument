@@ -38,6 +38,7 @@ public class ToneMap implements SegmentListener {
 				lastTime = (int) start.getTimeMS();
 				frameSequence++;
 				System.out.println(">> Create Pitch Frame: " + frameSequence);
+				createPitchFrame(start, end);
 			}
 		}
 	}
