@@ -29,6 +29,7 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.YIN;
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, bufferSize, overlap);
+		djp.setName("PD");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
 

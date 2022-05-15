@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import be.tarsos.dsp.Oscilloscope;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.analysis.Analyzer;
 import net.beadsproject.beads.analysis.SegmentListener;
@@ -14,8 +15,9 @@ public class ToneMap implements SegmentListener {
 
 	private Analyzer analyzer;
 	private TarsosFeatureSource tarsosFeatures;
-	private int interval = 100;
-	private int lastTime = 0;
+	private double interval = 100;
+	private TimeStamp lastTimeStamp;
+	private TimeStamp firstTimeStamp;
 	private int frameSequence = 0;
 	private int maxFrames = -1;
 
@@ -28,17 +30,24 @@ public class ToneMap implements SegmentListener {
 		this.tarsosFeatures = tarsosFeatures;
 		analyzer.addSegmentListener(this);
 		addObserver(Instrument.getInstance().getDruid().getVisor());
+		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getDruid().getVisor());
+		tarsosFeatures.getTarsosIO().getDispatcher().addAudioProcessor(oscilloscope);
+		lastTimeStamp = new TimeStamp(tarsosFeatures.getTarsosIO().getContext(), 0);
 	}
 
 	@Override
 	public void newSegment(TimeStamp start, TimeStamp end) {
-		// System.out.println(">>AudioFeatureMap segment at: " + start);
+		System.out.println(">>TM segment at: " + start + ", " + end);
 		if (maxFrames > 0 && maxFrames > frameSequence) {
-			if ((int) start.getTimeMS() - lastTime >= interval) {
-				lastTime = (int) start.getTimeMS();
+			if (firstTimeStamp == null) {
+				firstTimeStamp = start;
+			}
+			if (end.getTimeMS() - lastTimeStamp.getTimeMS() >= interval) {
 				frameSequence++;
-				System.out.println(">> Create Pitch Frame: " + frameSequence);
-				createPitchFrame(start, end);
+				System.out.println(">>TM Create Frame: " + frameSequence);
+				createPitchFrame(firstTimeStamp, end);
+				lastTimeStamp = end;
+				firstTimeStamp = null;
 			}
 		}
 	}
@@ -52,6 +61,7 @@ public class ToneMap implements SegmentListener {
 	}
 
 	private PitchFrame createPitchFrame(TimeStamp start, TimeStamp end) {
+		System.out.println(">>TM Create Pitch Frame: " + start.getTimeMS() + ", " + end.getTimeMS());
 		PitchFrame pitchFrame = new PitchFrame(this);
 		pitchFrame.initialise(frameSequence, start, end);
 		addPitchFrame(start, pitchFrame);
@@ -85,12 +95,8 @@ public class ToneMap implements SegmentListener {
 		return tarsosFeatures;
 	}
 
-	public int getInterval() {
+	public double getInterval() {
 		return interval;
-	}
-
-	public int getLastTime() {
-		return lastTime;
 	}
 
 	public int getFrameSequence() {

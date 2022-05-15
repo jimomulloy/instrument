@@ -81,6 +81,8 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 			// and to framesInBlocks
 			int startIndex = (int) (ff.getStartTimeMS() / skipMS);
 			int endIndex = (int) (ff.getEndTimeMS() / skipMS);
+			System.out.println(">>FT Add frame: " + frames.size() + ", si:" + startIndex + ", ei: " + endIndex
+					+ ", sk: " + skipMS);
 			for (int i = startIndex; i <= endIndex; i++) {
 				SortedSet<FeatureFrame> frameSet;
 				if (framesInBlocks.containsKey(i)) {
@@ -90,6 +92,7 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 					framesInBlocks.put(i, frameSet);
 				}
 				frameSet.add(ff);
+				System.out.println(">>FT Added frame: " + frameSet.size());
 			}
 			frameMemoryCheck();
 		}
@@ -123,6 +126,7 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	 */
 	public List<FeatureFrame> getRange(double startRangeMS, double endRangeMS) {
 		ArrayList<FeatureFrame> result = new ArrayList<FeatureFrame>();
+		System.out.println(">>FT get range: " + startRangeMS + ", " + endRangeMS);
 		FeatureFrame startFrame = getFrameAt(startRangeMS);
 		if (startFrame == null)
 			return new ArrayList<>();
@@ -258,7 +262,7 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	 * {@link FeatureExtractor}s at this point.
 	 */
 	public void newSegment(TimeStamp startTime, TimeStamp endTime) {
-		// System.out.println(">> new segment: " + startTime);
+		System.out.println(">>FT New segment: " + startTime.getTimeMS());
 		FeatureFrame ff = new FeatureFrame(startTime.getTimeMS(), endTime.getTimeMS());
 		for (FeatureExtractor<?, ?> e : extractors) {
 			Object features = e.getFeatures();

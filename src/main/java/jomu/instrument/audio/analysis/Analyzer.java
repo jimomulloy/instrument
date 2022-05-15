@@ -22,7 +22,6 @@ import net.beadsproject.beads.analysis.featureextractors.SpectralCentroid;
 import net.beadsproject.beads.analysis.featureextractors.SpectralDifference;
 import net.beadsproject.beads.analysis.featureextractors.SpectralDifference.DifferenceType;
 import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
-import net.beadsproject.beads.analysis.segmenters.ShortFrameSegmenter;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.UGen;
 

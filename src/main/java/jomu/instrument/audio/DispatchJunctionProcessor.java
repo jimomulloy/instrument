@@ -36,6 +36,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 	private int processedLength;
 
+	private String name;
+
 	/**
 	 * A list of registered audio processors. The audio processors are responsible
 	 * for actually doing the digital signal processing
@@ -205,13 +207,16 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 	@Override
 	public boolean process(AudioEvent incomingAudioEvent) {
-		System.out.println(
-				">>DJP audio: " + incomingAudioEvent.getTimeStamp() + ", " + incomingAudioEvent.getSamplesProcessed());
-
+		// System.out.println(
+		// ">>DJP audio: " + name + ", " + incomingAudioEvent.getTimeStamp() + ", " +
+		// incomingAudioEvent.getSamplesProcessed());
 		// Passthrough
 		if (this.audioFloatBuffer.length == incomingAudioEvent.getBufferSize()
 				&& this.floatOverlap == incomingAudioEvent.getOverlap()) {
 			for (final AudioProcessor processor : audioProcessors) {
+				// System.out.println(
+				// ">>DJP processor: " + name + ", " + audioEvent.getTimeStamp() + ", " +
+				// processor.getClass().descriptorString());
 				if (!processor.process(audioEvent)) {
 					// skip to the next audio processors if false is returned.
 					break;
@@ -273,6 +278,9 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 					}
 					for (final AudioProcessor processor : audioProcessors) {
+						// System.out.println(
+						// ">>DJP processor: " + name + ", " + audioEvent.getTimeStamp() + ", " +
+						// processor.getClass().descriptorString());
 						if (!processor.process(audioEvent)) {
 							// skip to the next audio processors if false is returned.
 							break;
@@ -301,8 +309,9 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 						(audioEvent.getSamplesProcessed() + this.floatStepSize) * format.getFrameSize());
 			}
 			for (final AudioProcessor processor : audioProcessors) {
-				System.out.println(
-						">>Tarsos audio out: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
+				// System.out.println(
+				// ">>DJP processor: " + name + ", " + audioEvent.getTimeStamp() + ", " +
+				// processor.getClass().descriptorString());
 				if (!processor.process(audioEvent)) {
 					// skip to the next audio processors if false is returned.
 					break;
@@ -360,6 +369,14 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 */
 	public boolean isStopped() {
 		return stopped;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

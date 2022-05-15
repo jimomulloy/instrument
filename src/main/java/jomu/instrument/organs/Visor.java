@@ -71,6 +71,7 @@ import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.InputPanel;
+import jomu.instrument.audio.analysis.FeatureFrame;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureObserver {
 
@@ -93,14 +94,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private float noiseFloorFactor;
 	private int numberOfSpectralPeaks;
 	private int minPeakSize;
-	private CoordinateSystem constantQCS;
-	private LinkedPanel constantQ;
+	private LinkedPanel constantQPanel;
 	private LegendLayer legend;
 	private LinkedPanel cqPanel;
 	private CQLayer cqLayer;
 	private int count = 0;
 	private LinkedPanel spectralPeaksPanel;
 	private SpectrumPeaksLayer spectralPeaksLayer;
+	private LinkedPanel beadsPanel;
+	private BeadsLayer beadsLayer;
 
 	public Visor() {
 		this.setLayout(new BorderLayout());
@@ -131,6 +133,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		tabbedPane.addTab("SP", spectralPeaksPanel);
 		oscilloscopePanel = new OscilloscopePanel();
 		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
+		beadsPanel = createBeadsPanel();
+		tabbedPane.addTab("Beads", beadsPanel);
+
 		// spectrumPanel = createSpectrumPanel();
 		// tabbedPane.addTab("Spectrum", spectrumPanel);
 	}
@@ -205,32 +210,58 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	private LinkedPanel createCQPanel() {
-		constantQCS = getCoordinateSystem(AxisUnit.FREQUENCY);
+		CoordinateSystem constantQCS = getCoordinateSystem(AxisUnit.FREQUENCY);
 		constantQCS.setMax(Axis.X, 20000);
-		constantQ = new LinkedPanel(constantQCS);
+		constantQPanel = new LinkedPanel(constantQCS);
 		cqLayer = new CQLayer(constantQCS);
-		constantQ.addLayer(new BackgroundLayer(constantQCS));
-		constantQ.addLayer(cqLayer);
+		constantQPanel.addLayer(new BackgroundLayer(constantQCS));
+		constantQPanel.addLayer(cqLayer);
 		// constantQ.addLayer(new PitchContourLayer(constantQCS,
 		// player.getLoadedFile(),Color.red,2048,0));
-		constantQ.addLayer(new VerticalFrequencyAxisLayer(constantQCS));
-		constantQ.addLayer(new ZoomMouseListenerLayer());
-		constantQ.addLayer(new DragMouseListenerLayer(constantQCS));
-		constantQ.addLayer(new SelectionLayer(constantQCS));
-		constantQ.addLayer(new TimeAxisLayer(constantQCS));
+		constantQPanel.addLayer(new VerticalFrequencyAxisLayer(constantQCS));
+		constantQPanel.addLayer(new ZoomMouseListenerLayer());
+		constantQPanel.addLayer(new DragMouseListenerLayer(constantQCS));
+		constantQPanel.addLayer(new SelectionLayer(constantQCS));
+		constantQPanel.addLayer(new TimeAxisLayer(constantQCS));
 
 		legend = new LegendLayer(constantQCS, 110);
-		constantQ.addLayer(legend);
+		constantQPanel.addLayer(legend);
 		legend.addEntry("ConstantQ", Color.BLACK);
 		legend.addEntry("Pitch estimations", Color.RED);
 		ViewPortChangedListener listener = new ViewPortChangedListener() {
 			@Override
 			public void viewPortChanged(ViewPort newViewPort) {
-				constantQ.repaint();
+				constantQPanel.repaint();
 			}
 		};
-		constantQ.getViewPort().addViewPortChangedListener(listener);
-		return constantQ;
+		constantQPanel.getViewPort().addViewPortChangedListener(listener);
+		return constantQPanel;
+	}
+
+	private LinkedPanel createBeadsPanel() {
+		CoordinateSystem beadsCS = getCoordinateSystem(AxisUnit.FREQUENCY);
+		beadsCS.setMax(Axis.X, 20000);
+		beadsPanel = new LinkedPanel(beadsCS);
+		beadsLayer = new BeadsLayer(beadsCS);
+		beadsPanel.addLayer(new BackgroundLayer(beadsCS));
+		beadsPanel.addLayer(cqLayer);
+		beadsPanel.addLayer(new VerticalFrequencyAxisLayer(beadsCS));
+		beadsPanel.addLayer(new ZoomMouseListenerLayer());
+		beadsPanel.addLayer(new DragMouseListenerLayer(beadsCS));
+		beadsPanel.addLayer(new SelectionLayer(beadsCS));
+		beadsPanel.addLayer(new TimeAxisLayer(beadsCS));
+
+		legend = new LegendLayer(beadsCS, 110);
+		beadsPanel.addLayer(legend);
+		legend.addEntry("Beads", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				beadsPanel.repaint();
+			}
+		};
+		beadsPanel.getViewPort().addViewPortChangedListener(listener);
+		return beadsPanel;
 	}
 
 	public void repaintSpectalInfo(SpectralInfo info) {
@@ -427,7 +458,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		@Override
 		public String getName() {
-			return "CQ Layer";
+			return "Spectral Peaks Layer";
 		}
 
 		public void update(PitchFrame pitchFrame) {
@@ -448,6 +479,71 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					}
 					for (java.util.Map.Entry<Double, SpectralInfo> entry : fs.entrySet()) {
 						spFeatures.put(entry.getKey(), entry.getValue());
+					}
+				}
+			});
+		}
+	}
+
+	private static class BeadsLayer implements Layer {
+
+		private TreeMap<Double, float[]> cqFeatures;
+		private final CoordinateSystem cs;
+
+		private float[] binStartingPointsInCents;
+		private float binWidth;
+		private float binHeight;
+
+		public BeadsLayer(CoordinateSystem cs) {
+			this.cs = cs;
+		}
+
+		public void draw(Graphics2D graphics) {
+
+			if (cqFeatures != null) {
+				Map<Double, float[]> spectralInfoSubMap = cqFeatures.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
+
+				double currentMaxSpectralEnergy = 0;
+				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
+					float[] spectralEnergy = column.getValue();
+					for (int i = 0; i < spectralEnergy.length; i++) {
+						currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy, spectralEnergy[i]);
+					}
+				}
+				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
+					double timeStart = column.getKey();// in seconds
+					float[] spectralEnergy = column.getValue();// in cents
+					// draw the pixels
+					for (int i = 0; i < spectralEnergy.length; i++) {
+						Color color = Color.black;
+						float centsStartingPoint = binStartingPointsInCents[i];
+						// only draw the visible frequency range
+						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
+							int greyValue = 255 - (int) (Math.log1p(spectralEnergy[i])
+									/ Math.log1p(currentMaxSpectralEnergy) * 255);
+							greyValue = Math.max(0, greyValue);
+							color = new Color(greyValue, greyValue, greyValue);
+							graphics.setColor(color);
+							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
+									(int) Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public String getName() {
+			return "Beads Layer";
+		}
+
+		public void update(PitchFrame pitchFrame) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					List<FeatureFrame> beadsFeatures = pitchFrame.getBeadsFeatures();
+					for (FeatureFrame beadsFeatureFrame : beadsFeatures) {
+						// System.out.println(">> BEADS FRAME: " + beadsFeatureFrame);
 					}
 				}
 			});
@@ -495,11 +591,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	@Override
 	public void pitchFrameAdded(PitchFrame pitchFrame) {
+		beadsLayer.update(pitchFrame);
 		cqLayer.update(pitchFrame);
 		spectralPeaksLayer.update(pitchFrame);
 		if (count % 10 == 0) {
 			this.cqPanel.repaint();
 			this.spectralPeaksPanel.repaint();
+			// this.beadsPanel.repaint();
 		}
 		count++;
 		// SpectralPeaksFeatures specFeatures = pitchFrame.getSpectralPeaksFeatures();

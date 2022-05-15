@@ -43,6 +43,7 @@ public class SpectralPeaksSource {
 		spectralPeakProcesser = new SpectralPeakProcessor(fftsize, overlap, sampleRate);
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, fftsize, overlap);
+		djp.setName("SP");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 		djp.addAudioProcessor(spectralPeakProcesser);
 

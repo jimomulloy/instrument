@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import be.tarsos.dsp.Oscilloscope;
-import jomu.instrument.Instrument;
 import jomu.instrument.audio.TarsosAudioIO;
 import jomu.instrument.audio.analysis.Analyzer;
 import net.beadsproject.beads.analysis.FeatureExtractor;
 import net.beadsproject.beads.analysis.featureextractors.Frequency;
-import net.beadsproject.beads.analysis.featureextractors.MelSpectrum;
+import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.IOAudioFormat;
 import net.beadsproject.beads.core.UGen;
@@ -44,14 +42,17 @@ public class Hearing {
 		tarsosIO.setAudioFile(file);
 		UGen microphoneIn = ac.getAudioInput();
 
-		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getDruid().getOscilloscopeHandler());
-		tarsosIO.getDispatcher().addAudioProcessor(oscilloscope);
+		// Oscilloscope oscilloscope = new
+		// Oscilloscope(Instrument.getInstance().getDruid().getOscilloscopeHandler());
+		// tarsosIO.getDispatcher().addAudioProcessor(oscilloscope);
 
 		tarsosFeatureSource = new TarsosFeatureSource(tarsosIO);
 		tarsosFeatureSource.initialise();
 
 		List<Class<? extends FeatureExtractor<?, ?>>> extractors = new ArrayList<>();
-		extractors.add(MelSpectrum.class);
+		// extractors.add(MelSpectrum.class);
+		extractors.add(SpectralPeaks.class);
+
 		analyzer = new Analyzer(ac, extractors);
 		toneMap = new ToneMap(analyzer, tarsosFeatureSource);
 		toneMap.setMaxFrames(100);

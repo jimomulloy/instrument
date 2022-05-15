@@ -54,6 +54,7 @@ public class ConstantQSource {
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - increment);
+		djp.setName("CQ");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;// in seconds
@@ -76,9 +77,9 @@ public class ConstantQSource {
 			}
 
 			public boolean process(AudioEvent audioEvent) {
-				System.out.println(
-						">>put audio event: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
-				features.put(audioEvent.getTimeStamp() - constantQLag, constantQ.getMagnitudes().clone());
+				System.out.println(">>CQ put audio event: " + audioEvent.getTimeStamp() + ", "
+						+ audioEvent.getSamplesProcessed() + ", lag: " + constantQLag);
+				features.put(audioEvent.getTimeStamp() /* - constantQLag */ , constantQ.getMagnitudes().clone());
 				// System.out.println(">>ConstantQ process");
 				return true;
 			}

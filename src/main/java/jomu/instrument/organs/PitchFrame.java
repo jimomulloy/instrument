@@ -2,6 +2,7 @@ package jomu.instrument.organs;
 
 import java.util.List;
 
+import be.tarsos.dsp.pitch.PitchDetectionResult;
 import jomu.instrument.audio.analysis.FeatureFrame;
 import jomu.instrument.audio.analysis.FeatureSet;
 import jomu.instrument.tonemap.PitchSet;
@@ -37,6 +38,21 @@ public class PitchFrame {
 		constantQFeatures.initialise(this.toneMap.getTarsosFeatures().getConstantQSource());
 		spectralPeaksFeatures.initialise(this.toneMap.getTarsosFeatures().getSpectralPeaksSource());
 		pitchDetectorFeatures.initialise(this.toneMap.getTarsosFeatures().getPitchDetectorSource());
+		System.out.println(">> PitchFrame: " + start.getTimeMS() + ", " + start);
+		for (FeatureFrame beadsFeatureFrame : beadsFeatures) {
+			System.out.println(">> BEADS FRAME B: " + beadsFeatureFrame.getStartTimeMS() + ", "
+					+ beadsFeatureFrame.getEndTimeMS());
+			System.out.println(beadsFeatureFrame);
+		}
+		for (Double entry : constantQFeatures.getFeatures().keySet()) {
+			System.out.println(">> CQ Feature: " + entry);
+		}
+		for (Double entry : spectralPeaksFeatures.getFeatures().keySet()) {
+			System.out.println(">> SP Feature: " + entry);
+		}
+		for (PitchDetectionResult entry : pitchDetectorFeatures.getFeatures()) {
+			System.out.println(">> PD Feature: " + entry);
+		}
 		// timeSet = new TimeSet();
 		// pitchSet = new PitchSet();
 	}
