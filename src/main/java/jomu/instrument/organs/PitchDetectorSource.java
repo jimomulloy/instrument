@@ -1,7 +1,6 @@
 package jomu.instrument.organs;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.TreeMap;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
@@ -15,7 +14,7 @@ import jomu.instrument.audio.TarsosAudioIO;
 public class PitchDetectorSource implements PitchDetectionHandler {
 
 	TarsosAudioIO tarsosIO;
-	List<PitchDetectionResult> features = new ArrayList<PitchDetectionResult>();
+	private TreeMap<Double, PitchDetectionResult> features = new TreeMap<>();
 
 	public PitchDetectorSource(TarsosAudioIO tarsosIO) {
 		super();
@@ -44,16 +43,16 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		return tarsosIO;
 	}
 
-	public List<PitchDetectionResult> getFeatures() {
-		List<PitchDetectionResult> clonedFeatures = new ArrayList<PitchDetectionResult>();
-		for (PitchDetectionResult pdr : features) {
-			clonedFeatures.add(pdr);
+	public TreeMap<Double, PitchDetectionResult> getFeatures() {
+		TreeMap<Double, PitchDetectionResult> clonedFeatures = new TreeMap<>();
+		for (java.util.Map.Entry<Double, PitchDetectionResult> entry : features.entrySet()) {
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
 	}
 
 	@Override
 	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
-		features.add(pitchDetectionResult);
+		features.put(audioEvent.getTimeStamp(), pitchDetectionResult);
 	}
 }

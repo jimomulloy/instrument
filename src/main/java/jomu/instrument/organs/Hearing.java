@@ -35,7 +35,7 @@ public class Hearing {
 		// set up the parent AudioContext object
 		tarsosIO = new TarsosAudioIO();
 		tarsosIO.selectMixer(2);
-		File file = new File("D:/audio/tonemappianos.wav");
+		File file = new File("D:/audio/tonemap1.wav");
 		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1, true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
 		// get a microphone input unit generator

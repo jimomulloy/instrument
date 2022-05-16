@@ -16,12 +16,12 @@ public class SpectralPeaksSource {
 
 	TarsosAudioIO tarsosIO;
 	int sampleRate = 44100;
-	int increment = 2048;
+	int increment = 1024;
 	int currentFrame;
-	int noiseFloorMedianFilterLenth = 17;
-	float noiseFloorFactor = 1.5F;
-	int numberOfSpectralPeaks = 7;
-	int minPeakSize = 5;
+	int noiseFloorMedianFilterLenth = 10;
+	float noiseFloorFactor = 1.0F;
+	int numberOfSpectralPeaks = 3;
+	int minPeakSize = 100;
 	List<SpectralInfo> spectralInfos = new ArrayList<SpectralInfo>();
 	SpectralPeakProcessor spectralPeakProcesser;
 	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
@@ -33,7 +33,7 @@ public class SpectralPeaksSource {
 
 	void initialise() {
 
-		int fftsize = 2048;
+		int fftsize = 1024;
 		int stepsize = 512;
 		int overlap = fftsize - stepsize;
 		if (overlap < 1) {
@@ -133,7 +133,7 @@ public class SpectralPeaksSource {
 	public TreeMap<Double, SpectralInfo> getFeatures() {
 		TreeMap<Double, SpectralInfo> clonedFeatures = new TreeMap<>();
 		for (java.util.Map.Entry<Double, SpectralInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue());
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
 	}

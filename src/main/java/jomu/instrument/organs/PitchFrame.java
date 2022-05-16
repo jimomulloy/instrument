@@ -2,7 +2,6 @@ package jomu.instrument.organs;
 
 import java.util.List;
 
-import be.tarsos.dsp.pitch.PitchDetectionResult;
 import jomu.instrument.audio.analysis.FeatureFrame;
 import jomu.instrument.audio.analysis.FeatureSet;
 import jomu.instrument.tonemap.PitchSet;
@@ -14,12 +13,13 @@ public class PitchFrame {
 	private List<FeatureFrame> beadsFeatures;
 	private ConstantQFeatures constantQFeatures;
 	private SpectralPeaksFeatures spectralPeaksFeatures;
+	private PitchDetectorFeatures pitchDetectorFeatures;
+	private SpectrogramFeatures spectrogramFeatures;
 
 	private TimeSet timeSet;
 	private PitchSet pitchSet;
 	private int frameSequence;
 	private ToneMap toneMap;
-	private PitchDetectorFeatures pitchDetectorFeatures;
 
 	public PitchFrame(ToneMap toneMap) {
 		this.toneMap = toneMap;
@@ -35,14 +35,16 @@ public class PitchFrame {
 		constantQFeatures = new ConstantQFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
+		spectrogramFeatures = new SpectrogramFeatures();
 		constantQFeatures.initialise(this.toneMap.getTarsosFeatures().getConstantQSource());
 		spectralPeaksFeatures.initialise(this.toneMap.getTarsosFeatures().getSpectralPeaksSource());
 		pitchDetectorFeatures.initialise(this.toneMap.getTarsosFeatures().getPitchDetectorSource());
+		spectrogramFeatures.initialise(this.toneMap.getTarsosFeatures().getSpectrogramSource());
 		System.out.println(">> PitchFrame: " + start.getTimeMS() + ", " + start);
 		for (FeatureFrame beadsFeatureFrame : beadsFeatures) {
 			System.out.println(">> BEADS FRAME B: " + beadsFeatureFrame.getStartTimeMS() + ", "
 					+ beadsFeatureFrame.getEndTimeMS());
-			System.out.println(beadsFeatureFrame);
+			// System.out.println(beadsFeatureFrame);
 		}
 		for (Double entry : constantQFeatures.getFeatures().keySet()) {
 			System.out.println(">> CQ Feature: " + entry);
@@ -50,8 +52,11 @@ public class PitchFrame {
 		for (Double entry : spectralPeaksFeatures.getFeatures().keySet()) {
 			System.out.println(">> SP Feature: " + entry);
 		}
-		for (PitchDetectionResult entry : pitchDetectorFeatures.getFeatures()) {
+		for (Double entry : pitchDetectorFeatures.getFeatures().keySet()) {
 			System.out.println(">> PD Feature: " + entry);
+		}
+		for (Double entry : spectrogramFeatures.getFeatures().keySet()) {
+			System.out.println(">> SG Feature: " + entry);
 		}
 		// timeSet = new TimeSet();
 		// pitchSet = new PitchSet();
@@ -71,6 +76,14 @@ public class PitchFrame {
 
 	public SpectralPeaksFeatures getSpectralPeaksFeatures() {
 		return spectralPeaksFeatures;
+	}
+
+	public PitchDetectorFeatures getPitchDetectorFeatures() {
+		return pitchDetectorFeatures;
+	}
+
+	public SpectrogramFeatures getSpectrogramFeatures() {
+		return spectrogramFeatures;
 	}
 
 	public TimeSet getTimeSet() {

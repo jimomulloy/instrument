@@ -14,7 +14,7 @@ public class ConstantQSource {
 
 	TarsosAudioIO tarsosIO;
 	float sampleRate; // = 44100;
-	int increment = 2048;
+	int increment = 1024;
 	int minimumFrequencyInCents = 3600;
 	int maximumFrequencyInCents = 10800;
 	int binsPerOctave = 12;
@@ -147,7 +147,7 @@ public class ConstantQSource {
 	public TreeMap<Double, float[]> getFeatures() {
 		TreeMap<Double, float[]> clonedFeatures = new TreeMap<>();
 		for (java.util.Map.Entry<Double, float[]> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue());
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
 	}

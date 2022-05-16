@@ -49,6 +49,11 @@ public class SpectralInfo {
 		return magnitudes;
 	}
 
+	public SpectralInfo clone() {
+		SpectralInfo sic = new SpectralInfo(magnitudes.clone(), frequencyEstimates.clone());
+		return sic;
+	}
+
 	public float[] getNoiseFloor(int medianFilterLength, float noiseFloorFactor) {
 		return SpectralPeakProcessor.calculateNoiseFloor(magnitudes, medianFilterLength, noiseFloorFactor);
 	}

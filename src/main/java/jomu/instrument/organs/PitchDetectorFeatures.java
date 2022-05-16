@@ -1,13 +1,13 @@
 package jomu.instrument.organs;
 
-import java.util.List;
+import java.util.TreeMap;
 
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 
 public class PitchDetectorFeatures {
 
 	PitchDetectorSource pds;
-	List<PitchDetectionResult> features;
+	TreeMap<Double, PitchDetectionResult> features;
 
 	void initialise(PitchDetectorSource pds) {
 		this.pds = pds;
@@ -19,7 +19,7 @@ public class PitchDetectorFeatures {
 		return pds;
 	}
 
-	public List<PitchDetectionResult> getFeatures() {
+	public TreeMap<Double, PitchDetectionResult> getFeatures() {
 		return features;
 	}
 

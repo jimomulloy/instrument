@@ -213,6 +213,7 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 		// Passthrough
 		if (this.audioFloatBuffer.length == incomingAudioEvent.getBufferSize()
 				&& this.floatOverlap == incomingAudioEvent.getOverlap()) {
+			audioEvent = incomingAudioEvent; // TODO !!
 			for (final AudioProcessor processor : audioProcessors) {
 				// System.out.println(
 				// ">>DJP processor: " + name + ", " + audioEvent.getTimeStamp() + ", " +
