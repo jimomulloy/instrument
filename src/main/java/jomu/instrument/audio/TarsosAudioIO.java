@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.TreeMap;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -307,6 +308,8 @@ public class TarsosAudioIO extends AudioIO {
 		/** The input mixer. */
 		private Mixer inputMixer;
 
+		private TreeMap<Double, AudioEvent> features = new TreeMap<>();
+
 		/**
 		 * Instantiates a new RTInput.
 		 * 
@@ -406,8 +409,11 @@ public class TarsosAudioIO extends AudioIO {
 
 		@Override
 		public boolean process(AudioEvent audioEvent) {
+
 			System.out
 					.println(">>Tarsos audio: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
+			getFeatures().put(audioEvent.getTimeStamp(), audioEvent);
+
 			audioFloatbuffer = audioEvent.getFloatBuffer();
 
 			int bufferSizeInFrames = context.getBufferSize();
@@ -442,6 +448,22 @@ public class TarsosAudioIO extends AudioIO {
 			// dispatcher.stop();
 		}
 
+		public void clear() {
+			features.clear();
+		}
+
+		public TreeMap<Double, AudioEvent> getFeatures() {
+			return features;
+		}
+
+	}
+
+	public void clearFeatures() {
+		inputProcessor.clear();
+	}
+
+	public TreeMap<Double, AudioEvent> getFeatures() {
+		return inputProcessor.getFeatures();
 	}
 
 }

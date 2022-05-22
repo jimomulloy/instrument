@@ -15,31 +15,37 @@ public class PitchFrame {
 	private SpectralPeaksFeatures spectralPeaksFeatures;
 	private PitchDetectorFeatures pitchDetectorFeatures;
 	private SpectrogramFeatures spectrogramFeatures;
+	private GoertzelFeatures goertzelFeatures;
+	private AudioEventFeatures audioEventFeatures;
 
 	private TimeSet timeSet;
 	private PitchSet pitchSet;
 	private int frameSequence;
-	private ToneMap toneMap;
+	private PitchFrameProcessor pitchFrameProcessor;
 
-	public PitchFrame(ToneMap toneMap) {
-		this.toneMap = toneMap;
+	public PitchFrame(PitchFrameProcessor pitchFrameProcessor) {
+		this.pitchFrameProcessor = pitchFrameProcessor;
 	}
 
 	void initialise(int frameSequence, TimeStamp start, TimeStamp end) {
 		this.frameSequence = frameSequence;
-		FeatureSet results = this.toneMap.getAnalyzer().getResults();
+		FeatureSet results = this.pitchFrameProcessor.getAnalyzer().getResults();
 		beadsFeatures = results.get("Low Level").getRange(start.getTimeMS(), end.getTimeMS());
 		beadsBeatsFeatures = results.get("Beats").getRange(start.getTimeMS(), end.getTimeMS());
 		results.get("Low Level").removeRange(start.getTimeMS(), end.getTimeMS());
 		results.get("Beats").getRange(start.getTimeMS(), end.getTimeMS());
+		audioEventFeatures = new AudioEventFeatures();
 		constantQFeatures = new ConstantQFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
 		spectrogramFeatures = new SpectrogramFeatures();
-		constantQFeatures.initialise(this.toneMap.getTarsosFeatures().getConstantQSource());
-		spectralPeaksFeatures.initialise(this.toneMap.getTarsosFeatures().getSpectralPeaksSource());
-		pitchDetectorFeatures.initialise(this.toneMap.getTarsosFeatures().getPitchDetectorSource());
-		spectrogramFeatures.initialise(this.toneMap.getTarsosFeatures().getSpectrogramSource());
+		goertzelFeatures = new GoertzelFeatures();
+		audioEventFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getAudioEventSource());
+		constantQFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getConstantQSource());
+		spectralPeaksFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getSpectralPeaksSource());
+		pitchDetectorFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getPitchDetectorSource());
+		spectrogramFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getSpectrogramSource());
+		goertzelFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getGoertzelSource());
 		System.out.println(">> PitchFrame: " + start.getTimeMS() + ", " + start);
 		for (FeatureFrame beadsFeatureFrame : beadsFeatures) {
 			System.out.println(">> BEADS FRAME B: " + beadsFeatureFrame.getStartTimeMS() + ", "
@@ -57,6 +63,12 @@ public class PitchFrame {
 		}
 		for (Double entry : spectrogramFeatures.getFeatures().keySet()) {
 			System.out.println(">> SG Feature: " + entry);
+		}
+		for (Double entry : goertzelFeatures.getFeatures().keySet()) {
+			System.out.println(">> GZ Feature: " + entry);
+		}
+		for (Double entry : audioEventFeatures.getFeatures().keySet()) {
+			System.out.println(">> AE Feature: " + entry);
 		}
 		// timeSet = new TimeSet();
 		// pitchSet = new PitchSet();
@@ -86,6 +98,10 @@ public class PitchFrame {
 		return spectrogramFeatures;
 	}
 
+	public GoertzelFeatures getGoertzelFeatures() {
+		return goertzelFeatures;
+	}
+
 	public TimeSet getTimeSet() {
 		return timeSet;
 	}
@@ -98,8 +114,8 @@ public class PitchFrame {
 		return frameSequence;
 	}
 
-	public ToneMap getToneMap() {
-		return toneMap;
+	public PitchFrameProcessor getPitchFrameProcessor() {
+		return pitchFrameProcessor;
 	}
 
 }

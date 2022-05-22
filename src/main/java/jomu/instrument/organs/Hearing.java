@@ -27,7 +27,7 @@ public class Hearing {
 	int sampleRate = 44100;
 	private TarsosAudioIO tarsosIO;
 	TarsosFeatureSource tarsosFeatureSource;
-	private ToneMap toneMap;
+	private PitchFrameProcessor pitchFrameProcessor;
 	private AudioFeatureSource afs;
 
 	public void initialise() {
@@ -54,8 +54,8 @@ public class Hearing {
 		extractors.add(SpectralPeaks.class);
 
 		analyzer = new Analyzer(ac, extractors);
-		toneMap = new ToneMap(analyzer, tarsosFeatureSource);
-		toneMap.setMaxFrames(100);
+		pitchFrameProcessor = new PitchFrameProcessor(analyzer, tarsosFeatureSource);
+		pitchFrameProcessor.setMaxFrames(100);
 		analyzer.listenTo(microphoneIn);
 		analyzer.updateFrom(ac.out);
 	}
@@ -96,8 +96,8 @@ public class Hearing {
 		return tarsosFeatureSource;
 	}
 
-	public ToneMap getToneMap() {
-		return toneMap;
+	public PitchFrameProcessor getPitchFrameProcessor() {
+		return pitchFrameProcessor;
 	}
 
 	public AudioFeatureSource getAfs() {

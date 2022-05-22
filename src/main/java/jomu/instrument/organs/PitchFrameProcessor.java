@@ -11,7 +11,7 @@ import jomu.instrument.audio.analysis.Analyzer;
 import net.beadsproject.beads.analysis.SegmentListener;
 import net.beadsproject.beads.core.TimeStamp;
 
-public class ToneMap implements SegmentListener {
+public class PitchFrameProcessor implements SegmentListener {
 
 	private Analyzer analyzer;
 	private TarsosFeatureSource tarsosFeatures;
@@ -25,7 +25,7 @@ public class ToneMap implements SegmentListener {
 
 	private final static Map<TimeStamp, PitchFrame> pitchFrames = new Hashtable<TimeStamp, PitchFrame>();
 
-	public ToneMap(Analyzer analyzer, TarsosFeatureSource tarsosFeatures) {
+	public PitchFrameProcessor(Analyzer analyzer, TarsosFeatureSource tarsosFeatures) {
 		this.analyzer = analyzer;
 		this.tarsosFeatures = tarsosFeatures;
 		analyzer.addSegmentListener(this);

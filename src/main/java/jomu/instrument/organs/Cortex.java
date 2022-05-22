@@ -23,7 +23,7 @@ public class Cortex {
 		Weaver.connect(sourceCell, pitchCell);
 		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
 		audioFeatureSource = new AudioFeatureSource(sourceCell);
-		hearing.getToneMap().addObserver(audioFeatureSource);
+		hearing.getPitchFrameProcessor().addObserver(audioFeatureSource);
 		tms = new ToneMapSink(sinkCell);
 	}
 
