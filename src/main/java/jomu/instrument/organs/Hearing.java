@@ -28,7 +28,7 @@ public class Hearing {
 	private TarsosAudioIO tarsosIO;
 	TarsosFeatureSource tarsosFeatureSource;
 	private PitchFrameProcessor pitchFrameProcessor;
-	private AudioFeatureSource afs;
+	private PitchFrameCellSource afs;
 
 	public void initialise() {
 		// TODO Auto-generated method stub
@@ -100,7 +100,7 @@ public class Hearing {
 		return pitchFrameProcessor;
 	}
 
-	public AudioFeatureSource getAfs() {
+	public PitchFrameCellSource getAfs() {
 		return afs;
 	}
 

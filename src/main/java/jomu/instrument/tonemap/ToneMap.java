@@ -27,13 +27,16 @@ public class ToneMap implements ToneMapConstants {
 	 * SubSystem Data Model and Control objects, Audio, Midi and Tuner
 	 */
 	public ToneMap(ToneMapFrame toneMapFrame) {
-
+		this();
 		this.toneMapFrame = toneMapFrame;
 		toneMapPanel = new ToneMapPanel(this);
 		audioModel = toneMapFrame.getAudioModel();
 		midiModel = toneMapFrame.getMidiModel();
 		tunerModel = toneMapFrame.getTunerModel();
 
+	}
+
+	public ToneMap() {
 	}
 
 	/**
@@ -172,7 +175,8 @@ public class ToneMap implements ToneMapConstants {
 			return false;
 
 		// Build TomeMapMatrix
-		if (!buildMap())
+
+		if (!buildMap(audioModel.getAudioFTPower().length))
 			return false;
 
 		// Initialise ToneMap display panel
@@ -192,6 +196,41 @@ public class ToneMap implements ToneMapConstants {
 		toneMapPanel.repaint();
 
 		toneMapFrame.reportStatus(SC_TONEMAP_LOADED);
+		return true;
+	}
+
+	public boolean initialise(TimeSet timeSet, PitchSet pitchSet) {
+
+		this.timeSet = timeSet;
+		this.pitchSet = pitchSet;
+
+		int timeRange = timeSet.getRange();
+		int pitchRange = pitchSet.getRange();
+
+		int matrixLength = timeRange * (pitchRange + 1);
+
+		// Build TomeMapMatrix
+		if (!initMap(matrixLength))
+			return false;
+
+		tunerModel = new TunerModel(this);
+		tunerModel.clear();
+	
+		int lowThreshhold = 0;
+		int highThreshhold = 100;
+		// tunerModel.setThreshhold(lowThreshhold, highThreshhold);
+		ToneMapConfig config = new ToneMapConfig();
+		config.peakSwitch = true;
+		config.formantSwitch = true;
+		config.harmonicSwitch = true;
+		config.undertoneSwitch = true;
+		config.normalizeSwitch = true;
+		config.processMode = NONE;
+				
+		tunerModel.setConfig(config);
+		// tunerModel.setTime(timeSet);
+		// tunerModel.setPitch(pitchSet);
+
 		return true;
 	}
 
@@ -229,13 +268,17 @@ public class ToneMap implements ToneMapConstants {
 
 	}
 
-	// Create ToneMapMatrix from AudioModel Transformed data
-	private boolean buildMap() {
+	public boolean tune() {
 
-		// Load ToneMapMatrix elements from AudioModel transformed data buffer
-		// audioFTPower
-		audioFTPower = audioModel.getAudioFTPower();
-		matrixLength = audioFTPower.length;
+		// Execute TunerModel filtering and Conversion process
+		if (!tunerModel.tune())
+			return false;
+		return true;
+
+	}
+
+	// Create ToneMapMatrix from AudioModel Transformed data
+	private boolean buildMap(int matrixLength) {
 
 		// Instantiate new ToneMapMatrix
 		toneMapMatrix = new ToneMapMatrix(matrixLength, timeSet, pitchSet);
@@ -266,6 +309,37 @@ public class ToneMap implements ToneMapConstants {
 
 	}
 
+	private boolean initMap(int matrixLength) {
+
+		// Instantiate new ToneMapMatrix
+		toneMapMatrix = new ToneMapMatrix(matrixLength, timeSet, pitchSet);
+
+		mapIterator = toneMapMatrix.newIterator();
+
+		mapIterator.firstPitch();
+
+		// Iterate through ToneMapMatrix and load elements
+		do {
+			mapIterator.firstTime();
+			do {
+				index = mapIterator.getIndex();
+
+				mapIterator.newElement(0, 0);
+
+			} while (mapIterator.nextTime() && index < matrixLength);
+
+		} while (mapIterator.nextPitch() && index < matrixLength);
+
+		// toneMapMatrix.setAmpType(audioModel.logSwitch);
+		// toneMapMatrix.setLowThres(audioModel.powerLow);
+		// toneMapMatrix.setHighThres(audioModel.powerHigh);
+
+		toneMapMatrix.reset();
+
+		return true;
+
+	}
+
 	public ToneMapMatrix getMatrix() {
 		return toneMapMatrix;
 	}
@@ -280,6 +354,10 @@ public class ToneMap implements ToneMapConstants {
 
 	public AudioModel getAudioModel() {
 		return audioModel;
+	}
+
+	public TunerModel getTunerModel() {
+		return tunerModel;
 	}
 
 	private ToneMapFrame toneMapFrame;

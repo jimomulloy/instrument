@@ -21,9 +21,11 @@ public class PitchFrameProcessor implements SegmentListener {
 	private int frameSequence = 0;
 	private int maxFrames = -1;
 
-	private List<AudioFeatureObserver> observers = new ArrayList<>();
+	private List<PitchFrameObserver> observers = new ArrayList<>();
 
-	private final static Map<TimeStamp, PitchFrame> pitchFrames = new Hashtable<TimeStamp, PitchFrame>();
+	private Map<TimeStamp, PitchFrame> pitchFrames = new Hashtable<TimeStamp, PitchFrame>();
+
+	private Map<Integer, PitchFrame> pitchFrameSequence = new Hashtable<Integer, PitchFrame>();
 
 	public PitchFrameProcessor(Analyzer analyzer, TarsosFeatureSource tarsosFeatures) {
 		this.analyzer = analyzer;
@@ -45,7 +47,7 @@ public class PitchFrameProcessor implements SegmentListener {
 			if (end.getTimeMS() - lastTimeStamp.getTimeMS() >= interval) {
 				frameSequence++;
 				System.out.println(">>TM Create Frame: " + frameSequence);
-				createPitchFrame(firstTimeStamp, end);
+				createPitchFrame(frameSequence, firstTimeStamp, end);
 				lastTimeStamp = end;
 				firstTimeStamp = null;
 			}
@@ -60,25 +62,26 @@ public class PitchFrameProcessor implements SegmentListener {
 		this.maxFrames = maxFrames;
 	}
 
-	private PitchFrame createPitchFrame(TimeStamp start, TimeStamp end) {
+	private PitchFrame createPitchFrame(int frameSequence, TimeStamp start, TimeStamp end) {
 		System.out.println(">>TM Create Pitch Frame: " + start.getTimeMS() + ", " + end.getTimeMS());
-		PitchFrame pitchFrame = new PitchFrame(this);
-		pitchFrame.initialise(frameSequence, start, end);
+		PitchFrame pitchFrame = new PitchFrame(this, frameSequence, start, end);
+		pitchFrame.initialise();
 		addPitchFrame(start, pitchFrame);
 		return pitchFrame;
 	}
 
-	public void addObserver(AudioFeatureObserver observer) {
+	public void addObserver(PitchFrameObserver observer) {
 		this.observers.add(observer);
 	}
 
-	public void removeObserver(AudioFeatureObserver observer) {
+	public void removeObserver(PitchFrameObserver observer) {
 		this.observers.remove(observer);
 	}
 
 	public void addPitchFrame(TimeStamp start, PitchFrame pitchFrame) {
-		pitchFrames.put(start, pitchFrame);
-		for (AudioFeatureObserver observer : this.observers) {
+		pitchFrames.put(pitchFrame.getStart(), pitchFrame);
+		pitchFrameSequence.put(pitchFrame.getFrameSequence(), pitchFrame);
+		for (PitchFrameObserver observer : this.observers) {
 			observer.pitchFrameAdded(pitchFrame);
 		}
 	}
@@ -103,11 +106,19 @@ public class PitchFrameProcessor implements SegmentListener {
 		return frameSequence;
 	}
 
-	public List<AudioFeatureObserver> getObservers() {
+	public List<PitchFrameObserver> getObservers() {
 		return observers;
 	}
 
-	public static Map<TimeStamp, PitchFrame> getPitchframes() {
+	public Map<TimeStamp, PitchFrame> getPitchframes() {
 		return pitchFrames;
+	}
+
+	public PitchFrame getPitchFrame(TimeStamp startTime) {
+		return pitchFrames.get(startTime);
+	}
+
+	public PitchFrame getPitchFrame(int frameSequence) {
+		return pitchFrameSequence.get(frameSequence);
 	}
 }

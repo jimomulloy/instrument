@@ -2,11 +2,11 @@ package jomu.instrument.organs;
 
 import jomu.instrument.cell.NuCell;
 
-public class AudioFeatureSource implements AudioFeatureObserver {
+public class PitchFrameCellSource implements PitchFrameObserver {
 
 	NuCell sourceCell;
 
-	public AudioFeatureSource(NuCell sourceCell) {
+	public PitchFrameCellSource(NuCell sourceCell) {
 		this.sourceCell = sourceCell;
 	}
 

@@ -8,8 +8,8 @@ import jomu.instrument.cell.Weaver;
 
 public class Cortex {
 
-	private AudioFeatureSource audioFeatureSource;
-	private ToneMapSink tms;
+	private PitchFrameCellSource pitchFrameCellSource;
+	private PitchFrameSink pitchFrameSink;
 
 	public void initialise() {
 
@@ -18,24 +18,24 @@ public class Cortex {
 		NuCell cqCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
 		NuCell sinkCell = Generator.createNuCell(CellTypes.SINK);
 		Weaver.connect(cqCell, sinkCell);
-		Weaver.connect(pitchCell, cqCell);
+		// Weaver.connect(pitchCell, cqCell);
 		Weaver.connect(sourceCell, cqCell);
 		Weaver.connect(sourceCell, pitchCell);
 		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-		audioFeatureSource = new AudioFeatureSource(sourceCell);
-		hearing.getPitchFrameProcessor().addObserver(audioFeatureSource);
-		tms = new ToneMapSink(sinkCell);
+		pitchFrameCellSource = new PitchFrameCellSource(sourceCell);
+		hearing.getPitchFrameProcessor().addObserver(pitchFrameCellSource);
+		pitchFrameSink = new PitchFrameSink(sinkCell);
 	}
 
 	public void start() {
 
 	}
 
-	public AudioFeatureSource getAudioFeatureSource() {
-		return audioFeatureSource;
+	public PitchFrameCellSource getAudioFeatureSource() {
+		return pitchFrameCellSource;
 	}
 
-	public ToneMapSink getTms() {
-		return tms;
+	public PitchFrameSink getPitchFrameSink() {
+		return pitchFrameSink;
 	}
 }

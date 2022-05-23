@@ -40,6 +40,10 @@ public class PitchSet implements Serializable {
 		setIndex(lowNote - MIN_MIDI_NOTE);
 	}
 
+	public PitchSet() {
+		this(MIN_MIDI_NOTE, MAX_MIDI_NOTE);
+	}
+
 	public static double getMidiFreq(int note) {
 		return ((A440 / 32) * (Math.pow(2.0, ((note - 9.0) / 12.0))));
 	}

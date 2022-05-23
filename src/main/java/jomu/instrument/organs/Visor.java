@@ -77,7 +77,7 @@ import be.tarsos.dsp.util.fft.FFT;
 import jomu.instrument.InputPanel;
 import jomu.instrument.audio.analysis.FeatureFrame;
 
-public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureObserver {
+public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFrameObserver {
 
 	/**
 	 * 
@@ -135,12 +135,12 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JTabbedPane tabbedPane = new JTabbedPane();
 		this.add(inputPanel, BorderLayout.NORTH);
 		this.add(tabbedPane, BorderLayout.CENTER);
+		cqPanel = createCQPanel();
+		tabbedPane.addTab("CQ", cqPanel);
 		spectrogramPanel = createSpectogramPanel();
 		tabbedPane.addTab("Spectogram", spectrogramPanel);
 		pitchDetectPanel = createPitchDetectPanel();
 		tabbedPane.addTab("Pitch", pitchDetectPanel);
-		cqPanel = createCQPanel();
-		tabbedPane.addTab("CQ", cqPanel);
 		spectralPeaksPanel = createSpectralPeaksPanel();
 		tabbedPane.addTab("SP", spectralPeaksPanel);
 		oscilloscopePanel = new OscilloscopePanel();

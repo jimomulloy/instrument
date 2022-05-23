@@ -4,8 +4,6 @@ import java.util.List;
 
 import jomu.instrument.audio.analysis.FeatureFrame;
 import jomu.instrument.audio.analysis.FeatureSet;
-import jomu.instrument.tonemap.PitchSet;
-import jomu.instrument.tonemap.TimeSet;
 import net.beadsproject.beads.core.TimeStamp;
 
 public class PitchFrame {
@@ -18,17 +16,19 @@ public class PitchFrame {
 	private GoertzelFeatures goertzelFeatures;
 	private AudioEventFeatures audioEventFeatures;
 
-	private TimeSet timeSet;
-	private PitchSet pitchSet;
 	private int frameSequence;
 	private PitchFrameProcessor pitchFrameProcessor;
+	private TimeStamp start;
+	private TimeStamp end;
 
-	public PitchFrame(PitchFrameProcessor pitchFrameProcessor) {
+	public PitchFrame(PitchFrameProcessor pitchFrameProcessor, int frameSequence, TimeStamp start, TimeStamp end) {
 		this.pitchFrameProcessor = pitchFrameProcessor;
+		this.frameSequence = frameSequence;
+		this.start = start;
+		this.end = end;
 	}
 
-	void initialise(int frameSequence, TimeStamp start, TimeStamp end) {
-		this.frameSequence = frameSequence;
+	void initialise() {
 		FeatureSet results = this.pitchFrameProcessor.getAnalyzer().getResults();
 		beadsFeatures = results.get("Low Level").getRange(start.getTimeMS(), end.getTimeMS());
 		beadsBeatsFeatures = results.get("Beats").getRange(start.getTimeMS(), end.getTimeMS());
@@ -70,8 +70,6 @@ public class PitchFrame {
 		for (Double entry : audioEventFeatures.getFeatures().keySet()) {
 			System.out.println(">> AE Feature: " + entry);
 		}
-		// timeSet = new TimeSet();
-		// pitchSet = new PitchSet();
 	}
 
 	public List<FeatureFrame> getBeadsBeatsFeatures() {
@@ -102,20 +100,20 @@ public class PitchFrame {
 		return goertzelFeatures;
 	}
 
-	public TimeSet getTimeSet() {
-		return timeSet;
-	}
-
-	public PitchSet getPitchSet() {
-		return pitchSet;
-	}
-
 	public int getFrameSequence() {
 		return frameSequence;
 	}
 
 	public PitchFrameProcessor getPitchFrameProcessor() {
 		return pitchFrameProcessor;
+	}
+
+	public TimeStamp getStart() {
+		return start;
+	}
+
+	public TimeStamp getEnd() {
+		return end;
 	}
 
 }

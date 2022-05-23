@@ -22,6 +22,7 @@ public class TarsosFeatureSource {
 		pitchDetectorSource = new PitchDetectorSource(tarsosIO);
 		spectrogramSource = new SpectrogramSource(tarsosIO);
 		audioEventSource = new AudioEventSource(tarsosIO);
+		goertzelSource = new GoertzelSource(tarsosIO);
 		constantQSource.initialise();
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();

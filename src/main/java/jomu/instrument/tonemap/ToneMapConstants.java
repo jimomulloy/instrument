@@ -75,6 +75,7 @@ public interface ToneMapConstants {
 	public static final int BEAT_MODE = 1;
 	public static final int CHIRP_MODE = 2;
 	public static final int CHORD_MODE = 3;
+	public static final int NONE = -1;
 
 	public static final int INIT_NOTE_LOW = 50;
 	public static final int INIT_NOTE_HIGH = 50;

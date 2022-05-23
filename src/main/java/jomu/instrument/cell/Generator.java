@@ -55,19 +55,7 @@ public class Generator {
 	};
 
 	private static Consumer<List<NuMessage>> getAudioCQProcessor(NuCell cell) {
-		return (List<NuMessage> messages) -> {
-			// System.out.println(">>getAudioCQProcessor");
-			// System.out.println(cell.toString());
-			String sequence = "";
-			Object output = null;
-			for (NuMessage message : messages) {
-				sequence = message.sequence;
-				output = message.input;
-				// System.out.println("CQ process message: " + message);
-			}
-			cell.send(sequence, output);
-		};
-
+		return new ConstantQMessageProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getSinkProcessor(NuCell cell) {
