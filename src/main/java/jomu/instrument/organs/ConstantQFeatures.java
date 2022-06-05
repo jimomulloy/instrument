@@ -1,6 +1,7 @@
 package jomu.instrument.organs;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import be.tarsos.dsp.util.PitchConverter;
@@ -13,18 +14,6 @@ import jomu.instrument.tonemap.ToneMapMatrix;
 import jomu.instrument.tonemap.ToneMapMatrix.Iterator;
 
 public class ConstantQFeatures implements ToneMapConstants {
-
-	public ToneMap getToneMap() {
-		return toneMap;
-	}
-
-	public TimeSet getTimeSet() {
-		return timeSet;
-	}
-
-	public PitchSet getPitchSet() {
-		return pitchSet;
-	}
 
 	public boolean logSwitch = false;
 	public int pitchHigh = INIT_PITCH_HIGH;
@@ -41,17 +30,59 @@ public class ConstantQFeatures implements ToneMapConstants {
 	public int powerLow = 0;
 
 	ConstantQSource cqs;
-	TreeMap<Double, float[]> features;
+	Map<Double, float[]> features = new TreeMap<Double, float[]>();
 
 	private ToneMap toneMap;
 	private TimeSet timeSet;
 	private PitchSet pitchSet;
+	private PitchFrame pitchFrame;
+	private boolean isCommitted;
 
-	void initialise(ConstantQSource cqs) {
-		this.cqs = cqs;
-		this.features = cqs.getFeatures();
-		cqs.clear();
-		buildToneMap();
+	void initialise(PitchFrame pitchFrame) {
+		this.pitchFrame = pitchFrame;
+		this.cqs = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getConstantQSource();
+		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
+		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
+			addFeature(entry.getKey(), entry.getValue());
+		}
+		this.cqs.clear();
+	}
+
+	public void addFeature(Double time, float[] values) {
+		PitchFrame previousFrame = null;
+		int frameSequence = pitchFrame.getFrameSequence() - 1;
+		if (frameSequence > 0) {
+			previousFrame = pitchFrame.getPitchFrameProcessor().getPitchFrame(pitchFrame.getFrameSequence() - 1);
+		}
+		if ((time < pitchFrame.getStart() / 1000.0) && previousFrame != null) {
+			previousFrame.getConstantQFeatures().addFeature(time, values);
+		} else {
+			this.features.put(time, values);
+			if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
+				previousFrame.getConstantQFeatures().buildToneMap();
+				previousFrame.getConstantQFeatures().commit();
+			}
+		}
+	}
+
+	private void commit() {
+		isCommitted = true;
+		pitchFrame.getPitchFrameProcessor().pitchFrameChanged(pitchFrame);
+	}
+
+	public void close() {
+		PitchFrame previousFrame = null;
+		int frameSequence = pitchFrame.getFrameSequence() - 1;
+		if (frameSequence > 0) {
+			previousFrame = pitchFrame.getPitchFrameProcessor().getPitchFrame(pitchFrame.getFrameSequence() - 1);
+		}
+		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
+			previousFrame.close();
+		}
+		if (features.size() > 0) {
+			buildToneMap();
+			commit();
+		}
 	}
 
 	private void buildToneMap() {
@@ -64,25 +95,13 @@ public class ConstantQFeatures implements ToneMapConstants {
 			float binWidth = cqs.getBinWidth();
 			double timeStart = -1;
 			double nextTime = -1;
-			double maxEnergy = -1;
-			
+
 			for (Map.Entry<Double, float[]> column : features.entrySet()) {
 
 				nextTime = column.getKey();
 				if (timeStart == -1) {
 					timeStart = nextTime;
 				}
-
-				float[] spectralEnergy = column.getValue();
-				// draw the pixels
-				for (int i = 0; i < spectralEnergy.length; i++) {
-					double energy = Math.log1p(spectralEnergy[i]);
-					if (energy > maxEnergy) {
-						maxEnergy = energy;
-					}
-				}
-				System.out.println(">>");
-				maxEnergy = -1;
 			}
 
 			timeSet = new TimeSet(timeStart, nextTime + binWidth, cqs.getSampleRate(), cqs.getBinWidth());
@@ -94,6 +113,10 @@ public class ConstantQFeatures implements ToneMapConstants {
 			pitchSet = new PitchSet(lowPitch, highPitch);
 
 			toneMap.initialise(timeSet, pitchSet);
+
+			System.out.println(">>toneMap.initialise: " + pitchFrame.getFrameSequence() + ", " + features.size() + ", "
+					+ binWidth + ", " + cqs.getBinHeight());
+			System.out.println(">>toneMap.initialise: " + timeStart + ", " + (nextTime + binWidth));
 
 			ToneMapMatrix toneMapMatrix = toneMap.getMatrix();
 			toneMapMatrix.setAmpType(logSwitch);
@@ -107,13 +130,16 @@ public class ConstantQFeatures implements ToneMapConstants {
 				nextTime = column.getKey();
 				float[] spectralEnergy = column.getValue();
 				for (int i = 0; i < spectralEnergy.length; i++) {
-					double energy = Math.log1p(spectralEnergy[i]);
-					mapIterator.getElement().postAmplitude = energy;
+					// double energy = Math.log1p(spectralEnergy[i]);
+					mapIterator.getElement().preFTPower = spectralEnergy[i];
+					// mapIterator.getElement().postAmplitude = energy / maxEnergy;
 					mapIterator.nextPitch();
 				}
 				mapIterator.nextTime();
 			}
 			toneMapMatrix.reset();
+			System.out
+					.println(">> tonemap init: " + toneMapMatrix.getPitchRange() + ", " + toneMapMatrix.getTimeRange());
 		}
 	}
 
@@ -121,8 +147,24 @@ public class ConstantQFeatures implements ToneMapConstants {
 		return cqs;
 	}
 
-	public TreeMap<Double, float[]> getFeatures() {
+	public Map<Double, float[]> getFeatures() {
 		return features;
+	}
+
+	public ToneMap getToneMap() {
+		return toneMap;
+	}
+
+	public TimeSet getTimeSet() {
+		return timeSet;
+	}
+
+	public PitchSet getPitchSet() {
+		return pitchSet;
+	}
+
+	public boolean isCommitted() {
+		return isCommitted;
 	}
 
 }

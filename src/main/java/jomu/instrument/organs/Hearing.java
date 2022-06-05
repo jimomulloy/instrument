@@ -28,14 +28,13 @@ public class Hearing {
 	private TarsosAudioIO tarsosIO;
 	TarsosFeatureSource tarsosFeatureSource;
 	private PitchFrameProcessor pitchFrameProcessor;
-	private PitchFrameCellSource afs;
 
 	public void initialise() {
 		// TODO Auto-generated method stub
 		// set up the parent AudioContext object
 		tarsosIO = new TarsosAudioIO();
 		tarsosIO.selectMixer(2);
-		File file = new File("D:/audio/tonemap1.wav");
+		File file = new File("D:/audio/testsine2notes.wav");
 		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1, true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
 		// get a microphone input unit generator
@@ -56,6 +55,9 @@ public class Hearing {
 		analyzer = new Analyzer(ac, extractors);
 		pitchFrameProcessor = new PitchFrameProcessor(analyzer, tarsosFeatureSource);
 		pitchFrameProcessor.setMaxFrames(100);
+
+		tarsosIO.getDispatcher().addAudioProcessor(pitchFrameProcessor);
+
 		analyzer.listenTo(microphoneIn);
 		analyzer.updateFrom(ac.out);
 	}
@@ -98,10 +100,6 @@ public class Hearing {
 
 	public PitchFrameProcessor getPitchFrameProcessor() {
 		return pitchFrameProcessor;
-	}
-
-	public PitchFrameCellSource getAfs() {
-		return afs;
 	}
 
 }

@@ -136,7 +136,6 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 			if (count % hopSize == 0) {
 				TimeStamp nextTimeStamp = TimeStamp.add(context, context.generateTimeStamp(i), beginningTimeStamp);
 				int chunkIndex = count / hopSize - 1;
-				System.out.println(">>SEG: " + lastTimeStamp.getTimeMS() + " " + nextTimeStamp.getTimeMS());
 				segment(lastTimeStamp, nextTimeStamp, chunks[chunkIndex]);
 				lastTimeStamp = nextTimeStamp;
 			}

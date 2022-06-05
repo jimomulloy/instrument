@@ -37,7 +37,6 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 		super();
 		this.startTimeMS = startTimeMS;
 		this.endTimeMS = endTimeMS;
-		System.out.println(">>New FF: " + startTimeMS);
 		features = new Hashtable<String, Object>();
 	}
 

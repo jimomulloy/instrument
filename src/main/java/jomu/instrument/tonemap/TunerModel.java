@@ -66,39 +66,39 @@ public class TunerModel implements ToneMapConstants {
 	 * Set configuration parameters
 	 */
 	public void setConfig(ToneMapConfig config) {
-		//tunerPanel.noteSustainSlider.setValue(config.noteSustain);
-		//tunerPanel.noteMinDurationSlider.setValue(config.noteMinDuration);
-		//tunerPanel.noteMaxDurationSlider.setValue(config.noteMaxDuration);
-		//tunerPanel.noteLowSlider.setValue(config.noteLow);
-		//tunerPanel.noteHighSlider.setValue(config.noteHigh);
-		//tunerPanel.normalizeS.setValue(config.normalizeSetting);
-		//tunerPanel.harmonic1S.setValue(config.harmonic1Setting);
-		//tunerPanel.harmonic2S.setValue(config.harmonic2Setting);
-		//tunerPanel.harmonic3S.setValue(config.harmonic3Setting);
-		//tunerPanel.harmonic4S.setValue(config.harmonic4Setting);
-		//tunerPanel.formantLowS.setValue(config.formantLowSetting);
-		//tunerPanel.formantMiddleS.setValue(config.formantMiddleSetting);
-		//tunerPanel.formantHighS.setValue(config.formantHighSetting);
-		//tunerPanel.formantFreqS.setValue(config.formantFactor);
-		//tunerPanel.harmonicCB.setSelected(config.harmonicSwitch);
+		// tunerPanel.noteSustainSlider.setValue(config.noteSustain);
+		// tunerPanel.noteMinDurationSlider.setValue(config.noteMinDuration);
+		// tunerPanel.noteMaxDurationSlider.setValue(config.noteMaxDuration);
+		// tunerPanel.noteLowSlider.setValue(config.noteLow);
+		// tunerPanel.noteHighSlider.setValue(config.noteHigh);
+		// tunerPanel.normalizeS.setValue(config.normalizeSetting);
+		// tunerPanel.harmonic1S.setValue(config.harmonic1Setting);
+		// tunerPanel.harmonic2S.setValue(config.harmonic2Setting);
+		// tunerPanel.harmonic3S.setValue(config.harmonic3Setting);
+		// tunerPanel.harmonic4S.setValue(config.harmonic4Setting);
+		// tunerPanel.formantLowS.setValue(config.formantLowSetting);
+		// tunerPanel.formantMiddleS.setValue(config.formantMiddleSetting);
+		// tunerPanel.formantHighS.setValue(config.formantHighSetting);
+		// tunerPanel.formantFreqS.setValue(config.formantFactor);
+		// tunerPanel.harmonicCB.setSelected(config.harmonicSwitch);
 		harmonicSwitch = config.harmonicSwitch;
-		//tunerPanel.formantCB.setSelected(config.formantSwitch);
+		// tunerPanel.formantCB.setSelected(config.formantSwitch);
 		formantSwitch = config.formantSwitch;
-		//tunerPanel.undertoneCB.setSelected(config.undertoneSwitch);
+		// tunerPanel.undertoneCB.setSelected(config.undertoneSwitch);
 		undertoneSwitch = config.undertoneSwitch;
-		//tunerPanel.normalizeCB.setSelected(config.normalizeSwitch);
+		// tunerPanel.normalizeCB.setSelected(config.normalizeSwitch);
 		normalizeSwitch = config.normalizeSwitch;
-		//tunerPanel.peakCB.setSelected(config.peakSwitch);
+		// tunerPanel.peakCB.setSelected(config.peakSwitch);
 		peakSwitch = config.peakSwitch;
 		processMode = config.processMode;
 		if (processMode == NOTE_MODE) {
-			//tunerPanel.noteModeB.setSelected(true);
-			//tunerPanel.beatModeB.setSelected(false);
+			// tunerPanel.noteModeB.setSelected(true);
+			// tunerPanel.beatModeB.setSelected(false);
 
 		}
 		if (processMode == BEAT_MODE) {
-			//tunerPanel.beatModeB.setSelected(true);
-			//tunerPanel.noteModeB.setSelected(false);
+			// tunerPanel.beatModeB.setSelected(true);
+			// tunerPanel.noteModeB.setSelected(false);
 		}
 
 	}
@@ -119,7 +119,6 @@ public class TunerModel implements ToneMapConstants {
 		pitchRange = pitchSet.getRange();
 
 		toneMapMatrix = toneMap.getMatrix();
-		System.out.println("MAtrix reset");
 		toneMapMatrix.reset();
 
 		initOvertoneSet();
@@ -131,8 +130,6 @@ public class TunerModel implements ToneMapConstants {
 		if (formantSwitch == true) {
 			applyFormants(toneMapMatrix);
 			toneMapMatrix.update();
-			System.out.println("Matrix update");
-
 		}
 
 		if (normalizeSwitch == true) {
@@ -809,7 +806,7 @@ public class TunerModel implements ToneMapConstants {
 		int note;
 		double troughAmp, peakAmp, lastAmp, lastPeakAmp;
 
-		System.out.println("In normalize: " + normalizeSetting + ", " + noteHigh);
+		// System.out.println("In normalize: " + normalizeSetting + ", " + noteHigh);
 
 		ToneMapMatrix.Iterator mapIterator = toneMapMatrix.newIterator();
 		mapIterator.firstTime();
@@ -834,7 +831,7 @@ public class TunerModel implements ToneMapConstants {
 
 			} while (mapIterator.nextPitch() && pitchSet.pitchToIndex(getHighPitch()) >= mapIterator.getPitchIndex());
 
-			System.out.println("max amp: " + maxAmp + ", " + time);
+			// System.out.println("max amp: " + maxAmp + ", " + time);
 
 			troughAmp = toneMapMatrix.getMaxAmplitude();
 			time = timeSet.getTime(mapIterator.getTimeIndex());

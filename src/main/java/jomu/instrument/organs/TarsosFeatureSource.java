@@ -11,6 +11,7 @@ public class TarsosFeatureSource {
 	private SpectrogramSource spectrogramSource;
 	private GoertzelSource goertzelSource;
 	private AudioEventSource audioEventSource;
+	private ScalogramSource scalogramSource;
 
 	public TarsosAudioIO getTarsosIO() {
 		return tarsosIO;
@@ -23,11 +24,13 @@ public class TarsosFeatureSource {
 		spectrogramSource = new SpectrogramSource(tarsosIO);
 		audioEventSource = new AudioEventSource(tarsosIO);
 		goertzelSource = new GoertzelSource(tarsosIO);
+		scalogramSource = new ScalogramSource(tarsosIO);
 		constantQSource.initialise();
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
+		// scalogramSource.initialise();
 	}
 
 	public AudioEventSource getAudioEventSource() {
@@ -56,5 +59,9 @@ public class TarsosFeatureSource {
 
 	public GoertzelSource getGoertzelSource() {
 		return goertzelSource;
+	}
+
+	public ScalogramSource getScalogramSource() {
+		return scalogramSource;
 	}
 }

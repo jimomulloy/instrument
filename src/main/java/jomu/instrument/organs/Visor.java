@@ -76,6 +76,13 @@ import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
 import jomu.instrument.InputPanel;
 import jomu.instrument.audio.analysis.FeatureFrame;
+import jomu.instrument.tonemap.PitchSet;
+import jomu.instrument.tonemap.TimeSet;
+import jomu.instrument.tonemap.ToneMap;
+import jomu.instrument.tonemap.ToneMapElement;
+import jomu.instrument.tonemap.ToneMapMatrix;
+import jomu.instrument.tonemap.ToneMapMatrix.Iterator;
+import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFrameObserver {
 
@@ -111,6 +118,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 	private PitchDetectLayer pdLayer;
 	private SpectrogramLayer sLayer;
 	private LinkedPanel spectrogramPanel;
+	private LinkedPanel scalogramPanel;
+	private ScalogramLayer scalogramLayer;
+	private LinkedPanel toneMapPanel;
+	private ToneMapLayer toneMapLayer;
 
 	public Visor() {
 		this.setLayout(new BorderLayout());
@@ -135,6 +146,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		JTabbedPane tabbedPane = new JTabbedPane();
 		this.add(inputPanel, BorderLayout.NORTH);
 		this.add(tabbedPane, BorderLayout.CENTER);
+		toneMapPanel = createToneMapPanel();
+		tabbedPane.addTab("TM", toneMapPanel);
 		cqPanel = createCQPanel();
 		tabbedPane.addTab("CQ", cqPanel);
 		spectrogramPanel = createSpectogramPanel();
@@ -147,6 +160,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
 		beadsPanel = createBeadsPanel();
 		tabbedPane.addTab("Beads", beadsPanel);
+		scalogramPanel = createScalogramPanel();
+		tabbedPane.addTab("Scalogram", scalogramPanel);
 
 		// spectrumPanel = createSpectrumPanel();
 		// tabbedPane.addTab("Spectrum", spectrumPanel);
@@ -277,6 +292,34 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		return spectrogramPanel;
 	}
 
+	private LinkedPanel createScalogramPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		scalogramPanel = new LinkedPanel(cs);
+		scalogramLayer = new ScalogramLayer(cs);
+		scalogramPanel.addLayer(new BackgroundLayer(cs));
+		scalogramPanel.addLayer(scalogramLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		scalogramPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		scalogramPanel.addLayer(new ZoomMouseListenerLayer());
+		scalogramPanel.addLayer(new DragMouseListenerLayer(cs));
+		scalogramPanel.addLayer(new SelectionLayer(cs));
+		scalogramPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		scalogramPanel.addLayer(legend);
+		legend.addEntry("Scalogram", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				scalogramPanel.repaint();
+			}
+		};
+		scalogramPanel.getViewPort().addViewPortChangedListener(listener);
+		return scalogramPanel;
+	}
+
 	private LinkedPanel createCQPanel() {
 		CoordinateSystem constantQCS = getCoordinateSystem(AxisUnit.FREQUENCY);
 		constantQCS.setMax(Axis.X, 20000);
@@ -304,6 +347,34 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		};
 		constantQPanel.getViewPort().addViewPortChangedListener(listener);
 		return constantQPanel;
+	}
+
+	private LinkedPanel createToneMapPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		toneMapPanel = new LinkedPanel(cs);
+		toneMapLayer = new ToneMapLayer(cs);
+		toneMapPanel.addLayer(new BackgroundLayer(cs));
+		toneMapPanel.addLayer(toneMapLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		toneMapPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		toneMapPanel.addLayer(new ZoomMouseListenerLayer());
+		toneMapPanel.addLayer(new DragMouseListenerLayer(cs));
+		toneMapPanel.addLayer(new SelectionLayer(cs));
+		toneMapPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		toneMapPanel.addLayer(legend);
+		legend.addEntry("ToneMap", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				toneMapPanel.repaint();
+			}
+		};
+		toneMapPanel.getViewPort().addViewPortChangedListener(listener);
+		return toneMapPanel;
 	}
 
 	private LinkedPanel createBeadsPanel() {
@@ -454,12 +525,171 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 					binStartingPointsInCents = cqs.getBinStartingPointsInCents();
 					binWidth = cqs.getBinWidth();
 					binHeight = cqs.getBinHeight();
-					TreeMap<Double, float[]> fs = pitchFrame.getConstantQFeatures().getFeatures();
+					Map<Double, float[]> fs = pitchFrame.getConstantQFeatures().getFeatures();
 					if (cqFeatures == null) {
 						cqFeatures = new TreeMap<>();
 					}
 					for (java.util.Map.Entry<Double, float[]> entry : fs.entrySet()) {
 						cqFeatures.put(entry.getKey(), entry.getValue());
+					}
+				}
+			});
+		}
+	}
+
+	private static class ToneMapLayer implements Layer {
+
+		private TreeMap<Double, ToneMap> toneMaps;
+		private final CoordinateSystem cs;
+
+		private float[] binStartingPointsInCents;
+		private float binWidth;
+		private float binHeight;
+
+		public ToneMapLayer(CoordinateSystem cs) {
+			this.cs = cs;
+		}
+
+		public void draw(Graphics2D g) {
+
+			if (toneMaps != null) {
+				int toneMapSize = toneMaps.size();
+				System.out.println(">>XX# tonemaps: " + toneMaps.size());
+				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
+
+				boolean isFirst = true;
+				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap.entrySet()) {
+					double timeStart = column.getKey();
+					ToneMap toneMap = column.getValue();
+					ToneMapMatrix toneMapMatrix = toneMap.getMatrix();
+					TimeSet timeSet = toneMap.getTimeSet();
+					PitchSet pitchSet = toneMap.getPitchSet();
+					timeStart = timeSet.getStartTime();
+					// draw the pixels
+					if (toneMapMatrix != null) {
+
+						Iterator mapIterator = toneMapMatrix.newIterator();
+
+						double ampT;
+						double lowThreshhold = 0.0;
+						double highThreshhold = 100.0;
+						mapIterator.firstPitch();
+						double maxAmplitude = -1;
+						do {
+
+							ToneMapElement toneMapElement = mapIterator.getElement();
+							if (toneMapElement != null) {
+								double amplitude = 100.0 * toneMapElement.preAmplitude
+										/ toneMapMatrix.getMaxAmplitude();
+								if (amplitude > maxAmplitude) {
+									maxAmplitude = amplitude;
+								}
+								if (amplitude == -1) {
+									g.setColor(new Color(155, 155, 155));
+								} else if (amplitude < lowThreshhold) {
+									g.setColor(Color.black);
+								} else if (amplitude > highThreshhold) {
+									g.setColor(Color.red);
+								} else {
+									ampT = (amplitude - lowThreshhold) / (highThreshhold - lowThreshhold);
+									g.setColor(new Color((int) (255 * ampT), 0, (int) (255 * (1 - ampT))));
+								}
+								int pitchIndex = mapIterator.getPitchIndex();
+								double cents = PitchConverter.hertzToAbsoluteCent(pitchSet.getFreq(pitchIndex));
+
+								double width = timeSet.getEndTime() - timeSet.getStartTime();
+
+								g.fillRect((int) Math.floor(timeStart * 1000), (int) Math.floor(cents),
+										(int) Math.round(width * 1000), 100);
+							}
+
+						} while (mapIterator.nextPitch());
+					}
+				}
+			}
+		}
+
+		@Override
+		public String getName() {
+			return "ToneMap Layer";
+		}
+
+		public void update(PitchFrame pitchFrame) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					ToneMap toneMap = pitchFrame.getConstantQFeatures().getToneMap();
+					if (toneMap != null) {
+						if (toneMaps == null) {
+							toneMaps = new TreeMap<>();
+						}
+						toneMaps.put(pitchFrame.getStart() / 1000.0, toneMap);
+					}
+				}
+			});
+		}
+	}
+
+	private static class ScalogramLayer implements Layer {
+
+		private TreeMap<Double, ScalogramFrame> features;
+		private final CoordinateSystem cs;
+
+		public ScalogramLayer(CoordinateSystem cs) {
+			this.cs = cs;
+		}
+
+		@Override
+		public void draw(Graphics2D graphics) {
+			if (features == null) {
+				return;
+			}
+			Map<Double, ScalogramFrame> spectralInfoSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
+					cs.getMax(Axis.X) / 1000.0);
+			for (Map.Entry<Double, ScalogramFrame> frameEntry : spectralInfoSubMap.entrySet()) {
+				double timeStart = frameEntry.getKey();// in seconds
+				ScalogramFrame frame = frameEntry.getValue();// in cents
+
+				for (int level = 0; level < frame.dataPerScale.length; level++) {
+					for (int block = 0; block < frame.dataPerScale[level].length; block++) {
+						Color color = Color.black;
+						float centsStartingPoint = frame.startFrequencyPerLevel[level];
+						float centsHeight = frame.stopFrequencyPerLevel[level] - centsStartingPoint;
+						// only draw the visible frequency range
+						if (centsStartingPoint + centsHeight >= cs.getMin(Axis.Y)
+								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
+							float factor = Math.abs(frame.dataPerScale[level][block] / frame.currentMax);
+
+							double startTimeBlock = timeStart + (block + 1) * frame.durationsOfBlockPerLevel[level];
+							double timeDuration = frame.durationsOfBlockPerLevel[level];
+
+							int greyValue = (int) (factor * 0.99 * 255);
+							greyValue = Math.max(0, greyValue);
+							color = new Color(greyValue, greyValue, greyValue);
+							graphics.setColor(color);
+							graphics.fillRect((int) Math.round(startTimeBlock * 1000), Math.round(centsStartingPoint),
+									(int) Math.round(timeDuration * 1000), (int) Math.ceil(centsHeight));
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public String getName() {
+			return "Scalogram Layer";
+		}
+
+		public void update(PitchFrame pitchFrame) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					ScalogramFeatures scf = pitchFrame.getScalogramFeatures();
+					TreeMap<Double, ScalogramFrame> fs = scf.getFeatures();
+					if (features == null) {
+						features = new TreeMap<>();
+					}
+					for (java.util.Map.Entry<Double, ScalogramFrame> entry : fs.entrySet()) {
+						features.put(entry.getKey(), entry.getValue());
 					}
 				}
 			});
@@ -615,7 +845,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 					binEstimate = (frequency - minFrequency) / maxFrequency * getHeight();
 				}
 				if (binEstimate > 700) {
-					System.out.println(binEstimate + "");
+					// System.out.println(binEstimate + "");
 				}
 				bin = getHeight() - 1 - (int) binEstimate;
 			}
@@ -733,7 +963,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 
 	private static class BeadsLayer implements Layer {
 
-		private TreeMap<Double, float[]> cqFeatures;
+		private TreeMap<Double, float[][]> features;
 		private final CoordinateSystem cs;
 
 		private float[] binStartingPointsInCents;
@@ -746,27 +976,28 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 
 		public void draw(Graphics2D graphics) {
 
-			if (cqFeatures != null) {
-				Map<Double, float[]> spectralInfoSubMap = cqFeatures.subMap(cs.getMin(Axis.X) / 1000.0,
+			if (features != null) {
+				Map<Double, float[][]> spectralInfoSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
 						cs.getMax(Axis.X) / 1000.0);
 
 				double currentMaxSpectralEnergy = 0;
-				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
-					float[] spectralEnergy = column.getValue();
-					for (int i = 0; i < spectralEnergy.length; i++) {
-						currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy, spectralEnergy[i]);
-					}
-				}
-				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
+				// for (Map.Entry<Double, float[][]> column : spectralInfoSubMap.entrySet()) {
+				// float[][] spectralEnergy = column.getValue();
+				// for (int i = 0; i < spectralEnergy.length; i++) {
+				// currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy,
+				// spectralEnergy[i]);
+				// }
+				// }
+				for (Map.Entry<Double, float[][]> column : spectralInfoSubMap.entrySet()) {
 					double timeStart = column.getKey();// in seconds
-					float[] spectralEnergy = column.getValue();// in cents
+					float[][] spectralEnergy = column.getValue();// in cents
 					// draw the pixels
 					for (int i = 0; i < spectralEnergy.length; i++) {
 						Color color = Color.black;
-						float centsStartingPoint = binStartingPointsInCents[i];
+						float centsStartingPoint = (float) PitchConverter.hertzToAbsoluteCent(spectralEnergy[i][0]);
 						// only draw the visible frequency range
 						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
-							int greyValue = 255 - (int) (Math.log1p(spectralEnergy[i])
+							int greyValue = 255 - (int) (Math.log1p(spectralEnergy[i][1])
 									/ Math.log1p(currentMaxSpectralEnergy) * 255);
 							greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
@@ -787,9 +1018,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		public void update(PitchFrame pitchFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					List<FeatureFrame> beadsFeatures = pitchFrame.getBeadsFeatures();
-					for (FeatureFrame beadsFeatureFrame : beadsFeatures) {
-						// System.out.println(">> BEADS FRAME: " + beadsFeatureFrame);
+					if (features == null) {
+						features = new TreeMap<>();
+					}
+					List<FeatureFrame> ffs = pitchFrame.getBeadsFeatures();
+					for (FeatureFrame ff : ffs) {
+						float[][] fs = (float[][]) ff.get(SpectralPeaks.class.getSimpleName());
+						features.put(ff.getStartTimeMS(), fs);
 					}
 				}
 			});
@@ -835,22 +1070,35 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		oscilloscopePanel.repaint();
 	}
 
-	@Override
-	public void pitchFrameAdded(PitchFrame pitchFrame) {
+	private void updateView(PitchFrame pitchFrame) {
+		// scalogramLayer.update(pitchFrame);
+		toneMapLayer.update(pitchFrame);
 		beadsLayer.update(pitchFrame);
 		cqLayer.update(pitchFrame);
 		spectralPeaksLayer.update(pitchFrame);
 		pdLayer.update(pitchFrame);
 		sLayer.update(pitchFrame);
-		if (count % 10 == 0) {
-			this.spectrogramPanel.repaint();
-			this.cqPanel.repaint();
-			this.spectralPeaksPanel.repaint();
-			this.pitchDetectPanel.repaint();
-			this.beadsPanel.repaint();
-		}
+		// if (count % 10 == 0) {
+		// this.scalogramPanel.repaint();
+		this.toneMapPanel.repaint();
+		this.spectrogramPanel.repaint();
+		this.cqPanel.repaint();
+		this.spectralPeaksPanel.repaint();
+		this.pitchDetectPanel.repaint();
+		this.beadsPanel.repaint();
+		// }
 		count++;
 		// SpectralPeaksFeatures specFeatures = pitchFrame.getSpectralPeaksFeatures();
 		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));
+	}
+
+	@Override
+	public void pitchFrameAdded(PitchFrame pitchFrame) {
+		updateView(pitchFrame);
+	}
+
+	@Override
+	public void pitchFrameChanged(PitchFrame pitchFrame) {
+		updateView(pitchFrame);
 	}
 }

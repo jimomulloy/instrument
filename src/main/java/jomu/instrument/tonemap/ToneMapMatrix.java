@@ -159,19 +159,14 @@ public class ToneMapMatrix implements Serializable {
 
 	public void setAmpType(boolean ampType) {
 		this.ampType = ampType;
-		System.out.println("Matrix amp type: " + ampType);
 	}
 
 	public void setHighThres(int highThres) {
 		this.highThres = highThres;
-		System.out.println("Matrix high thres: " + highThres);
-
 	}
 
 	public void setLowThres(int lowThres) {
 		this.lowThres = lowThres;
-		System.out.println("Matrix low thres: " + lowThres);
-
 	}
 
 	public double FTPowerToAmp(double FTPower) {

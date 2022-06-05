@@ -3,6 +3,7 @@ package jomu.instrument.cell;
 import java.util.List;
 import java.util.function.Consumer;
 
+import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.PitchFrame;
 import jomu.instrument.tonemap.ToneMap;
@@ -22,17 +23,24 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 		// System.out.println(cell.toString());
 		String sequence = "";
 		Object output = null;
+		System.out.println(">>ConstantQMessageProcessor accepting");
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			output = message.input;
-			System.out.println("CQ process message: " + message);
+			// TODO ONLY Process one message?
 			if (message.input != null) {
-				PitchFrame frame = (PitchFrame) message.input;
-				ConstantQFeatures cqf = frame.getConstantQFeatures();
-				ToneMap toneMap = cqf.getToneMap();
-				if (toneMap != null && toneMap.getTunerModel().tune()) {
-					cell.send(sequence, output);
+				System.out.println(">>ConstantQMessageProcessor accept: " + message);
+				if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+					PitchFrame frame = (PitchFrame) message.input;
+					ConstantQFeatures cqf = frame.getConstantQFeatures();
+					ToneMap toneMap = cqf.getToneMap();
+					System.out.println(">>ConstantQMessageProcessor process tonemap");
+					if (toneMap != null /* && toneMap.getTunerModel().tune() */) {
+						System.out.println(">>ConstantQMessageProcessor send");
+						cell.send(sequence, output);
+					}
 				}
+				// }
 			}
 		}
 	}

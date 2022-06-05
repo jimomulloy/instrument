@@ -209,13 +209,16 @@ public class ToneMap implements ToneMapConstants {
 
 		int matrixLength = timeRange * (pitchRange + 1);
 
+		if (matrixLength < 0) {
+			System.out.println(">>WHA!!");
+		}
 		// Build TomeMapMatrix
 		if (!initMap(matrixLength))
 			return false;
 
 		tunerModel = new TunerModel(this);
 		tunerModel.clear();
-	
+
 		int lowThreshhold = 0;
 		int highThreshhold = 100;
 		// tunerModel.setThreshhold(lowThreshhold, highThreshhold);
@@ -226,7 +229,7 @@ public class ToneMap implements ToneMapConstants {
 		config.undertoneSwitch = true;
 		config.normalizeSwitch = true;
 		config.processMode = NONE;
-				
+
 		tunerModel.setConfig(config);
 		// tunerModel.setTime(timeSet);
 		// tunerModel.setPitch(pitchSet);

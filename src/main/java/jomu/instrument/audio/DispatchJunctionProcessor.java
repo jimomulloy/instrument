@@ -334,14 +334,18 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 	@Override
 	public void processingFinished() {
+		System.out.println(">>!!DJP FINISH!!");
 		// TODO Auto-generated method stub
-
+		for (final AudioProcessor processor : audioProcessors) {
+			processor.processingFinished();
+		}
 	}
 
 	/**
 	 * Stops dispatching audio data.
 	 */
 	public void stop() {
+		System.out.println(">>!!DJP STOP!!");
 		stopped = true;
 		for (final AudioProcessor processor : audioProcessors) {
 			processor.processingFinished();

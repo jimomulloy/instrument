@@ -30,7 +30,6 @@ public class FFT {
 
 	// compute the FFT of x[], assuming its length n is a power of 2
 	public static Complex[] fft(Complex[] x) {
-		System.out.println(">>fft1: " + x.length);
 		int n = x.length;
 
 		// base case
@@ -42,7 +41,6 @@ public class FFT {
 			throw new IllegalArgumentException("n is not a power of 2");
 		}
 
-		System.out.println(">>fft2");
 		// compute FFT of even terms
 		Complex[] even = new Complex[n / 2];
 		for (int k = 0; k < n / 2; k++) {
@@ -58,19 +56,13 @@ public class FFT {
 		Complex[] oddFFT = fft(odd);
 
 		// combine
-		System.out.println(">>fft3: " + n);
 		Complex[] y = new Complex[n];
 		for (int k = 0; k < n / 2; k++) {
-			System.out.println(">>fft3a: " + k);
 			double kth = -2 * k * Math.PI / n;
 			Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
-			System.out.println(">>fft3a1: " + k);
 			// y[k] = evenFFT[k].plus(wk.times(oddFFT[k]));
-			System.out.println(">>fft3a2: " + k);
 			y[k + n / 2] = evenFFT[k].minus(wk.times(oddFFT[k]));
-			System.out.println(">>fft3b: " + n);
 		}
-		System.out.println(">>fft4");
 		return y;
 	}
 

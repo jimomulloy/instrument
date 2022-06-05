@@ -1,5 +1,6 @@
 package jomu.instrument.organs;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import be.tarsos.dsp.AudioEvent;
@@ -13,14 +14,14 @@ import jomu.instrument.audio.TarsosAudioIO;
 public class ConstantQSource {
 
 	TarsosAudioIO tarsosIO;
-	float sampleRate; // = 44100;
+	float sampleRate = 44100;
 	int increment = 1024;
 	int minimumFrequencyInCents = 3600;
 	int maximumFrequencyInCents = 10800;
 	int binsPerOctave = 12;
 	float maxSpectralEnergy = 0;
 	float minSpectralEnergy = 100000;
-	private TreeMap<Double, float[]> features = new TreeMap<>();
+	private Map<Double, float[]> features = new TreeMap<>();
 	double constantQLag;
 	ConstantQ constantQ;
 	private float binWidth;
@@ -57,7 +58,8 @@ public class ConstantQSource {
 		djp.setName("CQ");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 
-		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;// in seconds
+		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
+
 		features = new TreeMap<Double, float[]>();
 
 		djp.addAudioProcessor(constantQ);
@@ -79,8 +81,8 @@ public class ConstantQSource {
 			public boolean process(AudioEvent audioEvent) {
 				System.out.println(">>CQ put audio event: " + audioEvent.getTimeStamp() + ", "
 						+ audioEvent.getSamplesProcessed() + ", lag: " + constantQLag);
-				features.put(audioEvent.getTimeStamp() /* - constantQLag */ , constantQ.getMagnitudes().clone());
-				// System.out.println(">>ConstantQ process");
+				float[] values = constantQ.getMagnitudes().clone();
+				features.put(audioEvent.getTimeStamp() /* - constantQLag */, values);
 				return true;
 			}
 		});
@@ -158,6 +160,10 @@ public class ConstantQSource {
 
 	public ConstantQ getConstantQ() {
 		return constantQ;
+	}
+
+	void removeFeatures(double endTime) {
+		features.keySet().removeIf(key -> key <= endTime);
 	}
 
 }

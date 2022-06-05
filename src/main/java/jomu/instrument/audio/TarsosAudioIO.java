@@ -158,7 +158,6 @@ public class TarsosAudioIO extends AudioIO {
 	 */
 	private void prepareLineBuffer(AudioFormat audioFormat, byte[] outputBUffer, float[] interleavedSamples,
 			int bufferSizeInFrames, int sampleBufferSize) {
-		System.out.println(">>Tarsos update: " + context.getTime());
 		update(); // this propagates update call to context
 		for (int i = 0, counter = 0; i < bufferSizeInFrames; ++i) {
 			for (int j = 0; j < audioFormat.getChannels(); ++j) {
@@ -410,8 +409,6 @@ public class TarsosAudioIO extends AudioIO {
 		@Override
 		public boolean process(AudioEvent audioEvent) {
 
-			System.out
-					.println(">>Tarsos audio: " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
 			getFeatures().put(audioEvent.getTimeStamp(), audioEvent);
 
 			audioFloatbuffer = audioEvent.getFloatBuffer();
