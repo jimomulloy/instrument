@@ -556,7 +556,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			if (toneMaps != null) {
 				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(cs.getMin(Axis.X) / 1000.0,
 						cs.getMax(Axis.X) / 1000.0);
-
+				System.out.println(">>Number of tonemaps: " + toneMaps.size());
 				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap.entrySet()) {
 					double timeStart = column.getKey();
 					ToneMap toneMap = column.getValue();
@@ -625,6 +625,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 							toneMaps = new TreeMap<>();
 						}
 						toneMaps.put(pitchFrame.getStart() / 1000.0, toneMap);
+						System.out.println(">>Visor toneMap: " + toneMap.getPitchSet().getRange() + ", "
+								+ toneMap.getTimeSet().getRange());
 					}
 				}
 			});
