@@ -84,7 +84,7 @@ public class ConstantQSource {
 				System.out.println(">>CQ put audio event: " + audioEvent.getTimeStamp() + ", "
 						+ audioEvent.getSamplesProcessed() + ", lag: " + constantQLag);
 				float[] values = constantQ.getMagnitudes().clone();
-				features.put(audioEvent.getTimeStamp() /* - constantQLag */, values);
+				features.put(audioEvent.getTimeStamp() - binWidth /* - constantQLag */, values);
 				return true;
 			}
 		});

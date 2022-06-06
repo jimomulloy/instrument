@@ -139,8 +139,6 @@ public class ConstantQFeatures implements ToneMapConstants {
 			}
 			toneMapMatrix.reset();
 			visor.updateToneMap(pitchFrame);
-			System.out
-					.println(">> tonemap init: " + toneMapMatrix.getPitchRange() + ", " + toneMapMatrix.getTimeRange());
 		}
 	}
 
