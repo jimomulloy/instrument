@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import be.tarsos.dsp.util.PitchConverter;
+import jomu.instrument.Instrument;
 import jomu.instrument.tonemap.Oscillator;
 import jomu.instrument.tonemap.PitchSet;
 import jomu.instrument.tonemap.TimeSet;
@@ -37,10 +38,12 @@ public class ConstantQFeatures implements ToneMapConstants {
 	private PitchSet pitchSet;
 	private PitchFrame pitchFrame;
 	private boolean isCommitted;
+	private Visor visor;
 
 	void initialise(PitchFrame pitchFrame) {
 		this.pitchFrame = pitchFrame;
 		this.cqs = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getConstantQSource();
+		this.visor = Instrument.getInstance().getDruid().getVisor();
 		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
 		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
 			addFeature(entry.getKey(), entry.getValue());
@@ -59,7 +62,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 		} else {
 			this.features.put(time, values);
 			if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
-				previousFrame.getConstantQFeatures().buildToneMap();
+				// previousFrame.getConstantQFeatures().buildToneMap();
 				previousFrame.getConstantQFeatures().commit();
 			}
 		}
@@ -80,12 +83,12 @@ public class ConstantQFeatures implements ToneMapConstants {
 			previousFrame.close();
 		}
 		if (features.size() > 0) {
-			buildToneMap();
+			// buildToneMap();
 			commit();
 		}
 	}
 
-	private void buildToneMap() {
+	public void buildToneMap() {
 
 		if (features.size() > 0) {
 
@@ -138,8 +141,15 @@ public class ConstantQFeatures implements ToneMapConstants {
 				mapIterator.nextTime();
 			}
 			toneMapMatrix.reset();
+			visor.updateToneMap(pitchFrame);
 			System.out
 					.println(">> tonemap init: " + toneMapMatrix.getPitchRange() + ", " + toneMapMatrix.getTimeRange());
+		}
+	}
+
+	public void displayToneMap() {
+		if (toneMap != null) {
+			visor.updateToneMap(pitchFrame);
 		}
 	}
 

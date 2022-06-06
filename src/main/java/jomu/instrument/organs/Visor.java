@@ -500,8 +500,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 						float centsStartingPoint = binStartingPointsInCents[i];
 						// only draw the visible frequency range
 						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
-							int greyValue = 255 - (int) (Math.log1p(spectralEnergy[i])
-									/ Math.log1p(currentMaxSpectralEnergy) * 255);
+							// int greyValue = 255 - (int) (Math.log1p(spectralEnergy[i])
+							// / Math.log1p(currentMaxSpectralEnergy) * 255);
+							int greyValue = 255 - (int) (spectralEnergy[i] / (currentMaxSpectralEnergy) * 255);
 							greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
@@ -553,12 +554,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		public void draw(Graphics2D g) {
 
 			if (toneMaps != null) {
-				int toneMapSize = toneMaps.size();
-				System.out.println(">>XX# tonemaps: " + toneMaps.size());
 				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(cs.getMin(Axis.X) / 1000.0,
 						cs.getMax(Axis.X) / 1000.0);
 
-				boolean isFirst = true;
 				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap.entrySet()) {
 					double timeStart = column.getKey();
 					ToneMap toneMap = column.getValue();
@@ -580,7 +578,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 
 							ToneMapElement toneMapElement = mapIterator.getElement();
 							if (toneMapElement != null) {
-								double amplitude = 100.0 * toneMapElement.preAmplitude
+								// double dbs =
+								// 10*Math.log10(toneMapElement.postAmplitude/toneMapMatrix.getMaxAmplitude());
+								double amplitude = 100.0 * toneMapElement.postAmplitude
 										/ toneMapMatrix.getMaxAmplitude();
 								if (amplitude > maxAmplitude) {
 									maxAmplitude = amplitude;
@@ -602,6 +602,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 
 								g.fillRect((int) Math.floor(timeStart * 1000), (int) Math.floor(cents),
 										(int) Math.round(width * 1000), 100);
+
 							}
 
 						} while (mapIterator.nextPitch());
@@ -1090,6 +1091,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		count++;
 		// SpectralPeaksFeatures specFeatures = pitchFrame.getSpectralPeaksFeatures();
 		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));
+	}
+
+	public void updateToneMap(PitchFrame pitchFrame) {
+		toneMapLayer.update(pitchFrame);
+		this.toneMapPanel.repaint();
 	}
 
 	@Override

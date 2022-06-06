@@ -33,9 +33,11 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 				if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 					PitchFrame frame = (PitchFrame) message.input;
 					ConstantQFeatures cqf = frame.getConstantQFeatures();
+					cqf.buildToneMap();
 					ToneMap toneMap = cqf.getToneMap();
 					System.out.println(">>ConstantQMessageProcessor process tonemap");
-					if (toneMap != null /* && toneMap.getTunerModel().tune() */) {
+					if (toneMap != null && toneMap.getTunerModel().tune()) {
+						cqf.displayToneMap();
 						System.out.println(">>ConstantQMessageProcessor send");
 						cell.send(sequence, output);
 					}

@@ -187,6 +187,12 @@ public class TunerModel implements ToneMapConstants {
 			toneMapMatrix.update();
 		}
 
+		if (harmonicSwitch == true) {
+			// Process harmonic overtones
+			processOvertones();
+			toneMapMatrix.update();
+		}
+
 		// Switch to selected processing mode
 		switch (processMode) {
 		case NOTE_MODE:
@@ -561,6 +567,7 @@ public class TunerModel implements ToneMapConstants {
 		}
 
 		overToneElement.postAmplitude = toneMapMatrix.FTPowerToAmp(overToneElement.postFTPower);
+
 		// overToneElement.postAmplitude =
 		// (overToneElement.postFTPower-toneMapMatrix.getMinFTPower()) /
 		// (toneMapMatrix.getMaxFTPower()-toneMapMatrix.getMinFTPower());
@@ -1006,10 +1013,10 @@ public class TunerModel implements ToneMapConstants {
 	public int n5Setting = 100;
 	public int n6Setting = 100;
 
-	public int harmonic1Setting = 100;
-	public int harmonic2Setting = 100;
-	public int harmonic3Setting = 100;
-	public int harmonic4Setting = 100;
+	public int harmonic1Setting = 30;
+	public int harmonic2Setting = 10;
+	public int harmonic3Setting = 5;
+	public int harmonic4Setting = 5;
 	public int formantLowSetting = 0;
 	public int formantMiddleSetting = 50;
 	public int formantHighSetting = 100;
@@ -1144,6 +1151,67 @@ public class TunerModel implements ToneMapConstants {
 		} while (mapIterator.nextPitch() && pitchSet.pitchToIndex(getHighPitch()) >= mapIterator.getPitchIndex());
 
 		return;
+	}
+
+	private void processOvertones() {
+
+		timeRange = timeSet.getRange();
+		pitchRange = pitchSet.getRange();
+
+		ToneMapMatrix.Iterator mapIterator = toneMapMatrix.newIterator();
+		mapIterator.firstPitch();
+		mapIterator.setPitchIndex(pitchSet.pitchToIndex(getLowPitch()));
+		do {
+			note = pitchSet.getNote(mapIterator.getPitchIndex());
+			mapIterator.firstTime();
+			// mapIterator.setTimeIndex(timeSet.timeToIndex(getStartTime()));
+			do {
+				index = mapIterator.getIndex();
+				toneMapElement = mapIterator.getElement();
+				if (toneMapElement == null || toneMapElement.preAmplitude == -1)
+					continue;
+				applyHarmonics(mapIterator.getPitchIndex(), mapIterator.getTimeIndex());
+
+			} while (mapIterator.nextTime());
+
+		} while (mapIterator.nextPitch() && pitchSet.pitchToIndex(getHighPitch()) >= mapIterator.getPitchIndex());
+
+		return;
+	}
+
+	// Process Harmonic overtones
+	private void applyHarmonics(int pitchIndex, int timeIndex) {
+
+		ToneMapMatrix.Iterator mapIterator = toneMapMatrix.newIterator();
+
+		mapIterator.first();
+		mapIterator.setPitchIndex(pitchIndex);
+		mapIterator.setTimeIndex(timeIndex);
+		ToneMapElement fundamentalElement = mapIterator.getElement();
+
+		double f0 = pitchSet.getFreq(mapIterator.getPitchIndex());
+		int lastNote = pitchSet.getNote(mapIterator.getPitchIndex());
+
+		double freq;
+		int note;
+		int n = 2;
+
+		for (int i = 0; i < harmonics.length; i++) {
+			freq = n * f0;
+			note = PitchSet.freqToMidiNote(freq);
+			if (note == -1 || note > pitchSet.getHighNote())
+				break;
+			mapIterator.setTimeIndex(timeIndex);
+			mapIterator.setPitchIndex(mapIterator.getPitchIndex() + note - lastNote);
+
+			if (mapIterator.getElement() != null && mapIterator.getElement().preAmplitude != -1) {
+				attenuate(mapIterator.getElement(), fundamentalElement.postFTPower, harmonics[i]);
+			}
+
+			lastNote = note;
+			n++;
+
+		}
 	}
 
 }
