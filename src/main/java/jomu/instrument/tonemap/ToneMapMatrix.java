@@ -26,6 +26,13 @@ public class ToneMapMatrix implements Serializable {
 
 	}
 
+	public void setMaxPower(double maxFTPower) {
+		this.maxFTPower = maxFTPower;
+		System.out.println(">>Set max power: " + this.maxFTPower);
+		this.maxAmplitude = FTPowerToAmp(maxFTPower);
+		System.out.println(">>Set max ampl: " + maxAmplitude);
+	}
+
 	public void reset() {
 
 		maxAmplitude = 0;
@@ -177,7 +184,9 @@ public class ToneMapMatrix implements Serializable {
 			if (minFTPower < maxFTPower / (double) lowThres * 10.0)
 				minFTPower = maxFTPower / (double) lowThres * 10.0; // ??
 			double logMinFTPower = Math.abs(Math.log(minFTPower / maxFTPower));
-			amplitude = (logMinFTPower - Math.abs(Math.log(FTPower / maxFTPower))) / logMinFTPower;
+			// amplitude = (logMinFTPower - Math.abs(Math.log(FTPower / maxFTPower))) /
+			// logMinFTPower;
+			amplitude = (20 * Math.log(1 + Math.abs(FTPower)) / Math.log(10));
 			if (amplitude < 0)
 				amplitude = 0.0;// ??
 		} else {
@@ -192,7 +201,7 @@ public class ToneMapMatrix implements Serializable {
 				} else if (FTPower < minpow) {
 					amplitude = 0.0;
 				} else {
-					amplitude = (FTPower - minpow) / (maxpow - minpow);
+					amplitude = Math.sqrt(FTPower - minpow) / Math.sqrt(maxpow - minpow);
 				}
 			}
 		}

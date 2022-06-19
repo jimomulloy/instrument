@@ -2,12 +2,10 @@ package jomu.instrument.organs;
 
 import java.util.TreeMap;
 
-import be.tarsos.dsp.pitch.PitchDetectionResult;
-
 public class PitchDetectorFeatures {
 
 	PitchDetectorSource pds;
-	TreeMap<Double, PitchDetectionResult> features;
+	TreeMap<Double, SpectrogramInfo> features;
 
 	void initialise(PitchDetectorSource pds) {
 		this.pds = pds;
@@ -19,7 +17,7 @@ public class PitchDetectorFeatures {
 		return pds;
 	}
 
-	public TreeMap<Double, PitchDetectionResult> getFeatures() {
+	public TreeMap<Double, SpectrogramInfo> getFeatures() {
 		return features;
 	}
 

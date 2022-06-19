@@ -43,7 +43,6 @@ public class PitchFrameProcessor implements SegmentListener, AudioProcessor {
 
 	@Override
 	public void newSegment(TimeStamp start, TimeStamp end) {
-		System.out.println(">>newSegment: " + start.getTimeMS() + ", " + end.getTimeMS());
 		if (maxFrames > 0 && maxFrames > frameSequence) {
 			if (firstTimeStamp == -1) {
 				firstTimeStamp = start.getTimeMS();

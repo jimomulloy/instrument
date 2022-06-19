@@ -165,7 +165,7 @@ public class TunerModel implements ToneMapConstants {
 		pitchRange = pitchSet.getRange();
 
 		toneMapMatrix = toneMap.getMatrix();
-		System.out.println("MAtrix reset");
+		System.out.println("Matrix reset");
 		toneMapMatrix.reset();
 
 		initOvertoneSet();
@@ -1013,10 +1013,10 @@ public class TunerModel implements ToneMapConstants {
 	public int n5Setting = 100;
 	public int n6Setting = 100;
 
-	public int harmonic1Setting = 30;
-	public int harmonic2Setting = 10;
-	public int harmonic3Setting = 5;
-	public int harmonic4Setting = 5;
+	public int harmonic1Setting = 60;
+	public int harmonic2Setting = 50;
+	public int harmonic3Setting = 30;
+	public int harmonic4Setting = 20;
 	public int formantLowSetting = 0;
 	public int formantMiddleSetting = 50;
 	public int formantHighSetting = 100;

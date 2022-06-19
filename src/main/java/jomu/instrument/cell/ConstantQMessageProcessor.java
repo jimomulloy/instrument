@@ -3,7 +3,9 @@ package jomu.instrument.cell;
 import java.util.List;
 import java.util.function.Consumer;
 
+import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
+import jomu.instrument.memory.Memory;
 import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.PitchFrame;
 import jomu.instrument.tonemap.ToneMap;
@@ -11,10 +13,12 @@ import jomu.instrument.tonemap.ToneMap;
 public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
+	private Memory memory;
 
 	public ConstantQMessageProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
+		memory = Instrument.getInstance().getMemory();
 	}
 
 	@Override
@@ -36,11 +40,12 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 					cqf.buildToneMap();
 					ToneMap toneMap = cqf.getToneMap();
 					System.out.println(">>ConstantQMessageProcessor process tonemap");
-					if (toneMap != null && toneMap.getTunerModel().tune()) {
-						cqf.displayToneMap();
-						System.out.println(">>ConstantQMessageProcessor send");
-						cell.send(sequence, output);
-					}
+					memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
+					// if (toneMap != null && toneMap.getTunerModel().tune()) {
+					// cqf.displayToneMap();
+					// System.out.println(">>ConstantQMessageProcessor send");
+					// cell.send(sequence, output);
+					// }
 				}
 				// }
 			}

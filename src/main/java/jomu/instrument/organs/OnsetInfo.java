@@ -23,34 +23,25 @@
 
 package jomu.instrument.organs;
 
-import be.tarsos.dsp.pitch.PitchDetectionResult;
-import be.tarsos.dsp.util.fft.FFT;
+public class OnsetInfo {
+	double time;
+	double salience;
 
-public class SpectrogramInfo {
-	PitchDetectionResult pitchDetectionResult;
-	float[] amplitudes;
-	FFT fft;
-
-	public SpectrogramInfo(PitchDetectionResult pitchDetectionResult, float[] amplitudes, FFT fft) {
+	public OnsetInfo(double time, double salience) {
 		super();
-		this.pitchDetectionResult = pitchDetectionResult;
-		this.amplitudes = amplitudes;
-		this.fft = fft;
+		this.time = time;
+		this.salience = salience;
 	}
 
-	public PitchDetectionResult getPitchDetectionResult() {
-		return pitchDetectionResult;
+	public double getTime() {
+		return time;
 	}
 
-	public float[] getAmplitudes() {
-		return amplitudes;
+	public double getSalience() {
+		return salience;
 	}
 
-	public FFT getFft() {
-		return fft;
-	}
-
-	public SpectrogramInfo clone() {
-		return new SpectrogramInfo(pitchDetectionResult.clone(), amplitudes.clone(), fft);
+	public OnsetInfo clone() {
+		return new OnsetInfo(time, salience);
 	}
 }

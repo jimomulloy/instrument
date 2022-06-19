@@ -70,9 +70,10 @@ public class ConstantQSource {
 				for (float[] magnitudes : features.values()) {
 					for (int i = 0; i < magnitudes.length; i++) {
 						magnitudes[i] = Math.max(minValue, magnitudes[i]);
-						// magnitudes[i] = (float) Math.log1p(magnitudes[i]);
+						magnitudes[i] = (float) Math.log1p(magnitudes[i]);
 						// to dB
-						magnitudes[i] = (float) (20 * Math.log(1 + Math.abs(magnitudes[i])) / Math.log(10));
+						// magnitudes[i] = (float) (20 * Math.log(1 + Math.abs(magnitudes[i])) /
+						// Math.log(10));
 						maxSpectralEnergy = Math.max(magnitudes[i], maxSpectralEnergy);
 						minSpectralEnergy = Math.min(magnitudes[i], minSpectralEnergy);
 					}
