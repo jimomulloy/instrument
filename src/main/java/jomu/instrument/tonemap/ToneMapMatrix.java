@@ -35,6 +35,7 @@ public class ToneMapMatrix implements Serializable {
 
 	public void reset() {
 
+		float minPower = 5 / 1000000.0F;
 		maxAmplitude = 0;
 		minAmplitude = 0;
 		maxFTPower = 0;
@@ -45,6 +46,9 @@ public class ToneMapMatrix implements Serializable {
 		for (int i = 0; i < (matrixSize - 1); i++) {
 			if (matrix[i] != null) {
 				count++;
+				if (matrix[i].preFTPower < minPower) {
+					matrix[i].preFTPower = minPower;
+				}
 				avgFTPower += matrix[i].preFTPower;
 
 				if (maxFTPower < matrix[i].preFTPower)
@@ -176,19 +180,20 @@ public class ToneMapMatrix implements Serializable {
 		this.lowThres = lowThres;
 	}
 
-	public double FTPowerToAmp(double FTPower) {
+	public double FTPowerToAmp(double power) {
 		double amplitude = 0.0;
-		if (FTPower <= 0.0)
+		if (power <= 0.0)
 			return 0.0;
 		if (ampType == LOGAMP) {
 			if (minFTPower < maxFTPower / (double) lowThres * 10.0)
 				minFTPower = maxFTPower / (double) lowThres * 10.0; // ??
-			double logMinFTPower = Math.abs(Math.log(minFTPower / maxFTPower));
+			amplitude = (float) Math.log10(1 + (100.0 * power));
+			// double logMinFTPower = Math.abs(Math.log(minFTPower / maxFTPower));
 			// amplitude = (logMinFTPower - Math.abs(Math.log(FTPower / maxFTPower))) /
 			// logMinFTPower;
-			amplitude = (20 * Math.log(1 + Math.abs(FTPower)) / Math.log(10));
+			// amplitude = (20 * Math.log(1 + Math.abs(FTPower)) / Math.log(10));
 			if (amplitude < 0)
-				amplitude = 0.0;// ??
+				amplitude = 0.0;
 		} else {
 			if ((getMaxFTPower() - getMinFTPower()) <= 0) {
 				amplitude = 0.0;
@@ -196,12 +201,12 @@ public class ToneMapMatrix implements Serializable {
 				double minpow = getMinFTPower() + (getMaxFTPower() - getMinFTPower()) * ((double) lowThres / 100.0);
 				double maxpow = getMaxFTPower()
 						- (getMaxFTPower() - getMinFTPower()) * ((double) (100 - highThres) / 100.0);
-				if (FTPower > maxpow) {
+				if (power > maxpow) {
 					amplitude = 1.0;
-				} else if (FTPower < minpow) {
+				} else if (power < minpow) {
 					amplitude = 0.0;
 				} else {
-					amplitude = Math.sqrt(FTPower - minpow) / Math.sqrt(maxpow - minpow);
+					amplitude = Math.sqrt(power - minpow) / Math.sqrt(maxpow - minpow);
 				}
 			}
 		}

@@ -10,8 +10,10 @@ public class ScalogramFrame {
 	float[] stopFrequencyPerLevel;// cents
 
 	float currentMax;
+	private float[] transformedData;
 
 	public ScalogramFrame(float[] transformedData, float currentMax) {
+		this.transformedData = transformedData;
 		this.currentMax = currentMax;
 		int levels = HaarWaveletTransform.log2(transformedData.length);
 		dataPerScale = new float[levels][];
@@ -53,4 +55,8 @@ public class ScalogramFrame {
 		}
 	}
 
+	public ScalogramFrame clone() {
+		ScalogramFrame cloned = new ScalogramFrame(this.transformedData, this.currentMax);
+		return cloned;
+	}
 }

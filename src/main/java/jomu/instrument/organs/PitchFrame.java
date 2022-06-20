@@ -12,6 +12,7 @@ public class PitchFrame {
 	private OnsetFeatures onsetFeatures;
 	private SpectralPeaksFeatures spectralPeaksFeatures;
 	private PitchDetectorFeatures pitchDetectorFeatures;
+	private BandedPitchDetectorFeatures bandedPitchDetectorFeatures;
 	private SpectrogramFeatures spectrogramFeatures;
 	private GoertzelFeatures goertzelFeatures;
 	private AudioEventFeatures audioEventFeatures;
@@ -41,6 +42,7 @@ public class PitchFrame {
 		onsetFeatures = new OnsetFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
+		bandedPitchDetectorFeatures = new BandedPitchDetectorFeatures();
 		spectrogramFeatures = new SpectrogramFeatures();
 		goertzelFeatures = new GoertzelFeatures();
 		scalogramFeatures = new ScalogramFeatures();
@@ -49,37 +51,12 @@ public class PitchFrame {
 		onsetFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getOnsetSource());
 		spectralPeaksFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getSpectralPeaksSource());
 		pitchDetectorFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getPitchDetectorSource());
+		bandedPitchDetectorFeatures
+				.initialise(this.pitchFrameProcessor.getTarsosFeatures().getBandedPitchDetectorSource());
 		spectrogramFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getSpectrogramSource());
 		goertzelFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getGoertzelSource());
 		scalogramFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getScalogramSource());
-		// System.out.println(">> PitchFrame: " + start + ", " + start);
-		for (FeatureFrame beadsFeatureFrame : beadsFeatures) {
-			// System.out.println(">> BEADS FRAME B: " + beadsFeatureFrame.getStartTimeMS()
-			// + ", "
-			// + beadsFeatureFrame.getEndTimeMS());
-			// System.out.println(beadsFeatureFrame);
-		}
-		for (Double entry : constantQFeatures.getFeatures().keySet()) {
-			// System.out.println(">> CQ Feature: " + entry);
-		}
-		for (Double entry : spectralPeaksFeatures.getFeatures().keySet()) {
-			// System.out.println(">> SP Feature: " + entry);
-		}
-		for (Double entry : pitchDetectorFeatures.getFeatures().keySet()) {
-			// System.out.println(">> PD Feature: " + entry);
-		}
-		for (Double entry : spectrogramFeatures.getFeatures().keySet()) {
-			// System.out.println(">> SG Feature: " + entry);
-		}
-		for (Double entry : goertzelFeatures.getFeatures().keySet()) {
-			// System.out.println(">> GZ Feature: " + entry);
-		}
-		for (Double entry : audioEventFeatures.getFeatures().keySet()) {
-			// System.out.println(">> AE Feature: " + entry);
-		}
-		for (Double entry : scalogramFeatures.getFeatures().keySet()) {
-			// System.out.println(">> SC Feature: " + entry);
-		}
+
 	}
 
 	public List<FeatureFrame> getBeadsBeatsFeatures() {
@@ -104,6 +81,10 @@ public class PitchFrame {
 
 	public PitchDetectorFeatures getPitchDetectorFeatures() {
 		return pitchDetectorFeatures;
+	}
+
+	public BandedPitchDetectorFeatures getBandedPitchDetectorFeatures() {
+		return bandedPitchDetectorFeatures;
 	}
 
 	public SpectrogramFeatures getSpectrogramFeatures() {

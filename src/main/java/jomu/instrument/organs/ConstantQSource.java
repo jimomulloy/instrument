@@ -19,8 +19,6 @@ public class ConstantQSource {
 	int minimumFrequencyInCents = 3600;
 	int maximumFrequencyInCents = 10800;
 	int binsPerOctave = 12;
-	float maxSpectralEnergy = 0;
-	float minSpectralEnergy = 100000;
 	private Map<Double, float[]> features = new TreeMap<>();
 	double constantQLag;
 	ConstantQ constantQ;
@@ -66,19 +64,7 @@ public class ConstantQSource {
 		djp.addAudioProcessor(new AudioProcessor() {
 
 			public void processingFinished() {
-				float minValue = 5 / 1000000.0f;
-				for (float[] magnitudes : features.values()) {
-					for (int i = 0; i < magnitudes.length; i++) {
-						magnitudes[i] = Math.max(minValue, magnitudes[i]);
-						magnitudes[i] = (float) Math.log1p(magnitudes[i]);
-						// to dB
-						// magnitudes[i] = (float) (20 * Math.log(1 + Math.abs(magnitudes[i])) /
-						// Math.log(10));
-						maxSpectralEnergy = Math.max(magnitudes[i], maxSpectralEnergy);
-						minSpectralEnergy = Math.min(magnitudes[i], minSpectralEnergy);
-					}
-				}
-				minSpectralEnergy = Math.abs(minSpectralEnergy);
+
 			}
 
 			public boolean process(AudioEvent audioEvent) {
@@ -139,14 +125,6 @@ public class ConstantQSource {
 
 	public int getBinsPerOctave() {
 		return binsPerOctave;
-	}
-
-	public float getMaxSpectralEnergy() {
-		return maxSpectralEnergy;
-	}
-
-	public float getMinSpectralEnergy() {
-		return minSpectralEnergy;
 	}
 
 	public TreeMap<Double, float[]> getFeatures() {

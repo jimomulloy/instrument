@@ -78,7 +78,7 @@ public class ScalogramSource {
 	public TreeMap<Double, ScalogramFrame> getFeatures() {
 		TreeMap<Double, ScalogramFrame> clonedFeatures = new TreeMap<>();
 		for (java.util.Map.Entry<Double, ScalogramFrame> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue());
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
 	}

@@ -16,7 +16,7 @@ import jomu.instrument.tonemap.ToneMapMatrix.Iterator;
 
 public class ConstantQFeatures implements ToneMapConstants {
 
-	public boolean logSwitch = false;
+	public boolean logSwitch = true;
 	public int pitchHigh = INIT_PITCH_HIGH;
 	public int pitchLow = INIT_PITCH_LOW;
 	public int gainSetting = INIT_VOLUME_SETTING;

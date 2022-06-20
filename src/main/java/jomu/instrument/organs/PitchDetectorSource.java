@@ -36,6 +36,11 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		this.tarsosIO = tarsosIO;
 	}
 
+	public PitchDetectorSource(TarsosAudioIO tarsosIO, int bufferSize) {
+		this(tarsosIO);
+		this.bufferSize = bufferSize;
+	}
+
 	void initialise() {
 		PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_YIN;
 
@@ -88,6 +93,10 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	public TarsosAudioIO getTarsosIO() {
 		return tarsosIO;
+	}
+
+	public int getBufferSize() {
+		return bufferSize;
 	}
 
 	public float getBinWidth() {
