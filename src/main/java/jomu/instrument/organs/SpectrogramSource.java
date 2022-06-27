@@ -61,6 +61,9 @@ public class SpectrogramSource implements PitchDetectionHandler {
 		for (int i = 1; i < frameSize; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
 			binHeightsInCents[i] = binStartingPointsInCents[i] - binStartingPointsInCents[i - 1];
+			if (i < 100) {
+				System.out.println(">>SP Bin: " + i + ", " + binStartingPointsInCents[i] + ", " + binHeightsInCents[i]);
+			}
 		}
 
 		binWidth = fftsize / sampleRate;
@@ -128,6 +131,10 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 	public float[] getBinStartingPointsInCents() {
 		return binStartingPointsInCents;
+	}
+
+	public float[] getBinhHeightInCents() {
+		return binHeightsInCents;
 	}
 
 	public SpectralPeakProcessor getSpectralPeakProcesser() {

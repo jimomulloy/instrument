@@ -20,9 +20,9 @@ public class Cortex implements PitchFrameObserver {
 		NuCell cqCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
 		NuCell sinkCell = Generator.createNuCell(CellTypes.SINK);
 		Weaver.connect(cqCell, sinkCell);
-		Weaver.connect(pitchCell, cqCell);
+		Weaver.connect(pitchCell, sinkCell);
 		Weaver.connect(sourceUpdateCell, cqCell);
-		Weaver.connect(sourceAddCell, pitchCell);
+		Weaver.connect(sourceUpdateCell, pitchCell);
 		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
 		hearing.getPitchFrameProcessor().addObserver(this);
 		pitchFrameSink = new PitchFrameSink(sinkCell);

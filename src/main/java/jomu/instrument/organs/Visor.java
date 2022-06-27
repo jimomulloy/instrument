@@ -147,18 +147,18 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		JTabbedPane tabbedPane = new JTabbedPane();
 		this.add(inputPanel, BorderLayout.NORTH);
 		this.add(tabbedPane, BorderLayout.CENTER);
-		bandedPitchDetectPanel = createBandedPitchDetectPanel();
-		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
 		toneMapPanel = createToneMapPanel();
 		tabbedPane.addTab("TM", toneMapPanel);
-		cqPanel = createCQPanel();
-		tabbedPane.addTab("CQ", cqPanel);
-		scalogramPanel = createScalogramPanel();
-		tabbedPane.addTab("Scalogram", scalogramPanel);
 		pitchDetectPanel = createPitchDetectPanel();
 		tabbedPane.addTab("Pitch", pitchDetectPanel);
 		spectrogramPanel = createSpectogramPanel();
 		tabbedPane.addTab("Spectogram", spectrogramPanel);
+		bandedPitchDetectPanel = createBandedPitchDetectPanel();
+		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
+		cqPanel = createCQPanel();
+		tabbedPane.addTab("CQ", cqPanel);
+		scalogramPanel = createScalogramPanel();
+		tabbedPane.addTab("Scalogram", scalogramPanel);
 		onsetPanel = createOnsetPanel();
 		tabbedPane.addTab("Onset", onsetPanel);
 		spectralPeaksPanel = createSpectralPeaksPanel();
@@ -727,7 +727,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		public void update(PitchFrame pitchFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					ToneMap toneMap = pitchFrame.getConstantQFeatures().getToneMap();
+					// ToneMap toneMap = pitchFrame.getConstantQFeatures().getToneMap();
+					ToneMap toneMap = pitchFrame.getPitchDetectorFeatures().getToneMap();
 					if (toneMap != null) {
 						if (toneMaps == null) {
 							toneMaps = new TreeMap<>();
@@ -1002,6 +1003,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		TreeMap<Double, SpectrogramInfo> features;
 		private final CoordinateSystem cs;
 		private float[] binStartingPointsInCents;
+		private float[] binHeightInCents;
 		private float binWidth;
 		private float binHeight;
 
@@ -1025,6 +1027,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 					for (int i = 0; i < amplitudes.length; i++) {
 						Color color = Color.black;
 						float centsStartingPoint = binStartingPointsInCents[i];
+						float binHeight = binHeightInCents[i];
 						// only draw the visible frequency range
 						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
 							// int greyValue = 255 - (int) (Math.log1p(spectralEnergy[i])
@@ -1071,6 +1074,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 				public void run() {
 					SpectrogramSource ss = pitchFrame.getSpectrogramFeatures().getSs();
 					binStartingPointsInCents = ss.getBinStartingPointsInCents();
+					binHeightInCents = ss.getBinhHeightInCents();
 					binWidth = ss.getBinWidth();
 					binHeight = ss.getBinHeight();
 					TreeMap<Double, SpectrogramInfo> fs = pitchFrame.getSpectrogramFeatures().getFeatures();

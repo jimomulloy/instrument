@@ -136,6 +136,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 					mapIterator.getElement().preFTPower += spectralEnergy[i];
 					mapIterator.nextPitch();
 				}
+				mapIterator.nextTime();
 			}
 			toneMapMatrix.reset();
 			visor.updateToneMap(pitchFrame);

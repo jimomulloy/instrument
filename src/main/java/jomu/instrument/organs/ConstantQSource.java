@@ -47,6 +47,7 @@ public class ConstantQSource {
 		binStartingPointsInCents = new float[startingPointsInHertz.length];
 		for (int i = 0; i < binStartingPointsInCents.length; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(startingPointsInHertz[i]);
+			System.out.println(">>CQ Bin: " + i + ", " + binStartingPointsInCents[i]);
 		}
 
 		size = constantQ.getFFTlength();

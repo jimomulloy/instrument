@@ -50,7 +50,7 @@ public class PitchFrame {
 		constantQFeatures.initialise(this);
 		onsetFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getOnsetSource());
 		spectralPeaksFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getSpectralPeaksSource());
-		pitchDetectorFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getPitchDetectorSource());
+		pitchDetectorFeatures.initialise(this);
 		bandedPitchDetectorFeatures
 				.initialise(this.pitchFrameProcessor.getTarsosFeatures().getBandedPitchDetectorSource());
 		spectrogramFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getSpectrogramSource());

@@ -103,6 +103,10 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		return binWidth;
 	}
 
+	public float getSampleRate() {
+		return sampleRate;
+	}
+
 	public float getBinHeight() {
 		return binHeight;
 	}

@@ -70,14 +70,7 @@ public class Generator {
 	}
 
 	private static Consumer<List<NuMessage>> getAudioPitchProcessor(NuCell cell) {
-		return (List<NuMessage> messages) -> {
-			// System.out.println(">>getAudioPitchProcessor");
-			// System.out.println(cell.toString());
-			for (NuMessage message : messages) {
-				// System.out.println("send message: " + message);
-				cell.send(message.sequence, message.input);
-			}
-		};
+		return new PitchDetectorProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getSourceProcessor(NuCell cell) {
