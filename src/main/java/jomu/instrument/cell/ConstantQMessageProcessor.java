@@ -43,8 +43,8 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 					memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
 					// if (toneMap != null && toneMap.getTunerModel().tune()) {
 					// cqf.displayToneMap();
-					// System.out.println(">>ConstantQMessageProcessor send");
-					// cell.send(sequence, output);
+					System.out.println(">>ConstantQMessageProcessor send");
+					cell.send(sequence, output);
 					// }
 				}
 				// }

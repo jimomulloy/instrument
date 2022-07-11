@@ -63,8 +63,7 @@ public class Generator {
 			// System.out.println(">>getSinkProcessor");
 			// System.out.println(cell.toString());
 			for (NuMessage message : messages) {
-				// System.out.println("process message: " + message + ", input: " +
-				// message.input);
+				System.out.println("process message: " + message + ", input: " + message.input);
 			}
 		};
 	}

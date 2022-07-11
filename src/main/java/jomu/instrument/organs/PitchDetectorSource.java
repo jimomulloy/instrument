@@ -53,6 +53,7 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		}
 
 		binWidth = bufferSize / sampleRate;
+		System.out.println(">>>binWidth: " + binWidth + ", " + bufferSize + ", " + sampleRate);
 		binHeight = 1200 / (float) binsPerOctave;
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
@@ -82,6 +83,7 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 			fft.modulus(transformbuffer, amplitudes);
 			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
 			features.put(audioEvent.getTimeStamp(), si);
+			System.out.println(">>>PUT: " + audioEvent.getTimeStamp() + ", " + bufferSize);
 			return true;
 		}
 

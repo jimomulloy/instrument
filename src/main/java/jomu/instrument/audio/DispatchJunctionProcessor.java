@@ -215,9 +215,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 				&& this.floatOverlap == incomingAudioEvent.getOverlap()) {
 			audioEvent = incomingAudioEvent; // TODO !!
 			for (final AudioProcessor processor : audioProcessors) {
-				// System.out.println(
-				// ">>DJP processor: " + name + ", " + audioEvent.getTimeStamp() + ", " +
-				// processor.getClass().descriptorString());
 				if (!processor.process(audioEvent)) {
 					// skip to the next audio processors if false is returned.
 					break;
@@ -274,13 +271,16 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 					int copyLength = this.audioFloatBuffer.length;
 					if (isFirstBuffer) {
 						System.arraycopy(incomingBuffer, incomingPosition, audioFloatBuffer, 0, copyLength);
-						isFirstBuffer = false;
+						// isFirstBuffer = false;
 					} else {
 
 					}
+					processedLength = copyLength;
+					audioEvent.setBytesProcessed(
+							(audioEvent.getSamplesProcessed() + processedLength) * format.getFrameSize());
 					for (final AudioProcessor processor : audioProcessors) {
 						// System.out.println(
-						// ">>DJP processor: " + name + ", " + audioEvent.getTimeStamp() + ", " +
+						// ">>DJP 2 processor: " + name + ", " + audioEvent.getTimeStamp() + ", " +
 						// processor.getClass().descriptorString());
 						if (!processor.process(audioEvent)) {
 							// skip to the next audio processors if false is returned.
@@ -289,6 +289,7 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 					}
 					incomingPosition += copyLength;
 				} while (incomingPosition < incomingBufferSize);
+				processedLength = 0;
 			} else {
 
 			}

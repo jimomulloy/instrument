@@ -17,6 +17,7 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 
 	public PitchDetectorProcessor(NuCell cell) {
 		super();
+		System.out.println(">>PitchDetectorProcessor create");
 		this.cell = cell;
 		memory = Instrument.getInstance().getMemory();
 	}

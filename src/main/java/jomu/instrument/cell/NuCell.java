@@ -54,12 +54,14 @@ public class NuCell extends Cell implements Serializable {
 	// firing an impulse depends on the sum of all of the excitatory and inhibitory
 	// signals it receives. If the NuCell does end up firing, the nerve impulse,
 	// or action potential, is conducted down the axon
+	@SuppressWarnings("preview")
 	public NuCell(CellTypes cellType) {
 		super(cellType);
 		dendrites = new Dendrites(this);
 		axon = new Axon(this);
 		bq = new LinkedBlockingQueue<Object>();
-		new Thread(new QueueConsumer()).start();
+		Thread.startVirtualThread(new QueueConsumer());
+		// new Thread(new QueueConsumer()).start();
 	}
 
 	public void setProcessor(Consumer<List<NuMessage>> processor) {

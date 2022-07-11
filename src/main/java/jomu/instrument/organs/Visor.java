@@ -147,14 +147,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		JTabbedPane tabbedPane = new JTabbedPane();
 		this.add(inputPanel, BorderLayout.NORTH);
 		this.add(tabbedPane, BorderLayout.CENTER);
+		bandedPitchDetectPanel = createBandedPitchDetectPanel();
+		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
 		toneMapPanel = createToneMapPanel();
 		tabbedPane.addTab("TM", toneMapPanel);
 		pitchDetectPanel = createPitchDetectPanel();
 		tabbedPane.addTab("Pitch", pitchDetectPanel);
 		spectrogramPanel = createSpectogramPanel();
 		tabbedPane.addTab("Spectogram", spectrogramPanel);
-		bandedPitchDetectPanel = createBandedPitchDetectPanel();
-		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
 		cqPanel = createCQPanel();
 		tabbedPane.addTab("CQ", cqPanel);
 		scalogramPanel = createScalogramPanel();
@@ -946,6 +946,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 							graphics.setColor(color);
 							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
 									(int) Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
+							// graphics.fillRect((int) Math.round(timeStart * 1000),
+							// Math.round(centsStartingPoint),
+							// (int) Math.round(100), (int) Math.ceil(100));
 
 						}
 					}
@@ -979,15 +982,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					BandedPitchDetectorSource bpds = pitchFrame.getBandedPitchDetectorFeatures().getBpds();
-					binStartingPointsInCents = bpds.getBinStartingPointsInCents(1024);
-					binWidth = bpds.getBinWidth(1024);
-					binHeight = bpds.getBinHeight(1024);
+					binStartingPointsInCents = bpds.getBinStartingPointsInCents(2048);
+					binWidth = bpds.getBinWidth(2048);
+					binHeight = bpds.getBinHeight(2048);
 					Map<Integer, TreeMap<Double, SpectrogramInfo>> bfs = pitchFrame.getBandedPitchDetectorFeatures()
 							.getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
-					TreeMap<Double, SpectrogramInfo> fs = bfs.get(1024);
+					TreeMap<Double, SpectrogramInfo> fs = bfs.get(2048);
 					if (fs != null) {
 						for (Entry<Double, SpectrogramInfo> entry : fs.entrySet()) {
 							features.put(entry.getKey(), entry.getValue());
