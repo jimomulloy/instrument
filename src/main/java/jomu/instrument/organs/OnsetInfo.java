@@ -33,15 +33,15 @@ public class OnsetInfo {
 		this.salience = salience;
 	}
 
-	public double getTime() {
-		return time;
+	public OnsetInfo clone() {
+		return new OnsetInfo(time, salience);
 	}
 
 	public double getSalience() {
 		return salience;
 	}
 
-	public OnsetInfo clone() {
-		return new OnsetInfo(time, salience);
+	public double getTime() {
+		return time;
 	}
 }

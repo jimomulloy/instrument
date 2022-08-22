@@ -1,6 +1,7 @@
 package jomu.instrument.tonemap;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * This is a class that encapsulates parameters associated with ToneMap Pitch
@@ -13,12 +14,12 @@ import java.io.Serializable;
 public class PitchSet implements Serializable {
 
 	public static double[] PITCH_FREQ;
+
 	public static final double A440 = 440.00;
 	public static final int MAX_MIDI_NOTE = 156;
 	public static final int MIN_MIDI_NOTE = 12;
 	public static final int CENTS_OCTAVE = 1200;
 	public static final int CENTS_HALFSTEP = 50;
-
 	public static char[][] NOTE_SYMBOLS = { { 'C', ' ' }, { 'C', '#' }, { 'D', ' ' }, { 'D', '#' }, { 'E', ' ' },
 			{ 'F', ' ' }, { 'F', '#' }, { 'G', ' ' }, { 'G', '#' }, { 'A', ' ' }, { 'A', '#' }, { 'B', ' ' },
 			{ '?', ' ' } };
@@ -31,33 +32,6 @@ public class PitchSet implements Serializable {
 			PITCH_FREQ[i] = getMidiFreq(MIN_MIDI_NOTE + i);
 
 		}
-	}
-
-	public PitchSet(int lowNote, int highNote) {
-
-		setLowIndex(lowNote - MIN_MIDI_NOTE);
-		setHighIndex(highNote - MIN_MIDI_NOTE);
-		setIndex(lowNote - MIN_MIDI_NOTE);
-	}
-
-	public PitchSet() {
-		this(MIN_MIDI_NOTE, MAX_MIDI_NOTE);
-	}
-
-	public static double getMidiFreq(int note) {
-		return ((A440 / 32) * (Math.pow(2.0, ((note - 9.0) / 12.0))));
-	}
-
-	public static int noteSymbolToMidi(NoteSymbol noteSymbol) {
-		return 0;
-	}
-
-	public static NoteSymbol MidiNoteToSymbol(int note) {
-		NoteSymbol noteSymbol = new NoteSymbol();
-		noteSymbol.noteChar = NOTE_SYMBOLS[note % 12][0];
-		noteSymbol.noteSharp = NOTE_SYMBOLS[note % 12][1];
-		noteSymbol.noteOctave = (int) Math.floor((double) note / 12.0) - 1;
-		return noteSymbol;
 	}
 
 	/**
@@ -102,42 +76,54 @@ public class PitchSet implements Serializable {
 		return (int) (-CENTS_OCTAVE * Math.log(freqNote / freq) / Math.log(2.0));
 	}
 
-	public void setLowIndex(int index) {
-		lowPitchIndex = index;
+	public static double getMidiFreq(int note) {
+		return ((A440 / 32) * (Math.pow(2.0, ((note - 9.0) / 12.0))));
 	}
 
-	public void setHighIndex(int index) {
-		highPitchIndex = index;
+	public static NoteSymbol MidiNoteToSymbol(int note) {
+		NoteSymbol noteSymbol = new NoteSymbol();
+		noteSymbol.noteChar = NOTE_SYMBOLS[note % 12][0];
+		noteSymbol.noteSharp = NOTE_SYMBOLS[note % 12][1];
+		noteSymbol.noteOctave = (int) Math.floor((double) note / 12.0) - 1;
+		return noteSymbol;
 	}
 
-	public void setIndex(int index) {
-		currentPitchIndex = index;
+	public static int noteSymbolToMidi(NoteSymbol noteSymbol) {
+		return 0;
 	}
 
-	public int pitchToIndex(int pitchNote) {
-		setIndex(pitchNote - (lowPitchIndex + MIN_MIDI_NOTE));
-		return currentPitchIndex;
+	private int lowPitchIndex;
+
+	private int highPitchIndex;
+
+	private int currentPitchIndex;
+
+	private double freq;
+
+	private double note;
+
+	private double[] freqSet;
+
+	private int freqRange;
+
+	public PitchSet() {
+		this(MIN_MIDI_NOTE, MAX_MIDI_NOTE);
 	}
 
-	public int getRange() {
-		return (highPitchIndex - lowPitchIndex + 1);
+	public PitchSet(int lowNote, int highNote) {
+
+		setLowIndex(lowNote - MIN_MIDI_NOTE);
+		setHighIndex(highNote - MIN_MIDI_NOTE);
+		setIndex(lowNote - MIN_MIDI_NOTE);
+	}
+
+	public PitchSet clone() {
+		return new PitchSet(this.getLowNote(), this.getHighNote());
 	}
 
 	public double getFreq(int index) {
 		currentPitchIndex = index;
 		return PITCH_FREQ[lowPitchIndex + index];
-	}
-
-	public int getNote(int index) {
-		return (lowPitchIndex + index + MIN_MIDI_NOTE);
-	}
-
-	public int getLowNote() {
-		return (lowPitchIndex + MIN_MIDI_NOTE);
-	}
-
-	public int getHighNote() {
-		return (highPitchIndex + MIN_MIDI_NOTE);
 	}
 
 	public double[] getFreqSet() {
@@ -149,12 +135,44 @@ public class PitchSet implements Serializable {
 		return freqSet;
 	}
 
-	private int lowPitchIndex;
-	private int highPitchIndex;
-	private int currentPitchIndex;
-	private double freq;
-	private double note;
-	private double[] freqSet;
-	private int freqRange;
+	public int getHighNote() {
+		return (highPitchIndex + MIN_MIDI_NOTE);
+	}
+
+	public int getLowNote() {
+		return (lowPitchIndex + MIN_MIDI_NOTE);
+	}
+
+	public int getNote(int index) {
+		return (lowPitchIndex + index + MIN_MIDI_NOTE);
+	}
+
+	public int getRange() {
+		return (highPitchIndex - lowPitchIndex + 1);
+	}
+
+	public int pitchToIndex(int pitchNote) {
+		setIndex(pitchNote - (lowPitchIndex + MIN_MIDI_NOTE));
+		return currentPitchIndex;
+	}
+
+	public void setHighIndex(int index) {
+		highPitchIndex = index;
+	}
+
+	public void setIndex(int index) {
+		currentPitchIndex = index;
+	}
+
+	public void setLowIndex(int index) {
+		lowPitchIndex = index;
+	}
+
+	@Override
+	public String toString() {
+		return "PitchSet [lowPitchIndex=" + lowPitchIndex + ", highPitchIndex=" + highPitchIndex
+				+ ", currentPitchIndex=" + currentPitchIndex + ", freq=" + freq + ", note=" + note + ", freqSet="
+				+ Arrays.toString(freqSet) + ", freqRange=" + freqRange + "]";
+	}
 
 } // End PitchSet

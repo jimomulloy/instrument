@@ -96,69 +96,35 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	}
 
 	/**
-	 * Removes the specified FeatureFrame.
+	 * Adds a new {@link FeatureExtractor}. When
+	 * {@link #newSegment(TimeStamp, TimeStamp)}} is called, the FeatureTrack
+	 * creates a new {@link FeatureFrame} with the given start and end times and
+	 * adds the data from all of its {@link FeatureExtractor}s to the
+	 * {@link FeatureFrame}.
 	 * 
-	 * @param ff the FeatureFrame to remove.
+	 * @param e the FeatureExtractor.
 	 */
-	public void remove(FeatureFrame ff) {
-		// remove from frames
-		frames.remove(ff);
-		// remove from framesInBlocks
-		int startIndex = (int) (ff.getStartTimeMS() / skipMS);
-		int endIndex = (int) (ff.getEndTimeMS() / skipMS);
-		for (int i = startIndex; i <= endIndex; i++) {
-			SortedSet<FeatureFrame> frameSet;
-			if (framesInBlocks.containsKey(i)) {
-				frameSet = framesInBlocks.get(i);
-				frameSet.remove(ff);
-			}
-		}
+	public void addFeatureExtractor(FeatureExtractor<?, ?> e) {
+		extractors.add(e);
 	}
 
 	/**
-	 * Get all feature frames in the given range.
-	 * 
-	 * @param startRangeMS the beginning of the range.
-	 * @param endRangeMS   the end of the range.
+	 * Clears all memory of feature frames.
 	 */
-	public List<FeatureFrame> getRange(double startRangeMS, double endRangeMS) {
-		ArrayList<FeatureFrame> result = new ArrayList<FeatureFrame>();
-		FeatureFrame startFrame = getFrameAt(startRangeMS);
-		if (startFrame == null)
-			return new ArrayList<>();
-		result.add(startFrame);
-		for (FeatureFrame ff : frames.tailSet(startFrame)) {
-			if (ff.getStartTimeMS() < endRangeMS) {
-				result.add(ff);
-			} else {
-				break;
-			}
-		}
-		return result;
+	public void clear() {
+		frames.clear();
+		framesInBlocks.clear();
 	}
 
 	/**
-	 * Remove all feature frames in the given range.
-	 * 
-	 * @param startRangeMS the beginning of the range.
-	 * @param endRangeMS   the end of the range.
-	 * @return
+	 * Ensures that number of stored frames is <= frameMemory.
 	 */
-	public void removeRange(double startRangeMS, double endRangeMS) {
-		ArrayList<FeatureFrame> toRemove = new ArrayList<FeatureFrame>();
-		FeatureFrame startFrame = getFrameAt(startRangeMS);
-		if (startFrame == null)
-			return;
-		toRemove.add(startFrame);
-		for (FeatureFrame ff : frames.tailSet(startFrame)) {
-			if (ff.getStartTimeMS() < endRangeMS) {
-				toRemove.add(ff);
-			} else {
-				break;
+	private void frameMemoryCheck() {
+		if (frameMemory > 0) {
+			while (frames.size() > frameMemory) {
+				FeatureFrame ff = frames.first();
+				remove(ff);
 			}
-		}
-		for (FeatureFrame ff : toRemove) {
-			remove(ff);
 		}
 	}
 
@@ -219,6 +185,10 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 		return ff;
 	}
 
+	public int getFrameMemory() {
+		return frameMemory;
+	}
+
 	/**
 	 * Gets the last FeatureFrame in this FeatureTrack.
 	 * 
@@ -231,25 +201,41 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	}
 
 	/**
-	 * Adds a new {@link FeatureExtractor}. When
-	 * {@link #newSegment(TimeStamp, TimeStamp)}} is called, the FeatureTrack
-	 * creates a new {@link FeatureFrame} with the given start and end times and
-	 * adds the data from all of its {@link FeatureExtractor}s to the
-	 * {@link FeatureFrame}.
+	 * Returns the number of {@link FeatureFrame}s stored in this FeatureTrack.
 	 * 
-	 * @param e the FeatureExtractor.
+	 * @return number of FeatureFrames.
 	 */
-	public void addFeatureExtractor(FeatureExtractor<?, ?> e) {
-		extractors.add(e);
+	public int getNumberOfFrames() {
+		return frames.size();
 	}
 
 	/**
-	 * Removes the specified FeatureExtractor.
+	 * Get all feature frames in the given range.
 	 * 
-	 * @param e the FeatureExtractor.
+	 * @param startRangeMS the beginning of the range.
+	 * @param endRangeMS   the end of the range.
 	 */
-	public void removeFeatureExtractor(FeatureExtractor<?, ?> e) {
-		extractors.remove(e);
+	public List<FeatureFrame> getRange(double startRangeMS, double endRangeMS) {
+		ArrayList<FeatureFrame> result = new ArrayList<FeatureFrame>();
+		FeatureFrame startFrame = getFrameAt(startRangeMS);
+		if (startFrame == null)
+			return new ArrayList<>();
+		result.add(startFrame);
+		for (FeatureFrame ff : frames.tailSet(startFrame)) {
+			if (ff.getStartTimeMS() < endRangeMS) {
+				result.add(ff);
+			} else {
+				break;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Returns an iterator over the {@link FeatureFrame}s.
+	 */
+	public Iterator<FeatureFrame> iterator() {
+		return frames.iterator();
 	}
 
 	/**
@@ -296,48 +282,62 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	}
 
 	/**
-	 * Returns an iterator over the {@link FeatureFrame}s.
+	 * Removes the specified FeatureFrame.
+	 * 
+	 * @param ff the FeatureFrame to remove.
 	 */
-	public Iterator<FeatureFrame> iterator() {
-		return frames.iterator();
-	}
-
-	public int getFrameMemory() {
-		return frameMemory;
-	}
-
-	public void setFrameMemory(int frameMemory) {
-		this.frameMemory = frameMemory;
-		frameMemoryCheck();
-	}
-
-	/**
-	 * Ensures that number of stored frames is <= frameMemory.
-	 */
-	private void frameMemoryCheck() {
-		if (frameMemory > 0) {
-			while (frames.size() > frameMemory) {
-				FeatureFrame ff = frames.first();
-				remove(ff);
+	public void remove(FeatureFrame ff) {
+		// remove from frames
+		frames.remove(ff);
+		// remove from framesInBlocks
+		int startIndex = (int) (ff.getStartTimeMS() / skipMS);
+		int endIndex = (int) (ff.getEndTimeMS() / skipMS);
+		for (int i = startIndex; i <= endIndex; i++) {
+			SortedSet<FeatureFrame> frameSet;
+			if (framesInBlocks.containsKey(i)) {
+				frameSet = framesInBlocks.get(i);
+				frameSet.remove(ff);
 			}
 		}
 	}
 
 	/**
-	 * Returns the number of {@link FeatureFrame}s stored in this FeatureTrack.
+	 * Removes the specified FeatureExtractor.
 	 * 
-	 * @return number of FeatureFrames.
+	 * @param e the FeatureExtractor.
 	 */
-	public int getNumberOfFrames() {
-		return frames.size();
+	public void removeFeatureExtractor(FeatureExtractor<?, ?> e) {
+		extractors.remove(e);
 	}
 
 	/**
-	 * Clears all memory of feature frames.
+	 * Remove all feature frames in the given range.
+	 * 
+	 * @param startRangeMS the beginning of the range.
+	 * @param endRangeMS   the end of the range.
+	 * @return
 	 */
-	public void clear() {
-		frames.clear();
-		framesInBlocks.clear();
+	public void removeRange(double startRangeMS, double endRangeMS) {
+		ArrayList<FeatureFrame> toRemove = new ArrayList<FeatureFrame>();
+		FeatureFrame startFrame = getFrameAt(startRangeMS);
+		if (startFrame == null)
+			return;
+		toRemove.add(startFrame);
+		for (FeatureFrame ff : frames.tailSet(startFrame)) {
+			if (ff.getStartTimeMS() < endRangeMS) {
+				toRemove.add(ff);
+			} else {
+				break;
+			}
+		}
+		for (FeatureFrame ff : toRemove) {
+			remove(ff);
+		}
+	}
+
+	public void setFrameMemory(int frameMemory) {
+		this.frameMemory = frameMemory;
+		frameMemoryCheck();
 	}
 
 }

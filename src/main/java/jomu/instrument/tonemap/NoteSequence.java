@@ -13,16 +13,22 @@ import java.util.Collections;
  */
 public class NoteSequence {
 
-	public NoteSequenceElement get(int index) {
+	private ArrayList noteSequence = new ArrayList();
 
-		this.index = index;
-		return (NoteSequenceElement) noteSequence.get(index);
+	private NoteSequenceElement element;
 
-	}
+	private int index;
 
 	public void add(NoteSequenceElement element) {
 
 		noteSequence.add(element);
+
+	}
+
+	public NoteSequenceElement get(int index) {
+
+		this.index = index;
+		return (NoteSequenceElement) noteSequence.get(index);
 
 	}
 
@@ -37,9 +43,5 @@ public class NoteSequence {
 		Collections.sort(noteSequence);
 
 	}
-
-	private ArrayList noteSequence = new ArrayList();
-	private NoteSequenceElement element;
-	private int index;
 
 } // End NoteSequence

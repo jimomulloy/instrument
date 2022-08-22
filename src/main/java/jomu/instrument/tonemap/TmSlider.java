@@ -20,6 +20,12 @@ import javax.swing.event.ChangeListener;
 
 class TmSlider extends JSlider implements ChangeListener {
 
+	private ChangeListener listener;
+
+	private String name;
+
+	private int value;
+
 	public TmSlider(int orient, int min, int max, int value, String name, ChangeListener listener) {
 		super(orient, min, max, value);
 		TitledBorder tb = new TitledBorder(new EtchedBorder());
@@ -33,6 +39,12 @@ class TmSlider extends JSlider implements ChangeListener {
 		this.value = value;
 		this.listener = listener;
 		addChangeListener(this);
+
+	}
+
+	public String getName() {
+
+		return name;
 
 	}
 
@@ -53,15 +65,5 @@ class TmSlider extends JSlider implements ChangeListener {
 		repaint();
 
 	}
-
-	public String getName() {
-
-		return name;
-
-	}
-
-	private ChangeListener listener;
-	private String name;
-	private int value;
 
 }

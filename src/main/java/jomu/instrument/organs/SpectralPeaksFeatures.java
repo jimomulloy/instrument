@@ -9,22 +9,22 @@ public class SpectralPeaksFeatures {
 	List<SpectralInfo> spectralInfo;
 	private TreeMap<Double, SpectralInfo> features;
 
-	void initialise(SpectralPeaksSource sps) {
-		this.sps = sps;
-		spectralInfo = sps.getSpectralInfo();
-		features = sps.getFeatures();
-		sps.clear();
-	}
-
-	public SpectralPeaksSource getSps() {
-		return sps;
+	public TreeMap<Double, SpectralInfo> getFeatures() {
+		return features;
 	}
 
 	public List<SpectralInfo> getSpectralInfo() {
 		return spectralInfo;
 	}
 
-	public TreeMap<Double, SpectralInfo> getFeatures() {
-		return features;
+	public SpectralPeaksSource getSps() {
+		return sps;
+	}
+
+	void initialise(SpectralPeaksSource sps) {
+		this.sps = sps;
+		spectralInfo = sps.getSpectralInfo();
+		features = sps.getFeatures();
+		sps.clear();
 	}
 }

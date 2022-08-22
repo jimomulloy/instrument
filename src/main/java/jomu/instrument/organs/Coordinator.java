@@ -5,6 +5,18 @@ public class Coordinator {
 	private Voice voice;
 	private Cortex cortex;
 
+	public Cortex getCortex() {
+		return cortex;
+	}
+
+	public Hearing getHearing() {
+		return hearing;
+	}
+
+	public Voice getVoice() {
+		return voice;
+	}
+
 	public void initialise() {
 		hearing = new Hearing();
 		hearing.initialise();
@@ -19,17 +31,5 @@ public class Coordinator {
 
 	public void start() {
 		hearing.start();
-	}
-
-	public Hearing getHearing() {
-		return hearing;
-	}
-
-	public Voice getVoice() {
-		return voice;
-	}
-
-	public Cortex getCortex() {
-		return cortex;
 	}
 }

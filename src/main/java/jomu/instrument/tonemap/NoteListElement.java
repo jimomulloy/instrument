@@ -11,6 +11,23 @@ import java.io.Serializable;
  */
 public class NoteListElement implements Serializable {
 
+	public int note; // Midi note pitch
+
+	public int pitchIndex; // Pitch index in ToneMapMatrix
+	public double startTime; // Note Start Time
+	public double endTime; // Note End Time
+	public int startTimeIndex; // Start Time Index in ToneMapMatrix
+	public int endTimeIndex; // End Time Index in ToneMapMatrix
+	public double avgFTPower; // Average audio data Power
+	public double maxFTPower; // Maximum audio data Power
+	public double minFTPower; // Minimum audio data Power
+	public double avgAmp; // Average amplitude (loudness)
+	public double maxAmp; // Maximum amplitude
+	public double minAmp; // Minumum amplitude
+	public double percentMin; // Percentage # entries below minimum
+	public boolean underTone; // Flag note as undertone
+	public boolean overTone; // Flag note as overtone
+
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgFTPower, double maxFTPower, double minFTPower, double avgAmp, double maxAmp,
 			double minAmp, double percentMin) {
@@ -28,21 +45,5 @@ public class NoteListElement implements Serializable {
 		this.minAmp = minAmp;
 		this.percentMin = percentMin;
 	}
-
-	public int note; // Midi note pitch
-	public int pitchIndex; // Pitch index in ToneMapMatrix
-	public double startTime; // Note Start Time
-	public double endTime; // Note End Time
-	public int startTimeIndex; // Start Time Index in ToneMapMatrix
-	public int endTimeIndex; // End Time Index in ToneMapMatrix
-	public double avgFTPower; // Average audio data Power
-	public double maxFTPower; // Maximum audio data Power
-	public double minFTPower; // Minimum audio data Power
-	public double avgAmp; // Average amplitude (loudness)
-	public double maxAmp; // Maximum amplitude
-	public double minAmp; // Minumum amplitude
-	public double percentMin; // Percentage # entries below minimum
-	public boolean underTone; // Flag note as undertone
-	public boolean overTone; // Flag note as overtone
 
 } // End NoteListElement

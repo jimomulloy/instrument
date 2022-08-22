@@ -9,6 +9,38 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 public class NuCell extends Cell implements Serializable {
+	private class QueueConsumer implements Runnable {
+
+		public void run() {
+			try {
+				while (true) {
+					NuMessage qe = (NuMessage) bq.take();
+					List<NuMessage> entries;
+					// System.out.println(">>sequence : " + qe.sequence);
+					if (sequenceMap.containsKey(qe.sequence)) {
+						// System.out.println(">>sequenceMap.containsKey : " + qe.sequence);
+						entries = sequenceMap.get(qe.sequence);
+						// System.out.println(">> entries A : " + entries.size());
+					} else {
+						entries = new ArrayList<>();
+						sequenceMap.put(qe.sequence, entries);
+					}
+					entries.add(qe);
+					// System.out.println(">> entries B : " + entries.size());
+					// System.out.println(">>consume : " + NuCell.this);
+					// System.out.println(qe);
+					// System.out.println(">> sizes : " + entries.size() + ", " +
+					// dendrites.getCount());
+					if (entries.size() >= dendrites.getCount()) {
+						processor.accept(entries);
+					}
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+
 	private static final long serialVersionUID = 1002;
 
 	// enum, one of ...
@@ -38,10 +70,10 @@ public class NuCell extends Cell implements Serializable {
 	// LayerClassification
 	// InputNuCell, HiddenNuCell, OutputNuCell
 	protected LayerClassification layerClassification = LayerClassification.INPUT_OUTPUT;
-
 	// this field is for sending a signal into the Neural Network from
 	// a source outside of the Neural Network
 	protected Double externalInputSignal = new Double(0.000d);
+
 	protected Double expectedOutputSignal = new Double(0.000d);
 
 	private BlockingQueue<Object> bq;
@@ -64,50 +96,24 @@ public class NuCell extends Cell implements Serializable {
 		// new Thread(new QueueConsumer()).start();
 	}
 
-	public void setProcessor(Consumer<List<NuMessage>> processor) {
-		this.processor = processor;
+	/**
+	 * 
+	 * @param double
+	 * @return double
+	 */
+	public double computeActivationFunction(double d) {
+		// System.out.println("computeActivationFunction ... " + d );
+		return activationFunction.compute(d);
 	}
 
-	// ==========================================
-	// Layer Classification
-	// ==========================================
 	/**
 	 * 
+	 * @return Double
 	 */
-	public void updateLayerClassification() {
-		boolean bInputs = false;
-		boolean bOutputs = false;
-
-		// does this NuCell have any NuCells connected to its Dendrites
-		if (dendrites.getCount() > 0)
-			bInputs = true;
-
-		// does this NuCell have any NuCells connected to its Axon
-		if (axon.getCount() > 0)
-			bOutputs = true;
-
-		if (bInputs & bOutputs) {
-			layerClassification = LayerClassification.HIDDEN;
-			return;
-		} else if (bInputs == false & bOutputs == true) {
-			layerClassification = LayerClassification.INPUT;
-			return;
-		} else if (bInputs == true & bOutputs == false) {
-			layerClassification = LayerClassification.OUTPUT;
-			return;
-		} else if (bInputs == false & bOutputs == false) {
-			layerClassification = LayerClassification.INPUT_OUTPUT;
-			return;
-		}
-
-	} // end updateLayerClassification
-
-	/**
-	 * 
-	 * @return
-	 */
-	public LayerClassification getLayerClassification() {
-		return layerClassification;
+	public Double computeNetInput() {
+		// System.out.println("NuCell.computeNetInput ..." );
+		// loop through all the
+		return dendrites.computeNetInput();
 	}
 
 	// ==========================================
@@ -118,14 +124,22 @@ public class NuCell extends Cell implements Serializable {
 
 	/**
 	 * 
-	 * @return MorphologyEnum
+	 * @return double
 	 */
-	public MorphologyEnum getMorphology() {
-		return morphology;
+	public double computeOutputFunction(double d) {
+		return axon.getOutput(d);
 	}
 
-	public void setMorphology(MorphologyEnum morphology) {
-		this.morphology = morphology;
+	/**
+	 * Computes the Transfer Function for a NuCell
+	 * 
+	 * @return Double
+	 */
+	public Double computeTransferFunction() {
+		Double niD = computeNetInput();
+		Double afD = computeActivationFunction(niD);
+		Double ofD = computeOutputFunction(afD);
+		return ofD.doubleValue();
 	}
 
 	// ==========================================
@@ -154,86 +168,34 @@ public class NuCell extends Cell implements Serializable {
 	 * 
 	 * @param NuCell
 	 */
-	public void disconnectInput(NuCell NuCell) {
-		// System.out.println(NuCellID + " disconnectInput " + NuCell.getNuCellID()
-		// + " success");
-		dendrites.disconnect(NuCell);
+	public void connectOutput(NuCell NuCell) {
+		// axon.connect(NuCell, 1d);
+		axon.connect(NuCell);
 		updateLayerClassification();
 	}
 
 	/**
 	 * 
-	 * @return
 	 */
-	public java.util.Set<NuCell> getInputs() {
-		return dendrites.getConnections();
+	public void disconnectAllInputs() {
+		dendrites.disconnectAll();
 	}
 
 	/**
 	 * 
-	 * @param dendrites
 	 */
-	public void setDendrites(Dendrites dendrites) {
-		this.dendrites = dendrites;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Dendrites getDendrites() {
-		return dendrites;
+	public void disconnectAllOutputs() {
+		axon.disconnectAll();
 	}
 
 	/**
 	 * 
 	 * @param NuCell
-	 * @return
 	 */
-	public Double getInputWeight(NuCell NuCell) {
-		return dendrites.getWeight(NuCell);
-	}
-
-	/**
-	 * 
-	 * @param NuCell
-	 * @param d
-	 */
-	public void setInputWeight(NuCell NuCell, Double d) {
-		dendrites.setWeight(NuCell, d);
-	}
-
-	// ==========================================
-	// External Input Signal
-	// ==========================================
-
-	/**
-	 * 
-	 * @param d
-	 */
-	public void setExternalInputSignal(Double d) {
-		externalInputSignal = d;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Double getExternalInputSignal() {
-		return externalInputSignal;
-	}
-
-	// ==========================================
-	// Outputs
-	// ==========================================
-
-	/**
-	 * 
-	 * @param NuCell
-	 */
-	public void connectOutput(NuCell NuCell) {
-		// axon.connect(NuCell, 1d);
-		axon.connect(NuCell);
+	public void disconnectInput(NuCell NuCell) {
+		// System.out.println(NuCellID + " disconnectInput " + NuCell.getNuCellID()
+		// + " success");
+		dendrites.disconnect(NuCell);
 		updateLayerClassification();
 	}
 
@@ -252,33 +214,93 @@ public class NuCell extends Cell implements Serializable {
 
 	/**
 	 * 
+	 * @return ActivationFunctionEnum
 	 */
-	public void disconnectAllInputs() {
-		dendrites.disconnectAll();
+	public ActivationFunctionEnum getActivationFunctionSelection() {
+		return activationFunction.getSelection();
+	}
+
+	// ==========================================
+	// External Input Signal
+	// ==========================================
+
+	public double getActivationFunctionThreshold() {
+		return activationFunction.getThreshold();
 	}
 
 	/**
 	 * 
+	 * @return Axon
 	 */
-	public void disconnectAllOutputs() {
-		axon.disconnectAll();
+	public Axon getAxon() {
+		return axon;
+	}
+
+	// ==========================================
+	// Outputs
+	// ==========================================
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Dendrites getDendrites() {
+		return dendrites;
+	}
+
+	public double getExpectedOutputSignal() {
+		return expectedOutputSignal;
 	}
 
 	/**
-	 * isOutputConnected returns true if this NuCell has an output connected to the
-	 * input parameter
+	 * 
+	 * @return
+	 */
+	public Double getExternalInputSignal() {
+		return externalInputSignal;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public java.util.Set<NuCell> getInputs() {
+		return dendrites.getConnections();
+	}
+
+	/**
 	 * 
 	 * @param NuCell
+	 * @return
 	 */
-	public boolean isOutputConnectedTo(NuCell NuCell) {
-		// one of this NuCell's outputs
+	public Double getInputWeight(NuCell NuCell) {
+		return dendrites.getWeight(NuCell);
+	}
 
-		return axon.isConnectedTo(NuCell);
-		/*
-		 * Double d = axon.isFound(NuCell);
-		 * 
-		 * if( d == null ) return false; else return true;
-		 */
+	/**
+	 * 
+	 * @return
+	 */
+	public LayerClassification getLayerClassification() {
+		return layerClassification;
+	}
+
+	/**
+	 * 
+	 * @return MorphologyEnum
+	 */
+	public MorphologyEnum getMorphology() {
+		return morphology;
+	}
+
+	/**
+	 * 
+	 * @return Set<NuCell>
+	 */
+	// public java.util.Set<NuCell> getOutputs()
+	public List<NuCell> getOutputs() {
+		// return axon.getConnections();
+		return axon.getConnections();
 	}
 
 	/**
@@ -347,69 +369,42 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
+	 * isOutputConnected returns true if this NuCell has an output connected to the
+	 * input parameter
 	 * 
-	 * @return Axon
+	 * @param NuCell
 	 */
-	public Axon getAxon() {
-		return axon;
-	}
+	public boolean isOutputConnectedTo(NuCell NuCell) {
+		// one of this NuCell's outputs
 
-	/**
-	 * 
-	 * @param axon
-	 */
-	public void setAxon(Axon axon) {
-		this.axon = axon;
-	}
-
-	/**
-	 * 
-	 * @return Set<NuCell>
-	 */
-	// public java.util.Set<NuCell> getOutputs()
-	public List<NuCell> getOutputs() {
-		// return axon.getConnections();
-		return axon.getConnections();
-	}
-
-	/**
-	 * Computes the Transfer Function for a NuCell
-	 * 
-	 * @return Double
-	 */
-	public Double computeTransferFunction() {
-		Double niD = computeNetInput();
-		Double afD = computeActivationFunction(niD);
-		Double ofD = computeOutputFunction(afD);
-		return ofD.doubleValue();
+		return axon.isConnectedTo(NuCell);
+		/*
+		 * Double d = axon.isFound(NuCell);
+		 * 
+		 * if( d == null ) return false; else return true;
+		 */
 	}
 
 	// ==========================================
 	// Net Input Function
 	// ==========================================
 
-	/**
-	 * 
-	 * @return Double
-	 */
-	public Double computeNetInput() {
-		// System.out.println("NuCell.computeNetInput ..." );
-		// loop through all the
-		return dendrites.computeNetInput();
+	public void receive(NuMessage message) {
+		// System.out.println(">>receive : " + this);
+		// System.out.println(message);
+		bq.add(message);
 	}
 
 	// ==========================================
 	// Activation Function
 	// ==========================================
 
-	/**
-	 * 
-	 * @param double
-	 * @return double
-	 */
-	public double computeActivationFunction(double d) {
-		// System.out.println("computeActivationFunction ... " + d );
-		return activationFunction.compute(d);
+	public void send(NuMessage message) {
+		axon.send(message);
+	}
+
+	public void send(String sequence, Object output) {
+		axon.send(sequence, output);
 	}
 
 	/**
@@ -420,21 +415,17 @@ public class NuCell extends Cell implements Serializable {
 		activationFunction.setSelection(selection);
 	}
 
-	/**
-	 * 
-	 * @return ActivationFunctionEnum
-	 */
-	public ActivationFunctionEnum getActivationFunctionSelection() {
-		return activationFunction.getSelection();
-	}
-
 	public void setActivationFunctionThreshold(double d) {
 		// System.out.println("setActivationFunctionThreshold: " + d);
 		activationFunction.setThreshold(d);
 	}
 
-	public double getActivationFunctionThreshold() {
-		return activationFunction.getThreshold();
+	/**
+	 * 
+	 * @param axon
+	 */
+	public void setAxon(Axon axon) {
+		this.axon = axon;
 	}
 
 	// ==========================================
@@ -443,63 +434,72 @@ public class NuCell extends Cell implements Serializable {
 
 	/**
 	 * 
-	 * @return double
+	 * @param dendrites
 	 */
-	public double computeOutputFunction(double d) {
-		return axon.getOutput(d);
+	public void setDendrites(Dendrites dendrites) {
+		this.dendrites = dendrites;
 	}
 
 	public void setExpectedOutputSignal(double d) {
 		expectedOutputSignal = d;
 	}
 
-	public double getExpectedOutputSignal() {
-		return expectedOutputSignal;
+	/**
+	 * 
+	 * @param d
+	 */
+	public void setExternalInputSignal(Double d) {
+		externalInputSignal = d;
 	}
 
-	public void send(String sequence, Object output) {
-		axon.send(sequence, output);
+	/**
+	 * 
+	 * @param NuCell
+	 * @param d
+	 */
+	public void setInputWeight(NuCell NuCell, Double d) {
+		dendrites.setWeight(NuCell, d);
 	}
 
-	public void send(NuMessage message) {
-		axon.send(message);
+	public void setMorphology(MorphologyEnum morphology) {
+		this.morphology = morphology;
 	}
 
-	public void receive(NuMessage message) {
-		// System.out.println(">>receive : " + this);
-		// System.out.println(message);
-		bq.add(message);
+	public void setProcessor(Consumer<List<NuMessage>> processor) {
+		this.processor = processor;
 	}
 
-	private class QueueConsumer implements Runnable {
+	// ==========================================
+	// Layer Classification
+	// ==========================================
+	/**
+	 * 
+	 */
+	public void updateLayerClassification() {
+		boolean bInputs = false;
+		boolean bOutputs = false;
 
-		public void run() {
-			try {
-				while (true) {
-					NuMessage qe = (NuMessage) bq.take();
-					List<NuMessage> entries;
-					// System.out.println(">>sequence : " + qe.sequence);
-					if (sequenceMap.containsKey(qe.sequence)) {
-						// System.out.println(">>sequenceMap.containsKey : " + qe.sequence);
-						entries = sequenceMap.get(qe.sequence);
-						// System.out.println(">> entries A : " + entries.size());
-					} else {
-						entries = new ArrayList<>();
-						sequenceMap.put(qe.sequence, entries);
-					}
-					entries.add(qe);
-					// System.out.println(">> entries B : " + entries.size());
-					// System.out.println(">>consume : " + NuCell.this);
-					// System.out.println(qe);
-					// System.out.println(">> sizes : " + entries.size() + ", " +
-					// dendrites.getCount());
-					if (entries.size() >= dendrites.getCount()) {
-						processor.accept(entries);
-					}
-				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+		// does this NuCell have any NuCells connected to its Dendrites
+		if (dendrites.getCount() > 0)
+			bInputs = true;
+
+		// does this NuCell have any NuCells connected to its Axon
+		if (axon.getCount() > 0)
+			bOutputs = true;
+
+		if (bInputs & bOutputs) {
+			layerClassification = LayerClassification.HIDDEN;
+			return;
+		} else if (bInputs == false & bOutputs == true) {
+			layerClassification = LayerClassification.INPUT;
+			return;
+		} else if (bInputs == true & bOutputs == false) {
+			layerClassification = LayerClassification.OUTPUT;
+			return;
+		} else if (bInputs == false & bOutputs == false) {
+			layerClassification = LayerClassification.INPUT_OUTPUT;
+			return;
 		}
-	}
+
+	} // end updateLayerClassification
 } // end NuCell

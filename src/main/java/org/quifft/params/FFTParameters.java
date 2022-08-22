@@ -79,20 +79,6 @@ public class FFTParameters {
 	public boolean isNormalized = false;
 
 	/**
-	 * Get zero padding length (# of zeroes that should be appended to input signal
-	 * before taking FFT) based on numPoints and windowSize parameters
-	 * 
-	 * @return zero padding length for FFT
-	 */
-	public int zeroPadLength() {
-		if (numPoints == null) {
-			return 0;
-		}
-
-		return numPoints - windowSize;
-	}
-
-	/**
 	 * Get total length of window; returns windowSize by default, but will return
 	 * numPoints of it is set
 	 * 
@@ -104,6 +90,20 @@ public class FFTParameters {
 		}
 
 		return numPoints;
+	}
+
+	/**
+	 * Get zero padding length (# of zeroes that should be appended to input signal
+	 * before taking FFT) based on numPoints and windowSize parameters
+	 * 
+	 * @return zero padding length for FFT
+	 */
+	public int zeroPadLength() {
+		if (numPoints == null) {
+			return 0;
+		}
+
+		return numPoints - windowSize;
 	}
 
 }

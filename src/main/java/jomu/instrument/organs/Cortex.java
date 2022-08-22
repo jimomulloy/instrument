@@ -12,6 +12,10 @@ public class Cortex implements PitchFrameObserver {
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
 
+	public PitchFrameSink getPitchFrameSink() {
+		return pitchFrameSink;
+	}
+
 	public void initialise() {
 
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
@@ -32,10 +36,6 @@ public class Cortex implements PitchFrameObserver {
 		pitchFrameSink = new PitchFrameSink(sinkCell);
 	}
 
-	public void start() {
-
-	}
-
 	@Override
 	public void pitchFrameAdded(PitchFrame pitchFrame) {
 		sourceAddCell.send(Integer.toString(pitchFrame.getFrameSequence()), pitchFrame);
@@ -48,7 +48,7 @@ public class Cortex implements PitchFrameObserver {
 		}
 	}
 
-	public PitchFrameSink getPitchFrameSink() {
-		return pitchFrameSink;
+	public void start() {
+
 	}
 }

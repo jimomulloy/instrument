@@ -47,18 +47,6 @@ public class FFTComputationWrapper {
 	}
 
 	/**
-	 * Converts bin amplitude contents of FFT frames to a decibel (dB) scale
-	 * 
-	 * @param fftFrames collection of FFT frames for which amplitudes should be
-	 *                  scaled logarithmically
-	 */
-	public static void scaleLogarithmically(FFTFrame[] fftFrames) {
-		for (FFTFrame frame : fftFrames) {
-			scaleLogarithmically(frame);
-		}
-	}
-
-	/**
 	 * Converts bin amplitudes contents of a single FFT frame to a decibel (dB)
 	 * scale
 	 * 
@@ -78,6 +66,18 @@ public class FFTComputationWrapper {
 
 			// establish -100 dB floor (avoid infinitely negative values)
 			bin.amplitude = Math.max(bin.amplitude, -100);
+		}
+	}
+
+	/**
+	 * Converts bin amplitude contents of FFT frames to a decibel (dB) scale
+	 * 
+	 * @param fftFrames collection of FFT frames for which amplitudes should be
+	 *                  scaled logarithmically
+	 */
+	public static void scaleLogarithmically(FFTFrame[] fftFrames) {
+		for (FFTFrame frame : fftFrames) {
+			scaleLogarithmically(frame);
 		}
 	}
 

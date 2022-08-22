@@ -13,6 +13,14 @@ public class Druid {
 
 	private Visor visor;
 
+	public OscilloscopeEventHandler getOscilloscopeHandler() {
+		return visor;
+	}
+
+	public Visor getVisor() {
+		return visor;
+	}
+
 	public void initialise() {
 		visor = new Visor();
 	}
@@ -38,13 +46,5 @@ public class Druid {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public OscilloscopeEventHandler getOscilloscopeHandler() {
-		return visor;
-	}
-
-	public Visor getVisor() {
-		return visor;
 	}
 }

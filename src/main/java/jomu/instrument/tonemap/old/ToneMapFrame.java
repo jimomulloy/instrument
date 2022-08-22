@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap;
+package jomu.instrument.tonemap.old;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -37,6 +37,13 @@ import javax.swing.border.EmptyBorder;
  */
 public class ToneMapFrame implements ToneMapConstants {
 
+	class ResetBAction implements ActionListener {
+
+		public void actionPerformed(ActionEvent evt) {
+			reset();
+		}
+	}
+
 	static boolean JNIStatus = false;
 
 	static final String ABOUTMSG = "ToneMap\n\n" + "Written by Jim O'Mulloy, 2004 \n\n"
@@ -51,6 +58,49 @@ public class ToneMapFrame implements ToneMapConstants {
 		}
 	}
 
+	public JFrame mainFrame;
+
+	private JPanel contentPane;
+
+	private JMenuBar menuBar;
+
+	private JInternalFrame toolPalette;
+
+	private JCheckBoxMenuItem showToolPaletteMenuItem;
+
+	private File fileDirectory;
+
+	private JFileChooser chooser;
+
+	private JPanel toneMapPanel;
+
+	private JPanel audioPanel;
+
+	private JPanel midiPanel;
+
+	private JPanel tunerPanel;
+
+	private JPanel playerPanel;
+
+	private JLabel statusLabel;
+
+	private AudioModel audioModel;
+
+	private MidiModel midiModel;
+
+	private TunerModel tunerModel;
+
+	private ToneMap toneMap;
+
+	private Player player;
+
+	private String fileName = "untitled";
+
+	private String errStr;
+
+	private File file;
+
+	private int status;
 	public ToneMapFrame() {
 
 		setDirectory(new File(System.getProperty("user.dir")));
@@ -78,7 +128,6 @@ public class ToneMapFrame implements ToneMapConstants {
 		mainFrame.setVisible(true);
 
 	}
-
 	protected void buildContent() {
 
 		contentPane = new JPanel();
@@ -149,62 +198,6 @@ public class ToneMapFrame implements ToneMapConstants {
 		mainFrame.setContentPane(contentPane);
 
 	}
-
-	protected void buildToolBar(JToolBar toolBar) {
-
-		JButton resetB = new JButton("Reset");
-		resetB.setEnabled(true);
-		resetB.addActionListener(new ResetBAction());
-
-		player = new Player(this);
-		playerPanel = player.getPanel();
-
-		toolBar.add(resetB);
-		toolBar.add(playerPanel);
-
-	}
-
-	class ResetBAction implements ActionListener {
-
-		public void actionPerformed(ActionEvent evt) {
-			reset();
-		}
-	}
-
-	private void reset() {
-
-		player.clear();
-		toneMap.clear();
-
-		audioModel = null;
-		midiModel = null;
-		tunerModel = null;
-		toneMap = null;
-		player = null;
-
-		System.gc();
-
-		buildContent();
-
-		reportStatus(SC_TONEMAP_READY);
-
-		mainFrame.validate();
-		mainFrame.pack();
-
-	}
-
-	protected void buildMenus() {
-
-		menuBar = new JMenuBar();
-		menuBar.setOpaque(true);
-		JMenu file = buildFileMenu();
-		JMenu help = buildHelpMenu();
-
-		menuBar.add(file);
-		menuBar.add(help);
-		mainFrame.setJMenuBar(menuBar);
-	}
-
 	protected JMenu buildFileMenu() {
 
 		JMenu file = new JMenu("File");
@@ -236,7 +229,6 @@ public class ToneMapFrame implements ToneMapConstants {
 		file.add(quit);
 		return file;
 	}
-
 	protected JMenu buildHelpMenu() {
 
 		JMenu help = new JMenu("Help");
@@ -260,23 +252,61 @@ public class ToneMapFrame implements ToneMapConstants {
 
 		return help;
 	}
+	protected void buildMenus() {
 
-	public void quit() {
-		System.exit(0);
+		menuBar = new JMenuBar();
+		menuBar.setOpaque(true);
+		JMenu file = buildFileMenu();
+		JMenu help = buildHelpMenu();
+
+		menuBar.add(file);
+		menuBar.add(help);
+		mainFrame.setJMenuBar(menuBar);
 	}
 
-	public void newToneMap() {
+	protected void buildToolBar(JToolBar toolBar) {
+
+		JButton resetB = new JButton("Reset");
+		resetB.setEnabled(true);
+		resetB.addActionListener(new ResetBAction());
+
+		player = new Player(this);
+		playerPanel = player.getPanel();
+
+		toolBar.add(resetB);
+		toolBar.add(playerPanel);
 
 	}
 
-	public void setDirectory(File fileDirectory) {
-		this.fileDirectory = fileDirectory;
+	public AudioModel getAudioModel() {
+		return audioModel;
 	}
-
 	public File getDirectory() {
 		return fileDirectory;
 	}
+	public boolean getJNIStatus() {
+		return JNIStatus;
+	}
+	public MidiModel getMidiModel() {
+		return midiModel;
+	}
+	public Player getPlayer() {
+		return player;
+	}
 
+	public ToneMap getToneMap() {
+		return toneMap;
+	}
+
+	public TunerModel getTunerModel() {
+		return tunerModel;
+	}
+	public void newToneMap() {
+
+	}
+	public void openHelpWindow() {
+		JOptionPane.showMessageDialog(mainFrame, ToneMapHelp.message);
+	}
 	public boolean openToneMap() {
 		try {
 			JFileChooser fc = new JFileChooser(getDirectory());
@@ -322,7 +352,38 @@ public class ToneMapFrame implements ToneMapConstants {
 		}
 
 	}
+	public void quit() {
+		System.exit(0);
+	}
 
+	public void reportStatus(int status) {
+
+		this.status = status;
+		StatusInfo SI = ToneMapStatus.getSI(status);
+		statusLabel.setText(SI.toString());
+
+	}
+	private void reset() {
+
+		player.clear();
+		toneMap.clear();
+
+		audioModel = null;
+		midiModel = null;
+		tunerModel = null;
+		toneMap = null;
+		player = null;
+
+		System.gc();
+
+		buildContent();
+
+		reportStatus(SC_TONEMAP_READY);
+
+		mainFrame.validate();
+		mainFrame.pack();
+
+	}
 	public boolean saveToneMap() {
 		try {
 			JFileChooser fc = new JFileChooser(getDirectory());
@@ -362,72 +423,11 @@ public class ToneMapFrame implements ToneMapConstants {
 
 	}
 
-	public void openHelpWindow() {
-		JOptionPane.showMessageDialog(mainFrame, ToneMapHelp.message);
+	public void setDirectory(File fileDirectory) {
+		this.fileDirectory = fileDirectory;
 	}
 
 	public void showAboutBox() {
 		JOptionPane.showMessageDialog(mainFrame, ABOUTMSG);
-	}
-
-	public AudioModel getAudioModel() {
-		return audioModel;
-	}
-
-	public MidiModel getMidiModel() {
-		return midiModel;
-	}
-
-	public TunerModel getTunerModel() {
-		return tunerModel;
-	}
-
-	public ToneMap getToneMap() {
-		return toneMap;
-	}
-
-	public boolean getJNIStatus() {
-		return JNIStatus;
-	}
-
-	public void reportStatus(int status) {
-
-		this.status = status;
-		StatusInfo SI = ToneMapStatus.getSI(status);
-		statusLabel.setText(SI.toString());
-
-	}
-
-	public JFrame mainFrame;
-	private JPanel contentPane;
-	private JMenuBar menuBar;
-	private JInternalFrame toolPalette;
-	private JCheckBoxMenuItem showToolPaletteMenuItem;
-	private File fileDirectory;
-
-	private JFileChooser chooser;
-
-	private JPanel toneMapPanel;
-	private JPanel audioPanel;
-	private JPanel midiPanel;
-	private JPanel tunerPanel;
-	private JPanel playerPanel;
-
-	private JLabel statusLabel;
-
-	private AudioModel audioModel;
-	private MidiModel midiModel;
-	private TunerModel tunerModel;
-	private ToneMap toneMap;
-	private Player player;
-
-	private String fileName = "untitled";
-	private String errStr;
-	private File file;
-
-	private int status;
-
-	public Player getPlayer() {
-		return player;
 	}
 }

@@ -18,20 +18,6 @@ import javax.swing.event.ChangeListener;
 
 public class TimeControl extends JPanel implements ToneMapConstants {
 
-	public TimeControl(ChangeListener listener) {
-
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		this.listener = listener;
-		timeStartSlider = new TmSlider(JSlider.HORIZONTAL, timeMin, timeMax, timeStart, "Start Time ms.",
-				new TimeSliderListener());
-		timeEndSlider = new TmSlider(JSlider.HORIZONTAL, timeMin, timeMax, timeEnd, "End Time ms.",
-				new TimeSliderListener());
-
-		add(timeStartSlider);
-		add(timeEndSlider);
-
-	}
-
 	class TimeSliderListener implements ChangeListener {
 
 		public void stateChanged(ChangeEvent e) {
@@ -53,18 +39,41 @@ public class TimeControl extends JPanel implements ToneMapConstants {
 		}
 	}
 
-	public int getTimeStart() {
-		return timeStart;
+	private int timeStart = INIT_TIME_START;
+
+	private int timeEnd = INIT_TIME_END;
+
+	private int timeMin = INIT_TIME_MIN;
+
+	private int timeMax = INIT_TIME_MAX;
+
+	private int timeInc = INIT_TIME_INC;
+
+	private ChangeListener listener;
+
+	private Hashtable labelTable;
+	private TmSlider timeStartSlider, timeEndSlider;
+
+	public TimeControl(ChangeListener listener) {
+
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		this.listener = listener;
+		timeStartSlider = new TmSlider(JSlider.HORIZONTAL, timeMin, timeMax, timeStart, "Start Time ms.",
+				new TimeSliderListener());
+		timeEndSlider = new TmSlider(JSlider.HORIZONTAL, timeMin, timeMax, timeEnd, "End Time ms.",
+				new TimeSliderListener());
+
+		add(timeStartSlider);
+		add(timeEndSlider);
+
 	}
 
 	public int getTimeEnd() {
 		return timeEnd;
 	}
 
-	public void setTimeStart(double timeStart) {
-		this.timeStart = (int) timeStart;
-		timeStartSlider.setValue(this.timeStart);
-
+	public int getTimeStart() {
+		return timeStart;
 	}
 
 	public void setTimeEnd(double timeEnd) {
@@ -102,13 +111,10 @@ public class TimeControl extends JPanel implements ToneMapConstants {
 
 	}
 
-	private int timeStart = INIT_TIME_START;
-	private int timeEnd = INIT_TIME_END;
-	private int timeMin = INIT_TIME_MIN;
-	private int timeMax = INIT_TIME_MAX;
-	private int timeInc = INIT_TIME_INC;
-	private ChangeListener listener;
-	private Hashtable labelTable;
-	private TmSlider timeStartSlider, timeEndSlider;
+	public void setTimeStart(double timeStart) {
+		this.timeStart = (int) timeStart;
+		timeStartSlider.setValue(this.timeStart);
+
+	}
 
 }

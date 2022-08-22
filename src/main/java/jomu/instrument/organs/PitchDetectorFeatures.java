@@ -27,22 +27,6 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 	public int powerLow = 0;
 	public int powerHigh = 100;
 
-	void initialise(PitchFrame pitchFrame) {
-		this.pitchFrame = pitchFrame;
-		this.pds = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getPitchDetectorSource();
-		this.features = pds.getFeatures();
-		this.visor = Instrument.getInstance().getDruid().getVisor();
-		pds.clear();
-	}
-
-	public PitchDetectorSource getPds() {
-		return pds;
-	}
-
-	public TreeMap<Double, SpectrogramInfo> getFeatures() {
-		return features;
-	}
-
 	public void buildToneMap() {
 
 		if (features.size() > 0) {
@@ -115,8 +99,24 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		}
 	}
 
+	public TreeMap<Double, SpectrogramInfo> getFeatures() {
+		return features;
+	}
+
+	public PitchDetectorSource getPds() {
+		return pds;
+	}
+
 	public ToneMap getToneMap() {
 		return toneMap;
+	}
+
+	void initialise(PitchFrame pitchFrame) {
+		this.pitchFrame = pitchFrame;
+		this.pds = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getPitchDetectorSource();
+		this.features = pds.getFeatures();
+		this.visor = Instrument.getInstance().getDruid().getVisor();
+		pds.clear();
 	}
 
 }

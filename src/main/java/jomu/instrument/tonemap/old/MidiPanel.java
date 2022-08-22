@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap;
+package jomu.instrument.tonemap.old;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -35,113 +35,7 @@ import javax.swing.event.ChangeListener;
 
 public class MidiPanel extends JPanel implements ToneMapConstants {
 
-	class TimeControlListener implements ChangeListener {
-
-		public void stateChanged(ChangeEvent e) {
-
-			midiModel.timeStart = (double) timeControl.getTimeStart();
-			midiModel.timeEnd = (double) timeControl.getTimeEnd();
-
-		}
-
-	}
-
-	class PitchControlListener implements ChangeListener {
-
-		public void stateChanged(ChangeEvent e) {
-
-			midiModel.pitchLow = pitchControl.getPitchLow();
-			midiModel.pitchHigh = pitchControl.getPitchHigh();
-
-		}
-
-	}
-
-	class QuantizeControl extends JPanel {
-
-		public QuantizeControl() {
-			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-			TitledBorder tb = new TitledBorder(new EtchedBorder());
-			tb.setTitle("Quantize Beat");
-			p.setBorder(tb);
-
-			String s = null;
-			JComboBox combo = new JComboBox();
-			combo.setPreferredSize(new Dimension(120, 25));
-			combo.setMaximumSize(new Dimension(120, 25));
-			combo.addItem("0");
-			for (int i = 16; i >= 1; i--) {
-				s = "1/" + i;
-				combo.addItem(s);
-			}
-			combo.addItemListener(new QuantizeBCBListener());
-			p.add(combo);
-			add(p);
-
-			p = new JPanel();
-
-			tb = new TitledBorder(new EtchedBorder());
-			tb.setTitle("Quantize Duration");
-			p.setBorder(tb);
-			p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-
-			combo = new JComboBox();
-			combo.setPreferredSize(new Dimension(120, 25));
-			combo.setMaximumSize(new Dimension(120, 25));
-			combo.addItem("0");
-			for (int i = 16; i >= 1; i--) {
-				s = "1/" + i;
-				combo.addItem(s);
-			}
-			combo.addItemListener(new QuantizeDCBListener());
-			p.add(combo);
-			add(p);
-
-		}
-
-		class QuantizeBCBListener implements ItemListener {
-
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getSource() instanceof JComboBox) {
-					JComboBox combo = (JComboBox) e.getSource();
-					if (combo.getSelectedIndex() == 0) {
-						midiModel.quantizeBeatSetting = 0;
-					} else {
-						midiModel.quantizeBeatSetting = 1.0 / (double) (combo.getSelectedIndex());
-					}
-				}
-			}
-
-		}
-
-		class QuantizeDCBListener implements ItemListener {
-
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getSource() instanceof JComboBox) {
-					JComboBox combo = (JComboBox) e.getSource();
-					if (combo.getSelectedIndex() == 0) {
-						midiModel.quantizeDurationSetting = 0;
-					} else {
-						midiModel.quantizeDurationSetting = 1.0 / (double) (combo.getSelectedIndex());
-					}
-				}
-			}
-
-		}
-
-	}
-
 	class BPMControl extends JPanel {
-
-		public BPMControl() {
-
-			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			bpmSlider = new TmSlider(JSlider.HORIZONTAL, 0, MAX_BPM_SETTING, INIT_BPM_SETTING, "BPM",
-					new BPMSliderListener());
-			add(bpmSlider);
-		}
 
 		class BPMSliderListener implements ChangeListener {
 
@@ -155,52 +49,83 @@ public class MidiPanel extends JPanel implements ToneMapConstants {
 
 		}
 
-	}
-
-	class StatusControl extends JPanel {
-
-		StatusControl() {
+		public BPMControl() {
 
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			clearB = new JButton("Clear");
-			clearB.setEnabled(true);
-			clearB.addActionListener(new StatusBAction());
-			add(clearB);
-
-			levelCB = new JCheckBox("level");
-			levelCB.addItemListener(new StatusCBListener());
-			add(levelCB);
-
+			bpmSlider = new TmSlider(JSlider.HORIZONTAL, 0, MAX_BPM_SETTING, INIT_BPM_SETTING, "BPM",
+					new BPMSliderListener());
+			add(bpmSlider);
 		}
 
-		class StatusBAction implements ActionListener {
+	}
 
-			public void actionPerformed(ActionEvent evt) {
+	class ChannelControl extends JPanel {
 
-				midiModel.clear();
-				midiModel.open();
-			}
-
-		}
-
-		class StatusCBListener implements ItemListener {
+		class ControlBoxItemListener implements ItemListener {
 
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getSource() instanceof JComboBox) {
 					JComboBox combo = (JComboBox) e.getSource();
+					midiModel.cc = midiModel.channels[combo.getSelectedIndex()];
+					midiModel.cc.setComponentStates();
 				} else {
 					JCheckBox cb = (JCheckBox) e.getSource();
 					String name = cb.getText();
-					if (name.startsWith("Level")) {
-						midiModel.levelSwitch = cb.isSelected();
+					if (name.startsWith("Mute")) {
+						midiModel.cc.channel.setMute(midiModel.cc.mute = cb.isSelected());
+					} else if (name.startsWith("Solo")) {
+						midiModel.cc.channel.setSolo(midiModel.cc.solo = cb.isSelected());
+					} else if (name.startsWith("Mono")) {
+						midiModel.cc.channel.setMono(midiModel.cc.mono = cb.isSelected());
+					} else if (name.startsWith("Sustain")) {
+						midiModel.cc.sustain = cb.isSelected();
+						midiModel.cc.channel.controlChange(midiModel.SUSTAIN, midiModel.cc.sustain ? 127 : 0);
 					}
 				}
+			}
 
+		}
+
+		class ControlButtonListener implements ActionListener {
+
+			public void actionPerformed(ActionEvent e) {
+				JButton button = (JButton) e.getSource();
+				if (button.getText().startsWith("Off")) {
+					for (int i = 0; i < midiModel.channels.length; i++) {
+						midiModel.channels[i].channel.allNotesOff();
+					}
+
+				}
 			}
 		}
-	}
 
-	class ChannelControl extends JPanel {
+		class ControlSliderListener implements ChangeListener {
+
+			public void stateChanged(ChangeEvent e) {
+				TmSlider slider = (TmSlider) e.getSource();
+				int value = slider.getValue();
+				String name = slider.getName();
+				if (name.startsWith("Velocity")) {
+					midiModel.cc.velocity = value;
+				} else if (name.startsWith("Pressure")) {
+					midiModel.cc.channel.setChannelPressure(midiModel.cc.pressure = value);
+				} else if (name.startsWith("Bend")) {
+					midiModel.cc.channel.setPitchBend(midiModel.cc.bend = value);
+				} else if (name.startsWith("Reverb")) {
+					midiModel.cc.channel.controlChange(midiModel.REVERB, midiModel.cc.reverb = value);
+				}
+				slider.repaint();
+			}
+		}
+
+		class InstrumentCBListener implements ActionListener {
+
+			public void actionPerformed(ActionEvent e) {
+				int value = instrumentCB.getSelectedIndex();
+				midiModel.programChange(value);
+			}
+
+		}
 
 		public ChannelControl() {
 
@@ -277,75 +202,56 @@ public class MidiPanel extends JPanel implements ToneMapConstants {
 			return cb;
 		}
 
-		class ControlSliderListener implements ChangeListener {
-
-			public void stateChanged(ChangeEvent e) {
-				TmSlider slider = (TmSlider) e.getSource();
-				int value = slider.getValue();
-				String name = slider.getName();
-				if (name.startsWith("Velocity")) {
-					midiModel.cc.velocity = value;
-				} else if (name.startsWith("Pressure")) {
-					midiModel.cc.channel.setChannelPressure(midiModel.cc.pressure = value);
-				} else if (name.startsWith("Bend")) {
-					midiModel.cc.channel.setPitchBend(midiModel.cc.bend = value);
-				} else if (name.startsWith("Reverb")) {
-					midiModel.cc.channel.controlChange(midiModel.REVERB, midiModel.cc.reverb = value);
-				}
-				slider.repaint();
-			}
-		}
-
-		class ControlBoxItemListener implements ItemListener {
-
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getSource() instanceof JComboBox) {
-					JComboBox combo = (JComboBox) e.getSource();
-					midiModel.cc = midiModel.channels[combo.getSelectedIndex()];
-					midiModel.cc.setComponentStates();
-				} else {
-					JCheckBox cb = (JCheckBox) e.getSource();
-					String name = cb.getText();
-					if (name.startsWith("Mute")) {
-						midiModel.cc.channel.setMute(midiModel.cc.mute = cb.isSelected());
-					} else if (name.startsWith("Solo")) {
-						midiModel.cc.channel.setSolo(midiModel.cc.solo = cb.isSelected());
-					} else if (name.startsWith("Mono")) {
-						midiModel.cc.channel.setMono(midiModel.cc.mono = cb.isSelected());
-					} else if (name.startsWith("Sustain")) {
-						midiModel.cc.sustain = cb.isSelected();
-						midiModel.cc.channel.controlChange(midiModel.SUSTAIN, midiModel.cc.sustain ? 127 : 0);
-					}
-				}
-			}
-
-		}
-
-		class ControlButtonListener implements ActionListener {
-
-			public void actionPerformed(ActionEvent e) {
-				JButton button = (JButton) e.getSource();
-				if (button.getText().startsWith("Off")) {
-					for (int i = 0; i < midiModel.channels.length; i++) {
-						midiModel.channels[i].channel.allNotesOff();
-					}
-
-				}
-			}
-		}
-
-		class InstrumentCBListener implements ActionListener {
-
-			public void actionPerformed(ActionEvent e) {
-				int value = instrumentCB.getSelectedIndex();
-				midiModel.programChange(value);
-			}
-
-		}
-
 	}
 
 	class FileControl extends JPanel {
+
+		class OpenBAction implements ActionListener {
+
+			public void actionPerformed(ActionEvent evt) {
+
+				try {
+					File file = new File(System.getProperty("user.dir"));
+					JFileChooser fc = new JFileChooser(file);
+					fc.setFileFilter(new javax.swing.filechooser.FileFilter() {
+						public boolean accept(File f) {
+							if (f.isDirectory()) {
+								return true;
+							}
+							String name = f.getName();
+							if (name.endsWith(".au") || name.endsWith(".wav") || name.endsWith(".aiff")
+									|| name.endsWith(".aif")) {
+								return true;
+							}
+							return false;
+						}
+
+						public String getDescription() {
+							return ".au, .wav, .aif";
+						}
+					});
+
+					if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+						file = fc.getSelectedFile();
+						// load();
+					}
+				} catch (SecurityException ex) {
+					// JavaSound.showInfoDialog();
+					ex.printStackTrace();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+
+		}
+
+		class SaveBAction implements ActionListener {
+
+			public void actionPerformed(ActionEvent evt) {
+				if (!save())
+					return;
+			}
+		}
 
 		public FileControl() {
 
@@ -410,53 +316,147 @@ public class MidiPanel extends JPanel implements ToneMapConstants {
 			// add(ip);
 
 		}
+	}
 
-		class OpenBAction implements ActionListener {
+	class PitchControlListener implements ChangeListener {
 
-			public void actionPerformed(ActionEvent evt) {
+		public void stateChanged(ChangeEvent e) {
 
-				try {
-					File file = new File(System.getProperty("user.dir"));
-					JFileChooser fc = new JFileChooser(file);
-					fc.setFileFilter(new javax.swing.filechooser.FileFilter() {
-						public boolean accept(File f) {
-							if (f.isDirectory()) {
-								return true;
-							}
-							String name = f.getName();
-							if (name.endsWith(".au") || name.endsWith(".wav") || name.endsWith(".aiff")
-									|| name.endsWith(".aif")) {
-								return true;
-							}
-							return false;
-						}
+			midiModel.pitchLow = pitchControl.getPitchLow();
+			midiModel.pitchHigh = pitchControl.getPitchHigh();
 
-						public String getDescription() {
-							return ".au, .wav, .aif";
-						}
-					});
+		}
 
-					if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-						file = fc.getSelectedFile();
-						// load();
+	}
+
+	class QuantizeControl extends JPanel {
+
+		class QuantizeBCBListener implements ItemListener {
+
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getSource() instanceof JComboBox) {
+					JComboBox combo = (JComboBox) e.getSource();
+					if (combo.getSelectedIndex() == 0) {
+						midiModel.quantizeBeatSetting = 0;
+					} else {
+						midiModel.quantizeBeatSetting = 1.0 / (double) (combo.getSelectedIndex());
 					}
-				} catch (SecurityException ex) {
-					// JavaSound.showInfoDialog();
-					ex.printStackTrace();
-				} catch (Exception ex) {
-					ex.printStackTrace();
 				}
 			}
 
 		}
 
-		class SaveBAction implements ActionListener {
+		class QuantizeDCBListener implements ItemListener {
+
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getSource() instanceof JComboBox) {
+					JComboBox combo = (JComboBox) e.getSource();
+					if (combo.getSelectedIndex() == 0) {
+						midiModel.quantizeDurationSetting = 0;
+					} else {
+						midiModel.quantizeDurationSetting = 1.0 / (double) (combo.getSelectedIndex());
+					}
+				}
+			}
+
+		}
+
+		public QuantizeControl() {
+			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+			TitledBorder tb = new TitledBorder(new EtchedBorder());
+			tb.setTitle("Quantize Beat");
+			p.setBorder(tb);
+
+			String s = null;
+			JComboBox combo = new JComboBox();
+			combo.setPreferredSize(new Dimension(120, 25));
+			combo.setMaximumSize(new Dimension(120, 25));
+			combo.addItem("0");
+			for (int i = 16; i >= 1; i--) {
+				s = "1/" + i;
+				combo.addItem(s);
+			}
+			combo.addItemListener(new QuantizeBCBListener());
+			p.add(combo);
+			add(p);
+
+			p = new JPanel();
+
+			tb = new TitledBorder(new EtchedBorder());
+			tb.setTitle("Quantize Duration");
+			p.setBorder(tb);
+			p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+
+			combo = new JComboBox();
+			combo.setPreferredSize(new Dimension(120, 25));
+			combo.setMaximumSize(new Dimension(120, 25));
+			combo.addItem("0");
+			for (int i = 16; i >= 1; i--) {
+				s = "1/" + i;
+				combo.addItem(s);
+			}
+			combo.addItemListener(new QuantizeDCBListener());
+			p.add(combo);
+			add(p);
+
+		}
+
+	}
+
+	class StatusControl extends JPanel {
+
+		class StatusBAction implements ActionListener {
 
 			public void actionPerformed(ActionEvent evt) {
-				if (!save())
-					return;
+
+				midiModel.clear();
+				midiModel.open();
+			}
+
+		}
+
+		class StatusCBListener implements ItemListener {
+
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getSource() instanceof JComboBox) {
+					JComboBox combo = (JComboBox) e.getSource();
+				} else {
+					JCheckBox cb = (JCheckBox) e.getSource();
+					String name = cb.getText();
+					if (name.startsWith("Level")) {
+						midiModel.levelSwitch = cb.isSelected();
+					}
+				}
+
 			}
 		}
+
+		StatusControl() {
+
+			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+			clearB = new JButton("Clear");
+			clearB.setEnabled(true);
+			clearB.addActionListener(new StatusBAction());
+			add(clearB);
+
+			levelCB = new JCheckBox("level");
+			levelCB.addItemListener(new StatusCBListener());
+			add(levelCB);
+
+		}
+	}
+
+	class TimeControlListener implements ChangeListener {
+
+		public void stateChanged(ChangeEvent e) {
+
+			midiModel.timeStart = (double) timeControl.getTimeStart();
+			midiModel.timeEnd = (double) timeControl.getTimeEnd();
+
+		}
+
 	}
 
 	class TransControl extends JPanel {

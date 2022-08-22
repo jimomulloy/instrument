@@ -27,14 +27,13 @@ public class FeatureManager {
 
 	private static boolean verbose = true;
 
-	/**
-	 * Sets the FeatureSet for the given Sample.
-	 * 
-	 * @param s  the Sample.
-	 * @param fs the FeatureSet.
-	 */
-	public static void setFeaturesForSample(Sample s, FeatureSet fs) {
-		featureSets.put(s, fs);
+	public static void featuresForGroup(String groupName) {
+		ArrayList<Sample> theSamples = SampleManager.getGroup(groupName);
+		if (theSamples != null) {
+			for (Sample s : theSamples) {
+				featuresForSample(s);
+			}
+		}
 	}
 
 	/**
@@ -76,13 +75,13 @@ public class FeatureManager {
 		return null;
 	}
 
-	public static void featuresForGroup(String groupName) {
-		ArrayList<Sample> theSamples = SampleManager.getGroup(groupName);
-		if (theSamples != null) {
-			for (Sample s : theSamples) {
-				featuresForSample(s);
-			}
-		}
+	/**
+	 * Determines if FeatureManager is being verbose.
+	 * 
+	 * @return true if verbose.
+	 */
+	public static boolean isVerbose() {
+		return verbose;
 	}
 
 	/**
@@ -97,12 +96,13 @@ public class FeatureManager {
 	}
 
 	/**
-	 * Determines if FeatureManager is being verbose.
+	 * Sets the FeatureSet for the given Sample.
 	 * 
-	 * @return true if verbose.
+	 * @param s  the Sample.
+	 * @param fs the FeatureSet.
 	 */
-	public static boolean isVerbose() {
-		return verbose;
+	public static void setFeaturesForSample(Sample s, FeatureSet fs) {
+		featureSets.put(s, fs);
 	}
 
 	/**

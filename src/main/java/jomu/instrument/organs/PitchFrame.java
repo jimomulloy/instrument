@@ -30,6 +30,66 @@ public class PitchFrame {
 		this.end = end;
 	}
 
+	public void close() {
+		constantQFeatures.close();
+	}
+
+	public BandedPitchDetectorFeatures getBandedPitchDetectorFeatures() {
+		return bandedPitchDetectorFeatures;
+	}
+
+	public List<FeatureFrame> getBeadsBeatsFeatures() {
+		return beadsBeatsFeatures;
+	}
+
+	public List<FeatureFrame> getBeadsFeatures() {
+		return beadsFeatures;
+	}
+
+	public ConstantQFeatures getConstantQFeatures() {
+		return constantQFeatures;
+	}
+
+	public double getEnd() {
+		return end;
+	}
+
+	public int getFrameSequence() {
+		return frameSequence;
+	}
+
+	public GoertzelFeatures getGoertzelFeatures() {
+		return goertzelFeatures;
+	}
+
+	public OnsetFeatures getOnsetFeatures() {
+		return onsetFeatures;
+	}
+
+	public PitchDetectorFeatures getPitchDetectorFeatures() {
+		return pitchDetectorFeatures;
+	}
+
+	public PitchFrameProcessor getPitchFrameProcessor() {
+		return pitchFrameProcessor;
+	}
+
+	public ScalogramFeatures getScalogramFeatures() {
+		return scalogramFeatures;
+	}
+
+	public SpectralPeaksFeatures getSpectralPeaksFeatures() {
+		return spectralPeaksFeatures;
+	}
+
+	public SpectrogramFeatures getSpectrogramFeatures() {
+		return spectrogramFeatures;
+	}
+
+	public double getStart() {
+		return start;
+	}
+
 	void initialise() {
 		System.out.println(">>PF INIT!!!: " + this.frameSequence + ", " + this.start);
 		FeatureSet results = this.pitchFrameProcessor.getAnalyzer().getResults();
@@ -57,66 +117,6 @@ public class PitchFrame {
 		goertzelFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getGoertzelSource());
 		scalogramFeatures.initialise(this.pitchFrameProcessor.getTarsosFeatures().getScalogramSource());
 
-	}
-
-	public List<FeatureFrame> getBeadsBeatsFeatures() {
-		return beadsBeatsFeatures;
-	}
-
-	public List<FeatureFrame> getBeadsFeatures() {
-		return beadsFeatures;
-	}
-
-	public ConstantQFeatures getConstantQFeatures() {
-		return constantQFeatures;
-	}
-
-	public OnsetFeatures getOnsetFeatures() {
-		return onsetFeatures;
-	}
-
-	public SpectralPeaksFeatures getSpectralPeaksFeatures() {
-		return spectralPeaksFeatures;
-	}
-
-	public PitchDetectorFeatures getPitchDetectorFeatures() {
-		return pitchDetectorFeatures;
-	}
-
-	public BandedPitchDetectorFeatures getBandedPitchDetectorFeatures() {
-		return bandedPitchDetectorFeatures;
-	}
-
-	public SpectrogramFeatures getSpectrogramFeatures() {
-		return spectrogramFeatures;
-	}
-
-	public ScalogramFeatures getScalogramFeatures() {
-		return scalogramFeatures;
-	}
-
-	public GoertzelFeatures getGoertzelFeatures() {
-		return goertzelFeatures;
-	}
-
-	public int getFrameSequence() {
-		return frameSequence;
-	}
-
-	public PitchFrameProcessor getPitchFrameProcessor() {
-		return pitchFrameProcessor;
-	}
-
-	public double getStart() {
-		return start;
-	}
-
-	public double getEnd() {
-		return end;
-	}
-
-	public void close() {
-		constantQFeatures.close();
 	}
 
 }

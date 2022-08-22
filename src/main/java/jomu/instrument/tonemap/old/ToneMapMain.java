@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap;
+package jomu.instrument.tonemap.old;
 
 /**
  * This is the main driver class for ToneMap Application

@@ -4,14 +4,8 @@ import java.io.File;
 import java.io.Serializable;
 
 public class ToneMapConfig implements Serializable {
-	/**
-	 * ToneMapConfig constructor comment.
-	 */
-	public ToneMapConfig() {
-		super();
-	}
-
 	public double timeStart;
+
 	public double timeEnd;
 	public int pitchLow;
 	public int pitchHigh;
@@ -43,5 +37,12 @@ public class ToneMapConfig implements Serializable {
 	public boolean normalizeSwitch;
 	public int lowThreshhold;
 	public int highThreshhold;
+
+	/**
+	 * ToneMapConfig constructor comment.
+	 */
+	public ToneMapConfig() {
+		super();
+	}
 
 }

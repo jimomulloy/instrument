@@ -33,6 +33,8 @@ import javax.sound.sampled.Mixer.Info;
 
 public class Shared {
 
+	private static String OS = null;
+
 	public static Vector<Mixer.Info> getMixerInfo(final boolean supportsPlayback, final boolean supportsRecording) {
 		final Vector<Mixer.Info> infos = new Vector<Mixer.Info>();
 		final Mixer.Info[] mixers = AudioSystem.getMixerInfo();
@@ -48,6 +50,16 @@ public class Shared {
 		return infos;
 	}
 
+	public static String getOsName() {
+		if (OS == null)
+			OS = System.getProperty("os.name");
+		return OS;
+	}
+
+	public static boolean isWindows() {
+		return getOsName().startsWith("Windows");
+	}
+
 	public static String toLocalString(Object info) {
 		if (!isWindows())
 			return info.toString();
@@ -57,17 +69,5 @@ public class Shared {
 		} catch (UnsupportedEncodingException ex) {
 			return info.toString();
 		}
-	}
-
-	private static String OS = null;
-
-	public static String getOsName() {
-		if (OS == null)
-			OS = System.getProperty("os.name");
-		return OS;
-	}
-
-	public static boolean isWindows() {
-		return getOsName().startsWith("Windows");
 	}
 }

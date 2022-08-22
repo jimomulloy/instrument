@@ -57,13 +57,6 @@ public class ToneMapStatus implements ToneMapConstants {
 		}
 	}
 
-	/**
-	 * ToneMapStatus constructor comment.
-	 */
-	public ToneMapStatus() {
-		super();
-	}
-
 	public static StatusInfo getSI(int statusCode) {
 		StatusInfo key = new StatusInfo(statusCode);
 
@@ -73,6 +66,13 @@ public class ToneMapStatus implements ToneMapConstants {
 			return SI[index];
 		else
 			return null;
+	}
+
+	/**
+	 * ToneMapStatus constructor comment.
+	 */
+	public ToneMapStatus() {
+		super();
 	}
 
 }

@@ -22,9 +22,24 @@ import com.synthbot.jasiohost.AsioException;
 // Uses JASIOHost (c) M. H. Roth 2010
 //Alastair Barber - 2012
 public class AudioManager implements AsioDriverListener {
+	public static void main(String[] args) {
+		@SuppressWarnings("unused")
+		AudioManager host = new AudioManager();
+		waitForEnter(null);
+		host.shutDown();
+	}
+	public static void waitForEnter(String message, Object... args) {
+		Scanner scan = new Scanner(System.in);
+		System.out.print("Press any key to continue . . . ");
+		scan.nextLine();
+		System.out.print("CLOSED. . . ");
+		scan.close();
+	}
 	private HashSet<AsioChannel> inputChannels, outputChannels, activeChannels;
 	private int bufferSize;
+
 	private double sampleRate;
+
 	private AsioDriver selectedDriver = null;
 
 	public AudioManager() throws AsioException {
@@ -63,10 +78,8 @@ public class AudioManager implements AsioDriverListener {
 		selectedDriver.start();
 	}
 
-	public void shutDown() {
-		if (selectedDriver != null) {
-			selectedDriver.shutdownAndUnloadDriver();
-		}
+	public void bufferSizeChanged(int bufferSize) {
+		System.out.println("bufferSizeChanged() callback received.");
 	}
 
 	public void bufferSwitch(long sampleTime, long samplePosition, Set<AsioChannel> switchActiveChannels) {
@@ -140,10 +153,6 @@ public class AudioManager implements AsioDriverListener {
 		}
 	}
 
-	public void bufferSizeChanged(int bufferSize) {
-		System.out.println("bufferSizeChanged() callback received.");
-	}
-
 	public void latenciesChanged(int inputLatency, int outputLatency) {
 		System.out.println("latenciesChanged() callback received.");
 	}
@@ -170,18 +179,9 @@ public class AudioManager implements AsioDriverListener {
 		System.out.println("sampleRateDidChange() callback received.");
 	}
 
-	public static void main(String[] args) {
-		@SuppressWarnings("unused")
-		AudioManager host = new AudioManager();
-		waitForEnter(null);
-		host.shutDown();
-	}
-
-	public static void waitForEnter(String message, Object... args) {
-		Scanner scan = new Scanner(System.in);
-		System.out.print("Press any key to continue . . . ");
-		scan.nextLine();
-		System.out.print("CLOSED. . . ");
-		scan.close();
+	public void shutDown() {
+		if (selectedDriver != null) {
+			selectedDriver.shutdownAndUnloadDriver();
+		}
 	}
 }

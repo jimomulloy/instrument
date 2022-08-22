@@ -37,28 +37,12 @@ public class BandedPitchDetectorSource {
 		sourceMap.put(4096, pitchDetectorSourceBand5);
 	}
 
-	void initialise() {
-		pitchDetectorSourceBand1.initialise();
-		pitchDetectorSourceBand2.initialise();
-		pitchDetectorSourceBand3.initialise();
-		pitchDetectorSourceBand4.initialise();
-		pitchDetectorSourceBand5.initialise();
-	}
-
 	void clear() {
 		pitchDetectorSourceBand1.clear();
 		pitchDetectorSourceBand2.clear();
 		pitchDetectorSourceBand3.clear();
 		pitchDetectorSourceBand4.clear();
 		pitchDetectorSourceBand5.clear();
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
-	public float getBinWidth(int bufferSize) {
-		return sourceMap.get(bufferSize).getBinWidth();
 	}
 
 	public float getBinHeight(int bufferSize) {
@@ -69,6 +53,10 @@ public class BandedPitchDetectorSource {
 		return sourceMap.get(bufferSize).getBinStartingPointsInCents();
 	}
 
+	public float getBinWidth(int bufferSize) {
+		return sourceMap.get(bufferSize).getBinWidth();
+	}
+
 	public Map<Integer, TreeMap<Double, SpectrogramInfo>> getFeatures() {
 		Map<Integer, TreeMap<Double, SpectrogramInfo>> clonedFeatures = new HashMap<>();
 		clonedFeatures.put(pitchDetectorSourceBand1.getBufferSize(), pitchDetectorSourceBand1.getFeatures());
@@ -77,6 +65,18 @@ public class BandedPitchDetectorSource {
 		clonedFeatures.put(pitchDetectorSourceBand4.getBufferSize(), pitchDetectorSourceBand4.getFeatures());
 		clonedFeatures.put(pitchDetectorSourceBand5.getBufferSize(), pitchDetectorSourceBand5.getFeatures());
 		return clonedFeatures;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
+	}
+
+	void initialise() {
+		pitchDetectorSourceBand1.initialise();
+		pitchDetectorSourceBand2.initialise();
+		pitchDetectorSourceBand3.initialise();
+		pitchDetectorSourceBand4.initialise();
+		pitchDetectorSourceBand5.initialise();
 	}
 
 }

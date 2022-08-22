@@ -41,6 +41,61 @@ public class PitchFrameProcessor implements SegmentListener, AudioProcessor {
 		tarsosFeatures.getTarsosIO().getDispatcher().addAudioProcessor(oscilloscope);
 	}
 
+	public void addObserver(PitchFrameObserver observer) {
+		this.observers.add(observer);
+	}
+
+	public void addPitchFrame(double time, PitchFrame pitchFrame) {
+		pitchFrames.put(pitchFrame.getStart(), pitchFrame);
+		pitchFrameSequence.put(pitchFrame.getFrameSequence(), pitchFrame);
+		for (PitchFrameObserver observer : this.observers) {
+			observer.pitchFrameAdded(pitchFrame);
+		}
+	}
+
+	private PitchFrame createPitchFrame(int frameSequence, double firstTimeStamp, double endTimeStamp) {
+		PitchFrame pitchFrame = new PitchFrame(this, frameSequence, firstTimeStamp, endTimeStamp);
+		pitchFrame.initialise();
+		addPitchFrame(firstTimeStamp, pitchFrame);
+		return pitchFrame;
+	}
+
+	public Analyzer getAnalyzer() {
+		return analyzer;
+	}
+
+	public int getFrameSequence() {
+		return frameSequence;
+	}
+
+	public double getInterval() {
+		return interval;
+	}
+
+	public int getMaxFrames() {
+		return maxFrames;
+	}
+
+	public List<PitchFrameObserver> getObservers() {
+		return observers;
+	}
+
+	public PitchFrame getPitchFrame(double startTime) {
+		return pitchFrames.get(startTime);
+	}
+
+	public PitchFrame getPitchFrame(int frameSequence) {
+		return pitchFrameSequence.get(frameSequence);
+	}
+
+	public Map<Double, PitchFrame> getPitchframes() {
+		return pitchFrames;
+	}
+
+	public TarsosFeatureSource getTarsosFeatures() {
+		return tarsosFeatures;
+	}
+
 	@Override
 	public void newSegment(TimeStamp start, TimeStamp end) {
 		if (maxFrames > 0 && maxFrames > frameSequence) {
@@ -60,77 +115,10 @@ public class PitchFrameProcessor implements SegmentListener, AudioProcessor {
 		}
 	}
 
-	public int getMaxFrames() {
-		return maxFrames;
-	}
-
-	public void setMaxFrames(int maxFrames) {
-		this.maxFrames = maxFrames;
-	}
-
-	private PitchFrame createPitchFrame(int frameSequence, double firstTimeStamp, double endTimeStamp) {
-		PitchFrame pitchFrame = new PitchFrame(this, frameSequence, firstTimeStamp, endTimeStamp);
-		pitchFrame.initialise();
-		addPitchFrame(firstTimeStamp, pitchFrame);
-		return pitchFrame;
-	}
-
-	public void addObserver(PitchFrameObserver observer) {
-		this.observers.add(observer);
-	}
-
-	public void removeObserver(PitchFrameObserver observer) {
-		this.observers.remove(observer);
-	}
-
-	public void addPitchFrame(double time, PitchFrame pitchFrame) {
-		pitchFrames.put(pitchFrame.getStart(), pitchFrame);
-		pitchFrameSequence.put(pitchFrame.getFrameSequence(), pitchFrame);
-		for (PitchFrameObserver observer : this.observers) {
-			observer.pitchFrameAdded(pitchFrame);
-		}
-	}
-
 	public void pitchFrameChanged(PitchFrame pitchFrame) {
 		for (PitchFrameObserver observer : this.observers) {
 			observer.pitchFrameChanged(pitchFrame);
 		}
-	}
-
-	public Analyzer getAnalyzer() {
-		return analyzer;
-	}
-
-	public void setAnalyzer(Analyzer analyzer) {
-		this.analyzer = analyzer;
-	}
-
-	public TarsosFeatureSource getTarsosFeatures() {
-		return tarsosFeatures;
-	}
-
-	public double getInterval() {
-		return interval;
-	}
-
-	public int getFrameSequence() {
-		return frameSequence;
-	}
-
-	public List<PitchFrameObserver> getObservers() {
-		return observers;
-	}
-
-	public Map<Double, PitchFrame> getPitchframes() {
-		return pitchFrames;
-	}
-
-	public PitchFrame getPitchFrame(double startTime) {
-		return pitchFrames.get(startTime);
-	}
-
-	public PitchFrame getPitchFrame(int frameSequence) {
-		return pitchFrameSequence.get(frameSequence);
 	}
 
 	@Override
@@ -144,5 +132,17 @@ public class PitchFrameProcessor implements SegmentListener, AudioProcessor {
 		frameSequence++;
 		PitchFrame lastPitchFrame = createPitchFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
+	}
+
+	public void removeObserver(PitchFrameObserver observer) {
+		this.observers.remove(observer);
+	}
+
+	public void setAnalyzer(Analyzer analyzer) {
+		this.analyzer = analyzer;
+	}
+
+	public void setMaxFrames(int maxFrames) {
+		this.maxFrames = maxFrames;
 	}
 }

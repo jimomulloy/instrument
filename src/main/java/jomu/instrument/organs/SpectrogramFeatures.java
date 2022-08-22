@@ -10,18 +10,18 @@ public class SpectrogramFeatures {
 	TreeMap<Double, SpectrogramInfo> features;
 	private ToneMap toneMap;
 
-	void initialise(SpectrogramSource ss) {
-		this.ss = ss;
-		this.features = ss.getFeatures();
-		ss.clear();
+	public TreeMap<Double, SpectrogramInfo> getFeatures() {
+		return features;
 	}
 
 	public SpectrogramSource getSs() {
 		return ss;
 	}
 
-	public TreeMap<Double, SpectrogramInfo> getFeatures() {
-		return features;
+	void initialise(SpectrogramSource ss) {
+		this.ss = ss;
+		this.features = ss.getFeatures();
+		ss.clear();
 	}
 
 }

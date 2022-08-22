@@ -9,19 +9,19 @@ public class Atlas {
 
 	Map<String, ToneMap> toneMaps = new HashMap<>();
 
-	public Map<String, ToneMap> getToneMaps() {
-		return toneMaps;
+	public ToneMap getToneMap(String source) {
+		return toneMaps.get(source);
 	}
 
-	public void setToneMaps(Map<String, ToneMap> toneMaps) {
-		this.toneMaps = toneMaps;
+	public Map<String, ToneMap> getToneMaps() {
+		return toneMaps;
 	}
 
 	public void putToneMap(String source, ToneMap toneMap) {
 		toneMaps.put(source, toneMap);
 	}
 
-	public ToneMap getToneMap(String source) {
-		return toneMaps.get(source);
+	public void setToneMaps(Map<String, ToneMap> toneMaps) {
+		this.toneMaps = toneMaps;
 	}
 }

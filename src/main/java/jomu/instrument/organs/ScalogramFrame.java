@@ -34,6 +34,11 @@ public class ScalogramFrame {
 
 	}
 
+	public ScalogramFrame clone() {
+		ScalogramFrame cloned = new ScalogramFrame(this.transformedData, this.currentMax);
+		return cloned;
+	}
+
 	private void mra(float[] transformedData, int level, float[][] dataPerScale) {
 		int startIndex = (int) (transformedData.length / HaarWaveletTransform.pow2(dataPerScale.length - level));
 		int stopIndex = (int) (transformedData.length / HaarWaveletTransform.pow2(dataPerScale.length - level - 1));
@@ -53,10 +58,5 @@ public class ScalogramFrame {
 		for (int i = 0; i < data.length; i++) {
 			// data[i]=data[i]/maxValue;
 		}
-	}
-
-	public ScalogramFrame clone() {
-		ScalogramFrame cloned = new ScalogramFrame(this.transformedData, this.currentMax);
-		return cloned;
 	}
 }

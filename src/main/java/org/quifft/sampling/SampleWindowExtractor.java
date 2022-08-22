@@ -54,34 +54,18 @@ public class SampleWindowExtractor {
 	}
 
 	/**
-	 * Extracts the {@code i}th sampling window from a full-length waveform
-	 * <p>
-	 * If is stereo signal, adjacent values will be averaged to produce mono samples
-	 * </p>
+	 * Modifies a sample window by performing element-wise multiplication of samples
+	 * with window function coefficients
 	 * 
-	 * @param i index of window to be extracted
-	 * @return a single window extracted from full-length audio waveform
+	 * @param window sample window to which windowing function should be applied
 	 */
-	public int[] extractWindow(int i) {
-		// copy section of original waveform into sample array
-		int[] window = new int[windowSize + zeroPadLength];
-
-		int j = i * ds * (isStereo ? 2 : 1); // index into source waveform array
-		int samplesCopied = 0; // count samples copied to terminate loop once window size has been reached
-
-		while (samplesCopied < windowSize && j < wave.length) {
-			if (isStereo) {
-				window[samplesCopied++] = (int) Math.round((wave[j] + wave[j + 1]) / 2.0);
-				j += 2;
-			} else {
-				window[samplesCopied++] = wave[j++];
+	private void applyWindowingFunction(int[] window) {
+		if (windowFunction != WindowFunction.RECTANGULAR) {
+			double[] coefficients = WindowFunctionGenerator.generateWindow(windowSize, windowFunction);
+			for (int i = 0; i < windowSize; i++) {
+				window[i] = (int) Math.round(window[i] * coefficients[i]);
 			}
 		}
-
-		// apply windowing function to extracted sample
-		applyWindowingFunction(window);
-
-		return window;
 	}
 
 	/**
@@ -112,18 +96,34 @@ public class SampleWindowExtractor {
 	}
 
 	/**
-	 * Modifies a sample window by performing element-wise multiplication of samples
-	 * with window function coefficients
+	 * Extracts the {@code i}th sampling window from a full-length waveform
+	 * <p>
+	 * If is stereo signal, adjacent values will be averaged to produce mono samples
+	 * </p>
 	 * 
-	 * @param window sample window to which windowing function should be applied
+	 * @param i index of window to be extracted
+	 * @return a single window extracted from full-length audio waveform
 	 */
-	private void applyWindowingFunction(int[] window) {
-		if (windowFunction != WindowFunction.RECTANGULAR) {
-			double[] coefficients = WindowFunctionGenerator.generateWindow(windowSize, windowFunction);
-			for (int i = 0; i < windowSize; i++) {
-				window[i] = (int) Math.round(window[i] * coefficients[i]);
+	public int[] extractWindow(int i) {
+		// copy section of original waveform into sample array
+		int[] window = new int[windowSize + zeroPadLength];
+
+		int j = i * ds * (isStereo ? 2 : 1); // index into source waveform array
+		int samplesCopied = 0; // count samples copied to terminate loop once window size has been reached
+
+		while (samplesCopied < windowSize && j < wave.length) {
+			if (isStereo) {
+				window[samplesCopied++] = (int) Math.round((wave[j] + wave[j + 1]) / 2.0);
+				j += 2;
+			} else {
+				window[samplesCopied++] = wave[j++];
 			}
 		}
+
+		// apply windowing function to extracted sample
+		applyWindowingFunction(window);
+
+		return window;
 	}
 
 }

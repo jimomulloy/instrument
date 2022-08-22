@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap;
+package jomu.instrument.tonemap.old;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -132,6 +132,13 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
 	 * AudioPanel
 	 */
+	public AudioModel() {
+	}
+
+	/**
+	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
+	 * AudioPanel
+	 */
 	public AudioModel(ToneMapFrame toneMapFrame) {
 
 		this.toneMapFrame = toneMapFrame;
@@ -150,51 +157,6 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		audioPanel = new AudioPanel(this);
 		if (toneMapFrame.getJNIStatus())
 			audioPanel.jniB.setEnabled(true);
-
-	}
-
-	/**
-	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
-	 * AudioPanel
-	 */
-	public AudioModel() {
-	}
-
-	/**
-	 * Get configuration parameters
-	 */
-	public void getConfig(ToneMapConfig config) {
-		config.timeStart = this.timeStart;
-		config.timeEnd = this.timeEnd;
-		config.pitchLow = this.pitchLow;
-		config.pitchHigh = this.pitchHigh;
-		config.sampleTimeSize = this.sampleTimeSize;
-		config.resolution = this.resolution;
-		config.tFactor = this.tFactor;
-		config.pFactor = this.pFactor;
-		config.audioFile = this.file;
-	}
-
-	/**
-	 * Set configuration parameters
-	 */
-	public void setConfig(ToneMapConfig config) {
-		audioPanel.timeControl.setTimeStart(config.timeStart);
-		audioPanel.timeControl.setTimeEnd(config.timeEnd);
-		audioPanel.timeControl.setTimeMax((int) (config.timeEnd - config.timeStart));
-		audioPanel.pitchControl.setPitchLow(config.pitchLow);
-		audioPanel.pitchControl.setPitchHigh(config.pitchHigh);
-		// audioPanel.pitchControl.setPitchRange(config.pitchLow, config.pitchHigh);
-		audioPanel.sampleSizeSlider.setValue((int) config.sampleTimeSize);
-		audioPanel.resolutionSlider.setValue(config.resolution);
-		audioPanel.tFactorSlider.setValue(config.tFactor);
-		audioPanel.pFactorSlider.setValue(config.pFactor);
-		load(config.audioFile);
-		audioPanel.fileNameField.setText(config.audioFile.getParent() + "\\" + getFileName());
-		audioPanel.durationField.setText(String.valueOf(getDuration()));
-		audioPanel.sampleRateField.setText(String.valueOf(getSampleRate()));
-		audioPanel.bitSizeField.setText(String.valueOf(getSampleBitSize()));
-		audioPanel.channelsField.setText(String.valueOf(getNumChannels()));
 
 	}
 
@@ -218,15 +180,62 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		audioPanel.timeControl.setTimeMax(INIT_TIME_MAX);
 	}
 
-	/**
-	 * Open File and load audio data.
-	 */
-	public boolean openFile() {
-		return audioPanel.openFile();
+	private void getAudioData() {
+
+		if (format.getSampleSizeInBits() == 16) {
+			nlengthInSamples = audioBytes.length / 2;
+			audioData = new int[nlengthInSamples];
+			if (format.isBigEndian()) {
+				for (int i = 0; i < nlengthInSamples; i++) {
+					// First byte is MSB (high order)
+					int MSB = (int) audioBytes[2 * i];
+					// Second byte is LSB (low order)
+					int LSB = (int) audioBytes[2 * i + 1];
+					audioData[i] = MSB << 8 | (255 & LSB);
+				}
+			} else {
+				for (int i = 0; i < nlengthInSamples; i++) {
+					// First byte is LSB (low order)
+					int LSB = (int) audioBytes[2 * i];
+					// Second byte is MSB (high order)
+					int MSB = (int) audioBytes[2 * i + 1];
+					audioData[i] = MSB << 8 | (255 & LSB);
+				}
+			}
+		} else {
+			if (format.getSampleSizeInBits() == 8) {
+				nlengthInSamples = audioBytes.length;
+				audioData = new int[nlengthInSamples];
+				if (format.getEncoding().toString().startsWith("PCM_SIGN")) {
+					for (int i = 0; i < audioBytes.length; i++) {
+						audioData[i] = audioBytes[i];
+					}
+				} else {
+					for (int i = 0; i < audioBytes.length; i++) {
+						audioData[i] = audioBytes[i] - 128;
+					}
+				}
+			}
+		}
 	}
 
 	public double[] getAudioFTPower() {
 		return audioFTPower;
+	}
+
+	/**
+	 * Get configuration parameters
+	 */
+	public void getConfig(ToneMapConfig config) {
+		config.timeStart = this.timeStart;
+		config.timeEnd = this.timeEnd;
+		config.pitchLow = this.pitchLow;
+		config.pitchHigh = this.pitchHigh;
+		config.sampleTimeSize = this.sampleTimeSize;
+		config.resolution = this.resolution;
+		config.tFactor = this.tFactor;
+		config.pFactor = this.pFactor;
+		config.audioFile = this.file;
 	}
 
 	public double getDuration() {
@@ -255,6 +264,35 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 
 	public int getNumChannels() {
 		return numChannels;
+	}
+
+	// convert audioBytes sampled audio data into standard format in audioData
+	// array.
+	private void getOutAudioBytes(double[] outAudioData) {
+
+		if (format.getSampleSizeInBits() == 16) {
+			outAudioBytes = new byte[outAudioData.length * 2];
+			if (format.isBigEndian()) {
+				for (int i = 0; i < outAudioData.length; i++) {
+					// First byte is MSB (high order)
+					int MSB = 255 & (((int) (outAudioData[i])) >> 8);
+					outAudioBytes[2 * i] = (byte) MSB;
+					// Second byte is LSB (low order)
+					int LSB = 255 & ((int) (outAudioData[i]));
+					outAudioBytes[2 * i + 1] = (byte) LSB;
+				}
+			} else {
+				for (int i = 0; i < outAudioData.length; i++) {
+					// First byte is MSB (high order)
+					int MSB = 255 & (((int) (outAudioData[i])) >> 8);
+					outAudioBytes[2 * i + 1] = (byte) MSB;
+					// Second byte is LSB (low order)
+					int LSB = 255 & ((int) (outAudioData[i]));
+					outAudioBytes[2 * i] = (byte) LSB;
+				}
+			}
+		} else {
+		}
 	}
 
 	public JPanel getPanel() {
@@ -351,81 +389,11 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		return true;
 	}
 
-	// convert audioBytes sampled audio data into standard format in audioData
-	// array.
-	private void getOutAudioBytes(double[] outAudioData) {
-
-		if (format.getSampleSizeInBits() == 16) {
-			outAudioBytes = new byte[outAudioData.length * 2];
-			if (format.isBigEndian()) {
-				for (int i = 0; i < outAudioData.length; i++) {
-					// First byte is MSB (high order)
-					int MSB = 255 & (((int) (outAudioData[i])) >> 8);
-					outAudioBytes[2 * i] = (byte) MSB;
-					// Second byte is LSB (low order)
-					int LSB = 255 & ((int) (outAudioData[i]));
-					outAudioBytes[2 * i + 1] = (byte) LSB;
-				}
-			} else {
-				for (int i = 0; i < outAudioData.length; i++) {
-					// First byte is MSB (high order)
-					int MSB = 255 & (((int) (outAudioData[i])) >> 8);
-					outAudioBytes[2 * i + 1] = (byte) MSB;
-					// Second byte is LSB (low order)
-					int LSB = 255 & ((int) (outAudioData[i]));
-					outAudioBytes[2 * i] = (byte) LSB;
-				}
-			}
-		} else {
-		}
-	}
-
-	// merge 2 channel stereo data into one
-	private void stereoToMono() {
-		int j = 0;
-		for (int i = 0; i < audioData.length; i += 2) {
-			audioData[j] = (audioData[i] + audioData[i + 1]) / 2;
-			j++;
-		}
-	}
-
-	private void getAudioData() {
-
-		if (format.getSampleSizeInBits() == 16) {
-			nlengthInSamples = audioBytes.length / 2;
-			audioData = new int[nlengthInSamples];
-			if (format.isBigEndian()) {
-				for (int i = 0; i < nlengthInSamples; i++) {
-					// First byte is MSB (high order)
-					int MSB = (int) audioBytes[2 * i];
-					// Second byte is LSB (low order)
-					int LSB = (int) audioBytes[2 * i + 1];
-					audioData[i] = MSB << 8 | (255 & LSB);
-				}
-			} else {
-				for (int i = 0; i < nlengthInSamples; i++) {
-					// First byte is LSB (low order)
-					int LSB = (int) audioBytes[2 * i];
-					// Second byte is MSB (high order)
-					int MSB = (int) audioBytes[2 * i + 1];
-					audioData[i] = MSB << 8 | (255 & LSB);
-				}
-			}
-		} else {
-			if (format.getSampleSizeInBits() == 8) {
-				nlengthInSamples = audioBytes.length;
-				audioData = new int[nlengthInSamples];
-				if (format.getEncoding().toString().startsWith("PCM_SIGN")) {
-					for (int i = 0; i < audioBytes.length; i++) {
-						audioData[i] = audioBytes[i];
-					}
-				} else {
-					for (int i = 0; i < audioBytes.length; i++) {
-						audioData[i] = audioBytes[i] - 128;
-					}
-				}
-			}
-		}
+	/**
+	 * Open File and load audio data.
+	 */
+	public boolean openFile() {
+		return audioPanel.openFile();
 	}
 
 	public boolean play() {
@@ -496,6 +464,41 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 			clip = null;
 			toneMapFrame.reportStatus(EC_AUDIO_PLAY);
 			return false;
+		}
+	}
+
+	public double playGetLength() {
+		if (clip != null) {
+			return clip.getMicrosecondLength() * 1000000.0;
+		}
+		return 0.0;
+	}
+
+	public int playGetState() {
+
+		return playState;
+
+	}
+
+	public double playGetTime() {
+
+		if (clip != null) {
+			return ((double) clip.getMicrosecondPosition()) / 1000.0;
+		}
+		return 0;
+	}
+
+	public void playLoop() {
+
+		if (clip != null) {
+
+			double playStartTime = (player.getSeekTime() / 100) * (playGetLength());
+			clip.setMicrosecondPosition((long) playStartTime);
+			if (playState != PLAYING) {
+				clip.start();
+				playState = PLAYING;
+			}
+
 		}
 	}
 
@@ -570,87 +573,6 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 		}
 	}
 
-	public void setGain() {
-		if (clip != null) {
-			try {
-				double value = (double) gainSetting / 100.0;
-				FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-				float dB = (float) (Math.log(value == 0.0 ? 0.0001 : value) / Math.log(10.0) * 20.0);
-				gainControl.setValue(dB);
-			} catch (Exception ex) {
-				return;
-			}
-		}
-	}
-
-	public void setPan() {
-		if (clip != null) {
-			try {
-				FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
-				panControl.setValue((float) panSetting / 100.0f);
-			} catch (Exception ex) {
-				return;
-			}
-		}
-	}
-
-	public void setReverbReturn() {
-		if (clip != null) {
-			try {
-				FloatControl reverbControl = (FloatControl) clip.getControl(FloatControl.Type.REVERB_RETURN);
-				reverbControl.setValue((float) reverbRSetting / 100.0f);
-			} catch (Exception ex) {
-				return;
-			}
-		}
-	}
-
-	public void setReverbSend() {
-		if (clip != null) {
-			try {
-				FloatControl reverbControl = (FloatControl) clip.getControl(FloatControl.Type.REVERB_SEND);
-				reverbControl.setValue((float) reverbSSetting / 100.0f);
-			} catch (Exception ex) {
-				return;
-			}
-		}
-	}
-
-	public double playGetLength() {
-		if (clip != null) {
-			return clip.getMicrosecondLength() * 1000000.0;
-		}
-		return 0.0;
-	}
-
-	public int playGetState() {
-
-		return playState;
-
-	}
-
-	public double playGetTime() {
-
-		if (clip != null) {
-			return ((double) clip.getMicrosecondPosition()) / 1000.0;
-		}
-		return 0;
-	}
-
-	public void playLoop() {
-
-		if (clip != null) {
-
-			double playStartTime = (player.getSeekTime() / 100) * (playGetLength());
-			clip.setMicrosecondPosition((long) playStartTime);
-			if (playState != PLAYING) {
-				clip.start();
-				playState = PLAYING;
-			}
-
-		}
-	}
-
 	public void playPause() {
 
 		if (clip != null) {
@@ -699,15 +621,93 @@ public class AudioModel implements PlayerInterface, ToneMapConstants {
 
 	}
 
+	/**
+	 * Set configuration parameters
+	 */
+	public void setConfig(ToneMapConfig config) {
+		audioPanel.timeControl.setTimeStart(config.timeStart);
+		audioPanel.timeControl.setTimeEnd(config.timeEnd);
+		audioPanel.timeControl.setTimeMax((int) (config.timeEnd - config.timeStart));
+		audioPanel.pitchControl.setPitchLow(config.pitchLow);
+		audioPanel.pitchControl.setPitchHigh(config.pitchHigh);
+		// audioPanel.pitchControl.setPitchRange(config.pitchLow, config.pitchHigh);
+		audioPanel.sampleSizeSlider.setValue((int) config.sampleTimeSize);
+		audioPanel.resolutionSlider.setValue(config.resolution);
+		audioPanel.tFactorSlider.setValue(config.tFactor);
+		audioPanel.pFactorSlider.setValue(config.pFactor);
+		load(config.audioFile);
+		audioPanel.fileNameField.setText(config.audioFile.getParent() + "\\" + getFileName());
+		audioPanel.durationField.setText(String.valueOf(getDuration()));
+		audioPanel.sampleRateField.setText(String.valueOf(getSampleRate()));
+		audioPanel.bitSizeField.setText(String.valueOf(getSampleBitSize()));
+		audioPanel.channelsField.setText(String.valueOf(getNumChannels()));
+
+	}
+
+	public void setGain() {
+		if (clip != null) {
+			try {
+				double value = (double) gainSetting / 100.0;
+				FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+				float dB = (float) (Math.log(value == 0.0 ? 0.0001 : value) / Math.log(10.0) * 20.0);
+				gainControl.setValue(dB);
+			} catch (Exception ex) {
+				return;
+			}
+		}
+	}
+
+	public void setPan() {
+		if (clip != null) {
+			try {
+				FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
+				panControl.setValue((float) panSetting / 100.0f);
+			} catch (Exception ex) {
+				return;
+			}
+		}
+	}
+
+	public void setPitch(PitchSet pitchSet) {
+		audioPanel.pitchControl.setPitchRange((int) (pitchSet.getLowNote()), (int) (pitchSet.getHighNote()));
+
+	}
+
+	public void setReverbReturn() {
+		if (clip != null) {
+			try {
+				FloatControl reverbControl = (FloatControl) clip.getControl(FloatControl.Type.REVERB_RETURN);
+				reverbControl.setValue((float) reverbRSetting / 100.0f);
+			} catch (Exception ex) {
+				return;
+			}
+		}
+	}
+
+	public void setReverbSend() {
+		if (clip != null) {
+			try {
+				FloatControl reverbControl = (FloatControl) clip.getControl(FloatControl.Type.REVERB_SEND);
+				reverbControl.setValue((float) reverbSSetting / 100.0f);
+			} catch (Exception ex) {
+				return;
+			}
+		}
+	}
+
 	public void setTime(TimeSet timeSet) {
 
 		audioPanel.timeControl.setTimeMax((int) (timeSet.getEndTime() - timeSet.getStartTime()));
 
 	}
 
-	public void setPitch(PitchSet pitchSet) {
-		audioPanel.pitchControl.setPitchRange((int) (pitchSet.getLowNote()), (int) (pitchSet.getHighNote()));
-
+	// merge 2 channel stereo data into one
+	private void stereoToMono() {
+		int j = 0;
+		for (int i = 0; i < audioData.length; i += 2) {
+			audioData[j] = (audioData[i] + audioData[i + 1]) / 2;
+			j++;
+		}
 	}
 
 	/**

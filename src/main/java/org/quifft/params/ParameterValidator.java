@@ -8,6 +8,10 @@ import org.quifft.output.BadParametersException;
  */
 public class ParameterValidator {
 
+	private static boolean isPow2(int n) {
+		return n > 1 && ((n & (n - 1)) == 0);
+	}
+
 	/**
 	 * Runs through checklist of parameter validations and throws exception if any
 	 * issues are identified
@@ -63,10 +67,6 @@ public class ParameterValidator {
 					+ "any frequency in the entire file, and FFTStream only knows the maximum frequency of one window "
 					+ "at a time.  If you'd like to use normalization with an FFTStream, it's recommended that you "
 					+ "implement this yourself");
-	}
-
-	private static boolean isPow2(int n) {
-		return n > 1 && ((n & (n - 1)) == 0);
 	}
 
 }

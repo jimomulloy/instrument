@@ -29,52 +29,6 @@ public class Dendrites implements Serializable {
 		dendriteList.add(dendrite);
 	}
 
-	public void getDendrite(NuCell source) {
-		Dendrite dendrite = new Dendrite(source, target);
-		dendriteList.add(dendrite);
-		connect(source, 0D);
-	}
-
-	public void connect(NuCell source, Double d) {
-		addDendrite(source);
-		dendriteInputMap.put(source, d);
-	}
-
-	public void disconnect(NuCell n) {
-		dendriteInputMap.remove(n);
-	}
-
-	public void disconnectAll() {
-		dendriteInputMap.clear();
-	}
-
-	public int getCount() {
-		return dendriteInputMap.size();
-	}
-
-	public Set<NuCell> getConnections() {
-		java.util.Set<NuCell> keySet = dendriteInputMap.keySet();
-		return keySet;
-	}
-
-	/**
-	 * 
-	 * @param NuCell
-	 * @return
-	 */
-	public Double getWeight(NuCell NuCell) {
-		return dendriteInputMap.get(NuCell);
-	}
-
-	/**
-	 * 
-	 * @param NuCell
-	 * @param d
-	 */
-	public void setWeight(NuCell NuCell, Double d) {
-		dendriteInputMap.put(NuCell, d);
-	}
-
 	public double computeNetInput() {
 		double sum = 0d;
 
@@ -106,5 +60,51 @@ public class Dendrites implements Serializable {
 		}
 		return sum;
 	} // end computeNetInput
+
+	public void connect(NuCell source, Double d) {
+		addDendrite(source);
+		dendriteInputMap.put(source, d);
+	}
+
+	public void disconnect(NuCell n) {
+		dendriteInputMap.remove(n);
+	}
+
+	public void disconnectAll() {
+		dendriteInputMap.clear();
+	}
+
+	public Set<NuCell> getConnections() {
+		java.util.Set<NuCell> keySet = dendriteInputMap.keySet();
+		return keySet;
+	}
+
+	public int getCount() {
+		return dendriteInputMap.size();
+	}
+
+	public void getDendrite(NuCell source) {
+		Dendrite dendrite = new Dendrite(source, target);
+		dendriteList.add(dendrite);
+		connect(source, 0D);
+	}
+
+	/**
+	 * 
+	 * @param NuCell
+	 * @return
+	 */
+	public Double getWeight(NuCell NuCell) {
+		return dendriteInputMap.get(NuCell);
+	}
+
+	/**
+	 * 
+	 * @param NuCell
+	 * @param d
+	 */
+	public void setWeight(NuCell NuCell, Double d) {
+		dendriteInputMap.put(NuCell, d);
+	}
 
 }

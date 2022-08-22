@@ -15,22 +15,337 @@ import java.io.Serializable;
  */
 public class ToneMapMatrix implements Serializable {
 
-	public ToneMapMatrix(int matrixSize, TimeSet timeSet, PitchSet pitchSet) {
+	public class Iterator {
 
-		this.matrixSize = matrixSize;
+		private int timeIndex;
+
+		private int pitchIndex;
+
+		private int index;
+
+		public Iterator() {
+			index = 0;
+			timeIndex = 0;
+			pitchIndex = 0;
+		}
+
+		public void first() {
+			timeIndex = 0;
+			pitchIndex = 0;
+			index = 0;
+		}
+
+		public void firstPitch() {
+			index = timeIndex;
+			pitchIndex = 0;
+		}
+
+		public void firstTime() {
+			index = index - timeIndex;
+			timeIndex = 0;
+		}
+
+		public ToneMapElement getElement() {
+			return matrix[index];
+		}
+
+		public int getIndex() {
+			return index;
+		}
+
+		public int getPitchIndex() {
+			return pitchIndex;
+		}
+
+		public int getTimeIndex() {
+			return timeIndex;
+		}
+
+		public boolean isLast() {
+			return (index == (matrixSize - 1));
+		}
+
+		public boolean isLastPitch() {
+			return (pitchIndex == (pitchRange - 1));
+		}
+
+		public boolean isLastTime() {
+			return (timeIndex == (timeRange - 1));
+		}
+
+		public boolean isNext() {
+			return (index < (matrixSize - 1));
+		}
+
+		public boolean isNextPitch() {
+			return (pitchIndex < (pitchRange - 1));
+		}
+
+		public boolean isNextTime() {
+			return (timeIndex < (timeRange - 1));
+		}
+
+		public void last() {
+			index = (timeRange * pitchRange) - 1;
+			timeIndex = timeRange - 1;
+			pitchIndex = pitchRange - 1;
+		}
+
+		public void lastPitch() {
+			index = timeRange * (pitchRange - pitchIndex - 2) + timeIndex;
+			pitchIndex = pitchRange - 1; // ??
+		}
+
+		public void lastTime() {
+			index = timeRange - timeIndex + index;
+			timeIndex = timeRange - 1;
+		}
+
+		public void newElement(double amplitude, double FTPower) {
+			toneMapElement = new ToneMapElement(amplitude, FTPower, index, timeIndex, pitchIndex);
+
+			matrix[index] = toneMapElement;
+		}
+
+		public boolean next() {
+			if (index < (matrixSize - 1)) {
+				index++;
+				if (timeIndex < (timeRange)) {
+					timeIndex++;
+				} else {
+					timeIndex = 0;
+					pitchIndex++;
+				}
+				return true;
+			} else
+				return false;
+
+		}
+
+		public boolean nextPitch() {
+			if (pitchIndex < (pitchRange - 1)) {
+				pitchIndex++;
+				index = index + timeRange;
+				return true;
+			} else
+				return false;
+		}
+
+		public boolean nextTime() {
+			if (timeIndex < (timeRange - 1)) {
+				timeIndex++;
+				index++;
+				return true;
+			} else
+				return false;
+		}
+
+		public boolean prev() {
+			if (index > 0) {
+				index--;
+				if (timeIndex > 0) {
+					timeIndex--;
+				} else {
+					timeIndex = timeRange - 1;
+					pitchIndex--;
+				}
+				return true;
+			} else
+				return false;
+		}
+
+		public boolean prevPitch() {
+			if (pitchIndex > 0) {
+				pitchIndex--;
+				index = index - timeRange;
+				return true;
+			} else
+				return false;
+
+		}
+
+		public boolean prevTime() {
+			if (timeIndex > 0) {
+				timeIndex--;
+				index--;
+				return true;
+			} else
+				return false;
+
+		}
+
+		public ToneMapElement readElementAt(double time, double pitch) {
+			return element;
+		}
+
+		public void setElement(ToneMapElement toneMapElement) {
+			matrix[index] = toneMapElement;
+		}
+
+		public void setIndex(int index) {
+			this.index = index;
+			pitchIndex = index / timeRange;
+			timeIndex = index % timeRange;
+
+		}
+
+		public void setPitchIndex(int index) {
+			this.index = this.index + (timeRange * (index - pitchIndex));
+			pitchIndex = index;
+		}
+
+		public void setTimeIndex(int index) {
+			this.index = this.index + (index - timeIndex);
+			timeIndex = index;
+		}
+
+	} // End Iterator
+
+	public static final boolean POWERAMP = false;
+
+	public static final boolean LOGAMP = true;
+
+	private ToneMapElement[] matrix;
+
+	private ToneMapElement toneMapElement;
+
+	private TimeSet timeSet;
+
+	private PitchSet pitchSet;
+
+	private int timeRange;
+
+	private int pitchRange;
+
+	private double minAmplitude;
+
+	private double maxAmplitude;
+
+	private double minFTPower;
+
+	private double maxFTPower;
+
+	private double avgAmplitude;
+
+	private double avgFTPower;
+
+	private int matrixSize;
+
+	private ToneMapElement element;
+
+	private int lowThres;
+
+	private int highThres;
+
+	private boolean ampType;
+
+	public ToneMapMatrix(TimeSet timeSet, PitchSet pitchSet) {
 		this.timeSet = timeSet;
 		this.pitchSet = pitchSet;
 		timeRange = timeSet.getRange();
 		pitchRange = pitchSet.getRange();
+		this.matrixSize = timeRange * (pitchRange + 1);
 		matrix = new ToneMapElement[matrixSize];
 
 	}
 
-	public void setMaxPower(double maxFTPower) {
-		this.maxFTPower = maxFTPower;
-		System.out.println(">>Set max power: " + this.maxFTPower);
-		this.maxAmplitude = FTPowerToAmp(maxFTPower);
-		System.out.println(">>Set max ampl: " + maxAmplitude);
+	public void copy(ToneMapMatrix copyFromMatrix) {
+		Iterator fromMapIterator = copyFromMatrix.newIterator();
+		Iterator toMapIterator = newIterator();
+
+		fromMapIterator.firstPitch();
+		toMapIterator.firstPitch();
+		do {
+			fromMapIterator.firstTime();
+			toMapIterator.firstTime();
+			do {
+				toneMapElement = fromMapIterator.getElement();
+				toMapIterator.newElement(toneMapElement.preAmplitude, toneMapElement.preFTPower);
+			} while (fromMapIterator.nextTime());
+
+		} while (fromMapIterator.nextPitch());
+	}
+
+	public double FTPowerToAmp(double power) {
+		double amplitude = 0.0;
+		if (power <= 0.0)
+			return 0.0;
+		if (ampType == LOGAMP) {
+			if (minFTPower < maxFTPower / (double) lowThres * 10.0)
+				minFTPower = maxFTPower / (double) lowThres * 10.0; // ??
+			amplitude = (float) Math.log10(1 + (100.0 * power));
+			// double logMinFTPower = Math.abs(Math.log(minFTPower / maxFTPower));
+			// amplitude = (logMinFTPower - Math.abs(Math.log(FTPower / maxFTPower))) /
+			// logMinFTPower;
+			// amplitude = (20 * Math.log(1 + Math.abs(FTPower)) / Math.log(10));
+			if (amplitude < 0)
+				amplitude = 0.0;
+		} else {
+			if ((getMaxFTPower() - getMinFTPower()) <= 0) {
+				amplitude = 0.0;
+			} else {
+				double minpow = getMinFTPower() + (getMaxFTPower() - getMinFTPower()) * ((double) lowThres / 100.0);
+				double maxpow = getMaxFTPower()
+						- (getMaxFTPower() - getMinFTPower()) * ((double) (100 - highThres) / 100.0);
+				if (power > maxpow) {
+					amplitude = 1.0;
+				} else if (power < minpow) {
+					amplitude = 0.0;
+				} else {
+					amplitude = Math.sqrt(power - minpow) / Math.sqrt(maxpow - minpow);
+				}
+			}
+		}
+
+		return amplitude;
+	}
+
+	public double getAvgAmplitude() {
+		return avgAmplitude;
+	}
+
+	public double getAvgFTPower() {
+		return avgFTPower;
+	}
+
+	public int getMatrixSize() {
+		return matrixSize;
+	}
+
+	public double getMaxAmplitude() {
+		return maxAmplitude;
+	}
+
+	public double getMaxFTPower() {
+		return maxFTPower;
+	}
+
+	public double getMinAmplitude() {
+		return minAmplitude;
+	}
+
+	public double getMinFTPower() {
+		return minFTPower;
+	}
+
+	public int getPitchRange() {
+		return pitchRange;
+	}
+
+	public PitchSet getPitchSet() {
+		return pitchSet;
+	}
+
+	public int getTimeRange() {
+		return timeRange;
+	}
+
+	public TimeSet getTimeSet() {
+		return timeSet;
+	}
+
+	public Iterator newIterator() {
+		return new Iterator();
 	}
 
 	public void reset() {
@@ -76,46 +391,6 @@ public class ToneMapMatrix implements Serializable {
 						maxAmplitude = matrix[i].preAmplitude;
 					if ((minAmplitude == 0) || (minAmplitude > matrix[i].preAmplitude))
 						minAmplitude = matrix[i].preAmplitude;
-				}
-			}
-		}
-		avgAmplitude = avgAmplitude / count;
-	}
-
-	public void update() {
-
-		maxAmplitude = 0;
-		minAmplitude = 0;
-		maxFTPower = 0;
-		minFTPower = 0;
-		avgAmplitude = 0;
-		avgFTPower = 0;
-		long count = 0;
-		for (int i = 0; i < (matrixSize - 1); i++) {
-			if (matrix[i] != null) {
-				count++;
-				avgFTPower += matrix[i].postFTPower;
-				if (maxFTPower < matrix[i].postFTPower)
-					maxFTPower = matrix[i].postFTPower;
-				if ((minFTPower == 0) || (minFTPower > matrix[i].postFTPower))
-					minFTPower = matrix[i].postFTPower;
-			}
-		}
-
-		avgFTPower = avgFTPower / count;
-
-		count = 0;
-		for (int i = 0; i < (matrixSize - 1); i++) {
-			if (matrix[i] != null) {
-				matrix[i].postAmplitude = FTPowerToAmp(matrix[i].postFTPower);
-				avgAmplitude += matrix[i].postAmplitude;
-				if (matrix[i].preAmplitude != -1) {
-					avgAmplitude += matrix[i].postAmplitude;
-					count++;
-					if (maxAmplitude < matrix[i].postAmplitude)
-						maxAmplitude = matrix[i].postAmplitude;
-					if ((minAmplitude == 0) || (minAmplitude > matrix[i].postAmplitude))
-						minAmplitude = matrix[i].postAmplitude;
 				}
 			}
 		}
@@ -180,289 +455,51 @@ public class ToneMapMatrix implements Serializable {
 		this.lowThres = lowThres;
 	}
 
-	public double FTPowerToAmp(double power) {
-		double amplitude = 0.0;
-		if (power <= 0.0)
-			return 0.0;
-		if (ampType == LOGAMP) {
-			if (minFTPower < maxFTPower / (double) lowThres * 10.0)
-				minFTPower = maxFTPower / (double) lowThres * 10.0; // ??
-			amplitude = (float) Math.log10(1 + (100.0 * power));
-			// double logMinFTPower = Math.abs(Math.log(minFTPower / maxFTPower));
-			// amplitude = (logMinFTPower - Math.abs(Math.log(FTPower / maxFTPower))) /
-			// logMinFTPower;
-			// amplitude = (20 * Math.log(1 + Math.abs(FTPower)) / Math.log(10));
-			if (amplitude < 0)
-				amplitude = 0.0;
-		} else {
-			if ((getMaxFTPower() - getMinFTPower()) <= 0) {
-				amplitude = 0.0;
-			} else {
-				double minpow = getMinFTPower() + (getMaxFTPower() - getMinFTPower()) * ((double) lowThres / 100.0);
-				double maxpow = getMaxFTPower()
-						- (getMaxFTPower() - getMinFTPower()) * ((double) (100 - highThres) / 100.0);
-				if (power > maxpow) {
-					amplitude = 1.0;
-				} else if (power < minpow) {
-					amplitude = 0.0;
-				} else {
-					amplitude = Math.sqrt(power - minpow) / Math.sqrt(maxpow - minpow);
-				}
+	public void setMaxPower(double maxFTPower) {
+		this.maxFTPower = maxFTPower;
+		System.out.println(">>Set max power: " + this.maxFTPower);
+		this.maxAmplitude = FTPowerToAmp(maxFTPower);
+		System.out.println(">>Set max ampl: " + maxAmplitude);
+	}
+
+	public void update() {
+
+		maxAmplitude = 0;
+		minAmplitude = 0;
+		maxFTPower = 0;
+		minFTPower = 0;
+		avgAmplitude = 0;
+		avgFTPower = 0;
+		long count = 0;
+		for (int i = 0; i < (matrixSize - 1); i++) {
+			if (matrix[i] != null) {
+				count++;
+				avgFTPower += matrix[i].postFTPower;
+				if (maxFTPower < matrix[i].postFTPower)
+					maxFTPower = matrix[i].postFTPower;
+				if ((minFTPower == 0) || (minFTPower > matrix[i].postFTPower))
+					minFTPower = matrix[i].postFTPower;
 			}
 		}
 
-		return amplitude;
-	}
+		avgFTPower = avgFTPower / count;
 
-	public double getMaxAmplitude() {
-		return maxAmplitude;
-	}
-
-	public double getMinAmplitude() {
-		return minAmplitude;
-	}
-
-	public double getAvgAmplitude() {
-		return avgAmplitude;
-	}
-
-	public double getMaxFTPower() {
-		return maxFTPower;
-	}
-
-	public double getMinFTPower() {
-		return minFTPower;
-	}
-
-	public double getAvgFTPower() {
-		return avgFTPower;
-	}
-
-	public TimeSet getTimeSet() {
-		return timeSet;
-	}
-
-	public PitchSet getPitchSet() {
-		return pitchSet;
-	}
-
-	public int getTimeRange() {
-		return timeRange;
-	}
-
-	public int getPitchRange() {
-		return pitchRange;
-	}
-
-	public int getMatrixSize() {
-		return matrixSize;
-	}
-
-	public Iterator newIterator() {
-		return new Iterator();
-	}
-
-	public class Iterator {
-
-		public Iterator() {
-			index = 0;
-			timeIndex = 0;
-			pitchIndex = 0;
-		}
-
-		public ToneMapElement getElement() {
-			return matrix[index];
-		}
-
-		public void setElement(ToneMapElement toneMapElement) {
-			matrix[index] = toneMapElement;
-		}
-
-		public void newElement(double amplitude, double FTPower) {
-			toneMapElement = new ToneMapElement(amplitude, FTPower, index, timeIndex, pitchIndex);
-
-			matrix[index] = toneMapElement;
-		}
-
-		public boolean nextTime() {
-			if (timeIndex < (timeRange - 1)) {
-				timeIndex++;
-				index++;
-				return true;
-			} else
-				return false;
-		}
-
-		public boolean nextPitch() {
-			if (pitchIndex < (pitchRange - 1)) {
-				pitchIndex++;
-				index = index + timeRange;
-				return true;
-			} else
-				return false;
-		}
-
-		public boolean next() {
-			if (index < (matrixSize - 1)) {
-				index++;
-				if (timeIndex < (timeRange)) {
-					timeIndex++;
-				} else {
-					timeIndex = 0;
-					pitchIndex++;
+		count = 0;
+		for (int i = 0; i < (matrixSize - 1); i++) {
+			if (matrix[i] != null) {
+				matrix[i].postAmplitude = FTPowerToAmp(matrix[i].postFTPower);
+				avgAmplitude += matrix[i].postAmplitude;
+				if (matrix[i].preAmplitude != -1) {
+					avgAmplitude += matrix[i].postAmplitude;
+					count++;
+					if (maxAmplitude < matrix[i].postAmplitude)
+						maxAmplitude = matrix[i].postAmplitude;
+					if ((minAmplitude == 0) || (minAmplitude > matrix[i].postAmplitude))
+						minAmplitude = matrix[i].postAmplitude;
 				}
-				return true;
-			} else
-				return false;
-
+			}
 		}
+		avgAmplitude = avgAmplitude / count;
+	}
 
-		public boolean isNextTime() {
-			return (timeIndex < (timeRange - 1));
-		}
-
-		public boolean isNextPitch() {
-			return (pitchIndex < (pitchRange - 1));
-		}
-
-		public boolean isNext() {
-			return (index < (matrixSize - 1));
-		}
-
-		public boolean isLastTime() {
-			return (timeIndex == (timeRange - 1));
-		}
-
-		public boolean isLastPitch() {
-			return (pitchIndex == (pitchRange - 1));
-		}
-
-		public boolean isLast() {
-			return (index == (matrixSize - 1));
-		}
-
-		public ToneMapElement readElementAt(double time, double pitch) {
-			return element;
-		}
-
-		public boolean prevTime() {
-			if (timeIndex > 0) {
-				timeIndex--;
-				index--;
-				return true;
-			} else
-				return false;
-
-		}
-
-		public boolean prevPitch() {
-			if (pitchIndex > 0) {
-				pitchIndex--;
-				index = index - timeRange;
-				return true;
-			} else
-				return false;
-
-		}
-
-		public boolean prev() {
-			if (index > 0) {
-				index--;
-				if (timeIndex > 0) {
-					timeIndex--;
-				} else {
-					timeIndex = timeRange - 1;
-					pitchIndex--;
-				}
-				return true;
-			} else
-				return false;
-		}
-
-		public void lastTime() {
-			index = timeRange - timeIndex + index;
-			timeIndex = timeRange - 1;
-		}
-
-		public void lastPitch() {
-			index = timeRange * (pitchRange - pitchIndex - 2) + timeIndex;
-			pitchIndex = pitchRange - 1; // ??
-		}
-
-		public void last() {
-			index = (timeRange * pitchRange) - 1;
-			timeIndex = timeRange - 1;
-			pitchIndex = pitchRange - 1;
-		}
-
-		public void firstTime() {
-			index = index - timeIndex;
-			timeIndex = 0;
-		}
-
-		public void firstPitch() {
-			index = timeIndex;
-			pitchIndex = 0;
-		}
-
-		public void first() {
-			timeIndex = 0;
-			pitchIndex = 0;
-			index = 0;
-		}
-
-		public int getTimeIndex() {
-			return timeIndex;
-		}
-
-		public int getPitchIndex() {
-			return pitchIndex;
-		}
-
-		public int getIndex() {
-			return index;
-		}
-
-		public void setTimeIndex(int index) {
-			this.index = this.index + (index - timeIndex);
-			timeIndex = index;
-		}
-
-		public void setPitchIndex(int index) {
-			this.index = this.index + (timeRange * (index - pitchIndex));
-			pitchIndex = index;
-		}
-
-		public void setIndex(int index) {
-			this.index = index;
-			pitchIndex = index / timeRange;
-			timeIndex = index % timeRange;
-
-		}
-
-		private int timeIndex;
-		private int pitchIndex;
-		private int index;
-
-	} // End Iterator
-
-	private ToneMapElement[] matrix;
-	private ToneMapElement toneMapElement;
-	private TimeSet timeSet;
-	private PitchSet pitchSet;
-	private int timeRange;
-	private int pitchRange;
-	private double minAmplitude;
-	private double maxAmplitude;
-	private double minFTPower;
-	private double maxFTPower;
-	private double avgAmplitude;
-	private double avgFTPower;
-	private int matrixSize;
-	private ToneMapElement element;
-	private int lowThres;
-	private int highThres;
-	private boolean ampType;
-	public static final boolean POWERAMP = false;
-	public static final boolean LOGAMP = true;
 } // End ToneMapMatrix

@@ -29,12 +29,40 @@ public class Hearing {
 	TarsosFeatureSource tarsosFeatureSource;
 	private PitchFrameProcessor pitchFrameProcessor;
 
+	public Analyzer getAnalyzer() {
+		return analyzer;
+	}
+
+	public Glide getFrequencyGlide() {
+		return frequencyGlide;
+	}
+
+	public float getMeanFrequency() {
+		return meanFrequency;
+	}
+
+	public PitchFrameProcessor getPitchFrameProcessor() {
+		return pitchFrameProcessor;
+	}
+
+	public int getSampleRate() {
+		return sampleRate;
+	}
+
+	public TarsosFeatureSource getTarsosFeatureSource() {
+		return tarsosFeatureSource;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
+	}
+
 	public void initialise() {
 		// TODO Auto-generated method stub
 		// set up the parent AudioContext object
 		tarsosIO = new TarsosAudioIO();
-		tarsosIO.selectMixer(2);
-		File file = new File("D:/audio/epianomulti.wav");
+		tarsosIO.selectMixer(4);
+		File file = new File("D:/audio/audiogfolk.wav");
 		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1, true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
 		// get a microphone input unit generator
@@ -72,34 +100,6 @@ public class Hearing {
 				// analyse();
 			}
 		}, 0, 1000);
-	}
-
-	public Glide getFrequencyGlide() {
-		return frequencyGlide;
-	}
-
-	public float getMeanFrequency() {
-		return meanFrequency;
-	}
-
-	public Analyzer getAnalyzer() {
-		return analyzer;
-	}
-
-	public int getSampleRate() {
-		return sampleRate;
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
-	public TarsosFeatureSource getTarsosFeatureSource() {
-		return tarsosFeatureSource;
-	}
-
-	public PitchFrameProcessor getPitchFrameProcessor() {
-		return pitchFrameProcessor;
 	}
 
 }

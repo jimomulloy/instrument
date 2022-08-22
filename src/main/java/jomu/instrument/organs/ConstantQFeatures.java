@@ -40,17 +40,6 @@ public class ConstantQFeatures implements ToneMapConstants {
 	private boolean isCommitted;
 	private Visor visor;
 
-	void initialise(PitchFrame pitchFrame) {
-		this.pitchFrame = pitchFrame;
-		this.cqs = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getConstantQSource();
-		this.visor = Instrument.getInstance().getDruid().getVisor();
-		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
-		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
-			addFeature(entry.getKey(), entry.getValue());
-		}
-		this.cqs.clear();
-	}
-
 	public void addFeature(Double time, float[] values) {
 		PitchFrame previousFrame = null;
 		int frameSequence = pitchFrame.getFrameSequence() - 1;
@@ -65,26 +54,6 @@ public class ConstantQFeatures implements ToneMapConstants {
 				// previousFrame.getConstantQFeatures().buildToneMap();
 				previousFrame.getConstantQFeatures().commit();
 			}
-		}
-	}
-
-	private void commit() {
-		isCommitted = true;
-		pitchFrame.getPitchFrameProcessor().pitchFrameChanged(pitchFrame);
-	}
-
-	public void close() {
-		PitchFrame previousFrame = null;
-		int frameSequence = pitchFrame.getFrameSequence() - 1;
-		if (frameSequence > 0) {
-			previousFrame = pitchFrame.getPitchFrameProcessor().getPitchFrame(pitchFrame.getFrameSequence() - 1);
-		}
-		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
-			previousFrame.close();
-		}
-		if (features.size() > 0) {
-			// buildToneMap();
-			commit();
 		}
 	}
 
@@ -120,6 +89,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 			System.out.println(">>toneMap.initialise: " + pitchFrame.getFrameSequence() + ", " + features.size() + ", "
 					+ binWidth + ", " + cqs.getBinHeight());
 			System.out.println(">>toneMap.initialise: " + timeStart + ", " + (nextTime + binWidth));
+			System.out.println(">>toneMap.initialise: " + timeSet + ", " + pitchSet);
 
 			ToneMapMatrix toneMapMatrix = toneMap.getMatrix();
 			toneMapMatrix.setAmpType(logSwitch);
@@ -130,17 +100,39 @@ public class ConstantQFeatures implements ToneMapConstants {
 			mapIterator.firstTime();
 			mapIterator.firstPitch();
 			for (Map.Entry<Double, float[]> entry : features.entrySet()) {
+				System.out.println(">>feature: " + entry.getKey());
 				mapIterator.firstPitch();
 				float[] spectralEnergy = entry.getValue();
 				for (int i = 0; i < spectralEnergy.length; i++) {
 					mapIterator.getElement().preFTPower += spectralEnergy[i];
 					mapIterator.nextPitch();
-				}
-				mapIterator.nextTime();
+				}				
+				//mapIterator.nextTime();
 			}
+			
 			toneMapMatrix.reset();
 			visor.updateToneMap(pitchFrame);
 		}
+	}
+
+	public void close() {
+		PitchFrame previousFrame = null;
+		int frameSequence = pitchFrame.getFrameSequence() - 1;
+		if (frameSequence > 0) {
+			previousFrame = pitchFrame.getPitchFrameProcessor().getPitchFrame(pitchFrame.getFrameSequence() - 1);
+		}
+		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
+			previousFrame.close();
+		}
+		if (features.size() > 0) {
+			// buildToneMap();
+			commit();
+		}
+	}
+
+	private void commit() {
+		isCommitted = true;
+		pitchFrame.getPitchFrameProcessor().pitchFrameChanged(pitchFrame);
 	}
 
 	public void displayToneMap() {
@@ -157,16 +149,27 @@ public class ConstantQFeatures implements ToneMapConstants {
 		return features;
 	}
 
-	public ToneMap getToneMap() {
-		return toneMap;
+	public PitchSet getPitchSet() {
+		return pitchSet;
 	}
 
 	public TimeSet getTimeSet() {
 		return timeSet;
 	}
 
-	public PitchSet getPitchSet() {
-		return pitchSet;
+	public ToneMap getToneMap() {
+		return toneMap;
+	}
+
+	void initialise(PitchFrame pitchFrame) {
+		this.pitchFrame = pitchFrame;
+		this.cqs = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getConstantQSource();
+		this.visor = Instrument.getInstance().getDruid().getVisor();
+		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
+		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
+			addFeature(entry.getKey(), entry.getValue());
+		}
+		this.cqs.clear();
 	}
 
 	public boolean isCommitted() {

@@ -15,10 +15,6 @@ public class AudioEventSource {
 		this.tarsosIO = tarsosIO;
 	}
 
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
 	void clear() {
 		tarsosIO.clearFeatures();
 	}
@@ -30,5 +26,9 @@ public class AudioEventSource {
 			clonedFeatures.put(entry.getKey(), entry.getValue());
 		}
 		return clonedFeatures;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
 	}
 }

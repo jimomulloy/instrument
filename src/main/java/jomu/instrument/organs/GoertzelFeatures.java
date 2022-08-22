@@ -7,18 +7,18 @@ public class GoertzelFeatures {
 	GoertzelSource gs;
 	TreeMap<Double, GoertzelInfo> features;
 
-	void initialise(GoertzelSource gs) {
-		this.gs = gs;
-		this.features = gs.getFeatures();
-		gs.clear();
+	public TreeMap<Double, GoertzelInfo> getFeatures() {
+		return features;
 	}
 
 	public GoertzelSource getGs() {
 		return gs;
 	}
 
-	public TreeMap<Double, GoertzelInfo> getFeatures() {
-		return features;
+	void initialise(GoertzelSource gs) {
+		this.gs = gs;
+		this.features = gs.getFeatures();
+		gs.clear();
 	}
 
 }

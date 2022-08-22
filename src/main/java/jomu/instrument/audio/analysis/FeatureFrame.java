@@ -41,42 +41,6 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 	}
 
 	/**
-	 * Gets the start time in milliseconds.
-	 * 
-	 * @return the start time in milliseconds.
-	 */
-	public double getStartTimeMS() {
-		return startTimeMS;
-	}
-
-	/**
-	 * Sets the start time in milliseconds.
-	 * 
-	 * @param startTimeMS the new start time in milliseconds.
-	 */
-	public void setStartTimeMS(double startTimeMS) {
-		this.startTimeMS = startTimeMS;
-	}
-
-	/**
-	 * Gets the end time in milliseconds.
-	 * 
-	 * @return the end time in milliseconds.
-	 */
-	public double getEndTimeMS() {
-		return endTimeMS;
-	}
-
-	/**
-	 * Sets the end time in milliseconds.
-	 * 
-	 * @param endTimeMS the new end time in milliseconds.
-	 */
-	public void setEndTimeMS(double endTimeMS) {
-		this.endTimeMS = endTimeMS;
-	}
-
-	/**
 	 * Adds a set of features with the given name.
 	 * 
 	 * @param s the name used to identify the feature set.
@@ -84,6 +48,34 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 	 */
 	public void add(String s, Object f) {
 		features.put(s, f);
+	}
+
+	/**
+	 * Returns -1, 0 or 1 as required by Java's {@link Comparator} interface, using
+	 * the frame's start time as the thing to compare.
+	 *
+	 * @param other the FeatureFrame to compare to.
+	 * 
+	 * @return -1 if this FeatureFrame starts before the other, 1 if other starts
+	 *         before this, or 0 if they have the same start time.
+	 */
+	public int compareTo(FeatureFrame other) {
+		if (startTimeMS < other.startTimeMS)
+			return -1;
+		if (startTimeMS > other.startTimeMS)
+			return 1;
+		return 0;
+	}
+
+	/**
+	 * Checks whether the given time in milliseconds is within this frame.
+	 * 
+	 * @param timeMS the time in milliseconds.
+	 * 
+	 * @return true the frame contains this point in time.
+	 */
+	public boolean containsTime(double timeMS) {
+		return timeMS >= startTimeMS && timeMS <= endTimeMS;
 	}
 
 	/**
@@ -98,6 +90,24 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 	}
 
 	/**
+	 * Gets the end time in milliseconds.
+	 * 
+	 * @return the end time in milliseconds.
+	 */
+	public double getEndTimeMS() {
+		return endTimeMS;
+	}
+
+	/**
+	 * Gets the start time in milliseconds.
+	 * 
+	 * @return the start time in milliseconds.
+	 */
+	public double getStartTimeMS() {
+		return startTimeMS;
+	}
+
+	/**
 	 * Returns an Enumeration over the set of names used to identify the features.
 	 * 
 	 * @return Enumeration over feature names.
@@ -106,15 +116,26 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 		return features.keys();
 	}
 
+	public int numFeatures() {
+		return features.size();
+	}
+
 	/**
-	 * Checks whether the given time in milliseconds is within this frame.
+	 * Sets the end time in milliseconds.
 	 * 
-	 * @param timeMS the time in milliseconds.
-	 * 
-	 * @return true the frame contains this point in time.
+	 * @param endTimeMS the new end time in milliseconds.
 	 */
-	public boolean containsTime(double timeMS) {
-		return timeMS >= startTimeMS && timeMS <= endTimeMS;
+	public void setEndTimeMS(double endTimeMS) {
+		this.endTimeMS = endTimeMS;
+	}
+
+	/**
+	 * Sets the start time in milliseconds.
+	 * 
+	 * @param startTimeMS the new start time in milliseconds.
+	 */
+	public void setStartTimeMS(double startTimeMS) {
+		this.startTimeMS = startTimeMS;
 	}
 
 	/*
@@ -147,27 +168,6 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Returns -1, 0 or 1 as required by Java's {@link Comparator} interface, using
-	 * the frame's start time as the thing to compare.
-	 *
-	 * @param other the FeatureFrame to compare to.
-	 * 
-	 * @return -1 if this FeatureFrame starts before the other, 1 if other starts
-	 *         before this, or 0 if they have the same start time.
-	 */
-	public int compareTo(FeatureFrame other) {
-		if (startTimeMS < other.startTimeMS)
-			return -1;
-		if (startTimeMS > other.startTimeMS)
-			return 1;
-		return 0;
-	}
-
-	public int numFeatures() {
-		return features.size();
 	}
 
 }

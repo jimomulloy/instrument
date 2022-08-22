@@ -59,49 +59,29 @@ public abstract class AudioReader implements Iterator<int[]> {
 	private FFTParameters fftParameters;
 
 	/**
-	 * Decodes audio reader's input stream to a target format with bit depth of 16
-	 * <p>
-	 * This is used when the input file is an 8-bit WAV or an MP3.
-	 * </p>
+	 * Converts a byte array consisting of 16-bit audio into a list of samples half
+	 * as long (each sample represented by 2 bytes)
 	 * 
-	 * @throws IOException                   if an I/O exception occurs when the
-	 *                                       input stream is initialized
-	 * @throws UnsupportedAudioFileException if the file is not a valid audio file
-	 *                                       or has bit depth greater than 16
+	 * @param bytes byte array to be converted to samples
+	 * @return an int[] representing the samples present in the input byte array
 	 */
-	void getInputStreamAs8Bit() throws IOException, UnsupportedAudioFileException {
-		AudioInputStream in = AudioSystem.getAudioInputStream(audio);
-		AudioFormat baseFormat = in.getFormat();
-		AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
-				baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
-		this.inputStream = AudioSystem.getAudioInputStream(decodedFormat, in);
-	}
+	private int[] convertBytesToSamples(byte[] bytes) {
+		final int BYTES_PER_SAMPLE = 2;
+		int[] samples = new int[bytes.length / BYTES_PER_SAMPLE];
 
-	/**
-	 * Obtains waveform for entirety of audio file
-	 * 
-	 * @return waveform for entirety of audio file
-	 */
-	public int[] getWaveform() {
-		byte[] bytes = getBytes();
-		return convertBytesToSamples(bytes);
-	}
+		int b = 0;
+		for (int i = 0; i < samples.length; i++) {
+			ByteBuffer bb = ByteBuffer.allocate(2);
+			bb.order(ByteOrder.LITTLE_ENDIAN);
+			for (int j = 0; j < BYTES_PER_SAMPLE; j++) {
+				bb.put(bytes[b++]);
+			}
 
-	/**
-	 * Get the audio file being used by this AudioReader
-	 * 
-	 * @return the audio file being used by this AudioReader
-	 */
-	public File getFile() {
-		return audio;
-	}
+			samples[i] = bb.getShort(0);
+		}
 
-	/**
-	 * Get duration of audio file being read in milliseconds
-	 * 
-	 * @return duration of audio file in milliseconds
-	 */
-	public abstract long getFileDurationMs();
+		return samples;
+	}
 
 	/**
 	 * Get {@link AudioFormat} of audio file
@@ -135,13 +115,48 @@ public abstract class AudioReader implements Iterator<int[]> {
 	}
 
 	/**
-	 * Allows {@link FFTStream} to share FFT parameters with AudioReader
+	 * Get the audio file being used by this AudioReader
 	 * 
-	 * @param parameters FFT parameters, which provide details needed to extract
-	 *                   windows
+	 * @return the audio file being used by this AudioReader
 	 */
-	public void setFFTParameters(FFTParameters parameters) {
-		fftParameters = parameters;
+	public File getFile() {
+		return audio;
+	}
+
+	/**
+	 * Get duration of audio file being read in milliseconds
+	 * 
+	 * @return duration of audio file in milliseconds
+	 */
+	public abstract long getFileDurationMs();
+
+	/**
+	 * Decodes audio reader's input stream to a target format with bit depth of 16
+	 * <p>
+	 * This is used when the input file is an 8-bit WAV or an MP3.
+	 * </p>
+	 * 
+	 * @throws IOException                   if an I/O exception occurs when the
+	 *                                       input stream is initialized
+	 * @throws UnsupportedAudioFileException if the file is not a valid audio file
+	 *                                       or has bit depth greater than 16
+	 */
+	void getInputStreamAs8Bit() throws IOException, UnsupportedAudioFileException {
+		AudioInputStream in = AudioSystem.getAudioInputStream(audio);
+		AudioFormat baseFormat = in.getFormat();
+		AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
+				baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
+		this.inputStream = AudioSystem.getAudioInputStream(decodedFormat, in);
+	}
+
+	/**
+	 * Obtains waveform for entirety of audio file
+	 * 
+	 * @return waveform for entirety of audio file
+	 */
+	public int[] getWaveform() {
+		byte[] bytes = getBytes();
+		return convertBytesToSamples(bytes);
 	}
 
 	/**
@@ -236,31 +251,6 @@ public abstract class AudioReader implements Iterator<int[]> {
 	}
 
 	/**
-	 * Converts a byte array consisting of 16-bit audio into a list of samples half
-	 * as long (each sample represented by 2 bytes)
-	 * 
-	 * @param bytes byte array to be converted to samples
-	 * @return an int[] representing the samples present in the input byte array
-	 */
-	private int[] convertBytesToSamples(byte[] bytes) {
-		final int BYTES_PER_SAMPLE = 2;
-		int[] samples = new int[bytes.length / BYTES_PER_SAMPLE];
-
-		int b = 0;
-		for (int i = 0; i < samples.length; i++) {
-			ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.order(ByteOrder.LITTLE_ENDIAN);
-			for (int j = 0; j < BYTES_PER_SAMPLE; j++) {
-				bb.put(bytes[b++]);
-			}
-
-			samples[i] = bb.getShort(0);
-		}
-
-		return samples;
-	}
-
-	/**
 	 * Reads from the input stream until enough bytes have been read to fill given
 	 * byte array This method acts as a wrapper for the inputStream.read() method
 	 * because it doesn't guarantee that it'll read enough bytes to fill the array.
@@ -281,6 +271,16 @@ public abstract class AudioReader implements Iterator<int[]> {
 		}
 
 		return numBytesRead;
+	}
+
+	/**
+	 * Allows {@link FFTStream} to share FFT parameters with AudioReader
+	 * 
+	 * @param parameters FFT parameters, which provide details needed to extract
+	 *                   windows
+	 */
+	public void setFFTParameters(FFTParameters parameters) {
+		fftParameters = parameters;
 	}
 
 }

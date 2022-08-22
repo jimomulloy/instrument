@@ -130,60 +130,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	}
 
 	/**
-	 * Skip a number of seconds before processing the stream.
-	 * 
-	 * @param seconds
-	 */
-	public void skip(double seconds) {
-		bytesToSkip = Math.round(seconds * format.getSampleRate()) * format.getFrameSize();
-	}
-
-	/**
-	 * Set a new step size and overlap size. Both in number of samples. Watch out
-	 * with this method: it should be called after a batch of samples is processed,
-	 * not during.
-	 * 
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
-	 */
-	public void setStepSizeAndOverlap(final int audioBufferSize, final int bufferOverlap) {
-		audioFloatBuffer = new float[audioBufferSize];
-		processedLength = 0;
-		floatPosition = 0;
-		floatOverlap = bufferOverlap;
-		floatStepSize = audioFloatBuffer.length - floatOverlap;
-		byteOverlap = floatOverlap * format.getFrameSize();
-		byteStepSize = floatStepSize * format.getFrameSize();
-	}
-
-	/**
-	 * if zero pad is true then the first buffer is only filled up to buffer size -
-	 * hop size E.g. if the buffer is 2048 and the hop size is 48 then you get
-	 * 2000x0 and 48 filled audio samples
-	 * 
-	 * @param zeroPadFirstBuffer true if the buffer should be zeroPadFirstBuffer,
-	 *                           false otherwise.
-	 */
-	public void setZeroPadFirstBuffer(boolean zeroPadFirstBuffer) {
-		this.zeroPadFirstBuffer = zeroPadFirstBuffer;
-	}
-
-	/**
-	 * If zero pad last buffer is true then the last buffer is filled with zeros
-	 * until the normal amount of elements are present in the buffer. Otherwise the
-	 * buffer only contains the last elements and no zeros. By default it is set to
-	 * true.
-	 * 
-	 * @param zeroPadLastBuffer
-	 */
-	public void setZeroPadLastBuffer(boolean zeroPadLastBuffer) {
-		this.zeroPadLastBuffer = zeroPadLastBuffer;
-	}
-
-	/**
 	 * Adds an AudioProcessor to the chain of processors.
 	 * 
 	 * @param audioProcessor The AudioProcessor to add.
@@ -193,16 +139,20 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 		LOG.fine("Added an audioprocessor to the list of processors: " + audioProcessor.toString());
 	}
 
+	public TarsosDSPAudioFormat getFormat() {
+		return format;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 	/**
-	 * Removes an AudioProcessor to the chain of processors and calls its
-	 * <code>processingFinished</code> method.
-	 * 
-	 * @param audioProcessor The AudioProcessor to remove.
+	 * @return True if the dispatcher is stopped or the end of stream has been
+	 *         reached.
 	 */
-	public void removeAudioProcessor(final AudioProcessor audioProcessor) {
-		audioProcessors.remove(audioProcessor);
-		audioProcessor.processingFinished();
-		LOG.fine("Remove an audioprocessor to the list of processors: " + audioProcessor.toString());
+	public boolean isStopped() {
+		return stopped;
 	}
 
 	@Override
@@ -297,6 +247,108 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 		return true;
 	}
 
+	@Override
+	public void processingFinished() {
+		System.out.println(">>!!DJP FINISH!!");
+		// TODO Auto-generated method stub
+		for (final AudioProcessor processor : audioProcessors) {
+			processor.processingFinished();
+		}
+	}
+
+	/**
+	 * Removes an AudioProcessor to the chain of processors and calls its
+	 * <code>processingFinished</code> method.
+	 * 
+	 * @param audioProcessor The AudioProcessor to remove.
+	 */
+	public void removeAudioProcessor(final AudioProcessor audioProcessor) {
+		audioProcessors.remove(audioProcessor);
+		audioProcessor.processingFinished();
+		LOG.fine("Remove an audioprocessor to the list of processors: " + audioProcessor.toString());
+	}
+
+	/**
+	 * 
+	 * @return The currently processed number of seconds.
+	 */
+	public float secondsProcessed() {
+		return bytesProcessed / (format.getSampleSizeInBits() / 8) / format.getSampleRate() / format.getChannels();
+	}
+
+	public void setAudioFloatBuffer(float[] audioBuffer) {
+		audioFloatBuffer = audioBuffer;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Set a new step size and overlap size. Both in number of samples. Watch out
+	 * with this method: it should be called after a batch of samples is processed,
+	 * not during.
+	 * 
+	 * @param audioBufferSize The size of the buffer defines how much samples are
+	 *                        processed in one step. Common values are 1024,2048.
+	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
+	 *                        Half of the AudioBufferSize is common (512, 1024) for
+	 *                        an FFT.
+	 */
+	public void setStepSizeAndOverlap(final int audioBufferSize, final int bufferOverlap) {
+		audioFloatBuffer = new float[audioBufferSize];
+		processedLength = 0;
+		floatPosition = 0;
+		floatOverlap = bufferOverlap;
+		floatStepSize = audioFloatBuffer.length - floatOverlap;
+		byteOverlap = floatOverlap * format.getFrameSize();
+		byteStepSize = floatStepSize * format.getFrameSize();
+	}
+
+	/**
+	 * if zero pad is true then the first buffer is only filled up to buffer size -
+	 * hop size E.g. if the buffer is 2048 and the hop size is 48 then you get
+	 * 2000x0 and 48 filled audio samples
+	 * 
+	 * @param zeroPadFirstBuffer true if the buffer should be zeroPadFirstBuffer,
+	 *                           false otherwise.
+	 */
+	public void setZeroPadFirstBuffer(boolean zeroPadFirstBuffer) {
+		this.zeroPadFirstBuffer = zeroPadFirstBuffer;
+	}
+
+	/**
+	 * If zero pad last buffer is true then the last buffer is filled with zeros
+	 * until the normal amount of elements are present in the buffer. Otherwise the
+	 * buffer only contains the last elements and no zeros. By default it is set to
+	 * true.
+	 * 
+	 * @param zeroPadLastBuffer
+	 */
+	public void setZeroPadLastBuffer(boolean zeroPadLastBuffer) {
+		this.zeroPadLastBuffer = zeroPadLastBuffer;
+	}
+
+	/**
+	 * Skip a number of seconds before processing the stream.
+	 * 
+	 * @param seconds
+	 */
+	public void skip(double seconds) {
+		bytesToSkip = Math.round(seconds * format.getSampleRate()) * format.getFrameSize();
+	}
+
+	/**
+	 * Stops dispatching audio data.
+	 */
+	public void stop() {
+		System.out.println(">>!!DJP STOP!!");
+		stopped = true;
+		for (final AudioProcessor processor : audioProcessors) {
+			processor.processingFinished();
+		}
+	}
+
 	private void transferAudioBuffer(int incomingBufferSize, int incomingPosition, float[] incomingBuffer) {
 		int lengthRemaining = this.audioFloatBuffer.length - processedLength;
 		int copyLength = incomingBufferSize <= lengthRemaining ? incomingBufferSize : lengthRemaining;
@@ -331,58 +383,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 				bytesProcessed += this.floatStepSize * audioEvent.getFrameLength();
 			}
 		}
-	}
-
-	@Override
-	public void processingFinished() {
-		System.out.println(">>!!DJP FINISH!!");
-		// TODO Auto-generated method stub
-		for (final AudioProcessor processor : audioProcessors) {
-			processor.processingFinished();
-		}
-	}
-
-	/**
-	 * Stops dispatching audio data.
-	 */
-	public void stop() {
-		System.out.println(">>!!DJP STOP!!");
-		stopped = true;
-		for (final AudioProcessor processor : audioProcessors) {
-			processor.processingFinished();
-		}
-	}
-
-	public TarsosDSPAudioFormat getFormat() {
-		return format;
-	}
-
-	/**
-	 * 
-	 * @return The currently processed number of seconds.
-	 */
-	public float secondsProcessed() {
-		return bytesProcessed / (format.getSampleSizeInBits() / 8) / format.getSampleRate() / format.getChannels();
-	}
-
-	public void setAudioFloatBuffer(float[] audioBuffer) {
-		audioFloatBuffer = audioBuffer;
-	}
-
-	/**
-	 * @return True if the dispatcher is stopped or the end of stream has been
-	 *         reached.
-	 */
-	public boolean isStopped() {
-		return stopped;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 }

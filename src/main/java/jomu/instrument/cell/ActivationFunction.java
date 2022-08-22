@@ -43,38 +43,6 @@ public final class ActivationFunction implements Serializable {
 
 	/**
 	 * 
-	 * @param afe
-	 */
-	public void setSelection(ActivationFunctionEnum afe) {
-		this.afe = afe;
-	}
-
-	/**
-	 * 
-	 * @return ActivationFunctionEnum
-	 */
-	public ActivationFunctionEnum getSelection() {
-		return afe;
-	}
-
-	/**
-	 * 
-	 * @param threshold
-	 */
-	public void setThreshold(double threshold) {
-		this.threshold = threshold;
-	}
-
-	/**
-	 * 
-	 * @param threshold
-	 */
-	public double getThreshold() {
-		return threshold;
-	}
-
-	/**
-	 * 
 	 * @param d double
 	 * @return
 	 */
@@ -119,6 +87,22 @@ public final class ActivationFunction implements Serializable {
 
 	/**
 	 * 
+	 * @return ActivationFunctionEnum
+	 */
+	public ActivationFunctionEnum getSelection() {
+		return afe;
+	}
+
+	/**
+	 * 
+	 * @param threshold
+	 */
+	public double getThreshold() {
+		return threshold;
+	}
+
+	/**
+	 * 
 	 * @param x
 	 * @return
 	 */
@@ -139,6 +123,22 @@ public final class ActivationFunction implements Serializable {
 		} else {
 			return 1;
 		}
+	}
+
+	/**
+	 * 
+	 * @param afe
+	 */
+	public void setSelection(ActivationFunctionEnum afe) {
+		this.afe = afe;
+	}
+
+	/**
+	 * 
+	 * @param threshold
+	 */
+	public void setThreshold(double threshold) {
+		this.threshold = threshold;
 	}
 
 	/**

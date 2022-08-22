@@ -53,12 +53,12 @@ public class IIRLowpassFilter extends IIRFilterBase {
 		}
 	}
 
-	public void doFilterNoSum(short[] inBuffer, double[] outBuffer, int length) {
+	public void doFilterNoSum(double[] inBuffer, double[] outBuffer, int length) {
 
 		for (int index = 0; index < length; index++) {
 
 			// Fetch sample
-			inArray[iIndex] = (double) inBuffer[index];
+			inArray[iIndex] = inBuffer[index];
 
 			// Do indices maintainance
 			jIndex = iIndex - 2;
@@ -78,12 +78,12 @@ public class IIRLowpassFilter extends IIRFilterBase {
 		}
 	}
 
-	public void doFilterNoSum(double[] inBuffer, double[] outBuffer, int length) {
+	public void doFilterNoSum(short[] inBuffer, double[] outBuffer, int length) {
 
 		for (int index = 0; index < length; index++) {
 
 			// Fetch sample
-			inArray[iIndex] = inBuffer[index];
+			inArray[iIndex] = (double) inBuffer[index];
 
 			// Do indices maintainance
 			jIndex = iIndex - 2;

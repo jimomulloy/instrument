@@ -32,20 +32,20 @@ import java.nio.ByteOrder;
  */
 public class AsioChannel {
 
-	private final int index;
-	private final boolean isInput;
-	private volatile boolean isActive;
-	private final int channelGroup;
-	private final AsioSampleType sampleType;
-	private final String name;
-	private final ByteBuffer[] nativeBuffers;
-	private volatile int bufferIndex;
-
 	private static final float MAX_INT16 = (float) 0x00007FFF;
 	private static final float MAX_INT18 = (float) 0x0001FFFF;
 	private static final float MAX_INT20 = (float) 0x0007FFFF;
 	private static final float MAX_INT24 = (float) 0x007FFFFF;
 	private static final float MAX_INT32 = (float) 0x7FFFFFFF; // Integer.MAX_VALUE
+	private final int index;
+	private final boolean isInput;
+	private volatile boolean isActive;
+
+	private final int channelGroup;
+	private final AsioSampleType sampleType;
+	private final String name;
+	private final ByteBuffer[] nativeBuffers;
+	private volatile int bufferIndex;
 
 	private AsioChannel(int index, boolean isInput, boolean isActive, int channelGroup, AsioSampleType sampleType,
 			String name) {
@@ -58,28 +58,17 @@ public class AsioChannel {
 		nativeBuffers = new ByteBuffer[2];
 	}
 
-	public int getChannelIndex() {
-		return index;
-	}
-
-	public boolean isInput() {
-		return isInput;
-	}
-
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public int getChannelGroup() {
-		return channelGroup;
-	}
-
-	public AsioSampleType getSampleType() {
-		return sampleType;
-	}
-
-	public String getChannelName() {
-		return name;
+	/*
+	 * equals() is overridden such that it may be used in a Set
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof AsioChannel)) {
+			return false;
+		} else {
+			AsioChannel channelInfo = (AsioChannel) o;
+			return (channelInfo.getChannelIndex() == index && channelInfo.isInput() == isInput);
+		}
 	}
 
 	/**
@@ -91,135 +80,36 @@ public class AsioChannel {
 		return nativeBuffers[bufferIndex];
 	}
 
-	protected void setBufferIndex(int bufferIndex) {
-		this.bufferIndex = bufferIndex;
-		nativeBuffers[bufferIndex].rewind(); // reset position to start of buffer
+	public int getChannelGroup() {
+		return channelGroup;
 	}
 
-	protected void setByteBuffers(ByteBuffer buffer0, ByteBuffer buffer1) {
-		if (buffer0 == null || buffer1 == null) {
-			// the ByteBuffer references are cleared
-			isActive = false;
-			nativeBuffers[0] = null;
-			nativeBuffers[1] = null;
-		} else {
-			nativeBuffers[0] = isInput ? buffer0.asReadOnlyBuffer() : buffer0;
-			nativeBuffers[1] = isInput ? buffer1.asReadOnlyBuffer() : buffer1;
-			if (sampleType.name().contains("MSB")) {
-				nativeBuffers[0].order(ByteOrder.BIG_ENDIAN); // set the endian-ness of the buffers
-				nativeBuffers[1].order(ByteOrder.BIG_ENDIAN); // according to the sample type
-			} else {
-				nativeBuffers[0].order(ByteOrder.LITTLE_ENDIAN);
-				nativeBuffers[1].order(ByteOrder.LITTLE_ENDIAN);
-			}
-			isActive = true;
-		}
+	public int getChannelIndex() {
+		return index;
 	}
 
-	/**
-	 * A convenience method to write a <code>float</code> array of samples to the
-	 * output. The array values are expected to be bounded to the range of [-1,1].
-	 * The need to convert to the correct sample type is abstracted. The
-	 * <code>output</code> array should be same size as the buffer. If it is larger,
-	 * then a <code>BufferOverflowException</code> will be thrown. If it is smaller,
-	 * the buffer will be incompletely filled.
-	 * 
-	 * If the ASIO host does not use <code>float</code>s to represent samples, then
-	 * the <code>AsioChannel</code>'s <code>ByteBuffer</code> should be directly
-	 * manipulated. Use <code>getByteBuffer</code> to access the buffer.
-	 * 
-	 * @param output A <code>float</code> array to write to the output.
+	public String getChannelName() {
+		return name;
+	}
+
+	public AsioSampleType getSampleType() {
+		return sampleType;
+	}
+
+	/*
+	 * hashCode() overridden in order to accompany equals()
 	 */
-	public void write(float[] output) {
-		if (isInput) {
-			throw new IllegalStateException("Only output channels can be written to.");
-		}
-		if (!isActive) {
-			throw new IllegalStateException("This channel is not active: " + toString());
-		}
-		ByteBuffer outputBuffer = getByteBuffer();
-		switch (sampleType) {
-		case ASIOSTFloat64MSB:
-		case ASIOSTFloat64LSB: {
-			for (float sampleValue : output) {
-				outputBuffer.putDouble((double) sampleValue);
-			}
-			break;
-		}
-		case ASIOSTFloat32MSB:
-		case ASIOSTFloat32LSB: {
-			for (float sampleValue : output) {
-				outputBuffer.putFloat(sampleValue);
-			}
-			break;
-		}
-		case ASIOSTInt32MSB:
-		case ASIOSTInt32LSB: {
-			for (float sampleValue : output) {
-				outputBuffer.putInt((int) (sampleValue * MAX_INT32));
-			}
-			break;
-		}
-		case ASIOSTInt32MSB16:
-		case ASIOSTInt32LSB16: {
-			for (float sampleValue : output) {
-				outputBuffer.putInt((int) (sampleValue * MAX_INT16));
-			}
-			break;
-		}
-		case ASIOSTInt32MSB18:
-		case ASIOSTInt32LSB18: {
-			for (float sampleValue : output) {
-				outputBuffer.putInt((int) (sampleValue * MAX_INT18));
-			}
-			break;
-		}
-		case ASIOSTInt32MSB20:
-		case ASIOSTInt32LSB20: {
-			for (float sampleValue : output) {
-				outputBuffer.putInt((int) (sampleValue * MAX_INT20));
-			}
-			break;
-		}
-		case ASIOSTInt32MSB24:
-		case ASIOSTInt32LSB24: {
-			for (float sampleValue : output) {
-				outputBuffer.putInt((int) (sampleValue * MAX_INT24));
-			}
-			break;
-		}
-		case ASIOSTInt16MSB:
-		case ASIOSTInt16LSB: {
-			for (float sampleValue : output) {
-				outputBuffer.putShort((short) (sampleValue * MAX_INT16));
-			}
-			break;
-		}
-		case ASIOSTInt24MSB: {
-			for (float sampleValue : output) {
-				int sampleValueInt = (int) (sampleValue * MAX_INT24);
-				outputBuffer.put((byte) ((sampleValueInt >> 16) & 0xFF));
-				outputBuffer.put((byte) ((sampleValueInt >> 8) & 0xFF));
-				outputBuffer.put((byte) (sampleValueInt & 0xFF));
-			}
-			break;
-		}
-		case ASIOSTInt24LSB: {
-			for (float sampleValue : output) {
-				int sampleValueInt = (int) (sampleValue * MAX_INT24);
-				outputBuffer.put((byte) (sampleValueInt & 0xFF));
-				outputBuffer.put((byte) ((sampleValueInt >> 8) & 0xFF));
-				outputBuffer.put((byte) ((sampleValueInt >> 16) & 0xFF));
-			}
-			break;
-		}
-		case ASIOSTDSDInt8MSB1:
-		case ASIOSTDSDInt8LSB1:
-		case ASIOSTDSDInt8NER8: {
-			throw new IllegalStateException(
-					"The sample types ASIOSTDSDInt8MSB1, ASIOSTDSDInt8LSB1, and ASIOSTDSDInt8NER8 are not supported.");
-		}
-		}
+	@Override
+	public int hashCode() {
+		return isInput ? index : ~index + 1; // : 2's complement
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public boolean isInput() {
+		return isInput;
 	}
 
 	/**
@@ -326,25 +216,29 @@ public class AsioChannel {
 		}
 	}
 
-	/*
-	 * equals() is overridden such that it may be used in a Set
-	 */
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof AsioChannel)) {
-			return false;
-		} else {
-			AsioChannel channelInfo = (AsioChannel) o;
-			return (channelInfo.getChannelIndex() == index && channelInfo.isInput() == isInput);
-		}
+	protected void setBufferIndex(int bufferIndex) {
+		this.bufferIndex = bufferIndex;
+		nativeBuffers[bufferIndex].rewind(); // reset position to start of buffer
 	}
 
-	/*
-	 * hashCode() overridden in order to accompany equals()
-	 */
-	@Override
-	public int hashCode() {
-		return isInput ? index : ~index + 1; // : 2's complement
+	protected void setByteBuffers(ByteBuffer buffer0, ByteBuffer buffer1) {
+		if (buffer0 == null || buffer1 == null) {
+			// the ByteBuffer references are cleared
+			isActive = false;
+			nativeBuffers[0] = null;
+			nativeBuffers[1] = null;
+		} else {
+			nativeBuffers[0] = isInput ? buffer0.asReadOnlyBuffer() : buffer0;
+			nativeBuffers[1] = isInput ? buffer1.asReadOnlyBuffer() : buffer1;
+			if (sampleType.name().contains("MSB")) {
+				nativeBuffers[0].order(ByteOrder.BIG_ENDIAN); // set the endian-ness of the buffers
+				nativeBuffers[1].order(ByteOrder.BIG_ENDIAN); // according to the sample type
+			} else {
+				nativeBuffers[0].order(ByteOrder.LITTLE_ENDIAN);
+				nativeBuffers[1].order(ByteOrder.LITTLE_ENDIAN);
+			}
+			isActive = true;
+		}
 	}
 
 	/**
@@ -366,5 +260,111 @@ public class AsioChannel {
 		sb.append(", ");
 		sb.append(isActive ? "active" : "inactive");
 		return sb.toString();
+	}
+
+	/**
+	 * A convenience method to write a <code>float</code> array of samples to the
+	 * output. The array values are expected to be bounded to the range of [-1,1].
+	 * The need to convert to the correct sample type is abstracted. The
+	 * <code>output</code> array should be same size as the buffer. If it is larger,
+	 * then a <code>BufferOverflowException</code> will be thrown. If it is smaller,
+	 * the buffer will be incompletely filled.
+	 * 
+	 * If the ASIO host does not use <code>float</code>s to represent samples, then
+	 * the <code>AsioChannel</code>'s <code>ByteBuffer</code> should be directly
+	 * manipulated. Use <code>getByteBuffer</code> to access the buffer.
+	 * 
+	 * @param output A <code>float</code> array to write to the output.
+	 */
+	public void write(float[] output) {
+		if (isInput) {
+			throw new IllegalStateException("Only output channels can be written to.");
+		}
+		if (!isActive) {
+			throw new IllegalStateException("This channel is not active: " + toString());
+		}
+		ByteBuffer outputBuffer = getByteBuffer();
+		switch (sampleType) {
+		case ASIOSTFloat64MSB:
+		case ASIOSTFloat64LSB: {
+			for (float sampleValue : output) {
+				outputBuffer.putDouble((double) sampleValue);
+			}
+			break;
+		}
+		case ASIOSTFloat32MSB:
+		case ASIOSTFloat32LSB: {
+			for (float sampleValue : output) {
+				outputBuffer.putFloat(sampleValue);
+			}
+			break;
+		}
+		case ASIOSTInt32MSB:
+		case ASIOSTInt32LSB: {
+			for (float sampleValue : output) {
+				outputBuffer.putInt((int) (sampleValue * MAX_INT32));
+			}
+			break;
+		}
+		case ASIOSTInt32MSB16:
+		case ASIOSTInt32LSB16: {
+			for (float sampleValue : output) {
+				outputBuffer.putInt((int) (sampleValue * MAX_INT16));
+			}
+			break;
+		}
+		case ASIOSTInt32MSB18:
+		case ASIOSTInt32LSB18: {
+			for (float sampleValue : output) {
+				outputBuffer.putInt((int) (sampleValue * MAX_INT18));
+			}
+			break;
+		}
+		case ASIOSTInt32MSB20:
+		case ASIOSTInt32LSB20: {
+			for (float sampleValue : output) {
+				outputBuffer.putInt((int) (sampleValue * MAX_INT20));
+			}
+			break;
+		}
+		case ASIOSTInt32MSB24:
+		case ASIOSTInt32LSB24: {
+			for (float sampleValue : output) {
+				outputBuffer.putInt((int) (sampleValue * MAX_INT24));
+			}
+			break;
+		}
+		case ASIOSTInt16MSB:
+		case ASIOSTInt16LSB: {
+			for (float sampleValue : output) {
+				outputBuffer.putShort((short) (sampleValue * MAX_INT16));
+			}
+			break;
+		}
+		case ASIOSTInt24MSB: {
+			for (float sampleValue : output) {
+				int sampleValueInt = (int) (sampleValue * MAX_INT24);
+				outputBuffer.put((byte) ((sampleValueInt >> 16) & 0xFF));
+				outputBuffer.put((byte) ((sampleValueInt >> 8) & 0xFF));
+				outputBuffer.put((byte) (sampleValueInt & 0xFF));
+			}
+			break;
+		}
+		case ASIOSTInt24LSB: {
+			for (float sampleValue : output) {
+				int sampleValueInt = (int) (sampleValue * MAX_INT24);
+				outputBuffer.put((byte) (sampleValueInt & 0xFF));
+				outputBuffer.put((byte) ((sampleValueInt >> 8) & 0xFF));
+				outputBuffer.put((byte) ((sampleValueInt >> 16) & 0xFF));
+			}
+			break;
+		}
+		case ASIOSTDSDInt8MSB1:
+		case ASIOSTDSDInt8LSB1:
+		case ASIOSTDSDInt8NER8: {
+			throw new IllegalStateException(
+					"The sample types ASIOSTDSDInt8MSB1, ASIOSTDSDInt8LSB1, and ASIOSTDSDInt8NER8 are not supported.");
+		}
+		}
 	}
 }

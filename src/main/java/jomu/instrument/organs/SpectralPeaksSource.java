@@ -31,6 +31,63 @@ public class SpectralPeaksSource {
 		this.tarsosIO = tarsosIO;
 	}
 
+	void clear() {
+		spectralInfos.clear();
+		features.clear();
+	}
+
+	public int getCurrentFrame() {
+		return currentFrame;
+	}
+
+	public TreeMap<Double, SpectralInfo> getFeatures() {
+		TreeMap<Double, SpectralInfo> clonedFeatures = new TreeMap<>();
+		for (java.util.Map.Entry<Double, SpectralInfo> entry : features.entrySet()) {
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
+		}
+		return clonedFeatures;
+	}
+
+	public int getIncrement() {
+		return increment;
+	}
+
+	public int getMinPeakSize() {
+		return minPeakSize;
+	}
+
+	public float getNoiseFloorFactor() {
+		return noiseFloorFactor;
+	}
+
+	public int getNoiseFloorMedianFilterLenth() {
+		return noiseFloorMedianFilterLenth;
+	}
+
+	public int getNumberOfSpectralPeaks() {
+		return numberOfSpectralPeaks;
+	}
+
+	public int getSampleRate() {
+		return sampleRate;
+	}
+
+	public List<SpectralInfo> getSpectralInfo() {
+		List<SpectralInfo> clonedSpectralInfo = new ArrayList<SpectralInfo>();
+		for (SpectralInfo si : spectralInfos) {
+			clonedSpectralInfo.add(si);
+		}
+		return clonedSpectralInfo;
+	}
+
+	public SpectralPeakProcessor getSpectralPeakProcesser() {
+		return spectralPeakProcesser;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
+	}
+
 	void initialise() {
 
 		int fftsize = 1024;
@@ -49,10 +106,6 @@ public class SpectralPeaksSource {
 
 		djp.addAudioProcessor(new AudioProcessor() {
 			int frameCounter = 0;
-
-			@Override
-			public void processingFinished() {
-			}
 
 			@Override
 			public boolean process(AudioEvent audioEvent) {
@@ -75,66 +128,13 @@ public class SpectralPeaksSource {
 				}
 				return true;
 			}
+
+			@Override
+			public void processingFinished() {
+			}
 		});
 
 		spectralInfos.clear();
 		features.clear();
-	}
-
-	void clear() {
-		spectralInfos.clear();
-		features.clear();
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
-	public int getSampleRate() {
-		return sampleRate;
-	}
-
-	public int getIncrement() {
-		return increment;
-	}
-
-	public int getCurrentFrame() {
-		return currentFrame;
-	}
-
-	public int getNoiseFloorMedianFilterLenth() {
-		return noiseFloorMedianFilterLenth;
-	}
-
-	public float getNoiseFloorFactor() {
-		return noiseFloorFactor;
-	}
-
-	public int getNumberOfSpectralPeaks() {
-		return numberOfSpectralPeaks;
-	}
-
-	public int getMinPeakSize() {
-		return minPeakSize;
-	}
-
-	public List<SpectralInfo> getSpectralInfo() {
-		List<SpectralInfo> clonedSpectralInfo = new ArrayList<SpectralInfo>();
-		for (SpectralInfo si : spectralInfos) {
-			clonedSpectralInfo.add(si);
-		}
-		return clonedSpectralInfo;
-	}
-
-	public SpectralPeakProcessor getSpectralPeakProcesser() {
-		return spectralPeakProcesser;
-	}
-
-	public TreeMap<Double, SpectralInfo> getFeatures() {
-		TreeMap<Double, SpectralInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectralInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
 	}
 }

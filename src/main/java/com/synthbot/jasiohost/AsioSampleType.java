@@ -85,12 +85,6 @@ public enum AsioSampleType {
 	ASIOSTFloat64LSB(20), ASIOSTInt32LSB16(24), ASIOSTInt32LSB18(25), ASIOSTInt32LSB20(26), ASIOSTInt32LSB24(27),
 	ASIOSTDSDInt8LSB1(32), ASIOSTDSDInt8MSB1(33), ASIOSTDSDInt8NER8(40);
 
-	private int nativeEnum; // the native enum representing this type
-
-	private AsioSampleType(int nativeEnum) {
-		this.nativeEnum = nativeEnum;
-	}
-
 	public static AsioSampleType getSampleType(int nativeEnum) {
 		for (AsioSampleType sampleType : values()) {
 			if (sampleType.nativeEnum == nativeEnum) {
@@ -98,5 +92,11 @@ public enum AsioSampleType {
 			}
 		}
 		return null;
+	}
+
+	private int nativeEnum; // the native enum representing this type
+
+	private AsioSampleType(int nativeEnum) {
+		this.nativeEnum = nativeEnum;
 	}
 }

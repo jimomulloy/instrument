@@ -29,12 +29,37 @@ import java.util.Set;
 public interface AsioDriverListener {
 
 	/**
-	 * The sample rate has changed. This may be due to a user initiated change, or a
-	 * change in input/output source.
+	 * The driver has a new preferred buffer size. The host should make an effort to
+	 * accommodate the driver by returning to the <code>INITIALIZED</code> state and
+	 * calling <code>AsioDriver.createBuffers()</code>.
 	 * 
-	 * @param sampleRate The new sample rate.
+	 * @param bufferSize The new preferred buffer size.
 	 */
-	public void sampleRateDidChange(double sampleRate);
+	public void bufferSizeChanged(int bufferSize);
+
+	/**
+	 * The next block of samples is ready. Input buffers are filled with new input,
+	 * and output buffers should be filled at the end of this method.
+	 * 
+	 * @param sampleTime     System time related to sample position, in nanoseconds.
+	 * @param samplePosition Sample position since <code>start()</code> was called.
+	 * @param activeChannels The set of channels which are active and have allocated
+	 *                       buffers. Retrieve the buffers with
+	 *                       <code>AsioChannel.getBuffer()</code>, or use
+	 *                       <code>AsioChannel.read()</code> and
+	 *                       <code>AsioDriver.write()</code> in order to easily work
+	 *                       with <code>float</code> arrays.
+	 */
+	public void bufferSwitch(long sampleTime, long samplePosition, Set<AsioChannel> activeChannels);
+
+	/**
+	 * The input or output latencies have changed. The host is updated with the new
+	 * values.
+	 * 
+	 * @param inputLatency  The new input latency in milliseconds.
+	 * @param outputLatency The new output latency in milliseconds.
+	 */
+	public void latenciesChanged(int inputLatency, int outputLatency);
 
 	/**
 	 * The driver requests a reset in the case of an unexpected failure or a device
@@ -67,35 +92,10 @@ public interface AsioDriverListener {
 	public void resyncRequest();
 
 	/**
-	 * The driver has a new preferred buffer size. The host should make an effort to
-	 * accommodate the driver by returning to the <code>INITIALIZED</code> state and
-	 * calling <code>AsioDriver.createBuffers()</code>.
+	 * The sample rate has changed. This may be due to a user initiated change, or a
+	 * change in input/output source.
 	 * 
-	 * @param bufferSize The new preferred buffer size.
+	 * @param sampleRate The new sample rate.
 	 */
-	public void bufferSizeChanged(int bufferSize);
-
-	/**
-	 * The input or output latencies have changed. The host is updated with the new
-	 * values.
-	 * 
-	 * @param inputLatency  The new input latency in milliseconds.
-	 * @param outputLatency The new output latency in milliseconds.
-	 */
-	public void latenciesChanged(int inputLatency, int outputLatency);
-
-	/**
-	 * The next block of samples is ready. Input buffers are filled with new input,
-	 * and output buffers should be filled at the end of this method.
-	 * 
-	 * @param sampleTime     System time related to sample position, in nanoseconds.
-	 * @param samplePosition Sample position since <code>start()</code> was called.
-	 * @param activeChannels The set of channels which are active and have allocated
-	 *                       buffers. Retrieve the buffers with
-	 *                       <code>AsioChannel.getBuffer()</code>, or use
-	 *                       <code>AsioChannel.read()</code> and
-	 *                       <code>AsioDriver.write()</code> in order to easily work
-	 *                       with <code>float</code> arrays.
-	 */
-	public void bufferSwitch(long sampleTime, long samplePosition, Set<AsioChannel> activeChannels);
+	public void sampleRateDidChange(double sampleRate);
 }

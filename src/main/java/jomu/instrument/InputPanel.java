@@ -46,6 +46,20 @@ public class InputPanel extends JPanel {
 
 	Mixer mixer = null;
 
+	private ActionListener setInput = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
+				if (arg0.getActionCommand().equals(info.toString())) {
+					Mixer newValue = AudioSystem.getMixer(info);
+					InputPanel.this.firePropertyChange("mixer", mixer, newValue);
+					InputPanel.this.mixer = newValue;
+					break;
+				}
+			}
+		}
+	};
+
 	public InputPanel() {
 		super(new BorderLayout());
 		this.setBorder(new TitledBorder("1. Choose a microphone input"));
@@ -64,19 +78,5 @@ public class InputPanel extends JPanel {
 		this.setMaximumSize(new Dimension(300, 150));
 		this.setPreferredSize(new Dimension(300, 150));
 	}
-
-	private ActionListener setInput = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
-				if (arg0.getActionCommand().equals(info.toString())) {
-					Mixer newValue = AudioSystem.getMixer(info);
-					InputPanel.this.firePropertyChange("mixer", mixer, newValue);
-					InputPanel.this.mixer = newValue;
-					break;
-				}
-			}
-		}
-	};
 
 }

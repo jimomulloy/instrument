@@ -42,12 +42,12 @@ public class AsioDriverInfo {
 		return asioVersion;
 	}
 
-	public int getDriverVersion() {
-		return driverVersion;
-	}
-
 	public String getDriverName() {
 		return driverName;
+	}
+
+	public int getDriverVersion() {
+		return driverVersion;
 	}
 
 	public String getErrorMessage() {

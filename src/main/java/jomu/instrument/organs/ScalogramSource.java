@@ -25,6 +25,30 @@ public class ScalogramSource {
 		this.sampleRate = tarsosIO.getContext().getSampleRate();
 	}
 
+	void clear() {
+		features.clear();
+	}
+
+	public TreeMap<Double, ScalogramFrame> getFeatures() {
+		TreeMap<Double, ScalogramFrame> clonedFeatures = new TreeMap<>();
+		for (java.util.Map.Entry<Double, ScalogramFrame> entry : features.entrySet()) {
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
+		}
+		return clonedFeatures;
+	}
+
+	public int getIncrement() {
+		return increment;
+	}
+
+	public float getSampleRate() {
+		return sampleRate;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
+	}
+
 	void initialise() {
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
@@ -57,30 +81,6 @@ public class ScalogramSource {
 		});
 
 		features.clear();
-	}
-
-	void clear() {
-		features.clear();
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
-	public float getSampleRate() {
-		return sampleRate;
-	}
-
-	public int getIncrement() {
-		return increment;
-	}
-
-	public TreeMap<Double, ScalogramFrame> getFeatures() {
-		TreeMap<Double, ScalogramFrame> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, ScalogramFrame> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
 	}
 
 }

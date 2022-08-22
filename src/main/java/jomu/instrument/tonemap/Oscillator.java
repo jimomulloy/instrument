@@ -13,6 +13,27 @@ public class Oscillator {
 	public static final int TRIANGLEWAVE = 3;
 	public static final int SQUAREWAVE = 4;
 
+	// Class data
+	protected int type;
+
+	protected int frequency;
+
+	protected int sampleRate;
+
+	protected int numberOfChannels;
+
+	protected int pos;
+
+	protected double[] waveTable;
+
+	protected double amplitudeAdj;
+
+	// Constructor with reasonable defaults
+	public Oscillator() {
+
+		this(SINEWAVE, 1000, 22050, 1);
+	}
+
 	public Oscillator(int type, int frequency, int sampleRate, int numberOfChannels) {
 		// Save incoming
 		this.type = type;
@@ -29,74 +50,6 @@ public class Oscillator {
 		// Generate wave table
 		buildWaveTable();
 		System.out.println("new Oscillator: " + type + ", " + frequency + ", " + sampleRate);
-	}
-
-	// Constructor with reasonable defaults
-	public Oscillator() {
-
-		this(SINEWAVE, 1000, 22050, 1);
-	}
-
-	public int getOscType() {
-
-		return type;
-	}
-
-	public void setOscType(int type) {
-
-		this.type = type;
-
-		buildWaveTable();
-	}
-
-	public int getFrequency() {
-
-		return frequency;
-	}
-
-	public void setFrequency(int frequency) {
-
-		this.frequency = frequency;
-
-		// Reset waveTable index
-		pos = 0;
-	}
-
-	public int getSampleRate() {
-
-		return sampleRate;
-	}
-
-	public void setSampleRate(int sampleRate) {
-
-		this.sampleRate = sampleRate;
-
-		buildWaveTable();
-	}
-
-	public int getNumberOfChannels() {
-
-		return numberOfChannels;
-	}
-
-	public void setNumberOfChannels(int numberOfChannels) {
-
-		this.numberOfChannels = numberOfChannels;
-	}
-
-	public double getAmplitudeAdj() {
-
-		return amplitudeAdj;
-	}
-
-	public void setAmplitudeAdj(double amplitudeAdj) {
-
-		if (amplitudeAdj > 1.0)
-			amplitudeAdj = 1.0;
-		if (amplitudeAdj < 0.0)
-			amplitudeAdj = 0.0;
-
-		this.amplitudeAdj = amplitudeAdj;
 	}
 
 	// Generate a wavetable for the waveform
@@ -161,6 +114,42 @@ public class Oscillator {
 		}
 	}
 
+	public double getAmplitudeAdj() {
+
+		return amplitudeAdj;
+	}
+
+	public int getFrequency() {
+
+		return frequency;
+	}
+
+	public int getNumberOfChannels() {
+
+		return numberOfChannels;
+	}
+
+	public int getOscType() {
+
+		return type;
+	}
+
+	public double getSample() {
+
+		double sample = 0;
+		sample = (double) (amplitudeAdj * waveTable[pos]);
+		pos += frequency;
+		if (pos >= sampleRate) {
+			pos -= sampleRate;
+		}
+		return sample;
+	}
+
+	public int getSampleRate() {
+
+		return sampleRate;
+	}
+
 	public int getSamples(short[] buffer, int length) {
 
 		int sample = 0;
@@ -177,27 +166,44 @@ public class Oscillator {
 		return length;
 	}
 
-	public double getSample() {
-
-		double sample = 0;
-		sample = (double) (amplitudeAdj * waveTable[pos]);
-		pos += frequency;
-		if (pos >= sampleRate) {
-			pos -= sampleRate;
-		}
-		return sample;
-	}
-
 	public void reset() {
 		pos = 0;
 	}
 
-	// Class data
-	protected int type;
-	protected int frequency;
-	protected int sampleRate;
-	protected int numberOfChannels;
-	protected int pos;
-	protected double[] waveTable;
-	protected double amplitudeAdj;
+	public void setAmplitudeAdj(double amplitudeAdj) {
+
+		if (amplitudeAdj > 1.0)
+			amplitudeAdj = 1.0;
+		if (amplitudeAdj < 0.0)
+			amplitudeAdj = 0.0;
+
+		this.amplitudeAdj = amplitudeAdj;
+	}
+
+	public void setFrequency(int frequency) {
+
+		this.frequency = frequency;
+
+		// Reset waveTable index
+		pos = 0;
+	}
+
+	public void setNumberOfChannels(int numberOfChannels) {
+
+		this.numberOfChannels = numberOfChannels;
+	}
+
+	public void setOscType(int type) {
+
+		this.type = type;
+
+		buildWaveTable();
+	}
+
+	public void setSampleRate(int sampleRate) {
+
+		this.sampleRate = sampleRate;
+
+		buildWaveTable();
+	}
 }

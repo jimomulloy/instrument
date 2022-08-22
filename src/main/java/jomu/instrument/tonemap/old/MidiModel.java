@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap;
+package jomu.instrument.tonemap.old;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,34 +26,6 @@ import javax.swing.JPanel;
  * @author Jim O'Mulloy
  */
 public class MidiModel implements PlayerInterface, ToneMapConstants {
-
-	// Inner class handles MIDI data playback event listener
-	class ProcessMeta implements MetaEventListener {
-
-		public void meta(MetaMessage message) {
-
-			if (message.getType() == 47 && playState != PAUSED && sequence != null) {
-				midiEOM = true;
-				if (playState != STOPPED) {
-					sequencer.stop();
-					playState = EOM;
-				}
-			}
-		}
-	}
-
-	// Inner class defines fields associated with a MIDI Track
-	class TrackData extends Object {
-		Integer chanNum;
-		String name;
-		Track track;
-
-		public TrackData(int chanNum, String name, Track track) {
-			this.chanNum = new Integer(chanNum);
-			this.name = name;
-			this.track = track;
-		}
-	}
 
 	/**
 	 * Inner class contains information associated with a MIDI Channel.
@@ -86,6 +58,34 @@ public class MidiModel implements PlayerInterface, ToneMapConstants {
 			for (int i = 0; i < slider.length; i++) {
 				slider[i].setValue(v[i]);
 			}
+		}
+	}
+
+	// Inner class handles MIDI data playback event listener
+	class ProcessMeta implements MetaEventListener {
+
+		public void meta(MetaMessage message) {
+
+			if (message.getType() == 47 && playState != PAUSED && sequence != null) {
+				midiEOM = true;
+				if (playState != STOPPED) {
+					sequencer.stop();
+					playState = EOM;
+				}
+			}
+		}
+	}
+
+	// Inner class defines fields associated with a MIDI Track
+	class TrackData extends Object {
+		Integer chanNum;
+		String name;
+		Track track;
+
+		public TrackData(int chanNum, String name, Track track) {
+			this.chanNum = new Integer(chanNum);
+			this.name = name;
+			this.track = track;
 		}
 	}
 
@@ -173,15 +173,6 @@ public class MidiModel implements PlayerInterface, ToneMapConstants {
 	}
 
 	/**
-	 * Clear current MidiModel objects after Reset
-	 */
-	public void clear() {
-		playStop();
-		close();
-		noteSequence = null;
-	}
-
-	/**
 	 * Use the NoteList object to build a NoteSequence object sorted to be used to
 	 * create a MIDI sequence. Apply quantization functions on beat and duration
 	 */
@@ -243,6 +234,15 @@ public class MidiModel implements PlayerInterface, ToneMapConstants {
 			return true;
 		}
 
+	}
+
+	/**
+	 * Clear current MidiModel objects after Reset
+	 */
+	public void clear() {
+		playStop();
+		close();
+		noteSequence = null;
 	}
 
 	/**
@@ -316,12 +316,12 @@ public class MidiModel implements PlayerInterface, ToneMapConstants {
 		return numChannels;
 	}
 
-	public double getStartTime() {
-		return timeStart;
-	}
-
 	public JPanel getPanel() {
 		return midiPanel;
+	}
+
+	public double getStartTime() {
+		return timeStart;
 	}
 
 	public double getTickRate() {
@@ -500,17 +500,6 @@ public class MidiModel implements PlayerInterface, ToneMapConstants {
 
 	}
 
-	public void setTime(TimeSet timeSet) {
-
-		midiPanel.timeControl.setTimeMax((int) (timeSet.getEndTime() - timeSet.getStartTime()));
-
-	}
-
-	public void setPitch(PitchSet pitchSet) {
-		midiPanel.pitchControl.setPitchRange((int) (pitchSet.getLowNote()), (int) (pitchSet.getHighNote()));
-
-	}
-
 	/**
 	 * Write MIDI sequence to MIDI file
 	 */
@@ -533,6 +522,17 @@ public class MidiModel implements PlayerInterface, ToneMapConstants {
 			toneMapFrame.reportStatus(EC_MIDI_SAVE_WRITE);
 			return false;
 		}
+	}
+
+	public void setPitch(PitchSet pitchSet) {
+		midiPanel.pitchControl.setPitchRange((int) (pitchSet.getLowNote()), (int) (pitchSet.getHighNote()));
+
+	}
+
+	public void setTime(TimeSet timeSet) {
+
+		midiPanel.timeControl.setTimeMax((int) (timeSet.getEndTime() - timeSet.getStartTime()));
+
 	}
 
 	/**

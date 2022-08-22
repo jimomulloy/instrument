@@ -15,6 +15,29 @@ public class GoertzelSource implements FrequenciesDetectedHandler {
 		this.tarsosIO = tarsosIO;
 	}
 
+	void clear() {
+		features.clear();
+	}
+
+	public TreeMap<Double, GoertzelInfo> getFeatures() {
+		TreeMap<Double, GoertzelInfo> clonedFeatures = new TreeMap<>();
+		for (java.util.Map.Entry<Double, GoertzelInfo> entry : features.entrySet()) {
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
+		}
+		return clonedFeatures;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
+	}
+
+	@Override
+	public void handleDetectedFrequencies(double timestamp, double[] frequencies, double[] powers,
+			double[] allFrequencies, double[] allPowers) {
+		// TODO Auto-generated method stub
+
+	}
+
 	void initialise() {
 		// maxSpectralEnergy = 0;
 		// minSpectralEnergy = 100000;
@@ -63,28 +86,5 @@ public class GoertzelSource implements FrequenciesDetectedHandler {
 		 * minSpectralEnergy = Math.abs(minSpectralEnergy); this.features = fe;
 		 * features.clear();
 		 */
-	}
-
-	void clear() {
-		features.clear();
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
-	public TreeMap<Double, GoertzelInfo> getFeatures() {
-		TreeMap<Double, GoertzelInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, GoertzelInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
-	@Override
-	public void handleDetectedFrequencies(double timestamp, double[] frequencies, double[] powers,
-			double[] allFrequencies, double[] allPowers) {
-		// TODO Auto-generated method stub
-
 	}
 }

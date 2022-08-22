@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap;
+package jomu.instrument.tonemap.old;
 
 /**
  * This interface defines the methods used by the Player class to control
@@ -13,22 +13,22 @@ public interface PlayerInterface {
 
 	public boolean play();
 
-	public void playStop();
+	public double playGetLength();
+
+	public int playGetState();
+
+	public double playGetTime();
+
+	public void playLoop();
 
 	public void playPause();
 
 	public void playResume();
 
-	public void playLoop();
-
-	public double playGetLength();
-
-	public double playGetTime();
-
-	public int playGetState();
+	public void playSetPlayer(Player player);
 
 	public void playSetSeek(double seekTime);
 
-	public void playSetPlayer(Player player);
+	public void playStop();
 
 }

@@ -56,63 +56,6 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 		setupBuffers();
 	}
 
-	/**
-	 * Gets the chunk size.
-	 * 
-	 * @return the chunk size.
-	 */
-	public int getChunkSize() {
-		return chunkSize;
-	}
-
-	/**
-	 * Sets the chunk size.
-	 * 
-	 * @param chunkSize the new chunk size.
-	 */
-	public void setChunkSize(int chunkSize) {
-		this.chunkSize = chunkSize;
-		setupBuffers();
-	}
-
-	/**
-	 * Gets the hop size.
-	 * 
-	 * @return the hop size.
-	 */
-	public int getHopSize() {
-		return hopSize;
-	}
-
-	/**
-	 * Sets the hop size.
-	 * 
-	 * @param hopSize the new hop size.
-	 */
-	public void setHopSize(int hopSize) {
-		this.hopSize = hopSize;
-		setupBuffers();
-	}
-
-	/**
-	 * Sets the window Buffer.
-	 * 
-	 * @param window the new window Buffer.
-	 */
-	public void setWindow(Buffer window) {
-		this.window = window;
-	}
-
-	/**
-	 * Resets the chunks array and count when anything affecting the chunk array
-	 * gets changed.
-	 */
-	private void setupBuffers() {
-		int requiredBuffers = (int) Math.ceil((float) chunkSize / (float) hopSize);
-		chunks = new float[requiredBuffers][chunkSize];
-		cycleLen = requiredBuffers * hopSize;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -143,10 +86,53 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 		}
 	}
 
+	/**
+	 * Gets the chunk size.
+	 * 
+	 * @return the chunk size.
+	 */
+	public int getChunkSize() {
+		return chunkSize;
+	}
+
+	/**
+	 * Gets the hop size.
+	 * 
+	 * @return the hop size.
+	 */
+	public int getHopSize() {
+		return hopSize;
+	}
+
 	public void resetTimeStamp() {
 		lastTimeStamp = context.generateTimeStamp(0);
 		beginningTimeStamp = context.generateTimeStamp(0);
 		count = 0;
+	}
+
+	public void setBeginningTimeStamp(TimeStamp ts) {
+		beginningTimeStamp = ts;
+		count = 0;
+	}
+
+	/**
+	 * Sets the chunk size.
+	 * 
+	 * @param chunkSize the new chunk size.
+	 */
+	public void setChunkSize(int chunkSize) {
+		this.chunkSize = chunkSize;
+		setupBuffers();
+	}
+
+	/**
+	 * Sets the hop size.
+	 * 
+	 * @param hopSize the new hop size.
+	 */
+	public void setHopSize(int hopSize) {
+		this.hopSize = hopSize;
+		setupBuffers();
 	}
 
 	public void setLastTimeStamp(TimeStamp ts) {
@@ -154,9 +140,23 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 		count = 0;
 	}
 
-	public void setBeginningTimeStamp(TimeStamp ts) {
-		beginningTimeStamp = ts;
-		count = 0;
+	/**
+	 * Resets the chunks array and count when anything affecting the chunk array
+	 * gets changed.
+	 */
+	private void setupBuffers() {
+		int requiredBuffers = (int) Math.ceil((float) chunkSize / (float) hopSize);
+		chunks = new float[requiredBuffers][chunkSize];
+		cycleLen = requiredBuffers * hopSize;
+	}
+
+	/**
+	 * Sets the window Buffer.
+	 * 
+	 * @param window the new window Buffer.
+	 */
+	public void setWindow(Buffer window) {
+		this.window = window;
 	}
 
 //	/* (non-Javadoc)

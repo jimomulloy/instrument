@@ -19,6 +19,16 @@ public class StatusInfo implements Comparable, ToneMapConstants {
 		super();
 	}
 
+	/**
+	 * A simpler form of constructor for the error code search.
+	 */
+	public StatusInfo(int sc) {
+		super();
+		this.sc = sc;
+		this.type = 0;
+		this.message = "";
+	}
+
 	public StatusInfo(int sc, int type, String message) {
 		super();
 		this.sc = sc;
@@ -46,16 +56,6 @@ public class StatusInfo implements Comparable, ToneMapConstants {
 			return -1;
 
 		return 0;
-	}
-
-	/**
-	 * A simpler form of constructor for the error code search.
-	 */
-	public StatusInfo(int sc) {
-		super();
-		this.sc = sc;
-		this.type = 0;
-		this.message = "";
 	}
 
 	/**

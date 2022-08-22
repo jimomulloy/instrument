@@ -20,15 +20,6 @@ import net.beadsproject.beads.data.Sample;
  */
 public class FeatureSet {
 
-	/** The tracks. */
-	private Hashtable<String, FeatureTrack> tracks;
-
-	/** The list of Global Features. */
-	private Hashtable<String, Object> globalFeatures;
-
-	/** The file. */
-	private File file;
-
 	/**
 	 * Tries to locate the FeatureSet for the given {@link Sample}. Assumes that the
 	 * features are stored in a file next to the Sample's file but with the ending
@@ -54,6 +45,15 @@ public class FeatureSet {
 		return fs;
 	}
 
+	/** The tracks. */
+	private Hashtable<String, FeatureTrack> tracks;
+
+	/** The list of Global Features. */
+	private Hashtable<String, Object> globalFeatures;
+
+	/** The file. */
+	private File file;
+
 	/**
 	 * Instantiates a new empty FeatureSet.
 	 */
@@ -73,17 +73,6 @@ public class FeatureSet {
 	}
 
 	/**
-	 * Gets the {@link FeatureTrack} with the given name.
-	 * 
-	 * @param trackName the track name.
-	 * 
-	 * @return the FeatureTrack, or null if unsuccessful.
-	 */
-	public FeatureTrack get(String trackName) {
-		return tracks.get(trackName);
-	}
-
-	/**
 	 * Adds the given {@link FeatureTrack} with the given name, writing over a
 	 * previously stored {@link FeatureTrack} with the same name.
 	 * 
@@ -92,16 +81,6 @@ public class FeatureSet {
 	 */
 	public void add(String trackName, FeatureTrack track) {
 		tracks.put(trackName, track);
-	}
-
-	/**
-	 * Returns true if this FeatureSet stores a track with the given name.
-	 * 
-	 * @param trackName name to check.
-	 * @return true if track name is found.
-	 */
-	public boolean contains(String trackName) {
-		return tracks.containsKey(trackName);
 	}
 
 	/**
@@ -115,14 +94,13 @@ public class FeatureSet {
 	}
 
 	/**
-	 * Gets the global features for the given name.
+	 * Returns true if this FeatureSet stores a track with the given name.
 	 * 
-	 * @param s the name.
-	 * 
-	 * @return the features.
+	 * @param trackName name to check.
+	 * @return true if track name is found.
 	 */
-	public Object getGlobal(String s) {
-		return globalFeatures.get(s);
+	public boolean contains(String trackName) {
+		return tracks.containsKey(trackName);
 	}
 
 	/**
@@ -136,30 +114,32 @@ public class FeatureSet {
 	}
 
 	/**
-	 * Writes to a file. Assumes file has already been specified by write File or
-	 * {@link FeatureSet(File)}.
+	 * Gets the {@link FeatureTrack} with the given name.
+	 * 
+	 * @param trackName the track name.
+	 * 
+	 * @return the FeatureTrack, or null if unsuccessful.
 	 */
-	public void write() {
-		try {
-			FileOutputStream fos = new FileOutputStream(file);
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			oos.writeObject(tracks);
-			oos.writeObject(globalFeatures);
-			oos.close();
-			fos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public FeatureTrack get(String trackName) {
+		return tracks.get(trackName);
 	}
 
 	/**
-	 * Reads data from the given file. Retains file ref for future use.
+	 * Gets the global features for the given name.
 	 * 
-	 * @param file the file
+	 * @param s the name.
+	 * 
+	 * @return the features.
 	 */
-	private void read(File file) {
-		this.file = file;
-		read();
+	public Object getGlobal(String s) {
+		return globalFeatures.get(s);
+	}
+
+	public void printGlobalFeatures() {
+		System.out.println("Features for " + this + ":");
+		for (String s : globalFeatures.keySet()) {
+			System.out.println("- " + s);
+		}
 	}
 
 	/**
@@ -182,11 +162,47 @@ public class FeatureSet {
 	}
 
 	/**
+	 * Reads data from the given file. Retains file ref for future use.
+	 * 
+	 * @param file the file
+	 */
+	private void read(File file) {
+		this.file = file;
+		read();
+	}
+
+	/**
 	 * Rereads the data from the stored file. Assumes the file has been specified in
 	 * the constructor.
 	 */
 	public void refresh() {
 		read();
+	}
+
+	/**
+	 * Returns the tracks.
+	 * 
+	 * @return A Map structure.
+	 */
+	public Map<String, FeatureTrack> tracks() {
+		return tracks;
+	}
+
+	/**
+	 * Writes to a file. Assumes file has already been specified by write File or
+	 * {@link FeatureSet(File)}.
+	 */
+	public void write() {
+		try {
+			FileOutputStream fos = new FileOutputStream(file);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(tracks);
+			oos.writeObject(globalFeatures);
+			oos.close();
+			fos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -207,22 +223,6 @@ public class FeatureSet {
 	 */
 	public void write(String fn) {
 		write(new File(fn));
-	}
-
-	/**
-	 * Returns the tracks.
-	 * 
-	 * @return A Map structure.
-	 */
-	public Map<String, FeatureTrack> tracks() {
-		return tracks;
-	}
-
-	public void printGlobalFeatures() {
-		System.out.println("Features for " + this + ":");
-		for (String s : globalFeatures.keySet()) {
-			System.out.println("- " + s);
-		}
 	}
 
 }

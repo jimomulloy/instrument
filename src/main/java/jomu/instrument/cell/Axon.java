@@ -15,19 +15,6 @@ public class Axon implements Serializable {
 		this.source = source;
 	}
 
-	public void send(String sequence, Object output) {
-		for (NuCell target : outputList) {
-			NuMessage qe = new NuMessage(source, sequence, output);
-			target.receive(qe);
-		}
-	}
-
-	public void send(NuMessage message) {
-		for (NuCell target : outputList) {
-			target.receive(message);
-		}
-	}
-
 	public void connect(NuCell n) {
 		outputList.add(n);
 	}
@@ -42,11 +29,6 @@ public class Axon implements Serializable {
 
 	public List<NuCell> getConnections() {
 		return outputList;
-	}
-
-	public boolean isConnectedTo(NuCell n) {
-		// return outputMap.get(n);
-		return outputList.contains(n);
 	}
 
 	public int getCount() {
@@ -68,6 +50,24 @@ public class Axon implements Serializable {
 
 	public NuCell getSource() {
 		return source;
+	}
+
+	public boolean isConnectedTo(NuCell n) {
+		// return outputMap.get(n);
+		return outputList.contains(n);
+	}
+
+	public void send(NuMessage message) {
+		for (NuCell target : outputList) {
+			target.receive(message);
+		}
+	}
+
+	public void send(String sequence, Object output) {
+		for (NuCell target : outputList) {
+			NuMessage qe = new NuMessage(source, sequence, output);
+			target.receive(qe);
+		}
 	}
 
 }

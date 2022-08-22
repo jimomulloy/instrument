@@ -12,30 +12,6 @@ package jomu.instrument.tonemap.filters;
 
 public class IIRLowpassFilterDesign extends IIRFilterDesignBase {
 
-	public IIRLowpassFilterDesign(int cutoffFrequency, int sampleRate, double dampingFactor) {
-
-		super(cutoffFrequency, sampleRate, dampingFactor);
-	}
-
-	// Do the design of the filter. Filter response controlled by
-	// just three coefficients: alpha, beta and gamma.
-	public void doFilterDesign() {
-
-		// Get radians per sample at cutoff frequency
-		double thetaZero = getThetaZero();
-
-		double theSin = parameter / (2.0 * Math.sin(thetaZero));
-
-		// Beta relates gain to cutoff freq
-		beta = 0.5 * ((1.0 - theSin) / (1.0 + theSin));
-
-		// Final filter coefficient
-		gamma = (0.5 + beta) * Math.cos(thetaZero);
-
-		// For unity gain
-		alpha = (0.5 + beta - gamma) / 4.0;
-	}
-
 	// Entry point for testing
 	public static void main(String[] args) {
 
@@ -58,5 +34,29 @@ public class IIRLowpassFilterDesign extends IIRFilterDesignBase {
 
 		// Print out the coefficients
 		d.printCoefficients();
+	}
+
+	public IIRLowpassFilterDesign(int cutoffFrequency, int sampleRate, double dampingFactor) {
+
+		super(cutoffFrequency, sampleRate, dampingFactor);
+	}
+
+	// Do the design of the filter. Filter response controlled by
+	// just three coefficients: alpha, beta and gamma.
+	public void doFilterDesign() {
+
+		// Get radians per sample at cutoff frequency
+		double thetaZero = getThetaZero();
+
+		double theSin = parameter / (2.0 * Math.sin(thetaZero));
+
+		// Beta relates gain to cutoff freq
+		beta = 0.5 * ((1.0 - theSin) / (1.0 + theSin));
+
+		// Final filter coefficient
+		gamma = (0.5 + beta) * Math.cos(thetaZero);
+
+		// For unity gain
+		alpha = (0.5 + beta - gamma) / 4.0;
 	}
 }

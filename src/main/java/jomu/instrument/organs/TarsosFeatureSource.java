@@ -15,6 +15,46 @@ public class TarsosFeatureSource {
 	private AudioEventSource audioEventSource;
 	private ScalogramSource scalogramSource;
 
+	public TarsosFeatureSource(TarsosAudioIO tarsosIO) {
+		this.tarsosIO = tarsosIO;
+	}
+
+	public AudioEventSource getAudioEventSource() {
+		return audioEventSource;
+	}
+
+	public BandedPitchDetectorSource getBandedPitchDetectorSource() {
+		return bandedPitchDetectorSource;
+	}
+
+	public ConstantQSource getConstantQSource() {
+		return constantQSource;
+	}
+
+	public GoertzelSource getGoertzelSource() {
+		return goertzelSource;
+	}
+
+	public OnsetSource getOnsetSource() {
+		return onsetSource;
+	}
+
+	public PitchDetectorSource getPitchDetectorSource() {
+		return pitchDetectorSource;
+	}
+
+	public ScalogramSource getScalogramSource() {
+		return scalogramSource;
+	}
+
+	public SpectralPeaksSource getSpectralPeaksSource() {
+		return spectralPeaksSource;
+	}
+
+	public SpectrogramSource getSpectrogramSource() {
+		return spectrogramSource;
+	}
+
 	public TarsosAudioIO getTarsosIO() {
 		return tarsosIO;
 	}
@@ -37,45 +77,5 @@ public class TarsosFeatureSource {
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
 		// scalogramSource.initialise();
-	}
-
-	public AudioEventSource getAudioEventSource() {
-		return audioEventSource;
-	}
-
-	public ConstantQSource getConstantQSource() {
-		return constantQSource;
-	}
-
-	public OnsetSource getOnsetSource() {
-		return onsetSource;
-	}
-
-	public SpectralPeaksSource getSpectralPeaksSource() {
-		return spectralPeaksSource;
-	}
-
-	public TarsosFeatureSource(TarsosAudioIO tarsosIO) {
-		this.tarsosIO = tarsosIO;
-	}
-
-	public PitchDetectorSource getPitchDetectorSource() {
-		return pitchDetectorSource;
-	}
-
-	public BandedPitchDetectorSource getBandedPitchDetectorSource() {
-		return bandedPitchDetectorSource;
-	}
-
-	public SpectrogramSource getSpectrogramSource() {
-		return spectrogramSource;
-	}
-
-	public GoertzelSource getGoertzelSource() {
-		return goertzelSource;
-	}
-
-	public ScalogramSource getScalogramSource() {
-		return scalogramSource;
 	}
 }

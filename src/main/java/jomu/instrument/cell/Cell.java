@@ -7,6 +7,11 @@ import net.beadsproject.beads.core.BeadArray;
 
 public abstract class Cell {
 
+	public static enum CellTypes {
+		JUNCTION, PASS_THROUGH, SOURCE, SINK, AUDIO_PITCH, AUDIO_CQ
+
+	}
+
 	/** True if the Bead is paused. */
 	private boolean paused;
 
@@ -24,11 +29,6 @@ public abstract class Cell {
 
 	private CellTypes cellType;
 
-	public static enum CellTypes {
-		JUNCTION, PASS_THROUGH, SOURCE, SINK, AUDIO_PITCH, AUDIO_CQ
-
-	}
-
 	/**
 	 * Generate <code>Cell</code>. and registers the <code>Cell</code> to
 	 * <code>ECM<</code>. Every cell is identified by a unique cellID number.
@@ -36,6 +36,35 @@ public abstract class Cell {
 	public Cell(CellTypes cellType) {
 		ID = UUID.randomUUID().toString();
 		this.cellType = cellType;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Cell other = (Cell) obj;
+		return Objects.equals(ID, other.ID);
+	}
+
+	public CellTypes getCellType() {
+		return cellType;
+	}
+
+	public String getID() {
+		return this.ID;
+	}
+
+	/**
+	 * Gets this Bead's kill listener.
+	 * 
+	 * @return the kill listener.
+	 */
+	public Cell getKillListener() {
+		return killListener;
 	}
 
 	/**
@@ -46,16 +75,42 @@ public abstract class Cell {
 		return "cellType";
 	}
 
-	/**
-	 * Sets the cell type. This is just a convenient way to store some property for
-	 * the cell. Should not be confused with NeuroMLType.
-	 */
-	public void setType(String type) {
-		// somaElement.setPropertiy("cellType", type);
+	@Override
+	public int hashCode() {
+		return Objects.hash(ID);
 	}
 
-	public String getID() {
-		return this.ID;
+	/**
+	 * Determines if this Bead is deleted.
+	 * 
+	 * @return true if this Bead's state is deleted, false otherwise.
+	 */
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	/**
+	 * Checks if this Bead is paused.
+	 * 
+	 * @return true if paused
+	 */
+	public boolean isPaused() {
+		return paused;
+	}
+
+	/**
+	 * Stops this Bead, and flags it as deleted. This means that the Bead will
+	 * automatically be removed from any {@link BeadArray}s. Calling this method for
+	 * the first time also causes the killListener to be notified.
+	 */
+	public void kill() {
+		if (!deleted) {
+			deleted = true;
+			Cell killListener = this.killListener;
+			if (killListener != null) {
+				killListener.message(this);
+			}
+		}
 	}
 
 	/**
@@ -84,37 +139,6 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Shortcut for pause(false).
-	 */
-	public void start() {
-		paused = false;
-	}
-
-	/**
-	 * Stops this Bead, and flags it as deleted. This means that the Bead will
-	 * automatically be removed from any {@link BeadArray}s. Calling this method for
-	 * the first time also causes the killListener to be notified.
-	 */
-	public void kill() {
-		if (!deleted) {
-			deleted = true;
-			Cell killListener = this.killListener;
-			if (killListener != null) {
-				killListener.message(this);
-			}
-		}
-	}
-
-	/**
-	 * Checks if this Bead is paused.
-	 * 
-	 * @return true if paused
-	 */
-	public boolean isPaused() {
-		return paused;
-	}
-
-	/**
 	 * Toggle the paused state of the Bead.
 	 * 
 	 * @param paused true to pause Bead.
@@ -134,47 +158,23 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Gets this Bead's kill listener.
-	 * 
-	 * @return the kill listener.
+	 * Sets the cell type. This is just a convenient way to store some property for
+	 * the cell. Should not be confused with NeuroMLType.
 	 */
-	public Cell getKillListener() {
-		return killListener;
+	public void setType(String type) {
+		// somaElement.setPropertiy("cellType", type);
 	}
 
 	/**
-	 * Determines if this Bead is deleted.
-	 * 
-	 * @return true if this Bead's state is deleted, false otherwise.
+	 * Shortcut for pause(false).
 	 */
-	public boolean isDeleted() {
-		return deleted;
-	}
-
-	public CellTypes getCellType() {
-		return cellType;
+	public void start() {
+		paused = false;
 	}
 
 	@Override
 	public String toString() {
 		return "Cell [name=" + name + ", ID=" + ID + ", cellType=" + cellType + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(ID);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Cell other = (Cell) obj;
-		return Objects.equals(ID, other.ID);
 	}
 
 }

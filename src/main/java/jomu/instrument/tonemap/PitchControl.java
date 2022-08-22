@@ -102,14 +102,6 @@ public class PitchControl extends JPanel implements ToneMapConstants {
 		pitchLowSlider.setValue(pitchLow);
 	}
 
-	private void setTitle(TmSlider slider, int value) {
-
-		TitledBorder tb = (TitledBorder) slider.getBorder();
-		String s = tb.getTitle();
-		tb.setTitle(s.substring(0, s.indexOf('=') + 1) + PitchSet.MidiNoteToSymbol(value).toString());
-
-	}
-
 	public void setPitchRange(int min, int max) {
 
 		pitchMax = max;
@@ -132,6 +124,14 @@ public class PitchControl extends JPanel implements ToneMapConstants {
 		pitchLowSlider.setLabelTable(labelTable);
 		pitchHighSlider.setPaintLabels(true);
 		pitchHighSlider.setLabelTable(labelTable);
+
+	}
+
+	private void setTitle(TmSlider slider, int value) {
+
+		TitledBorder tb = (TitledBorder) slider.getBorder();
+		String s = tb.getTitle();
+		tb.setTitle(s.substring(0, s.indexOf('=') + 1) + PitchSet.MidiNoteToSymbol(value).toString());
 
 	}
 

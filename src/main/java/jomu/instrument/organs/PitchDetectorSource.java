@@ -31,6 +31,29 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
 
+	AudioProcessor fftProcessor = new AudioProcessor() {
+
+		@Override
+		public boolean process(AudioEvent audioEvent) {
+			FFT fft = new FFT(bufferSize);
+			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
+			float[] transformbuffer = new float[bufferSize * 2];
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
+			fft.forwardTransform(transformbuffer);
+			float[] amplitudes = new float[bufferSize / 2];
+			fft.modulus(transformbuffer, amplitudes);
+			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
+			features.put(audioEvent.getTimeStamp(), si);
+			return true;
+		}
+
+		@Override
+		public void processingFinished() {
+			// TODO Auto-generated method stub
+		}
+
+	};
+
 	public PitchDetectorSource(TarsosAudioIO tarsosIO) {
 		super();
 		this.tarsosIO = tarsosIO;
@@ -39,6 +62,47 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	public PitchDetectorSource(TarsosAudioIO tarsosIO, int bufferSize) {
 		this(tarsosIO);
 		this.bufferSize = bufferSize;
+	}
+
+	void clear() {
+		features.clear();
+	}
+
+	public float getBinHeight() {
+		return binHeight;
+	}
+
+	public float[] getBinStartingPointsInCents() {
+		return binStartingPointsInCents;
+	}
+
+	public float getBinWidth() {
+		return binWidth;
+	}
+
+	public int getBufferSize() {
+		return bufferSize;
+	}
+
+	public TreeMap<Double, SpectrogramInfo> getFeatures() {
+		TreeMap<Double, SpectrogramInfo> clonedFeatures = new TreeMap<>();
+		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
+		}
+		return clonedFeatures;
+	}
+
+	public float getSampleRate() {
+		return sampleRate;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
+	}
+
+	@Override
+	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
+		this.pitchDetectionResult = pitchDetectionResult;
 	}
 
 	void initialise() {
@@ -53,7 +117,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		}
 
 		binWidth = bufferSize / sampleRate;
-		System.out.println(">>>binWidth: " + binWidth + ", " + bufferSize + ", " + sampleRate);
 		binHeight = 1200 / (float) binsPerOctave;
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
@@ -63,70 +126,5 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
 		djp.addAudioProcessor(fftProcessor);
 		features.clear();
-	}
-
-	AudioProcessor fftProcessor = new AudioProcessor() {
-
-		@Override
-		public void processingFinished() {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public boolean process(AudioEvent audioEvent) {
-			FFT fft = new FFT(bufferSize);
-			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
-			float[] transformbuffer = new float[bufferSize * 2];
-			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
-			fft.forwardTransform(transformbuffer);
-			float[] amplitudes = new float[bufferSize / 2];
-			fft.modulus(transformbuffer, amplitudes);
-			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
-			features.put(audioEvent.getTimeStamp(), si);
-			System.out.println(">>>PUT: " + audioEvent.getTimeStamp() + ", " + bufferSize);
-			return true;
-		}
-
-	};
-
-	void clear() {
-		features.clear();
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
-	public int getBufferSize() {
-		return bufferSize;
-	}
-
-	public float getBinWidth() {
-		return binWidth;
-	}
-
-	public float getSampleRate() {
-		return sampleRate;
-	}
-
-	public float getBinHeight() {
-		return binHeight;
-	}
-
-	public float[] getBinStartingPointsInCents() {
-		return binStartingPointsInCents;
-	}
-
-	public TreeMap<Double, SpectrogramInfo> getFeatures() {
-		TreeMap<Double, SpectrogramInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
-	@Override
-	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
-		this.pitchDetectionResult = pitchDetectionResult;
 	}
 }

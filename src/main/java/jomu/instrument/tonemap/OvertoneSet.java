@@ -16,29 +16,30 @@ public class OvertoneSet {
 
 	}
 
+	private double[] harmonics;
+
+	private double[][] formants;
+
 	public OvertoneSet() {
 		harmonics = GUITAR_HARMONICS;
 		formants = GUITAR_FORMANTS;
 
 	}
 
-	public double[] getHarmonics() {
-		return harmonics;
-	}
-
 	public double[][] getFormants() {
 		return formants;
 	}
 
-	public void setHarmonics(double[] harmonics) {
-		this.harmonics = harmonics;
+	public double[] getHarmonics() {
+		return harmonics;
 	}
 
 	public void setFormants(double[][] formants) {
 		this.formants = formants;
 	}
 
-	private double[] harmonics;
-	private double[][] formants;
+	public void setHarmonics(double[] harmonics) {
+		this.harmonics = harmonics;
+	}
 
 } // End OvertoneSet

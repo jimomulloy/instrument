@@ -14,16 +14,6 @@ public class NuMessage {
 	}
 
 	@Override
-	public String toString() {
-		return "NuMessage [source=" + source + ", sequence=" + sequence + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(sequence, source);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -33,5 +23,15 @@ public class NuMessage {
 			return false;
 		NuMessage other = (NuMessage) obj;
 		return Objects.equals(sequence, other.sequence) && Objects.equals(source, other.source);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(sequence, source);
+	}
+
+	@Override
+	public String toString() {
+		return "NuMessage [source=" + source + ", sequence=" + sequence + "]";
 	}
 }

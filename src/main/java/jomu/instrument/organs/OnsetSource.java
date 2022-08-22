@@ -29,6 +29,36 @@ public class OnsetSource implements OnsetHandler {
 		this.sampleRate = tarsosIO.getContext().getSampleRate();
 	}
 
+	void clear() {
+		features.clear();
+	}
+
+	public TreeMap<Double, OnsetInfo[]> getFeatures() {
+		TreeMap<Double, OnsetInfo[]> clonedFeatures = new TreeMap<>();
+		for (java.util.Map.Entry<Double, OnsetInfo[]> entry : features.entrySet()) {
+			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
+		}
+		return clonedFeatures;
+	}
+
+	public int getIncrement() {
+		return increment;
+	}
+
+	public float getSampleRate() {
+		return sampleRate;
+	}
+
+	public TarsosAudioIO getTarsosIO() {
+		return tarsosIO;
+	}
+
+	@Override
+	public void handleOnset(double time, double salience) {
+		System.out.println(">>Percussion at:" + time + ", " + salience);
+		onsetInfos.add(new OnsetInfo(time, salience));
+	}
+
 	void initialise() {
 
 		int overlap = 0;
@@ -62,36 +92,6 @@ public class OnsetSource implements OnsetHandler {
 		});
 
 		features.clear();
-	}
-
-	@Override
-	public void handleOnset(double time, double salience) {
-		System.out.println(">>Percussion at:" + time + ", " + salience);
-		onsetInfos.add(new OnsetInfo(time, salience));
-	}
-
-	void clear() {
-		features.clear();
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
-	public float getSampleRate() {
-		return sampleRate;
-	}
-
-	public int getIncrement() {
-		return increment;
-	}
-
-	public TreeMap<Double, OnsetInfo[]> getFeatures() {
-		TreeMap<Double, OnsetInfo[]> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, OnsetInfo[]> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
 	}
 
 	void removeFeatures(double endTime) {

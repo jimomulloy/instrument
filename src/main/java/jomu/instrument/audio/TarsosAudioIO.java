@@ -32,262 +32,6 @@ import net.beadsproject.beads.core.UGen;
 
 public class TarsosAudioIO extends AudioIO {
 
-	/** The default system buffer size. */
-	public static final int DEFAULT_SYSTEM_BUFFER_SIZE = 1024;
-
-	/** The source data line. */
-	private SourceDataLine sourceDataLine;
-
-	/** The system buffer size in frames. */
-	private int systemBufferSizeInFrames;
-
-	/** The number of prepared output buffers ready to go to AudioOutput */
-	final int NUM_OUTPUT_BUFFERS = 1;
-
-	/** The output mixer. */
-	private Mixer outputMixer;
-
-	private AudioDispatcher dispatcher;
-
-	private Thread audioThread;
-
-	private int threadPriority;
-
-	private AudioIOProcessor inputProcessor;
-
-	private Thread audioInThread;
-
-	private File audioFile;
-
-	private AudioInputStream inputStream;
-
-	public TarsosAudioIO() {
-		this(DEFAULT_SYSTEM_BUFFER_SIZE);
-	}
-
-	public TarsosAudioIO(int systemBufferSize) {
-		this.systemBufferSizeInFrames = systemBufferSize;
-		System.out.println("Beads System Buffer size=" + systemBufferSize);
-		setThreadPriority(Thread.MAX_PRIORITY);
-	}
-
-	public AudioInputStream getInputStream() {
-		return inputStream;
-	}
-
-	/**
-	 * Sets the priority of the audio thread. Default priority is
-	 * Thread.MAX_PRIORITY.
-	 * 
-	 * @param priority
-	 */
-	public void setThreadPriority(int priority) {
-		this.threadPriority = priority;
-		if (audioThread != null)
-			audioThread.setPriority(threadPriority);
-		if (audioInThread != null)
-			audioInThread.setPriority(threadPriority);
-	}
-
-	/**
-	 * Prepares the AudioIO. This method is called by {@link AudioContext}'s
-	 * constructor. This has default implementation as it will not be needed by most
-	 * implementation.
-	 * 
-	 * @return true, if successful.
-	 */
-	protected boolean prepare() {
-		// create JavaSound stuff only when needed
-		initJSOutput();
-		return true;
-	}
-
-	public AudioDispatcher getDispatcher() {
-		return dispatcher;
-	}
-
-	/** Starts the audio system running. */
-	@Override
-	protected boolean start() {
-		audioThread = new Thread(new Runnable() {
-			public void run() {
-				// create JavaSound stuff only when needed
-				// initJSOutput();
-				sourceDataLine.start();
-				// create JavaSound stuff only when needed
-				dispatcher.run();
-			}
-		});
-		audioThread.setPriority(threadPriority);
-		audioThread.start();
-
-		return true;
-	}
-
-	/**
-	 * Stops the AudioIO. Note this is not usually needed because the more usual way
-	 * for the system to stop is simply to check {@link AudioContext#isRunning()} at
-	 * each time step.
-	 * 
-	 * @return true, if successful.
-	 */
-	protected boolean stop() {
-		inputProcessor.processingFinished();
-		inputProcessor.kill();
-		destroy();
-		return true;
-	}
-
-	/** Shuts down JavaSound elements, SourceDataLine and Mixer. */
-	protected boolean destroy() {
-		outputMixer.close();
-		outputMixer = null;
-		return true;
-	}
-
-	/**
-	 * Read audio from UGens and copy them into a buffer ready to write to Audio
-	 * Line
-	 * 
-	 * @param audioFormat        The AudioFormat
-	 * @param outputBUffer       The buffer that will contain the prepared bytes for
-	 *                           the AudioLine
-	 * @param interleavedSamples Interleaved samples as floats
-	 * @param bufferSizeInFrames The size of interleaved samples in frames
-	 * @param sampleBufferSize   The size of our actual sample buffer size
-	 */
-	private void prepareLineBuffer(AudioFormat audioFormat, byte[] outputBUffer, float[] interleavedSamples,
-			int bufferSizeInFrames, int sampleBufferSize) {
-		update(); // this propagates update call to context
-		for (int i = 0, counter = 0; i < bufferSizeInFrames; ++i) {
-			for (int j = 0; j < audioFormat.getChannels(); ++j) {
-				interleavedSamples[counter++] = context.out.getValue(j, i);
-			}
-		}
-		AudioUtils.floatToByte(outputBUffer, 0, interleavedSamples, 0, sampleBufferSize, audioFormat.isBigEndian());
-
-	}
-
-	/**
-	 * Initialises JavaSound.
-	 */
-	public boolean initJSOutput() {
-		IOAudioFormat ioAudioFormat = getContext().getAudioFormat();
-		AudioFormat audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth,
-				ioAudioFormat.outputs, ioAudioFormat.signed, ioAudioFormat.bigEndian);
-		getDefaultMixerIfNotAlreadyChosen();
-		if (outputMixer == null) {
-			return false;
-		}
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-		try {
-			sourceDataLine = (SourceDataLine) outputMixer.getLine(info);
-			if (systemBufferSizeInFrames < 0) {
-				sourceDataLine.open(audioFormat);
-			} else {
-				int sound_output_buffer_size = systemBufferSizeInFrames * audioFormat.getFrameSize() * 2;
-
-				sourceDataLine.open(audioFormat, sound_output_buffer_size);
-				System.out.println("Beads Output buffer size=" + sound_output_buffer_size);
-			}
-		} catch (LineUnavailableException ex) {
-			System.out.println(getClass().getName() + " : Error getting line\n");
-		}
-
-		// sourceDataLine.start();
-		return true;
-	}
-
-	@Override
-	protected UGen getAudioInput(int[] channels) {
-		// final AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true,
-		// true);
-		IOAudioFormat ioAudioFormat = getContext().getAudioFormat();
-		AudioFormat audioFormat;
-		if (audioFile != null) {
-			try {
-				audioFormat = AudioSystem.getAudioFileFormat(audioFile).getFormat();
-			} catch (UnsupportedAudioFileException e) {
-				throw new Error(e);
-			} catch (IOException e) {
-				throw new Error(e);
-			}
-		} else {
-			audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth, ioAudioFormat.inputs,
-					ioAudioFormat.signed, ioAudioFormat.bigEndian);
-		}
-		inputProcessor = new AudioIOProcessor(getContext(), audioFormat);
-		inputProcessor.initJSInput();
-		return inputProcessor;
-	}
-
-	public void setAudioFile(File audioFile) {
-		this.audioFile = audioFile;
-	}
-
-	/**
-	 * Gets the JavaSound mixer being used by this AudioContext.
-	 * 
-	 * @return the requested mixer.
-	 */
-	private void getDefaultMixerIfNotAlreadyChosen() {
-		if (outputMixer == null) {
-			selectMixer(-1);
-		}
-	}
-
-	/**
-	 * Presents a choice of mixers on the commandline.
-	 */
-	public void chooseMixerCommandLine() {
-		System.out.println("Choose a mixer...");
-		printMixerInfo();
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			selectMixer(Integer.parseInt(br.readLine()) - 1);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Select a mixer by index.
-	 * 
-	 * @param i the index of the selected mixer.
-	 */
-	public void selectMixer(int i) {
-		if (i < 0) {
-			outputMixer = AudioSystem.getMixer(null);
-		} else {
-			Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
-			outputMixer = AudioSystem.getMixer(mixerinfo[i]);
-			if (outputMixer != null) {
-				System.out.print("JavaSoundAudioIO: Chosen mixer is ");
-				System.out.println(outputMixer.getMixerInfo().getName() + ".");
-			} else {
-				System.out.println("JavaSoundAudioIO: Failed to get mixer.");
-			}
-		}
-	}
-
-	/**
-	 * Prints information about the current Mixer to System.out.
-	 */
-	public static void printMixerInfo() {
-		Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
-		for (int i = 0; i < mixerinfo.length; i++) {
-			String name = mixerinfo[i].getName();
-			if (name.equals(""))
-				name = "No name";
-			System.out.println((i + 1) + ") " + name + " --- " + mixerinfo[i].getDescription());
-			Mixer m = AudioSystem.getMixer(mixerinfo[i]);
-			Line.Info[] lineinfo = m.getSourceLineInfo();
-			for (int j = 0; j < lineinfo.length; j++) {
-				System.out.println("  - " + lineinfo[j].toString());
-			}
-		}
-	}
-
 	/**
 	 * JavaSoundRTInput gathers audio from the JavaSound audio input device.
 	 */
@@ -320,10 +64,35 @@ public class TarsosAudioIO extends AudioIO {
 			this.audioFormat = audioFormat;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.olliebown.beads.core.UGen#calculateBuffer()
+		 */
+		@Override
+		public void calculateBuffer() {
+			// System.out.println(">>Tarsus calculate");
+			for (int i = 0; i < bufferSize; i++) {
+				bufOut[0][i] = audioFloatbuffer[i];
+				// bufOut[1][i] = audioFloatbuffer[i];
+			}
+		}
+
+		public void clear() {
+			features.clear();
+		}
+
+		public TreeMap<Double, AudioEvent> getFeatures() {
+			return features;
+		}
+
 		public boolean initJSInput() {
 
 			javaSoundInitialized = true;
 			interleavedSamples = new float[bufferSize * audioFormat.getChannels()];
+			System.out.println(">>bs: " + bufferSize);
+			System.out.println(">>af: " + audioFormat);
+			System.out.println(">>fs: " + audioFormat.getFrameSize());
 			bbuf = new byte[bufferSize * audioFormat.getFrameSize()];
 
 			if (audioFile != null) {
@@ -392,20 +161,6 @@ public class TarsosAudioIO extends AudioIO {
 			return true;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.olliebown.beads.core.UGen#calculateBuffer()
-		 */
-		@Override
-		public void calculateBuffer() {
-			// System.out.println(">>Tarsus calculate");
-			for (int i = 0; i < bufferSize; i++) {
-				bufOut[0][i] = audioFloatbuffer[i];
-				// bufOut[1][i] = audioFloatbuffer[i];
-			}
-		}
-
 		@Override
 		public boolean process(AudioEvent audioEvent) {
 
@@ -445,22 +200,275 @@ public class TarsosAudioIO extends AudioIO {
 			// dispatcher.stop();
 		}
 
-		public void clear() {
-			features.clear();
-		}
+	}
 
-		public TreeMap<Double, AudioEvent> getFeatures() {
-			return features;
-		}
+	/** The default system buffer size. */
+	public static final int DEFAULT_SYSTEM_BUFFER_SIZE = 1024;
 
+	/**
+	 * Prints information about the current Mixer to System.out.
+	 */
+	public static void printMixerInfo() {
+		Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
+		for (int i = 0; i < mixerinfo.length; i++) {
+			String name = mixerinfo[i].getName();
+			if (name.equals(""))
+				name = "No name";
+			System.out.println((i + 1) + ") " + name + " --- " + mixerinfo[i].getDescription());
+			Mixer m = AudioSystem.getMixer(mixerinfo[i]);
+			Line.Info[] lineinfo = m.getSourceLineInfo();
+			for (int j = 0; j < lineinfo.length; j++) {
+				System.out.println("  - " + lineinfo[j].toString());
+			}
+		}
+	}
+
+	/** The source data line. */
+	private SourceDataLine sourceDataLine;
+
+	/** The system buffer size in frames. */
+	private int systemBufferSizeInFrames;
+
+	/** The number of prepared output buffers ready to go to AudioOutput */
+	final int NUM_OUTPUT_BUFFERS = 1;
+
+	/** The output mixer. */
+	private Mixer outputMixer;
+
+	private AudioDispatcher dispatcher;
+
+	private Thread audioThread;
+
+	private int threadPriority;
+
+	private AudioIOProcessor inputProcessor;
+
+	private Thread audioInThread;
+
+	private File audioFile;
+
+	private AudioInputStream inputStream;
+
+	public TarsosAudioIO() {
+		this(DEFAULT_SYSTEM_BUFFER_SIZE);
+	}
+
+	public TarsosAudioIO(int systemBufferSize) {
+		this.systemBufferSizeInFrames = systemBufferSize;
+		System.out.println("Beads System Buffer size=" + systemBufferSize);
+		setThreadPriority(Thread.MAX_PRIORITY);
+	}
+
+	/**
+	 * Presents a choice of mixers on the commandline.
+	 */
+	public void chooseMixerCommandLine() {
+		System.out.println("Choose a mixer...");
+		printMixerInfo();
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			selectMixer(Integer.parseInt(br.readLine()) - 1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void clearFeatures() {
 		inputProcessor.clear();
 	}
 
+	/** Shuts down JavaSound elements, SourceDataLine and Mixer. */
+	protected boolean destroy() {
+		outputMixer.close();
+		outputMixer = null;
+		return true;
+	}
+
+	@Override
+	protected UGen getAudioInput(int[] channels) {
+		// final AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true,
+		// true);
+		IOAudioFormat ioAudioFormat = getContext().getAudioFormat();
+		AudioFormat audioFormat;
+		if (audioFile != null) {
+			try {
+				// audioFormat = AudioSystem.getAudioFileFormat(audioFile).getFormat();
+				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+				audioFormat = audioInputStream.getFormat();
+				audioInputStream.close();
+				System.out.println(">>audioFormat: " + audioFormat);
+			} catch (UnsupportedAudioFileException e) {
+				throw new Error(e);
+			} catch (IOException e) {
+				throw new Error(e);
+			}
+		} else {
+			audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth, ioAudioFormat.inputs,
+					ioAudioFormat.signed, ioAudioFormat.bigEndian);
+		}
+		inputProcessor = new AudioIOProcessor(getContext(), audioFormat);
+		inputProcessor.initJSInput();
+		return inputProcessor;
+	}
+
+	/**
+	 * Gets the JavaSound mixer being used by this AudioContext.
+	 * 
+	 * @return the requested mixer.
+	 */
+	private void getDefaultMixerIfNotAlreadyChosen() {
+		if (outputMixer == null) {
+			selectMixer(-1);
+		}
+	}
+
+	public AudioDispatcher getDispatcher() {
+		return dispatcher;
+	}
+
 	public TreeMap<Double, AudioEvent> getFeatures() {
 		return inputProcessor.getFeatures();
+	}
+
+	public AudioInputStream getInputStream() {
+		return inputStream;
+	}
+
+	/**
+	 * Initialises JavaSound.
+	 */
+	public boolean initJSOutput() {
+		IOAudioFormat ioAudioFormat = getContext().getAudioFormat();
+		AudioFormat audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth,
+				ioAudioFormat.outputs, ioAudioFormat.signed, ioAudioFormat.bigEndian);
+		getDefaultMixerIfNotAlreadyChosen();
+		if (outputMixer == null) {
+			return false;
+		}
+		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
+		try {
+			sourceDataLine = (SourceDataLine) outputMixer.getLine(info);
+			if (systemBufferSizeInFrames < 0) {
+				sourceDataLine.open(audioFormat);
+			} else {
+				int sound_output_buffer_size = systemBufferSizeInFrames * audioFormat.getFrameSize() * 2;
+
+				sourceDataLine.open(audioFormat, sound_output_buffer_size);
+				System.out.println("Beads Output buffer size=" + sound_output_buffer_size);
+			}
+		} catch (LineUnavailableException ex) {
+			System.out.println(getClass().getName() + " : Error getting line\n");
+		}
+
+		// sourceDataLine.start();
+		return true;
+	}
+
+	/**
+	 * Prepares the AudioIO. This method is called by {@link AudioContext}'s
+	 * constructor. This has default implementation as it will not be needed by most
+	 * implementation.
+	 * 
+	 * @return true, if successful.
+	 */
+	protected boolean prepare() {
+		// create JavaSound stuff only when needed
+		initJSOutput();
+		return true;
+	}
+
+	/**
+	 * Read audio from UGens and copy them into a buffer ready to write to Audio
+	 * Line
+	 * 
+	 * @param audioFormat        The AudioFormat
+	 * @param outputBUffer       The buffer that will contain the prepared bytes for
+	 *                           the AudioLine
+	 * @param interleavedSamples Interleaved samples as floats
+	 * @param bufferSizeInFrames The size of interleaved samples in frames
+	 * @param sampleBufferSize   The size of our actual sample buffer size
+	 */
+	private void prepareLineBuffer(AudioFormat audioFormat, byte[] outputBUffer, float[] interleavedSamples,
+			int bufferSizeInFrames, int sampleBufferSize) {
+		update(); // this propagates update call to context
+		for (int i = 0, counter = 0; i < bufferSizeInFrames; ++i) {
+			for (int j = 0; j < audioFormat.getChannels(); ++j) {
+				interleavedSamples[counter++] = context.out.getValue(j, i);
+			}
+		}
+		AudioUtils.floatToByte(outputBUffer, 0, interleavedSamples, 0, sampleBufferSize, audioFormat.isBigEndian());
+
+	}
+
+	/**
+	 * Select a mixer by index.
+	 * 
+	 * @param i the index of the selected mixer.
+	 */
+	public void selectMixer(int i) {
+		if (i < 0) {
+			outputMixer = AudioSystem.getMixer(null);
+		} else {
+			Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
+
+			outputMixer = AudioSystem.getMixer(mixerinfo[i]);
+			if (outputMixer != null) {
+				System.out.print("JavaSoundAudioIO: Chosen mixer is ");
+				System.out.println(outputMixer.getMixerInfo().getName() + ".");
+			} else {
+				System.out.println("JavaSoundAudioIO: Failed to get mixer.");
+			}
+		}
+	}
+
+	public void setAudioFile(File audioFile) {
+		this.audioFile = audioFile;
+	}
+
+	/**
+	 * Sets the priority of the audio thread. Default priority is
+	 * Thread.MAX_PRIORITY.
+	 * 
+	 * @param priority
+	 */
+	public void setThreadPriority(int priority) {
+		this.threadPriority = priority;
+		if (audioThread != null)
+			audioThread.setPriority(threadPriority);
+		if (audioInThread != null)
+			audioInThread.setPriority(threadPriority);
+	}
+
+	/** Starts the audio system running. */
+	@Override
+	protected boolean start() {
+		audioThread = new Thread(new Runnable() {
+			public void run() {
+				// create JavaSound stuff only when needed
+				// initJSOutput();
+				sourceDataLine.start();
+				// create JavaSound stuff only when needed
+				dispatcher.run();
+			}
+		});
+		audioThread.setPriority(threadPriority);
+		audioThread.start();
+
+		return true;
+	}
+
+	/**
+	 * Stops the AudioIO. Note this is not usually needed because the more usual way
+	 * for the system to stop is simply to check {@link AudioContext#isRunning()} at
+	 * each time step.
+	 * 
+	 * @return true, if successful.
+	 */
+	protected boolean stop() {
+		inputProcessor.processingFinished();
+		inputProcessor.kill();
+		destroy();
+		return true;
 	}
 
 }

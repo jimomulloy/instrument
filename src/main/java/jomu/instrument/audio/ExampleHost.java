@@ -52,11 +52,16 @@ public class ExampleHost extends JFrame implements AsioDriverListener {
 
 	private static final long serialVersionUID = 1L;
 
+	public static void main(String[] args) {
+		@SuppressWarnings("unused")
+		ExampleHost host = new ExampleHost();
+	}
 	private AsioDriver asioDriver;
 	private Set<AsioChannel> activeChannels;
 	private int sampleIndex;
 	private int bufferSize;
 	private double sampleRate;
+
 	private float[] output;
 
 	public ExampleHost() {
@@ -130,6 +135,10 @@ public class ExampleHost extends JFrame implements AsioDriverListener {
 		this.setVisible(true);
 	}
 
+	public void bufferSizeChanged(int bufferSize) {
+		System.out.println("bufferSizeChanged() callback received.");
+	}
+
 	public void bufferSwitch(long systemTime, long samplePosition, Set<AsioChannel> channels) {
 		for (int i = 0; i < bufferSize; i++, sampleIndex++) {
 			output[i] = (float) Math.sin(2 * Math.PI * sampleIndex * 440.0 / sampleRate);
@@ -137,10 +146,6 @@ public class ExampleHost extends JFrame implements AsioDriverListener {
 		for (AsioChannel channelInfo : channels) {
 			channelInfo.write(output);
 		}
-	}
-
-	public void bufferSizeChanged(int bufferSize) {
-		System.out.println("bufferSizeChanged() callback received.");
 	}
 
 	public void latenciesChanged(int inputLatency, int outputLatency) {
@@ -167,11 +172,6 @@ public class ExampleHost extends JFrame implements AsioDriverListener {
 
 	public void sampleRateDidChange(double sampleRate) {
 		System.out.println("sampleRateDidChange() callback received.");
-	}
-
-	public static void main(String[] args) {
-		@SuppressWarnings("unused")
-		ExampleHost host = new ExampleHost();
 	}
 
 }

@@ -12,16 +12,22 @@ import java.util.ArrayList;
  */
 public class NoteList implements Serializable {
 
-	public NoteListElement get(int index) {
+	private ArrayList noteList = new ArrayList();
 
-		this.index = index;
-		return (NoteListElement) noteList.get(index);
+	private NoteListElement element;
 
-	}
+	private int index;
 
 	public void add(NoteListElement element) {
 
 		noteList.add(element);
+
+	}
+
+	public NoteListElement get(int index) {
+
+		this.index = index;
+		return (NoteListElement) noteList.get(index);
 
 	}
 
@@ -30,9 +36,5 @@ public class NoteList implements Serializable {
 		return noteList.size();
 
 	}
-
-	private ArrayList noteList = new ArrayList();
-	private NoteListElement element;
-	private int index;
 
 } // End NoteList
