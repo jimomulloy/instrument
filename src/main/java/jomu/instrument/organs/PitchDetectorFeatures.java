@@ -19,7 +19,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 	private TimeSet timeSet;
 	private PitchSet pitchSet;
 	private Visor visor;
-	private PitchFrame pitchFrame;
+	private AudioFeatureFrame audioFeatureFrame;
 	public boolean logSwitch = true;
 	public int pitchHigh = INIT_PITCH_HIGH;
 	public int pitchLow = INIT_PITCH_LOW;
@@ -95,7 +95,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			visor.updateToneMap(pitchFrame);
+			visor.updateToneMap(audioFeatureFrame);
 		}
 	}
 
@@ -111,9 +111,9 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		return toneMap;
 	}
 
-	void initialise(PitchFrame pitchFrame) {
-		this.pitchFrame = pitchFrame;
-		this.pds = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getPitchDetectorSource();
+	void initialise(AudioFeatureFrame audioFeatureFrame) {
+		this.audioFeatureFrame = audioFeatureFrame;
+		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
 		this.features = pds.getFeatures();
 		this.visor = Instrument.getInstance().getDruid().getVisor();
 		pds.clear();

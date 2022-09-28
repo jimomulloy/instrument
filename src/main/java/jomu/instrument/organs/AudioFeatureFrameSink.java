@@ -2,9 +2,9 @@ package jomu.instrument.organs;
 
 import jomu.instrument.cell.NuCell;
 
-public class PitchFrameSink {
+public class AudioFeatureFrameSink {
 
-	public PitchFrameSink(NuCell sinkCell) {
+	public AudioFeatureFrameSink(NuCell sinkCell) {
 		// TODO Auto-generated constructor stub
 	}
 

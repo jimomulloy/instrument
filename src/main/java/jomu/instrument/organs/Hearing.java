@@ -27,7 +27,7 @@ public class Hearing {
 	int sampleRate = 44100;
 	private TarsosAudioIO tarsosIO;
 	TarsosFeatureSource tarsosFeatureSource;
-	private PitchFrameProcessor pitchFrameProcessor;
+	private AudioFeatureProcessor audioFeatureProcessor;
 
 	public Analyzer getAnalyzer() {
 		return analyzer;
@@ -41,8 +41,8 @@ public class Hearing {
 		return meanFrequency;
 	}
 
-	public PitchFrameProcessor getPitchFrameProcessor() {
-		return pitchFrameProcessor;
+	public AudioFeatureProcessor getPitchFrameProcessor() {
+		return audioFeatureProcessor;
 	}
 
 	public int getSampleRate() {
@@ -61,7 +61,7 @@ public class Hearing {
 		// TODO Auto-generated method stub
 		// set up the parent AudioContext object
 		tarsosIO = new TarsosAudioIO();
-		tarsosIO.selectMixer(4);
+		tarsosIO.selectMixer(2);
 		File file = new File("D:/audio/audiogfolk.wav");
 		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1, true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
@@ -81,10 +81,10 @@ public class Hearing {
 		extractors.add(SpectralPeaks.class);
 
 		analyzer = new Analyzer(ac, extractors);
-		pitchFrameProcessor = new PitchFrameProcessor(analyzer, tarsosFeatureSource);
-		pitchFrameProcessor.setMaxFrames(100);
+		audioFeatureProcessor = new AudioFeatureProcessor(analyzer, tarsosFeatureSource);
+		audioFeatureProcessor.setMaxFrames(100);
 
-		tarsosIO.getDispatcher().addAudioProcessor(pitchFrameProcessor);
+		tarsosIO.getDispatcher().addAudioProcessor(audioFeatureProcessor);
 
 		analyzer.listenTo(microphoneIn);
 		analyzer.updateFrom(ac.out);

@@ -36,17 +36,17 @@ public class ConstantQFeatures implements ToneMapConstants {
 	private ToneMap toneMap;
 	private TimeSet timeSet;
 	private PitchSet pitchSet;
-	private PitchFrame pitchFrame;
+	private AudioFeatureFrame audioFeatureFrame;
 	private boolean isCommitted;
 	private Visor visor;
 
 	public void addFeature(Double time, float[] values) {
-		PitchFrame previousFrame = null;
-		int frameSequence = pitchFrame.getFrameSequence() - 1;
+		AudioFeatureFrame previousFrame = null;
+		int frameSequence = audioFeatureFrame.getFrameSequence() - 1;
 		if (frameSequence > 0) {
-			previousFrame = pitchFrame.getPitchFrameProcessor().getPitchFrame(pitchFrame.getFrameSequence() - 1);
+			previousFrame = audioFeatureFrame.getAudioFeatureProcessor().getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
-		if ((time < pitchFrame.getStart() / 1000.0) && previousFrame != null) {
+		if ((time < audioFeatureFrame.getStart() / 1000.0) && previousFrame != null) {
 			previousFrame.getConstantQFeatures().addFeature(time, values);
 		} else {
 			this.features.put(time, values);
@@ -86,7 +86,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 			toneMap.initialise(timeSet, pitchSet);
 
-			System.out.println(">>toneMap.initialise: " + pitchFrame.getFrameSequence() + ", " + features.size() + ", "
+			System.out.println(">>toneMap.initialise: " + audioFeatureFrame.getFrameSequence() + ", " + features.size() + ", "
 					+ binWidth + ", " + cqs.getBinHeight());
 			System.out.println(">>toneMap.initialise: " + timeStart + ", " + (nextTime + binWidth));
 			System.out.println(">>toneMap.initialise: " + timeSet + ", " + pitchSet);
@@ -111,15 +111,15 @@ public class ConstantQFeatures implements ToneMapConstants {
 			}
 			
 			toneMapMatrix.reset();
-			visor.updateToneMap(pitchFrame);
+			visor.updateToneMap(audioFeatureFrame);
 		}
 	}
 
 	public void close() {
-		PitchFrame previousFrame = null;
-		int frameSequence = pitchFrame.getFrameSequence() - 1;
+		AudioFeatureFrame previousFrame = null;
+		int frameSequence = audioFeatureFrame.getFrameSequence() - 1;
 		if (frameSequence > 0) {
-			previousFrame = pitchFrame.getPitchFrameProcessor().getPitchFrame(pitchFrame.getFrameSequence() - 1);
+			previousFrame = audioFeatureFrame.getAudioFeatureProcessor().getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
 		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
 			previousFrame.close();
@@ -132,12 +132,12 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 	private void commit() {
 		isCommitted = true;
-		pitchFrame.getPitchFrameProcessor().pitchFrameChanged(pitchFrame);
+		audioFeatureFrame.getAudioFeatureProcessor().audioFeatureFrameChanged(audioFeatureFrame);
 	}
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			visor.updateToneMap(pitchFrame);
+			visor.updateToneMap(audioFeatureFrame);
 		}
 	}
 
@@ -161,9 +161,9 @@ public class ConstantQFeatures implements ToneMapConstants {
 		return toneMap;
 	}
 
-	void initialise(PitchFrame pitchFrame) {
-		this.pitchFrame = pitchFrame;
-		this.cqs = pitchFrame.getPitchFrameProcessor().getTarsosFeatures().getConstantQSource();
+	void initialise(AudioFeatureFrame audioFeatureFrame) {
+		this.audioFeatureFrame = audioFeatureFrame;
+		this.cqs = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getConstantQSource();
 		this.visor = Instrument.getInstance().getDruid().getVisor();
 		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
 		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {

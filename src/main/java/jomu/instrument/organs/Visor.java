@@ -81,7 +81,7 @@ import jomu.instrument.tonemap.ToneMapMatrix;
 import jomu.instrument.tonemap.ToneMapMatrix.Iterator;
 import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 
-public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFrameObserver {
+public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
 
 	private static class BandedPitchDetectLayer implements Layer {
 
@@ -158,14 +158,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "Pitch Detect Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					BandedPitchDetectorSource bpds = pitchFrame.getBandedPitchDetectorFeatures().getBpds();
+					BandedPitchDetectorSource bpds = audioFeatureFrame.getBandedPitchDetectorFeatures().getBpds();
 					binStartingPointsInCents = bpds.getBinStartingPointsInCents(2048);
 					binWidth = bpds.getBinWidth(2048);
 					binHeight = bpds.getBinHeight(2048);
-					Map<Integer, TreeMap<Double, SpectrogramInfo>> bfs = pitchFrame.getBandedPitchDetectorFeatures()
+					Map<Integer, TreeMap<Double, SpectrogramInfo>> bfs = audioFeatureFrame.getBandedPitchDetectorFeatures()
 							.getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
@@ -234,13 +234,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "Beads Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					if (features == null) {
 						features = new TreeMap<>();
 					}
-					List<FeatureFrame> ffs = pitchFrame.getBeadsFeatures();
+					List<FeatureFrame> ffs = audioFeatureFrame.getBeadsFeatures();
 					for (FeatureFrame ff : ffs) {
 						float[][] fs = (float[][]) ff.get(SpectralPeaks.class.getSimpleName());
 						features.put(ff.getStartTimeMS(), fs);
@@ -307,14 +307,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "CQ Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					ConstantQSource cqs = pitchFrame.getConstantQFeatures().getCqs();
+					ConstantQSource cqs = audioFeatureFrame.getConstantQFeatures().getCqs();
 					binStartingPointsInCents = cqs.getBinStartingPointsInCents();
 					binWidth = cqs.getBinWidth();
 					binHeight = cqs.getBinHeight();
-					Map<Double, float[]> fs = pitchFrame.getConstantQFeatures().getFeatures();
+					Map<Double, float[]> fs = audioFeatureFrame.getConstantQFeatures().getFeatures();
 					if (cqFeatures == null) {
 						cqFeatures = new TreeMap<>();
 					}
@@ -361,10 +361,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "Onset Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					Map<Double, OnsetInfo[]> fs = pitchFrame.getOnsetFeatures().getFeatures();
+					Map<Double, OnsetInfo[]> fs = audioFeatureFrame.getOnsetFeatures().getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
@@ -480,14 +480,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "Pitch Detect Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					PitchDetectorSource pds = pitchFrame.getPitchDetectorFeatures().getPds();
+					PitchDetectorSource pds = audioFeatureFrame.getPitchDetectorFeatures().getPds();
 					binStartingPointsInCents = pds.getBinStartingPointsInCents();
 					binWidth = pds.getBinWidth();
 					binHeight = pds.getBinHeight();
-					TreeMap<Double, SpectrogramInfo> fs = pitchFrame.getPitchDetectorFeatures().getFeatures();
+					TreeMap<Double, SpectrogramInfo> fs = audioFeatureFrame.getPitchDetectorFeatures().getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
@@ -554,10 +554,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "Scalogram Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					ScalogramFeatures scf = pitchFrame.getScalogramFeatures();
+					ScalogramFeatures scf = audioFeatureFrame.getScalogramFeatures();
 					TreeMap<Double, ScalogramFrame> fs = scf.getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
@@ -640,15 +640,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "Spectogram Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					SpectrogramSource ss = pitchFrame.getSpectrogramFeatures().getSs();
+					SpectrogramSource ss = audioFeatureFrame.getSpectrogramFeatures().getSs();
 					binStartingPointsInCents = ss.getBinStartingPointsInCents();
 					binHeightInCents = ss.getBinhHeightInCents();
 					binWidth = ss.getBinWidth();
 					binHeight = ss.getBinHeight();
-					TreeMap<Double, SpectrogramInfo> fs = pitchFrame.getSpectrogramFeatures().getFeatures();
+					TreeMap<Double, SpectrogramInfo> fs = audioFeatureFrame.getSpectrogramFeatures().getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
@@ -722,10 +722,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "Spectral Peaks Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					SpectralPeaksSource sps = pitchFrame.getSpectralPeaksFeatures().getSps();
+					SpectralPeaksSource sps = audioFeatureFrame.getSpectralPeaksFeatures().getSps();
 
 					noiseFloorMedianFilterLenth = sps.getNoiseFloorMedianFilterLenth();
 					noiseFloorFactor = sps.getNoiseFloorFactor();
@@ -734,7 +734,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 					fftSize = sps.getTarsosIO().getContext().getBufferSize();
 					sampleRate = (int) sps.getTarsosIO().getContext().getSampleRate();
 
-					TreeMap<Double, SpectralInfo> fs = pitchFrame.getSpectralPeaksFeatures().getFeatures();
+					TreeMap<Double, SpectralInfo> fs = audioFeatureFrame.getSpectralPeaksFeatures().getFeatures();
 					if (spFeatures == null) {
 						spFeatures = new TreeMap<>();
 					}
@@ -815,16 +815,16 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 			return "ToneMap Layer";
 		}
 
-		public void update(PitchFrame pitchFrame) {
+		public void update(AudioFeatureFrame audioFeatureFrame) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					ToneMap toneMap = pitchFrame.getConstantQFeatures().getToneMap();
+					ToneMap toneMap = audioFeatureFrame.getConstantQFeatures().getToneMap();
 					// ToneMap toneMap = pitchFrame.getPitchDetectorFeatures().getToneMap();
 					if (toneMap != null) {
 						if (toneMaps == null) {
 							toneMaps = new TreeMap<>();
 						}
-						toneMaps.put(pitchFrame.getStart() / 1000.0, toneMap);
+						toneMaps.put(audioFeatureFrame.getStart() / 1000.0, toneMap);
 					}
 				}
 			});
@@ -1228,13 +1228,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 	}
 
 	@Override
-	public void pitchFrameAdded(PitchFrame pitchFrame) {
-		updateView(pitchFrame);
+	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
+		updateView(audioFeatureFrame);
 	}
 
 	@Override
-	public void pitchFrameChanged(PitchFrame pitchFrame) {
-		updateView(pitchFrame);
+	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
+		updateView(audioFeatureFrame);
 	}
 
 	public void repaintSpectalInfo(SpectralInfo info) {
@@ -1298,21 +1298,21 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, PitchFram
 		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public void updateToneMap(PitchFrame pitchFrame) {
-		toneMapLayer.update(pitchFrame);
+	public void updateToneMap(AudioFeatureFrame audioFeatureFrame) {
+		toneMapLayer.update(audioFeatureFrame);
 		this.toneMapPanel.repaint();
 	}
 
-	private void updateView(PitchFrame pitchFrame) {
-		scalogramLayer.update(pitchFrame);
-		toneMapLayer.update(pitchFrame);
-		beadsLayer.update(pitchFrame);
-		cqLayer.update(pitchFrame);
-		onsetLayer.update(pitchFrame);
-		spectralPeaksLayer.update(pitchFrame);
-		pdLayer.update(pitchFrame);
-		bpdLayer.update(pitchFrame);
-		sLayer.update(pitchFrame);
+	private void updateView(AudioFeatureFrame audioFeatureFrame) {
+		scalogramLayer.update(audioFeatureFrame);
+		toneMapLayer.update(audioFeatureFrame);
+		beadsLayer.update(audioFeatureFrame);
+		cqLayer.update(audioFeatureFrame);
+		onsetLayer.update(audioFeatureFrame);
+		spectralPeaksLayer.update(audioFeatureFrame);
+		pdLayer.update(audioFeatureFrame);
+		bpdLayer.update(audioFeatureFrame);
+		sLayer.update(audioFeatureFrame);
 		// if (count % 10 == 0) {
 		this.scalogramPanel.repaint();
 		this.toneMapPanel.repaint();

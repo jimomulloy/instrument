@@ -6,14 +6,14 @@ import jomu.instrument.cell.Generator;
 import jomu.instrument.cell.NuCell;
 import jomu.instrument.cell.Weaver;
 
-public class Cortex implements PitchFrameObserver {
+public class Cortex implements AudioFeatureFrameObserver {
 
-	private PitchFrameSink pitchFrameSink;
+	private AudioFeatureFrameSink audioFeatureFrameSink;
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
 
-	public PitchFrameSink getPitchFrameSink() {
-		return pitchFrameSink;
+	public AudioFeatureFrameSink getPitchFrameSink() {
+		return audioFeatureFrameSink;
 	}
 
 	public void initialise() {
@@ -33,18 +33,18 @@ public class Cortex implements PitchFrameObserver {
 		Weaver.connect(sourceUpdateCell, cqCell);
 		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
 		hearing.getPitchFrameProcessor().addObserver(this);
-		pitchFrameSink = new PitchFrameSink(sinkCell);
+		audioFeatureFrameSink = new AudioFeatureFrameSink(sinkCell);
 	}
 
 	@Override
-	public void pitchFrameAdded(PitchFrame pitchFrame) {
-		sourceAddCell.send(Integer.toString(pitchFrame.getFrameSequence()), pitchFrame);
+	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
+		sourceAddCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
 	}
 
 	@Override
-	public void pitchFrameChanged(PitchFrame pitchFrame) {
-		if (pitchFrame.getConstantQFeatures().isCommitted()) {
-			sourceUpdateCell.send(Integer.toString(pitchFrame.getFrameSequence()), pitchFrame);
+	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
+		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
+			sourceUpdateCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
 		}
 	}
 

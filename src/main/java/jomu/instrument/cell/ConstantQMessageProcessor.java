@@ -7,7 +7,7 @@ import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.memory.Memory;
 import jomu.instrument.organs.ConstantQFeatures;
-import jomu.instrument.organs.PitchFrame;
+import jomu.instrument.organs.AudioFeatureFrame;
 import jomu.instrument.tonemap.ToneMap;
 
 public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
@@ -35,7 +35,7 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 			if (message.input != null) {
 				System.out.println(">>ConstantQMessageProcessor accept: " + message);
 				if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-					PitchFrame frame = (PitchFrame) message.input;
+					AudioFeatureFrame frame = (AudioFeatureFrame) message.input;
 					ConstantQFeatures cqf = frame.getConstantQFeatures();
 					cqf.buildToneMap();
 					ToneMap toneMap = cqf.getToneMap();

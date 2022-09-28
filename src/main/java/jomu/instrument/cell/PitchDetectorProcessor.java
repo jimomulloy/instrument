@@ -7,7 +7,7 @@ import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.memory.Memory;
 import jomu.instrument.organs.PitchDetectorFeatures;
-import jomu.instrument.organs.PitchFrame;
+import jomu.instrument.organs.AudioFeatureFrame;
 import jomu.instrument.tonemap.ToneMap;
 
 public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
@@ -36,7 +36,7 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 			if (message.input != null) {
 				System.out.println(">>PitchDetectorProcessor accept: " + message);
 				if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-					PitchFrame frame = (PitchFrame) message.input;
+					AudioFeatureFrame frame = (AudioFeatureFrame) message.input;
 					PitchDetectorFeatures pdf = frame.getPitchDetectorFeatures();
 					pdf.buildToneMap();
 					ToneMap toneMap = pdf.getToneMap();

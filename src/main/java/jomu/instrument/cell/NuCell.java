@@ -93,7 +93,8 @@ public class NuCell extends Cell implements Serializable {
 		axon = new Axon(this);
 		bq = new LinkedBlockingQueue<Object>();
 		Thread.startVirtualThread(new QueueConsumer());
-		// new Thread(new QueueConsumer()).start();
+		System.out.println(">>Loom thread started");
+		//new Thread(new QueueConsumer()).start();
 	}
 
 	/**
