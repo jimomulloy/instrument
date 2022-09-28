@@ -1,9 +1,9 @@
-package jomu.instrument.memory;
+package jomu.instrument.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import jomu.instrument.model.ToneMap;
+import jomu.instrument.model.tonemap.ToneMap;
 
 public class Atlas {
 

@@ -1,4 +1,4 @@
-package jomu.instrument.model;
+package jomu.instrument.model.tonemap;
 
 /**
  * This interface defines a set of Constants used across the whole ToneMap

@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.memory.Memory;
-import jomu.instrument.model.ToneMap;
+import jomu.instrument.model.Memory;
+import jomu.instrument.model.tonemap.ToneMap;
 import jomu.instrument.organs.PitchDetectorFeatures;
 import jomu.instrument.organs.AudioFeatureFrame;
 

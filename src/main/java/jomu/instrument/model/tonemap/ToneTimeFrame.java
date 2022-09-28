@@ -1,4 +1,4 @@
-package jomu.instrument.model;
+package jomu.instrument.model.tonemap;
 
 public class ToneTimeFrame {
 	

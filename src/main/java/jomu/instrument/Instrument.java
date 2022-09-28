@@ -1,6 +1,6 @@
 package jomu.instrument;
 
-import jomu.instrument.memory.Memory;
+import jomu.instrument.model.Memory;
 import jomu.instrument.organs.Coordinator;
 import jomu.instrument.organs.Druid;
 

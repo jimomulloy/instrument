@@ -1,4 +1,4 @@
-package jomu.instrument.model;
+package jomu.instrument.model.tonemap;
 
 /**
  * This is a class that encapsulates a set of Note Musical Symbols

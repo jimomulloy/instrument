@@ -1,4 +1,4 @@
-package jomu.instrument.memory;
+package jomu.instrument.model;
 
 public class Memory {
 

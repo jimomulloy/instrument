@@ -4,11 +4,11 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.model.PitchSet;
-import jomu.instrument.model.TimeSet;
-import jomu.instrument.model.ToneMap;
-import jomu.instrument.model.ToneMapConstants;
-import jomu.instrument.model.ToneTimeFrame;
+import jomu.instrument.model.tonemap.PitchSet;
+import jomu.instrument.model.tonemap.TimeSet;
+import jomu.instrument.model.tonemap.ToneMap;
+import jomu.instrument.model.tonemap.ToneMapConstants;
+import jomu.instrument.model.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
 

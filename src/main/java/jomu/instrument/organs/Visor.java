@@ -73,7 +73,7 @@ import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.InputPanel;
 import jomu.instrument.audio.analysis.FeatureFrame;
-import jomu.instrument.model.ToneMap;
+import jomu.instrument.model.tonemap.ToneMap;
 import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {

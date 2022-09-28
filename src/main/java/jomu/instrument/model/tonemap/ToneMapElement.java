@@ -1,4 +1,4 @@
-package jomu.instrument.model;
+package jomu.instrument.model.tonemap;
 
 import java.io.Serializable;
 
