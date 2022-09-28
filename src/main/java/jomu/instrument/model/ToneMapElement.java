@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap.old;
+package jomu.instrument.model;
 
 import java.io.Serializable;
 
@@ -17,10 +17,11 @@ public class ToneMapElement implements Serializable {
 	public double postAmplitude; // audio data Amplitude (ludness) post-processing
 	public double postFTPower; // audio data Power post-processing
 	public int noteState; // Status of associated MIDI note derived by processing
-	public NoteListElement noteListElement; // Element used to define MIDI note derived from processing
+	//public NoteListElement noteListElement; // Element used to define MIDI note derived from processing
 	private int index;
 	private int timeIndex;
 	private int pitchIndex;
+
 	public ToneMapElement(double amplitude, double FTPower, int index, int timeIndex, int pitchIndex) {
 
 		this.preAmplitude = amplitude;
@@ -31,5 +32,12 @@ public class ToneMapElement implements Serializable {
 		this.timeIndex = timeIndex;
 		this.pitchIndex = pitchIndex;
 	}
+	
+	public ToneMapElement(int index) {
+		this(0, 0, index, 0, index);
+	}
 
+	public ToneMapElement clone() {
+		return new ToneMapElement(this.preAmplitude, this.preFTPower, this.index, this.timeIndex, this.pitchIndex);
+	}
 } // End ToneMapElement

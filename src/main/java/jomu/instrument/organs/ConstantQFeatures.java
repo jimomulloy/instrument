@@ -6,13 +6,11 @@ import java.util.TreeMap;
 
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
-import jomu.instrument.tonemap.Oscillator;
-import jomu.instrument.tonemap.PitchSet;
-import jomu.instrument.tonemap.TimeSet;
-import jomu.instrument.tonemap.ToneMap;
-import jomu.instrument.tonemap.ToneMapConstants;
-import jomu.instrument.tonemap.ToneMapMatrix;
-import jomu.instrument.tonemap.ToneMapMatrix.Iterator;
+import jomu.instrument.model.PitchSet;
+import jomu.instrument.model.TimeSet;
+import jomu.instrument.model.ToneMap;
+import jomu.instrument.model.ToneMapConstants;
+import jomu.instrument.model.ToneTimeFrame;
 
 public class ConstantQFeatures implements ToneMapConstants {
 
@@ -84,18 +82,16 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 			pitchSet = new PitchSet(lowPitch, highPitch);
 
-			toneMap.initialise(timeSet, pitchSet);
-
+			toneMap.initialise();
+			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
+			
 			System.out.println(">>toneMap.initialise: " + audioFeatureFrame.getFrameSequence() + ", " + features.size() + ", "
 					+ binWidth + ", " + cqs.getBinHeight());
 			System.out.println(">>toneMap.initialise: " + timeStart + ", " + (nextTime + binWidth));
 			System.out.println(">>toneMap.initialise: " + timeSet + ", " + pitchSet);
 
-			ToneMapMatrix toneMapMatrix = toneMap.getMatrix();
-			toneMapMatrix.setAmpType(logSwitch);
-			toneMapMatrix.setLowThres(powerLow);
-			toneMapMatrix.setHighThres(powerHigh);
-
+			/* TODO!!
 			Iterator mapIterator = toneMapMatrix.newIterator();
 			mapIterator.firstTime();
 			mapIterator.firstPitch();
@@ -110,7 +106,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 				//mapIterator.nextTime();
 			}
 			
-			toneMapMatrix.reset();
+			toneMapMatrix.reset(); */
 			visor.updateToneMap(audioFeatureFrame);
 		}
 	}

@@ -1,6 +1,7 @@
-package jomu.instrument.tonemap.old;
+package jomu.instrument.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * This is a class that encapsulates parameters associated with ToneMap Pitch
@@ -13,12 +14,12 @@ import java.io.Serializable;
 public class PitchSet implements Serializable {
 
 	public static double[] PITCH_FREQ;
+
 	public static final double A440 = 440.00;
 	public static final int MAX_MIDI_NOTE = 156;
 	public static final int MIN_MIDI_NOTE = 12;
 	public static final int CENTS_OCTAVE = 1200;
 	public static final int CENTS_HALFSTEP = 50;
-
 	public static char[][] NOTE_SYMBOLS = { { 'C', ' ' }, { 'C', '#' }, { 'D', ' ' }, { 'D', '#' }, { 'E', ' ' },
 			{ 'F', ' ' }, { 'F', '#' }, { 'G', ' ' }, { 'G', '#' }, { 'A', ' ' }, { 'A', '#' }, { 'B', ' ' },
 			{ '?', ' ' } };
@@ -116,6 +117,10 @@ public class PitchSet implements Serializable {
 		setIndex(lowNote - MIN_MIDI_NOTE);
 	}
 
+	public PitchSet clone() {
+		return new PitchSet(this.getLowNote(), this.getHighNote());
+	}
+
 	public double getFreq(int index) {
 		currentPitchIndex = index;
 		return PITCH_FREQ[lowPitchIndex + index];
@@ -137,24 +142,37 @@ public class PitchSet implements Serializable {
 	public int getLowNote() {
 		return (lowPitchIndex + MIN_MIDI_NOTE);
 	}
+
 	public int getNote(int index) {
 		return (lowPitchIndex + index + MIN_MIDI_NOTE);
 	}
+
 	public int getRange() {
 		return (highPitchIndex - lowPitchIndex + 1);
 	}
+
 	public int pitchToIndex(int pitchNote) {
 		setIndex(pitchNote - (lowPitchIndex + MIN_MIDI_NOTE));
 		return currentPitchIndex;
 	}
+
 	public void setHighIndex(int index) {
 		highPitchIndex = index;
 	}
+
 	public void setIndex(int index) {
 		currentPitchIndex = index;
 	}
+
 	public void setLowIndex(int index) {
 		lowPitchIndex = index;
+	}
+
+	@Override
+	public String toString() {
+		return "PitchSet [lowPitchIndex=" + lowPitchIndex + ", highPitchIndex=" + highPitchIndex
+				+ ", currentPitchIndex=" + currentPitchIndex + ", freq=" + freq + ", note=" + note + ", freqSet="
+				+ Arrays.toString(freqSet) + ", freqRange=" + freqRange + "]";
 	}
 
 } // End PitchSet

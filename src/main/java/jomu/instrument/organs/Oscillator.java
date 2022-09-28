@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap;
+package jomu.instrument.organs;
 
 import java.util.Random;
 

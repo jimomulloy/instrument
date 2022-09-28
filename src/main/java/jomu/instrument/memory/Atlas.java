@@ -3,7 +3,7 @@ package jomu.instrument.memory;
 import java.util.HashMap;
 import java.util.Map;
 
-import jomu.instrument.tonemap.ToneMap;
+import jomu.instrument.model.ToneMap;
 
 public class Atlas {
 

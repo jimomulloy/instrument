@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.memory.Memory;
+import jomu.instrument.model.ToneMap;
 import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.AudioFeatureFrame;
-import jomu.instrument.tonemap.ToneMap;
 
 public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 

@@ -1,4 +1,4 @@
-package jomu.instrument.tonemap.old;
+package jomu.instrument.model;
 
 import java.io.Serializable;
 
@@ -188,10 +188,12 @@ public class ToneMapMatrix implements Serializable {
 			timeIndex = index % timeRange;
 
 		}
+
 		public void setPitchIndex(int index) {
 			this.index = this.index + (timeRange * (index - pitchIndex));
 			pitchIndex = index;
 		}
+
 		public void setTimeIndex(int index) {
 			this.index = this.index + (index - timeIndex);
 			timeIndex = index;
@@ -237,15 +239,31 @@ public class ToneMapMatrix implements Serializable {
 
 	private boolean ampType;
 
-	public ToneMapMatrix(int matrixSize, TimeSet timeSet, PitchSet pitchSet) {
-
-		this.matrixSize = matrixSize;
+	public ToneMapMatrix(TimeSet timeSet, PitchSet pitchSet) {
 		this.timeSet = timeSet;
 		this.pitchSet = pitchSet;
 		timeRange = timeSet.getRange();
 		pitchRange = pitchSet.getRange();
+		this.matrixSize = timeRange * (pitchRange + 1);
 		matrix = new ToneMapElement[matrixSize];
 
+	}
+
+	public void copy(ToneMapMatrix copyFromMatrix) {
+		Iterator fromMapIterator = copyFromMatrix.newIterator();
+		Iterator toMapIterator = newIterator();
+
+		fromMapIterator.firstPitch();
+		toMapIterator.firstPitch();
+		do {
+			fromMapIterator.firstTime();
+			toMapIterator.firstTime();
+			do {
+				toneMapElement = fromMapIterator.getElement();
+				toMapIterator.newElement(toneMapElement.preAmplitude, toneMapElement.preFTPower);
+			} while (fromMapIterator.nextTime());
+
+		} while (fromMapIterator.nextPitch());
 	}
 
 	public double FTPowerToAmp(double power) {
@@ -285,39 +303,51 @@ public class ToneMapMatrix implements Serializable {
 	public double getAvgAmplitude() {
 		return avgAmplitude;
 	}
+
 	public double getAvgFTPower() {
 		return avgFTPower;
 	}
+
 	public int getMatrixSize() {
 		return matrixSize;
 	}
+
 	public double getMaxAmplitude() {
 		return maxAmplitude;
 	}
+
 	public double getMaxFTPower() {
 		return maxFTPower;
 	}
+
 	public double getMinAmplitude() {
 		return minAmplitude;
 	}
+
 	public double getMinFTPower() {
 		return minFTPower;
 	}
+
 	public int getPitchRange() {
 		return pitchRange;
 	}
+
 	public PitchSet getPitchSet() {
 		return pitchSet;
 	}
+
 	public int getTimeRange() {
 		return timeRange;
 	}
+
 	public TimeSet getTimeSet() {
 		return timeSet;
 	}
+
 	public Iterator newIterator() {
 		return new Iterator();
 	}
+
 	public void reset() {
 
 		float minPower = 5 / 1000000.0F;
@@ -350,7 +380,7 @@ public class ToneMapMatrix implements Serializable {
 			if (matrix[i] != null) {
 				matrix[i].noteState = 0;
 				matrix[i].postFTPower = matrix[i].preFTPower;
-				matrix[i].noteListElement = null;
+				//matrix[i].noteListElement = null;
 				matrix[i].preAmplitude = FTPowerToAmp(matrix[i].preFTPower);
 				matrix[i].postAmplitude = matrix[i].preAmplitude;
 				avgAmplitude += matrix[i].preAmplitude;
@@ -366,6 +396,7 @@ public class ToneMapMatrix implements Serializable {
 		}
 		avgAmplitude = avgAmplitude / count;
 	}
+
 	public void resetOld() {
 
 		maxAmplitude = 0;
@@ -405,27 +436,31 @@ public class ToneMapMatrix implements Serializable {
 					matrix[i].postAmplitude = matrix[i].preAmplitude;
 					matrix[i].postFTPower = matrix[i].preFTPower;
 					matrix[i].noteState = 0;
-					matrix[i].noteListElement = null;
+					//matrix[i].noteListElement = null;
 				}
-
 			}
 		}
 	}
+
 	public void setAmpType(boolean ampType) {
 		this.ampType = ampType;
 	}
+
 	public void setHighThres(int highThres) {
 		this.highThres = highThres;
 	}
+
 	public void setLowThres(int lowThres) {
 		this.lowThres = lowThres;
 	}
+
 	public void setMaxPower(double maxFTPower) {
 		this.maxFTPower = maxFTPower;
 		System.out.println(">>Set max power: " + this.maxFTPower);
 		this.maxAmplitude = FTPowerToAmp(maxFTPower);
 		System.out.println(">>Set max ampl: " + maxAmplitude);
 	}
+
 	public void update() {
 
 		maxAmplitude = 0;
@@ -465,4 +500,5 @@ public class ToneMapMatrix implements Serializable {
 		}
 		avgAmplitude = avgAmplitude / count;
 	}
+
 } // End ToneMapMatrix

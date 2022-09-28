@@ -4,12 +4,11 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.tonemap.PitchSet;
-import jomu.instrument.tonemap.TimeSet;
-import jomu.instrument.tonemap.ToneMap;
-import jomu.instrument.tonemap.ToneMapConstants;
-import jomu.instrument.tonemap.ToneMapMatrix;
-import jomu.instrument.tonemap.ToneMapMatrix.Iterator;
+import jomu.instrument.model.PitchSet;
+import jomu.instrument.model.TimeSet;
+import jomu.instrument.model.ToneMap;
+import jomu.instrument.model.ToneMapConstants;
+import jomu.instrument.model.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
 
@@ -51,13 +50,12 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 			pitchSet = new PitchSet();
 
-			toneMap.initialise(timeSet, pitchSet);
 
-			ToneMapMatrix toneMapMatrix = toneMap.getMatrix();
-			toneMapMatrix.setAmpType(logSwitch);
-			toneMapMatrix.setLowThres(powerLow);
-			toneMapMatrix.setHighThres(powerHigh);
+			toneMap.initialise();
+			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
 
+			/* TODO !!
 			Iterator mapIterator = toneMapMatrix.newIterator();
 			mapIterator.firstTime();
 			mapIterator.firstPitch();
@@ -88,7 +86,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 				}
 				mapIterator.nextTime();
 			}
-			toneMapMatrix.reset();
+			toneMapMatrix.reset(); */
 			// visor.updateToneMap(pitchFrame);
 		}
 	}

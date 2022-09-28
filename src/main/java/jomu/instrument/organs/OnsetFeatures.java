@@ -2,9 +2,7 @@ package jomu.instrument.organs;
 
 import java.util.TreeMap;
 
-import jomu.instrument.tonemap.ToneMapConstants;
-
-public class OnsetFeatures implements ToneMapConstants {
+public class OnsetFeatures {
 
 	OnsetSource os;
 	TreeMap<Double, OnsetInfo[]> features;

@@ -73,12 +73,7 @@ import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.InputPanel;
 import jomu.instrument.audio.analysis.FeatureFrame;
-import jomu.instrument.tonemap.PitchSet;
-import jomu.instrument.tonemap.TimeSet;
-import jomu.instrument.tonemap.ToneMap;
-import jomu.instrument.tonemap.ToneMapElement;
-import jomu.instrument.tonemap.ToneMapMatrix;
-import jomu.instrument.tonemap.ToneMapMatrix.Iterator;
+import jomu.instrument.model.ToneMap;
 import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
@@ -762,6 +757,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap.entrySet()) {
 					double timeStart = column.getKey();
 					ToneMap toneMap = column.getValue();
+					/* TODO !!
 					ToneMapMatrix toneMapMatrix = toneMap.getMatrix();
 					TimeSet timeSet = toneMap.getTimeSet();
 					PitchSet pitchSet = toneMap.getPitchSet();
@@ -805,7 +801,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 							}
 
 						} while (mapIterator.nextPitch());
-					}
+					} */
 				}
 			}
 		}
