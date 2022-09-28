@@ -52,12 +52,12 @@ public class ToneMap {
 		return this;
 	}
 
-	public void deleteFrame(Double time) {
-		toneMapStore.remove(time);
-	}
-	
 	public void deleteFrame() {
 		toneMapStore.remove(toneMapStore.firstKey());
+	}
+
+	public void deleteFrame(Double time) {
+		toneMapStore.remove(time);
 	}
 
 	public ToneMap esacf() {

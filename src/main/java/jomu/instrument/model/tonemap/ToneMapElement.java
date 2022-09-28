@@ -17,7 +17,8 @@ public class ToneMapElement implements Serializable {
 	public double postAmplitude; // audio data Amplitude (ludness) post-processing
 	public double postFTPower; // audio data Power post-processing
 	public int noteState; // Status of associated MIDI note derived by processing
-	//public NoteListElement noteListElement; // Element used to define MIDI note derived from processing
+	// public NoteListElement noteListElement; // Element used to define MIDI note
+	// derived from processing
 	private int index;
 	private int timeIndex;
 	private int pitchIndex;
@@ -32,7 +33,7 @@ public class ToneMapElement implements Serializable {
 		this.timeIndex = timeIndex;
 		this.pitchIndex = pitchIndex;
 	}
-	
+
 	public ToneMapElement(int index) {
 		this(0, 0, index, 0, index);
 	}

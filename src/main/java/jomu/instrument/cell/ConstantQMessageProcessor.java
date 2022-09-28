@@ -7,8 +7,8 @@ import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.model.Memory;
 import jomu.instrument.model.tonemap.ToneMap;
-import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.AudioFeatureFrame;
+import jomu.instrument.organs.ConstantQFeatures;
 
 public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 

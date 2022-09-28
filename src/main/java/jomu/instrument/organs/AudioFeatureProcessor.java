@@ -41,15 +41,21 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 		tarsosFeatures.getTarsosIO().getDispatcher().addAudioProcessor(oscilloscope);
 	}
 
-	public void addObserver(AudioFeatureFrameObserver observer) {
-		this.observers.add(observer);
-	}
-
 	public void addAudioFeatureFrame(double time, AudioFeatureFrame audioFeatureFrame) {
 		audioFeatureFrames.put(audioFeatureFrame.getStart(), audioFeatureFrame);
 		audioFeatureFrameSequence.put(audioFeatureFrame.getFrameSequence(), audioFeatureFrame);
 		for (AudioFeatureFrameObserver observer : this.observers) {
 			observer.audioFeatureFrameAdded(audioFeatureFrame);
+		}
+	}
+
+	public void addObserver(AudioFeatureFrameObserver observer) {
+		this.observers.add(observer);
+	}
+
+	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
+		for (AudioFeatureFrameObserver observer : this.observers) {
+			observer.audioFeatureFrameChanged(audioFeatureFrame);
 		}
 	}
 
@@ -62,6 +68,18 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 
 	public Analyzer getAnalyzer() {
 		return analyzer;
+	}
+
+	public AudioFeatureFrame getAudioFeatureFrame(double startTime) {
+		return audioFeatureFrames.get(startTime);
+	}
+
+	public AudioFeatureFrame getAudioFeatureFrame(int frameSequence) {
+		return audioFeatureFrameSequence.get(frameSequence);
+	}
+
+	public Map<Double, AudioFeatureFrame> getAudioFeatureFrames() {
+		return audioFeatureFrames;
 	}
 
 	public int getFrameSequence() {
@@ -78,18 +96,6 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 
 	public List<AudioFeatureFrameObserver> getObservers() {
 		return observers;
-	}
-
-	public AudioFeatureFrame getAudioFeatureFrame(double startTime) {
-		return audioFeatureFrames.get(startTime);
-	}
-
-	public AudioFeatureFrame getAudioFeatureFrame(int frameSequence) {
-		return audioFeatureFrameSequence.get(frameSequence);
-	}
-
-	public Map<Double, AudioFeatureFrame> getAudioFeatureFrames() {
-		return audioFeatureFrames;
 	}
 
 	public TarsosFeatureSource getTarsosFeatures() {
@@ -112,12 +118,6 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 				firstTimeStamp = -1;
 				endTimeStamp = -1;
 			}
-		}
-	}
-
-	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
-		for (AudioFeatureFrameObserver observer : this.observers) {
-			observer.audioFeatureFrameChanged(audioFeatureFrame);
 		}
 	}
 

@@ -10,6 +10,7 @@ import jomu.instrument.model.tonemap.PitchSet;
 import jomu.instrument.model.tonemap.TimeSet;
 import jomu.instrument.model.tonemap.ToneMap;
 import jomu.instrument.model.tonemap.ToneMapConstants;
+import jomu.instrument.model.tonemap.ToneMapElement;
 import jomu.instrument.model.tonemap.ToneTimeFrame;
 
 public class ConstantQFeatures implements ToneMapConstants {
@@ -42,7 +43,8 @@ public class ConstantQFeatures implements ToneMapConstants {
 		AudioFeatureFrame previousFrame = null;
 		int frameSequence = audioFeatureFrame.getFrameSequence() - 1;
 		if (frameSequence > 0) {
-			previousFrame = audioFeatureFrame.getAudioFeatureProcessor().getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
+			previousFrame = audioFeatureFrame.getAudioFeatureProcessor()
+					.getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
 		if ((time < audioFeatureFrame.getStart() / 1000.0) && previousFrame != null) {
 			previousFrame.getConstantQFeatures().addFeature(time, values);
@@ -85,28 +87,22 @@ public class ConstantQFeatures implements ToneMapConstants {
 			toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
-			
-			System.out.println(">>toneMap.initialise: " + audioFeatureFrame.getFrameSequence() + ", " + features.size() + ", "
-					+ binWidth + ", " + cqs.getBinHeight());
+
+			System.out.println(">>toneMap.initialise: " + audioFeatureFrame.getFrameSequence() + ", " + features.size()
+					+ ", " + binWidth + ", " + cqs.getBinHeight());
 			System.out.println(">>toneMap.initialise: " + timeStart + ", " + (nextTime + binWidth));
 			System.out.println(">>toneMap.initialise: " + timeSet + ", " + pitchSet);
 
-			/* TODO!!
-			Iterator mapIterator = toneMapMatrix.newIterator();
-			mapIterator.firstTime();
-			mapIterator.firstPitch();
 			for (Map.Entry<Double, float[]> entry : features.entrySet()) {
 				System.out.println(">>feature: " + entry.getKey());
-				mapIterator.firstPitch();
 				float[] spectralEnergy = entry.getValue();
+				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < spectralEnergy.length; i++) {
-					mapIterator.getElement().preFTPower += spectralEnergy[i];
-					mapIterator.nextPitch();
-				}				
-				//mapIterator.nextTime();
+					elements[i].preFTPower += spectralEnergy[i];
+				}
 			}
-			
-			toneMapMatrix.reset(); */
+
+			// toneMapMatrix.reset();
 			visor.updateToneMap(audioFeatureFrame);
 		}
 	}
@@ -115,7 +111,8 @@ public class ConstantQFeatures implements ToneMapConstants {
 		AudioFeatureFrame previousFrame = null;
 		int frameSequence = audioFeatureFrame.getFrameSequence() - 1;
 		if (frameSequence > 0) {
-			previousFrame = audioFeatureFrame.getAudioFeatureProcessor().getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
+			previousFrame = audioFeatureFrame.getAudioFeatureProcessor()
+					.getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
 		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
 			previousFrame.close();

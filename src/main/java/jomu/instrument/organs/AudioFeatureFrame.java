@@ -34,6 +34,10 @@ public class AudioFeatureFrame {
 		constantQFeatures.close();
 	}
 
+	public AudioFeatureProcessor getAudioFeatureProcessor() {
+		return audioFeatureProcessor;
+	}
+
 	public BandedPitchDetectorFeatures getBandedPitchDetectorFeatures() {
 		return bandedPitchDetectorFeatures;
 	}
@@ -68,10 +72,6 @@ public class AudioFeatureFrame {
 
 	public PitchDetectorFeatures getPitchDetectorFeatures() {
 		return pitchDetectorFeatures;
-	}
-
-	public AudioFeatureProcessor getAudioFeatureProcessor() {
-		return audioFeatureProcessor;
 	}
 
 	public ScalogramFeatures getScalogramFeatures() {

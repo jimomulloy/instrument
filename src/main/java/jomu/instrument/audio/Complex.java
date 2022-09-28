@@ -37,6 +37,7 @@ public class Complex {
 		Complex a = new Complex(5.0, 6.0);
 		Complex b = new Complex(-3.0, 4.0);
 	}
+
 	// a static version of plus
 	public static Complex plus(Complex a, Complex b) {
 		double real = a.re + b.re;

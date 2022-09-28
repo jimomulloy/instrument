@@ -6,12 +6,14 @@ import jomu.instrument.organs.Druid;
 
 public class Instrument {
 	private static Instrument instrument;
+
 	public static Instrument getInstance() {
 		if (instrument == null) {
 			instrument = new Instrument();
 		}
 		return instrument;
 	}
+
 	private Coordinator coordinator;
 
 	private Druid druid;

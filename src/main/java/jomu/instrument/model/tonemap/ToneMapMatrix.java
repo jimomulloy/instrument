@@ -380,7 +380,7 @@ public class ToneMapMatrix implements Serializable {
 			if (matrix[i] != null) {
 				matrix[i].noteState = 0;
 				matrix[i].postFTPower = matrix[i].preFTPower;
-				//matrix[i].noteListElement = null;
+				// matrix[i].noteListElement = null;
 				matrix[i].preAmplitude = FTPowerToAmp(matrix[i].preFTPower);
 				matrix[i].postAmplitude = matrix[i].preAmplitude;
 				avgAmplitude += matrix[i].preAmplitude;
@@ -436,7 +436,7 @@ public class ToneMapMatrix implements Serializable {
 					matrix[i].postAmplitude = matrix[i].preAmplitude;
 					matrix[i].postFTPower = matrix[i].preFTPower;
 					matrix[i].noteState = 0;
-					//matrix[i].noteListElement = null;
+					// matrix[i].noteListElement = null;
 				}
 			}
 		}

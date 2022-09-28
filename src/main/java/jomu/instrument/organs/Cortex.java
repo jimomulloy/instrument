@@ -12,6 +12,18 @@ public class Cortex implements AudioFeatureFrameObserver {
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
 
+	@Override
+	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
+		sourceAddCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
+	}
+
+	@Override
+	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
+		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
+			sourceUpdateCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
+		}
+	}
+
 	public AudioFeatureFrameSink getPitchFrameSink() {
 		return audioFeatureFrameSink;
 	}
@@ -34,18 +46,6 @@ public class Cortex implements AudioFeatureFrameObserver {
 		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
 		hearing.getPitchFrameProcessor().addObserver(this);
 		audioFeatureFrameSink = new AudioFeatureFrameSink(sinkCell);
-	}
-
-	@Override
-	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
-		sourceAddCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
-	}
-
-	@Override
-	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
-		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
-			sourceUpdateCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
-		}
 	}
 
 	public void start() {

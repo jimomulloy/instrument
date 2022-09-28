@@ -7,8 +7,8 @@ import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.model.Memory;
 import jomu.instrument.model.tonemap.ToneMap;
-import jomu.instrument.organs.PitchDetectorFeatures;
 import jomu.instrument.organs.AudioFeatureFrame;
+import jomu.instrument.organs.PitchDetectorFeatures;
 
 public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 

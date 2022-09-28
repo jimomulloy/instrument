@@ -8,6 +8,7 @@ import jomu.instrument.model.tonemap.PitchSet;
 import jomu.instrument.model.tonemap.TimeSet;
 import jomu.instrument.model.tonemap.ToneMap;
 import jomu.instrument.model.tonemap.ToneMapConstants;
+import jomu.instrument.model.tonemap.ToneMapElement;
 import jomu.instrument.model.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
@@ -50,43 +51,33 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 			pitchSet = new PitchSet();
 
-
 			toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
-			/* TODO !!
-			Iterator mapIterator = toneMapMatrix.newIterator();
-			mapIterator.firstTime();
-			mapIterator.firstPitch();
 			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-				mapIterator.firstPitch();
+				ToneMapElement[] elements = ttf.getElements();
 				float[] spectralEnergy = entry.getValue().getAmplitudes();
-				int p = mapIterator.getPitchIndex();
-				double binStartFreq = pitchSet.getFreq(p);
-				double binEndFreq = pitchSet.getFreq(p + 1);
+				int elementIndex = 0;
+				double binStartFreq = pitchSet.getFreq(elementIndex);
+				double binEndFreq = pitchSet.getFreq(elementIndex + 1);
 				for (int i = 0; i < spectralEnergy.length; i++) {
 					double currentFreq = highFreq * (((double) i) / pds.getBufferSize());
 					if (currentFreq < binStartFreq) {
 						continue;
 					}
 					if (currentFreq >= binEndFreq) {
-						mapIterator.nextPitch();
-						p = mapIterator.getPitchIndex();
-						if (mapIterator.isLastPitch()) {
+						elementIndex++;
+						if (elementIndex == elements.length) {
 							break;
 						}
 						binStartFreq = binEndFreq;
-						binEndFreq = pitchSet.getFreq(p + 1);
+						binEndFreq = pitchSet.getFreq(elementIndex + 1);
 					}
-					mapIterator.getElement().preFTPower += spectralEnergy[i];
+					elements[elementIndex].preFTPower += spectralEnergy[i];
 				}
-				if (mapIterator.isLastTime()) {
-					break;
-				}
-				mapIterator.nextTime();
 			}
-			toneMapMatrix.reset(); */
+			// toneMapMatrix.reset();
 			// visor.updateToneMap(pitchFrame);
 		}
 	}
