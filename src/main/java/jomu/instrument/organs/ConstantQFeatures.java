@@ -102,7 +102,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 				}
 			}
 
-			// toneMapMatrix.reset();
+			ttf.reset();
 			visor.updateToneMap(audioFeatureFrame);
 		}
 	}

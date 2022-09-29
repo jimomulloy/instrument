@@ -77,7 +77,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 					elements[elementIndex].preFTPower += spectralEnergy[i];
 				}
 			}
-			// toneMapMatrix.reset();
+			ttf.reset();
 			// visor.updateToneMap(pitchFrame);
 		}
 	}
