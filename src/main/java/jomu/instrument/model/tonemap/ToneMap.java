@@ -1,5 +1,7 @@
 package jomu.instrument.model.tonemap;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -16,8 +18,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public class ToneMap {
 
 	private ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
-
-	private int matrixLength;
 
 	public boolean audioSwitch = false;
 	public boolean midiSwitch = false;
@@ -45,7 +45,9 @@ public class ToneMap {
 	}
 
 	public ToneMap clone() {
-		return this;
+		ToneMap copy = new ToneMap();
+		copy.toneMapStore = toneMapStore.clone();
+		return copy;
 	}
 
 	public ToneMap compress() {
@@ -100,8 +102,12 @@ public class ToneMap {
 		return this;
 	}
 
-	public ToneMap loadFFT() {
-		return this;
+	public void loadFFT(float[] spectralEnergy, int bufferSize) {
+		this.getFrame().loadFFT(spectralEnergy, bufferSize);
+	}
+
+	public Float[] extractFFT(int bufferSize) {
+		return this.getFrame().extractFFT(bufferSize);
 	}
 
 	public ToneMap logCompress() {

@@ -84,6 +84,13 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 			pitchSet = new PitchSet(lowPitch, highPitch);
 
+			System.out.println(">>CS start hertz: " + pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getLowNote())));
+			System.out.println(">>CS end hertz: " + pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getHighNote())));
+			System.out.println(">>CS start cents: " + PitchConverter.hertzToAbsoluteCent(pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getLowNote()))));
+			System.out.println(">>CS end cents: " + PitchConverter.hertzToAbsoluteCent(pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getHighNote()))));
+			System.out.println(">>CS start midi: " + pitchSet.getLowNote());
+			System.out.println(">>CSQ end midi: " + pitchSet.getHighNote());
+			
 			toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);

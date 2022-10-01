@@ -1,5 +1,8 @@
 package jomu.instrument.model.tonemap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ToneTimeFrame {
 
 	private ToneMapElement[] elements;
@@ -141,5 +144,43 @@ public class ToneTimeFrame {
 		}
 
 		return amplitude;
+	}
+
+	public void loadFFT(float[] spectralEnergy, int bufferSize) {
+		int elementIndex = 0;
+		double highFreq = timeSet.getSampleRate() / (2.0); 
+		double binStartFreq = pitchSet.getFreq(elementIndex);
+		double binEndFreq = pitchSet.getFreq(elementIndex + 1);
+		for (int i = 0; i < spectralEnergy.length; i++) {
+			double currentFreq = highFreq * (((double) i) / bufferSize);
+			if (currentFreq < binStartFreq) {
+				continue;
+			}
+			if (currentFreq >= binEndFreq) {
+				elementIndex++;
+				if (elementIndex == elements.length) {
+					break;
+				}
+				binEndFreq = pitchSet.getFreq(elementIndex + 1);
+			} 
+			elements[elementIndex].preFTPower += spectralEnergy[i];
+		}
+	}
+	
+	public Float[] extractFFT(int bufferSize) {
+		List<Float> spectralEnergy = new ArrayList<>();
+		double binStartFreq, binEndFreq;
+		int binStartIndex, binEndIndex;
+		for (int i = 0; i < elements.length; i++) {
+			binStartFreq = pitchSet.getFreq(i);
+			binEndFreq = pitchSet.getFreq(i + 1);
+			binStartIndex = (int)((binStartFreq * bufferSize * 2.0) /(timeSet.getSampleRate()));
+			binEndIndex = (int)((binEndFreq * bufferSize * 2.0) /(timeSet.getSampleRate()));
+			double partialValue = (elements[i].postAmplitude) / (binEndIndex - binStartIndex);  
+			for(int j = 0; j < (binEndIndex - binStartIndex); j++) {
+				spectralEnergy.add((float)partialValue);
+			}
+		}
+		return spectralEnergy.toArray(new Float[0]);
 	}
 }
