@@ -2,6 +2,7 @@ package jomu.instrument.model.tonemap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -46,7 +47,9 @@ public class ToneMap {
 
 	public ToneMap clone() {
 		ToneMap copy = new ToneMap();
-		copy.toneMapStore = toneMapStore.clone();
+		for(Entry<Double, ToneTimeFrame> tmf: toneMapStore.entrySet()) {
+			copy.addTimeFrame(tmf.getValue().clone());
+		}
 		return copy;
 	}
 
@@ -102,11 +105,11 @@ public class ToneMap {
 		return this;
 	}
 
-	public void loadFFT(float[] spectralEnergy, int bufferSize) {
-		this.getFrame().loadFFT(spectralEnergy, bufferSize);
+	public void loadFFT(float[] fft, int bufferSize) {
+		this.getFrame().loadFFT(fft, bufferSize);
 	}
 
-	public Float[] extractFFT(int bufferSize) {
+	public float[] extractFFT(int bufferSize) {
 		return this.getFrame().extractFFT(bufferSize);
 	}
 
