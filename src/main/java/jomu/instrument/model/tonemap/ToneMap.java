@@ -57,11 +57,11 @@ public class ToneMap {
 		return this;
 	}
 
-	public void deleteFrame() {
+	public void deleteTimeFrame() {
 		toneMapStore.remove(toneMapStore.firstKey());
 	}
 
-	public void deleteFrame(Double time) {
+	public void deleteTimeFrame(Double time) {
 		toneMapStore.remove(time);
 	}
 
@@ -77,7 +77,7 @@ public class ToneMap {
 		return this;
 	}
 
-	public ToneTimeFrame getFrame() {
+	public ToneTimeFrame getTimeFrame() {
 		return toneMapStore.lastEntry().getValue();
 	}
 
@@ -106,11 +106,11 @@ public class ToneMap {
 	}
 
 	public void loadFFT(float[] fft, int bufferSize) {
-		this.getFrame().loadFFT(fft, bufferSize);
+		this.getTimeFrame().loadFFT(fft, bufferSize);
 	}
 
 	public float[] extractFFT(int bufferSize) {
-		return this.getFrame().extractFFT(bufferSize);
+		return this.getTimeFrame().extractFFT(bufferSize);
 	}
 
 	public ToneMap logCompress() {
@@ -146,6 +146,7 @@ public class ToneMap {
 	}
 
 	public ToneMap reset() {
+		this.getTimeFrame().reset();
 		return this;
 	}
 

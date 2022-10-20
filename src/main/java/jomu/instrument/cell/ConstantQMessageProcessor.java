@@ -9,7 +9,9 @@ import jomu.instrument.model.Memory;
 import jomu.instrument.model.tonemap.PitchDetect;
 import jomu.instrument.model.tonemap.ToneMap;
 import jomu.instrument.organs.AudioFeatureFrame;
+import jomu.instrument.organs.AudioFeatureProcessor;
 import jomu.instrument.organs.ConstantQFeatures;
+import jomu.instrument.organs.Hearing;
 
 public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 
@@ -26,36 +28,31 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 	public void accept(List<NuMessage> messages) {
 		// System.out.println(">>getAudioCQProcessor");
 		// System.out.println(cell.toString());
-		String sequence = "";
-		Object output = null;
+		int sequence;
+		String streamId;
 		System.out.println(">>ConstantQMessageProcessor accepting");
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
-			output = message.input;
-			// TODO ONLY Process one message?
-			if (message.input != null) {
-				System.out.println(">>ConstantQMessageProcessor accept: " + message);
-				if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-					AudioFeatureFrame frame = (AudioFeatureFrame) message.input;
-					ConstantQFeatures cqf = frame.getConstantQFeatures();
-					cqf.buildToneMap();
-					ToneMap toneMap = cqf.getToneMap(); //.clone();
-					float[] fft = toneMap.extractFFT(1024);
-					toneMap.loadFFT(fft, 1024);
-					PitchDetect pd = new PitchDetect(1024, (float) toneMap.getFrame().getTimeSet().getSampleRate(),
-							convertDoublesToFloats(toneMap.getFrame().getPitchSet().getFreqSet()));
-					//pd.detect(fft);
-					toneMap.loadFFT(fft, 1024);
-					System.out.println(">>ConstantQMessageProcessor process tonemap");
-					memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
-					cqf.displayToneMap();
-					// if (toneMap != null && toneMap.getTunerModel().tune()) {
-					// cqf.displayToneMap();
-					System.out.println(">>ConstantQMessageProcessor send");
-					cell.send(sequence, output);
-					// }
-				}
-				// }
+			streamId = message.streamId;
+			System.out.println(">>ConstantQMessageProcessor accept: " + message);
+			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor();
+				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+				ConstantQFeatures cqf = aff.getConstantQFeatures();
+				cqf.buildToneMap();
+				ToneMap toneMap = cqf.getToneMap(); //.clone();
+				float[] fft = toneMap.extractFFT(1024);
+				PitchDetect pd = new PitchDetect(1024, (float) toneMap.getTimeFrame().getTimeSet().getSampleRate(),
+						convertDoublesToFloats(toneMap.getTimeFrame().getPitchSet().getFreqSet()));
+				pd.detect(fft);
+				toneMap.loadFFT(fft, 1024);
+				toneMap.reset();
+				System.out.println(">>ConstantQMessageProcessor process tonemap");
+				memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
+				cqf.displayToneMap();
+				System.out.println(">>ConstantQMessageProcessor send");
+				cell.send(streamId, sequence);
 			}
 		}
 	}

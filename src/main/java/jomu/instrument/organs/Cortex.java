@@ -14,13 +14,15 @@ public class Cortex implements AudioFeatureFrameObserver {
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
-		sourceAddCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
+		sourceAddCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+				audioFeatureFrame.getFrameSequence());
 	}
 
 	@Override
 	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
 		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
-			sourceUpdateCell.send(Integer.toString(audioFeatureFrame.getFrameSequence()), audioFeatureFrame);
+			sourceUpdateCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+					audioFeatureFrame.getFrameSequence());
 		}
 	}
 
@@ -44,7 +46,7 @@ public class Cortex implements AudioFeatureFrameObserver {
 		}
 		Weaver.connect(sourceUpdateCell, cqCell);
 		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-		hearing.getPitchFrameProcessor().addObserver(this);
+		hearing.getAudioFeatureProcessor().addObserver(this);
 		audioFeatureFrameSink = new AudioFeatureFrameSink(sinkCell);
 	}
 

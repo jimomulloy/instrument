@@ -8,6 +8,8 @@ import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.model.Memory;
 import jomu.instrument.model.tonemap.ToneMap;
 import jomu.instrument.organs.AudioFeatureFrame;
+import jomu.instrument.organs.AudioFeatureProcessor;
+import jomu.instrument.organs.Hearing;
 import jomu.instrument.organs.PitchDetectorFeatures;
 
 public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
@@ -26,29 +28,27 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 	public void accept(List<NuMessage> messages) {
 		// System.out.println(">>getAudioCQProcessor");
 		// System.out.println(cell.toString());
-		String sequence = "";
-		Object output = null;
 		System.out.println(">>PitchDetectorProcessor accepting");
 		for (NuMessage message : messages) {
-			sequence = message.sequence;
-			output = message.input;
+			int sequence = message.sequence;
+			String streamId = message.streamId;
 			// TODO ONLY Process one message?
-			if (message.input != null) {
-				System.out.println(">>PitchDetectorProcessor accept: " + message);
-				if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-					AudioFeatureFrame frame = (AudioFeatureFrame) message.input;
-					PitchDetectorFeatures pdf = frame.getPitchDetectorFeatures();
-					pdf.buildToneMap();
-					ToneMap toneMap = pdf.getToneMap();
-					System.out.println(">PitchDetectorProcessor process tonemap");
-					memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
-					// if (toneMap != null && toneMap.getTunerModel().tune()) {
-					// cqf.displayToneMap();
-					// System.out.println(">>ConstantQMessageProcessor send");
-					// cell.send(sequence, output);
-					// }
-				}
+			System.out.println(">>PitchDetectorProcessor accept: " + message);
+			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor();
+				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+				PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
+				pdf.buildToneMap();
+				ToneMap toneMap = pdf.getToneMap();
+				System.out.println(">PitchDetectorProcessor process tonemap");
+				memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
+				// if (toneMap != null && toneMap.getTunerModel().tune()) {
+				// cqf.displayToneMap();
+				// System.out.println(">>ConstantQMessageProcessor send");
+				// cell.send(sequence, output);
 				// }
+			
 			}
 		}
 	}

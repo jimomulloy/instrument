@@ -17,13 +17,13 @@ public class NuCell extends Cell implements Serializable {
 					NuMessage qe = (NuMessage) bq.take();
 					List<NuMessage> entries;
 					// System.out.println(">>sequence : " + qe.sequence);
-					if (sequenceMap.containsKey(qe.sequence)) {
+					if (sequenceMap.containsKey(qe.streamId + qe.sequence)) {
 						// System.out.println(">>sequenceMap.containsKey : " + qe.sequence);
-						entries = sequenceMap.get(qe.sequence);
+						entries = sequenceMap.get(qe.streamId + qe.sequence);
 						// System.out.println(">> entries A : " + entries.size());
 					} else {
 						entries = new ArrayList<>();
-						sequenceMap.put(qe.sequence, entries);
+						sequenceMap.put(qe.streamId + qe.sequence, entries);
 					}
 					entries.add(qe);
 					// System.out.println(">> entries B : " + entries.size());
@@ -404,8 +404,8 @@ public class NuCell extends Cell implements Serializable {
 		axon.send(message);
 	}
 
-	public void send(String sequence, Object output) {
-		axon.send(sequence, output);
+	public void send(String streamId, int sequence) {
+		axon.send(streamId, sequence);
 	}
 
 	/**

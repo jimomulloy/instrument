@@ -63,9 +63,9 @@ public class Axon implements Serializable {
 		}
 	}
 
-	public void send(String sequence, Object output) {
+	public void send(String streamId, int sequence) {
 		for (NuCell target : outputList) {
-			NuMessage qe = new NuMessage(source, sequence, output);
+			NuMessage qe = new NuMessage(source, streamId, sequence);
 			target.receive(qe);
 		}
 	}

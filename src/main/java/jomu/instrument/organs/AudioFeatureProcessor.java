@@ -24,6 +24,7 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 	private double endTimeStamp = -1;
 	private int frameSequence = 0;
 	private int maxFrames = -1;
+	private String streamId;
 
 	private List<AudioFeatureFrameObserver> observers = new ArrayList<>();
 
@@ -32,7 +33,8 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<Integer, AudioFeatureFrame>();
 	private double currentProcessTime;
 
-	public AudioFeatureProcessor(Analyzer analyzer, TarsosFeatureSource tarsosFeatures) {
+	public AudioFeatureProcessor(String streamId, Analyzer analyzer, TarsosFeatureSource tarsosFeatures) {
+		this.streamId = streamId;
 		this.analyzer = analyzer;
 		this.tarsosFeatures = tarsosFeatures;
 		analyzer.addSegmentListener(this);
@@ -144,5 +146,9 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 
 	public void setMaxFrames(int maxFrames) {
 		this.maxFrames = maxFrames;
+	}
+
+	public String getStreamId() {
+		return streamId;
 	}
 }

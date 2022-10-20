@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 import jomu.instrument.audio.TarsosAudioIO;
 import jomu.instrument.audio.analysis.Analyzer;
@@ -23,7 +24,8 @@ public class Hearing {
 	Glide frequencyGlide;
 	float meanFrequency = 400.0F;
 	Analyzer analyzer;
-
+	String streamId;
+	
 	int sampleRate = 44100;
 	private TarsosAudioIO tarsosIO;
 	TarsosFeatureSource tarsosFeatureSource;
@@ -41,7 +43,7 @@ public class Hearing {
 		return meanFrequency;
 	}
 
-	public AudioFeatureProcessor getPitchFrameProcessor() {
+	public AudioFeatureProcessor getAudioFeatureProcessor() {
 		return audioFeatureProcessor;
 	}
 
@@ -58,8 +60,7 @@ public class Hearing {
 	}
 
 	public void initialise() {
-		// TODO Auto-generated method stub
-		// set up the parent AudioContext object
+		this.streamId = UUID.randomUUID().toString();
 		tarsosIO = new TarsosAudioIO();
 		tarsosIO.selectMixer(2);
 		File file = new File("D:/audio/audiogfolk.wav");
@@ -81,7 +82,7 @@ public class Hearing {
 		extractors.add(SpectralPeaks.class);
 
 		analyzer = new Analyzer(ac, extractors);
-		audioFeatureProcessor = new AudioFeatureProcessor(analyzer, tarsosFeatureSource);
+		audioFeatureProcessor = new AudioFeatureProcessor(streamId, analyzer, tarsosFeatureSource);
 		audioFeatureProcessor.setMaxFrames(100);
 
 		tarsosIO.getDispatcher().addAudioProcessor(audioFeatureProcessor);

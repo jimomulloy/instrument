@@ -4,13 +4,13 @@ import java.util.Objects;
 
 public class NuMessage {
 	public Cell source;
-	public String sequence;
-	public Object input;
+	public int sequence;
+	public String streamId;
 
-	public NuMessage(Cell source, String sequence, Object input) {
+	public NuMessage(Cell source, String streamId, int sequence) {
 		this.source = source;
 		this.sequence = sequence;
-		this.input = input;
+		this.streamId = streamId;
 	}
 
 	@Override
@@ -22,16 +22,16 @@ public class NuMessage {
 		if (getClass() != obj.getClass())
 			return false;
 		NuMessage other = (NuMessage) obj;
-		return Objects.equals(sequence, other.sequence) && Objects.equals(source, other.source);
+		return Objects.equals(streamId + sequence, other.streamId + other.sequence) && Objects.equals(source, other.source);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(sequence, source);
+		return Objects.hash(streamId + sequence, source);
 	}
 
 	@Override
 	public String toString() {
-		return "NuMessage [source=" + source + ", sequence=" + sequence + "]";
+		return "NuMessage [streamId=" + streamId + " source=" + source + ", sequence=" + sequence + "]";
 	}
 }

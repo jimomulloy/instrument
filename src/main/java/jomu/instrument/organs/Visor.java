@@ -770,7 +770,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap.entrySet()) {
 					double timeStart = column.getKey();
 					ToneMap toneMap = column.getValue();
-					ToneTimeFrame ttf = toneMap.getFrame();
+					ToneTimeFrame ttf = toneMap.getTimeFrame();
 					TimeSet timeSet = ttf.getTimeSet();
 					PitchSet pitchSet = ttf.getPitchSet();
 					timeStart = timeSet.getStartTime();
