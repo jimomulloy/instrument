@@ -42,11 +42,11 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
 				cqf.buildToneMap();
 				ToneMap toneMap = cqf.getToneMap(); //.clone();
-				float[] fft = toneMap.extractFFT(1024);
-				PitchDetect pd = new PitchDetect(1024, (float) toneMap.getTimeFrame().getTimeSet().getSampleRate(),
+				float[] fft = toneMap.extractFFT(4096);
+				PitchDetect pd = new PitchDetect(4096, (float) toneMap.getTimeFrame().getTimeSet().getSampleRate(),
 						convertDoublesToFloats(toneMap.getTimeFrame().getPitchSet().getFreqSet()));
 				pd.detect(fft);
-				toneMap.loadFFT(fft, 1024);
+				toneMap.loadFFT(fft, 4096);
 				toneMap.reset();
 				System.out.println(">>ConstantQMessageProcessor process tonemap");
 				memory.getAtlas().putToneMap(this.cell.getType(), toneMap);

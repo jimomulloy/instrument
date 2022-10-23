@@ -158,8 +158,13 @@ public class ToneTimeFrame {
 		int elementIndex = 0;
 		double binStartFreq = pitchSet.getFreq(elementIndex);
 		double binEndFreq = pitchSet.getFreq(elementIndex + 1);
+		elements[elementIndex].preFTPower = 0;
+		//System.out.println(">>loadFFT timeSet.getSampleRate(): " + timeSet.getSampleRate());
+		//System.out.println(">>loadFFT bufferSize: " + bufferSize);
 		for (int i = 0; i < fft.length; i++) {
-			double currentFreq = (timeSet.getSampleRate() / (2.0)) * (((double) i) / bufferSize);
+			//double currentFreq = (timeSet.getSampleRate() / (2.0)) * (((double) i) / bufferSize);
+			double currentFreq = i * (timeSet.getSampleRate() / (((double) bufferSize) * 2.0));
+			//System.out.println(">>loadFFT currentFreq 1 : " + currentFreq);
 			if (currentFreq < binStartFreq) {
 				continue;
 			}
@@ -168,43 +173,43 @@ public class ToneTimeFrame {
 				if (elementIndex == elements.length) {
 					break;
 				}
+				elements[elementIndex].preFTPower = 0;
 				binEndFreq = pitchSet.getFreq(elementIndex + 1);
 			}
+			//System.out.println(">>loadFFT elementIndex: " + elementIndex);
+			//System.out.println(">>loadFFT currentFreq : " + currentFreq);
+			//System.out.println(">>loadFFT binStartFreq: " + binStartFreq);
+			//System.out.println(">>loadFFT binEndFreq: " + binEndFreq);
 			elements[elementIndex].preFTPower += fft[i];
 		}
 	}
 
 	public float[] extractFFT(int bufferSize) {
-		List<Float> spectralEnergy = new ArrayList<>();
+		float[] result = new float[bufferSize / 2 + 1];
 		double binStartFreq, binEndFreq;
 		int binStartIndex, binEndIndex;
+		binStartFreq = pitchSet.getFreq(0);
+		binStartIndex = (int) ((binStartFreq * bufferSize * 2.0) / (timeSet.getSampleRate()));
+		for (int j = 0; j < binStartIndex; j++) {
+			result[j] = 0F;
+		}
 		for (int i = 0; i < elements.length; i++) {
 			binStartFreq = pitchSet.getFreq(i);
 			binEndFreq = pitchSet.getFreq(i + 1);
 			binStartIndex = (int) ((binStartFreq * bufferSize * 2.0) / (timeSet.getSampleRate()));
 			binEndIndex = (int) ((binEndFreq * bufferSize * 2.0) / (timeSet.getSampleRate()));
-			if (i == 0) {
-				for (int j = 0; j < binStartIndex; j++) {
-					spectralEnergy.add(0F);
+			//System.out.println(">>extractFFT binStartFreq: " + binStartFreq);
+			//System.out.println(">>extractFFT binEndFreq: " + binEndFreq);
+			//System.out.println(">>extractFFT binStartIndex: " + binStartIndex);
+			//System.out.println(">>extractFFT binEndIndex: " + binEndIndex);
+			if (binEndIndex > binStartIndex) {
+				float partialValue = (float) (elements[i].preFTPower) / (binEndIndex - binStartIndex);
+				for (int j = 0; j < (binEndIndex - binStartIndex); j++) {
+					result[binStartIndex + j] += partialValue;
 				}
+			} else {
+				result[binStartIndex] += elements[i].preFTPower;
 			}
-			double partialValue = (elements[i].preFTPower) / (binEndIndex - binStartIndex);
-			boolean test = false;
-			for (int j = 0; j < (binEndIndex - binStartIndex); j++) {
-				if (!test && j >= (binEndIndex - binStartIndex)/2) {
-					spectralEnergy.add((float)(elements[i].preFTPower));
-					test = true;
-				} else {
-					spectralEnergy.add(0F);
-				}
-			}
-		}
-		float[] result = new float[bufferSize / 2 + 1];
-		//float[] result = new float[spectralEnergy.size()];
-		int i = 0;
-		for (Float value : spectralEnergy) {
-			result[i] = value;
-			i++;
 		}
 		return result;
 	}
