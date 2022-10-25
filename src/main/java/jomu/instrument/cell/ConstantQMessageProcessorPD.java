@@ -1,7 +1,6 @@
 package jomu.instrument.cell;
 
 import java.util.List;
-import java.util.Vector;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
@@ -11,20 +10,15 @@ import jomu.instrument.organs.AudioFeatureProcessor;
 import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.Hearing;
 import jomu.instrument.world.Memory;
-import jomu.instrument.world.tonemap.FFTSpectrum;
-import jomu.instrument.world.tonemap.PitchAnalyser;
 import jomu.instrument.world.tonemap.PitchDetect;
 import jomu.instrument.world.tonemap.ToneMap;
-import jomu.instrument.world.tonemap.Whitener;
 
-public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
+public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
 	private Memory memory;
-	
-	private float tmMax = 0;
 
-	public ConstantQMessageProcessor(NuCell cell) {
+	public ConstantQMessageProcessorPD(NuCell cell) {
 		super();
 		this.cell = cell;
 		memory = Instrument.getInstance().getMemory();
@@ -48,28 +42,12 @@ public class ConstantQMessageProcessor implements Consumer<List<NuMessage>> {
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
 				cqf.buildToneMap();
 				ToneMap toneMap = cqf.getToneMap(); //.clone();
-				toneMap.getTimeFrame().compress(1000F);
-				float maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
-				System.out.println(">>MAX AMP: " + maxAmplitude + ", " + tmMax);
-				if (tmMax < maxAmplitude) {
-					tmMax = maxAmplitude;
-				}
-				toneMap.getTimeFrame().normalise(tmMax);	
-				toneMap.getTimeFrame().deNoise(0.7);
-				
-				maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
-				System.out.println(">>MAX AMP AFTER: " + maxAmplitude );
-				
-				FFTSpectrum fftSpectrum = toneMap.getTimeFrame().extractFFTSpectrum(4096);
+				//float[] fft = toneMap.extractFFT(4096);
 				//PitchDetect pd = new PitchDetect(4096, (float) toneMap.getTimeFrame().getTimeSet().getSampleRate(),
 				//		convertDoublesToFloats(toneMap.getTimeFrame().getPitchSet().getFreqSet()));
-				//pd.whiten(fftSpectrum.getSpectrum());
-				Whitener whitener = new Whitener(fftSpectrum);
-				whitener.whiten();
-				FFTSpectrum whitenedSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(), whitener.getWhitenedSpectrum());
-				PitchAnalyser pitchAnalyser = new PitchAnalyser(fftSpectrum, toneMap.getTimeFrame().getPitches(), 20);
-				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-				toneMap.getTimeFrame().deNoise(0.05);
+				//pd.detect(fft);
+				//toneMap.loadFFT(fft, 4096);
+				//toneMap.reset();
 				System.out.println(">>ConstantQMessageProcessor process tonemap");
 				memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
 				cqf.displayToneMap();

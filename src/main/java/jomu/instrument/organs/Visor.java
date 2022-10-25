@@ -73,11 +73,11 @@ import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.InputPanel;
 import jomu.instrument.audio.analysis.FeatureFrame;
-import jomu.instrument.model.tonemap.PitchSet;
-import jomu.instrument.model.tonemap.TimeSet;
-import jomu.instrument.model.tonemap.ToneMap;
-import jomu.instrument.model.tonemap.ToneMapElement;
-import jomu.instrument.model.tonemap.ToneTimeFrame;
+import jomu.instrument.world.tonemap.PitchSet;
+import jomu.instrument.world.tonemap.TimeSet;
+import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.world.tonemap.ToneMapElement;
+import jomu.instrument.world.tonemap.ToneTimeFrame;
 import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
@@ -787,7 +787,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 							ToneMapElement toneMapElement = elements[elementIndex];
 							if (toneMapElement != null) {
-								double amplitude = 100.0 * toneMapElement.preAmplitude / 1.0;
+								double amplitude = 100.0 * toneMapElement.amplitude / 1.0;
 								if (amplitude > maxAmplitude) {
 									maxAmplitude = amplitude;
 								}

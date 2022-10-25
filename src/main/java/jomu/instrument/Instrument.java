@@ -1,8 +1,8 @@
 package jomu.instrument;
 
-import jomu.instrument.model.Memory;
 import jomu.instrument.organs.Coordinator;
 import jomu.instrument.organs.Druid;
+import jomu.instrument.world.Memory;
 
 public class Instrument {
 	private static Instrument instrument;

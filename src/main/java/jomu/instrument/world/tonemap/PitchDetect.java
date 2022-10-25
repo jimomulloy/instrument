@@ -1,4 +1,4 @@
-package jomu.instrument.model.tonemap;
+package jomu.instrument.world.tonemap;
 
 /**
  * This is a robust polyphonic multi-pitch detector. The algorithm is described
@@ -34,6 +34,21 @@ public class PitchDetect {
 		sw = new SpecWhitener(timeSize, sampleRate);
 		spec = new float[timeSize / 2 + 1];
 		fzeros = new float[pitches.length];
+	}
+	
+	public void whiten(float[] spec) {
+		float max = 0;
+		for (int i = 0; i < spec.length; i++) {
+			if(spec[i] > max) {
+				max = spec[i];
+			}
+			spec[i] *= 1000;
+		}
+		System.out.println(">>SPECMAX: " + max);
+		//for (int i = 0; i < spec.length; i++) spec[i] *= 1000;
+		// spectrum pre-processing
+		sw.whiten(spec);
+		//for (int i = 0; i < spec.length; i++) spec[i] /= 1000;
 	}
 
 	/**

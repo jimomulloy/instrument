@@ -4,12 +4,12 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.model.tonemap.PitchSet;
-import jomu.instrument.model.tonemap.TimeSet;
-import jomu.instrument.model.tonemap.ToneMap;
-import jomu.instrument.model.tonemap.ToneMapConstants;
-import jomu.instrument.model.tonemap.ToneMapElement;
-import jomu.instrument.model.tonemap.ToneTimeFrame;
+import jomu.instrument.world.tonemap.PitchSet;
+import jomu.instrument.world.tonemap.TimeSet;
+import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.world.tonemap.ToneMapConstants;
+import jomu.instrument.world.tonemap.ToneMapElement;
+import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
 
@@ -74,7 +74,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 						binStartFreq = binEndFreq;
 						binEndFreq = pitchSet.getFreq(elementIndex + 1);
 					}
-					elements[elementIndex].preFTPower += spectralEnergy[i];
+					elements[elementIndex].amplitude += spectralEnergy[i];
 				}
 			}
 			ttf.reset();

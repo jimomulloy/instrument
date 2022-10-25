@@ -1,4 +1,4 @@
-package jomu.instrument.model.tonemap;
+package jomu.instrument.world.tonemap;
 
 import java.io.Serializable;
 
@@ -25,15 +25,15 @@ public class TimeSet implements Serializable {
 
 	private int endSample;
 
-	private double sampleRate;
+	private float sampleRate;
 
-	private double timeIndexSize;
+	private int timeIndexSize;
 
 	private double sampleTimeSize;
 
 	private int sampleIndexSize;
 
-	public TimeSet(double startTime, double endTime, double sampleRate, double sampleTimeSize) {
+	public TimeSet(double startTime, double endTime, float sampleRate, double sampleTimeSize) {
 
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -62,7 +62,7 @@ public class TimeSet implements Serializable {
 		return sampleIndexSize;
 	}
 
-	public double getSampleRate() {
+	public float getSampleRate() {
 		return sampleRate;
 	}
 

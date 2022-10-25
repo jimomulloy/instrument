@@ -5,12 +5,12 @@ import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.model.Memory;
-import jomu.instrument.model.tonemap.ToneMap;
 import jomu.instrument.organs.AudioFeatureFrame;
 import jomu.instrument.organs.AudioFeatureProcessor;
 import jomu.instrument.organs.Hearing;
 import jomu.instrument.organs.PitchDetectorFeatures;
+import jomu.instrument.world.Memory;
+import jomu.instrument.world.tonemap.ToneMap;
 
 public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 

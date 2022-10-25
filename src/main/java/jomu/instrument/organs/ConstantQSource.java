@@ -136,7 +136,6 @@ public class ConstantQSource {
 
 			public boolean process(AudioEvent audioEvent) {
 				float[] values = constantQ.getMagnitudes().clone();
-				System.out.println(">>CQ event: " + audioEvent.getTimeStamp());
 				features.put(audioEvent.getTimeStamp() - binWidth /* - constantQLag */, values);
 				return true;
 			}

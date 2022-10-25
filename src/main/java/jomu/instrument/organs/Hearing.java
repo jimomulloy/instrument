@@ -63,7 +63,7 @@ public class Hearing {
 		this.streamId = UUID.randomUUID().toString();
 		tarsosIO = new TarsosAudioIO();
 		tarsosIO.selectMixer(2);
-		File file = new File("D:/audio/audiogfolk.wav");
+		File file = new File("D:/audio/testharmonics2.wav");
 		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1, true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
 		// get a microphone input unit generator

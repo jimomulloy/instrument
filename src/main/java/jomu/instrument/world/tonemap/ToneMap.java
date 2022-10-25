@@ -1,4 +1,4 @@
-package jomu.instrument.model.tonemap;
+package jomu.instrument.world.tonemap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,14 +103,6 @@ public class ToneMap {
 
 	public ToneMap loadCQ() {
 		return this;
-	}
-
-	public void loadFFT(float[] fft, int bufferSize) {
-		this.getTimeFrame().loadFFT(fft, bufferSize);
-	}
-
-	public float[] extractFFT(int bufferSize) {
-		return this.getTimeFrame().extractFFT(bufferSize);
 	}
 
 	public ToneMap logCompress() {

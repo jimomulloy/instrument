@@ -6,12 +6,12 @@ import java.util.TreeMap;
 
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
-import jomu.instrument.model.tonemap.PitchSet;
-import jomu.instrument.model.tonemap.TimeSet;
-import jomu.instrument.model.tonemap.ToneMap;
-import jomu.instrument.model.tonemap.ToneMapConstants;
-import jomu.instrument.model.tonemap.ToneMapElement;
-import jomu.instrument.model.tonemap.ToneTimeFrame;
+import jomu.instrument.world.tonemap.PitchSet;
+import jomu.instrument.world.tonemap.TimeSet;
+import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.world.tonemap.ToneMapConstants;
+import jomu.instrument.world.tonemap.ToneMapElement;
+import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class ConstantQFeatures implements ToneMapConstants {
 
@@ -83,29 +83,16 @@ public class ConstantQFeatures implements ToneMapConstants {
 					PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
 
 			pitchSet = new PitchSet(lowPitch, highPitch);
-
-			//System.out.println(">>CS start hertz: " + pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getLowNote())));
-			//System.out.println(">>CS end hertz: " + pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getHighNote())));
-			//System.out.println(">>CS start cents: " + PitchConverter.hertzToAbsoluteCent(pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getLowNote()))));
-			//System.out.println(">>CS end cents: " + PitchConverter.hertzToAbsoluteCent(pitchSet.getFreq(pitchSet.pitchToIndex(pitchSet.getHighNote()))));
-			//System.out.println(">>CS start midi: " + pitchSet.getLowNote());
-			//System.out.println(">>CSQ end midi: " + pitchSet.getHighNote());
-			
+		
 			toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
-			System.out.println(">>toneMap.initialise: " + audioFeatureFrame.getFrameSequence() + ", " + features.size()
-					+ ", " + binWidth + ", " + cqs.getBinHeight());
-			System.out.println(">>toneMap.initialise: " + timeStart + ", " + (nextTime + binWidth));
-			System.out.println(">>toneMap.initialise: " + timeSet + ", " + pitchSet);
-
 			for (Map.Entry<Double, float[]> entry : features.entrySet()) {
-				System.out.println(">>feature: " + entry.getKey());
 				float[] spectralEnergy = entry.getValue();
 				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < spectralEnergy.length; i++) {
-					elements[i].preFTPower += spectralEnergy[i];
+					elements[i].amplitude += spectralEnergy[i];
 				}
 			}
 
