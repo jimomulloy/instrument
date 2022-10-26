@@ -30,10 +30,10 @@ public class FFTSpectrum {
 	public float[] getSpectrum() {
 		return spectrum;
 	}
-	
+
 	public void magnify(float factor) {
 		for (int i = 0; i < spectrum.length; i++) {
-			spectrum[i] *= factor; 
+			spectrum[i] *= factor;
 		}
 	}
 

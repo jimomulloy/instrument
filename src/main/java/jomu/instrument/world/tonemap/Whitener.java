@@ -23,7 +23,7 @@ public class Whitener {
 				int b = 0; b < 32; ++b) {
 			cb[b] = 229.0 * (Math.pow(10.0, (((double) (b + 1.0)) / 21.4)) - 1.0); // frequency division
 		}
-		
+
 		/* Create filter bank */
 		Hb = new ArrayList[30];
 		hbIndices = new ArrayList[30];

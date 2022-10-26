@@ -15,14 +15,16 @@ public class ToneMapElement implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	public double amplitude;
-	
 	public int noteState; // Status of associated MIDI note derived by processing
+
 	// public NoteListElement noteListElement; // Element used to define MIDI note
 	// derived from processing
 	private int index;
 	private int timeIndex;
 	private int pitchIndex;
+	public NoteListElement noteListElement; // Element used to define MIDI note derived from processing
 
 	public ToneMapElement(double amplitude, int index, int timeIndex, int pitchIndex) {
 
@@ -33,10 +35,23 @@ public class ToneMapElement implements Serializable {
 	}
 
 	public ToneMapElement(int index) {
-		this(0,index, 0, index);
+		this(0, index, 0, index);
 	}
 
 	public ToneMapElement clone() {
 		return new ToneMapElement(this.amplitude, this.index, this.timeIndex, this.pitchIndex);
 	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public int getTimeIndex() {
+		return timeIndex;
+	}
+
+	public int getPitchIndex() {
+		return pitchIndex;
+	}
+
 } // End ToneMapElement

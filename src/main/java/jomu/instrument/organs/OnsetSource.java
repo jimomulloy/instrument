@@ -55,7 +55,7 @@ public class OnsetSource implements OnsetHandler {
 
 	@Override
 	public void handleOnset(double time, double salience) {
-		//System.out.println(">>Percussion at:" + time + ", " + salience);
+		// System.out.println(">>Percussion at:" + time + ", " + salience);
 		onsetInfos.add(new OnsetInfo(time, salience));
 	}
 

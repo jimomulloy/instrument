@@ -35,20 +35,20 @@ public class PitchDetect {
 		spec = new float[timeSize / 2 + 1];
 		fzeros = new float[pitches.length];
 	}
-	
+
 	public void whiten(float[] spec) {
 		float max = 0;
 		for (int i = 0; i < spec.length; i++) {
-			if(spec[i] > max) {
+			if (spec[i] > max) {
 				max = spec[i];
 			}
 			spec[i] *= 1000;
 		}
 		System.out.println(">>SPECMAX: " + max);
-		//for (int i = 0; i < spec.length; i++) spec[i] *= 1000;
+		// for (int i = 0; i < spec.length; i++) spec[i] *= 1000;
 		// spectrum pre-processing
 		sw.whiten(spec);
-		//for (int i = 0; i < spec.length; i++) spec[i] /= 1000;
+		// for (int i = 0; i < spec.length; i++) spec[i] /= 1000;
 	}
 
 	/**
@@ -56,11 +56,12 @@ public class PitchDetect {
 	 * presence in buffer.
 	 */
 	public void detect(float[] spec) {
-		for (int i = 0; i < spec.length; i++) spec[i] *= 1000;
+		for (int i = 0; i < spec.length; i++)
+			spec[i] *= 1000;
 		// spectrum pre-processing
 		sw.whiten(spec);
-		//spec = sw.wSpec;
-		
+		// spec = sw.wSpec;
+
 		System.out.println(">>fzeros detecting");
 		// iteratively find all presented pitches
 		float test = 0, lasttest = 0;
@@ -69,32 +70,36 @@ public class PitchDetect {
 		while (true) {
 			detectfzero(spec, fzeroInfo);
 			lasttest = test;
-			//System.out.println(">>fzeros BEFORE test: " + test + ", "+ fzeroInfo[1]+ ", "+ Math.pow(loopcount, .1f));
+			// System.out.println(">>fzeros BEFORE test: " + test + ", "+ fzeroInfo[1]+ ",
+			// "+ Math.pow(loopcount, .1f));
 			test = (float) ((test + fzeroInfo[1]) / Math.pow(loopcount, .2f));
-			//System.out.println(">>fzeros test: " + test + ", "+ lasttest);
-			//System.out.println(">>fzeros fzeroInfo[2] A: " + loopcount + ", "+ fzeroInfo[2]);
+			// System.out.println(">>fzeros test: " + test + ", "+ lasttest);
+			// System.out.println(">>fzeros fzeroInfo[2] A: " + loopcount + ", "+
+			// fzeroInfo[2]);
 			if (test <= lasttest)
 				break;
 			loopcount++;
 			System.out.println(">>loop: " + loopcount);
-			//System.out.println(">>fzeros fzeroInfo[2] B: " + loopcount + ", "+ fzeroInfo[2]+ ", "+ fzeroInfo[0]);
-			//System.out.println(">>fzeros fzeroInfo[2] C: " + (fzeroInfo[0] * timeSize / sampleRate));
+			// System.out.println(">>fzeros fzeroInfo[2] B: " + loopcount + ", "+
+			// fzeroInfo[2]+ ", "+ fzeroInfo[0]);
+			// System.out.println(">>fzeros fzeroInfo[2] C: " + (fzeroInfo[0] * timeSize /
+			// sampleRate));
 			// subtract the information of the found pitch from the current spectrum
-			float fpitch = fzeroInfo[0]; 
+			float fpitch = fzeroInfo[0];
 			int highInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
 			int lowInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
 			for (int i = 1; i * fzeroInfo[0] < sampleRate / 2; ++i) {
 				for (int j = 0; j < pitches.length; j++) {
 					if (pitches[j] >= fpitch) {
 						if (j > 0) {
-							lowInd = (int) Math.floor(pitches[j-1] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
 						} else {
 							lowInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
 						}
-						if (j < pitches.length -1) {
+						if (j < pitches.length - 1) {
 							highInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
 						} else {
-							highInd = (int) Math.floor(pitches[j-1] * timeSize / sampleRate);
+							highInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
 						}
 						break;
 					}
@@ -109,15 +114,13 @@ public class PitchDetect {
 			// update fzeros
 			if (fzeros[(int) fzeroInfo[2]] == 0) {
 				fzeros[(int) fzeroInfo[2]] = fzeroInfo[1];
-			}	
+			}
 		}
-		for (int i = 0; i < spec.length; i++)  {
+		for (int i = 0; i < spec.length; i++) {
 			float pitch = i * sampleRate / timeSize;
-			spec[i] = 0F; 
+			spec[i] = 0F;
 			for (int j = 0; j < pitches.length; j++) {
-				if (fzeros[j] > 0
-					&& pitches[j] <= pitch 
-					&& pitches[j + 1] > pitch) {
+				if (fzeros[j] > 0 && pitches[j] <= pitch && pitches[j + 1] > pitch) {
 					spec[i] = fzeros[j];
 				}
 			}
@@ -139,14 +142,14 @@ public class PitchDetect {
 				for (int k = 0; k < pitches.length; k++) {
 					if (pitches[k] >= fpitch) {
 						if (k > 0) {
-							lowInd = (int) Math.floor(pitches[k-1] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
 						} else {
 							lowInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
 						}
-						if (k < pitches.length -1) {
+						if (k < pitches.length - 1) {
 							highInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
 						} else {
-							highInd = (int) Math.floor(pitches[k-1] * timeSize / sampleRate);
+							highInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
 						}
 						break;
 					}
@@ -157,7 +160,7 @@ public class PitchDetect {
 				float weighting = (pitches[j] + 52) / (i * pitches[j] + 320);
 				for (int k = lowInd; k <= highInd; k++) {
 					if (val < spec[k]) {
-						//val = spec[k];
+						// val = spec[k];
 					}
 				}
 				cSalience += val * weighting;
@@ -167,9 +170,11 @@ public class PitchDetect {
 				fzeroInfo[0] = pitches[j];
 				fzeroInfo[1] = cSalience;
 				fzeroInfo[2] = j;
-				//System.out.println(">>fzeros max: " + fzeroInfo[0] + ", "+ fzeroInfo[1] + ", " + fzeroInfo[2]);
+				// System.out.println(">>fzeros max: " + fzeroInfo[0] + ", "+ fzeroInfo[1] + ",
+				// " + fzeroInfo[2]);
 			} else {
-				//System.out.println(">>fzeros min: " + pitches[j] + ", "+ cSalience + ", " + j);
+				// System.out.println(">>fzeros min: " + pitches[j] + ", "+ cSalience + ", " +
+				// j);
 			}
 		}
 	}
@@ -183,7 +188,7 @@ final class SpecWhitener {
 	private int[][] banksRanTable; // each row is a filter; cols are lower band index and upper band index this
 									// filter covers
 
-	//public float[] wSpec; // the whitened specturm
+	// public float[] wSpec; // the whitened specturm
 
 	public SpecWhitener(int bufferSize, float sr) {
 		this.bufferSize = bufferSize;
@@ -214,7 +219,7 @@ final class SpecWhitener {
 			banksRanTable[i][1] = (int) Math.floor(bandIndUp);
 		}
 
-		//wSpec = new float[bufferSize / 2 + 1];
+		// wSpec = new float[bufferSize / 2 + 1];
 	}
 
 	public void whiten(float[] spec) {
@@ -230,16 +235,16 @@ final class SpecWhitener {
 					sum += Math.pow(spec[i], 2) * (cenFreqs[j + 1] - bandFreq) / cenFreqsSteps[j + 1];
 				}
 			}
-			if (sum > 0 ) {
+			if (sum > 0) {
 				bwCompCoef[j] = (float) Math.pow(Math.pow(sum / bufferSize, .5f), .33f - 1);
-			}	
+			}
 		}
 
 		// calculate steps of increment of bwCompCoef
 		float[] bwCompCoefSteps = new float[32];
 		for (int i = 1; i < bwCompCoef.length; ++i) {
 			bwCompCoefSteps[i] = bwCompCoef[i] - bwCompCoef[i - 1];
-		}	
+		}
 
 		// whitens
 		float compCoef = 0;
@@ -255,7 +260,7 @@ final class SpecWhitener {
 				compCoef = (-bwCompCoefSteps[bankCount] * (cenFreqs[bankCount] - bandFreq) / cenFreqsSteps[bankCount])
 						+ bwCompCoef[bankCount];
 			}
-			//wSpec[i] = spec[i] * compCoef;
+			// wSpec[i] = spec[i] * compCoef;
 			spec[i] = spec[i] * compCoef;
 		}
 	}

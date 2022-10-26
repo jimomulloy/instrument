@@ -1,7 +1,6 @@
 package jomu.instrument.world.tonemap;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -47,7 +46,7 @@ public class ToneMap {
 
 	public ToneMap clone() {
 		ToneMap copy = new ToneMap();
-		for(Entry<Double, ToneTimeFrame> tmf: toneMapStore.entrySet()) {
+		for (Entry<Double, ToneTimeFrame> tmf : toneMapStore.entrySet()) {
 			copy.addTimeFrame(tmf.getValue().clone());
 		}
 		return copy;
@@ -79,6 +78,47 @@ public class ToneMap {
 
 	public ToneTimeFrame getTimeFrame() {
 		return toneMapStore.lastEntry().getValue();
+	}
+
+	public ToneTimeFrame getTimeFrame(Double key) {
+		return toneMapStore.get(key);
+	}
+
+	public ToneTimeFrame[] getTimeFramesFrom(Double key) {
+		Collection<ToneTimeFrame> tailMap = toneMapStore.tailMap(key).values();
+		return tailMap.toArray(new ToneTimeFrame[tailMap.size()]);
+	}
+
+	public ToneTimeFrame[] getTimeFramesTo(Double key) {
+		Collection<ToneTimeFrame> headMap = toneMapStore.headMap(key).values();
+		return headMap.toArray(new ToneTimeFrame[headMap.size()]);
+	}
+
+	public ToneTimeFrame getPreviousTimeFrame() {
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(toneMapStore.lastKey());
+		if (previousEntry != null) {
+			return previousEntry.getValue();
+		} else {
+			return null;
+		}
+	}
+
+	public ToneTimeFrame getPreviousTimeFrame(Double key) {
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(key);
+		if (previousEntry != null) {
+			return previousEntry.getValue();
+		} else {
+			return null;
+		}
+	}
+
+	public ToneTimeFrame getNextTimeFrame(Double key) {
+		Entry<Double, ToneTimeFrame> nextEntry = toneMapStore.higherEntry(key);
+		if (nextEntry != null) {
+			return nextEntry.getValue();
+		} else {
+			return null;
+		}
 	}
 
 	public ToneMap harmonics() {

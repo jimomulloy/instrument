@@ -2,7 +2,7 @@ package jomu.instrument;
 
 import jomu.instrument.organs.Coordinator;
 import jomu.instrument.organs.Druid;
-import jomu.instrument.world.Memory;
+import jomu.instrument.world.WorldModel;
 
 public class Instrument {
 	private static Instrument instrument;
@@ -18,7 +18,7 @@ public class Instrument {
 
 	private Druid druid;
 
-	private Memory memory;
+	private WorldModel worldModel;
 
 	public Coordinator getCoordinator() {
 		return coordinator;
@@ -28,14 +28,14 @@ public class Instrument {
 		return druid;
 	}
 
-	public Memory getMemory() {
-		return memory;
+	public WorldModel getWorldModel() {
+		return worldModel;
 	}
 
 	public void initialise() {
-		memory = new Memory();
-		memory.initialise();
-		memory.start();
+		worldModel = new WorldModel();
+		worldModel.initialise();
+		worldModel.start();
 		druid = new Druid();
 		druid.initialise();
 		druid.start();

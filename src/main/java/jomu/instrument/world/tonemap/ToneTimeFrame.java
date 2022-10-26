@@ -28,6 +28,8 @@ public class ToneTimeFrame {
 	public int pitchHigh = INIT_PITCH_HIGH;
 	public int pitchLow = INIT_PITCH_LOW;
 
+	private NoteStatus noteStatus;
+
 	public ToneTimeFrame(TimeSet timeSet, PitchSet pitchSet) {
 		this.timeSet = timeSet;
 		this.pitchSet = pitchSet;
@@ -36,6 +38,7 @@ public class ToneTimeFrame {
 		for (int i = 0; i < elements.length; i++) {
 			elements[i] = new ToneMapElement(i);
 		}
+		noteStatus = new NoteStatus(pitchSet);
 	}
 
 	public ToneTimeFrame clone() {
@@ -49,6 +52,14 @@ public class ToneTimeFrame {
 
 	public ToneMapElement[] getElements() {
 		return elements;
+	}
+
+	public ToneMapElement getElement(int index) {
+		return elements[index];
+	}
+
+	public NoteStatus getNoteStatus() {
+		return noteStatus;
 	}
 
 	public PitchSet getPitchSet() {
@@ -68,7 +79,7 @@ public class ToneTimeFrame {
 		minAmplitude = 0;
 		avgAmplitude = 0;
 		long count = 0;
-		
+
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				elements[i].noteState = 0;
@@ -121,7 +132,7 @@ public class ToneTimeFrame {
 			return 0.0F;
 		if (ampType == LOGAMP) {
 			amplitude = (float) Math.log10(1 + (100.0 * power));
-			//amplitude = (20 * Math.log(1 + Math.abs(power)) / Math.log(10));
+			// amplitude = (20 * Math.log(1 + Math.abs(power)) / Math.log(10));
 			// double logMinFTPower = Math.abs(Math.log(minFTPower / maxFTPower));
 			// amplitude = (logMinFTPower - Math.abs(Math.log(FTPower / maxFTPower))) /
 			// logMinFTPower;
@@ -129,19 +140,14 @@ public class ToneTimeFrame {
 			if (amplitude < 0)
 				amplitude = 0.0;
 		} else {
-			/*if ((maxPower - minPower) <= 0) {
-				amplitude = 0.0;
-			} else {
-				double minpow = minPower + (maxPower - minPower) * ((double) lowThres / 100.0);
-				double maxpow = maxPower - (maxPower - minPower) * ((double) (100 - highThres) / 100.0);
-				if (power > maxpow) {
-					amplitude = 1.0;
-				} else if (power < minpow) {
-					amplitude = 0.0;
-				} else {
-					amplitude = (Math.sqrt(power - minpow) / Math.sqrt(maxpow - minpow));
-				}
-			}*/
+			/*
+			 * if ((maxPower - minPower) <= 0) { amplitude = 0.0; } else { double minpow =
+			 * minPower + (maxPower - minPower) * ((double) lowThres / 100.0); double maxpow
+			 * = maxPower - (maxPower - minPower) * ((double) (100 - highThres) / 100.0); if
+			 * (power > maxpow) { amplitude = 1.0; } else if (power < minpow) { amplitude =
+			 * 0.0; } else { amplitude = (Math.sqrt(power - minpow) / Math.sqrt(maxpow -
+			 * minpow)); } }
+			 */
 		}
 
 		return amplitude;
@@ -151,21 +157,23 @@ public class ToneTimeFrame {
 		double[] result = new double[elements.length];
 		for (int i = 0; i < elements.length; i++) {
 			result[i] = pitchSet.getFreq(i + 1);
-		}	
+		}
 		return result;
 	}
-	
+
 	public void loadFFTSpectrum(FFTSpectrum fftSpectrum) {
 		int elementIndex = 0;
 		double binStartFreq = pitchSet.getFreq(elementIndex);
 		double binEndFreq = pitchSet.getFreq(elementIndex + 1);
 		elements[elementIndex].amplitude = 0;
-		//System.out.println(">>loadFFT timeSet.getSampleRate(): " + timeSet.getSampleRate());
-		//System.out.println(">>loadFFT bufferSize: " + bufferSize);
+		// System.out.println(">>loadFFT timeSet.getSampleRate(): " +
+		// timeSet.getSampleRate());
+		// System.out.println(">>loadFFT bufferSize: " + bufferSize);
 		for (int i = 0; i < fftSpectrum.getSpectrum().length; i++) {
-			//double currentFreq = (timeSet.getSampleRate() / (2.0)) * (((double) i) / bufferSize);
+			// double currentFreq = (timeSet.getSampleRate() / (2.0)) * (((double) i) /
+			// bufferSize);
 			double currentFreq = i * (timeSet.getSampleRate() / (((double) fftSpectrum.getWindowSize()) * 2.0));
-			//System.out.println(">>loadFFT currentFreq 1 : " + currentFreq);
+			// System.out.println(">>loadFFT currentFreq 1 : " + currentFreq);
 			if (currentFreq < binStartFreq) {
 				continue;
 			}
@@ -177,16 +185,16 @@ public class ToneTimeFrame {
 				elements[elementIndex].amplitude = 0;
 				binEndFreq = pitchSet.getFreq(elementIndex + 1);
 			}
-			//System.out.println(">>loadFFT elementIndex: " + elementIndex);
-			//System.out.println(">>loadFFT currentFreq : " + currentFreq);
-			//System.out.println(">>loadFFT binStartFreq: " + binStartFreq);
-			//System.out.println(">>loadFFT binEndFreq: " + binEndFreq);
+			// System.out.println(">>loadFFT elementIndex: " + elementIndex);
+			// System.out.println(">>loadFFT currentFreq : " + currentFreq);
+			// System.out.println(">>loadFFT binStartFreq: " + binStartFreq);
+			// System.out.println(">>loadFFT binEndFreq: " + binEndFreq);
 			elements[elementIndex].amplitude += fftSpectrum.getSpectrum()[i];
 		}
 	}
 
 	public FFTSpectrum extractFFTSpectrum(int windowSize) {
-		
+
 		float[] spec = new float[windowSize + 1];
 		double binStartFreq, binEndFreq;
 		int binStartIndex, binEndIndex;
@@ -227,7 +235,7 @@ public class ToneTimeFrame {
 		}
 		reset();
 	}
-	
+
 	public void normalise(float threshold) {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
@@ -239,11 +247,10 @@ public class ToneTimeFrame {
 
 	public void deNoise(double threshold) {
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] != null 
-					&& elements[i].amplitude < threshold) {
+			if (elements[i] != null && elements[i].amplitude < threshold) {
 				elements[i].amplitude = 0.00001;
 			}
 		}
-		reset();		
+		reset();
 	}
 }

@@ -80,7 +80,7 @@ public class PitchAnalyser {
 		double[] salience;
 		double summa;
 		float[] spec = fftSpectrum.getSpectrum();
-		while (S.lastElement() >= smax ) {
+		while (S.lastElement() >= smax) {
 			// Calculating the salience function (the hard way...)
 			salience = new double[f0cands.length];
 			double salmax = 0;
@@ -94,9 +94,8 @@ public class PitchAnalyser {
 						System.out.println(">>!! whitenedSpec!!: " + f0index[i].get(j));
 					} else {
 						summa += (samplingRate * freqs[f0index[i].get(j)] + alpha)
-							/ ((j + 1) * samplingRate * freqs[f0index[i].get(j)] + beta)
-							* spec[f0index[i].get(j)];
-					}	
+								/ ((j + 1) * samplingRate * freqs[f0index[i].get(j)] + beta) * spec[f0index[i].get(j)];
+					}
 				}
 				salience[i] = summa;
 				if (salience[i] > salmax) {
@@ -160,12 +159,12 @@ public class PitchAnalyser {
 			F0s.remove(F0s.size() - 1);
 			F0BinIndexes.remove(F0BinIndexes.size() - 1);
 		}
-		
-		for (int i = 0; i < spec.length; i++)  {
-			spec[i] = 0F; 
+
+		for (int i = 0; i < spec.length; i++) {
+			spec[i] = 0F;
 		}
-		for (ArrayList<Integer> f0Bins: F0BinIndexes) {
-			for (Integer f0Bin: f0Bins) {
+		for (ArrayList<Integer> f0Bins : F0BinIndexes) {
+			for (Integer f0Bin : f0Bins) {
 				spec[f0Bin] = 1.0F;
 			}
 		}

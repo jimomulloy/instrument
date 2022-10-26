@@ -34,9 +34,13 @@ public class Cortex implements AudioFeatureFrameObserver {
 
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
-		NuCell cqCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
+		NuCell audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
+		NuCell audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
+		NuCell audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
 		NuCell sinkCell = Generator.createNuCell(CellTypes.SINK);
-		Weaver.connect(cqCell, sinkCell);
+		Weaver.connect(audioCQCell, audioIntegrateCell);
+		Weaver.connect(audioIntegrateCell, audioNotateCell);
+		Weaver.connect(audioNotateCell, sinkCell);
 		NuCell[] pitchCells = new NuCell[1];
 		for (int i = 0; i < 1; i++) {
 			NuCell pitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
@@ -44,7 +48,7 @@ public class Cortex implements AudioFeatureFrameObserver {
 			Weaver.connect(pitchCell, sinkCell);
 			Weaver.connect(sourceUpdateCell, pitchCell);
 		}
-		Weaver.connect(sourceUpdateCell, cqCell);
+		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
 		hearing.getAudioFeatureProcessor().addObserver(this);
 		audioFeatureFrameSink = new AudioFeatureFrameSink(sinkCell);

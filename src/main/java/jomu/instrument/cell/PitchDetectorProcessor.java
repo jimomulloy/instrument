@@ -9,19 +9,19 @@ import jomu.instrument.organs.AudioFeatureFrame;
 import jomu.instrument.organs.AudioFeatureProcessor;
 import jomu.instrument.organs.Hearing;
 import jomu.instrument.organs.PitchDetectorFeatures;
-import jomu.instrument.world.Memory;
+import jomu.instrument.world.WorldModel;
 import jomu.instrument.world.tonemap.ToneMap;
 
 public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
-	private Memory memory;
+	private WorldModel worldModel;
 
 	public PitchDetectorProcessor(NuCell cell) {
 		super();
 		System.out.println(">>PitchDetectorProcessor create");
 		this.cell = cell;
-		memory = Instrument.getInstance().getMemory();
+		worldModel = Instrument.getInstance().getWorldModel();
 	}
 
 	@Override
@@ -42,13 +42,13 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 				pdf.buildToneMap();
 				ToneMap toneMap = pdf.getToneMap();
 				System.out.println(">PitchDetectorProcessor process tonemap");
-				memory.getAtlas().putToneMap(this.cell.getType(), toneMap);
+				// worldModel.getAtlas().putToneMap(this.cell.getCellType(), toneMap);
 				// if (toneMap != null && toneMap.getTunerModel().tune()) {
 				// cqf.displayToneMap();
 				// System.out.println(">>ConstantQMessageProcessor send");
 				// cell.send(sequence, output);
 				// }
-			
+
 			}
 		}
 	}

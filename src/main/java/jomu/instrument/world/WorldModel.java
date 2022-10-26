@@ -1,6 +1,6 @@
 package jomu.instrument.world;
 
-public class Memory {
+public class WorldModel {
 
 	Atlas atlas = new Atlas();
 

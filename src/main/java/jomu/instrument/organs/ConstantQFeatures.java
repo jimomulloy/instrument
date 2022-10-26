@@ -83,7 +83,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 					PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
 
 			pitchSet = new PitchSet(lowPitch, highPitch);
-		
+
 			toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
@@ -97,7 +97,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 			}
 
 			ttf.reset();
-			//visor.updateToneMap(audioFeatureFrame);
+			// visor.updateToneMap(audioFeatureFrame);
 		}
 	}
 

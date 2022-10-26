@@ -5,19 +5,18 @@ import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.organs.AudioFeatureFrame;
-import jomu.instrument.organs.AudioFeatureProcessor;
-import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.Hearing;
 import jomu.instrument.world.WorldModel;
 import jomu.instrument.world.tonemap.ToneMap;
 
-public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
+public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
 	private WorldModel worldModel;
 
-	public ConstantQMessageProcessorPD(NuCell cell) {
+	private float tmMax = 0;
+
+	public AudioIntegrateProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		worldModel = Instrument.getInstance().getWorldModel();
@@ -29,35 +28,29 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
-		System.out.println(">>ConstantQMessageProcessor accepting");
+		System.out.println(">>AudioIntegrateProcessor accepting");
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>ConstantQMessageProcessor accept: " + message);
-			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+			System.out.println(">>AudioIntegrateProcessor accept: " + message);
+			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor();
-				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-				ConstantQFeatures cqf = aff.getConstantQFeatures();
-				cqf.buildToneMap();
-				ToneMap toneMap = cqf.getToneMap(); // .clone();
-				// float[] fft = toneMap.extractFFT(4096);
-				// PitchDetect pd = new PitchDetect(4096, (float)
-				// toneMap.getTimeFrame().getTimeSet().getSampleRate(),
-				// convertDoublesToFloats(toneMap.getTimeFrame().getPitchSet().getFreqSet()));
-				// pd.detect(fft);
-				// toneMap.loadFFT(fft, 4096);
-				// toneMap.reset();
-				System.out.println(">>ConstantQMessageProcessor process tonemap");
-				// worldModel.getAtlas().putToneMap(this.cell.getCellType(), toneMap);
-				cqf.displayToneMap();
-				System.out.println(">>ConstantQMessageProcessor send");
+				ToneMap cqToneMap = worldModel.getAtlas()
+						.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId, sequence));
+				ToneMap integrateToneMap = worldModel.getAtlas()
+						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId, sequence));
+				integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame());
+				System.out.println(">>AudioIntegrateProcessor send");
 				cell.send(streamId, sequence);
 			}
 		}
 	}
 
-	public static double[] convertFloatsToDoubles(float[] input) {
+	private String buildToneMapKey(CellTypes cellType, String streamId, int sequence) {
+		return cellType + ":" + streamId + ":" + sequence;
+	}
+
+	private static double[] convertFloatsToDoubles(float[] input) {
 		if (input == null) {
 			return null; // Or throw an exception - your choice
 		}

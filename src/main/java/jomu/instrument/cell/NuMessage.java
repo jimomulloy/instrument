@@ -22,7 +22,8 @@ public class NuMessage {
 		if (getClass() != obj.getClass())
 			return false;
 		NuMessage other = (NuMessage) obj;
-		return Objects.equals(streamId + sequence, other.streamId + other.sequence) && Objects.equals(source, other.source);
+		return Objects.equals(streamId + sequence, other.streamId + other.sequence)
+				&& Objects.equals(source, other.source);
 	}
 
 	@Override

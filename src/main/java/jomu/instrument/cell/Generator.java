@@ -13,6 +13,18 @@ public class Generator {
 		return cell;
 	}
 
+	private static NuCell createAudioIntegrateTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_INTEGRATE);
+		cell.setProcessor(getAudioIntegrateProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioNotateTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_NOTATE);
+		cell.setProcessor(getAudioNotateProcessor(cell));
+		return cell;
+	}
+
 	private static NuCell createAudioPitchTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_PITCH);
 		cell.setProcessor(getAudioPitchProcessor(cell));
@@ -35,6 +47,10 @@ public class Generator {
 			return createAudioPitchTypeCell();
 		case AUDIO_CQ:
 			return createAudioCQTypeCell();
+		case AUDIO_INTEGRATE:
+			return createAudioIntegrateTypeCell();
+		case AUDIO_NOTATE:
+			return createAudioNotateTypeCell();
 		case JUNCTION:
 			return createJunctionTypeCell();
 		default:
@@ -54,8 +70,16 @@ public class Generator {
 		return cell;
 	};
 
+	private static Consumer<List<NuMessage>> getAudioIntegrateProcessor(NuCell cell) {
+		return new AudioIntegrateProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioNotateProcessor(NuCell cell) {
+		return new AudioNotateProcessor(cell);
+	}
+
 	private static Consumer<List<NuMessage>> getAudioCQProcessor(NuCell cell) {
-		return new ConstantQMessageProcessor(cell);
+		return new AudioCQProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getAudioPitchProcessor(NuCell cell) {

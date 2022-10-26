@@ -25,7 +25,7 @@ public class Hearing {
 	float meanFrequency = 400.0F;
 	Analyzer analyzer;
 	String streamId;
-	
+
 	int sampleRate = 44100;
 	private TarsosAudioIO tarsosIO;
 	TarsosFeatureSource tarsosFeatureSource;
