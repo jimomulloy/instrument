@@ -9,6 +9,18 @@ package jomu.instrument.world.tonemap;
  */
 public class NoteStatus {
 
+	private NoteStatusElement[] noteStatus;
+
+	private NoteStatusElement element;
+
+	private int index;
+
+	private int lowNote;
+
+	private int highNote;
+
+	private int note;
+
 	public NoteStatus(PitchSet pitchSet) {
 
 		noteStatus = new NoteStatusElement[pitchSet.getRange()];
@@ -37,12 +49,6 @@ public class NoteStatus {
 
 	}
 
-	public int size() {
-
-		return noteStatus.length;
-
-	}
-
 	public NoteStatusElement next() {
 		if (index < size()) {
 			index++;
@@ -52,11 +58,10 @@ public class NoteStatus {
 		}
 	}
 
-	private NoteStatusElement[] noteStatus;
-	private NoteStatusElement element;
-	private int index;
-	private int lowNote;
-	private int highNote;
-	private int note;
+	public int size() {
+
+		return noteStatus.length;
+
+	}
 
 } // End NoteStatus

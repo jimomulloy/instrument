@@ -38,11 +38,13 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 			FFT fft = new FFT(bufferSize);
 			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
 			float[] transformbuffer = new float[bufferSize * 2];
-			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0,
+					audioFloatBuffer.length);
 			fft.forwardTransform(transformbuffer);
 			float[] amplitudes = new float[bufferSize / 2];
 			fft.modulus(transformbuffer, amplitudes);
-			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
+			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult,
+					amplitudes, fft);
 			features.put(audioEvent.getTimeStamp(), si);
 			return true;
 		}
@@ -64,10 +66,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		this.bufferSize = bufferSize;
 	}
 
-	void clear() {
-		features.clear();
-	}
-
 	public float getBinHeight() {
 		return binHeight;
 	}
@@ -86,7 +84,8 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	public TreeMap<Double, SpectrogramInfo> getFeatures() {
 		TreeMap<Double, SpectrogramInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
+		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features
+				.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -101,8 +100,13 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	}
 
 	@Override
-	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
+	public void handlePitch(PitchDetectionResult pitchDetectionResult,
+			AudioEvent audioEvent) {
 		this.pitchDetectionResult = pitchDetectionResult;
+	}
+
+	void clear() {
+		features.clear();
 	}
 
 	void initialise() {
@@ -112,18 +116,23 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		binHeightsInCents = new float[bufferSize];
 		FFT fft = new FFT(bufferSize);
 		for (int i = 1; i < bufferSize; i++) {
-			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
-			binHeightsInCents[i] = binStartingPointsInCents[i] - binStartingPointsInCents[i - 1];
+			binStartingPointsInCents[i] = (float) PitchConverter
+					.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
+			binHeightsInCents[i] = binStartingPointsInCents[i]
+					- binStartingPointsInCents[i - 1];
 		}
 
 		binWidth = bufferSize / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
 
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, bufferSize, overlap);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(
+				sampleRate, 16, 1, true, true);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
+				tarsosDSPFormat, bufferSize, overlap);
 		djp.setName("PD");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
-		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
+		djp.addAudioProcessor(
+				new PitchProcessor(algo, sampleRate, bufferSize, this));
 		djp.addAudioProcessor(fftProcessor);
 		features.clear();
 	}

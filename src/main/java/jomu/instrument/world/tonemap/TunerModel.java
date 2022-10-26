@@ -12,8 +12,6 @@ package jomu.instrument.world.tonemap;
  */
 public class TunerModel implements ToneMapConstants {
 
-	private ToneMap toneMap;
-
 	private double sampleRate;
 	private int numChannels;
 	private double sampleBitSize;
@@ -75,9 +73,6 @@ public class TunerModel implements ToneMapConstants {
 
 	private int matrixLength;
 
-	private TimeSet timeSet;
-	private PitchSet pitchSet;
-
 	private int timeRange;
 	private int pitchRange;
 	private double amplitude;
@@ -89,6 +84,7 @@ public class TunerModel implements ToneMapConstants {
 	private NoteListElement noteListElement;
 	private ToneMapElement toneMapElement;
 
+	OvertoneSet overtoneSet;
 	double[] harmonics;
 	double[][] formants;
 
@@ -105,9 +101,35 @@ public class TunerModel implements ToneMapConstants {
 	/**
 	 * TunerModel constructor. Instantiate TunerPanel
 	 */
-	public TunerModel(ToneMap toneMap) {
+	public TunerModel() {
 
-		this.toneMap = toneMap;
+		initOvertoneSet();
+		harmonics = overtoneSet.getHarmonics();
+		formants = overtoneSet.getFormants();
+
+		initFormants();
+
+	}
+
+	// Apply formant conversion to ToneMapMatrix element data
+	public void applyFormants(ToneTimeFrame toneTimeFrame) {
+
+		TimeSet timeSet = toneTimeFrame.getTimeSet();
+		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+		timeRange = timeSet.getRange();
+		pitchRange = pitchSet.getRange();
+
+		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+
+		for (ToneMapElement toneMapElement : ttfElements) {
+			index = toneMapElement.getIndex();
+			note = pitchSet.getNote(toneMapElement.getPitchIndex());
+			if (toneMapElement == null || toneMapElement.amplitude == -1)
+				continue;
+			applyFormant(toneMapElement, note);
+		}
+		return;
 	}
 
 	/**
@@ -117,12 +139,134 @@ public class TunerModel implements ToneMapConstants {
 		noteList = null;
 	}
 
+	public int getHighPitch() {
+		return pitchHigh;
+	}
+
+	public int getLowPitch() {
+		return pitchLow;
+	}
+
+	public NoteList getNoteList() {
+		return noteList;
+	}
+
+	/**
+	 * Normalise peak amplitudes
+	 */
+	public boolean normalize(ToneMap toneMap) {
+
+		double amplitude, maxAmp = 0;
+		int startPeak, endPeak, lastStartPeak, lastEndPeak;
+		int index = 0;
+		ToneMapElement thresholdElement = null;
+		int note;
+		double troughAmp, peakAmp, lastAmp, lastPeakAmp;
+
+		System.out
+				.println("In normalize: " + normalizeSetting + ", " + noteHigh);
+
+		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
+
+		maxAmp = 0;
+
+		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+		for (ToneMapElement toneMapElement : ttfElements) {
+			note = toneTimeFrame.getPitchSet()
+					.getNote(toneMapElement.getPitchIndex());
+			amplitude = toneMapElement.amplitude;
+
+			if (amplitude > maxAmp) {
+				maxAmp = amplitude;
+				thresholdElement = toneMapElement;
+			}
+
+		}
+
+		System.out.println("max amp: " + maxAmp);
+
+		troughAmp = maxAmp;
+
+		startPeak = 0;
+		endPeak = 0;
+		lastAmp = 0;
+		maxAmp = 0;
+		if (!n1Switch) {
+			thresholdElement = null;
+		}
+		lastStartPeak = 0;
+		lastEndPeak = 0;
+		lastPeakAmp = 0;
+		int peakcount = n1Setting;
+		double peakFactor = n2Setting;
+
+		TimeSet timeSet = toneTimeFrame.getTimeSet();
+		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+		for (ToneMapElement toneMapElement : ttfElements) {
+
+			index = toneMapElement.getIndex();
+			note = pitchSet.getNote(toneMapElement.getPitchIndex());
+			amplitude = toneMapElement.amplitude;
+			if (amplitude > lastAmp)
+				startPeak = index;
+			if (amplitude >= lastAmp)
+				endPeak = index;
+			if (amplitude < lastAmp) {
+				if (lastStartPeak != 0) {
+					if (troughAmp == 0 || (lastAmp / troughAmp) > peakFactor) {
+						if ((troughAmp == 0
+								|| (lastPeakAmp / troughAmp) > peakFactor)
+								&& peakcount > 0) {
+							peakcount = peakcount - 1;
+							processPeak(toneTimeFrame, lastStartPeak,
+									lastEndPeak, troughAmp, thresholdElement,
+									maxAmp);
+						}
+						lastPeakAmp = lastAmp;
+						lastStartPeak = startPeak;
+						lastEndPeak = endPeak;
+						startPeak = 0;
+						endPeak = 0;
+						troughAmp = maxAmp;
+					}
+				} else {
+					if (startPeak != 0) {
+						if (troughAmp == 0
+								|| (lastAmp / troughAmp) > peakFactor) {
+							lastPeakAmp = lastAmp;
+							lastStartPeak = startPeak;
+							lastEndPeak = endPeak;
+							startPeak = 0;
+							endPeak = 0;
+							troughAmp = maxAmp;
+						}
+					}
+				}
+
+			}
+			if (amplitude < troughAmp)
+				troughAmp = amplitude;
+			lastAmp = amplitude;
+
+		}
+
+		if (lastStartPeak != 0 && peakcount > 0) {
+			if (troughAmp == 0 || (lastPeakAmp / troughAmp) > peakFactor) {
+				processPeak(toneTimeFrame, lastStartPeak, lastEndPeak,
+						troughAmp, thresholdElement, maxAmp);
+			}
+		}
+
+		return true;
+	}
+
 	/**
 	 * Scan through ToneMapMatrix extracting MIDI note data into NoteList object
 	 * Apply filtering and conversion processing on basis of Tuner Parameters
 	 */
 	public boolean noteScan(ToneMap toneMap) {
-
+		System.out.println(">>!! noteScan");
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 		ToneTimeFrame previousToneTimeFrame = toneMap.getPreviousTimeFrame();
 		NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
@@ -140,7 +284,11 @@ public class TunerModel implements ToneMapConstants {
 		NoteStatusElement noteStatusElement = null;
 		NoteStatusElement previousNoteStatusElement = null;
 
-		// Iterate through ToneTimeFrame processing data elements to derive NoteList
+		TimeSet timeSet = toneTimeFrame.getTimeSet();
+		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+		// Iterate through ToneTimeFrame processing data elements to derive
+		// NoteList
 		// elements
 		// Scan through each Pitch coordinate from Low to High limit.
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
@@ -157,79 +305,81 @@ public class TunerModel implements ToneMapConstants {
 			// Establish range of Matrix entries within a sequence constituting
 			// a continuous note within the bounds of the Tuner parameters
 			switch (previousNoteStatusElement.state) {
-			case OFF:
-				if (amplitude >= (double) noteLow / 100.0) {
-					noteStatusElement.state = ON;
-					noteStatusElement.onTime = time;
-					noteStatusElement.offTime = 0.0;
-					if (amplitude >= (double) noteHigh / 100.0) {
-						noteStatusElement.highFlag = true;
-					}
-				}
-				break;
-
-			case ON:
-				if (amplitude < (double) noteLow / 100.0
-						|| (time - noteStatusElement.onTime) > (double) noteMaxDuration) {
-					noteStatusElement.state = PENDING;
-					noteStatusElement.offTime = time;
-				} else {
-					if (amplitude >= (double) noteHigh / 100.0) {
-						noteStatusElement.highFlag = true;
-					}
-				}
-				break;
-
-			case PENDING:
-				if (amplitude >= (double) noteLow / 100.0) {
-					if ((time - noteStatusElement.offTime) < (noteSustain)
-							&& (noteStatusElement.offTime - noteStatusElement.onTime) <= (double) noteMaxDuration) {
-						noteStatusElement.state = ON;
-						noteStatusElement.offTime = 0.0;
-						if (amplitude >= (double) noteHigh / 100.0) {
-							noteStatusElement.highFlag = true;
-						}
-					} else {
-						// Process candididate note
-						processNote(toneMap, noteStatusElement);
+				case OFF :
+					if (amplitude >= noteLow / 100.0) {
 						noteStatusElement.state = ON;
 						noteStatusElement.onTime = time;
 						noteStatusElement.offTime = 0.0;
-						if (amplitude >= (double) noteHigh / 100.0) {
+						if (amplitude >= noteHigh / 100.0) {
 							noteStatusElement.highFlag = true;
 						}
 					}
-				} else {
-					if ((time - noteStatusElement.offTime) >= (noteSustain)
-							|| (noteStatusElement.offTime - noteStatusElement.onTime) > (double) noteMaxDuration) {
-						// Process candidate note
-						processNote(toneMap, noteStatusElement);
-						noteStatusElement.state = OFF;
-						noteStatusElement.onTime = 0.0;
-						noteStatusElement.offTime = 0.0;
-						noteStatusElement.highFlag = false;
+					break;
+
+				case ON :
+					if (amplitude < noteLow / 100.0 || (time
+							- noteStatusElement.onTime) > noteMaxDuration) {
+						noteStatusElement.state = PENDING;
+						noteStatusElement.offTime = time;
+					} else {
+						if (amplitude >= noteHigh / 100.0) {
+							noteStatusElement.highFlag = true;
+						}
 					}
-				}
+					break;
 
-				break;
+				case PENDING :
+					if (amplitude >= noteLow / 100.0) {
+						if ((time - noteStatusElement.offTime) < (noteSustain)
+								&& (noteStatusElement.offTime
+										- noteStatusElement.onTime) <= noteMaxDuration) {
+							noteStatusElement.state = ON;
+							noteStatusElement.offTime = 0.0;
+							if (amplitude >= noteHigh / 100.0) {
+								noteStatusElement.highFlag = true;
+							}
+						} else {
+							// Process candididate note
+							processNote(toneMap, noteStatusElement);
+							noteStatusElement.state = ON;
+							noteStatusElement.onTime = time;
+							noteStatusElement.offTime = 0.0;
+							if (amplitude >= noteHigh / 100.0) {
+								noteStatusElement.highFlag = true;
+							}
+						}
+					} else {
+						if ((time - noteStatusElement.offTime) >= (noteSustain)
+								|| (noteStatusElement.offTime
+										- noteStatusElement.onTime) > noteMaxDuration) {
+							// Process candidate note
+							processNote(toneMap, noteStatusElement);
+							noteStatusElement.state = OFF;
+							noteStatusElement.onTime = 0.0;
+							noteStatusElement.offTime = 0.0;
+							noteStatusElement.highFlag = false;
+						}
+					}
 
-			default:
-				break;
+					break;
+
+				default :
+					break;
 			}
 
 			/*
 			 * IF LAST switch (noteStatusElement.state) { case OFF: break;
-			 * 
-			 * case ON: noteStatusElement.offTime = time; noteStatusElement.offIndex =
-			 * index; // ??
-			 * 
+			 *
+			 * case ON: noteStatusElement.offTime = time;
+			 * noteStatusElement.offIndex = index; // ??
+			 *
 			 * case PENDING:
-			 * 
-			 * // Process candidate note processNote(); noteStatusElement.state = OFF;
-			 * noteStatusElement.onTime = 0.0; noteStatusElement.onIndex = 0;
-			 * noteStatusElement.offTime = 0.0; noteStatusElement.offIndex = 0;
-			 * noteStatusElement.highFlag = false; break;
-			 * 
+			 *
+			 * // Process candidate note processNote(); noteStatusElement.state
+			 * = OFF; noteStatusElement.onTime = 0.0; noteStatusElement.onIndex
+			 * = 0; noteStatusElement.offTime = 0.0; noteStatusElement.offIndex
+			 * = 0; noteStatusElement.highFlag = false; break;
+			 *
 			 * default: break; }
 			 */
 		}
@@ -237,15 +387,128 @@ public class TunerModel implements ToneMapConstants {
 		return true;
 	}
 
-	// Process individual Note across sequence of ToneMapMatrix elements
-	private void processNote(ToneMap toneMap, NoteStatusElement noteStatusElement) {
+	// Apply formant conversion to ToneMapMatrix element data
+	private void applyFormant(ToneMapElement element, int note) {
 
-		if (noteStatusElement.highFlag == false) {
-			// Discard note - no high flag
+		if (formantMidFreq < formantLowFreq || formantMidFreq > formantHighFreq)
 			return;
+
+		double noteFreq = PitchSet.getMidiFreq(note);
+
+		if (noteFreq < formantLowFreq || noteFreq > formantHighFreq)
+			return;
+
+		if (noteFreq <= formantMidFreq) {
+			element.amplitude = element.amplitude * (1.0
+					- ((formantFactor / 100.0) * ((noteFreq - formantLowFreq)
+							/ (formantMidFreq - formantLowFreq))));
+
+		} else {
+			element.amplitude = element.amplitude * (1.0
+					- ((formantFactor / 100.0) * ((formantHighFreq - noteFreq)
+							/ (formantHighFreq - formantMidFreq))));
+
+		}
+	}
+
+	// Attenuate audio data power values for given Harmonic overtone
+	private void attenuate(ToneMapElement overToneElement, double fundamental,
+			double harmonic) {
+
+		double overToneData = fundamental * harmonic;
+
+		if (overToneElement.amplitude <= overToneData) {
+			overToneElement.amplitude = 0;
+		} else {
+			overToneElement.amplitude -= overToneData;
 		}
 
-		if ((noteStatusElement.offTime - noteStatusElement.onTime) < (double) noteMinDuration) {
+	}
+
+	private void initFormants() {
+
+		formantLowFreq = PitchSet.getMidiFreq(getLowPitch())
+				+ (formantLowSetting / 100.0)
+						* (PitchSet.getMidiFreq(getHighPitch())
+								- PitchSet.getMidiFreq(getLowPitch()));
+
+		formantHighFreq = PitchSet.getMidiFreq(getLowPitch())
+				+ (formantHighSetting / 100.0)
+						* (PitchSet.getMidiFreq(getHighPitch())
+								- PitchSet.getMidiFreq(getLowPitch()));
+		formantMidFreq = PitchSet.getMidiFreq(getLowPitch())
+				+ (formantMiddleSetting / 100.0)
+						* (PitchSet.getMidiFreq(getHighPitch())
+								- PitchSet.getMidiFreq(getLowPitch()));
+
+	}
+
+	private void initOvertoneSet() {
+
+		overtoneSet = new OvertoneSet();
+
+		double[] initHarmonics = {harmonic1Setting / 100.0,
+				harmonic2Setting / 100.0, harmonic3Setting / 100.0,
+				harmonic4Setting / 100.0, harmonic4Setting / 100.0,
+				harmonic4Setting / 100.0};
+
+		overtoneSet.setHarmonics(initHarmonics);
+
+	}
+
+	private double normalThreshold(ToneTimeFrame toneTimeFrame,
+			ToneMapElement toneMapElement, ToneMapElement thresholdElement) {
+
+		TimeSet timeSet = toneTimeFrame.getTimeSet();
+		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+		double thresholdAmp;
+		double thresholdFreq, normalFreq;
+		int thresholdNote, normalNote;
+
+		if (thresholdElement == null
+				|| toneMapElement.getIndex() < thresholdElement.getIndex()) {
+			thresholdAmp = 1.0;
+			thresholdFreq = pitchSet
+					.getFreq(pitchSet.pitchToIndex(getLowPitch()));
+			thresholdNote = pitchSet
+					.getNote(pitchSet.pitchToIndex(getLowPitch()));
+
+		} else {
+
+			thresholdAmp = thresholdElement.amplitude;
+			thresholdFreq = pitchSet.getFreq(thresholdElement.getPitchIndex());
+			thresholdNote = pitchSet.getNote(thresholdElement.getPitchIndex());
+		}
+
+		normalFreq = pitchSet.getFreq(toneMapElement.getPitchIndex());
+		normalNote = pitchSet.getNote(toneMapElement.getPitchIndex());
+		note = pitchSet.getNote(toneMapElement.getPitchIndex());
+		double threshold = 0;
+		if (n2Switch) {
+			threshold = (noteHigh / 100.0) * (thresholdAmp)
+					/ (n5Setting / 10.0
+							+ (((double) n4Setting / (double) normalizeSetting)
+									* (normalNote - thresholdNote)));
+		} else {
+			threshold = (noteHigh / 100.0) * (thresholdAmp)
+					/ (n5Setting / 10.0
+							+ (((double) n4Setting / (double) normalizeSetting)
+									* (normalFreq - thresholdFreq)));
+		}
+
+		System.out.println("In normalThreshold: " + note + ", " + threshold
+				+ ", " + thresholdAmp + ", " + thresholdFreq + ", "
+				+ normalFreq);
+		return threshold;
+	}
+
+	// Process individual Note across sequence of ToneMapMatrix elements
+	private void processNote(ToneMap toneMap,
+			NoteStatusElement noteStatusElement) {
+		System.out.println(">>!! Process note!!: " + noteStatusElement);
+		if (!noteStatusElement.highFlag || ((noteStatusElement.offTime
+				- noteStatusElement.onTime) < noteMinDuration)) {
 			// Discard note < min duration
 			return;
 		}
@@ -268,16 +531,21 @@ public class TunerModel implements ToneMapConstants {
 		double startTime, endTime;
 		int pitchIndex, startTimeIndex, endTimeIndex;
 
-		ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom(noteStatusElement.onTime);
+		ToneTimeFrame[] timeFrames = toneMap
+				.getTimeFramesFrom(noteStatusElement.onTime);
 		ToneMapElement startElement = null;
 		ToneMapElement endElement = null;
 		startTime = noteStatusElement.onTime;
 		endTime = noteStatusElement.offTime;
 
 		// across range of note
-		for (ToneTimeFrame timeFrame : timeFrames) {
+		for (ToneTimeFrame toneTimeFrame : timeFrames) {
 
-			ToneMapElement element = timeFrame.getElement(noteStatusElement.index);
+			TimeSet timeSet = toneTimeFrame.getTimeSet();
+			PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+			ToneMapElement element = toneTimeFrame
+					.getElement(noteStatusElement.index);
 			if (startElement == null) {
 				startElement = element;
 			}
@@ -292,17 +560,17 @@ public class TunerModel implements ToneMapConstants {
 			if (maxAmp < amplitude) {
 				maxAmp = amplitude;
 				if (peakSwitch) {
-					startTime = timeFrame.getStartTime();
+					startTime = toneTimeFrame.getStartTime();
 					startElement = element;
 				}
 			}
 			if ((minAmp == 0) || (minAmp > amplitude))
 				minAmp = amplitude;
 
-			if (amplitude < (double) noteLow / 100.0)
+			if (amplitude < noteLow / 100.0)
 				numLowSlots++;
-			if (peakSwitch && (amplitude >= (double) noteHigh / 100.0)) {
-				endTime = timeFrame.getStartTime();
+			if (peakSwitch && (amplitude >= noteHigh / 100.0)) {
+				endTime = toneTimeFrame.getStartTime();
 				endElement = element;
 				break;
 			}
@@ -315,6 +583,11 @@ public class TunerModel implements ToneMapConstants {
 
 		pitchIndex = startElement.getPitchIndex();
 
+		ToneTimeFrame toneTimeFrame = timeFrames[timeFrames.length - 1];
+
+		TimeSet timeSet = toneTimeFrame.getTimeSet();
+		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
 		startTime = timeSet.getTime(startElement.getTimeIndex());
 		startTimeIndex = startElement.getTimeIndex();
 
@@ -326,18 +599,99 @@ public class TunerModel implements ToneMapConstants {
 		percentMin = numLowSlots / numSlots;
 
 		// Create noteList element object
-		NoteListElement noteListElement = new NoteListElement(note, pitchIndex, startTime, endTime, startTimeIndex,
-				endTimeIndex, avgAmp, maxAmp, minAmp, percentMin);
-		System.out.println("New Note: " + avgAmp + ", " + maxAmp + ", " + minAmp);
+		NoteListElement noteListElement = new NoteListElement(note, pitchIndex,
+				startTime, endTime, startTimeIndex, endTimeIndex, avgAmp,
+				maxAmp, minAmp, percentMin);
+		System.out
+				.println("New Note: " + avgAmp + ", " + maxAmp + ", " + minAmp);
 
 		// Cross-Register NoteList element against ToneMapMatrix elements
 		for (ToneTimeFrame timeFrame : timeFrames) {
 
-			ToneMapElement element = timeFrame.getElement(noteStatusElement.index);
+			ToneMapElement element = timeFrame
+					.getElement(noteStatusElement.index);
 			element.noteListElement = noteListElement;
 		}
 
 		// Add noteList element to noteList object
 		noteList.add(noteListElement);
+	}
+
+	// Process Harmonic overtones
+	private void processOvertones(ToneMap toneMap, int pitchIndex) {
+
+		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
+		TimeSet timeSet = toneTimeFrame.getTimeSet();
+		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+		double f0 = pitchSet.getFreq(pitchIndex);
+		int lastNote = pitchSet.getNote(pitchIndex);
+
+		double overToneFTPower;
+		double overToneAmplitude;
+
+		double freq;
+		int note;
+		int n = 2;
+
+		for (int i = 0; i < harmonics.length; i++) {
+			freq = n * f0;
+			note = pitchSet.freqToMidiNote(freq);
+			if (note == -1 || note > pitchSet.getHighNote())
+				break;
+
+			ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+
+			for (ToneMapElement toneMapElement : ttfElements) {
+				if (toneMapElement == null || toneMapElement.amplitude == -1)
+					continue;
+				int index = toneMapElement.getIndex();
+				if (index < (note - lastNote)) {
+					continue;
+				}
+				attenuate(toneMapElement, toneMapElement.amplitude,
+						harmonics[i]);
+				break;
+			}
+			lastNote = note;
+			n++;
+		}
+	}
+
+	private void processPeak(ToneTimeFrame toneTimeFrame, int startPeak,
+			int endPeak, double trough, ToneMapElement thresholdElement,
+			double maxAmp) {
+
+		double ampThres = n3Setting / 100.0;
+		int index, note;
+
+		TimeSet timeSet = toneTimeFrame.getTimeSet();
+		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+
+		for (ToneMapElement toneMapElement : ttfElements) {
+			index = toneMapElement.getIndex();
+			if (index < startPeak) {
+				continue;
+			}
+			if (index > endPeak) {
+				break;
+			}
+			note = pitchSet.getNote(index);
+			amplitude = toneMapElement.amplitude;
+			System.out.println("In processPeak loop: " + note + ", " + startPeak
+					+ ", " + endPeak + ", " + amplitude);
+
+			if (amplitude >= normalThreshold(toneTimeFrame, toneMapElement,
+					thresholdElement) && amplitude > ampThres) {
+				toneMapElement.amplitude = maxAmp;
+				// peakIterator.getElement().postAmplitude = 1.0;
+				System.out.println("New amp: " + toneMapElement.amplitude);
+
+			}
+
+		}
+
 	}
 }

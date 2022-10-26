@@ -5,7 +5,7 @@ package jomu.instrument.audio;
  *
  * Compute the FFT and inverse FFT of a length n complex sequence using the
  * radix 2 Cooley-Tukey algorithm.
- * 
+ *
  * Bare bones implementation that runs in O(n log n) time and O(n) space. Our
  * goal is to optimize the clarity of the code, rather than performance.
  *
@@ -20,7 +20,7 @@ package jomu.instrument.audio;
  * - not the most memory efficient algorithm (because it uses an object type for
  * representing complex numbers and because it re-allocates memory for the
  * subarray, instead of doing in-place or reusing a single temporary array)
- * 
+ *
  * For an in-place radix 2 Cooley-Tukey FFT, see
  * https://introcs.cs.princeton.edu/java/97data/InplaceFFT.java.html
  *
@@ -95,7 +95,7 @@ public class FFT {
 
 		// base case
 		if (n == 1)
-			return new Complex[] { x[0] };
+			return new Complex[]{x[0]};
 
 		// radix 2 Cooley-Tukey FFT
 		if (n % 2 != 0) {
@@ -157,15 +157,15 @@ public class FFT {
 	/***************************************************************************
 	 * Test client and sample execution
 	 *
-	 * % java FFT 4 x ------------------- -0.03480425839330703 0.07910192950176387
-	 * 0.7233322451735928 0.1659819820667019
+	 * % java FFT 4 x ------------------- -0.03480425839330703
+	 * 0.07910192950176387 0.7233322451735928 0.1659819820667019
 	 *
 	 * y = fft(x) ------------------- 0.9336118983487516 -0.7581365035668999 +
 	 * 0.08688005256493803i 0.44344407521182005 -0.7581365035668999 -
 	 * 0.08688005256493803i
 	 *
-	 * z = ifft(y) ------------------- -0.03480425839330703 0.07910192950176387 +
-	 * 2.6599344570851287E-18i 0.7233322451735928 0.1659819820667019 -
+	 * z = ifft(y) ------------------- -0.03480425839330703 0.07910192950176387
+	 * + 2.6599344570851287E-18i 0.7233322451735928 0.1659819820667019 -
 	 * 2.6599344570851287E-18i
 	 *
 	 * c = cconvolve(x, x) ------------------- 0.5506798633981853
@@ -217,8 +217,8 @@ public class FFT {
 	public static void show(Complex[] x, String title) {
 		System.out.println(title);
 		System.out.println("-------------------");
-		for (int i = 0; i < x.length; i++) {
-			System.out.println(x[i]);
+		for (Complex element : x) {
+			System.out.println(element);
 		}
 		System.out.println();
 	}

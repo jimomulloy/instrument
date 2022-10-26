@@ -7,6 +7,27 @@ import jomu.instrument.cell.Cell.CellTypes;
 
 public class Generator {
 
+	public static NuCell createNuCell(CellTypes cellType) {
+		switch (cellType) {
+			case SOURCE :
+				return createSourceTypeCell();
+			case SINK :
+				return createSinkTypeCell();
+			case AUDIO_PITCH :
+				return createAudioPitchTypeCell();
+			case AUDIO_CQ :
+				return createAudioCQTypeCell();
+			case AUDIO_INTEGRATE :
+				return createAudioIntegrateTypeCell();
+			case AUDIO_NOTATE :
+				return createAudioNotateTypeCell();
+			case JUNCTION :
+				return createJunctionTypeCell();
+			default :
+				return null;
+		}
+	}
+
 	private static NuCell createAudioCQTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_CQ);
 		cell.setProcessor(getAudioCQProcessor(cell));
@@ -37,52 +58,34 @@ public class Generator {
 		return cell;
 	}
 
-	public static NuCell createNuCell(CellTypes cellType) {
-		switch (cellType) {
-		case SOURCE:
-			return createSourceTypeCell();
-		case SINK:
-			return createSinkTypeCell();
-		case AUDIO_PITCH:
-			return createAudioPitchTypeCell();
-		case AUDIO_CQ:
-			return createAudioCQTypeCell();
-		case AUDIO_INTEGRATE:
-			return createAudioIntegrateTypeCell();
-		case AUDIO_NOTATE:
-			return createAudioNotateTypeCell();
-		case JUNCTION:
-			return createJunctionTypeCell();
-		default:
-			return null;
-		}
-	}
-
 	private static NuCell createSinkTypeCell() {
 		NuCell cell = new NuCell(CellTypes.SINK);
 		cell.setProcessor(getSinkProcessor(cell));
 		return cell;
-	};
+	}
 
 	private static NuCell createSourceTypeCell() {
 		NuCell cell = new NuCell(CellTypes.SOURCE);
 		cell.setProcessor(getSourceProcessor(cell));
 		return cell;
-	};
-
-	private static Consumer<List<NuMessage>> getAudioIntegrateProcessor(NuCell cell) {
-		return new AudioIntegrateProcessor(cell);
-	}
-
-	private static Consumer<List<NuMessage>> getAudioNotateProcessor(NuCell cell) {
-		return new AudioNotateProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getAudioCQProcessor(NuCell cell) {
 		return new AudioCQProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioPitchProcessor(NuCell cell) {
+	private static Consumer<List<NuMessage>> getAudioIntegrateProcessor(
+			NuCell cell) {
+		return new AudioIntegrateProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioNotateProcessor(
+			NuCell cell) {
+		return new AudioNotateProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioPitchProcessor(
+			NuCell cell) {
 		return new PitchDetectorProcessor(cell);
 	}
 
@@ -101,7 +104,8 @@ public class Generator {
 			// System.out.println(">>getSinkProcessor");
 			// System.out.println(cell.toString());
 			for (NuMessage message : messages) {
-				System.out.println("process message: " + message);
+				System.out
+						.println(">>SinkProcessor process message: " + message);
 			}
 		};
 	}

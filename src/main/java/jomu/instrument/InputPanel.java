@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package jomu.instrument;
@@ -35,12 +35,13 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
 public class InputPanel extends JPanel {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -52,7 +53,8 @@ public class InputPanel extends JPanel {
 			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
 				if (arg0.getActionCommand().equals(info.toString())) {
 					Mixer newValue = AudioSystem.getMixer(info);
-					InputPanel.this.firePropertyChange("mixer", mixer, newValue);
+					InputPanel.this.firePropertyChange("mixer", mixer,
+							newValue);
 					InputPanel.this.mixer = newValue;
 					break;
 				}
@@ -73,8 +75,11 @@ public class InputPanel extends JPanel {
 			button.setActionCommand(info.toString());
 			button.addActionListener(setInput);
 		}
-		this.add(new JScrollPane(buttonPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		this.add(
+				new JScrollPane(buttonPanel,
+						ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+				BorderLayout.CENTER);
 		this.setMaximumSize(new Dimension(300, 150));
 		this.setPreferredSize(new Dimension(300, 150));
 	}

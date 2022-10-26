@@ -16,7 +16,7 @@ public class ScalogramSource {
 	int increment = 1024;
 
 	Daubechies4Wavelet wt = new Daubechies4Wavelet();
-	TreeMap<Double, ScalogramFrame> features = new TreeMap<Double, ScalogramFrame>();
+	TreeMap<Double, ScalogramFrame> features = new TreeMap<>();
 	ScalogramFrame prevFrame;
 
 	public ScalogramSource(TarsosAudioIO tarsosIO) {
@@ -25,13 +25,10 @@ public class ScalogramSource {
 		this.sampleRate = tarsosIO.getContext().getSampleRate();
 	}
 
-	void clear() {
-		features.clear();
-	}
-
 	public TreeMap<Double, ScalogramFrame> getFeatures() {
 		TreeMap<Double, ScalogramFrame> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, ScalogramFrame> entry : features.entrySet()) {
+		for (java.util.Map.Entry<Double, ScalogramFrame> entry : features
+				.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -49,11 +46,17 @@ public class ScalogramSource {
 		return tarsosIO;
 	}
 
+	void clear() {
+		features.clear();
+	}
+
 	void initialise() {
 
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(
+				sampleRate, 16, 1, true, true);
 
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, 131072, 0);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
+				tarsosDSPFormat, 131072, 0);
 		djp.setName("SC");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 
@@ -67,7 +70,8 @@ public class ScalogramSource {
 				if (prevFrame != null) {
 					currentMax = prevFrame.currentMax * 0.99f;
 				}
-				ScalogramFrame currentFrame = new ScalogramFrame(audioBuffer, currentMax);
+				ScalogramFrame currentFrame = new ScalogramFrame(audioBuffer,
+						currentMax);
 				features.put(audioEvent.getTimeStamp(), currentFrame);
 				prevFrame = currentFrame;
 				return true;

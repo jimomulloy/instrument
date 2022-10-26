@@ -29,36 +29,42 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/**
 	 * Instantiates a new FeatureFrame.
-	 * 
-	 * @param startTimeMS the start time in milliseconds.
-	 * @param endTimeMS   the end time in milliseconds.
+	 *
+	 * @param startTimeMS
+	 *            the start time in milliseconds.
+	 * @param endTimeMS
+	 *            the end time in milliseconds.
 	 */
 	public FeatureFrame(double startTimeMS, double endTimeMS) {
 		super();
 		this.startTimeMS = startTimeMS;
 		this.endTimeMS = endTimeMS;
-		features = new Hashtable<String, Object>();
+		features = new Hashtable<>();
 	}
 
 	/**
 	 * Adds a set of features with the given name.
-	 * 
-	 * @param s the name used to identify the feature set.
-	 * @param f the features.
+	 *
+	 * @param s
+	 *            the name used to identify the feature set.
+	 * @param f
+	 *            the features.
 	 */
 	public void add(String s, Object f) {
 		features.put(s, f);
 	}
 
 	/**
-	 * Returns -1, 0 or 1 as required by Java's {@link Comparator} interface, using
-	 * the frame's start time as the thing to compare.
+	 * Returns -1, 0 or 1 as required by Java's {@link Comparator} interface,
+	 * using the frame's start time as the thing to compare.
 	 *
-	 * @param other the FeatureFrame to compare to.
-	 * 
-	 * @return -1 if this FeatureFrame starts before the other, 1 if other starts
-	 *         before this, or 0 if they have the same start time.
+	 * @param other
+	 *            the FeatureFrame to compare to.
+	 *
+	 * @return -1 if this FeatureFrame starts before the other, 1 if other
+	 *         starts before this, or 0 if they have the same start time.
 	 */
+	@Override
 	public int compareTo(FeatureFrame other) {
 		if (startTimeMS < other.startTimeMS)
 			return -1;
@@ -69,9 +75,10 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/**
 	 * Checks whether the given time in milliseconds is within this frame.
-	 * 
-	 * @param timeMS the time in milliseconds.
-	 * 
+	 *
+	 * @param timeMS
+	 *            the time in milliseconds.
+	 *
 	 * @return true the frame contains this point in time.
 	 */
 	public boolean containsTime(double timeMS) {
@@ -80,9 +87,10 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/**
 	 * Gets the features for the given name.
-	 * 
-	 * @param s the name.
-	 * 
+	 *
+	 * @param s
+	 *            the name.
+	 *
 	 * @return the features.
 	 */
 	public Object get(String s) {
@@ -91,7 +99,7 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/**
 	 * Gets the end time in milliseconds.
-	 * 
+	 *
 	 * @return the end time in milliseconds.
 	 */
 	public double getEndTimeMS() {
@@ -100,7 +108,7 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/**
 	 * Gets the start time in milliseconds.
-	 * 
+	 *
 	 * @return the start time in milliseconds.
 	 */
 	public double getStartTimeMS() {
@@ -108,8 +116,9 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 	}
 
 	/**
-	 * Returns an Enumeration over the set of names used to identify the features.
-	 * 
+	 * Returns an Enumeration over the set of names used to identify the
+	 * features.
+	 *
 	 * @return Enumeration over feature names.
 	 */
 	public Enumeration<String> keys() {
@@ -122,8 +131,9 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/**
 	 * Sets the end time in milliseconds.
-	 * 
-	 * @param endTimeMS the new end time in milliseconds.
+	 *
+	 * @param endTimeMS
+	 *            the new end time in milliseconds.
 	 */
 	public void setEndTimeMS(double endTimeMS) {
 		this.endTimeMS = endTimeMS;
@@ -131,8 +141,9 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/**
 	 * Sets the start time in milliseconds.
-	 * 
-	 * @param startTimeMS the new start time in milliseconds.
+	 *
+	 * @param startTimeMS
+	 *            the new start time in milliseconds.
 	 */
 	public void setStartTimeMS(double startTimeMS) {
 		this.startTimeMS = startTimeMS;
@@ -140,9 +151,10 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		String result = "";
 		result += "Start Time: " + startTimeMS + " (ms)";
@@ -152,14 +164,14 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 			Object data = features.get(s);
 			if (data instanceof float[]) {
 				float[] fdata = (float[]) data;
-				for (int i = 0; i < fdata.length; i++) {
-					result += fdata[i] + " ";
+				for (float element : fdata) {
+					result += element + " ";
 				}
 			} else if (data instanceof float[][]) {
 				float[][] fdata = (float[][]) data;
-				for (int i = 0; i < fdata.length; i++) {
-					for (int j = 0; j < fdata[i].length; j++) {
-						result += fdata[i][j] + " ";
+				for (float[] element : fdata) {
+					for (int j = 0; j < element.length; j++) {
+						result += element[j] + " ";
 					}
 					result += ", ";
 				}

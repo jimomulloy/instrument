@@ -14,7 +14,29 @@ import jomu.instrument.world.tonemap.ToneMap;
 
 public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 
+	public static float[] convertDoublesToFloats(double[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		float[] output = new float[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = (float) input[i];
+		}
+		return output;
+	}
+	public static double[] convertFloatsToDoubles(float[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		double[] output = new double[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = input[i];
+		}
+		return output;
+	}
+
 	private NuCell cell;
+
 	private WorldModel worldModel;
 
 	public ConstantQMessageProcessorPD(NuCell cell) {
@@ -33,9 +55,11 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>ConstantQMessageProcessor accept: " + message);
+			System.out
+					.println(">>ConstantQMessageProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor();
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
@@ -48,34 +72,14 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 				// pd.detect(fft);
 				// toneMap.loadFFT(fft, 4096);
 				// toneMap.reset();
-				System.out.println(">>ConstantQMessageProcessor process tonemap");
-				// worldModel.getAtlas().putToneMap(this.cell.getCellType(), toneMap);
+				System.out
+						.println(">>ConstantQMessageProcessor process tonemap");
+				// worldModel.getAtlas().putToneMap(this.cell.getCellType(),
+				// toneMap);
 				cqf.displayToneMap();
 				System.out.println(">>ConstantQMessageProcessor send");
 				cell.send(streamId, sequence);
 			}
 		}
-	}
-
-	public static double[] convertFloatsToDoubles(float[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		double[] output = new double[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = input[i];
-		}
-		return output;
-	}
-
-	public static float[] convertDoublesToFloats(double[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		float[] output = new float[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = (float) input[i];
-		}
-		return output;
 	}
 }

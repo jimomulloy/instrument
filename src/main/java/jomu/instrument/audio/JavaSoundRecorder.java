@@ -28,6 +28,7 @@ public class JavaSoundRecorder {
 		// creates a new thread that waits for a specified
 		// of time before stopping
 		Thread stopper = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Thread.sleep(RECORD_TIME);
@@ -71,7 +72,8 @@ public class JavaSoundRecorder {
 		int channels = 2;
 		boolean signed = true;
 		boolean bigEndian = true;
-		AudioFormat format = new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
+		AudioFormat format = new AudioFormat(sampleRate, sampleSizeInBits,
+				channels, signed, bigEndian);
 		return format;
 	}
 
@@ -81,7 +83,8 @@ public class JavaSoundRecorder {
 	void start() {
 		try {
 			AudioFormat format = getAudioFormat();
-			DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+			DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+					format);
 
 			// checks if system supports the data line
 			if (!AudioSystem.isLineSupported(info)) {

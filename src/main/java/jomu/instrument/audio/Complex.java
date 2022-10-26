@@ -68,7 +68,8 @@ public class Complex {
 
 	// return a new Complex object whose value is the complex cosine of this
 	public Complex cos() {
-		return new Complex(Math.cos(re) * Math.cosh(im), -Math.sin(re) * Math.sinh(im));
+		return new Complex(Math.cos(re) * Math.cosh(im),
+				-Math.sin(re) * Math.sinh(im));
 	}
 
 	// return a / b
@@ -78,21 +79,23 @@ public class Complex {
 	}
 
 	// See Section 3.3.
+	@Override
 	public boolean equals(Object x) {
-		if (x == null)
-			return false;
-		if (this.getClass() != x.getClass())
+		if ((x == null) || (this.getClass() != x.getClass()))
 			return false;
 		Complex that = (Complex) x;
 		return (this.re == that.re) && (this.im == that.im);
 	}
 
-	// return a new Complex object whose value is the complex exponential of this
+	// return a new Complex object whose value is the complex exponential of
+	// this
 	public Complex exp() {
-		return new Complex(Math.exp(re) * Math.cos(im), Math.exp(re) * Math.sin(im));
+		return new Complex(Math.exp(re) * Math.cos(im),
+				Math.exp(re) * Math.sin(im));
 	}
 
 	// See Section 3.3.
+	@Override
 	public int hashCode() {
 		return Objects.hash(re, im);
 	}
@@ -140,7 +143,8 @@ public class Complex {
 
 	// return a new Complex object whose value is the complex sine of this
 	public Complex sin() {
-		return new Complex(Math.sin(re) * Math.cosh(im), Math.cos(re) * Math.sinh(im));
+		return new Complex(Math.sin(re) * Math.cosh(im),
+				Math.cos(re) * Math.sinh(im));
 	}
 
 	// return a new Complex object whose value is the complex tangent of this
@@ -157,6 +161,7 @@ public class Complex {
 	}
 
 	// return a string representation of the invoking Complex object
+	@Override
 	public String toString() {
 		if (im == 0)
 			return re + "";

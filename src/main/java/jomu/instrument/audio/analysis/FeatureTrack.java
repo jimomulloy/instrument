@@ -19,13 +19,17 @@ import net.beadsproject.beads.core.TimeStamp;
 
 /**
  * Stores a set of features associated with a continuous period of audio data.
- * 
+ *
  * A FeatureTrack can hold different views on the data. Time-based features are
  * stored in lists mapping segments to features.
- * 
+ *
  * @author ollie
  */
-public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, SegmentListener {
+public class FeatureTrack
+		implements
+			Serializable,
+			Iterable<FeatureFrame>,
+			SegmentListener {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
@@ -49,30 +53,31 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	private int frameMemory;
 
 	/*
-	 * TODO FeatureTrack should be able to clear parts of its memory, for example be
-	 * able to only remember a certain period of time before last. Should also have
-	 * quick access option based on access by frames (assumes the user knows
-	 * distance between frames or doesn't care), or iterartion backwards through
-	 * frames from last.
+	 * TODO FeatureTrack should be able to clear parts of its memory, for
+	 * example be able to only remember a certain period of time before last.
+	 * Should also have quick access option based on access by frames (assumes
+	 * the user knows distance between frames or doesn't care), or iterartion
+	 * backwards through frames from last.
 	 */
 
 	/**
 	 * Instantiates a new FeatureTrack.
 	 */
 	public FeatureTrack() {
-		frames = new TreeSet<FeatureFrame>();
-		framesInBlocks = new Hashtable<Integer, SortedSet<FeatureFrame>>();
+		frames = new TreeSet<>();
+		framesInBlocks = new Hashtable<>();
 		skipMS = 1000;
-		extractors = new ArrayList<FeatureExtractor<?, ?>>();
+		extractors = new ArrayList<>();
 		frameMemory = -1;
 	}
 
 	/**
 	 * Adds the specified FeatureFrame. Note that this will not add the frame if
-	 * there is already a frame with the same start time. Use removeRange to make
-	 * space available.
-	 * 
-	 * @param ff the FeatureFrame.
+	 * there is already a frame with the same start time. Use removeRange to
+	 * make space available.
+	 *
+	 * @param ff
+	 *            the FeatureFrame.
 	 */
 	public void add(FeatureFrame ff) {
 		if (frameMemory != 0) {
@@ -86,7 +91,7 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 				if (framesInBlocks.containsKey(i)) {
 					frameSet = framesInBlocks.get(i);
 				} else {
-					frameSet = new TreeSet<FeatureFrame>();
+					frameSet = new TreeSet<>();
 					framesInBlocks.put(i, frameSet);
 				}
 				frameSet.add(ff);
@@ -101,8 +106,9 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	 * creates a new {@link FeatureFrame} with the given start and end times and
 	 * adds the data from all of its {@link FeatureExtractor}s to the
 	 * {@link FeatureFrame}.
-	 * 
-	 * @param e the FeatureExtractor.
+	 *
+	 * @param e
+	 *            the FeatureExtractor.
 	 */
 	public void addFeatureExtractor(FeatureExtractor<?, ?> e) {
 		extractors.add(e);
@@ -117,22 +123,11 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	}
 
 	/**
-	 * Ensures that number of stored frames is <= frameMemory.
-	 */
-	private void frameMemoryCheck() {
-		if (frameMemory > 0) {
-			while (frames.size() > frameMemory) {
-				FeatureFrame ff = frames.first();
-				remove(ff);
-			}
-		}
-	}
-
-	/**
 	 * Gets the FeatureFrame at the given index.
-	 * 
-	 * @param index the index.
-	 * 
+	 *
+	 * @param index
+	 *            the index.
+	 *
 	 * @return the FeatureFrame.
 	 */
 	public FeatureFrame get(int index) {
@@ -151,17 +146,20 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	}
 
 	/**
-	 * Gets the frame for the given offset, in milliseconds, into the FeatureLayer.
-	 * 
-	 * @param timeMS the millisecond offset.
-	 * 
+	 * Gets the frame for the given offset, in milliseconds, into the
+	 * FeatureLayer.
+	 *
+	 * @param timeMS
+	 *            the millisecond offset.
+	 *
 	 * @return the FeatureFrame at this time.
 	 */
 	public FeatureFrame getFrameAt(double timeMS) {
 		int startTimeIndex = (int) (timeMS / skipMS);
 		SortedSet<FeatureFrame> localSet = framesInBlocks.get(startTimeIndex);
 		if (localSet != null) {
-			for (FeatureFrame ff : localSet) { // TODO replace with binary search.
+			for (FeatureFrame ff : localSet) { // TODO replace with binary
+												// search.
 				if (ff.containsTime(timeMS)) {
 					return ff;
 				}
@@ -171,11 +169,12 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	}
 
 	/**
-	 * Gets the frame for the given offset, in milliseconds, into the FeatureLayer,
-	 * or the last frame before then.
-	 * 
-	 * @param timeMS the millisecond offset.
-	 * 
+	 * Gets the frame for the given offset, in milliseconds, into the
+	 * FeatureLayer, or the last frame before then.
+	 *
+	 * @param timeMS
+	 *            the millisecond offset.
+	 *
 	 * @return the FeatureFrame at this time.
 	 */
 	public FeatureFrame getFrameBefore(double timeMS) {
@@ -191,7 +190,7 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 
 	/**
 	 * Gets the last FeatureFrame in this FeatureTrack.
-	 * 
+	 *
 	 * @return the last FeatureFrame in this FeatureTrack.
 	 */
 	public FeatureFrame getLastFrame() {
@@ -202,7 +201,7 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 
 	/**
 	 * Returns the number of {@link FeatureFrame}s stored in this FeatureTrack.
-	 * 
+	 *
 	 * @return number of FeatureFrames.
 	 */
 	public int getNumberOfFrames() {
@@ -211,12 +210,14 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 
 	/**
 	 * Get all feature frames in the given range.
-	 * 
-	 * @param startRangeMS the beginning of the range.
-	 * @param endRangeMS   the end of the range.
+	 *
+	 * @param startRangeMS
+	 *            the beginning of the range.
+	 * @param endRangeMS
+	 *            the end of the range.
 	 */
 	public List<FeatureFrame> getRange(double startRangeMS, double endRangeMS) {
-		ArrayList<FeatureFrame> result = new ArrayList<FeatureFrame>();
+		ArrayList<FeatureFrame> result = new ArrayList<>();
 		FeatureFrame startFrame = getFrameAt(startRangeMS);
 		if (startFrame == null)
 			return new ArrayList<>();
@@ -234,22 +235,27 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	/**
 	 * Returns an iterator over the {@link FeatureFrame}s.
 	 */
+	@Override
 	public Iterator<FeatureFrame> iterator() {
 		return frames.iterator();
 	}
 
 	/**
 	 * Tells this FeatureTrack to log a new {@link FeatureFrame}, with the given
-	 * startTime and endTime. The FeatureTrack will gather features from its various
-	 * {@link FeatureExtractor}s at this point.
+	 * startTime and endTime. The FeatureTrack will gather features from its
+	 * various {@link FeatureExtractor}s at this point.
 	 */
+	@Override
 	public void newSegment(TimeStamp startTime, TimeStamp endTime) {
-		FeatureFrame ff = new FeatureFrame(startTime.getTimeMS(), endTime.getTimeMS());
+		FeatureFrame ff = new FeatureFrame(startTime.getTimeMS(),
+				endTime.getTimeMS());
 		for (FeatureExtractor<?, ?> e : extractors) {
 			Object features = e.getFeatures();
 			try {
-				Method cloneMethod = features.getClass().getMethod("clone", new Class[] {});
-				ff.add(e.getName(), cloneMethod.invoke(features, new Object[] {}));
+				Method cloneMethod = features.getClass().getMethod("clone",
+						new Class[]{});
+				ff.add(e.getName(),
+						cloneMethod.invoke(features, new Object[]{}));
 			} catch (Exception e1) {
 				// is this ugly or what? Any better ideas?
 				if (features instanceof float[]) {
@@ -269,12 +275,16 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 				} else if (features instanceof boolean[]) {
 					ff.add(e.getName(), ((boolean[]) features).clone());
 				} else {
-					// TODO ultimately - get rid of primitives in the whole feature extraction
+					// TODO ultimately - get rid of primitives in the whole
+					// feature extraction
 					// system
-//					new CloneNotSupportedException("Must implement clone handling in FeatureTrack for Class " + features.getClass()).printStackTrace();
+					// new CloneNotSupportedException("Must implement clone
+					// handling in FeatureTrack for Class " +
+					// features.getClass()).printStackTrace();
 					ff.add(e.getName(), features);
 				}
-				// how about ff.add(..., features.getClass().cast(features).clone())? - ben
+				// how about ff.add(...,
+				// features.getClass().cast(features).clone())? - ben
 				// doesn't work, since clone is not an available method - ollie
 			}
 		}
@@ -283,8 +293,9 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 
 	/**
 	 * Removes the specified FeatureFrame.
-	 * 
-	 * @param ff the FeatureFrame to remove.
+	 *
+	 * @param ff
+	 *            the FeatureFrame to remove.
 	 */
 	public void remove(FeatureFrame ff) {
 		// remove from frames
@@ -303,8 +314,9 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 
 	/**
 	 * Removes the specified FeatureExtractor.
-	 * 
-	 * @param e the FeatureExtractor.
+	 *
+	 * @param e
+	 *            the FeatureExtractor.
 	 */
 	public void removeFeatureExtractor(FeatureExtractor<?, ?> e) {
 		extractors.remove(e);
@@ -312,13 +324,15 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 
 	/**
 	 * Remove all feature frames in the given range.
-	 * 
-	 * @param startRangeMS the beginning of the range.
-	 * @param endRangeMS   the end of the range.
+	 *
+	 * @param startRangeMS
+	 *            the beginning of the range.
+	 * @param endRangeMS
+	 *            the end of the range.
 	 * @return
 	 */
 	public void removeRange(double startRangeMS, double endRangeMS) {
-		ArrayList<FeatureFrame> toRemove = new ArrayList<FeatureFrame>();
+		ArrayList<FeatureFrame> toRemove = new ArrayList<>();
 		FeatureFrame startFrame = getFrameAt(startRangeMS);
 		if (startFrame == null)
 			return;
@@ -338,6 +352,18 @@ public class FeatureTrack implements Serializable, Iterable<FeatureFrame>, Segme
 	public void setFrameMemory(int frameMemory) {
 		this.frameMemory = frameMemory;
 		frameMemoryCheck();
+	}
+
+	/**
+	 * Ensures that number of stored frames is <= frameMemory.
+	 */
+	private void frameMemoryCheck() {
+		if (frameMemory > 0) {
+			while (frames.size() > frameMemory) {
+				FeatureFrame ff = frames.first();
+				remove(ff);
+			}
+		}
 	}
 
 }

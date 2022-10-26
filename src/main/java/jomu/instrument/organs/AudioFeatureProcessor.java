@@ -28,24 +28,29 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 
 	private List<AudioFeatureFrameObserver> observers = new ArrayList<>();
 
-	private Map<Double, AudioFeatureFrame> audioFeatureFrames = new Hashtable<Double, AudioFeatureFrame>();
+	private Map<Double, AudioFeatureFrame> audioFeatureFrames = new Hashtable<>();
 
-	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<Integer, AudioFeatureFrame>();
+	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<>();
 	private double currentProcessTime;
 
-	public AudioFeatureProcessor(String streamId, Analyzer analyzer, TarsosFeatureSource tarsosFeatures) {
+	public AudioFeatureProcessor(String streamId, Analyzer analyzer,
+			TarsosFeatureSource tarsosFeatures) {
 		this.streamId = streamId;
 		this.analyzer = analyzer;
 		this.tarsosFeatures = tarsosFeatures;
 		analyzer.addSegmentListener(this);
 		addObserver(Instrument.getInstance().getDruid().getVisor());
-		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getDruid().getVisor());
-		tarsosFeatures.getTarsosIO().getDispatcher().addAudioProcessor(oscilloscope);
+		Oscilloscope oscilloscope = new Oscilloscope(
+				Instrument.getInstance().getDruid().getVisor());
+		tarsosFeatures.getTarsosIO().getDispatcher()
+				.addAudioProcessor(oscilloscope);
 	}
 
-	public void addAudioFeatureFrame(double time, AudioFeatureFrame audioFeatureFrame) {
+	public void addAudioFeatureFrame(double time,
+			AudioFeatureFrame audioFeatureFrame) {
 		audioFeatureFrames.put(audioFeatureFrame.getStart(), audioFeatureFrame);
-		audioFeatureFrameSequence.put(audioFeatureFrame.getFrameSequence(), audioFeatureFrame);
+		audioFeatureFrameSequence.put(audioFeatureFrame.getFrameSequence(),
+				audioFeatureFrame);
 		for (AudioFeatureFrameObserver observer : this.observers) {
 			observer.audioFeatureFrameAdded(audioFeatureFrame);
 		}
@@ -59,13 +64,6 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 		for (AudioFeatureFrameObserver observer : this.observers) {
 			observer.audioFeatureFrameChanged(audioFeatureFrame);
 		}
-	}
-
-	private AudioFeatureFrame createAudioFeatureFrame(int frameSequence, double firstTimeStamp, double endTimeStamp) {
-		AudioFeatureFrame audioFeatureFrame = new AudioFeatureFrame(this, frameSequence, firstTimeStamp, endTimeStamp);
-		audioFeatureFrame.initialise();
-		addAudioFeatureFrame(firstTimeStamp, audioFeatureFrame);
-		return audioFeatureFrame;
 	}
 
 	public Analyzer getAnalyzer() {
@@ -100,6 +98,10 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 		return observers;
 	}
 
+	public String getStreamId() {
+		return streamId;
+	}
+
 	public TarsosFeatureSource getTarsosFeatures() {
 		return tarsosFeatures;
 	}
@@ -110,12 +112,14 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 			if (firstTimeStamp == -1) {
 				firstTimeStamp = start.getTimeMS();
 			}
-			if (endTimeStamp == -1 && (end.getTimeMS() - lastTimeStamp >= interval)) {
+			if (endTimeStamp == -1
+					&& (end.getTimeMS() - lastTimeStamp >= interval)) {
 				endTimeStamp = end.getTimeMS();
 			}
 			if (end.getTimeMS() - lastTimeStamp >= (interval + lag)) {
 				frameSequence++;
-				createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
+				createAudioFeatureFrame(frameSequence, firstTimeStamp,
+						endTimeStamp);
 				lastTimeStamp = endTimeStamp;
 				firstTimeStamp = -1;
 				endTimeStamp = -1;
@@ -132,7 +136,8 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 	@Override
 	public void processingFinished() {
 		frameSequence++;
-		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
+		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(
+				frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
 	}
 
@@ -148,7 +153,12 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 		this.maxFrames = maxFrames;
 	}
 
-	public String getStreamId() {
-		return streamId;
+	private AudioFeatureFrame createAudioFeatureFrame(int frameSequence,
+			double firstTimeStamp, double endTimeStamp) {
+		AudioFeatureFrame audioFeatureFrame = new AudioFeatureFrame(this,
+				frameSequence, firstTimeStamp, endTimeStamp);
+		audioFeatureFrame.initialise();
+		addAudioFeatureFrame(firstTimeStamp, audioFeatureFrame);
+		return audioFeatureFrame;
 	}
 }

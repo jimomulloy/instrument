@@ -11,19 +11,19 @@ import net.beadsproject.beads.data.SampleManager;
  * A static class for managing audio feature data. Features are stored in a Map
  * indexed by the {@link Sample}s they refer to. FeatureManager can look for
  * feature files associated with {@link Sample}s.
- * 
+ *
  * A danger to be aware of is the fact that FeatureManager is not well coupled
  * to {@link SampleManager}, so if you wish to remove {@link Sample}s you'll
  * have to make sure you also manually remove entries in FeatureManager,
  * otherwise the {@link Sample} data will not be freed. This might be addressed
  * in future versions.
- * 
+ *
  * @author ollie
  *
  */
 public class FeatureManager {
 
-	private final static Map<Sample, FeatureSet> featureSets = new Hashtable<Sample, FeatureSet>();
+	private final static Map<Sample, FeatureSet> featureSets = new Hashtable<>();
 
 	private static boolean verbose = true;
 
@@ -37,12 +37,13 @@ public class FeatureManager {
 	}
 
 	/**
-	 * Gets the FeatureSet for a given Sample. The method first checks to see if the
-	 * FeatureSet is already stored in memory. If not it looks for a file with the
-	 * same file name as the Sample (including the file type), but with the suffix
-	 * ".features". Once loaded, the FeatureSet is stored in memory.
-	 * 
-	 * @param sample the Sample to search for features of.
+	 * Gets the FeatureSet for a given Sample. The method first checks to see if
+	 * the FeatureSet is already stored in memory. If not it looks for a file
+	 * with the same file name as the Sample (including the file type), but with
+	 * the suffix ".features". Once loaded, the FeatureSet is stored in memory.
+	 *
+	 * @param sample
+	 *            the Sample to search for features of.
 	 * @return the FeatureSet.
 	 */
 	public static FeatureSet featuresForSample(Sample sample) {
@@ -53,10 +54,12 @@ public class FeatureManager {
 		if (set != null) {
 			featureSets.put(sample, set);
 			if (verbose)
-				System.out.println("Loaded features for " + sample.getFileName());
+				System.out
+						.println("Loaded features for " + sample.getFileName());
 		} else {
 			if (verbose)
-				System.out.println("Could not find features for " + sample.getFileName());
+				System.out.println(
+						"Could not find features for " + sample.getFileName());
 		}
 		return set;
 	}
@@ -64,8 +67,9 @@ public class FeatureManager {
 	/**
 	 * Gets the FeatureSet for a given Sample, only if the FeatureSet is already
 	 * stored in memory.
-	 * 
-	 * @param sample the Sample to search for features of.
+	 *
+	 * @param sample
+	 *            the Sample to search for features of.
 	 * @return the FeatureSet.
 	 */
 	public static FeatureSet featuresForSampleIfLoaded(Sample sample) {
@@ -77,7 +81,7 @@ public class FeatureManager {
 
 	/**
 	 * Determines if FeatureManager is being verbose.
-	 * 
+	 *
 	 * @return true if verbose.
 	 */
 	public static boolean isVerbose() {
@@ -86,8 +90,9 @@ public class FeatureManager {
 
 	/**
 	 * Removes the features associated with the given {@link Sample}.
-	 * 
-	 * @param s the Sample.
+	 *
+	 * @param s
+	 *            the Sample.
 	 */
 	public static void removeSample(Sample s) {
 		if (featureSets.containsKey(s)) {
@@ -97,9 +102,11 @@ public class FeatureManager {
 
 	/**
 	 * Sets the FeatureSet for the given Sample.
-	 * 
-	 * @param s  the Sample.
-	 * @param fs the FeatureSet.
+	 *
+	 * @param s
+	 *            the Sample.
+	 * @param fs
+	 *            the FeatureSet.
 	 */
 	public static void setFeaturesForSample(Sample s, FeatureSet fs) {
 		featureSets.put(s, fs);
@@ -107,8 +114,9 @@ public class FeatureManager {
 
 	/**
 	 * Tells FeatureManager to produce verbose output.
-	 * 
-	 * @param verbose true for verbose output.
+	 *
+	 * @param verbose
+	 *            true for verbose output.
 	 */
 	public static void setVerbose(boolean verbose) {
 		FeatureManager.verbose = verbose;

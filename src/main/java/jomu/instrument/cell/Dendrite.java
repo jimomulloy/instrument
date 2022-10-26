@@ -24,7 +24,7 @@ public class Dendrite implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 * @param d
 	 */

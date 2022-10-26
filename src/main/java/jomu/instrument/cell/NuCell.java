@@ -11,26 +11,19 @@ import java.util.function.Consumer;
 public class NuCell extends Cell implements Serializable {
 	private class QueueConsumer implements Runnable {
 
+		@Override
 		public void run() {
 			try {
 				while (true) {
 					NuMessage qe = (NuMessage) bq.take();
 					List<NuMessage> entries;
-					// System.out.println(">>sequence : " + qe.sequence);
 					if (sequenceMap.containsKey(qe.streamId + qe.sequence)) {
-						// System.out.println(">>sequenceMap.containsKey : " + qe.sequence);
 						entries = sequenceMap.get(qe.streamId + qe.sequence);
-						// System.out.println(">> entries A : " + entries.size());
 					} else {
 						entries = new ArrayList<>();
 						sequenceMap.put(qe.streamId + qe.sequence, entries);
 					}
 					entries.add(qe);
-					// System.out.println(">> entries B : " + entries.size());
-					// System.out.println(">>consume : " + NuCell.this);
-					// System.out.println(qe);
-					// System.out.println(">> sizes : " + entries.size() + ", " +
-					// dendrites.getCount());
 					if (entries.size() >= dendrites.getCount()) {
 						processor.accept(entries);
 					}
@@ -83,7 +76,8 @@ public class NuCell extends Cell implements Serializable {
 	// Most NuCells receive many input signals throughout their dendritic trees.
 	// A single NuCell may have more than one set of dendrites, and may receive
 	// many thousands of input signals. Whether or not a NuCell is excited into
-	// firing an impulse depends on the sum of all of the excitatory and inhibitory
+	// firing an impulse depends on the sum of all of the excitatory and
+	// inhibitory
 	// signals it receives. If the NuCell does end up firing, the nerve impulse,
 	// or action potential, is conducted down the axon
 	@SuppressWarnings("preview")
@@ -91,14 +85,14 @@ public class NuCell extends Cell implements Serializable {
 		super(cellType);
 		dendrites = new Dendrites(this);
 		axon = new Axon(this);
-		bq = new LinkedBlockingQueue<Object>();
+		bq = new LinkedBlockingQueue<>();
 		Thread.startVirtualThread(new QueueConsumer());
-		System.out.println(">>Loom thread started");
+		System.out.println(">>Loom thread started: ");
 		// new Thread(new QueueConsumer()).start();
 	}
 
 	/**
-	 * 
+	 *
 	 * @param double
 	 * @return double
 	 */
@@ -108,7 +102,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return Double
 	 */
 	public Double computeNetInput() {
@@ -124,7 +118,7 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	/**
-	 * 
+	 *
 	 * @return double
 	 */
 	public double computeOutputFunction(double d) {
@@ -133,7 +127,7 @@ public class NuCell extends Cell implements Serializable {
 
 	/**
 	 * Computes the Transfer Function for a NuCell
-	 * 
+	 *
 	 * @return Double
 	 */
 	public Double computeTransferFunction() {
@@ -148,7 +142,7 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 */
 	public void connectInput(NuCell NuCell) {
@@ -156,7 +150,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 * @param d
 	 */
@@ -166,7 +160,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 */
 	public void connectOutput(NuCell NuCell) {
@@ -176,45 +170,48 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void disconnectAllInputs() {
 		dendrites.disconnectAll();
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void disconnectAllOutputs() {
 		axon.disconnectAll();
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 */
 	public void disconnectInput(NuCell NuCell) {
-		// System.out.println(NuCellID + " disconnectInput " + NuCell.getNuCellID()
+		// System.out.println(NuCellID + " disconnectInput " +
+		// NuCell.getNuCellID()
 		// + " success");
 		dendrites.disconnect(NuCell);
 		updateLayerClassification();
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 */
 	public void disconnectOutput(NuCell NuCell) {
-		// System.out.println(NuCellID + " disconnectOutput " + NuCell.getNuCellID() );
+		// System.out.println(NuCellID + " disconnectOutput " +
+		// NuCell.getNuCellID() );
 		axon.disconnect(NuCell);
 		updateLayerClassification();
-		// System.out.println(NuCellID + " disconnectOutput " + NuCell.getNuCellID() + "
+		// System.out.println(NuCellID + " disconnectOutput " +
+		// NuCell.getNuCellID() + "
 		// success");
 
 	}
 
 	/**
-	 * 
+	 *
 	 * @return ActivationFunctionEnum
 	 */
 	public ActivationFunctionEnum getActivationFunctionSelection() {
@@ -230,7 +227,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return Axon
 	 */
 	public Axon getAxon() {
@@ -242,7 +239,7 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Dendrites getDendrites() {
@@ -254,7 +251,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Double getExternalInputSignal() {
@@ -262,7 +259,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public java.util.Set<NuCell> getInputs() {
@@ -270,7 +267,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 * @return
 	 */
@@ -279,7 +276,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public LayerClassification getLayerClassification() {
@@ -287,7 +284,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return MorphologyEnum
 	 */
 	public MorphologyEnum getMorphology() {
@@ -295,7 +292,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return Set<NuCell>
 	 */
 	// public java.util.Set<NuCell> getOutputs()
@@ -305,13 +302,14 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * Returns true if this is explicitly or implicitly connected to NuCellB.<br>
-	 * 
+	 * Returns true if this is explicitly or implicitly connected to
+	 * NuCellB.<br>
+	 *
 	 * Explicit case is if this NuCell is directly connected to NuCellB.<br>
-	 * Implicit case is if this NuCell is connected to NuCellB through a feedback
-	 * loop
+	 * Implicit case is if this NuCell is connected to NuCellB through a
+	 * feedback loop
 	 * <p>
-	 * 
+	 *
 	 * @param NuCellB
 	 * @return
 	 */
@@ -329,14 +327,17 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * isCircularConnectionFound is a recursive method used to find out if a NuCell
-	 * has a circular connection in its network.<br>
-	 * 
-	 * @param visitedNuCells type List<NuCell>
-	 * @param n              type NuCell
+	 * isCircularConnectionFound is a recursive method used to find out if a
+	 * NuCell has a circular connection in its network.<br>
+	 *
+	 * @param visitedNuCells
+	 *            type List<NuCell>
+	 * @param n
+	 *            type NuCell
 	 * @return boolean
 	 */
-	public boolean isCircularConnectionFound(List<NuCell> visitedNuCells, NuCell n) {
+	public boolean isCircularConnectionFound(List<NuCell> visitedNuCells,
+			NuCell n) {
 		// System.out.println("NuCell.isCircularConnection: " +
 		// n.getNuCellID() );
 
@@ -370,9 +371,9 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * isOutputConnected returns true if this NuCell has an output connected to the
-	 * input parameter
-	 * 
+	 * isOutputConnected returns true if this NuCell has an output connected to
+	 * the input parameter
+	 *
 	 * @param NuCell
 	 */
 	public boolean isOutputConnectedTo(NuCell NuCell) {
@@ -381,7 +382,7 @@ public class NuCell extends Cell implements Serializable {
 		return axon.isConnectedTo(NuCell);
 		/*
 		 * Double d = axon.isFound(NuCell);
-		 * 
+		 *
 		 * if( d == null ) return false; else return true;
 		 */
 	}
@@ -391,8 +392,6 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	public void receive(NuMessage message) {
-		// System.out.println(">>receive : " + this);
-		// System.out.println(message);
 		bq.add(message);
 	}
 
@@ -409,10 +408,11 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param selection
 	 */
-	public void setActivationFunctionSelection(ActivationFunctionEnum selection) {
+	public void setActivationFunctionSelection(
+			ActivationFunctionEnum selection) {
 		activationFunction.setSelection(selection);
 	}
 
@@ -422,7 +422,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param axon
 	 */
 	public void setAxon(Axon axon) {
@@ -434,7 +434,7 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	/**
-	 * 
+	 *
 	 * @param dendrites
 	 */
 	public void setDendrites(Dendrites dendrites) {
@@ -446,7 +446,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param d
 	 */
 	public void setExternalInputSignal(Double d) {
@@ -454,7 +454,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 * @param d
 	 */
@@ -474,7 +474,7 @@ public class NuCell extends Cell implements Serializable {
 	// Layer Classification
 	// ==========================================
 	/**
-	 * 
+	 *
 	 */
 	public void updateLayerClassification() {
 		boolean bInputs = false;
@@ -491,13 +491,13 @@ public class NuCell extends Cell implements Serializable {
 		if (bInputs & bOutputs) {
 			layerClassification = LayerClassification.HIDDEN;
 			return;
-		} else if (bInputs == false & bOutputs == true) {
+		} else if (!bInputs & bOutputs) {
 			layerClassification = LayerClassification.INPUT;
 			return;
-		} else if (bInputs == true & bOutputs == false) {
+		} else if (bInputs & !bOutputs) {
 			layerClassification = LayerClassification.OUTPUT;
 			return;
-		} else if (bInputs == false & bOutputs == false) {
+		} else if (!bInputs & !bOutputs) {
 			layerClassification = LayerClassification.INPUT_OUTPUT;
 			return;
 		}

@@ -15,14 +15,11 @@ public class AudioEventSource {
 		this.tarsosIO = tarsosIO;
 	}
 
-	void clear() {
-		tarsosIO.clearFeatures();
-	}
-
 	public TreeMap<Double, AudioEvent> getFeatures() {
 		features = tarsosIO.getFeatures();
 		TreeMap<Double, AudioEvent> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, AudioEvent> entry : features.entrySet()) {
+		for (java.util.Map.Entry<Double, AudioEvent> entry : features
+				.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue());
 		}
 		return clonedFeatures;
@@ -30,5 +27,9 @@ public class AudioEventSource {
 
 	public TarsosAudioIO getTarsosIO() {
 		return tarsosIO;
+	}
+
+	void clear() {
+		tarsosIO.clearFeatures();
 	}
 }

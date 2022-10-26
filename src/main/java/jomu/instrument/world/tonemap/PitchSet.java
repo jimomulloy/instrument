@@ -20,9 +20,9 @@ public class PitchSet implements Serializable {
 	public static final int MIN_MIDI_NOTE = 12;
 	public static final int CENTS_OCTAVE = 1200;
 	public static final int CENTS_HALFSTEP = 50;
-	public static char[][] NOTE_SYMBOLS = { { 'C', ' ' }, { 'C', '#' }, { 'D', ' ' }, { 'D', '#' }, { 'E', ' ' },
-			{ 'F', ' ' }, { 'F', '#' }, { 'G', ' ' }, { 'G', '#' }, { 'A', ' ' }, { 'A', '#' }, { 'B', ' ' },
-			{ '?', ' ' } };
+	public static char[][] NOTE_SYMBOLS = {{'C', ' '}, {'C', '#'}, {'D', ' '},
+			{'D', '#'}, {'E', ' '}, {'F', ' '}, {'F', '#'}, {'G', ' '},
+			{'G', '#'}, {'A', ' '}, {'A', '#'}, {'B', ' '}, {'?', ' '}};
 
 	static {
 
@@ -73,7 +73,8 @@ public class PitchSet implements Serializable {
 		if (note > MAX_MIDI_NOTE)
 			note = MAX_MIDI_NOTE;
 		double freqNote = PITCH_FREQ[note - MIN_MIDI_NOTE];
-		return (int) (-CENTS_OCTAVE * Math.log(freqNote / freq) / Math.log(2.0));
+		return (int) (-CENTS_OCTAVE * Math.log(freqNote / freq)
+				/ Math.log(2.0));
 	}
 
 	public static double getMidiFreq(int note) {
@@ -84,7 +85,7 @@ public class PitchSet implements Serializable {
 		NoteSymbol noteSymbol = new NoteSymbol();
 		noteSymbol.noteChar = NOTE_SYMBOLS[note % 12][0];
 		noteSymbol.noteSharp = NOTE_SYMBOLS[note % 12][1];
-		noteSymbol.noteOctave = (int) Math.floor((double) note / 12.0) - 1;
+		noteSymbol.noteOctave = (int) Math.floor(note / 12.0) - 1;
 		return noteSymbol;
 	}
 
@@ -117,6 +118,7 @@ public class PitchSet implements Serializable {
 		setIndex(lowNote - MIN_MIDI_NOTE);
 	}
 
+	@Override
 	public PitchSet clone() {
 		return new PitchSet(this.getLowNote(), this.getHighNote());
 	}
@@ -170,8 +172,9 @@ public class PitchSet implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PitchSet [lowPitchIndex=" + lowPitchIndex + ", highPitchIndex=" + highPitchIndex
-				+ ", currentPitchIndex=" + currentPitchIndex + ", freq=" + freq + ", note=" + note + ", freqSet="
+		return "PitchSet [lowPitchIndex=" + lowPitchIndex + ", highPitchIndex="
+				+ highPitchIndex + ", currentPitchIndex=" + currentPitchIndex
+				+ ", freq=" + freq + ", note=" + note + ", freqSet="
 				+ Arrays.toString(freqSet) + ", freqRange=" + freqRange + "]";
 	}
 

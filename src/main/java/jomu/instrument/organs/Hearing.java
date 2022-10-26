@@ -35,16 +35,16 @@ public class Hearing {
 		return analyzer;
 	}
 
+	public AudioFeatureProcessor getAudioFeatureProcessor() {
+		return audioFeatureProcessor;
+	}
+
 	public Glide getFrequencyGlide() {
 		return frequencyGlide;
 	}
 
 	public float getMeanFrequency() {
 		return meanFrequency;
-	}
-
-	public AudioFeatureProcessor getAudioFeatureProcessor() {
-		return audioFeatureProcessor;
 	}
 
 	public int getSampleRate() {
@@ -64,7 +64,8 @@ public class Hearing {
 		tarsosIO = new TarsosAudioIO();
 		tarsosIO.selectMixer(2);
 		File file = new File("D:/audio/testharmonics2.wav");
-		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1, true, true);
+		IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1,
+				true, true);
 		ac = new AudioContext(tarsosIO, 1024, audioFormat);
 		// get a microphone input unit generator
 		tarsosIO.setAudioFile(file);
@@ -82,7 +83,8 @@ public class Hearing {
 		extractors.add(SpectralPeaks.class);
 
 		analyzer = new Analyzer(ac, extractors);
-		audioFeatureProcessor = new AudioFeatureProcessor(streamId, analyzer, tarsosFeatureSource);
+		audioFeatureProcessor = new AudioFeatureProcessor(streamId, analyzer,
+				tarsosFeatureSource);
 		audioFeatureProcessor.setMaxFrames(100);
 
 		tarsosIO.getDispatcher().addAudioProcessor(audioFeatureProcessor);

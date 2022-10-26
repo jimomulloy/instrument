@@ -44,6 +44,7 @@ public class ToneMap {
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
 
+	@Override
 	public ToneMap clone() {
 		ToneMap copy = new ToneMap();
 		for (Entry<Double, ToneTimeFrame> tmf : toneMapStore.entrySet()) {
@@ -76,6 +77,35 @@ public class ToneMap {
 		return this;
 	}
 
+	public ToneTimeFrame getNextTimeFrame(Double key) {
+		Entry<Double, ToneTimeFrame> nextEntry = toneMapStore.higherEntry(key);
+		if (nextEntry != null) {
+			return nextEntry.getValue();
+		} else {
+			return null;
+		}
+	}
+
+	public ToneTimeFrame getPreviousTimeFrame() {
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore
+				.lowerEntry(toneMapStore.lastKey());
+		if (previousEntry != null) {
+			return previousEntry.getValue();
+		} else {
+			return null;
+		}
+	}
+
+	public ToneTimeFrame getPreviousTimeFrame(Double key) {
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore
+				.lowerEntry(key);
+		if (previousEntry != null) {
+			return previousEntry.getValue();
+		} else {
+			return null;
+		}
+	}
+
 	public ToneTimeFrame getTimeFrame() {
 		return toneMapStore.lastEntry().getValue();
 	}
@@ -92,33 +122,6 @@ public class ToneMap {
 	public ToneTimeFrame[] getTimeFramesTo(Double key) {
 		Collection<ToneTimeFrame> headMap = toneMapStore.headMap(key).values();
 		return headMap.toArray(new ToneTimeFrame[headMap.size()]);
-	}
-
-	public ToneTimeFrame getPreviousTimeFrame() {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(toneMapStore.lastKey());
-		if (previousEntry != null) {
-			return previousEntry.getValue();
-		} else {
-			return null;
-		}
-	}
-
-	public ToneTimeFrame getPreviousTimeFrame(Double key) {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(key);
-		if (previousEntry != null) {
-			return previousEntry.getValue();
-		} else {
-			return null;
-		}
-	}
-
-	public ToneTimeFrame getNextTimeFrame(Double key) {
-		Entry<Double, ToneTimeFrame> nextEntry = toneMapStore.higherEntry(key);
-		if (nextEntry != null) {
-			return nextEntry.getValue();
-		} else {
-			return null;
-		}
 	}
 
 	public ToneMap harmonics() {

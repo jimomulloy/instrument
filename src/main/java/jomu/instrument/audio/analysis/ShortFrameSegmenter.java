@@ -11,9 +11,9 @@ import net.beadsproject.beads.data.buffers.HanningWindow;
 
 /**
  * A ShortFrameSegmenter slices audio data in short regular overlapping chunks.
- * 
+ *
  * @see AudioSegmenter
- * 
+ *
  * @author ollie
  */
 public class ShortFrameSegmenter extends AudioSegmenter {
@@ -44,8 +44,9 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 
 	/**
 	 * Instantiates a new ShortFrameSegmenter.
-	 * 
-	 * @param context the AudioContext.
+	 *
+	 * @param context
+	 *            the AudioContext.
 	 */
 	public ShortFrameSegmenter(AudioContext context) {
 		super(context);
@@ -58,7 +59,7 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see net.beadsproject.beads.core.UGen#calculateBuffer()
 	 */
 	@Override
@@ -72,12 +73,14 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 				if (pos < 0)
 					pos += cycleLen;
 				if (pos < chunkSize) {
-					chunks[j][pos] = bufIn[0][i] * window.getValueFraction((float) pos / (float) (chunkSize - 1));
+					chunks[j][pos] = bufIn[0][i] * window.getValueFraction(
+							(float) pos / (float) (chunkSize - 1));
 				}
 			}
 			count++;
 			if (count % hopSize == 0) {
-				TimeStamp nextTimeStamp = TimeStamp.add(context, context.generateTimeStamp(i), beginningTimeStamp);
+				TimeStamp nextTimeStamp = TimeStamp.add(context,
+						context.generateTimeStamp(i), beginningTimeStamp);
 				int chunkIndex = count / hopSize - 1;
 				segment(lastTimeStamp, nextTimeStamp, chunks[chunkIndex]);
 				lastTimeStamp = nextTimeStamp;
@@ -88,7 +91,7 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 
 	/**
 	 * Gets the chunk size.
-	 * 
+	 *
 	 * @return the chunk size.
 	 */
 	public int getChunkSize() {
@@ -97,19 +100,21 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 
 	/**
 	 * Gets the hop size.
-	 * 
+	 *
 	 * @return the hop size.
 	 */
 	public int getHopSize() {
 		return hopSize;
 	}
 
+	@Override
 	public void resetTimeStamp() {
 		lastTimeStamp = context.generateTimeStamp(0);
 		beginningTimeStamp = context.generateTimeStamp(0);
 		count = 0;
 	}
 
+	@Override
 	public void setBeginningTimeStamp(TimeStamp ts) {
 		beginningTimeStamp = ts;
 		count = 0;
@@ -117,8 +122,9 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 
 	/**
 	 * Sets the chunk size.
-	 * 
-	 * @param chunkSize the new chunk size.
+	 *
+	 * @param chunkSize
+	 *            the new chunk size.
 	 */
 	public void setChunkSize(int chunkSize) {
 		this.chunkSize = chunkSize;
@@ -127,17 +133,29 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 
 	/**
 	 * Sets the hop size.
-	 * 
-	 * @param hopSize the new hop size.
+	 *
+	 * @param hopSize
+	 *            the new hop size.
 	 */
 	public void setHopSize(int hopSize) {
 		this.hopSize = hopSize;
 		setupBuffers();
 	}
 
+	@Override
 	public void setLastTimeStamp(TimeStamp ts) {
 		lastTimeStamp = ts;
 		count = 0;
+	}
+
+	/**
+	 * Sets the window Buffer.
+	 *
+	 * @param window
+	 *            the new window Buffer.
+	 */
+	public void setWindow(Buffer window) {
+		this.window = window;
 	}
 
 	/**
@@ -145,37 +163,30 @@ public class ShortFrameSegmenter extends AudioSegmenter {
 	 * gets changed.
 	 */
 	private void setupBuffers() {
-		int requiredBuffers = (int) Math.ceil((float) chunkSize / (float) hopSize);
+		int requiredBuffers = (int) Math
+				.ceil((float) chunkSize / (float) hopSize);
 		chunks = new float[requiredBuffers][chunkSize];
 		cycleLen = requiredBuffers * hopSize;
 	}
 
-	/**
-	 * Sets the window Buffer.
-	 * 
-	 * @param window the new window Buffer.
-	 */
-	public void setWindow(Buffer window) {
-		this.window = window;
-	}
-
-//	/* (non-Javadoc)
-//	 * @see net.beadsproject.beads.core.UGen#calculateBuffer()
-//	 */
-//	@Override
-//	public void calculateBuffer() {
-//		for(int i = 0; i < bufferSize; i++) {
-//			for(int j = 0; j < chunks.length; j++) {
-//				int pos = (count + j * hopSize) % chunkSize;
-//				chunks[j][pos] = bufIn[0][i] * window.getValueFraction((float)pos / (float)chunkSize);
-//			}
-//			count = (count + 1) % chunkSize;
-//			if(count % hopSize == 0) {
-//				TimeStamp nextTimeStamp = context.generateTimeStamp(i);
-//				segment(lastTimeStamp, nextTimeStamp, chunks[count / hopSize]);
-//				lastTimeStamp = nextTimeStamp;
-//			}
-//		}
-//	}
+	// /* (non-Javadoc)
+	// * @see net.beadsproject.beads.core.UGen#calculateBuffer()
+	// */
+	// @Override
+	// public void calculateBuffer() {
+	// for(int i = 0; i < bufferSize; i++) {
+	// for(int j = 0; j < chunks.length; j++) {
+	// int pos = (count + j * hopSize) % chunkSize;
+	// chunks[j][pos] = bufIn[0][i] * window.getValueFraction((float)pos /
+	// (float)chunkSize);
+	// }
+	// count = (count + 1) % chunkSize;
+	// if(count % hopSize == 0) {
+	// TimeStamp nextTimeStamp = context.generateTimeStamp(i);
+	// segment(lastTimeStamp, nextTimeStamp, chunks[count / hopSize]);
+	// lastTimeStamp = nextTimeStamp;
+	// }
+	// }
+	// }
 
 }

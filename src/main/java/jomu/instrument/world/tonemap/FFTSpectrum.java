@@ -12,13 +12,14 @@ public class FFTSpectrum {
 		this.windowSize = windowSize;
 		this.spectrum = spectrum;
 		/*
-		 * Frequencies, always the same after capture init... captured signal will be
-		 * zero padded to twice its length, so valid fft bins are equal to original
-		 * epoch length
+		 * Frequencies, always the same after capture init... captured signal
+		 * will be zero padded to twice its length, so valid fft bins are equal
+		 * to original epoch length
 		 */
-		binFrequencies = new double[(int) Math.floor((double) getWindowSize())];
-		for (int b = 0; b < Math.floor((double) getWindowSize()); ++b) {
-			binFrequencies[b] = (double) b * (double) (getSampleRate() / 2.0) / (double) getWindowSize();
+		binFrequencies = new double[(int) Math.floor(getWindowSize())];
+		for (int b = 0; b < Math.floor(getWindowSize()); ++b) {
+			binFrequencies[b] = b * (getSampleRate() / 2.0)
+					/ getWindowSize();
 		}
 
 	}
@@ -27,21 +28,21 @@ public class FFTSpectrum {
 		return binFrequencies;
 	}
 
+	public float getSampleRate() {
+		return sampleRate;
+	}
+
 	public float[] getSpectrum() {
 		return spectrum;
+	}
+
+	public int getWindowSize() {
+		return windowSize;
 	}
 
 	public void magnify(float factor) {
 		for (int i = 0; i < spectrum.length; i++) {
 			spectrum[i] *= factor;
 		}
-	}
-
-	public float getSampleRate() {
-		return sampleRate;
-	}
-
-	public int getWindowSize() {
-		return windowSize;
 	}
 }

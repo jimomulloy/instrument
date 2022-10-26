@@ -14,14 +14,16 @@ public class Cortex implements AudioFeatureFrameObserver {
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
-		sourceAddCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+		sourceAddCell.send(
+				audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
 				audioFeatureFrame.getFrameSequence());
 	}
 
 	@Override
 	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
 		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
-			sourceUpdateCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+			sourceUpdateCell.send(
+					audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
 					audioFeatureFrame.getFrameSequence());
 		}
 	}
@@ -35,7 +37,8 @@ public class Cortex implements AudioFeatureFrameObserver {
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
 		NuCell audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
-		NuCell audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
+		NuCell audioIntegrateCell = Generator
+				.createNuCell(CellTypes.AUDIO_INTEGRATE);
 		NuCell audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
 		NuCell sinkCell = Generator.createNuCell(CellTypes.SINK);
 		Weaver.connect(audioCQCell, audioIntegrateCell);
@@ -49,7 +52,8 @@ public class Cortex implements AudioFeatureFrameObserver {
 			Weaver.connect(sourceUpdateCell, pitchCell);
 		}
 		Weaver.connect(sourceUpdateCell, audioCQCell);
-		Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+		Hearing hearing = Instrument.getInstance().getCoordinator()
+				.getHearing();
 		hearing.getAudioFeatureProcessor().addObserver(this);
 		audioFeatureFrameSink = new AudioFeatureFrameSink(sinkCell);
 	}

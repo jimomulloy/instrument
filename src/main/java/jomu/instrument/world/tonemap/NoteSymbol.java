@@ -12,12 +12,14 @@ public class NoteSymbol {
 	public char noteSharp;
 	public int noteOctave;
 
+	@Override
 	public String toString() {
 		String s = null;
 		if (noteSharp == ' ')
-			s = s.valueOf(noteChar) + s.valueOf(noteOctave);
+			s = String.valueOf(noteChar) + String.valueOf(noteOctave);
 		else
-			s = s.valueOf(noteChar) + s.valueOf(noteSharp) + s.valueOf(noteOctave);
+			s = String.valueOf(noteChar) + String.valueOf(noteSharp)
+					+ String.valueOf(noteOctave);
 		return s;
 	}
 

@@ -21,9 +21,6 @@ public abstract class Cell {
 	/** A Bead that gets informed when this Bead gets killed. */
 	private Cell killListener;
 
-	/** The name. */
-	private String name;
-
 	/* Unique identification for this CellElement instance. */
 	private String ID;
 
@@ -42,9 +39,7 @@ public abstract class Cell {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
+		if ((obj == null) || (getClass() != obj.getClass()))
 			return false;
 		Cell other = (Cell) obj;
 		return Objects.equals(ID, other.ID);
@@ -60,7 +55,7 @@ public abstract class Cell {
 
 	/**
 	 * Gets this Bead's kill listener.
-	 * 
+	 *
 	 * @return the kill listener.
 	 */
 	public Cell getKillListener() {
@@ -68,8 +63,8 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Returns the cell type. This is just a convenient way to store some property
-	 * for the cell. Should not be confused with NeuroMLType.
+	 * Returns the cell type. This is just a convenient way to store some
+	 * property for the cell. Should not be confused with NeuroMLType.
 	 */
 	public String getType() {
 		return "cellType";
@@ -82,7 +77,7 @@ public abstract class Cell {
 
 	/**
 	 * Determines if this Bead is deleted.
-	 * 
+	 *
 	 * @return true if this Bead's state is deleted, false otherwise.
 	 */
 	public boolean isDeleted() {
@@ -91,7 +86,7 @@ public abstract class Cell {
 
 	/**
 	 * Checks if this Bead is paused.
-	 * 
+	 *
 	 * @return true if paused
 	 */
 	public boolean isPaused() {
@@ -100,8 +95,8 @@ public abstract class Cell {
 
 	/**
 	 * Stops this Bead, and flags it as deleted. This means that the Bead will
-	 * automatically be removed from any {@link BeadArray}s. Calling this method for
-	 * the first time also causes the killListener to be notified.
+	 * automatically be removed from any {@link BeadArray}s. Calling this method
+	 * for the first time also causes the killListener to be notified.
 	 */
 	public void kill() {
 		if (!deleted) {
@@ -114,10 +109,11 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Send this Bead a message. Typically if another Bead was sending the message,
-	 * it would send itself as the argument.
-	 * 
-	 * @param message the Bead is the message.
+	 * Send this Bead a message. Typically if another Bead was sending the
+	 * message, it would send itself as the argument.
+	 *
+	 * @param message
+	 *            the Bead is the message.
 	 */
 
 	public final void message(Cell message) {
@@ -126,22 +122,10 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Responds to an incoming message. Subclasses can override this in order to
-	 * handle incoming messages. Typically a Bead would send a message to another
-	 * Bead with itself as the arugment.
-	 * 
-	 * @param message the message
-	 */
-	protected void messageReceived(Cell message) {
-		/*
-		 * To be subclassed, but not compulsory.
-		 */
-	}
-
-	/**
 	 * Toggle the paused state of the Bead.
-	 * 
-	 * @param paused true to pause Bead.
+	 *
+	 * @param paused
+	 *            true to pause Bead.
 	 */
 	public void pause(boolean paused) {
 		this.paused = paused;
@@ -150,16 +134,17 @@ public abstract class Cell {
 	/**
 	 * Sets this Bead's kill listener. The kill listener will receive a message
 	 * containing this Bead as an argument when this Bead is killed.
-	 * 
-	 * @param killListener the new kill listener.
+	 *
+	 * @param killListener
+	 *            the new kill listener.
 	 */
 	public void setKillListener(Cell killListener) {
 		this.killListener = killListener;
 	}
 
 	/**
-	 * Sets the cell type. This is just a convenient way to store some property for
-	 * the cell. Should not be confused with NeuroMLType.
+	 * Sets the cell type. This is just a convenient way to store some property
+	 * for the cell. Should not be confused with NeuroMLType.
 	 */
 	public void setType(String type) {
 		// somaElement.setPropertiy("cellType", type);
@@ -174,7 +159,21 @@ public abstract class Cell {
 
 	@Override
 	public String toString() {
-		return "Cell [name=" + name + ", ID=" + ID + ", cellType=" + cellType + "]";
+		return "Cell [ID=" + ID + ", cellType=" + cellType + "]";
+	}
+
+	/**
+	 * Responds to an incoming message. Subclasses can override this in order to
+	 * handle incoming messages. Typically a Bead would send a message to
+	 * another Bead with itself as the arugment.
+	 *
+	 * @param message
+	 *            the message
+	 */
+	protected void messageReceived(Cell message) {
+		/*
+		 * To be subclassed, but not compulsory.
+		 */
 	}
 
 }

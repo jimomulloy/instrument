@@ -29,13 +29,10 @@ public class OnsetSource implements OnsetHandler {
 		this.sampleRate = tarsosIO.getContext().getSampleRate();
 	}
 
-	void clear() {
-		features.clear();
-	}
-
 	public TreeMap<Double, OnsetInfo[]> getFeatures() {
 		TreeMap<Double, OnsetInfo[]> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, OnsetInfo[]> entry : features.entrySet()) {
+		for (java.util.Map.Entry<Double, OnsetInfo[]> entry : features
+				.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -59,18 +56,25 @@ public class OnsetSource implements OnsetHandler {
 		onsetInfos.add(new OnsetInfo(time, salience));
 	}
 
+	void clear() {
+		features.clear();
+	}
+
 	void initialise() {
 
 		int overlap = 0;
 		double threshold = 0.4;
 
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(
+				sampleRate, 16, 1, true, true);
 
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, increment, overlap);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
+				tarsosDSPFormat, increment, overlap);
 		djp.setName("SC");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 
-		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(increment, threshold);
+		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(increment,
+				threshold);
 		onsetDetector.setHandler(this);
 		// add a processor, handle percussion event.
 		djp.addAudioProcessor(onsetDetector);
@@ -79,7 +83,8 @@ public class OnsetSource implements OnsetHandler {
 
 			@Override
 			public boolean process(AudioEvent audioEvent) {
-				features.put(audioEvent.getTimeStamp(), onsetInfos.toArray((new OnsetInfo[onsetInfos.size()])));
+				features.put(audioEvent.getTimeStamp(),
+						onsetInfos.toArray((new OnsetInfo[onsetInfos.size()])));
 				onsetInfos.clear();
 				return true;
 			}

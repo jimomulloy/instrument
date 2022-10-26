@@ -21,12 +21,13 @@ import net.beadsproject.beads.data.Sample;
 public class FeatureSet {
 
 	/**
-	 * Tries to locate the FeatureSet for the given {@link Sample}. Assumes that the
-	 * features are stored in a file next to the Sample's file but with the ending
-	 * ".features".
-	 * 
-	 * @param s the Sample
-	 * 
+	 * Tries to locate the FeatureSet for the given {@link Sample}. Assumes that
+	 * the features are stored in a file next to the Sample's file but with the
+	 * ending ".features".
+	 *
+	 * @param s
+	 *            the Sample
+	 *
 	 * @return the FeatureSet or null if unsuccessful.
 	 */
 	public static FeatureSet forSample(Sample s) {
@@ -35,11 +36,11 @@ public class FeatureSet {
 		if (sampleFilePath != null) {
 			File featureFile = new File(sampleFilePath + ".features");
 			if (featureFile.exists()) {
-//				try {
+				// try {
 				fs = new FeatureSet(featureFile);
-//				} catch(Exception e) {
-//					fs = null;
-//				}
+				// } catch(Exception e) {
+				// fs = null;
+				// }
 			}
 		}
 		return fs;
@@ -58,14 +59,15 @@ public class FeatureSet {
 	 * Instantiates a new empty FeatureSet.
 	 */
 	public FeatureSet() {
-		tracks = new Hashtable<String, FeatureTrack>();
-		globalFeatures = new Hashtable<String, Object>();
+		tracks = new Hashtable<>();
+		globalFeatures = new Hashtable<>();
 	}
 
 	/**
 	 * Instantiates a new FeatureSet from the given file.
-	 * 
-	 * @param file the File.
+	 *
+	 * @param file
+	 *            the File.
 	 */
 	public FeatureSet(File file) {
 		this();
@@ -75,9 +77,11 @@ public class FeatureSet {
 	/**
 	 * Adds the given {@link FeatureTrack} with the given name, writing over a
 	 * previously stored {@link FeatureTrack} with the same name.
-	 * 
-	 * @param trackName the track name.
-	 * @param track     the track.
+	 *
+	 * @param trackName
+	 *            the track name.
+	 * @param track
+	 *            the track.
 	 */
 	public void add(String trackName, FeatureTrack track) {
 		tracks.put(trackName, track);
@@ -85,9 +89,11 @@ public class FeatureSet {
 
 	/**
 	 * Adds a set of features with the given name to the global features.
-	 * 
-	 * @param s the name used to identify the feature set.
-	 * @param f the features.
+	 *
+	 * @param s
+	 *            the name used to identify the feature set.
+	 * @param f
+	 *            the features.
 	 */
 	public void addGlobal(String s, Object f) {
 		globalFeatures.put(s, f);
@@ -95,8 +101,9 @@ public class FeatureSet {
 
 	/**
 	 * Returns true if this FeatureSet stores a track with the given name.
-	 * 
-	 * @param trackName name to check.
+	 *
+	 * @param trackName
+	 *            name to check.
 	 * @return true if track name is found.
 	 */
 	public boolean contains(String trackName) {
@@ -104,9 +111,11 @@ public class FeatureSet {
 	}
 
 	/**
-	 * Returns true if this FeatureSet stores a global feature with the given name.
-	 * 
-	 * @param feature name to check.
+	 * Returns true if this FeatureSet stores a global feature with the given
+	 * name.
+	 *
+	 * @param feature
+	 *            name to check.
 	 * @return true if feature name is found.
 	 */
 	public boolean containsGlobal(String feature) {
@@ -115,9 +124,10 @@ public class FeatureSet {
 
 	/**
 	 * Gets the {@link FeatureTrack} with the given name.
-	 * 
-	 * @param trackName the track name.
-	 * 
+	 *
+	 * @param trackName
+	 *            the track name.
+	 *
 	 * @return the FeatureTrack, or null if unsuccessful.
 	 */
 	public FeatureTrack get(String trackName) {
@@ -126,9 +136,10 @@ public class FeatureSet {
 
 	/**
 	 * Gets the global features for the given name.
-	 * 
-	 * @param s the name.
-	 * 
+	 *
+	 * @param s
+	 *            the name.
+	 *
 	 * @return the features.
 	 */
 	public Object getGlobal(String s) {
@@ -140,6 +151,62 @@ public class FeatureSet {
 		for (String s : globalFeatures.keySet()) {
 			System.out.println("- " + s);
 		}
+	}
+
+	/**
+	 * Rereads the data from the stored file. Assumes the file has been
+	 * specified in the constructor.
+	 */
+	public void refresh() {
+		read();
+	}
+
+	/**
+	 * Returns the tracks.
+	 *
+	 * @return A Map structure.
+	 */
+	public Map<String, FeatureTrack> tracks() {
+		return tracks;
+	}
+
+	/**
+	 * Writes to a file. Assumes file has already been specified by write File
+	 * or {@link FeatureSet(File)}.
+	 */
+	public void write() {
+		try {
+			FileOutputStream fos = new FileOutputStream(file);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(tracks);
+			oos.writeObject(globalFeatures);
+			oos.close();
+			fos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Writes the data to the given {@link File} and keeps the file ref for
+	 * future use.
+	 *
+	 * @param file
+	 *            the file.
+	 */
+	public void write(File file) {
+		this.file = file;
+		write();
+	}
+
+	/**
+	 * Writes the data to the named file, and keeps a file ref for future use.
+	 *
+	 * @param fn
+	 *            the file name.
+	 */
+	public void write(String fn) {
+		write(new File(fn));
 	}
 
 	/**
@@ -163,66 +230,13 @@ public class FeatureSet {
 
 	/**
 	 * Reads data from the given file. Retains file ref for future use.
-	 * 
-	 * @param file the file
+	 *
+	 * @param file
+	 *            the file
 	 */
 	private void read(File file) {
 		this.file = file;
 		read();
-	}
-
-	/**
-	 * Rereads the data from the stored file. Assumes the file has been specified in
-	 * the constructor.
-	 */
-	public void refresh() {
-		read();
-	}
-
-	/**
-	 * Returns the tracks.
-	 * 
-	 * @return A Map structure.
-	 */
-	public Map<String, FeatureTrack> tracks() {
-		return tracks;
-	}
-
-	/**
-	 * Writes to a file. Assumes file has already been specified by write File or
-	 * {@link FeatureSet(File)}.
-	 */
-	public void write() {
-		try {
-			FileOutputStream fos = new FileOutputStream(file);
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			oos.writeObject(tracks);
-			oos.writeObject(globalFeatures);
-			oos.close();
-			fos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Writes the data to the given {@link File} and keeps the file ref for future
-	 * use.
-	 * 
-	 * @param file the file.
-	 */
-	public void write(File file) {
-		this.file = file;
-		write();
-	}
-
-	/**
-	 * Writes the data to the named file, and keeps a file ref for future use.
-	 * 
-	 * @param fn the file name.
-	 */
-	public void write(String fn) {
-		write(new File(fn));
 	}
 
 }

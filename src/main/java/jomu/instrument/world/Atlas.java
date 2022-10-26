@@ -10,7 +10,7 @@ public class Atlas {
 	Map<String, ToneMap> toneMaps = new ConcurrentHashMap<>();
 
 	public ToneMap getToneMap(String key) {
-		if (toneMaps.containsKey(key)) {
+		if (!toneMaps.containsKey(key)) {
 			toneMaps.put(key, new ToneMap());
 		}
 		return toneMaps.get(key);

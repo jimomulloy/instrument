@@ -3,7 +3,6 @@ package jomu.instrument.cell;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,9 +13,9 @@ public class Dendrites implements Serializable {
 	// to the output signal of a presynapitic NuCell
 	// key presynapitic NuCell can be null - yes
 	// value Double , weight can be null - yes
-	private Map<NuCell, Double> dendriteInputMap = new HashMap<NuCell, Double>();
+	private Map<NuCell, Double> dendriteInputMap = new HashMap<>();
 
-	private ArrayList<Dendrite> dendriteList = new ArrayList<Dendrite>();
+	private ArrayList<Dendrite> dendriteList = new ArrayList<>();
 
 	private NuCell target;
 
@@ -33,12 +32,11 @@ public class Dendrites implements Serializable {
 		double sum = 0d;
 
 		Set<NuCell> set = dendriteInputMap.keySet();
-		Iterator<NuCell> iterator = set.iterator();
+
 
 		// loop through the dendriteInputMap and calculate the
 		// summation of the product of incoming signals and weights
-		while (iterator.hasNext()) {
-			NuCell NuCell = iterator.next();
+		for (NuCell NuCell : set) {
 			if (NuCell == null)
 				continue;
 
@@ -55,7 +53,7 @@ public class Dendrites implements Serializable {
 			// compute the product of the output from
 			// the input NuCell and the weight of the
 			// Dendrite
-			Double product = NuCellOutput * weight;
+			double product = NuCellOutput * weight;
 			sum += product;
 		}
 		return sum;
@@ -90,7 +88,7 @@ public class Dendrites implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 * @return
 	 */
@@ -99,7 +97,7 @@ public class Dendrites implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param NuCell
 	 * @param d
 	 */

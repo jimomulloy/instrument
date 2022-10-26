@@ -33,7 +33,8 @@ public class TimeSet implements Serializable {
 
 	private int sampleIndexSize;
 
-	public TimeSet(double startTime, double endTime, float sampleRate, double sampleTimeSize) {
+	public TimeSet(double startTime, double endTime, float sampleRate,
+			double sampleTimeSize) {
 
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -42,8 +43,10 @@ public class TimeSet implements Serializable {
 		sampleIndexSize = timeToSamples(sampleTimeSize);
 	}
 
+	@Override
 	public TimeSet clone() {
-		return new TimeSet(this.startTime, this.endTime, this.sampleRate, this.sampleTimeSize);
+		return new TimeSet(this.startTime, this.endTime, this.sampleRate,
+				this.sampleTimeSize);
 	}
 
 	public int getEndSample() {
@@ -83,7 +86,7 @@ public class TimeSet implements Serializable {
 	}
 
 	public double samplesToTime(int samples) {
-		return (((double) samples) * 1000.0 / sampleRate);
+		return ((samples) * 1000.0 / sampleRate);
 	}
 
 	public int timeToIndex(double time) {
@@ -96,9 +99,11 @@ public class TimeSet implements Serializable {
 
 	@Override
 	public String toString() {
-		return "TimeSet [startTime=" + startTime + ", endTime=" + endTime + ", currentTime=" + currentTime
-				+ ", startSample=" + startSample + ", endSample=" + endSample + ", sampleRate=" + sampleRate
-				+ ", timeIndexSize=" + timeIndexSize + ", sampleTimeSize=" + sampleTimeSize + ", sampleIndexSize="
+		return "TimeSet [startTime=" + startTime + ", endTime=" + endTime
+				+ ", currentTime=" + currentTime + ", startSample="
+				+ startSample + ", endSample=" + endSample + ", sampleRate="
+				+ sampleRate + ", timeIndexSize=" + timeIndexSize
+				+ ", sampleTimeSize=" + sampleTimeSize + ", sampleIndexSize="
 				+ sampleIndexSize + "]";
 	}
 } // End TimeSet

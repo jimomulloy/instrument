@@ -11,10 +11,32 @@ import jomu.instrument.world.tonemap.ToneMap;
 
 public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 
+	private static float[] convertDoublesToFloats(double[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		float[] output = new float[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = (float) input[i];
+		}
+		return output;
+	}
+	private static double[] convertFloatsToDoubles(float[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		double[] output = new double[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = input[i];
+		}
+		return output;
+	}
+
 	private NuCell cell;
-	private WorldModel worldModel;
 
 	private float tmMax = 0;
+
+	private WorldModel worldModel;
 
 	public AudioIntegrateProcessor(NuCell cell) {
 		super();
@@ -34,11 +56,14 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 			streamId = message.streamId;
 			System.out.println(">>AudioIntegrateProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
 				ToneMap cqToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId, sequence));
+						.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
+								streamId, sequence));
 				ToneMap integrateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId, sequence));
+						.getToneMap(buildToneMapKey(this.cell.getCellType(),
+								streamId, sequence));
 				integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame());
 				System.out.println(">>AudioIntegrateProcessor send");
 				cell.send(streamId, sequence);
@@ -46,29 +71,8 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 		}
 	}
 
-	private String buildToneMapKey(CellTypes cellType, String streamId, int sequence) {
+	private String buildToneMapKey(CellTypes cellType, String streamId,
+			int sequence) {
 		return cellType + ":" + streamId + ":" + sequence;
-	}
-
-	private static double[] convertFloatsToDoubles(float[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		double[] output = new double[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = input[i];
-		}
-		return output;
-	}
-
-	public static float[] convertDoublesToFloats(double[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		float[] output = new float[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = (float) input[i];
-		}
-		return output;
 	}
 }

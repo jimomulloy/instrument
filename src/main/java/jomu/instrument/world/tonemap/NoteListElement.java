@@ -11,21 +11,8 @@ import java.io.Serializable;
  */
 public class NoteListElement implements Serializable {
 
-	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
-			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin) {
-		this.note = note;
-		this.pitchIndex = pitchIndex;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.startTimeIndex = startTimeIndex;
-		this.endTimeIndex = endTimeIndex;
-		this.avgAmp = avgAmp;
-		this.maxAmp = maxAmp;
-		this.minAmp = minAmp;
-		this.percentMin = percentMin;
-	}
-
 	public int note; // Midi note pitch
+
 	public int pitchIndex; // Pitch index in ToneMapMatrix
 	public double startTime; // Note Start Time
 	public double endTime; // Note End Time
@@ -37,5 +24,20 @@ public class NoteListElement implements Serializable {
 	public double percentMin; // Percentage # entries below minimum
 	public boolean underTone; // Flag note as undertone
 	public boolean overTone; // Flag note as overtone
+
+	public NoteListElement(int note, int pitchIndex, double startTime,
+			double endTime, int startTimeIndex, int endTimeIndex, double avgAmp,
+			double maxAmp, double minAmp, double percentMin) {
+		this.note = note;
+		this.pitchIndex = pitchIndex;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.startTimeIndex = startTimeIndex;
+		this.endTimeIndex = endTimeIndex;
+		this.avgAmp = avgAmp;
+		this.maxAmp = maxAmp;
+		this.minAmp = minAmp;
+		this.percentMin = percentMin;
+	}
 
 } // End NoteListElement

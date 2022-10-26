@@ -22,7 +22,7 @@ public class SpectralPeaksSource {
 	float noiseFloorFactor = 1.0F;
 	int numberOfSpectralPeaks = 3;
 	int minPeakSize = 100;
-	List<SpectralInfo> spectralInfos = new ArrayList<SpectralInfo>();
+	List<SpectralInfo> spectralInfos = new ArrayList<>();
 	SpectralPeakProcessor spectralPeakProcesser;
 	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
 
@@ -31,18 +31,14 @@ public class SpectralPeaksSource {
 		this.tarsosIO = tarsosIO;
 	}
 
-	void clear() {
-		spectralInfos.clear();
-		features.clear();
-	}
-
 	public int getCurrentFrame() {
 		return currentFrame;
 	}
 
 	public TreeMap<Double, SpectralInfo> getFeatures() {
 		TreeMap<Double, SpectralInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectralInfo> entry : features.entrySet()) {
+		for (java.util.Map.Entry<Double, SpectralInfo> entry : features
+				.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -73,7 +69,7 @@ public class SpectralPeaksSource {
 	}
 
 	public List<SpectralInfo> getSpectralInfo() {
-		List<SpectralInfo> clonedSpectralInfo = new ArrayList<SpectralInfo>();
+		List<SpectralInfo> clonedSpectralInfo = new ArrayList<>();
 		for (SpectralInfo si : spectralInfos) {
 			clonedSpectralInfo.add(si);
 		}
@@ -88,6 +84,11 @@ public class SpectralPeaksSource {
 		return tarsosIO;
 	}
 
+	void clear() {
+		spectralInfos.clear();
+		features.clear();
+	}
+
 	void initialise() {
 
 		int fftsize = 1024;
@@ -97,9 +98,12 @@ public class SpectralPeaksSource {
 			overlap = 128;
 		}
 
-		spectralPeakProcesser = new SpectralPeakProcessor(fftsize, overlap, sampleRate);
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, fftsize, overlap);
+		spectralPeakProcesser = new SpectralPeakProcessor(fftsize, overlap,
+				sampleRate);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100,
+				16, 1, true, true);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
+				tarsosDSPFormat, fftsize, overlap);
 		djp.setName("SP");
 		tarsosIO.getDispatcher().addAudioProcessor(djp);
 		djp.addAudioProcessor(spectralPeakProcesser);
@@ -110,20 +114,25 @@ public class SpectralPeaksSource {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				currentFrame = frameCounter;
-				SpectralInfo si = new SpectralInfo(spectralPeakProcesser.getMagnitudes(),
+				SpectralInfo si = new SpectralInfo(
+						spectralPeakProcesser.getMagnitudes(),
 						spectralPeakProcesser.getFrequencyEstimates());
 				spectralInfos.add(si);
 				features.put(audioEvent.getTimeStamp(), si);
 				SpectralInfo info = spectralInfos.get(currentFrame);
 
-				List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
+				List<SpectralPeak> peaks = info.getPeakList(
+						noiseFloorMedianFilterLenth, noiseFloorFactor,
 						numberOfSpectralPeaks, minPeakSize);
 
-				StringBuilder sb = new StringBuilder("Frequency(Hz);Step(cents);Magnitude\n");
+				StringBuilder sb = new StringBuilder(
+						"Frequency(Hz);Step(cents);Magnitude\n");
 				for (SpectralPeak peak : peaks) {
 
-					String message = String.format("%.2f;%.2f;%.2f\n", peak.getFrequencyInHertz(),
-							peak.getRelativeFrequencyInCents(), peak.getMagnitude());
+					String message = String.format("%.2f;%.2f;%.2f\n",
+							peak.getFrequencyInHertz(),
+							peak.getRelativeFrequencyInCents(),
+							peak.getMagnitude());
 					sb.append(message);
 				}
 				return true;

@@ -31,7 +31,7 @@ import net.beadsproject.beads.core.UGen;
  * what features you want to extract using a list of classes, corresponding to
  * the FeatureExtractors you want. You can then add a SegmentListener to the
  * Analyzer to monitor new features.
- * 
+ *
  * Analyzer is a work in progress.
  */
 public class Analyzer implements SegmentMaker {
@@ -70,12 +70,14 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Fft.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
 	private static void fft(Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(FFT.class)) {
 			FFT fft = new FFT();
-			AudioSegmenter as = (AudioSegmenter) extractorArrangement.get(AudioSegmenter.class);
+			AudioSegmenter as = (AudioSegmenter) extractorArrangement
+					.get(AudioSegmenter.class);
 			as.addListener(fft);
 			extractorArrangement.put(FFT.class, fft);
 		}
@@ -84,14 +86,18 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Frequency.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
-	private static void frequency(Hashtable<Class<?>, Object> extractorArrangement) {
+	private static void frequency(
+			Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(Frequency.class)) {
 			powerSpectrum(extractorArrangement);
-			AudioContext ac = (AudioContext) extractorArrangement.get(AudioContext.class);
+			AudioContext ac = (AudioContext) extractorArrangement
+					.get(AudioContext.class);
 			Frequency f = new Frequency(ac.getSampleRate());
-			PowerSpectrum ps = (PowerSpectrum) extractorArrangement.get(PowerSpectrum.class);
+			PowerSpectrum ps = (PowerSpectrum) extractorArrangement
+					.get(PowerSpectrum.class);
 			ps.addListener(f);
 			extractorArrangement.put(Frequency.class, f);
 		}
@@ -100,14 +106,18 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Mel spectrum.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
-	private static void melSpectrum(Hashtable<Class<?>, Object> extractorArrangement) {
+	private static void melSpectrum(
+			Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(MelSpectrum.class)) {
 			powerSpectrum(extractorArrangement);
-			AudioContext ac = (AudioContext) extractorArrangement.get(AudioContext.class);
+			AudioContext ac = (AudioContext) extractorArrangement
+					.get(AudioContext.class);
 			MelSpectrum ms = new MelSpectrum(ac.getSampleRate(), 200);
-			PowerSpectrum ps = (PowerSpectrum) extractorArrangement.get(PowerSpectrum.class);
+			PowerSpectrum ps = (PowerSpectrum) extractorArrangement
+					.get(PowerSpectrum.class);
 			ps.addListener(ms);
 			extractorArrangement.put(MelSpectrum.class, ms);
 		}
@@ -116,13 +126,15 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Mfcc.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
 	private static void mfcc(Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(MFCC.class)) {
 			melSpectrum(extractorArrangement);
 			MFCC mfcc = new MFCC(20);
-			MelSpectrum ms = (MelSpectrum) extractorArrangement.get(MelSpectrum.class);
+			MelSpectrum ms = (MelSpectrum) extractorArrangement
+					.get(MelSpectrum.class);
 			ms.addListener(mfcc);
 			extractorArrangement.put(MFCC.class, mfcc);
 		}
@@ -131,12 +143,15 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Power.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
-	private static void power(Hashtable<Class<?>, Object> extractorArrangement) {
+	private static void power(
+			Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(Power.class)) {
 			Power p = new Power();
-			AudioSegmenter as = (AudioSegmenter) extractorArrangement.get(AudioSegmenter.class);
+			AudioSegmenter as = (AudioSegmenter) extractorArrangement
+					.get(AudioSegmenter.class);
 			as.addListener(p);
 			extractorArrangement.put(Power.class, p);
 		}
@@ -145,9 +160,11 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Power spectrum.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
-	private static void powerSpectrum(Hashtable<Class<?>, Object> extractorArrangement) {
+	private static void powerSpectrum(
+			Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(PowerSpectrum.class)) {
 			fft(extractorArrangement);
 			PowerSpectrum ps = new PowerSpectrum();
@@ -160,14 +177,18 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * SpectralCentroid.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
-	private static void spectralCentroid(Hashtable<Class<?>, Object> extractorArrangement) {
+	private static void spectralCentroid(
+			Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(SpectralCentroid.class)) {
 			powerSpectrum(extractorArrangement);
-			AudioContext ac = (AudioContext) extractorArrangement.get(AudioContext.class);
+			AudioContext ac = (AudioContext) extractorArrangement
+					.get(AudioContext.class);
 			SpectralCentroid sc = new SpectralCentroid(ac.getSampleRate());
-			PowerSpectrum ps = (PowerSpectrum) extractorArrangement.get(PowerSpectrum.class);
+			PowerSpectrum ps = (PowerSpectrum) extractorArrangement
+					.get(PowerSpectrum.class);
 			ps.addListener(sc);
 			extractorArrangement.put(SpectralCentroid.class, sc);
 		}
@@ -176,15 +197,19 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Spectral difference.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
-	private static void spectralDifference(Hashtable<Class<?>, Object> extractorArrangement) {
+	private static void spectralDifference(
+			Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(SpectralDifference.class)) {
 			powerSpectrum(extractorArrangement);
-			AudioContext ac = (AudioContext) extractorArrangement.get(AudioContext.class);
+			AudioContext ac = (AudioContext) extractorArrangement
+					.get(AudioContext.class);
 			SpectralDifference sd = new SpectralDifference(ac.getSampleRate());
 			sd.setDifferenceType(DifferenceType.POSITIVERMS);
-			PowerSpectrum ps = (PowerSpectrum) extractorArrangement.get(PowerSpectrum.class);
+			PowerSpectrum ps = (PowerSpectrum) extractorArrangement
+					.get(PowerSpectrum.class);
 			ps.addListener(sd);
 			extractorArrangement.put(SpectralDifference.class, sd);
 		}
@@ -193,14 +218,18 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Spectral peaks.
 	 *
-	 * @param extractorArrangement the extractor arrangement
+	 * @param extractorArrangement
+	 *            the extractor arrangement
 	 */
-	private static void spectralPeaks(Hashtable<Class<?>, Object> extractorArrangement) {
+	private static void spectralPeaks(
+			Hashtable<Class<?>, Object> extractorArrangement) {
 		if (!extractorArrangement.containsKey(SpectralPeaks.class)) {
 			powerSpectrum(extractorArrangement);
-			AudioContext ac = (AudioContext) extractorArrangement.get(AudioContext.class);
+			AudioContext ac = (AudioContext) extractorArrangement
+					.get(AudioContext.class);
 			SpectralPeaks sp = new SpectralPeaks(ac, 10);
-			PowerSpectrum ps = (PowerSpectrum) extractorArrangement.get(PowerSpectrum.class);
+			PowerSpectrum ps = (PowerSpectrum) extractorArrangement
+					.get(PowerSpectrum.class);
 			ps.addListener(sp);
 			extractorArrangement.put(SpectralPeaks.class, sp);
 		}
@@ -221,21 +250,28 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Instantiates a new analyzer.
 	 *
-	 * @param ac         the ac
-	 * @param extractors the extractors
+	 * @param ac
+	 *            the ac
+	 * @param extractors
+	 *            the extractors
 	 */
-	public Analyzer(AudioContext ac, List<Class<? extends FeatureExtractor<?, ?>>> extractors) {
+	public Analyzer(AudioContext ac,
+			List<Class<? extends FeatureExtractor<?, ?>>> extractors) {
 		this(ac, extractors, defaultSettings);
 	}
 
 	/**
 	 * Instantiates a new analyzer.
 	 *
-	 * @param ac         the ac
-	 * @param extractors the extractors
-	 * @param settings   the settings
+	 * @param ac
+	 *            the ac
+	 * @param extractors
+	 *            the extractors
+	 * @param settings
+	 *            the settings
 	 */
-	public Analyzer(AudioContext ac, List<Class<? extends FeatureExtractor<?, ?>>> extractors,
+	public Analyzer(AudioContext ac,
+			List<Class<? extends FeatureExtractor<?, ?>>> extractors,
 			AnalysisSettings settings) {
 		setup(ac, extractors, settings);
 	}
@@ -243,8 +279,9 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Adds a {#link SegmentListener} which will listen to the beats detected by
 	 * this Analyzer.
-	 * 
-	 * @param sl a SegmentListener.
+	 *
+	 * @param sl
+	 *            a SegmentListener.
 	 */
 	public void addBeatListener(SegmentListener sl) {
 		beatSegmentMaker.addSegmentListener(sl);
@@ -256,18 +293,20 @@ public class Analyzer implements SegmentMaker {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see net.beadsproject.beads.analysis.SegmentMaker#addSegmentListener(net.
 	 * beadsproject.beads.analysis.SegmentListener)
 	 */
+	@Override
 	public void addSegmentListener(SegmentListener sl) {
 		sfs.addSegmentListener(sl);
 	}
 
 	/**
 	 * Gets the extractor or other element of the given class type.
-	 * 
-	 * @param classID classid
+	 *
+	 * @param classID
+	 *            classid
 	 * @return the element
 	 */
 	public Object getElement(Class<?> classID) {
@@ -293,10 +332,10 @@ public class Analyzer implements SegmentMaker {
 	}
 
 	/**
-	 * Gets the results from the analysis, which is a {@link FeatureSet} containing
-	 * feature tracks: "Low Level" for low level features and "Beat" for beat level
-	 * features.
-	 * 
+	 * Gets the results from the analysis, which is a {@link FeatureSet}
+	 * containing feature tracks: "Low Level" for low level features and "Beat"
+	 * for beat level features.
+	 *
 	 * @return the results set.
 	 */
 	public FeatureSet getResults() {
@@ -306,17 +345,19 @@ public class Analyzer implements SegmentMaker {
 	/**
 	 * Listen to this input ugen.
 	 *
-	 * @param ugen the ugen
+	 * @param ugen
+	 *            the ugen
 	 */
 	public void listenTo(UGen ugen) {
 		sfs.addInput(0, ugen, 0);
 	}
 
 	/**
-	 * Removes the {#link SegmentListener} from listening to the beats detected by
-	 * this Analyzer.
-	 * 
-	 * @param sl a SegmentListener.
+	 * Removes the {#link SegmentListener} from listening to the beats detected
+	 * by this Analyzer.
+	 *
+	 * @param sl
+	 *            a SegmentListener.
 	 */
 	public void removeBeatListener(SegmentListener sl) {
 		beatSegmentMaker.removeSegmentListener(sl);
@@ -324,21 +365,24 @@ public class Analyzer implements SegmentMaker {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see net.beadsproject.beads.analysis.SegmentMaker#removeSegmentListener(net.
+	 *
+	 * @see
+	 * net.beadsproject.beads.analysis.SegmentMaker#removeSegmentListener(net.
 	 * beadsproject.beads.analysis.SegmentListener)
 	 */
+	@Override
 	public void removeSegmentListener(SegmentListener sl) {
 		sfs.removeSegmentListener(sl);
 	}
 
 	/**
-	 * Sets the frame memory for FeatureTracks stored by this Analyzer. If unset, or
-	 * set to -1, the number of frames stored is unlimited, which is likely to lead
-	 * to intensive memory use. When set, only the specified number of most recent
-	 * frames are stored.
-	 * 
-	 * @param fm number of FeatureFrames stored, -1 for unlimited.
+	 * Sets the frame memory for FeatureTracks stored by this Analyzer. If
+	 * unset, or set to -1, the number of frames stored is unlimited, which is
+	 * likely to lead to intensive memory use. When set, only the specified
+	 * number of most recent frames are stored.
+	 *
+	 * @param fm
+	 *            number of FeatureFrames stored, -1 for unlimited.
 	 */
 	public void setFrameMemory(int fm) {
 		for (FeatureTrack ft : results.tracks().values()) {
@@ -347,14 +391,28 @@ public class Analyzer implements SegmentMaker {
 	}
 
 	/**
+	 * Update from this source ugen.
+	 *
+	 * @param ugen
+	 *            source
+	 */
+	public void updateFrom(UGen ugen) {
+		ugen.addDependent(sfs);
+	}
+
+	/**
 	 * Setup.
 	 *
-	 * @param ac         the ac
-	 * @param extractors the extractors
-	 * @param settings   the settings
+	 * @param ac
+	 *            the ac
+	 * @param extractors
+	 *            the extractors
+	 * @param settings
+	 *            the settings
 	 */
 	@SuppressWarnings("unchecked")
-	private void setup(AudioContext ac, List<Class<? extends FeatureExtractor<?, ?>>> extractors,
+	private void setup(AudioContext ac,
+			List<Class<? extends FeatureExtractor<?, ?>>> extractors,
 			AnalysisSettings settings) {
 		results = new FeatureSet();
 		FeatureTrack lowLevel = new FeatureTrack();
@@ -362,7 +420,7 @@ public class Analyzer implements SegmentMaker {
 		FeatureTrack beats = new FeatureTrack();
 		results.add("Low Level", lowLevel);
 		results.add("Beats", beats);
-		extractorArrangement = new Hashtable<Class<?>, Object>();
+		extractorArrangement = new Hashtable<>();
 		extractorArrangement.put(AudioContext.class, ac);
 		// set up call chain
 		sfs = new ShortFrameSegmenter(ac);
@@ -389,7 +447,8 @@ public class Analyzer implements SegmentMaker {
 				} else if (extractor.equals(SpectralCentroid.class)) {
 					spectralCentroid(extractorArrangement);
 				} else {
-					System.err.println("Analyzer: unknown extractor class: " + extractor);
+					System.err.println(
+							"Analyzer: unknown extractor class: " + extractor);
 				}
 			}
 		}
@@ -397,8 +456,11 @@ public class Analyzer implements SegmentMaker {
 		spectralDifference(extractorArrangement);
 		// add low level stuff
 		for (Class featureName : extractorArrangement.keySet()) {
-			if (extractorArrangement.get(featureName) instanceof FeatureExtractor) {
-				lowLevel.addFeatureExtractor((FeatureExtractor) extractorArrangement.get(featureName));
+			if (extractorArrangement
+					.get(featureName) instanceof FeatureExtractor) {
+				lowLevel.addFeatureExtractor(
+						(FeatureExtractor) extractorArrangement
+								.get(featureName));
 			}
 		}
 		// add beat stuff
@@ -407,18 +469,10 @@ public class Analyzer implements SegmentMaker {
 		d.setThreshold(0.1f);
 		d.setAlpha(0.9f);
 		d.setResetDelay(200f);
-		SpectralDifference sd = (SpectralDifference) extractorArrangement.get(SpectralDifference.class);
+		SpectralDifference sd = (SpectralDifference) extractorArrangement
+				.get(SpectralDifference.class);
 		sd.addListener(d);
 		sd.setDifferenceType(DifferenceType.POSITIVEMEANDIFFERENCE);
 		d.addSegmentListener(beats);
-	}
-
-	/**
-	 * Update from this source ugen.
-	 * 
-	 * @param ugen source
-	 */
-	public void updateFrom(UGen ugen) {
-		ugen.addDependent(sfs);
 	}
 }

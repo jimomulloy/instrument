@@ -35,14 +35,16 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 			// TODO ONLY Process one message?
 			System.out.println(">>PitchDetectorProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor();
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
 				pdf.buildToneMap();
 				ToneMap toneMap = pdf.getToneMap();
 				System.out.println(">PitchDetectorProcessor process tonemap");
-				// worldModel.getAtlas().putToneMap(this.cell.getCellType(), toneMap);
+				// worldModel.getAtlas().putToneMap(this.cell.getCellType(),
+				// toneMap);
 				// if (toneMap != null && toneMap.getTunerModel().tune()) {
 				// cqf.displayToneMap();
 				// System.out.println(">>ConstantQMessageProcessor send");

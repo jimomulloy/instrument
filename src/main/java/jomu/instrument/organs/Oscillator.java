@@ -34,7 +34,8 @@ public class Oscillator {
 		this(SINEWAVE, 1000, 22050, 1);
 	}
 
-	public Oscillator(int type, int frequency, int sampleRate, int numberOfChannels) {
+	public Oscillator(int type, int frequency, int sampleRate,
+			int numberOfChannels) {
 		// Save incoming
 		this.type = type;
 		this.frequency = frequency;
@@ -49,69 +50,8 @@ public class Oscillator {
 
 		// Generate wave table
 		buildWaveTable();
-		System.out.println("new Oscillator: " + type + ", " + frequency + ", " + sampleRate);
-	}
-
-	// Generate a wavetable for the waveform
-	protected void buildWaveTable() {
-
-		if (type == NOTYPE)
-			return;
-
-		// Initialize waveTable index as wave table is changing
-		pos = 0;
-
-		// Allocate a table for 1 cycle of waveform
-		waveTable = new double[sampleRate];
-
-		switch (type) {
-		case NOISE:
-			// Create a random number generator for returning gaussian
-			// distributed numbers. The result is white noise.
-			Random random = new Random();
-
-			for (int sample = 0; sample < sampleRate; sample++)
-				waveTable[sample] = (double) ((65535.0 * random.nextGaussian()) - 32768);
-			break;
-
-		case SINEWAVE:
-			double scale = (2.0 * Math.PI) / sampleRate;
-
-			for (int sample = 0; sample < sampleRate; sample++)
-				waveTable[sample] = (double) (32767.0 * Math.sin(sample * scale));
-
-			break;
-
-		case TRIANGLEWAVE:
-			double sign = 1.0;
-			double value = 0.0;
-
-			int oneQuarterWave = sampleRate / 4;
-			int threeQuarterWave = (3 * sampleRate) / 4;
-
-			scale = 32767.0 / oneQuarterWave;
-
-			for (int sample = 0; sample < sampleRate; sample++) {
-
-				if ((sample > oneQuarterWave) && (sample <= threeQuarterWave))
-					sign = -1.0;
-				else
-					sign = 1.0;
-
-				value += sign * scale;
-				waveTable[sample] = (double) value;
-			}
-			break;
-
-		case SQUAREWAVE:
-			for (int sample = 0; sample < sampleRate; sample++) {
-				if (sample < sampleRate / 2)
-					waveTable[sample] = (double) 32767;
-				else
-					waveTable[sample] = (double) -32768;
-			}
-			break;
-		}
+		System.out.println("new Oscillator: " + type + ", " + frequency + ", "
+				+ sampleRate);
 	}
 
 	public double getAmplitudeAdj() {
@@ -137,7 +77,7 @@ public class Oscillator {
 	public double getSample() {
 
 		double sample = 0;
-		sample = (double) (amplitudeAdj * waveTable[pos]);
+		sample = amplitudeAdj * waveTable[pos];
 		pos += frequency;
 		if (pos >= sampleRate) {
 			pos -= sampleRate;
@@ -205,5 +145,70 @@ public class Oscillator {
 		this.sampleRate = sampleRate;
 
 		buildWaveTable();
+	}
+
+	// Generate a wavetable for the waveform
+	protected void buildWaveTable() {
+
+		if (type == NOTYPE)
+			return;
+
+		// Initialize waveTable index as wave table is changing
+		pos = 0;
+
+		// Allocate a table for 1 cycle of waveform
+		waveTable = new double[sampleRate];
+
+		switch (type) {
+			case NOISE :
+				// Create a random number generator for returning gaussian
+				// distributed numbers. The result is white noise.
+				Random random = new Random();
+
+				for (int sample = 0; sample < sampleRate; sample++)
+					waveTable[sample] = (65535.0
+							* random.nextGaussian()) - 32768;
+				break;
+
+			case SINEWAVE :
+				double scale = (2.0 * Math.PI) / sampleRate;
+
+				for (int sample = 0; sample < sampleRate; sample++)
+					waveTable[sample] = 32767.0
+							* Math.sin(sample * scale);
+
+				break;
+
+			case TRIANGLEWAVE :
+				double sign = 1.0;
+				double value = 0.0;
+
+				int oneQuarterWave = sampleRate / 4;
+				int threeQuarterWave = (3 * sampleRate) / 4;
+
+				scale = 32767.0 / oneQuarterWave;
+
+				for (int sample = 0; sample < sampleRate; sample++) {
+
+					if ((sample > oneQuarterWave)
+							&& (sample <= threeQuarterWave))
+						sign = -1.0;
+					else
+						sign = 1.0;
+
+					value += sign * scale;
+					waveTable[sample] = value;
+				}
+				break;
+
+			case SQUAREWAVE :
+				for (int sample = 0; sample < sampleRate; sample++) {
+					if (sample < sampleRate / 2)
+						waveTable[sample] = 32767;
+					else
+						waveTable[sample] = -32768;
+				}
+				break;
+		}
 	}
 }
