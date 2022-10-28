@@ -26,9 +26,8 @@ public class Whitener {
 		for (
 
 				int b = 0; b < 32; ++b) {
-			cb[b] = 229.0
-					* (Math.pow(10.0, ((b + 1.0) / 21.4)) - 1.0); // frequency
-																				// division
+			cb[b] = 229.0 * (Math.pow(10.0, ((b + 1.0) / 21.4)) - 1.0); // frequency
+																		// division
 		}
 
 		/* Create filter bank */
@@ -72,8 +71,7 @@ public class Whitener {
 				tempSum += Hb[i].get(j) * Math.pow(
 						fftSpectrum.getSpectrum()[hbIndices[i].get(j)], 2.0);
 			}
-			stdb.add(Math.sqrt(
-					tempSum / (fftSpectrum.getSpectrum().length)));
+			stdb.add(Math.sqrt(tempSum / (fftSpectrum.getSpectrum().length)));
 			gammab.add(Math.pow(stdb.lastElement(), 0.33 - 1.0));
 		}
 
@@ -93,8 +91,7 @@ public class Whitener {
 			while (kk < end) {
 				gammaCoeff[kk] = gammab.get(i)
 						+ (gammab.get(i + 1) - gammab.get(i))
-								* Math.abs((double) (kk - init))
-								/ (end - init);
+								* Math.abs((double) (kk - init)) / (end - init);
 				++kk;
 			}
 		}

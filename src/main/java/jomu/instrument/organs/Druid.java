@@ -33,7 +33,8 @@ public class Druid {
 				@Override
 				public void run() {
 					JFrame frame = new JFrame();
-					frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+					frame.setDefaultCloseOperation(
+							WindowConstants.EXIT_ON_CLOSE);
 					frame.setTitle("Druid");
 					frame.add(visor);
 					frame.pack();

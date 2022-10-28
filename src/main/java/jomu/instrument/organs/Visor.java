@@ -246,11 +246,9 @@ public class Visor extends JPanel
 						// only draw the visible frequency range
 						if (centsStartingPoint >= cs.getMin(Axis.Y)
 								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
-							int greyValue = 255
-									- (int) (Math.log1p(element[1])
-											/ Math.log1p(
-													currentMaxSpectralEnergy)
-											* 255);
+							int greyValue = 255 - (int) (Math.log1p(element[1])
+									/ Math.log1p(currentMaxSpectralEnergy)
+									* 255);
 							greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
@@ -410,10 +408,9 @@ public class Visor extends JPanel
 								+ cs.getMin(Axis.Y));
 						Color color = Color.red;
 						graphics.setColor(color);
-						graphics.fillRect(
-								(int) Math.round(element.time * 1000),
-								Math.round(centsStartingPoint),
-								Math.round(100), (int) Math.ceil(100));
+						graphics.fillRect((int) Math.round(element.time * 1000),
+								Math.round(centsStartingPoint), Math.round(100),
+								(int) Math.ceil(100));
 					}
 				}
 			}
@@ -642,8 +639,7 @@ public class Visor extends JPanel
 							graphics.fillRect(
 									(int) Math.round(startTimeBlock * 1000),
 									Math.round(centsStartingPoint),
-									Math.round(100),
-									(int) Math.ceil(100));
+									Math.round(100), (int) Math.ceil(100));
 							// System.out.println(">>scalo: " + startTimeBlock +
 							// ", " + centsStartingPoint +
 							// ", " + timeDuration + ", " + centsHeight);

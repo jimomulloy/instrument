@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.organs.Hearing;
 import jomu.instrument.world.WorldModel;
 import jomu.instrument.world.tonemap.ToneMap;
 import jomu.instrument.world.tonemap.TunerModel;
@@ -58,8 +57,6 @@ public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 			System.out.println(">>AudioNotateProcessor accept: " + message);
 			if (message.source.getCellType()
 					.equals(CellTypes.AUDIO_INTEGRATE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator()
-						.getHearing();
 				ToneMap integrateToneMap = worldModel.getAtlas()
 						.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE,
 								streamId, sequence));

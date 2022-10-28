@@ -27,8 +27,6 @@ public class TimeSet implements Serializable {
 
 	private float sampleRate;
 
-	private int timeIndexSize;
-
 	private double sampleTimeSize;
 
 	private int sampleIndexSize;
@@ -73,6 +71,10 @@ public class TimeSet implements Serializable {
 		return sampleTimeSize;
 	}
 
+	public int getSampleWindow() {
+		return (int) Math.floor(sampleRate * sampleTimeSize);
+	}
+
 	public int getStartSample() {
 		return (timeToSamples(startTime));
 	}
@@ -94,7 +96,7 @@ public class TimeSet implements Serializable {
 	}
 
 	public int timeToSamples(double time) {
-		return ((int) ((time / 1000.0) * sampleRate));
+		return ((int) ((time) * sampleRate));
 	}
 
 	@Override
@@ -102,8 +104,7 @@ public class TimeSet implements Serializable {
 		return "TimeSet [startTime=" + startTime + ", endTime=" + endTime
 				+ ", currentTime=" + currentTime + ", startSample="
 				+ startSample + ", endSample=" + endSample + ", sampleRate="
-				+ sampleRate + ", timeIndexSize=" + timeIndexSize
-				+ ", sampleTimeSize=" + sampleTimeSize + ", sampleIndexSize="
-				+ sampleIndexSize + "]";
+				+ sampleRate + ", sampleTimeSize=" + sampleTimeSize
+				+ ", sampleIndexSize=" + sampleIndexSize + "]";
 	}
 } // End TimeSet

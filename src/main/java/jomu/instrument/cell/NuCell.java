@@ -301,6 +301,10 @@ public class NuCell extends Cell implements Serializable {
 		return axon.getConnections();
 	}
 
+	public Consumer<List<NuMessage>> getProcessor() {
+		return processor;
+	}
+
 	/**
 	 * Returns true if this is explicitly or implicitly connected to
 	 * NuCellB.<br>
@@ -370,6 +374,10 @@ public class NuCell extends Cell implements Serializable {
 		return false;
 	}
 
+	// ==========================================
+	// Net Input Function
+	// ==========================================
+
 	/**
 	 * isOutputConnected returns true if this NuCell has an output connected to
 	 * the input parameter
@@ -388,16 +396,12 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	// ==========================================
-	// Net Input Function
+	// Activation Function
 	// ==========================================
 
 	public void receive(NuMessage message) {
 		bq.add(message);
 	}
-
-	// ==========================================
-	// Activation Function
-	// ==========================================
 
 	public void send(NuMessage message) {
 		axon.send(message);
@@ -421,6 +425,10 @@ public class NuCell extends Cell implements Serializable {
 		activationFunction.setThreshold(d);
 	}
 
+	// ==========================================
+	// Output Function
+	// ==========================================
+
 	/**
 	 *
 	 * @param axon
@@ -428,10 +436,6 @@ public class NuCell extends Cell implements Serializable {
 	public void setAxon(Axon axon) {
 		this.axon = axon;
 	}
-
-	// ==========================================
-	// Output Function
-	// ==========================================
 
 	/**
 	 *

@@ -18,8 +18,7 @@ public class FFTSpectrum {
 		 */
 		binFrequencies = new double[(int) Math.floor(getWindowSize())];
 		for (int b = 0; b < Math.floor(getWindowSize()); ++b) {
-			binFrequencies[b] = b * (getSampleRate() / 2.0)
-					/ getWindowSize();
+			binFrequencies[b] = b * (getSampleRate() / 2.0) / getWindowSize();
 		}
 
 	}

@@ -73,7 +73,6 @@ public class ConstantQFeatures implements ToneMapConstants {
 			double nextTime = -1;
 
 			for (Map.Entry<Double, float[]> column : features.entrySet()) {
-
 				nextTime = column.getKey();
 				if (timeStart == -1) {
 					timeStart = nextTime;
@@ -82,6 +81,8 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 			timeSet = new TimeSet(timeStart, nextTime + binWidth,
 					cqs.getSampleRate(), nextTime + binWidth - timeStart);
+
+			int window = timeSet.getSampleWindow();
 
 			int lowPitch = PitchSet.freqToMidiNote(PitchConverter
 					.absoluteCentToHertz(binStartingPointsInCents[0]));
@@ -96,11 +97,16 @@ public class ConstantQFeatures implements ToneMapConstants {
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
+			int counter = 0;
+
 			for (Map.Entry<Double, float[]> entry : features.entrySet()) {
 				float[] spectralEnergy = entry.getValue();
 				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < spectralEnergy.length; i++) {
 					elements[i].amplitude += spectralEnergy[i];
+					if (i == 0) {
+						counter++;
+					}
 				}
 			}
 

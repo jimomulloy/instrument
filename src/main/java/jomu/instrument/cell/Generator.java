@@ -13,6 +13,8 @@ public class Generator {
 				return createSourceTypeCell();
 			case SINK :
 				return createSinkTypeCell();
+			case AUDIO_SINK :
+				return createAudioSinkTypeCell();
 			case AUDIO_PITCH :
 				return createAudioPitchTypeCell();
 			case AUDIO_CQ :
@@ -52,6 +54,12 @@ public class Generator {
 		return cell;
 	}
 
+	private static NuCell createAudioSinkTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_SINK);
+		cell.setProcessor(getAudioSinkProcessor(cell));
+		return cell;
+	}
+
 	private static NuCell createJunctionTypeCell() {
 		NuCell cell = new NuCell(CellTypes.JUNCTION);
 		cell.setProcessor(getJunctionProcessor(cell));
@@ -87,6 +95,11 @@ public class Generator {
 	private static Consumer<List<NuMessage>> getAudioPitchProcessor(
 			NuCell cell) {
 		return new PitchDetectorProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioSinkProcessor(
+			NuCell cell) {
+		return new AudioSinkProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getJunctionProcessor(NuCell cell) {

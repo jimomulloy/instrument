@@ -50,8 +50,6 @@ public class Oscillator {
 
 		// Generate wave table
 		buildWaveTable();
-		System.out.println("new Oscillator: " + type + ", " + frequency + ", "
-				+ sampleRate);
 	}
 
 	public double getAmplitudeAdj() {
@@ -90,14 +88,14 @@ public class Oscillator {
 		return sampleRate;
 	}
 
-	public int getSamples(short[] buffer, int length) {
+	public int getSamples(float[] buffer, int length) {
 
 		int sample = 0;
 		int count = length;
 
 		while (count-- != 0) {
 
-			buffer[sample++] = (short) (amplitudeAdj * waveTable[pos]);
+			buffer[sample++] = (float) (amplitudeAdj * waveTable[pos]);
 
 			pos += frequency;
 			if (pos >= sampleRate)
@@ -166,16 +164,15 @@ public class Oscillator {
 				Random random = new Random();
 
 				for (int sample = 0; sample < sampleRate; sample++)
-					waveTable[sample] = (65535.0
-							* random.nextGaussian()) - 32768;
+					waveTable[sample] = (65535.0 * random.nextGaussian())
+							- 32768;
 				break;
 
 			case SINEWAVE :
 				double scale = (2.0 * Math.PI) / sampleRate;
 
 				for (int sample = 0; sample < sampleRate; sample++)
-					waveTable[sample] = 32767.0
-							* Math.sin(sample * scale);
+					waveTable[sample] = 32767.0 * Math.sin(sample * scale);
 
 				break;
 

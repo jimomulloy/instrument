@@ -8,7 +8,6 @@ import jomu.instrument.cell.Weaver;
 
 public class Cortex implements AudioFeatureFrameObserver {
 
-	private AudioFeatureFrameSink audioFeatureFrameSink;
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
 
@@ -28,10 +27,6 @@ public class Cortex implements AudioFeatureFrameObserver {
 		}
 	}
 
-	public AudioFeatureFrameSink getPitchFrameSink() {
-		return audioFeatureFrameSink;
-	}
-
 	public void initialise() {
 
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
@@ -40,22 +35,21 @@ public class Cortex implements AudioFeatureFrameObserver {
 		NuCell audioIntegrateCell = Generator
 				.createNuCell(CellTypes.AUDIO_INTEGRATE);
 		NuCell audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
-		NuCell sinkCell = Generator.createNuCell(CellTypes.SINK);
+		NuCell audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
 		Weaver.connect(audioCQCell, audioIntegrateCell);
 		Weaver.connect(audioIntegrateCell, audioNotateCell);
-		Weaver.connect(audioNotateCell, sinkCell);
+		Weaver.connect(audioNotateCell, audioSinkCell);
 		NuCell[] pitchCells = new NuCell[1];
 		for (int i = 0; i < 1; i++) {
 			NuCell pitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
 			pitchCells[i] = pitchCell;
-			Weaver.connect(pitchCell, sinkCell);
+			// Weaver.connect(pitchCell, audioSinkCell);
 			Weaver.connect(sourceUpdateCell, pitchCell);
 		}
 		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Hearing hearing = Instrument.getInstance().getCoordinator()
 				.getHearing();
 		hearing.getAudioFeatureProcessor().addObserver(this);
-		audioFeatureFrameSink = new AudioFeatureFrameSink(sinkCell);
 	}
 
 	public void start() {

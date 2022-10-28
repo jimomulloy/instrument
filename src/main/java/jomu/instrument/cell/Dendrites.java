@@ -33,7 +33,6 @@ public class Dendrites implements Serializable {
 
 		Set<NuCell> set = dendriteInputMap.keySet();
 
-
 		// loop through the dendriteInputMap and calculate the
 		// summation of the product of incoming signals and weights
 		for (NuCell NuCell : set) {

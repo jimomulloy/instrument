@@ -21,9 +21,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
-import be.tarsos.dsp.GainProcessor;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
-import be.tarsos.dsp.io.jvm.AudioPlayer;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.AudioIO;
@@ -102,22 +100,22 @@ public class TarsosAudioIO extends AudioIO {
 			if (audioFile != null) {
 				try {
 
-					GainProcessor gainProcessor = new GainProcessor(1.0);
-					AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
+					// GainProcessor gainProcessor = new GainProcessor(1.0);
+					// AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
 
 					dispatcher = AudioDispatcherFactory.fromFile(audioFile,
 							context.getBufferSize(), 0);
 
 					// dispatcher.skip(startTime);
 					dispatcher.addAudioProcessor(this);
-					dispatcher.addAudioProcessor(gainProcessor);
-					dispatcher.addAudioProcessor(audioPlayer);
+					// dispatcher.addAudioProcessor(gainProcessor);
+					// dispatcher.addAudioProcessor(audioPlayer);
 				} catch (UnsupportedAudioFileException e) {
 					throw new Error(e);
 				} catch (IOException e) {
 					throw new Error(e);
-				} catch (LineUnavailableException e) {
-					throw new Error(e);
+					// } catch (LineUnavailableException e) {
+					// throw new Error(e);
 				}
 			} else {
 				Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
@@ -296,6 +294,10 @@ public class TarsosAudioIO extends AudioIO {
 		inputProcessor.clear();
 	}
 
+	public SourceDataLine getAudioOutput() {
+		return sourceDataLine;
+	}
+
 	public AudioDispatcher getDispatcher() {
 		return dispatcher;
 	}
@@ -339,7 +341,7 @@ public class TarsosAudioIO extends AudioIO {
 					.println(getClass().getName() + " : Error getting line\n");
 		}
 
-		// sourceDataLine.start();
+		sourceDataLine.start();
 		return true;
 	}
 
@@ -483,7 +485,7 @@ public class TarsosAudioIO extends AudioIO {
 			@Override
 			public void run() {
 				// create JavaSound stuff only when needed
-				// initJSOutput();
+				initJSOutput();
 				sourceDataLine.start();
 				// create JavaSound stuff only when needed
 				dispatcher.run();
