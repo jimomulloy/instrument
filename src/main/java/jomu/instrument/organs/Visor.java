@@ -73,6 +73,18 @@ import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.InputPanel;
 import jomu.instrument.audio.analysis.FeatureFrame;
+import jomu.instrument.audio.features.AudioFeatureFrame;
+import jomu.instrument.audio.features.AudioFeatureFrameObserver;
+import jomu.instrument.audio.features.BandedPitchDetectorSource;
+import jomu.instrument.audio.features.ConstantQSource;
+import jomu.instrument.audio.features.OnsetInfo;
+import jomu.instrument.audio.features.PitchDetectorSource;
+import jomu.instrument.audio.features.ScalogramFeatures;
+import jomu.instrument.audio.features.ScalogramFrame;
+import jomu.instrument.audio.features.SpectralInfo;
+import jomu.instrument.audio.features.SpectralPeaksSource;
+import jomu.instrument.audio.features.SpectrogramInfo;
+import jomu.instrument.audio.features.SpectrogramSource;
 import jomu.instrument.world.tonemap.PitchSet;
 import jomu.instrument.world.tonemap.TimeSet;
 import jomu.instrument.world.tonemap.ToneMap;
@@ -113,9 +125,8 @@ public class Visor extends JPanel
 					double timeStart = column.getKey();// in seconds
 					SpectrogramInfo spectrogramInfo = column.getValue();// in
 																		// cents
-					float pitch = spectrogramInfo.pitchDetectionResult
-							.getPitch(); // -1?
-					float[] amplitudes = spectrogramInfo.amplitudes;
+					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
+					float[] amplitudes = spectrogramInfo.getAmplitudes();
 					// draw the pixels
 					for (int i = 0; i < amplitudes.length; i++) {
 						Color color = Color.black;
@@ -408,7 +419,7 @@ public class Visor extends JPanel
 								+ cs.getMin(Axis.Y));
 						Color color = Color.red;
 						graphics.setColor(color);
-						graphics.fillRect((int) Math.round(element.time * 1000),
+						graphics.fillRect((int) Math.round(element.getTime() * 1000),
 								Math.round(centsStartingPoint), Math.round(100),
 								(int) Math.ceil(100));
 					}
@@ -503,9 +514,8 @@ public class Visor extends JPanel
 					double timeStart = column.getKey();// in seconds
 					SpectrogramInfo spectrogramInfo = column.getValue();// in
 																		// cents
-					float pitch = spectrogramInfo.pitchDetectionResult
-							.getPitch(); // -1?
-					float[] amplitudes = spectrogramInfo.amplitudes;
+					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
+					float[] amplitudes = spectrogramInfo.getAmplitudes();
 					// draw the pixels
 					for (int i = 0; i < amplitudes.length; i++) {
 						Color color = Color.black;
@@ -608,23 +618,23 @@ public class Visor extends JPanel
 				double timeStart = frameEntry.getKey();// in seconds
 				ScalogramFrame frame = frameEntry.getValue();// in cents
 
-				for (int level = 0; level < frame.dataPerScale.length; level++) {
-					for (int block = 0; block < frame.dataPerScale[level].length; block++) {
+				for (int level = 0; level < frame.getDataPerScale().length; level++) {
+					for (int block = 0; block < frame.getDataPerScale()[level].length; block++) {
 						Color color = Color.black;
-						float centsStartingPoint = frame.startFrequencyPerLevel[level];
-						float centsHeight = frame.stopFrequencyPerLevel[level]
+						float centsStartingPoint = frame.getStartFrequencyPerLevel()[level];
+						float centsHeight = frame.getStopFrequencyPerLevel()[level]
 								- centsStartingPoint;
 						// only draw the visible frequency range
 						if (centsStartingPoint + centsHeight >= cs
 								.getMin(Axis.Y)
 								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
 							float factor = Math
-									.abs(frame.dataPerScale[level][block]
-											/ frame.currentMax);
+									.abs(frame.getDataPerScale()[level][block]
+											/ frame.getCurrentMax());
 
 							double startTimeBlock = timeStart + (block + 1)
-									* frame.durationsOfBlockPerLevel[level];
-							double timeDuration = frame.durationsOfBlockPerLevel[level];
+									* frame.getDurationsOfBlockPerLevel()[level];
+							double timeDuration = frame.getDurationsOfBlockPerLevel()[level];
 
 							int greyValue = (int) (factor * 0.99 * 255);
 							greyValue = Math.max(0, greyValue);
@@ -699,9 +709,8 @@ public class Visor extends JPanel
 					double timeStart = column.getKey();// in seconds
 					SpectrogramInfo spectrogramInfo = column.getValue();// in
 																		// cents
-					float pitch = spectrogramInfo.pitchDetectionResult
-							.getPitch(); // -1?
-					float[] amplitudes = spectrogramInfo.amplitudes;
+					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
+					float[] amplitudes = spectrogramInfo.getAmplitudes();
 					// draw the pixels
 					for (int i = 0; i < amplitudes.length; i++) {
 						Color color = Color.black;

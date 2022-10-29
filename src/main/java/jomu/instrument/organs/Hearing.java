@@ -9,6 +9,8 @@ import java.util.UUID;
 
 import jomu.instrument.audio.TarsosAudioIO;
 import jomu.instrument.audio.analysis.Analyzer;
+import jomu.instrument.audio.features.AudioFeatureProcessor;
+import jomu.instrument.audio.features.TarsosFeatureSource;
 import net.beadsproject.beads.analysis.FeatureExtractor;
 import net.beadsproject.beads.analysis.featureextractors.Frequency;
 import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;

@@ -10,30 +10,7 @@ import jomu.instrument.world.tonemap.ToneMap;
 
 public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 
-	private static float[] convertDoublesToFloats(double[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		float[] output = new float[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = (float) input[i];
-		}
-		return output;
-	}
-	private static double[] convertFloatsToDoubles(float[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		double[] output = new double[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = input[i];
-		}
-		return output;
-	}
-
 	private NuCell cell;
-
-	private float tmMax = 0;
 
 	private WorldModel worldModel;
 

@@ -1,6 +1,8 @@
 package jomu.instrument.organs;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.features.AudioFeatureFrame;
+import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.cell.Generator;
 import jomu.instrument.cell.NuCell;

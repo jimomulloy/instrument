@@ -4,18 +4,18 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.AudioTuner;
+import jomu.instrument.audio.features.AudioFeatureFrame;
+import jomu.instrument.audio.features.AudioFeatureProcessor;
+import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.organs.AudioFeatureFrame;
-import jomu.instrument.organs.AudioFeatureProcessor;
-import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.Hearing;
 import jomu.instrument.world.WorldModel;
 import jomu.instrument.world.tonemap.ToneMap;
-import jomu.instrument.world.tonemap.TunerModel;
 
 public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
-	public static float[] convertDoublesToFloats(double[] input) {
+	private float[] convertDoublesToFloats(double[] input) {
 		if (input == null) {
 			return null; // Or throw an exception - your choice
 		}
@@ -25,7 +25,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		}
 		return output;
 	}
-	private static double[] convertFloatsToDoubles(float[] input) {
+	private double[] convertFloatsToDoubles(float[] input) {
 		if (input == null) {
 			return null; // Or throw an exception - your choice
 		}
@@ -81,7 +81,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 				maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
 				System.out.println(">>MAX AMP AFTER: " + maxAmplitude);
 
-				TunerModel tuner = new TunerModel();
+				AudioTuner tuner = new AudioTuner();
 
 				tuner.normalize(toneMap);
 

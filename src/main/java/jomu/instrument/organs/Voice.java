@@ -8,6 +8,9 @@ import javax.sound.sampled.SourceDataLine;
 
 import be.tarsos.dsp.io.jvm.AudioPlayer;
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.AudioGenerator;
+import jomu.instrument.audio.AudioSynthesizer;
+import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class Voice {

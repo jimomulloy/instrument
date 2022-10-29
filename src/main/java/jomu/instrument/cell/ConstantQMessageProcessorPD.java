@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.features.AudioFeatureFrame;
+import jomu.instrument.audio.features.AudioFeatureProcessor;
+import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.organs.AudioFeatureFrame;
-import jomu.instrument.organs.AudioFeatureProcessor;
-import jomu.instrument.organs.ConstantQFeatures;
 import jomu.instrument.organs.Hearing;
 import jomu.instrument.world.WorldModel;
 import jomu.instrument.world.tonemap.ToneMap;

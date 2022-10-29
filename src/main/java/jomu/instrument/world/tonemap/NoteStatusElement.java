@@ -1,5 +1,7 @@
 package jomu.instrument.world.tonemap;
 
+import java.util.Objects;
+
 /**
  * This class defines the fields of the data elements contained within the
  * NoteSequence object which register state of Note data used for creating MIDI
@@ -22,5 +24,36 @@ public class NoteStatusElement {
 		this.note = note;
 		this.index = index;
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(highFlag, index, note, offTime, onTime, state);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NoteStatusElement other = (NoteStatusElement) obj;
+		return highFlag == other.highFlag && index == other.index
+				&& note == other.note
+				&& Double.doubleToLongBits(offTime) == Double
+						.doubleToLongBits(other.offTime)
+				&& Double.doubleToLongBits(onTime) == Double
+						.doubleToLongBits(other.onTime)
+				&& state == other.state;
+	}
+
+	@Override
+	public String toString() {
+		return "NoteStatusElement [highFlag=" + highFlag + ", index=" + index
+				+ ", note=" + note + ", offTime=" + offTime + ", onTime="
+				+ onTime + ", state=" + state + "]";
+	}
+
 
 } // End NoteStatusElement
