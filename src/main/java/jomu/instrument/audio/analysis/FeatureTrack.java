@@ -34,15 +34,6 @@ public class FeatureTrack
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** The list of FeatureFrames. */
-	private SortedSet<FeatureFrame> frames;
-
-	/** An alternative list which blocks together the feature frames. */
-	private Map<Integer, SortedSet<FeatureFrame>> framesInBlocks;
-
-	/** Interval in ms between regions of framesInBlocks. */
-	private int skipMS;
-
 	/** The list of FeatureExtractors used to extract data. */
 	private transient List<FeatureExtractor<?, ?>> extractors;
 
@@ -51,6 +42,15 @@ public class FeatureTrack
 	 * unlimited.
 	 */
 	private int frameMemory;
+
+	/** The list of FeatureFrames. */
+	private SortedSet<FeatureFrame> frames;
+
+	/** An alternative list which blocks together the feature frames. */
+	private Map<Integer, SortedSet<FeatureFrame>> framesInBlocks;
+
+	/** Interval in ms between regions of framesInBlocks. */
+	private int skipMS;
 
 	/*
 	 * TODO FeatureTrack should be able to clear parts of its memory, for

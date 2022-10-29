@@ -4,8 +4,8 @@ import java.util.TreeMap;
 
 public class GoertzelFeatures {
 
-	GoertzelSource gs;
 	TreeMap<Double, GoertzelInfo> features;
+	GoertzelSource gs;
 
 	public TreeMap<Double, GoertzelInfo> getFeatures() {
 		return features;

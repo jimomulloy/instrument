@@ -25,11 +25,11 @@ public class PlotALot07 {
 		// Inner class
 		class MyCanvas extends Canvas {
 			double[] blackData = new double[samplesPerPage];
-			double[] redData = new double[samplesPerPage];
 			double[] blueData = new double[samplesPerPage];
+			double[] cyanData = new double[samplesPerPage];
 			double[] greenData = new double[samplesPerPage];
 			double[] magentaData = new double[samplesPerPage];
-			double[] cyanData = new double[samplesPerPage];
+			double[] redData = new double[samplesPerPage];
 
 			// Override the paint method
 			@Override
@@ -350,21 +350,21 @@ public class PlotALot07 {
 			// screen location.
 		plotObjectA.plotData();
 	}// end main
-		// -------------------------------------------//
-	String title;
+		int frameHeight;
 	int frameWidth;
-	int frameHeight;
-	int traceSpacing;// pixels between traces
-	int sampSpacing;// pixels between samples
-	int ovalWidth;// width of sample marking oval
-
 	int ovalHeight;// height of sample marking oval
-	int tracesPerPage;
-	int samplesPerPage;
+	int ovalWidth;// width of sample marking oval
 	int pageCounter = 0;
-	int sampleCounter = 0;
-
 	ArrayList<Page> pageLinks = new ArrayList<>();
+
+	int sampleCounter = 0;
+	int samplesPerPage;
+	int sampSpacing;// pixels between samples
+	// -------------------------------------------//
+	String title;
+	int traceSpacing;// pixels between traces
+
+	int tracesPerPage;
 
 	PlotALot07(String title) {
 		// Invoke the other overloaded constructor

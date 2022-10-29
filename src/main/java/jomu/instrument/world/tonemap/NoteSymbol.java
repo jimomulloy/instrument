@@ -9,8 +9,8 @@ package jomu.instrument.world.tonemap;
 public class NoteSymbol {
 
 	public char noteChar;
-	public char noteSharp;
 	public int noteOctave;
+	public char noteSharp;
 
 	@Override
 	public String toString() {

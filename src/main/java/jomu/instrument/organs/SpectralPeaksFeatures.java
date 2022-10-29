@@ -5,9 +5,9 @@ import java.util.TreeMap;
 
 public class SpectralPeaksFeatures {
 
-	SpectralPeaksSource sps;
-	List<SpectralInfo> spectralInfo;
 	private TreeMap<Double, SpectralInfo> features;
+	List<SpectralInfo> spectralInfo;
+	SpectralPeaksSource sps;
 
 	public TreeMap<Double, SpectralInfo> getFeatures() {
 		return features;

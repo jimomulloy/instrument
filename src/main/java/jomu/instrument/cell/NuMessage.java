@@ -3,8 +3,8 @@ package jomu.instrument.cell;
 import java.util.Objects;
 
 public class NuMessage {
-	public Cell source;
 	public int sequence;
+	public Cell source;
 	public String streamId;
 
 	public NuMessage(Cell source, String streamId, int sequence) {

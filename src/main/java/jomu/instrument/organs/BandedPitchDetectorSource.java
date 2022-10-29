@@ -8,8 +8,6 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class BandedPitchDetectorSource {
 
-	private TarsosAudioIO tarsosIO;
-
 	private PitchDetectorSource pitchDetectorSourceBand1;
 
 	private PitchDetectorSource pitchDetectorSourceBand2;
@@ -21,6 +19,8 @@ public class BandedPitchDetectorSource {
 	private PitchDetectorSource pitchDetectorSourceBand5;
 
 	private Map<Integer, PitchDetectorSource> sourceMap = new HashMap<>();
+
+	private TarsosAudioIO tarsosIO;
 
 	public BandedPitchDetectorSource(TarsosAudioIO tarsosIO) {
 		super();

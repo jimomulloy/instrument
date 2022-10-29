@@ -20,16 +20,16 @@ import net.beadsproject.beads.ugens.Glide;
 public class Hearing {
 
 	private AudioContext ac;
-	private Frequency f;
-	Glide frequencyGlide;
-	float meanFrequency = 400.0F;
-	Analyzer analyzer;
-	String streamId;
-
-	int sampleRate = 44100;
-	private TarsosAudioIO tarsosIO;
-	TarsosFeatureSource tarsosFeatureSource;
 	private AudioFeatureProcessor audioFeatureProcessor;
+	private Frequency f;
+	private TarsosAudioIO tarsosIO;
+	Analyzer analyzer;
+	Glide frequencyGlide;
+
+	float meanFrequency = 400.0F;
+	int sampleRate = 44100;
+	String streamId;
+	TarsosFeatureSource tarsosFeatureSource;
 
 	public Analyzer getAnalyzer() {
 		return analyzer;

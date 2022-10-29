@@ -19,26 +19,26 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class SpectrogramSource implements PitchDetectionHandler {
 
-	private TarsosAudioIO tarsosIO;
-
 	private PitchEstimationAlgorithm algo;
-	private PitchDetectionResult pitchDetectionResult;
 
-	private float sampleRate = 44100;
-	private int bufferSize = 1024 * 4;
-	private int overlap = 768 * 4;
-
-	private float binWidth;
 	private float binHeight;
-	private int binsPerOctave = 12;
-
-	private float[] binStartingPointsInCents;
 	private float[] binHeightsInCents;
+
+	private int binsPerOctave = 12;
+	private float[] binStartingPointsInCents;
+	private float binWidth;
+
+	private int bufferSize = 1024 * 4;
+	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
 	private final int frameSize = 1024 * 4;
 
-	private List<SpectrogramInfo> spectrogramInfos = new ArrayList<>();
+	private int overlap = 768 * 4;
+	private PitchDetectionResult pitchDetectionResult;
+	private float sampleRate = 44100;
+
 	private SpectralPeakProcessor spectralPeakProcesser;
-	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
+	private List<SpectrogramInfo> spectrogramInfos = new ArrayList<>();
+	private TarsosAudioIO tarsosIO;
 
 	AudioProcessor fftProcessor = new AudioProcessor() {
 

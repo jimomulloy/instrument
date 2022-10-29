@@ -1,9 +1,9 @@
 package jomu.instrument.organs;
 
 public class Coordinator {
+	private Cortex cortex;
 	private Hearing hearing;
 	private Voice voice;
-	private Cortex cortex;
 
 	public Cortex getCortex() {
 		return cortex;

@@ -12,91 +12,91 @@ package jomu.instrument.world.tonemap;
  */
 public class TunerModel implements ToneMapConstants {
 
-	private double sampleRate;
-	private int numChannels;
-	private double sampleBitSize;
-	private String errStr;
+	public int droneSetting = 100;
+	public boolean droneSwitch;
+	public boolean formantAdd;
+	public int formantFactor = 0;
 
-	private double duration, seconds;
+	public int formantHighSetting = 100;
 
-	public double timeStart = INIT_TIME_START;
-	public double timeEnd = INIT_TIME_END;
+	public int formantLowSetting = 0;
+	public int formantMiddleSetting = 50;
 
-	public int pitchHigh = INIT_PITCH_HIGH;
-	public int pitchLow = INIT_PITCH_LOW;
+	public boolean formantSwitch;
+	public int harmonic1Setting = 100;
 
-	public int noteLow = INIT_NOTE_LOW;
-	public int noteHigh = INIT_NOTE_HIGH;
-	public int noteSustain = INIT_NOTE_SUSTAIN;
-	public int noteMinDuration = INIT_NOTE_MIN_DURATION;
-	public int noteMaxDuration = INIT_NOTE_MAX_DURATION;
-
-	public int noiseLow = INIT_NOISE_LOW;
-	public int noiseHigh = INIT_NOISE_HIGH;
+	public int harmonic2Setting = 100;
+	public int harmonic3Setting = 100;
+	public int harmonic4Setting = 100;
+	public boolean harmonicAdd;
+	public boolean harmonicSwitch;
 
 	public int n1Setting = 100;
+	public boolean n1Switch;
+
 	public int n2Setting = 100;
+	public boolean n2Switch;
 	public int n3Setting = 100;
 	public int n4Setting = 100;
 	public int n5Setting = 100;
 	public int n6Setting = 100;
 
-	public int harmonic1Setting = 100;
-	public int harmonic2Setting = 100;
-	public int harmonic3Setting = 100;
-	public int harmonic4Setting = 100;
-	public int formantLowSetting = 0;
-	public int formantMiddleSetting = 50;
-	public int formantHighSetting = 100;
-	public int formantFactor = 0;
-
-	public int droneSetting = 100;
-	public int undertoneSetting = 100;
+	public int noiseHigh = INIT_NOISE_HIGH;
+	public int noiseLow = INIT_NOISE_LOW;
 	public int normalizeSetting = 100;
-	public int spikeSetting = 100;
-
-	public boolean harmonicSwitch;
-	public boolean formantSwitch;
-	public boolean undertoneSwitch;
 	public boolean normalizeSwitch;
-	public boolean droneSwitch;
-	public boolean spikeSwitch;
+	public int noteHigh = INIT_NOTE_HIGH;
+	public int noteLow = INIT_NOTE_LOW;
+	public int noteMaxDuration = INIT_NOTE_MAX_DURATION;
+	public int noteMinDuration = INIT_NOTE_MIN_DURATION;
+
+	public int noteSustain = INIT_NOTE_SUSTAIN;
 	public boolean peakSwitch;
-	public boolean n1Switch;
-	public boolean n2Switch;
-	public boolean formantAdd;
-	public boolean harmonicAdd;
+	public int pitchHigh = INIT_PITCH_HIGH;
+	public int pitchLow = INIT_PITCH_LOW;
 
 	public int processMode = NOTE_MODE;
-
-	private ToneMapElement element;
-
-	private int matrixLength;
-
-	private int timeRange;
-	private int pitchRange;
+	public int spikeSetting = 100;
+	public boolean spikeSwitch;
+	public double timeEnd = INIT_TIME_END;
+	public double timeStart = INIT_TIME_START;
+	public int undertoneSetting = 100;
+	public boolean undertoneSwitch;
 	private double amplitude;
+	private double duration, seconds;
+	private ToneMapElement element;
+	private String errStr;
 
-	private int index;
-	private NoteSequence noteSequence;
-	private NoteSequenceElement noteSequenceElement;
-	private NoteList noteList;
-	private NoteListElement noteListElement;
-	private ToneMapElement toneMapElement;
-
-	OvertoneSet overtoneSet;
-	double[] harmonics;
-	double[][] formants;
-
-	private long tick;
-	private double time;
-
-	private int note;
-	private int velocity;
+	private double formantHighFreq;
 
 	private double formantLowFreq;
-	private double formantHighFreq;
+
 	private double formantMidFreq;
+
+	private int index;
+	private int matrixLength;
+	private int note;
+
+	private NoteList noteList;
+	private NoteListElement noteListElement;
+	private NoteSequence noteSequence;
+	private NoteSequenceElement noteSequenceElement;
+	private int numChannels;
+	private int pitchRange;
+
+	private double sampleBitSize;
+	private double sampleRate;
+	private long tick;
+
+	private double time;
+	private int timeRange;
+
+	private ToneMapElement toneMapElement;
+	private int velocity;
+
+	double[][] formants;
+	double[] harmonics;
+	OvertoneSet overtoneSet;
 
 	/**
 	 * TunerModel constructor. Instantiate TunerPanel

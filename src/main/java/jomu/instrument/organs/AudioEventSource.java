@@ -7,8 +7,8 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class AudioEventSource {
 
-	private TarsosAudioIO tarsosIO;
 	private TreeMap<Double, AudioEvent> features = new TreeMap<>();
+	private TarsosAudioIO tarsosIO;
 
 	public AudioEventSource(TarsosAudioIO tarsosIO) {
 		super();

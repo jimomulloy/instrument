@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class ToneMap {
 
-	private ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
-
 	public boolean audioSwitch = false;
+
 	public boolean midiSwitch = false;
+	private ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
 
 	public ToneMap() {
 	}

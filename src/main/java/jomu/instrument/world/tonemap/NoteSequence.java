@@ -13,11 +13,11 @@ import java.util.Collections;
  */
 public class NoteSequence {
 
-	private ArrayList noteSequence = new ArrayList();
-
 	private NoteSequenceElement element;
 
 	private int index;
+
+	private ArrayList noteSequence = new ArrayList();
 
 	public void add(NoteSequenceElement element) {
 

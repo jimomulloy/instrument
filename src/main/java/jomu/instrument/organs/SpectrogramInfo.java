@@ -27,9 +27,9 @@ import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.util.fft.FFT;
 
 public class SpectrogramInfo {
-	PitchDetectionResult pitchDetectionResult;
 	float[] amplitudes;
 	FFT fft;
+	PitchDetectionResult pitchDetectionResult;
 
 	public SpectrogramInfo(PitchDetectionResult pitchDetectionResult,
 			float[] amplitudes, FFT fft) {

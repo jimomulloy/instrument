@@ -15,13 +15,13 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class OnsetSource implements OnsetHandler {
 
-	TarsosAudioIO tarsosIO;
-	float sampleRate = 44100;
-	int increment = 1024;
-	int overlap = 0;
-	double threshold = 0.4;
 	private Map<Double, OnsetInfo[]> features = new TreeMap<>();
 	private List<OnsetInfo> onsetInfos = new ArrayList<>();
+	int increment = 1024;
+	int overlap = 0;
+	float sampleRate = 44100;
+	TarsosAudioIO tarsosIO;
+	double threshold = 0.4;
 
 	public OnsetSource(TarsosAudioIO tarsosIO) {
 		super();

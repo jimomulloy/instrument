@@ -13,19 +13,19 @@ import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
 
-	PitchDetectorSource pds;
-	TreeMap<Double, SpectrogramInfo> features;
-	private ToneMap toneMap;
-	private TimeSet timeSet;
-	private PitchSet pitchSet;
-	private Visor visor;
-	private AudioFeatureFrame audioFeatureFrame;
 	public boolean logSwitch = true;
 	public int pitchHigh = INIT_PITCH_HIGH;
 	public int pitchLow = INIT_PITCH_LOW;
-
-	public int powerLow = 0;
 	public int powerHigh = 100;
+	public int powerLow = 0;
+	private AudioFeatureFrame audioFeatureFrame;
+	private PitchSet pitchSet;
+	private TimeSet timeSet;
+	private ToneMap toneMap;
+	private Visor visor;
+
+	TreeMap<Double, SpectrogramInfo> features;
+	PitchDetectorSource pds;
 
 	public void buildToneMap() {
 

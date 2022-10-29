@@ -18,14 +18,14 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** The start time in milliseconds. */
-	private double startTimeMS;
-
 	/** The end time in milliseconds. */
 	private double endTimeMS;
 
 	/** The features. */
 	private Hashtable<String, Object> features;
+
+	/** The start time in milliseconds. */
+	private double startTimeMS;
 
 	/**
 	 * Instantiates a new FeatureFrame.

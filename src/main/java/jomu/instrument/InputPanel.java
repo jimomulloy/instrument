@@ -45,8 +45,6 @@ public class InputPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	Mixer mixer = null;
-
 	private ActionListener setInput = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -61,6 +59,8 @@ public class InputPanel extends JPanel {
 			}
 		}
 	};
+
+	Mixer mixer = null;
 
 	public InputPanel() {
 		super(new BorderLayout());

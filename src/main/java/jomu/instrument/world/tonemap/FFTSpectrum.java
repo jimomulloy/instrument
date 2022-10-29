@@ -2,10 +2,10 @@ package jomu.instrument.world.tonemap;
 
 public class FFTSpectrum {
 
-	private float sampleRate;
-	private int windowSize;
-	private float[] spectrum;
 	public double[] binFrequencies; /* FFT fequency bins */
+	private float sampleRate;
+	private float[] spectrum;
+	private int windowSize;
 
 	public FFTSpectrum(float sampleRate, int windowSize, float[] spectrum) {
 		this.sampleRate = sampleRate;

@@ -15,5 +15,5 @@ package jomu.instrument.cell;
  *
  */
 public enum LayerClassification {
-	INPUT, HIDDEN, OUTPUT, INPUT_OUTPUT, EXTERNAL_INPUT
+	EXTERNAL_INPUT, HIDDEN, INPUT, INPUT_OUTPUT, OUTPUT
 }

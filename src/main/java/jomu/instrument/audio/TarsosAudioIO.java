@@ -21,7 +21,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.GainProcessor;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
+import be.tarsos.dsp.io.jvm.AudioPlayer;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.AudioIO;
@@ -36,21 +38,21 @@ public class TarsosAudioIO extends AudioIO {
 	 */
 	private class AudioIOProcessor extends UGen implements AudioProcessor {
 
-		/** Flag to tell whether JavaSound has been initialised. */
-		private boolean javaSoundInitialized;
-
 		/** The audio format. */
 		private AudioFormat audioFormat;
 
-		private float[] interleavedSamples;
 		private byte[] bbuf;
-		float[] audioFloatbuffer;
-		int buffers_sent;
-
-		/** The input mixer. */
-		private Mixer inputMixer;
 
 		private TreeMap<Double, AudioEvent> features = new TreeMap<>();
+		/** The input mixer. */
+		private Mixer inputMixer;
+		private float[] interleavedSamples;
+		/** Flag to tell whether JavaSound has been initialised. */
+		private boolean javaSoundInitialized;
+
+		float[] audioFloatbuffer;
+
+		int buffers_sent;
 
 		/**
 		 * Instantiates a new RTInput.
@@ -100,17 +102,19 @@ public class TarsosAudioIO extends AudioIO {
 			if (audioFile != null) {
 				try {
 
-					// GainProcessor gainProcessor = new GainProcessor(1.0);
-					// AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
+					GainProcessor gainProcessor = new GainProcessor(1.0);
+					AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
 
 					dispatcher = AudioDispatcherFactory.fromFile(audioFile,
 							context.getBufferSize(), 0);
 
 					// dispatcher.skip(startTime);
 					dispatcher.addAudioProcessor(this);
-					// dispatcher.addAudioProcessor(gainProcessor);
-					// dispatcher.addAudioProcessor(audioPlayer);
+					dispatcher.addAudioProcessor(gainProcessor);
+					dispatcher.addAudioProcessor(audioPlayer);
 				} catch (UnsupportedAudioFileException e) {
+					throw new Error(e);
+				} catch (LineUnavailableException e) {
 					throw new Error(e);
 				} catch (IOException e) {
 					throw new Error(e);
@@ -239,31 +243,31 @@ public class TarsosAudioIO extends AudioIO {
 		}
 	}
 
+	private File audioFile;
+
+	private Thread audioInThread;
+
+	private Thread audioThread;
+
+	private AudioDispatcher dispatcher;
+
+	private AudioIOProcessor inputProcessor;
+
+	private AudioInputStream inputStream;
+
+	/** The output mixer. */
+	private Mixer outputMixer;
+
 	/** The source data line. */
 	private SourceDataLine sourceDataLine;
 
 	/** The system buffer size in frames. */
 	private int systemBufferSizeInFrames;
 
-	/** The number of prepared output buffers ready to go to AudioOutput */
-	final int NUM_OUTPUT_BUFFERS = 1;
-
-	/** The output mixer. */
-	private Mixer outputMixer;
-
-	private AudioDispatcher dispatcher;
-
-	private Thread audioThread;
-
 	private int threadPriority;
 
-	private AudioIOProcessor inputProcessor;
-
-	private Thread audioInThread;
-
-	private File audioFile;
-
-	private AudioInputStream inputStream;
+	/** The number of prepared output buffers ready to go to AudioOutput */
+	final int NUM_OUTPUT_BUFFERS = 1;
 
 	public TarsosAudioIO() {
 		this(DEFAULT_SYSTEM_BUFFER_SIZE);

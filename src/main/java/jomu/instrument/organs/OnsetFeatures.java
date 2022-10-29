@@ -4,8 +4,8 @@ import java.util.TreeMap;
 
 public class OnsetFeatures {
 
-	OnsetSource os;
 	TreeMap<Double, OnsetInfo[]> features;
+	OnsetSource os;
 
 	public TreeMap<Double, OnsetInfo[]> getFeatures() {
 		return features;

@@ -5,15 +5,15 @@ import java.util.Vector;
 
 public class Whitener {
 	private double[] cb; /* Klapuri whitening ranges */
+	private FFTSpectrum fftSpectrum;
+	private double[] gammaCoeff;
+
 	private ArrayList<Double>[] Hb; /* filter bank for whitening */
+
 	private ArrayList<Integer>[] hbIndices; /*
 											 * filter bank indices for whitening
 											 */
-
-	private FFTSpectrum fftSpectrum;
-
 	private float[] whitenedSpectrum;
-	private double[] gammaCoeff;
 
 	public Whitener(FFTSpectrum fftSpectrum) {
 		this.fftSpectrum = fftSpectrum;

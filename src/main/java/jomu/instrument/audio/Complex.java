@@ -46,9 +46,9 @@ public class Complex {
 		return sum;
 	}
 
-	private final double re; // the real part
-
 	private final double im; // the imaginary part
+
+	private final double re; // the real part
 
 	// create a new object with the given real and imaginary parts
 	public Complex(double real, double imag) {

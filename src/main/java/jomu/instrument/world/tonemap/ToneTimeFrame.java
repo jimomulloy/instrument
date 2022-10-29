@@ -2,33 +2,33 @@ package jomu.instrument.world.tonemap;
 
 public class ToneTimeFrame {
 
-	public static final boolean POWERAMP = false;
-
-	public static final boolean LOGAMP = true;
+	public final static int INIT_PITCH_HIGH = 72;
 
 	public final static int INIT_PITCH_LOW = 36;
 
-	public final static int INIT_PITCH_HIGH = 72;
+	public static final boolean LOGAMP = true;
 
-	private ToneMapElement[] elements;
+	public static final boolean POWERAMP = false;
 
-	private TimeSet timeSet;
+	public int pitchHigh = INIT_PITCH_HIGH;
 
-	private PitchSet pitchSet;
+	public int pitchLow = INIT_PITCH_LOW;
 
-	private double maxAmplitude;
-
-	private double minAmplitude;
+	private boolean ampType = LOGAMP;
 
 	private double avgAmplitude;
 
-	private double lowThres = 0;
-	private double highThres = 100;
-	private boolean ampType = LOGAMP;
-	public int pitchHigh = INIT_PITCH_HIGH;
-	public int pitchLow = INIT_PITCH_LOW;
+	private ToneMapElement[] elements;
 
+	private double highThres = 100;
+
+	private double lowThres = 0;
+	private double maxAmplitude;
+	private double minAmplitude;
 	private NoteStatus noteStatus;
+	private PitchSet pitchSet;
+
+	private TimeSet timeSet;
 
 	public ToneTimeFrame(TimeSet timeSet, PitchSet pitchSet) {
 		this.timeSet = timeSet;

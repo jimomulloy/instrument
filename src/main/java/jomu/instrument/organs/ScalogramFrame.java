@@ -4,13 +4,13 @@ import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.wavelet.HaarWaveletTransform;
 
 public class ScalogramFrame {
+	private float[] transformedData;
+	float currentMax;
 	float[][] dataPerScale;
 	float[] durationsOfBlockPerLevel;
+
 	float[] startFrequencyPerLevel;// cents
 	float[] stopFrequencyPerLevel;// cents
-
-	float currentMax;
-	private float[] transformedData;
 
 	public ScalogramFrame(float[] transformedData, float currentMax) {
 		this.transformedData = transformedData;

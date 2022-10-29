@@ -4,16 +4,16 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class TarsosFeatureSource {
 
-	private TarsosAudioIO tarsosIO;
-	private ConstantQSource constantQSource;
-	private OnsetSource onsetSource;
-	private SpectralPeaksSource spectralPeaksSource;
-	private PitchDetectorSource pitchDetectorSource;
-	private BandedPitchDetectorSource bandedPitchDetectorSource;
-	private SpectrogramSource spectrogramSource;
-	private GoertzelSource goertzelSource;
 	private AudioEventSource audioEventSource;
+	private BandedPitchDetectorSource bandedPitchDetectorSource;
+	private ConstantQSource constantQSource;
+	private GoertzelSource goertzelSource;
+	private OnsetSource onsetSource;
+	private PitchDetectorSource pitchDetectorSource;
 	private ScalogramSource scalogramSource;
+	private SpectralPeaksSource spectralPeaksSource;
+	private SpectrogramSource spectrogramSource;
+	private TarsosAudioIO tarsosIO;
 
 	public TarsosFeatureSource(TarsosAudioIO tarsosIO) {
 		this.tarsosIO = tarsosIO;

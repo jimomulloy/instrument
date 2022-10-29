@@ -38,9 +38,9 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
 
-	private WorldModel worldModel;
-
 	private float tmMax = 0;
+
+	private WorldModel worldModel;
 
 	public AudioCQProcessor(NuCell cell) {
 		super();

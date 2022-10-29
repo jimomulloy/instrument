@@ -10,13 +10,13 @@ package jomu.instrument.world.tonemap;
  */
 public class NoteStatusElement {
 
-	public int note; // Midi note pitch
+	public boolean highFlag; // Note High state flag
 
 	public int index; // Index
-	public int state; // Note state code
-	public boolean highFlag; // Note High state flag
-	public double onTime; // Note ON time
+	public int note; // Midi note pitch
 	public double offTime; // Note OFF time
+	public double onTime; // Note ON time
+	public int state; // Note state code
 
 	public NoteStatusElement(int note, int index) {
 		this.note = note;

@@ -7,25 +7,25 @@ package jomu.instrument.world.tonemap;
  */
 
 public class PitchDetect {
-	/** size of the buffer */
-	private int timeSize;
-
-	/** sample rate of the samples in the buffer */
-	private float sampleRate;
-
-	/** FFT object for Fast-Fourier Transform */
-	// private FFT fft;
-
-	/** spectrum "whitener" for pre-processing */
-	private SpecWhitener sw;
-
-	/** spectrum to be analyzed */
-	private float[] spec;
-
 	/** array to hold fzeros info, 1 := positive, 0 := negative */
 	public float[] fzeros;
 
 	private float[] pitches;
+
+	/** FFT object for Fast-Fourier Transform */
+	// private FFT fft;
+
+	/** sample rate of the samples in the buffer */
+	private float sampleRate;
+
+	/** spectrum to be analyzed */
+	private float[] spec;
+
+	/** spectrum "whitener" for pre-processing */
+	private SpecWhitener sw;
+
+	/** size of the buffer */
+	private int timeSize;
 
 	public PitchDetect(int timeSize, float sampleRate, float[] pitches) {
 		this.timeSize = timeSize;
@@ -200,13 +200,13 @@ public class PitchDetect {
 }
 
 final class SpecWhitener {
-	private int bufferSize; // the size of the Fourier Transform
-	private float sr; // the sample rate of the samples in the buffer
-	private float[] cenFreqs; // center frequencies of bandpass filter banks
-	private float[] cenFreqsSteps; // steps of increment
 	private int[][] banksRanTable; // each row is a filter; cols are lower band
 									// index and upper band index this
 	// filter covers
+	private int bufferSize; // the size of the Fourier Transform
+	private float[] cenFreqs; // center frequencies of bandpass filter banks
+	private float[] cenFreqsSteps; // steps of increment
+	private float sr; // the sample rate of the samples in the buffer
 
 	// public float[] wSpec; // the whitened specturm
 

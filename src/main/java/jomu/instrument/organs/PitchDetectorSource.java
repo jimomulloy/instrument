@@ -16,20 +16,20 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class PitchDetectorSource implements PitchDetectionHandler {
 
-	private TarsosAudioIO tarsosIO;
-
-	private float sampleRate = 44100;
-	private int bufferSize = 1024;
-	private int overlap = 0;
-	private float binWidth;
 	private float binHeight;
-	private int binsPerOctave = 12;
 
-	private float[] binStartingPointsInCents;
 	private float[] binHeightsInCents;
-	private PitchDetectionResult pitchDetectionResult;
-
+	private int binsPerOctave = 12;
+	private float[] binStartingPointsInCents;
+	private float binWidth;
+	private int bufferSize = 1024;
 	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
+
+	private int overlap = 0;
+	private PitchDetectionResult pitchDetectionResult;
+	private float sampleRate = 44100;
+
+	private TarsosAudioIO tarsosIO;
 
 	AudioProcessor fftProcessor = new AudioProcessor() {
 

@@ -7,26 +7,26 @@ import java.util.Random;
 
 public class Oscillator {
 
-	public static final int NOTYPE = 0;
 	public static final int NOISE = 1;
+	public static final int NOTYPE = 0;
 	public static final int SINEWAVE = 2;
-	public static final int TRIANGLEWAVE = 3;
 	public static final int SQUAREWAVE = 4;
+	public static final int TRIANGLEWAVE = 3;
 
-	// Class data
-	protected int type;
+	protected double amplitudeAdj;
 
 	protected int frequency;
-
-	protected int sampleRate;
 
 	protected int numberOfChannels;
 
 	protected int pos;
 
-	protected double[] waveTable;
+	protected int sampleRate;
 
-	protected double amplitudeAdj;
+	// Class data
+	protected int type;
+
+	protected double[] waveTable;
 
 	// Constructor with reasonable defaults
 	public Oscillator() {

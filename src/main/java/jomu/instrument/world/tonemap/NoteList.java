@@ -12,11 +12,11 @@ import java.util.ArrayList;
  */
 public class NoteList implements Serializable {
 
-	private ArrayList noteList = new ArrayList();
-
 	private NoteListElement element;
 
 	private int index;
+
+	private ArrayList noteList = new ArrayList();
 
 	public void add(NoteListElement element) {
 

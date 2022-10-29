@@ -25,7 +25,10 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	private static final Logger LOG = Logger
 			.getLogger(DispatchJunctionProcessor.class.getName());
 
-	private final TarsosDSPAudioFormat format;
+	/**
+	 * The audio event that is send through the processing chain.
+	 */
+	private AudioEvent audioEvent;
 
 	/**
 	 * This buffer is reused again and again to store audio data using the float
@@ -33,24 +36,11 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 */
 	private float[] audioFloatBuffer;
 
-	private float[] lastBuffer;
-
-	private int processedLength;
-
-	private String name;
-
 	/**
 	 * A list of registered audio processors. The audio processors are
 	 * responsible for actually doing the digital signal processing
 	 */
 	private final List<AudioProcessor> audioProcessors;
-
-	/**
-	 * The floatOverlap: the number of elements that are copied in the buffer
-	 * from the previous buffer. Overlap should be smaller (strict) than the
-	 * buffer size and can be zero. Defined in number of samples.
-	 */
-	private int floatOverlap, floatStepSize, floatPosition;
 
 	/**
 	 * The overlap and stepsize defined not in samples but in bytes. So it
@@ -60,20 +50,34 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	private int byteOverlap, byteStepSize;
 
 	/**
-	 * The number of bytes to skip before processing starts.
-	 */
-	private long bytesToSkip;
-
-	/**
 	 * Position in the stream in bytes. e.g. if 44100 bytes are processed and 16
 	 * bits per frame are used then you are 0.5 seconds into the stream.
 	 */
 	private long bytesProcessed;
 
 	/**
-	 * The audio event that is send through the processing chain.
+	 * The number of bytes to skip before processing starts.
 	 */
-	private AudioEvent audioEvent;
+	private long bytesToSkip;
+
+	private boolean firstProcessed = false;
+
+	/**
+	 * The floatOverlap: the number of elements that are copied in the buffer
+	 * from the previous buffer. Overlap should be smaller (strict) than the
+	 * buffer size and can be zero. Defined in number of samples.
+	 */
+	private int floatOverlap, floatStepSize, floatPosition;
+
+	private final TarsosDSPAudioFormat format;
+
+	private float[] lastBuffer;
+
+	private float[] leftoverBuffer = new float[0];
+
+	private String name;
+
+	private int processedLength;
 
 	/**
 	 * If true the dispatcher stops dispatching audio.
@@ -94,10 +98,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * processors must be prepared to handle shorter audio buffers.
 	 */
 	private boolean zeroPadLastBuffer;
-
-	private float[] leftoverBuffer = new float[0];
-
-	private boolean firstProcessed = false;
 
 	/**
 	 * Create a new dispatcher junction processor

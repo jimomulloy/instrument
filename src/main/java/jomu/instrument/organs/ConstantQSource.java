@@ -13,20 +13,20 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class ConstantQSource {
 
-	TarsosAudioIO tarsosIO;
-	float sampleRate = 44100;
-	int increment = 1024;
-	int minimumFrequencyInCents = 3600;
-	int maximumFrequencyInCents = 10800;
-	int binsPerOctave = 12;
-	private Map<Double, float[]> features = new TreeMap<>();
-	double constantQLag;
-	ConstantQ constantQ;
-	private float binWidth;
 	private float binHeight;
-	private float[] startingPointsInHertz;
 	private float[] binStartingPointsInCents;
+	private float binWidth;
+	private Map<Double, float[]> features = new TreeMap<>();
 	private int size;
+	private float[] startingPointsInHertz;
+	int binsPerOctave = 12;
+	ConstantQ constantQ;
+	double constantQLag;
+	int increment = 1024;
+	int maximumFrequencyInCents = 10800;
+	int minimumFrequencyInCents = 3600;
+	float sampleRate = 44100;
+	TarsosAudioIO tarsosIO;
 
 	public ConstantQSource(TarsosAudioIO tarsosIO) {
 		super();

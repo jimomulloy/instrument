@@ -87,11 +87,11 @@ public class Visor extends JPanel
 
 	private static class BandedPitchDetectLayer implements Layer {
 
-		TreeMap<Double, SpectrogramInfo> features;
-		private final CoordinateSystem cs;
+		private float binHeight;
 		private float[] binStartingPointsInCents;
 		private float binWidth;
-		private float binHeight;
+		private final CoordinateSystem cs;
+		TreeMap<Double, SpectrogramInfo> features;
 
 		public BandedPitchDetectLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -207,12 +207,12 @@ public class Visor extends JPanel
 
 	private static class BeadsLayer implements Layer {
 
-		private TreeMap<Double, float[][]> features;
-		private final CoordinateSystem cs;
-
-		private float[] binStartingPointsInCents;
-		private float binWidth;
 		private float binHeight;
+		private float[] binStartingPointsInCents;
+
+		private float binWidth;
+		private final CoordinateSystem cs;
+		private TreeMap<Double, float[][]> features;
 
 		public BeadsLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -289,12 +289,12 @@ public class Visor extends JPanel
 
 	private static class CQLayer implements Layer {
 
+		private float binHeight;
+		private float[] binStartingPointsInCents;
+
+		private float binWidth;
 		private TreeMap<Double, float[]> cqFeatures;
 		private final CoordinateSystem cs;
-
-		private float[] binStartingPointsInCents;
-		private float binWidth;
-		private float binHeight;
 
 		public CQLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -383,8 +383,8 @@ public class Visor extends JPanel
 
 	private static class OnsetLayer implements Layer {
 
-		private TreeMap<Double, OnsetInfo[]> features;
 		private final CoordinateSystem cs;
+		private TreeMap<Double, OnsetInfo[]> features;
 
 		public OnsetLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -477,11 +477,11 @@ public class Visor extends JPanel
 
 	private static class PitchDetectLayer implements Layer {
 
-		TreeMap<Double, SpectrogramInfo> features;
-		private final CoordinateSystem cs;
+		private float binHeight;
 		private float[] binStartingPointsInCents;
 		private float binWidth;
-		private float binHeight;
+		private final CoordinateSystem cs;
+		TreeMap<Double, SpectrogramInfo> features;
 
 		public PitchDetectLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -589,8 +589,8 @@ public class Visor extends JPanel
 
 	private static class ScalogramLayer implements Layer {
 
-		private TreeMap<Double, ScalogramFrame> features;
 		private final CoordinateSystem cs;
+		private TreeMap<Double, ScalogramFrame> features;
 
 		public ScalogramLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -675,12 +675,12 @@ public class Visor extends JPanel
 
 	private class SpectrogramLayer implements Layer {
 
-		TreeMap<Double, SpectrogramInfo> features;
-		private final CoordinateSystem cs;
-		private float[] binStartingPointsInCents;
-		private float[] binHeightInCents;
-		private float binWidth;
 		private float binHeight;
+		private float[] binHeightInCents;
+		private float[] binStartingPointsInCents;
+		private float binWidth;
+		private final CoordinateSystem cs;
+		TreeMap<Double, SpectrogramInfo> features;
 
 		public SpectrogramLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -784,17 +784,17 @@ public class Visor extends JPanel
 
 	private static class SpectrumPeaksLayer implements Layer {
 
-		private TreeMap<Double, SpectralInfo> spFeatures;
-		private float[] spectrum;
-		private List<Integer> peaksInBins;
-		private float multiplier = 10;
-		private int sampleRate;
-		private int fftSize;
 		private final CoordinateSystem cs;
-		int noiseFloorMedianFilterLenth = 17;
-		float noiseFloorFactor = 1.5F;
-		int numberOfSpectralPeaks = 7;
+		private int fftSize;
+		private float multiplier = 10;
+		private List<Integer> peaksInBins;
+		private int sampleRate;
+		private float[] spectrum;
+		private TreeMap<Double, SpectralInfo> spFeatures;
 		int minPeakSize = 5;
+		float noiseFloorFactor = 1.5F;
+		int noiseFloorMedianFilterLenth = 17;
+		int numberOfSpectralPeaks = 7;
 
 		public SpectrumPeaksLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -888,8 +888,8 @@ public class Visor extends JPanel
 
 	private static class ToneMapLayer implements Layer {
 
-		private TreeMap<Double, ToneMap> toneMaps;
 		private final CoordinateSystem cs;
+		private TreeMap<Double, ToneMap> toneMaps;
 
 		public ToneMapLayer(CoordinateSystem cs) {
 			this.cs = cs;
@@ -987,53 +987,53 @@ public class Visor extends JPanel
 	 *
 	 */
 	private static final long serialVersionUID = 3501426880288136245L;
-	int counter;
-	double threshold;
-	AudioDispatcher dispatcher;
-	Mixer currentMixer;
-	private OscilloscopePanel oscilloscopePanel;
-	private LinkedPanel spectrumPanel;
-	private SpectrumLayer spectrumLayer;
-	private SpectrumLayer noiseFloorLayer;
+	private List<Double> amplitudes;
+	private LinkedPanel bandedPitchDetectPanel;
+	private BeadsLayer beadsLayer;
+	private LinkedPanel beadsPanel;
+	private BandedPitchDetectLayer bpdLayer;
+	private LinkedPanel constantQPanel;
+	private int count = 0;
+	private CQLayer cqLayer;
+	private LinkedPanel cqPanel;
 	// current frequencies and amplitudes of peak list, for sensory dissonance
 	// curve
 	private List<Double> frequencies;
-	private List<Double> amplitudes;
-	private int noiseFloorMedianFilterLenth;// 35
-	private float noiseFloorFactor;
-	private int numberOfSpectralPeaks;
-	private int minPeakSize;
-	private LinkedPanel constantQPanel;
 	private LegendLayer legend;
-	private LinkedPanel cqPanel;
-	private CQLayer cqLayer;
-	private int count = 0;
-	private LinkedPanel spectralPeaksPanel;
-	private SpectrumPeaksLayer spectralPeaksLayer;
-	private LinkedPanel beadsPanel;
-	private BeadsLayer beadsLayer;
-	private LinkedPanel pitchDetectPanel;
+	private int minPeakSize;
+	private float noiseFloorFactor;
+	private SpectrumLayer noiseFloorLayer;
+	private int noiseFloorMedianFilterLenth;// 35
+	private int numberOfSpectralPeaks;
+	private OnsetLayer onsetLayer;
+	private LinkedPanel onsetPanel;
+	private OscilloscopePanel oscilloscopePanel;
 	private PitchDetectLayer pdLayer;
-
+	private LinkedPanel pitchDetectPanel;
+	private ScalogramLayer scalogramLayer;
+	private LinkedPanel scalogramPanel;
 	private SpectrogramLayer sLayer;
+	private SpectrumPeaksLayer spectralPeaksLayer;
+
+	private LinkedPanel spectralPeaksPanel;
 
 	private LinkedPanel spectrogramPanel;
 
-	private LinkedPanel scalogramPanel;
+	private SpectrumLayer spectrumLayer;
 
-	private ScalogramLayer scalogramLayer;
-
-	private LinkedPanel toneMapPanel;
+	private LinkedPanel spectrumPanel;
 
 	private ToneMapLayer toneMapLayer;
 
-	private LinkedPanel onsetPanel;
+	private LinkedPanel toneMapPanel;
 
-	private OnsetLayer onsetLayer;
+	int counter;
 
-	private LinkedPanel bandedPitchDetectPanel;
+	Mixer currentMixer;
 
-	private BandedPitchDetectLayer bpdLayer;
+	AudioDispatcher dispatcher;
+
+	double threshold;
 
 	public Visor() {
 		this.setLayout(new BorderLayout());

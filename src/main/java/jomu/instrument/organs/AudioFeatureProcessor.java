@@ -16,22 +16,22 @@ import net.beadsproject.beads.core.TimeStamp;
 public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 
 	private Analyzer analyzer;
-	private TarsosFeatureSource tarsosFeatures;
+	private Map<Double, AudioFeatureFrame> audioFeatureFrames = new Hashtable<>();
+	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<>();
+	private double currentProcessTime;
+	private double endTimeStamp = -1;
+	private double firstTimeStamp = -1;
+	private int frameSequence = 0;
 	private double interval = 100;
 	private double lag = 0;
 	private double lastTimeStamp = 0;
-	private double firstTimeStamp = -1;
-	private double endTimeStamp = -1;
-	private int frameSequence = 0;
+
 	private int maxFrames = -1;
-	private String streamId;
 
 	private List<AudioFeatureFrameObserver> observers = new ArrayList<>();
 
-	private Map<Double, AudioFeatureFrame> audioFeatureFrames = new Hashtable<>();
-
-	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<>();
-	private double currentProcessTime;
+	private String streamId;
+	private TarsosFeatureSource tarsosFeatures;
 
 	public AudioFeatureProcessor(String streamId, Analyzer analyzer,
 			TarsosFeatureSource tarsosFeatures) {

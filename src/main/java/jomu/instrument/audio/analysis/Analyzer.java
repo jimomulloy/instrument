@@ -41,11 +41,11 @@ public class Analyzer implements SegmentMaker {
 	 */
 	public static class AnalysisSettings {
 
-		/** The hop size. */
-		int hopSize;
-
 		/** The chunk size. */
 		int chunkSize;
+
+		/** The hop size. */
+		int hopSize;
 
 		public AnalysisSettings() {
 			super();
@@ -235,17 +235,17 @@ public class Analyzer implements SegmentMaker {
 		}
 	}
 
-	/** The sfs. */
-	private ShortFrameSegmenter sfs;
-
-	/** The results. */
-	private FeatureSet results;
+	/** The thing responsible for sending messages about beats. */
+	private SegmentMaker beatSegmentMaker;
 
 	/** The set of all extractor data. */
 	private Hashtable<Class<?>, Object> extractorArrangement;
 
-	/** The thing responsible for sending messages about beats. */
-	private SegmentMaker beatSegmentMaker;
+	/** The results. */
+	private FeatureSet results;
+
+	/** The sfs. */
+	private ShortFrameSegmenter sfs;
 
 	/**
 	 * Instantiates a new analyzer.

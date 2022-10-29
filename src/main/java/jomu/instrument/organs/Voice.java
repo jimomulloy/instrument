@@ -1,18 +1,20 @@
 package jomu.instrument.organs;
 
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import be.tarsos.dsp.io.jvm.AudioPlayer;
 import jomu.instrument.Instrument;
-import jomu.instrument.world.tonemap.MidiModel;
+import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class Voice {
 
+	private AudioSynthesizer audioSynthesizer;
 	private AudioGenerator generator;
-	private MidiModel audioSequencer;
-	// private AudioSynthesiser synthesiser;
+	private MidiSynthesizer midiSynthesizer;
 
 	public AudioGenerator buildAudioGenerator(int sampleRate,
 			int audioBufferSize) throws LineUnavailableException {
@@ -26,32 +28,63 @@ public class Voice {
 		return this.generator;
 	}
 
-	public MidiModel buildAudioSequencer() {
-		audioSequencer = new MidiModel();
-		audioSequencer.open();
-		return this.audioSequencer;
+	public AudioSynthesizer buildAudioSynthesizer() {
+		audioSynthesizer = new AudioSynthesizer();
+		return this.audioSynthesizer;
 	}
 
-	/*
-	 * public AudioSynthesiser buildAudioSynthesiser(int sampleRate, int
-	 * audioBufferSize) throws LineUnavailableException { synthesiser = new
-	 * AudioSynthesiser(audioBufferSize, 0, sampleRate); return
-	 * this.synthesiser; }
-	 */
+	public MidiSynthesizer buildMidiSynthesizer() {
+		midiSynthesizer = new MidiSynthesizer();
+		midiSynthesizer.open();
+		return this.midiSynthesizer;
+	}
 
 	public AudioGenerator getAudioGenerator() {
 		return this.generator;
 	}
 
-	public MidiModel getAudioSequencer() {
-		return this.audioSequencer;
+	public MidiSynthesizer getAudioSequencer() {
+		return this.midiSynthesizer;
+	}
+
+	public AudioSynthesizer getAudioSynthesizer() {
+		return audioSynthesizer;
 	}
 
 	public void initialise() {
+		midiSynthesizer = buildMidiSynthesizer();
+		audioSynthesizer = buildAudioSynthesizer();
+	}
+
+	public void send(ToneTimeFrame toneTimeFrame, String streamId,
+			int sequence) {
+		writeMidi(toneTimeFrame, streamId, sequence);
+		writeAudio(toneTimeFrame, streamId, sequence);
 	}
 
 	public void start() {
 		// TODO Auto-generated method stub
+
+	}
+
+	public void writeAudio(ToneTimeFrame toneTimeFrame, String streamId,
+			int sequence) {
+		audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
+
+	}
+
+	public void writeMidi(ToneTimeFrame toneTimeFrame, String streamId,
+			int sequence) {
+		try {
+			midiSynthesizer.playFrameSequence(toneTimeFrame, streamId,
+					sequence);
+		} catch (InvalidMidiDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MidiUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

@@ -13,16 +13,16 @@ import java.util.Arrays;
  */
 public class PitchSet implements Serializable {
 
-	public static double[] PITCH_FREQ;
-
 	public static final double A440 = 440.00;
+
+	public static final int CENTS_HALFSTEP = 50;
+	public static final int CENTS_OCTAVE = 1200;
 	public static final int MAX_MIDI_NOTE = 156;
 	public static final int MIN_MIDI_NOTE = 12;
-	public static final int CENTS_OCTAVE = 1200;
-	public static final int CENTS_HALFSTEP = 50;
 	public static char[][] NOTE_SYMBOLS = {{'C', ' '}, {'C', '#'}, {'D', ' '},
 			{'D', '#'}, {'E', ' '}, {'F', ' '}, {'F', '#'}, {'G', ' '},
 			{'G', '#'}, {'A', ' '}, {'A', '#'}, {'B', ' '}, {'?', ' '}};
+	public static double[] PITCH_FREQ;
 
 	static {
 
@@ -93,19 +93,19 @@ public class PitchSet implements Serializable {
 		return 0;
 	}
 
-	private int lowPitchIndex;
-
-	private int highPitchIndex;
-
 	private int currentPitchIndex;
 
 	private double freq;
 
-	private double note;
+	private int freqRange;
 
 	private double[] freqSet;
 
-	private int freqRange;
+	private int highPitchIndex;
+
+	private int lowPitchIndex;
+
+	private double note;
 
 	public PitchSet() {
 		this(MIN_MIDI_NOTE, MAX_MIDI_NOTE);

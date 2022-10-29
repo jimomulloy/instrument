@@ -33,7 +33,6 @@ import javax.sound.sampled.SourceDataLine;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
-import jomu.instrument.world.tonemap.AudioModel;
 import jomu.instrument.world.tonemap.ToneMap;
 
 public class AudioGenerator implements Runnable {
@@ -45,10 +44,17 @@ public class AudioGenerator implements Runnable {
 			.getLogger(AudioGenerator.class.getName());
 
 	/**
+	 * The audio event that is send through the processing chain.
+	 */
+	private AudioEvent audioEvent;
+
+	/**
 	 * This buffer is reused again and again to store audio data using the float
 	 * data type.
 	 */
 	private float[] audioFloatBuffer;
+
+	private SourceDataLine audioOutput;
 
 	/**
 	 * A list of registered audio processors. The audio processors are
@@ -56,7 +62,7 @@ public class AudioGenerator implements Runnable {
 	 */
 	private final List<AudioProcessor> audioProcessors;
 
-	private final TarsosDSPAudioFormat format;
+	private AudioSynthesizer audioSynthesizer;
 
 	/**
 	 * The floatOverlap: the number of elements that are copied in the buffer
@@ -65,23 +71,16 @@ public class AudioGenerator implements Runnable {
 	 */
 	private int floatOverlap, floatStepSize;
 
-	private int samplesProcessed;
+	private final TarsosDSPAudioFormat format;
 
-	/**
-	 * The audio event that is send through the processing chain.
-	 */
-	private AudioEvent audioEvent;
+	private Oscillator oscillator;
+
+	private int samplesProcessed;
 
 	/**
 	 * If true the dispatcher stops dispatching audio.
 	 */
 	private boolean stopped;
-
-	private AudioModel audioModel;
-
-	private Oscillator oscillator;
-
-	private SourceDataLine audioOutput;
 
 	public AudioGenerator(final int audioBufferSize, final int bufferOverlap,
 			final int samplerate, SourceDataLine audioOutput) {
@@ -98,7 +97,7 @@ public class AudioGenerator implements Runnable {
 		audioEvent = new AudioEvent(format);
 		audioEvent.setFloatBuffer(audioFloatBuffer);
 
-		audioModel = new AudioModel();
+		audioSynthesizer = new AudioSynthesizer();
 
 		stopped = false;
 
@@ -207,7 +206,7 @@ public class AudioGenerator implements Runnable {
 		generateNextAudioBlock();
 		System.out.println(
 				">>????send: " + sequence + ", " + System.currentTimeMillis());
-		AudioModel audioModel = new AudioModel();
+		AudioSynthesizer audioModel = new AudioSynthesizer();
 		audioModel.writeStream(notateToneMap, audioFloatBuffer, audioOutput);
 
 		/*

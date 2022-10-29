@@ -19,10 +19,10 @@ public final class ActivationFunction implements Serializable {
 
 	private ActivationFunctionEnum afe;
 
-	private double threshold = 0.0d;
-
 	private double pieceWiseLinearLower = -0.5d;
+
 	private double pieceWiseLinearUpper = 0.5d;
+	private double threshold = 0.0d;
 
 	/**
 	 * Default constructor creates an instance of ActivationFunction set to use

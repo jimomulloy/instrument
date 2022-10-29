@@ -4,8 +4,8 @@ import java.util.TreeMap;
 
 public class ScalogramFeatures {
 
-	ScalogramSource scs;
 	TreeMap<Double, ScalogramFrame> features;
+	ScalogramSource scs;
 
 	public TreeMap<Double, ScalogramFrame> getFeatures() {
 		return features;

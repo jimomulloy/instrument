@@ -24,8 +24,8 @@
 package jomu.instrument.organs;
 
 public class OnsetInfo {
-	double time;
 	double salience;
+	double time;
 
 	public OnsetInfo(double time, double salience) {
 		super();

@@ -5,5 +5,5 @@ package jomu.instrument.cell;
  * morphology
  */
 public enum MorphologyEnum {
-	UNIPOLAR, BIPOLAR, MULTIPOLAR, PSEUDOUNIPOLAR, NONE
+	BIPOLAR, MULTIPOLAR, NONE, PSEUDOUNIPOLAR, UNIPOLAR
 }

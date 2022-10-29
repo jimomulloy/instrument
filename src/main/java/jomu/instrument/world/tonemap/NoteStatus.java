@@ -9,17 +9,17 @@ package jomu.instrument.world.tonemap;
  */
 public class NoteStatus {
 
-	private NoteStatusElement[] noteStatus;
-
 	private NoteStatusElement element;
+
+	private int highNote;
 
 	private int index;
 
 	private int lowNote;
 
-	private int highNote;
-
 	private int note;
+
+	private NoteStatusElement[] noteStatus;
 
 	public NoteStatus(PitchSet pitchSet) {
 

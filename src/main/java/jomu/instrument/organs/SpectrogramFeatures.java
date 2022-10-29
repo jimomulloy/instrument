@@ -4,8 +4,8 @@ import java.util.TreeMap;
 
 public class SpectrogramFeatures {
 
-	SpectrogramSource ss;
 	TreeMap<Double, SpectrogramInfo> features;
+	SpectrogramSource ss;
 
 	public TreeMap<Double, SpectrogramInfo> getFeatures() {
 		return features;

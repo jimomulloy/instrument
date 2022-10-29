@@ -45,14 +45,14 @@ public class JavaSoundRecorder {
 		recorder.start();
 	}
 
-	// path of the wav file
-	File wavFile = new File("E:/Test/RecordAudio.wav");
-
 	// format of audio file
 	AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
 
 	// the line from which audio data is captured
 	TargetDataLine line;
+
+	// path of the wav file
+	File wavFile = new File("E:/Test/RecordAudio.wav");
 
 	/**
 	 * Closes the target data line to finish capturing and recording

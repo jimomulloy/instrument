@@ -17,17 +17,17 @@ public class ToneMapElement implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public double amplitude;
+	public NoteListElement noteListElement; // Element used to define MIDI note
+											// derived from processing
+
 	public int noteState; // Status of associated MIDI note derived by
 							// processing
-
 	// public NoteListElement noteListElement; // Element used to define MIDI
 	// note
 	// derived from processing
 	private int index;
-	private int timeIndex;
 	private int pitchIndex;
-	public NoteListElement noteListElement; // Element used to define MIDI note
-											// derived from processing
+	private int timeIndex;
 
 	public ToneMapElement(double amplitude, int index, int timeIndex,
 			int pitchIndex) {

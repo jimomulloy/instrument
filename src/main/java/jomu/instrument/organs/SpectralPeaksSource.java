@@ -14,17 +14,17 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class SpectralPeaksSource {
 
-	TarsosAudioIO tarsosIO;
-	int sampleRate = 44100;
-	int increment = 1024;
+	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
 	int currentFrame;
-	int noiseFloorMedianFilterLenth = 10;
-	float noiseFloorFactor = 1.0F;
-	int numberOfSpectralPeaks = 3;
+	int increment = 1024;
 	int minPeakSize = 100;
+	float noiseFloorFactor = 1.0F;
+	int noiseFloorMedianFilterLenth = 10;
+	int numberOfSpectralPeaks = 3;
+	int sampleRate = 44100;
 	List<SpectralInfo> spectralInfos = new ArrayList<>();
 	SpectralPeakProcessor spectralPeakProcesser;
-	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
+	TarsosAudioIO tarsosIO;
 
 	public SpectralPeaksSource(TarsosAudioIO tarsosIO) {
 		super();

@@ -15,29 +15,29 @@ import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class ConstantQFeatures implements ToneMapConstants {
 
+	public int gainSetting = INIT_VOLUME_SETTING;
 	public boolean logSwitch = true;
+	public int oscType = Oscillator.SINEWAVE;
+	public int pFactor = 100;
 	public int pitchHigh = INIT_PITCH_HIGH;
 	public int pitchLow = INIT_PITCH_LOW;
-	public int gainSetting = INIT_VOLUME_SETTING;
+	public int pOffset = 0;
+	public int powerHigh = 100;
+	public int powerLow = 0;
 	public int resolution = 1;
 	public int tFactor = 50;
-	public int pFactor = 100;
-	public int pOffset = 0;
+
 	public int transformMode = TRANSFORM_MODE_JAVA;
-	public int powerHigh = 100;
-	public int oscType = Oscillator.SINEWAVE;
 
-	public int powerLow = 0;
-
-	ConstantQSource cqs;
-	Map<Double, float[]> features = new TreeMap<>();
-
-	private ToneMap toneMap;
-	private TimeSet timeSet;
-	private PitchSet pitchSet;
 	private AudioFeatureFrame audioFeatureFrame;
 	private boolean isCommitted;
+
+	private PitchSet pitchSet;
+	private TimeSet timeSet;
+	private ToneMap toneMap;
 	private Visor visor;
+	ConstantQSource cqs;
+	Map<Double, float[]> features = new TreeMap<>();
 
 	public void addFeature(Double time, float[] values) {
 		AudioFeatureFrame previousFrame = null;

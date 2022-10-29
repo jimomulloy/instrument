@@ -8,23 +8,23 @@ import net.beadsproject.beads.core.BeadArray;
 public abstract class Cell {
 
 	public static enum CellTypes {
-		JUNCTION, PASS_THROUGH, SOURCE, SINK, AUDIO_PITCH, AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_SINK
+		AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_SINK, JUNCTION, PASS_THROUGH, SINK, SOURCE
 
 	}
 
-	/** True if the Bead is paused. */
-	private boolean paused;
+	private CellTypes cellType;
 
 	/** True if the Bead is marked for deletion. */
 	private boolean deleted;
 
-	/** A Bead that gets informed when this Bead gets killed. */
-	private Cell killListener;
-
 	/* Unique identification for this CellElement instance. */
 	private String ID;
 
-	private CellTypes cellType;
+	/** A Bead that gets informed when this Bead gets killed. */
+	private Cell killListener;
+
+	/** True if the Bead is paused. */
+	private boolean paused;
 
 	/**
 	 * Generate <code>Cell</code>. and registers the <code>Cell</code> to

@@ -11,13 +11,13 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class ScalogramSource {
 
-	TarsosAudioIO tarsosIO;
-	float sampleRate = 44100;
-	int increment = 1024;
-
-	Daubechies4Wavelet wt = new Daubechies4Wavelet();
 	TreeMap<Double, ScalogramFrame> features = new TreeMap<>();
+	int increment = 1024;
 	ScalogramFrame prevFrame;
+
+	float sampleRate = 44100;
+	TarsosAudioIO tarsosIO;
+	Daubechies4Wavelet wt = new Daubechies4Wavelet();
 
 	public ScalogramSource(TarsosAudioIO tarsosIO) {
 		super();

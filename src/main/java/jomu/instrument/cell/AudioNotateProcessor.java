@@ -34,9 +34,9 @@ public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
 
-	private WorldModel worldModel;
-
 	private float tmMax = 0;
+
+	private WorldModel worldModel;
 
 	public AudioNotateProcessor(NuCell cell) {
 		super();

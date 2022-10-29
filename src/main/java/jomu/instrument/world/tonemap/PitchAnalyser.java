@@ -5,6 +5,10 @@ import java.util.Vector;
 
 public class PitchAnalyser {
 
+	private double alpha = 52.0; // Hz
+	private double beta = 320.0; // Hz
+	private double dee = 0.89;
+	private double[] f0cands;
 	private ArrayList<Integer>[] f0index; /* Klapuri F0 candidate indices */
 	private ArrayList<Integer>[] f0indHarm; /*
 											 * Klapuri F0 candidate indices
@@ -13,10 +17,6 @@ public class PitchAnalyser {
 	private FFTSpectrum fftSpectrum;
 	private int harmonics = 20;
 	int surroundingBins = 1;
-	private double alpha = 52.0; // Hz
-	private double beta = 320.0; // Hz
-	private double dee = 0.89;
-	private double[] f0cands;
 
 	public PitchAnalyser(FFTSpectrum fftSpectrum, double[] f0cands,
 			int harmonics) {

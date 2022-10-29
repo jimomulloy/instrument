@@ -7,8 +7,8 @@ import jomu.instrument.audio.TarsosAudioIO;
 
 public class GoertzelSource implements FrequenciesDetectedHandler {
 
-	TarsosAudioIO tarsosIO;
 	private TreeMap<Double, GoertzelInfo> features = new TreeMap<>();
+	TarsosAudioIO tarsosIO;
 
 	public GoertzelSource(TarsosAudioIO tarsosIO) {
 		super();

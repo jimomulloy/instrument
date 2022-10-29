@@ -46,14 +46,14 @@ public class FeatureSet {
 		return fs;
 	}
 
-	/** The tracks. */
-	private Hashtable<String, FeatureTrack> tracks;
+	/** The file. */
+	private File file;
 
 	/** The list of Global Features. */
 	private Hashtable<String, Object> globalFeatures;
 
-	/** The file. */
-	private File file;
+	/** The tracks. */
+	private Hashtable<String, FeatureTrack> tracks;
 
 	/**
 	 * Instantiates a new empty FeatureSet.

@@ -11,25 +11,25 @@ import java.io.Serializable;
  */
 public class TimeSet implements Serializable {
 
-	private double startTime;
+	private double currentTime;
 
-	private double endTime;
+	private int endSample;
 
 	// public int getRange(){
 	// return ((int)((timeToSamples(endTime - startTime))/sampleIndexSize));
 	// }
 
-	private double currentTime;
+	private double endTime;
 
-	private int startSample;
-
-	private int endSample;
+	private int sampleIndexSize;
 
 	private float sampleRate;
 
 	private double sampleTimeSize;
 
-	private int sampleIndexSize;
+	private int startSample;
+
+	private double startTime;
 
 	public TimeSet(double startTime, double endTime, float sampleRate,
 			double sampleTimeSize) {

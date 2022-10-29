@@ -36,42 +36,42 @@ public class NuCell extends Cell implements Serializable {
 
 	private static final long serialVersionUID = 1002;
 
-	// enum, one of ...
-	// UNIPOLAR, BIPOLAR, MULTIPOLAR, PSEUDOUNIPOLAR
-	// this field is somewhat described by the class Dendrites
-	// A NuCell "has-a" Dendrites instance
-	protected MorphologyEnum morphology;
+	private BlockingQueue<Object> bq;
 
-	// Class representing all of the Dendrite inputs
-	// Each Dendrite can receive a signal from the axon of another NuCell,
-	// and there is a weight associated with this relationship
-	protected Dendrites dendrites;
+	private HashMap<String, List<NuMessage>> sequenceMap = new HashMap<>();
+
+	// Create ActivationFunction object
+	protected ActivationFunction activationFunction = new ActivationFunction();
 
 	// Axon represents the physical Axon of a NuCell and
 	// it will hold references to all the NuCells it is
 	// outputting a signal to
 	protected Axon axon;
 
-	// Create ActivationFunction object
-	protected ActivationFunction activationFunction = new ActivationFunction();
+	// Class representing all of the Dendrite inputs
+	// Each Dendrite can receive a signal from the axon of another NuCell,
+	// and there is a weight associated with this relationship
+	protected Dendrites dendrites;
 
-	// Processor
-	protected Consumer<List<NuMessage>> processor;
+	protected Double expectedOutputSignal = new Double(0.000d);
+	// this field is for sending a signal into the Neural Network from
+	// a source outside of the Neural Network
+	protected Double externalInputSignal = new Double(0.000d);
 
 	// Each NuCell can be a combination of the various types of
 	// NetworkRole
 	// LayerClassification
 	// InputNuCell, HiddenNuCell, OutputNuCell
 	protected LayerClassification layerClassification = LayerClassification.INPUT_OUTPUT;
-	// this field is for sending a signal into the Neural Network from
-	// a source outside of the Neural Network
-	protected Double externalInputSignal = new Double(0.000d);
 
-	protected Double expectedOutputSignal = new Double(0.000d);
+	// enum, one of ...
+	// UNIPOLAR, BIPOLAR, MULTIPOLAR, PSEUDOUNIPOLAR
+	// this field is somewhat described by the class Dendrites
+	// A NuCell "has-a" Dendrites instance
+	protected MorphologyEnum morphology;
 
-	private BlockingQueue<Object> bq;
-
-	private HashMap<String, List<NuMessage>> sequenceMap = new HashMap<>();
+	// Processor
+	protected Consumer<List<NuMessage>> processor;
 
 	// Most NuCells receive many input signals throughout their dendritic trees.
 	// A single NuCell may have more than one set of dendrites, and may receive

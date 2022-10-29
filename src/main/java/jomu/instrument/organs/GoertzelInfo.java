@@ -29,8 +29,8 @@ import be.tarsos.dsp.SpectralPeakProcessor;
 import be.tarsos.dsp.SpectralPeakProcessor.SpectralPeak;
 
 public class GoertzelInfo {
-	private float[] magnitudes;
 	private float[] frequencyEstimates;
+	private float[] magnitudes;
 
 	public GoertzelInfo(float[] magnitudes, float[] frequencyEstimates) {
 		this.magnitudes = magnitudes;

@@ -10,12 +10,12 @@ package jomu.instrument.world.tonemap;
  */
 public class NoteSequenceElement implements Comparable {
 
-	public long tick; // Tick value representing relative time of note in
-						// sequence
-
 	public int note; // MIDI note pitch
 
 	public int state; // State of MIDI note (on/off)
+
+	public long tick; // Tick value representing relative time of note in
+						// sequence
 	public int velocity; // velocity (amplitude) of note
 
 	public NoteSequenceElement(int note, int state, long tick, int velocity) {

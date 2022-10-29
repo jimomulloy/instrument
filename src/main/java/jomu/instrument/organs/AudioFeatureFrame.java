@@ -6,22 +6,22 @@ import jomu.instrument.audio.analysis.FeatureFrame;
 import jomu.instrument.audio.analysis.FeatureSet;
 
 public class AudioFeatureFrame {
+	private AudioEventFeatures audioEventFeatures;
+	private AudioFeatureProcessor audioFeatureProcessor;
+	private BandedPitchDetectorFeatures bandedPitchDetectorFeatures;
 	private List<FeatureFrame> beadsBeatsFeatures;
 	private List<FeatureFrame> beadsFeatures;
 	private ConstantQFeatures constantQFeatures;
-	private OnsetFeatures onsetFeatures;
-	private SpectralPeaksFeatures spectralPeaksFeatures;
-	private PitchDetectorFeatures pitchDetectorFeatures;
-	private BandedPitchDetectorFeatures bandedPitchDetectorFeatures;
-	private SpectrogramFeatures spectrogramFeatures;
-	private GoertzelFeatures goertzelFeatures;
-	private AudioEventFeatures audioEventFeatures;
-	private ScalogramFeatures scalogramFeatures;
-
-	private int frameSequence;
-	private AudioFeatureProcessor audioFeatureProcessor;
-	private double start;
 	private double end;
+	private int frameSequence;
+	private GoertzelFeatures goertzelFeatures;
+	private OnsetFeatures onsetFeatures;
+	private PitchDetectorFeatures pitchDetectorFeatures;
+
+	private ScalogramFeatures scalogramFeatures;
+	private SpectralPeaksFeatures spectralPeaksFeatures;
+	private SpectrogramFeatures spectrogramFeatures;
+	private double start;
 
 	public AudioFeatureFrame(AudioFeatureProcessor audioFeatureProcessor,
 			int frameSequence, double start, double end) {

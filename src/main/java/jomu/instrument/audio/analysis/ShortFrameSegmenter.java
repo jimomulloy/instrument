@@ -18,26 +18,26 @@ import net.beadsproject.beads.data.buffers.HanningWindow;
  */
 public class ShortFrameSegmenter extends AudioSegmenter {
 
-	/** The chunk size. */
-	private int chunkSize;
-
-	/** The hop size. */
-	private int hopSize;
+	/** The TimeStamp of this AudioSegmenter when the AudioContext is at t=0. */
+	private TimeStamp beginningTimeStamp;
 
 	/** The current chunks being recorded at the moment. */
 	private float[][] chunks;
 
-	/** Equal to hopSize * chunks.length. This is a single record cycle. */
-	private int cycleLen;
+	/** The chunk size. */
+	private int chunkSize;
 
 	/** The time in samples. */
 	private int count;
 
+	/** Equal to hopSize * chunks.length. This is a single record cycle. */
+	private int cycleLen;
+
+	/** The hop size. */
+	private int hopSize;
+
 	/** The previous TimeStamp. */
 	private TimeStamp lastTimeStamp;
-
-	/** The TimeStamp of this AudioSegmenter when the AudioContext is at t=0. */
-	private TimeStamp beginningTimeStamp;
 
 	/** The window function used to scale the chunks. */
 	private Buffer window;
