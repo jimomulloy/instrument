@@ -8,15 +8,6 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 
-/**
- * This class plays a file and sends float arrays to registered AudioProcessor
- * implementors. This class can be used to feed FFT's, pitch detectors, audio
- * players, ... Using a (blocking) audio player it is even possible to
- * synchronize execution of AudioProcessors and sound. This behavior can be used
- * for visualization.
- *
- * @author Joren Six
- */
 public class DispatchJunctionProcessor implements AudioProcessor {
 
 	/**

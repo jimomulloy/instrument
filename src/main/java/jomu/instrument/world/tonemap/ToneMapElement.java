@@ -27,6 +27,7 @@ public class ToneMapElement implements Serializable {
 	// derived from processing
 	private int index;
 	private int pitchIndex;
+
 	private int timeIndex;
 
 	public ToneMapElement(double amplitude, int index, int timeIndex,
@@ -59,5 +60,12 @@ public class ToneMapElement implements Serializable {
 	public int getTimeIndex() {
 		return timeIndex;
 	}
+	
+	@Override
+	public String toString() {
+		return "ToneMapElement [amplitude=" + amplitude + ", noteState="
+				+ noteState + ", index=" + index + "]";
+	}
+
 
 } // End ToneMapElement

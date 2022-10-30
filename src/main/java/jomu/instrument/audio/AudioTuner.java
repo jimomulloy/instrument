@@ -45,7 +45,7 @@ public class AudioTuner implements ToneMapConstants {
 	public boolean harmonicAdd;
 	public boolean harmonicSwitch;
 
-	public int n1Setting = 100;
+	public int n1Setting = 10;
 	public boolean n1Switch;
 
 	public int n2Setting = 100;
@@ -236,6 +236,7 @@ public class AudioTuner implements ToneMapConstants {
 							processPeak(toneTimeFrame, lastStartPeak,
 									lastEndPeak, troughAmp, thresholdElement,
 									maxAmp);
+							System.out.println(">>!!process peakA!!: " + toneTimeFrame.getStartTime() + ","+ index);
 						}
 						lastPeakAmp = lastAmp;
 						lastStartPeak = startPeak;
@@ -264,14 +265,15 @@ public class AudioTuner implements ToneMapConstants {
 			lastAmp = amplitude;
 
 		}
-
+		
 		if (lastStartPeak != 0 && peakcount > 0) {
 			if (troughAmp == 0 || (lastPeakAmp / troughAmp) > peakFactor) {
 				processPeak(toneTimeFrame, lastStartPeak, lastEndPeak,
 						troughAmp, thresholdElement, maxAmp);
+				System.out.println(">>!!process peakB!!: " + toneTimeFrame.getStartTime() + ","+ index);
 			}
 		}
-
+	
 		return true;
 	}
 
@@ -451,7 +453,7 @@ public class AudioTuner implements ToneMapConstants {
 		} else {
 			overToneElement.amplitude -= overToneData;
 		}
-
+		
 	}
 
 	private void initFormants() {
@@ -476,12 +478,12 @@ public class AudioTuner implements ToneMapConstants {
 
 		overtoneSet = new OvertoneSet();
 
-		double[] initHarmonics = {harmonic1Setting / 100.0,
-				harmonic2Setting / 100.0, harmonic3Setting / 100.0,
-				harmonic4Setting / 100.0, harmonic4Setting / 100.0,
-				harmonic4Setting / 100.0};
+		//double[] initHarmonics = {harmonic1Setting / 100.0,
+		//		harmonic2Setting / 100.0, harmonic3Setting / 100.0,
+		//		harmonic4Setting / 100.0, harmonic4Setting / 100.0,
+		//		harmonic4Setting / 100.0};
 
-		overtoneSet.setHarmonics(initHarmonics);
+		//overtoneSet.setHarmonics(initHarmonics);
 
 	}
 
@@ -647,15 +649,13 @@ public class AudioTuner implements ToneMapConstants {
 	}
 
 	// Process Harmonic overtones
-	private void processOvertones(ToneMap toneMap, int pitchIndex) {
+	private void processOvertones(ToneTimeFrame toneTimeFrame, int pitchIndex) {
 
-		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 		TimeSet timeSet = toneTimeFrame.getTimeSet();
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 
 		double f0 = pitchSet.getFreq(pitchIndex);
-		int lastNote = pitchSet.getNote(pitchIndex);
-
+		
 		double overToneFTPower;
 		double overToneAmplitude;
 
@@ -668,21 +668,16 @@ public class AudioTuner implements ToneMapConstants {
 			note = PitchSet.freqToMidiNote(freq);
 			if (note == -1 || note > pitchSet.getHighNote())
 				break;
-
+			int index = pitchSet.getIndex(note);
+			
 			ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 
-			for (ToneMapElement toneMapElement : ttfElements) {
-				if (toneMapElement == null || toneMapElement.amplitude == -1)
-					continue;
-				int index = toneMapElement.getIndex();
-				if (index < (note - lastNote)) {
-					continue;
-				}
-				attenuate(toneMapElement, toneMapElement.amplitude,
-						harmonic);
-				break;
-			}
-			lastNote = note;
+			ToneMapElement toneMapElement = ttfElements[index];
+			if (toneMapElement == null || toneMapElement.amplitude == -1)
+				continue;
+			index = toneMapElement.getIndex();
+			attenuate(toneMapElement, toneMapElement.amplitude,
+					harmonic);
 			n++;
 		}
 	}
@@ -694,7 +689,6 @@ public class AudioTuner implements ToneMapConstants {
 		double ampThres = n3Setting / 100.0;
 		int index, note;
 
-		TimeSet timeSet = toneTimeFrame.getTimeSet();
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
@@ -709,16 +703,15 @@ public class AudioTuner implements ToneMapConstants {
 			}
 			note = pitchSet.getNote(index);
 			amplitude = toneMapElement.amplitude;
-			System.out.println("In processPeak loop: " + note + ", " + startPeak
-					+ ", " + endPeak + ", " + amplitude);
-
+		
 			if (amplitude >= normalThreshold(toneTimeFrame, toneMapElement,
 					thresholdElement) && amplitude > ampThres) {
 				toneMapElement.amplitude = maxAmp;
 				// peakIterator.getElement().postAmplitude = 1.0;
-				System.out.println("New amp: " + toneMapElement.amplitude);
-
 			}
+			
+			processOvertones(toneTimeFrame, index);	
+			toneMapElement.amplitude = 0;
 
 		}
 

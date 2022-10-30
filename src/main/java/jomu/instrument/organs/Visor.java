@@ -25,11 +25,16 @@ package jomu.instrument.organs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,9 +47,25 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -908,7 +929,6 @@ public class Visor extends JPanel
 		public void draw(Graphics2D g) {
 
 			if (toneMaps != null) {
-				System.out.println(">>>Visor CQ - PAINT ");
 				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(
 						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
 				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap
@@ -916,9 +936,7 @@ public class Visor extends JPanel
 					double timeStart = column.getKey();
 					ToneMap toneMap = column.getValue();
 					ToneTimeFrame[] ttfs = toneMap.getTimeFramesFrom(0.0);
-					System.out.println(">>>Visor CQ - TTFS: " + ttfs.length);
 					for(ToneTimeFrame ttf: ttfs) {
-						System.out.println(">>>Visor CQ - " + ttf.getStartTime());
 						TimeSet timeSet = ttf.getTimeSet();
 						PitchSet pitchSet = ttf.getPitchSet();
 						timeStart = timeSet.getStartTime();
@@ -1003,6 +1021,9 @@ public class Visor extends JPanel
 	private LinkedPanel beadsPanel;
 	private BandedPitchDetectLayer bpdLayer;
 	private LinkedPanel constantQPanel;
+	
+	private JTextArea textArea;
+	
 	private int count = 0;
 	private CQLayer cqLayer;
 	private LinkedPanel cqPanel;
@@ -1010,11 +1031,7 @@ public class Visor extends JPanel
 	// curve
 	private List<Double> frequencies;
 	private LegendLayer legend;
-	private int minPeakSize;
-	private float noiseFloorFactor;
 	private SpectrumLayer noiseFloorLayer;
-	private int noiseFloorMedianFilterLenth;// 35
-	private int numberOfSpectralPeaks;
 	private OnsetLayer onsetLayer;
 	private LinkedPanel onsetPanel;
 	private OscilloscopePanel oscilloscopePanel;
@@ -1044,12 +1061,31 @@ public class Visor extends JPanel
 	AudioDispatcher dispatcher;
 
 	double threshold;
-
+	
+	private int sampleRate;
+	private int fftsize;
+	private int stepsize;//50% overlap
+	private int noiseFloorMedianFilterLenth;//35
+	private float noiseFloorFactor;
+	private String fileName;
+	private int numberOfSpectralPeaks;
+	private int currentFrame;
+	private int minPeakSize;
+	private final Integer[] fftSizes = {256,512,1024,2048,4096,8192,16384,22050,32768,65536,131072};
+	private final Integer[] inputSampleRate = {8000,22050,44100,192000};
+	private File inputFile;
+		
+	private final List<SpectralInfo> spectalInfo = null;
+	
 	public Visor() {
 		this.setLayout(new BorderLayout());
-
+   
+		JPanel subPanel = new JPanel(new GridLayout(0,2));
+		subPanel.add(createButtonPanel("D:"));
+		subPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10),  new EtchedBorder()));
+		
 		JPanel inputPanel = new InputPanel();
-		// add(inputPanel);
+		subPanel.add(inputPanel);
 		inputPanel.addPropertyChangeListener("mixer",
 				new PropertyChangeListener() {
 					@Override
@@ -1065,16 +1101,20 @@ public class Visor extends JPanel
 						}
 					}
 				});
-
+		
+		subPanel.add(inputPanel);
+		
 		JTabbedPane tabbedPane = new JTabbedPane();
-		this.add(inputPanel, BorderLayout.NORTH);
-		this.add(tabbedPane, BorderLayout.CENTER);
+		tabbedPane.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10),  new EtchedBorder())) ; //BorderFactory.createLineBorder(Color.black));
+		//this.add(new JScrollPane(subPanel), BorderLayout.NORTH);
+		//this.add(new JScrollPane(tabbedPane),BorderLayout.CENTER);
+		
+		toneMapPanel = createToneMapPanel();
+		tabbedPane.addTab("TM", toneMapPanel);
 		cqPanel = createCQPanel();
 		tabbedPane.addTab("CQ", cqPanel);
 		bandedPitchDetectPanel = createBandedPitchDetectPanel();
 		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
-		toneMapPanel = createToneMapPanel();
-		tabbedPane.addTab("TM", toneMapPanel);
 		pitchDetectPanel = createPitchDetectPanel();
 		tabbedPane.addTab("Pitch", pitchDetectPanel);
 		spectrogramPanel = createSpectogramPanel();
@@ -1092,6 +1132,174 @@ public class Visor extends JPanel
 
 		// spectrumPanel = createSpectrumPanel();
 		// tabbedPane.addTab("Spectrum", spectrumPanel);
+
+        // create a splitpane
+        JSplitPane sl = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(subPanel), new JScrollPane(tabbedPane));
+     
+	
+		this.add(sl,BorderLayout.CENTER);
+
+	}
+
+	private Component createButtonPanel(String startDir) {
+		JPanel motherPanel = new JPanel(new BorderLayout());
+		JPanel buttonPanel = new JPanel(new GridLayout(0,1));
+		
+		final JFileChooser fileChooser = new JFileChooser(new File(startDir));
+		final JButton chooseFileButton = new JButton("Open...");
+		chooseFileButton.addActionListener(new ActionListener(){
+		
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int returnVal = fileChooser.showOpenDialog(Visor.this);
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                inputFile = fileChooser.getSelectedFile();
+	                System.out.println(inputFile.toString());
+	                fileName = inputFile.getAbsolutePath();
+	                // TODO startProcessing();
+	            }
+			}	
+		});
+		buttonPanel.add(new JLabel("Choose a file:"));
+		buttonPanel.add(chooseFileButton);
+		
+		JComboBox<Integer> fftSizeComboBox = new JComboBox<Integer>(fftSizes);
+		fftSizeComboBox.addActionListener(new ActionListener() {
+			private Integer fftsize;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
+				fftsize = value;
+				noiseFloorMedianFilterLenth = fftsize/117;
+				System.out.println("FFT Changed to " + value + " median filter length to " + noiseFloorMedianFilterLenth);
+				//startProcessing();
+			}
+		});
+		fftSizeComboBox.setSelectedIndex(3);
+		buttonPanel.add(new JLabel("FFT-size:"));
+		buttonPanel.add(fftSizeComboBox);
+		
+		Integer value = new Integer(50);
+		Integer min = new Integer(32);
+		Integer max = new Integer(131072);
+		Integer step = new Integer(32);
+		SpinnerNumberModel model = new SpinnerNumberModel(value, min, max, step);
+		 
+		JSpinner stepSizeSpinner = new JSpinner(model);
+		stepSizeSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				Integer value = (Integer) ((JSpinner) e.getSource()).getValue();
+				stepsize = value;
+				System.out.println("Step size Changed to " + value + ", overlap is " + (fftsize - stepsize));
+				// TODO startProcessing();
+			}
+		});
+		stepSizeSpinner.setValue(512);
+		buttonPanel.add(new JLabel("Step size:"));
+		buttonPanel.add(stepSizeSpinner);
+		
+		
+		JComboBox<Integer> inputSampleRateCombobox = new JComboBox<Integer>(inputSampleRate);
+		inputSampleRateCombobox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
+				sampleRate = value;
+				System.out.println("Sample rate Changed to " + value);
+			}
+		});
+		inputSampleRateCombobox.setSelectedIndex(1);
+		buttonPanel.add(new JLabel("Input sample rate"));
+		buttonPanel.add(inputSampleRateCombobox);
+		
+		
+		
+		JSlider noiseFloorSlider = new JSlider(100, 250);
+		final JLabel noiseFloorFactorLabel = new JLabel("Noise floor factor    :");
+		noiseFloorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				double actualValue = newValue/100.0;
+				noiseFloorFactorLabel.setText(String.format("Noise floor factor (%.2f):", actualValue));
+				
+				System.out.println("New noise floor factor: " + actualValue);
+				noiseFloorFactor = (float) actualValue;
+				// TODO repaintSpectalInfo();
+				
+			}
+		});
+		noiseFloorSlider.setValue(150);
+		buttonPanel.add(noiseFloorFactorLabel);
+		buttonPanel.add(noiseFloorSlider);
+		
+		
+		JSlider medianFilterSizeSlider = new JSlider(3, 255);
+		final JLabel medianFilterSizeLabel = new JLabel("Median Filter Size   :");
+		medianFilterSizeSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				medianFilterSizeLabel.setText(String.format("Median Filter Size (%d):", newValue));
+				System.out.println("New Median filter size: " + newValue);
+				noiseFloorMedianFilterLenth = newValue;
+				// TODO repaintSpectalInfo();
+				
+			}
+		});
+		medianFilterSizeSlider.setValue(17);
+		buttonPanel.add(medianFilterSizeLabel);
+		buttonPanel.add(medianFilterSizeSlider);
+		
+		JSlider minPeakSizeSlider = new JSlider(5, 255);
+		final JLabel minPeakSizeLabel = new JLabel("Min Peak Size   :");
+		minPeakSizeSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				minPeakSizeLabel.setText(String.format("Min Peak Size    (%d):", newValue));
+				System.out.println("Min Peak Sizee: " + newValue);
+				minPeakSize = newValue;
+				// TODO repaintSpectalInfo();
+			}
+		});
+		minPeakSizeSlider.setValue(5);
+		buttonPanel.add(minPeakSizeLabel);
+		buttonPanel.add(minPeakSizeSlider);
+		
+		
+		JSlider numberOfPeaksSlider = new JSlider(1, 40);
+		final JLabel numberOfPeaksLabel = new JLabel("Number of peaks  :");
+		numberOfPeaksSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();			
+				
+				numberOfPeaksLabel.setText("Number of peaks (" + newValue + "):");
+				
+				System.out.println("New amount of peaks: " + newValue);
+				numberOfSpectralPeaks = newValue;
+				// TODO repaintSpectalInfo();
+				
+			}
+		});
+		numberOfPeaksSlider.setValue(7);
+		buttonPanel.add(numberOfPeaksLabel);
+		buttonPanel.add(numberOfPeaksSlider);
+				
+		textArea = new JTextArea(10,20);
+		buttonPanel.add(new JLabel("Peaks:"));
+		motherPanel.add(buttonPanel, BorderLayout.NORTH);
+		motherPanel.add(textArea, BorderLayout.CENTER);
+		return motherPanel;
 	}
 
 	@Override

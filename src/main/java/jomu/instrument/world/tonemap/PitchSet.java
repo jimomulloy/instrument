@@ -128,6 +128,10 @@ public class PitchSet implements Serializable {
 		return PITCH_FREQ[lowPitchIndex + index];
 	}
 
+	public int getIndex(int note) {
+		return note - getLowNote();
+	}
+
 	public double[] getFreqSet() {
 		freqRange = getRange();
 		freqSet = new double[freqRange];

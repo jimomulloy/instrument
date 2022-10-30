@@ -30,7 +30,7 @@ public class Hearing {
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 		
-		audioStream.initialiseFileStream("D:/audio/testsine2noteA.wav");
+		audioStream.initialiseFileStream("D:/audio/recorder1.wav");
 		
 		Instrument.getInstance().getCoordinator().getCortex();
 		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
