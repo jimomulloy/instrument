@@ -36,21 +36,15 @@ public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 					.equals(CellTypes.AUDIO_INTEGRATE)) {
 				ToneMap integrateToneMap = worldModel.getAtlas()
 						.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE,
-								streamId, sequence));
+								streamId));
 				ToneMap notateToneMap = worldModel.getAtlas()
 						.getToneMap(buildToneMapKey(this.cell.getCellType(),
-								streamId, sequence));
-				ToneMap previousNotateToneMap = null;
-				notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame());
-				if (sequence > 1) {
-					previousNotateToneMap = worldModel.getAtlas()
-							.getToneMap(buildToneMapKey(this.cell.getCellType(),
-									streamId, (sequence - 1)));
-				}
+								streamId));
+				notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
 				System.out.println(">>>PUT notat frame: " + integrateToneMap.getTimeFrame().getStartTime());
 				AudioTuner tuner = new AudioTuner();
 
-				tuner.noteScan(notateToneMap, previousNotateToneMap);
+				tuner.noteScan(notateToneMap, sequence);
 
 				System.out.println(">>AudioNotateProcessor send");
 				cell.send(streamId, sequence);
@@ -58,8 +52,7 @@ public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 		}
 	}
 
-	private String buildToneMapKey(CellTypes cellType, String streamId,
-			int sequence) {
-		return cellType + ":" + streamId + ":" + sequence;
+	private String buildToneMapKey(CellTypes cellType, String streamId) {
+		return cellType + ":" + streamId;
 	}
 }

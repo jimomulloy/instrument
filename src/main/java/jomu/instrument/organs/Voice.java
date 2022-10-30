@@ -2,12 +2,7 @@ package jomu.instrument.organs;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
 
-import be.tarsos.dsp.io.jvm.AudioPlayer;
-import jomu.instrument.Instrument;
 import jomu.instrument.audio.AudioGenerator;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
@@ -19,18 +14,15 @@ public class Voice {
 	private AudioGenerator generator;
 	private MidiSynthesizer midiSynthesizer;
 
-	public AudioGenerator buildAudioGenerator(int sampleRate,
-			int audioBufferSize) throws LineUnavailableException {
-		Hearing hearing = Instrument.getInstance().getCoordinator()
-				.getHearing();
-		SourceDataLine audioOutput = hearing.getTarsosIO().getAudioOutput();
-		generator = new AudioGenerator(audioBufferSize, 0, sampleRate,
-				audioOutput);
-		generator.addAudioProcessor(new AudioPlayer(
-				new AudioFormat(sampleRate, 16, 1, true, false)));
-		return this.generator;
-	}
-
+	/*
+	 * public AudioGenerator buildAudioGenerator(int sampleRate, int
+	 * audioBufferSize) throws LineUnavailableException { Hearing hearing =
+	 * Instrument.getInstance().getCoordinator() .getHearing(); SourceDataLine
+	 * audioOutput = hearing.getTarsosIO().getAudioOutput(); generator = new
+	 * AudioGenerator(audioBufferSize, 0, sampleRate, audioOutput);
+	 * generator.addAudioProcessor(new AudioPlayer( new AudioFormat(sampleRate,
+	 * 16, 1, true, false))); return this.generator; }
+	 */
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new AudioSynthesizer();
 		return this.audioSynthesizer;

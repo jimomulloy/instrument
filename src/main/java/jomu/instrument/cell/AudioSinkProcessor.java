@@ -60,14 +60,13 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 						.getVoice();
 				ToneMap notateToneMap = worldModel.getAtlas()
 						.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE,
-								streamId, sequence));
-				voice.send(notateToneMap.getTimeFrame(), streamId, sequence);
+								streamId));
+				voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
 			}
 		}
 	}
 
-	private String buildToneMapKey(CellTypes cellType, String streamId,
-			int sequence) {
-		return cellType + ":" + streamId + ":" + sequence;
+	private String buildToneMapKey(CellTypes cellType, String streamId) {
+		return cellType + ":" + streamId;
 	}
 }

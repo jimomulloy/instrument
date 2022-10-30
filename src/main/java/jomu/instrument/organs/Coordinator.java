@@ -18,14 +18,14 @@ public class Coordinator {
 	}
 
 	public void initialise() {
+		cortex = new Cortex();
+		cortex.initialise();
 		hearing = new Hearing();
 		hearing.initialise();
 		voice = new Voice();
 		voice.initialise();
-		cortex = new Cortex();
-		cortex.initialise();
-		hearing.start();
 		cortex.start();
+		hearing.start();
 		voice.start();
 	}
 

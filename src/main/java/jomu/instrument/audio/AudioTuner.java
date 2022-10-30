@@ -280,15 +280,14 @@ public class AudioTuner implements ToneMapConstants {
 	 * Apply filtering and conversion processing on basis of Tuner Parameters
 	 * @param previousToneMap
 	 */
-	public boolean noteScan(ToneMap toneMap, ToneMap previousToneMap) {
+	public boolean noteScan(ToneMap toneMap, int sequence) {
 		System.out.println(">>!! noteScan");
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 		NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
 		NoteStatus previousNoteStatus = noteStatus;
-		if (previousToneMap != null) {
-			previousNoteStatus = previousToneMap.getTimeFrame().getNoteStatus();
+		if (sequence > 1) {
+			previousNoteStatus = toneMap.getTimeFrame(sequence-1).getNoteStatus();
 			System.out.println(">>!! got previous");
-			System.out.println(">>>Previous: " + previousToneMap.getTimeFrame().getStartTime());
 		}
 		System.out.println(">>>This : " + toneMap.getTimeFrame().getStartTime());
 		// timeRange = toneTimeFrame.getTimeSet().getRange();

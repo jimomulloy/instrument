@@ -908,18 +908,20 @@ public class Visor extends JPanel
 		public void draw(Graphics2D g) {
 
 			if (toneMaps != null) {
+				System.out.println(">>>Visor CQ - PAINT ");
 				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(
 						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
 				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap
 						.entrySet()) {
 					double timeStart = column.getKey();
 					ToneMap toneMap = column.getValue();
-					ToneTimeFrame ttf = toneMap.getTimeFrame();
-					TimeSet timeSet = ttf.getTimeSet();
-					PitchSet pitchSet = ttf.getPitchSet();
-					timeStart = timeSet.getStartTime();
-
-					if (ttf != null) {
+					ToneTimeFrame[] ttfs = toneMap.getTimeFramesFrom(0.0);
+					System.out.println(">>>Visor CQ - TTFS: " + ttfs.length);
+					for(ToneTimeFrame ttf: ttfs) {
+						System.out.println(">>>Visor CQ - " + ttf.getStartTime());
+						TimeSet timeSet = ttf.getTimeSet();
+						PitchSet pitchSet = ttf.getPitchSet();
+						timeStart = timeSet.getStartTime();
 
 						ToneMapElement[] elements = ttf.getElements();
 
@@ -960,8 +962,7 @@ public class Visor extends JPanel
 										(int) Math.round(width * 1000), 100);
 
 							}
-
-						}
+						}					
 					}
 				}
 			}

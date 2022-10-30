@@ -60,10 +60,10 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator()
 						.getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor();
+				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
-				cqf.buildToneMap();
+				//cqf.buildToneMap();
 				ToneMap toneMap = cqf.getToneMap(); // .clone();
 				// float[] fft = toneMap.extractFFT(4096);
 				// PitchDetect pd = new PitchDetect(4096, (float)

@@ -59,15 +59,17 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 			sequence = message.sequence;
 			streamId = message.streamId;
 			System.out
-					.println(">>ConstantQMessageProcessor accept: " + message);
+					.println(">>ConstantQMessageProcessor accept: " + message + ", streamId: "+ streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator()
 						.getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor();
+				ToneMap toneMap = worldModel.getAtlas()
+						.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
+								streamId));
+				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
-				cqf.buildToneMap();
-				ToneMap toneMap = cqf.getToneMap(); // .clone();
+				cqf.buildToneMapFrame(toneMap);
 				toneMap.getTimeFrame().compress(1000F);
 				float maxAmplitude = (float) toneMap.getTimeFrame()
 						.getMaxAmplitude();
@@ -103,8 +105,6 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 				 */
 				System.out
 						.println(">>ConstantQMessageProcessor process tonemap");
-				worldModel.getAtlas().putToneMap(buildToneMapKey(
-						this.cell.getCellType(), streamId, sequence), toneMap);
 				cqf.displayToneMap();
 				System.out.println(">>ConstantQMessageProcessor send");
 				cell.send(streamId, sequence);
@@ -112,8 +112,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		}
 	}
 
-	private String buildToneMapKey(CellTypes cellType, String streamId,
-			int sequence) {
-		return cellType + ":" + streamId + ":" + sequence;
+	private String buildToneMapKey(CellTypes cellType, String streamId) {
+		return cellType + ":" + streamId;
 	}
 }

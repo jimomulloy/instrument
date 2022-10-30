@@ -1,6 +1,5 @@
 package jomu.instrument.organs;
 
-import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.cell.Cell.CellTypes;
@@ -49,9 +48,6 @@ public class Cortex implements AudioFeatureFrameObserver {
 			Weaver.connect(sourceUpdateCell, pitchCell);
 		}
 		Weaver.connect(sourceUpdateCell, audioCQCell);
-		Hearing hearing = Instrument.getInstance().getCoordinator()
-				.getHearing();
-		hearing.getAudioFeatureProcessor().addObserver(this);
 	}
 
 	public void start() {

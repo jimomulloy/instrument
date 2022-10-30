@@ -62,11 +62,11 @@ public class ConstantQFeatures implements ToneMapConstants {
 		}
 	}
 
-	public void buildToneMap() {
+	public void buildToneMapFrame(ToneMap toneMap) {
 
+		this.toneMap = toneMap;
+		
 		if (features.size() > 0) {
-
-			toneMap = new ToneMap();
 
 			float[] binStartingPointsInCents = cqs
 					.getBinStartingPointsInCents();
@@ -95,7 +95,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 			pitchSet = new PitchSet(lowPitch, highPitch);
 
-			toneMap.initialise();
+			//toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 

@@ -1,7 +1,9 @@
 package jomu.instrument.world.tonemap;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -23,6 +25,7 @@ public class ToneMap {
 	private ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
 
 	public ToneMap() {
+		toneMapStore = new ConcurrentSkipListMap<>();
 	}
 
 	public void addTimeFrame(ToneTimeFrame toneTimeFrame) {
@@ -111,6 +114,21 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getTimeFrame(Double key) {
+		return toneMapStore.get(key);
+	}
+	
+	public ToneTimeFrame getTimeFrame(int sequence) {
+		NavigableSet<Double> keySet = toneMapStore.keySet();
+		int counter = sequence;
+		Iterator<Double> iterator = keySet.iterator();
+		Double key = null;
+		while(counter > 0 && iterator.hasNext()) {
+			key = iterator.next();
+			counter--;
+		}
+		if (key == null) {
+			return null;
+		}
 		return toneMapStore.get(key);
 	}
 
