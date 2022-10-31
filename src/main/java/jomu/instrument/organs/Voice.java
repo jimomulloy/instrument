@@ -54,7 +54,7 @@ public class Voice {
 	public void send(ToneTimeFrame toneTimeFrame, String streamId,
 			int sequence) {
 		writeMidi(toneTimeFrame, streamId, sequence);
-		writeAudio(toneTimeFrame, streamId, sequence);
+		// writeAudio(toneTimeFrame, streamId, sequence);
 	}
 
 	public void start() {
@@ -83,4 +83,8 @@ public class Voice {
 
 	}
 
+	public void close(String streamId) {
+		// audioSynthesizer.close(streamId);
+		midiSynthesizer.close(streamId);
+	}
 }

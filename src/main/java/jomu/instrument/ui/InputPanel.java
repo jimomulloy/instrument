@@ -21,7 +21,7 @@
 *
 */
 
-package jomu.instrument;
+package jomu.instrument.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -29,7 +29,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
@@ -48,19 +47,20 @@ public class InputPanel extends JPanel {
 	private ActionListener setInput = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			int mixerIndex = 0;
 			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
 				if (arg0.getActionCommand().equals(info.toString())) {
-					Mixer newValue = AudioSystem.getMixer(info);
-					InputPanel.this.firePropertyChange("mixer", mixer,
-							newValue);
-					InputPanel.this.mixer = newValue;
+					InputPanel.this.firePropertyChange("mixer",
+							currentMixerIndex, mixerIndex);
+					InputPanel.this.currentMixerIndex = mixerIndex;
 					break;
 				}
+				mixerIndex++;
 			}
 		}
 	};
 
-	Mixer mixer = null;
+	int currentMixerIndex = -1;
 
 	public InputPanel() {
 		super(new BorderLayout());

@@ -4,7 +4,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.organs.Visor;
+import jomu.instrument.ui.Visor;
 import jomu.instrument.world.tonemap.PitchSet;
 import jomu.instrument.world.tonemap.TimeSet;
 import jomu.instrument.world.tonemap.ToneMap;

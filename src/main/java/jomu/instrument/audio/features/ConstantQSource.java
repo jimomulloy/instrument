@@ -117,19 +117,6 @@ public class ConstantQSource {
 					.hertzToAbsoluteCent(startingPointsInHertz[i]);
 		}
 
-		// System.out.println(">>CQ start hertz: " + startingPointsInHertz[0]);
-		// System.out.println(">>CQ end hertz: " +
-		// startingPointsInHertz[startingPointsInHertz.length -1]);
-		// System.out.println(">>CQ start cents: " +
-		// binStartingPointsInCents[0]);
-		// System.out.println(">>CQ end cents: " +
-		// binStartingPointsInCents[binStartingPointsInCents.length -1]);
-		// System.out.println(">>CQ start midi: " +
-		// PitchConverter.hertzToMidiKey((double)startingPointsInHertz[0]));
-		// System.out.println(">>CQ end midi: " +
-		// PitchConverter.hertzToMidiKey((double)startingPointsInHertz[startingPointsInHertz.length
-		// -1]));
-
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(
 				sampleRate, 16, 1, true, true);

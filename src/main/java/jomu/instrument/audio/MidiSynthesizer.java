@@ -57,6 +57,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		private BlockingQueue<MidiQueueMessage> bq;
 		private MidiStream midiStream;
 		double sampleTime = 0;
+		public Set<Integer> lastNotes;
 
 		public MidiQueueConsumer(BlockingQueue<MidiQueueMessage> bq,
 				MidiStream midiStream) {
@@ -67,28 +68,36 @@ public class MidiSynthesizer implements ToneMapConstants {
 		@Override
 		public void run() {
 			try {
-				while (true) {
+				boolean running = true;
+				while (running) {
 					MidiQueueMessage mqm = bq.take();
 
-					System.out.println(">>!!! midi QueueConsumer");
+					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
+
+					if (toneTimeFrame == null) {
+						this.midiStream.close();
+						running = false;
+						break;
+					}
+					System.out.println(">>!!! midi QueueConsumer ENTER THREAD: "
+							+ Thread.currentThread());
 
 					if (sampleTime != 0) {
 						TimeUnit.MILLISECONDS.sleep((long) sampleTime);
 					}
 
-					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();
-					timeRange = timeSet.getRange();
-					pitchRange = pitchSet.getRange();
+					int timeRange = timeSet.getRange();
+					int pitchRange = pitchSet.getRange();
 					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
 					NoteStatusElement noteStatusElement = null;
 					ShortMessage midiMessage = null;
 
-					List<ShortMessage> midiMessages = new ArrayList<ShortMessage>();
+					List<ShortMessage> midiMessages = new ArrayList<>();
 					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 					if (lastNotes == null) {
-						lastNotes = new HashSet<Integer>();
+						lastNotes = new HashSet<>();
 					}
 					for (ToneMapElement toneMapElement : ttfElements) {
 						note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -96,15 +105,21 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 						switch (noteStatusElement.state) {
 							case ON :
-							//case PENDING :
+								// case PENDING :
 								if (!lastNotes.contains(note)) {
 									midiMessage = new ShortMessage();
 									try {
+										int volume = 120;
+										if (toneMapElement.amplitude <= 1.0) {
+											volume = (int) (120
+													* toneMapElement.amplitude);
+										}
 										midiMessage.setMessage(
 												ShortMessage.NOTE_ON,
 												midiStream.channelId, note,
-												(int) (120
-														* toneMapElement.amplitude));
+												volume);
+										System.out.println("!!!>>SEND ON MSG: "
+												+ note + ", " + volume);
 									} catch (InvalidMidiDataException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
@@ -118,9 +133,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 								try {
 									midiMessage.setMessage(
 											ShortMessage.NOTE_OFF,
-											midiStream.channelId, note,
-											(int) (120
-													* toneMapElement.amplitude));
+											midiStream.channelId, note, 0);
 								} catch (InvalidMidiDataException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
@@ -148,6 +161,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
+			System.out.println(">>!!! midi QueueConsumer EXIT THREAD: "
+					+ Thread.currentThread());
 		}
 	}
 
@@ -156,6 +171,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		public MidiQueueMessage(ToneTimeFrame toneTimeFrame) {
 			this.toneTimeFrame = toneTimeFrame;
+		}
+
+		public MidiQueueMessage() {
 		}
 	}
 
@@ -168,18 +186,22 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		public MidiStream(String streamId) {
 			this.streamId = streamId;
-			this.channelId = channelCount.getAndIncrement();
-			bq = new LinkedBlockingQueue<MidiQueueMessage>();
+			// this.channelId = channelCount.getAndIncrement();
+			this.channelId = 0;
+			bq = new LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
+		}
+
+		public void close() {
+			bq.clear();
+
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
+			if ((obj == null) || (getClass() != obj.getClass()))
 				return false;
 			MidiStream other = (MidiStream) obj;
 			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
@@ -261,7 +283,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public Instrument instruments[];
 
 	public int instrumentSetting = INIT_INSTRUMENT_SETTING;
-	public Set<Integer> lastNotes;
 
 	public boolean levelSwitch = false;
 	public int panSetting = INIT_PAN_SETTING;
@@ -292,8 +313,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private NoteSequenceElement noteSequenceElement;
 
 	private int numChannels;
-	private int pitchRange;
-	private PitchSet pitchSet;
 	private int playState = STOPPED;
 	private Sequence sequence;
 	private Sequencer sequencer;
@@ -302,7 +321,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	private long tick;
 
-	private int timeRange;
+	// private int timeRange;
 
 	private TimeSet timeSet;
 
@@ -499,8 +518,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		TimeSet timeSet = toneTimeFrame.getTimeSet();
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
-		timeRange = timeSet.getRange();
-		pitchRange = pitchSet.getRange();
+		int timeRange = timeSet.getRange();
+		int pitchRange = pitchSet.getRange();
 
 		if (!buildNoteSequence())
 			return false;
@@ -556,15 +575,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 		for (int i = 0; i < noteList.size(); i++) {
 			noteListElement = noteList.get(i);
 
-			if (noteListElement.underTone == true) {
+			if (noteListElement.underTone) {
 				continue;
 			}
 
 			note = noteListElement.note;
 
-			if (note < getLowPitch())
-				continue;
-			if (note > getHighPitch())
+			if ((note < getLowPitch()) || (note > getHighPitch()))
 				continue;
 
 			double startTime = (noteListElement.startTime);
@@ -608,6 +625,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 			return true;
 		}
 
+	}
+
+	public void close(String streamId) {
+		if (!midiStreams.containsKey(streamId)) {
+			return;
+		}
+		MidiStream midiStream = midiStreams.get(streamId);
+
+		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
+		midiStream.bq.add(midiQueueMessage);
+		midiStreams.remove(streamId);
 	}
 
 } // End MidiModel

@@ -1,5 +1,6 @@
 package jomu.instrument;
 
+import jomu.instrument.organs.Controller;
 import jomu.instrument.organs.Coordinator;
 import jomu.instrument.organs.Druid;
 import jomu.instrument.world.WorldModel;
@@ -16,12 +17,18 @@ public class Instrument {
 
 	private Coordinator coordinator;
 
+	private Controller controller;
+
 	private Druid druid;
 
 	private WorldModel worldModel;
 
 	public Coordinator getCoordinator() {
 		return coordinator;
+	}
+
+	public Controller getController() {
+		return controller;
 	}
 
 	public Druid getDruid() {
@@ -33,6 +40,9 @@ public class Instrument {
 	}
 
 	public void initialise() {
+		controller = new Controller();
+		controller.initialise();
+		controller.start();
 		worldModel = new WorldModel();
 		worldModel.initialise();
 		worldModel.start();

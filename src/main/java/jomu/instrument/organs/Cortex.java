@@ -41,12 +41,12 @@ public class Cortex implements AudioFeatureFrameObserver {
 		Weaver.connect(audioIntegrateCell, audioNotateCell);
 		Weaver.connect(audioNotateCell, audioSinkCell);
 		NuCell[] pitchCells = new NuCell[1];
-		for (int i = 0; i < 1; i++) {
-			NuCell pitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
-			pitchCells[i] = pitchCell;
-			// Weaver.connect(pitchCell, audioSinkCell);
-			Weaver.connect(sourceUpdateCell, pitchCell);
-		}
+		// for (int i = 0; i < 1; i++) {
+		// NuCell pitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
+		// pitchCells[i] = pitchCell;
+		// // Weaver.connect(pitchCell, audioSinkCell);
+		// Weaver.connect(sourceUpdateCell, pitchCell);
+		// }
 		Weaver.connect(sourceUpdateCell, audioCQCell);
 	}
 

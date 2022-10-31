@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package jomu.instrument.audio;
@@ -88,7 +88,7 @@ public class AudioGenerator implements Runnable {
 
 		this.audioOutput = audioOutput;
 
-		audioProcessors = new CopyOnWriteArrayList<AudioProcessor>();
+		audioProcessors = new CopyOnWriteArrayList<>();
 
 		format = getTargetAudioFormat(samplerate);
 
@@ -106,7 +106,7 @@ public class AudioGenerator implements Runnable {
 
 	/**
 	 * Create a new generator.
-	 * 
+	 *
 	 * @param audioBufferSize
 	 *            The size of the buffer defines how much samples are processed
 	 *            in one step. Common values are 1024,2048.
@@ -122,7 +122,7 @@ public class AudioGenerator implements Runnable {
 
 	/**
 	 * Adds an AudioProcessor to the chain of processors.
-	 * 
+	 *
 	 * @param audioProcessor
 	 *            The AudioProcessor to add.
 	 */
@@ -139,7 +139,7 @@ public class AudioGenerator implements Runnable {
 	/**
 	 * Removes an AudioProcessor to the chain of processors and calls
 	 * processingFinished.
-	 * 
+	 *
 	 * @param audioProcessor
 	 *            The AudioProcessor to remove.
 	 */
@@ -195,7 +195,7 @@ public class AudioGenerator implements Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return The currently processed number of seconds.
 	 */
 	public float secondsProcessed() {
@@ -211,7 +211,7 @@ public class AudioGenerator implements Runnable {
 
 		/*
 		 * oscillator.getSamples(audioFloatBuffer, audioFloatBuffer.length);
-		 * 
+		 *
 		 * for (final AudioProcessor processor : audioProcessors) { if
 		 * (!processor.process(audioEvent)) { // skip to the next audio
 		 * processors if false is returned. break; } }
@@ -226,7 +226,7 @@ public class AudioGenerator implements Runnable {
 	 * Set a new step size and overlap size. Both in number of samples. Watch
 	 * out with this method: it should be called after a batch of samples is
 	 * processed, not during.
-	 * 
+	 *
 	 * @param audioBufferSize
 	 *            The size of the buffer defines how much samples are processed
 	 *            in one step. Common values are 1024,2048.
@@ -256,11 +256,11 @@ public class AudioGenerator implements Runnable {
 	 * by the audio buffer size minus the overlap. If the expected number of
 	 * bytes could not be read either the end of the stream is reached or
 	 * something went wrong.
-	 * 
+	 *
 	 * The behavior for the first and last buffer is defined by their
 	 * corresponding the zero pad settings. The method also handles the case if
 	 * the first buffer is also the last.
-	 * 
+	 *
 	 */
 	private void generateNextAudioBlock() {
 		assert floatOverlap < audioFloatBuffer.length;
@@ -278,7 +278,7 @@ public class AudioGenerator implements Runnable {
 	/**
 	 * Constructs the target audio format. The audio format is one channel
 	 * signed PCM of a given sample rate.
-	 * 
+	 *
 	 * @param targetSampleRate
 	 *            The sample rate to convert to.
 	 * @return The audio format after conversion.

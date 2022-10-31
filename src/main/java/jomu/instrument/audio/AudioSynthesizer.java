@@ -41,6 +41,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 		private AudioStream audioStream;
 		private BlockingQueue<AudioQueueMessage> bq;
 		double sampleTime = -1;
+		int counter = 0;
 
 		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq,
 				AudioStream audioStream) {
@@ -51,10 +52,21 @@ public class AudioSynthesizer implements ToneMapConstants {
 		@Override
 		public void run() {
 			try {
-				while (true) {
+				boolean running = true;
+				while (running) {
 					AudioQueueMessage aqm = bq.take();
+					counter++;
 
-					System.out.println(">>!!! c QueueConsumer");
+					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
+					System.out.println(">>!!! Audio QueueConsumer take: "
+							+ this.audioStream.getStreamId() + ", " + counter
+							+ ", " + toneTimeFrame);
+
+					if (toneTimeFrame == null) {
+						this.audioStream.close();
+						running = false;
+						break;
+					}
 
 					if (sampleTime != -1) {
 						TimeUnit.MILLISECONDS.sleep((long) sampleTime);
@@ -66,8 +78,6 @@ public class AudioSynthesizer implements ToneMapConstants {
 							JavaSoundAudioIO.printMixerInfo();
 						}
 					}
-
-					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
 
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();
@@ -172,10 +182,13 @@ public class AudioSynthesizer implements ToneMapConstants {
 	}
 
 	private class AudioQueueMessage {
-		public ToneTimeFrame toneTimeFrame;
+		public ToneTimeFrame toneTimeFrame = null;
 
 		public AudioQueueMessage(ToneTimeFrame toneTimeFrame) {
 			this.toneTimeFrame = toneTimeFrame;
+		}
+
+		public AudioQueueMessage() {
 		}
 	}
 
@@ -202,7 +215,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 			this.streamId = streamId;
 			this.baseFrequency = (float) pitchSet.getFreq(0);
 			this.frequencies = pitchSet.getRange();
-			bq = new LinkedBlockingQueue<AudioQueueMessage>();
+			bq = new LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
 			// initialize our AudioContext
 			// JavaSoundAudioIO audioIO = new JavaSoundAudioIO();
@@ -232,7 +245,6 @@ public class AudioSynthesizer implements ToneMapConstants {
 				currentGain -= (1.0 / frequencies);
 			}
 			masterGain.setGain(1.0F);
-			// this.ac.start();
 			System.out.println(">>!!! Audio added freqs: " + frequencies);
 		}
 
@@ -240,9 +252,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
+			if ((obj == null) || (getClass() != obj.getClass()))
 				return false;
 			AudioStream other = (AudioStream) obj;
 			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
@@ -286,6 +296,10 @@ public class AudioSynthesizer implements ToneMapConstants {
 			return streamId;
 		}
 
+		public void close() {
+			this.ac.stop();
+		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -298,6 +312,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 		private AudioSynthesizer getEnclosingInstance() {
 			return AudioSynthesizer.this;
 		}
+
 	}
 	public int gainSetting = INIT_VOLUME_SETTING;
 	public boolean logSwitch = false;
@@ -353,8 +368,10 @@ public class AudioSynthesizer implements ToneMapConstants {
 	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId,
 			int sequence) {
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
+		System.out.println(">>!!! Audio audioStreams play: " + streamId);
 		if (!audioStreams.containsKey(streamId)) {
 			audioStreams.put(streamId, new AudioStream(streamId, pitchSet));
+			System.out.println(">>!!! Audio audioStreams create: " + streamId);
 		}
 		AudioStream audioStream = audioStreams.get(streamId);
 		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(
@@ -367,7 +384,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 
 	/**
 	 * Create audio output stream from ToneMap data
-	 * 
+	 *
 	 * @param audioOutSamples
 	 * @param audioOutput
 	 * @return
@@ -536,6 +553,19 @@ public class AudioSynthesizer implements ToneMapConstants {
 			}
 		}
 		return outAudioBytes;
+	}
+
+	public void close(String streamId) {
+		if (!audioStreams.containsKey(streamId)) {
+			return;
+		}
+		System.out.println(">>!!! Audio audioStreams.close: " + streamId);
+		AudioStream audioStream = audioStreams.get(streamId);
+		AudioQueueMessage audioQueueMessage = new AudioQueueMessage();
+		audioStream.bq.add(audioQueueMessage);
+		System.out.println(">>!!! Audio audioStreams.remove: " + streamId);
+
+		audioStreams.remove(streamId);
 	}
 
 }

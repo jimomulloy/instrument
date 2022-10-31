@@ -21,7 +21,7 @@
 *
 */
 
-package jomu.instrument;
+package jomu.instrument.ui;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;

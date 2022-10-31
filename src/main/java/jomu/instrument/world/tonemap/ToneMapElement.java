@@ -60,7 +60,7 @@ public class ToneMapElement implements Serializable {
 	public int getTimeIndex() {
 		return timeIndex;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ToneMapElement [amplitude=" + amplitude + ", noteState="

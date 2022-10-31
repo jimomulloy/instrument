@@ -24,7 +24,7 @@ public class NoteStatusElement {
 		this.note = note;
 		this.index = index;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(highFlag, index, note, offTime, onTime, state);
@@ -34,9 +34,7 @@ public class NoteStatusElement {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
+		if ((obj == null) || (getClass() != obj.getClass()))
 			return false;
 		NoteStatusElement other = (NoteStatusElement) obj;
 		return highFlag == other.highFlag && index == other.index

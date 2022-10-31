@@ -8,6 +8,9 @@ import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
+import jomu.instrument.audio.features.PeakInfo;
+import jomu.instrument.audio.features.PeakProcessor;
+import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
 import jomu.instrument.cell.Cell.CellTypes;
 import jomu.instrument.organs.Hearing;
 import jomu.instrument.world.WorldModel;
@@ -58,15 +61,15 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out
-					.println(">>ConstantQMessageProcessor accept: " + message + ", streamId: "+ streamId);
+			System.out.println(">>ConstantQMessageProcessor accept: " + message
+					+ ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator()
 						.getHearing();
-				ToneMap toneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
-								streamId));
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+				ToneMap toneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
 				cqf.buildToneMapFrame(toneMap);
@@ -81,11 +84,27 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 				toneMap.getTimeFrame().deNoise(0.2);
 
 				maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
+				float sampleRate = (float) toneMap.getTimeFrame().getTimeSet()
+						.getSampleRate();
 				System.out.println(">>MAX AMP AFTER: " + maxAmplitude);
 
-				AudioTuner tuner = new AudioTuner();
+				PeakProcessor peakProcessor = new PeakProcessor(
+						toneMap.getTimeFrame());
 
-				tuner.normalize(toneMap);
+				PeakInfo peakInfo = new PeakInfo(peakProcessor.getMagnitudes(),
+						peakProcessor.getFrequencyEstimates());
+
+				int noiseFloorMedianFilterLenth = (int) (sampleRate / 117.0);
+				float noiseFloorFactor = 2.9F;
+				int numberOfSpectralPeaks = 7;
+				int minPeakSize = 5;
+
+				List<SpectralPeak> peaks = peakInfo.getPeakList(
+						noiseFloorMedianFilterLenth, noiseFloorFactor,
+						numberOfSpectralPeaks, minPeakSize);
+				AudioTuner tuner = new AudioTuner();
+				// tuner.normalize(toneMap);
+				tuner.processPeaks(toneMap, peaks);
 
 				/*
 				 * FFTSpectrum fftSpectrum = toneMap.getTimeFrame()

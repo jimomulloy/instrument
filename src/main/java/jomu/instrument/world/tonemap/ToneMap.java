@@ -116,7 +116,7 @@ public class ToneMap {
 	public ToneTimeFrame getTimeFrame(Double key) {
 		return toneMapStore.get(key);
 	}
-	
+
 	public ToneTimeFrame getTimeFrame(int sequence) {
 		NavigableSet<Double> keySet = toneMapStore.keySet();
 		int counter = sequence;

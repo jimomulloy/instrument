@@ -170,8 +170,8 @@ public class FeatureFrame implements Serializable, Comparable<FeatureFrame> {
 			} else if (data instanceof float[][]) {
 				float[][] fdata = (float[][]) data;
 				for (float[] element : fdata) {
-					for (int j = 0; j < element.length; j++) {
-						result += element[j] + " ";
+					for (float element2 : element) {
+						result += element2 + " ";
 					}
 					result += ", ";
 				}

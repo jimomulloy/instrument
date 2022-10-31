@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.cell.Cell.CellTypes;
+import jomu.instrument.organs.Hearing;
 import jomu.instrument.organs.Voice;
 import jomu.instrument.world.WorldModel;
 import jomu.instrument.world.tonemap.ToneMap;
@@ -58,10 +60,17 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 			if (message.source.getCellType().equals(CellTypes.AUDIO_NOTATE)) {
 				Voice voice = Instrument.getInstance().getCoordinator()
 						.getVoice();
-				ToneMap notateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE,
-								streamId));
-				voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
+				ToneMap notateToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
+				voice.send(notateToneMap.getTimeFrame(sequence), streamId,
+						sequence);
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
+				if (afp.isClosed() && afp.isLastSequence(sequence)) {
+					voice.close(streamId);
+				}
 			}
 		}
 	}

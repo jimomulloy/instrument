@@ -19,32 +19,8 @@ import net.beadsproject.beads.core.UGen;
 
 public class Hearing {
 
-	private String streamId;
-
-	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
-		return audioStreams.get(streamId).getAudioFeatureProcessor();
-	}
-
-	public void initialise() {
-		streamId = UUID.randomUUID().toString();		
-		AudioStream audioStream = new AudioStream(streamId);
-		audioStreams.put(streamId, audioStream);
-		
-		audioStream.initialiseFileStream("D:/audio/recorder1.wav");
-		
-		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
-	}
-
-	public void start() {
-		AudioStream audioStream = audioStreams.get(streamId);
-		audioStream.start();
-	}
-	
-	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<String, AudioStream>();
-	
 	private class AudioStream {
-		
+
 		private AudioContext ac;
 		private AudioFeatureProcessor audioFeatureProcessor;
 		private TarsosAudioIO tarsosIO;
@@ -52,18 +28,43 @@ public class Hearing {
 		private String streamId;
 		private TarsosFeatureSource tarsosFeatureSource;
 		private int sampleRate = 44100;
-		
+
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
-			tarsosIO = new TarsosAudioIO();		
+			tarsosIO = new TarsosAudioIO();
 		}
-		
-		public void start() {
-			ac.start();
+
+		public AudioContext getAc() {
+			return ac;
+		}
+
+		public Analyzer getAnalyzer() {
+			return analyzer;
+		}
+
+		public AudioFeatureProcessor getAudioFeatureProcessor() {
+			return audioFeatureProcessor;
+		}
+
+		public int getSampleRate() {
+			return sampleRate;
+		}
+
+		public String getStreamId() {
+			return streamId;
+		}
+
+		public TarsosFeatureSource getTarsosFeatureSource() {
+			return tarsosFeatureSource;
+		}
+
+		public TarsosAudioIO getTarsosIO() {
+			return tarsosIO;
 		}
 
 		public void initialiseFileStream(String fileName) {
-			tarsosIO.selectMixer(2);
+			Instrument.getInstance().getDruid().getVisor().clearView();
+			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
 			IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1,
 					true, true);
@@ -84,8 +85,8 @@ public class Hearing {
 			extractors.add(SpectralPeaks.class);
 
 			analyzer = new Analyzer(ac, extractors);
-			audioFeatureProcessor = new AudioFeatureProcessor(streamId, analyzer,
-					tarsosFeatureSource);
+			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
+					analyzer, tarsosFeatureSource);
 			audioFeatureProcessor.setMaxFrames(100);
 
 			tarsosIO.getDispatcher().addAudioProcessor(audioFeatureProcessor);
@@ -93,9 +94,9 @@ public class Hearing {
 			analyzer.listenTo(microphoneIn);
 			analyzer.updateFrom(ac.out);
 		}
-		
-		public void initialiseMicrophoneStream() {
-			tarsosIO.selectMixer(2);
+
+		public void initialiseMicrophoneStream(int mixer) {
+			tarsosIO.selectMixer(mixer);
 			IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1,
 					true, true);
 			ac = new AudioContext(tarsosIO, 1024, audioFormat);
@@ -114,8 +115,8 @@ public class Hearing {
 			extractors.add(SpectralPeaks.class);
 
 			analyzer = new Analyzer(ac, extractors);
-			audioFeatureProcessor = new AudioFeatureProcessor(streamId, analyzer,
-					tarsosFeatureSource);
+			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
+					analyzer, tarsosFeatureSource);
 			audioFeatureProcessor.setMaxFrames(100);
 
 			tarsosIO.getDispatcher().addAudioProcessor(audioFeatureProcessor);
@@ -124,34 +125,64 @@ public class Hearing {
 			analyzer.updateFrom(ac.out);
 		}
 
-		public AudioContext getAc() {
-			return ac;
+		public void start() {
+			ac.start();
 		}
 
-		public AudioFeatureProcessor getAudioFeatureProcessor() {
-			return audioFeatureProcessor;
-		}
-
-		public TarsosAudioIO getTarsosIO() {
-			return tarsosIO;
-		}
-
-		public Analyzer getAnalyzer() {
-			return analyzer;
-		}
-
-		public String getStreamId() {
-			return streamId;
-		}
-
-		public TarsosFeatureSource getTarsosFeatureSource() {
-			return tarsosFeatureSource;
-		}
-
-		public int getSampleRate() {
-			return sampleRate;
+		public void close() {
+			ac.stop();
 		}
 
 	}
 
+	private String streamId;
+
+	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
+
+	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
+		return audioStreams.get(streamId).getAudioFeatureProcessor();
+	}
+
+	public void initialise() {
+	}
+
+	public void start() {
+	}
+
+	public void startAudioFileStream(String fileName) {
+		streamId = UUID.randomUUID().toString();
+		AudioStream audioStream = new AudioStream(streamId);
+		System.out.println(">>!!hearing initialise: " + streamId);
+		audioStreams.put(streamId, audioStream);
+
+		audioStream.initialiseFileStream(fileName);
+
+		Instrument.getInstance().getCoordinator().getCortex();
+		audioStream.getAudioFeatureProcessor().addObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.start();
+	}
+
+	public void startAudioLineStream(int mixer) {
+		streamId = UUID.randomUUID().toString();
+		AudioStream audioStream = new AudioStream(streamId);
+		System.out.println(">>!!hearing initialise: " + streamId);
+		audioStreams.put(streamId, audioStream);
+
+		audioStream.initialiseMicrophoneStream(mixer);
+
+		Instrument.getInstance().getCoordinator().getCortex();
+		audioStream.getAudioFeatureProcessor().addObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.start();
+	}
+
+	public void closeAudioStream(String streamId) {
+		AudioStream audioStream = audioStreams.get(streamId);
+		if (audioStream == null) {
+			return;
+		}
+		audioStream.close();
+		audioStreams.remove(streamId);
+	}
 }

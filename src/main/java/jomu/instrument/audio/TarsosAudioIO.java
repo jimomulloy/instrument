@@ -100,20 +100,20 @@ public class TarsosAudioIO extends AudioIO {
 			if (audioFile != null) {
 				try {
 
-					//GainProcessor gainProcessor = new GainProcessor(1.0);
-					//AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
+					// GainProcessor gainProcessor = new GainProcessor(1.0);
+					// AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
 
 					dispatcher = AudioDispatcherFactory.fromFile(audioFile,
 							context.getBufferSize(), 0);
 
 					// dispatcher.skip(startTime);
 					dispatcher.addAudioProcessor(this);
-					//dispatcher.addAudioProcessor(gainProcessor);
-					//dispatcher.addAudioProcessor(audioPlayer);
+					// dispatcher.addAudioProcessor(gainProcessor);
+					// dispatcher.addAudioProcessor(audioPlayer);
 				} catch (UnsupportedAudioFileException e) {
 					throw new Error(e);
-				//} catch (LineUnavailableException e) {
-				//	throw new Error(e);
+					// } catch (LineUnavailableException e) {
+					// throw new Error(e);
 				} catch (IOException e) {
 					throw new Error(e);
 					// } catch (LineUnavailableException e) {
@@ -210,6 +210,7 @@ public class TarsosAudioIO extends AudioIO {
 
 		@Override
 		public void processingFinished() {
+			System.out.println(">>!!processingFinished!!");
 			if (inputMixer != null) {
 				inputMixer.close();
 				inputMixer = null;

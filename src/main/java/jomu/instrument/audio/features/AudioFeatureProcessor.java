@@ -25,6 +25,7 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 	private double interval = 100;
 	private double lag = 0;
 	private double lastTimeStamp = 0;
+	private int lastSequence = -1;
 
 	private int maxFrames = -1;
 
@@ -32,6 +33,7 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 
 	private String streamId;
 	private TarsosFeatureSource tarsosFeatures;
+	private AudioFeatureFrameState state = AudioFeatureFrameState.INITIALISED;
 
 	public AudioFeatureProcessor(String streamId, Analyzer analyzer,
 			TarsosFeatureSource tarsosFeatures) {
@@ -139,6 +141,18 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(
 				frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
+		state = AudioFeatureFrameState.CLOSED;
+		lastSequence = frameSequence;
+		Instrument.getInstance().getCoordinator().getHearing()
+				.closeAudioStream(streamId);
+	}
+
+	public int getLastSequence() {
+		return lastSequence;
+	}
+
+	public boolean isClosed() {
+		return AudioFeatureFrameState.CLOSED.equals(state);
 	}
 
 	public void removeObserver(AudioFeatureFrameObserver observer) {
@@ -160,5 +174,9 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 		audioFeatureFrame.initialise();
 		addAudioFeatureFrame(firstTimeStamp, audioFeatureFrame);
 		return audioFeatureFrame;
+	}
+
+	public boolean isLastSequence(int sequence) {
+		return (getLastSequence() > -1 && sequence >= getLastSequence());
 	}
 }
