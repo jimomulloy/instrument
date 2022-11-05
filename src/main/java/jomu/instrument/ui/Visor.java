@@ -35,12 +35,15 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -85,7 +88,6 @@ import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
-import jomu.instrument.audio.analysis.FeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.BandedPitchDetectorSource;
@@ -103,7 +105,6 @@ import jomu.instrument.world.tonemap.TimeSet;
 import jomu.instrument.world.tonemap.ToneMap;
 import jomu.instrument.world.tonemap.ToneMapElement;
 import jomu.instrument.world.tonemap.ToneTimeFrame;
-import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 
 public class Visor extends JPanel
 		implements
@@ -229,88 +230,88 @@ public class Visor extends JPanel
 			});
 		}
 	}
-
-	private static class BeadsLayer implements Layer {
-
-		private float binHeight;
-		private float[] binStartingPointsInCents;
-
-		private float binWidth;
-		private final CoordinateSystem cs;
-		private TreeMap<Double, float[][]> features;
-
-		public BeadsLayer(CoordinateSystem cs) {
-			this.cs = cs;
-		}
-
-		@Override
-		public void draw(Graphics2D graphics) {
-
-			if (features != null) {
-				Map<Double, float[][]> spectralInfoSubMap = features.subMap(
-						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
-
-				double currentMaxSpectralEnergy = 0;
-				// for (Map.Entry<Double, float[][]> column :
-				// spectralInfoSubMap.entrySet()) {
-				// float[][] spectralEnergy = column.getValue();
-				// for (int i = 0; i < spectralEnergy.length; i++) {
-				// currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy,
-				// spectralEnergy[i]);
-				// }
-				// }
-				for (Map.Entry<Double, float[][]> column : spectralInfoSubMap
-						.entrySet()) {
-					double timeStart = column.getKey();// in seconds
-					float[][] spectralEnergy = column.getValue();// in cents
-					// draw the pixels
-					for (float[] element : spectralEnergy) {
-						Color color = Color.black;
-						float centsStartingPoint = (float) PitchConverter
-								.hertzToAbsoluteCent(element[0]);
-						// only draw the visible frequency range
-						if (centsStartingPoint >= cs.getMin(Axis.Y)
-								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
-							int greyValue = 255 - (int) (Math.log1p(element[1])
-									/ Math.log1p(currentMaxSpectralEnergy)
-									* 255);
-							greyValue = Math.max(0, greyValue);
-							color = new Color(greyValue, greyValue, greyValue);
-							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									Math.round(centsStartingPoint),
-									Math.round(binWidth * 1000),
-									(int) Math.ceil(binHeight));
-						}
-					}
-				}
-			}
-		}
-
-		@Override
-		public String getName() {
-			return "Beads Layer";
-		}
-
-		public void update(AudioFeatureFrame audioFeatureFrame) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					if (features == null) {
-						features = new TreeMap<>();
-					}
-					List<FeatureFrame> ffs = audioFeatureFrame
-							.getBeadsFeatures();
-					for (FeatureFrame ff : ffs) {
-						float[][] fs = (float[][]) ff
-								.get(SpectralPeaks.class.getSimpleName());
-						features.put(ff.getStartTimeMS(), fs);
-					}
-				}
-			});
-		}
-	}
+	//
+	// private static class BeadsLayer implements Layer {
+	//
+	// private float binHeight;
+	// private float[] binStartingPointsInCents;
+	//
+	// private float binWidth;
+	// private final CoordinateSystem cs;
+	// private TreeMap<Double, float[][]> features;
+	//
+	// public BeadsLayer(CoordinateSystem cs) {
+	// this.cs = cs;
+	// }
+	//
+	// @Override
+	// public void draw(Graphics2D graphics) {
+	//
+	// if (features != null) {
+	// Map<Double, float[][]> spectralInfoSubMap = features.subMap(
+	// cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
+	//
+	// double currentMaxSpectralEnergy = 0;
+	// // for (Map.Entry<Double, float[][]> column :
+	// // spectralInfoSubMap.entrySet()) {
+	// // float[][] spectralEnergy = column.getValue();
+	// // for (int i = 0; i < spectralEnergy.length; i++) {
+	// // currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy,
+	// // spectralEnergy[i]);
+	// // }
+	// // }
+	// for (Map.Entry<Double, float[][]> column : spectralInfoSubMap
+	// .entrySet()) {
+	// double timeStart = column.getKey();// in seconds
+	// float[][] spectralEnergy = column.getValue();// in cents
+	// // draw the pixels
+	// for (float[] element : spectralEnergy) {
+	// Color color = Color.black;
+	// float centsStartingPoint = (float) PitchConverter
+	// .hertzToAbsoluteCent(element[0]);
+	// // only draw the visible frequency range
+	// if (centsStartingPoint >= cs.getMin(Axis.Y)
+	// && centsStartingPoint <= cs.getMax(Axis.Y)) {
+	// int greyValue = 255 - (int) (Math.log1p(element[1])
+	// / Math.log1p(currentMaxSpectralEnergy)
+	// * 255);
+	// greyValue = Math.max(0, greyValue);
+	// color = new Color(greyValue, greyValue, greyValue);
+	// graphics.setColor(color);
+	// graphics.fillRect(
+	// (int) Math.round(timeStart * 1000),
+	// Math.round(centsStartingPoint),
+	// Math.round(binWidth * 1000),
+	// (int) Math.ceil(binHeight));
+	// }
+	// }
+	// }
+	// }
+	// }
+	//
+	// @Override
+	// public String getName() {
+	// return "Beads Layer";
+	// }
+	//
+	// public void update(AudioFeatureFrame audioFeatureFrame) {
+	// SwingUtilities.invokeLater(new Runnable() {
+	// @Override
+	// public void run() {
+	// if (features == null) {
+	// features = new TreeMap<>();
+	// }
+	// List<FeatureFrame> ffs = audioFeatureFrame
+	// .getBeadsFeatures();
+	// for (FeatureFrame ff : ffs) {
+	// float[][] fs = (float[][]) ff
+	// .get(SpectralPeaks.class.getSimpleName());
+	// features.put(ff.getStartTimeMS(), fs);
+	// }
+	// }
+	// });
+	// }
+	// }
 
 	private static class CQLayer implements Layer {
 
@@ -899,9 +900,8 @@ public class Visor extends JPanel
 					noiseFloorFactor = sps.getNoiseFloorFactor();
 					numberOfSpectralPeaks = sps.getNumberOfSpectralPeaks();
 					minPeakSize = sps.getMinPeakSize();
-					fftSize = sps.getTarsosIO().getContext().getBufferSize();
-					sampleRate = (int) sps.getTarsosIO().getContext()
-							.getSampleRate();
+					fftSize = sps.getBufferSize();
+					sampleRate = (int) sps.getSampleRate();
 
 					TreeMap<Double, SpectralInfo> fs = audioFeatureFrame
 							.getSpectralPeaksFeatures().getFeatures();
@@ -1028,8 +1028,8 @@ public class Visor extends JPanel
 	private static final long serialVersionUID = 3501426880288136245L;
 	private List<Double> amplitudes;
 	private LinkedPanel bandedPitchDetectPanel;
-	private BeadsLayer beadsLayer;
-	private LinkedPanel beadsPanel;
+	// private BeadsLayer beadsLayer;
+	// private LinkedPanel beadsPanel;
 	private BandedPitchDetectLayer bpdLayer;
 	private LinkedPanel constantQPanel;
 
@@ -1126,8 +1126,8 @@ public class Visor extends JPanel
 		tabbedPane.addTab("SP", spectralPeaksPanel);
 		oscilloscopePanel = new OscilloscopePanel();
 		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
-		beadsPanel = createBeadsPanel();
-		tabbedPane.addTab("Beads", beadsPanel);
+		// beadsPanel = createBeadsPanel();
+		// tabbedPane.addTab("Beads", beadsPanel);
 
 		// spectrumPanel = createSpectrumPanel();
 		// tabbedPane.addTab("Spectrum", spectrumPanel);
@@ -1226,32 +1226,32 @@ public class Visor extends JPanel
 				.addViewPortChangedListener(listener);
 		return bandedPitchDetectPanel;
 	}
-
-	private LinkedPanel createBeadsPanel() {
-		CoordinateSystem beadsCS = getCoordinateSystem(AxisUnit.FREQUENCY);
-		beadsCS.setMax(Axis.X, 20000);
-		beadsPanel = new LinkedPanel(beadsCS);
-		beadsLayer = new BeadsLayer(beadsCS);
-		beadsPanel.addLayer(new BackgroundLayer(beadsCS));
-		beadsPanel.addLayer(beadsLayer);
-		beadsPanel.addLayer(new VerticalFrequencyAxisLayer(beadsCS));
-		beadsPanel.addLayer(new ZoomMouseListenerLayer());
-		beadsPanel.addLayer(new DragMouseListenerLayer(beadsCS));
-		beadsPanel.addLayer(new SelectionLayer(beadsCS));
-		beadsPanel.addLayer(new TimeAxisLayer(beadsCS));
-
-		legend = new LegendLayer(beadsCS, 110);
-		beadsPanel.addLayer(legend);
-		legend.addEntry("Beads", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				beadsPanel.repaint();
-			}
-		};
-		beadsPanel.getViewPort().addViewPortChangedListener(listener);
-		return beadsPanel;
-	}
+	//
+	// private LinkedPanel createBeadsPanel() {
+	// CoordinateSystem beadsCS = getCoordinateSystem(AxisUnit.FREQUENCY);
+	// beadsCS.setMax(Axis.X, 20000);
+	// beadsPanel = new LinkedPanel(beadsCS);
+	// beadsLayer = new BeadsLayer(beadsCS);
+	// beadsPanel.addLayer(new BackgroundLayer(beadsCS));
+	// beadsPanel.addLayer(beadsLayer);
+	// beadsPanel.addLayer(new VerticalFrequencyAxisLayer(beadsCS));
+	// beadsPanel.addLayer(new ZoomMouseListenerLayer());
+	// beadsPanel.addLayer(new DragMouseListenerLayer(beadsCS));
+	// beadsPanel.addLayer(new SelectionLayer(beadsCS));
+	// beadsPanel.addLayer(new TimeAxisLayer(beadsCS));
+	//
+	// legend = new LegendLayer(beadsCS, 110);
+	// beadsPanel.addLayer(legend);
+	// legend.addEntry("Beads", Color.BLACK);
+	// ViewPortChangedListener listener = new ViewPortChangedListener() {
+	// @Override
+	// public void viewPortChanged(ViewPort newViewPort) {
+	// beadsPanel.repaint();
+	// }
+	// };
+	// beadsPanel.getViewPort().addViewPortChangedListener(listener);
+	// return beadsPanel;
+	// }
 
 	private Component createButtonPanel(String startDir) {
 		JPanel motherPanel = new JPanel(new BorderLayout());
@@ -1268,8 +1268,14 @@ public class Visor extends JPanel
 					inputFile = fileChooser.getSelectedFile();
 					System.out.println(inputFile.toString());
 					fileName = inputFile.getAbsolutePath();
-					Instrument.getInstance().getCoordinator().getHearing()
-							.startAudioFileStream(fileName);
+					try {
+						Instrument.getInstance().getCoordinator().getHearing()
+								.startAudioFileStream(fileName);
+					} catch (UnsupportedAudioFileException | IOException
+							| LineUnavailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		});
@@ -1461,10 +1467,14 @@ public class Visor extends JPanel
 				new PropertyChangeListener() {
 					@Override
 					public void propertyChange(PropertyChangeEvent arg0) {
-						int mixerIndex = ((int) arg0.getNewValue());
-						System.out.println(">>mixerIndex: " + mixerIndex);
-						Instrument.getInstance().getCoordinator().getHearing()
-								.startAudioLineStream(mixerIndex);
+						try {
+							Instrument.getInstance().getCoordinator()
+									.getHearing().startAudioLineStream(
+											(Mixer) arg0.getNewValue());
+						} catch (LineUnavailableException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				});
 
@@ -1716,30 +1726,30 @@ public class Visor extends JPanel
 	 */
 	private void updateView(AudioFeatureFrame audioFeatureFrame) {
 		toneMapLayer.update(audioFeatureFrame);
-		// scalogramLayer.update(audioFeatureFrame);
-		// toneMapLayer.update(audioFeatureFrame);
+		scalogramLayer.update(audioFeatureFrame);
+		toneMapLayer.update(audioFeatureFrame);
 		// beadsLayer.update(audioFeatureFrame);
-		// cqLayer.update(audioFeatureFrame);
-		// onsetLayer.update(audioFeatureFrame);
-		// spectralPeaksLayer.update(audioFeatureFrame);
-		// pdLayer.update(audioFeatureFrame);
-		// bpdLayer.update(audioFeatureFrame);
-		// sLayer.update(audioFeatureFrame);
+		cqLayer.update(audioFeatureFrame);
+		onsetLayer.update(audioFeatureFrame);
+		spectralPeaksLayer.update(audioFeatureFrame);
+		pdLayer.update(audioFeatureFrame);
+		bpdLayer.update(audioFeatureFrame);
+		sLayer.update(audioFeatureFrame);
 		// if (count % 10 == 0) {
-		// this.toneMapPanel.repaint();
-		// this.scalogramPanel.repaint();
-		// this.toneMapPanel.repaint();
-		// this.spectrogramPanel.repaint();
-		// this.cqPanel.repaint();
-		// this.onsetPanel.repaint();
-		// this.spectralPeaksPanel.repaint();
-		// this.pitchDetectPanel.repaint();
-		// this.bandedPitchDetectPanel.repaint();
+		this.toneMapPanel.repaint();
+		this.scalogramPanel.repaint();
+		this.toneMapPanel.repaint();
+		this.spectrogramPanel.repaint();
+		this.cqPanel.repaint();
+		this.onsetPanel.repaint();
+		this.spectralPeaksPanel.repaint();
+		this.pitchDetectPanel.repaint();
+		this.bandedPitchDetectPanel.repaint();
 		// this.beadsPanel.repaint();
 		// }
-		// count++;
-		// SpectralPeaksFeatures specFeatures =
-		// pitchFrame.getSpectralPeaksFeatures();
+		count++;
+		// SpectralPeaksFeatures specFeatures = audioFeatureFrame
+		// .getSpectralPeaksFeatures();
 		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));
 	}
 

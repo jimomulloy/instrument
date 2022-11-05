@@ -53,6 +53,8 @@ public class Voice {
 
 	public void send(ToneTimeFrame toneTimeFrame, String streamId,
 			int sequence) {
+		System.out.println(
+				">>send!!!: " + toneTimeFrame.getTimeSet().getStartTime());
 		writeMidi(toneTimeFrame, streamId, sequence);
 		// writeAudio(toneTimeFrame, streamId, sequence);
 	}
@@ -84,7 +86,7 @@ public class Voice {
 	}
 
 	public void close(String streamId) {
-		// audioSynthesizer.close(streamId);
+		audioSynthesizer.close(streamId);
 		midiSynthesizer.close(streamId);
 	}
 }

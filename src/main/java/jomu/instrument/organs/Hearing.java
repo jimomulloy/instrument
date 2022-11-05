@@ -1,21 +1,26 @@
 package jomu.instrument.organs;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import be.tarsos.dsp.AudioDispatcher;
+import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
+import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import jomu.instrument.Instrument;
-import jomu.instrument.audio.TarsosAudioIO;
-import jomu.instrument.audio.analysis.Analyzer;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
-import net.beadsproject.beads.analysis.FeatureExtractor;
-import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
 import net.beadsproject.beads.core.AudioContext;
-import net.beadsproject.beads.core.IOAudioFormat;
-import net.beadsproject.beads.core.UGen;
 
 public class Hearing {
 
@@ -23,23 +28,20 @@ public class Hearing {
 
 		private AudioContext ac;
 		private AudioFeatureProcessor audioFeatureProcessor;
-		private TarsosAudioIO tarsosIO;
-		private Analyzer analyzer;
 		private String streamId;
 		private TarsosFeatureSource tarsosFeatureSource;
 		private int sampleRate = 44100;
+		private int bufferSize = 1024 * 4;
+		private int overlap = 768 * 4;
+		private AudioDispatcher dispatcher;
+		private Mixer mixer;
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
-			tarsosIO = new TarsosAudioIO();
 		}
 
 		public AudioContext getAc() {
 			return ac;
-		}
-
-		public Analyzer getAnalyzer() {
-			return analyzer;
 		}
 
 		public AudioFeatureProcessor getAudioFeatureProcessor() {
@@ -58,79 +60,75 @@ public class Hearing {
 			return tarsosFeatureSource;
 		}
 
-		public TarsosAudioIO getTarsosIO() {
-			return tarsosIO;
-		}
-
-		public void initialiseFileStream(String fileName) {
+		public void initialiseAudioFileStream(String fileName)
+				throws UnsupportedAudioFileException, IOException,
+				LineUnavailableException {
 			Instrument.getInstance().getDruid().getVisor().clearView();
 			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
-			IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1,
-					true, true);
-			ac = new AudioContext(tarsosIO, 1024, audioFormat);
-			// get a microphone input unit generator
-			tarsosIO.setAudioFile(file);
-			UGen microphoneIn = ac.getAudioInput();
+			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize,
+					overlap);
+			AudioFormat format = AudioSystem.getAudioFileFormat(file)
+					.getFormat();
+			// dispatcher.addAudioProcessor(new AudioPlayer(format));
 
 			// Oscilloscope oscilloscope = new
 			// Oscilloscope(Instrument.getInstance().getDruid().getOscilloscopeHandler());
 			// tarsosIO.getDispatcher().addAudioProcessor(oscilloscope);
 
-			tarsosFeatureSource = new TarsosFeatureSource(tarsosIO);
+			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
-
-			List<Class<? extends FeatureExtractor<?, ?>>> extractors = new ArrayList<>();
-			// extractors.add(MelSpectrum.class);
-			extractors.add(SpectralPeaks.class);
-
-			analyzer = new Analyzer(ac, extractors);
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
-					analyzer, tarsosFeatureSource);
-			audioFeatureProcessor.setMaxFrames(100);
+					tarsosFeatureSource);
+			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
 
-			tarsosIO.getDispatcher().addAudioProcessor(audioFeatureProcessor);
+			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
-			analyzer.listenTo(microphoneIn);
-			analyzer.updateFrom(ac.out);
 		}
 
-		public void initialiseMicrophoneStream(int mixer) {
-			tarsosIO.selectMixer(mixer);
-			IOAudioFormat audioFormat = new IOAudioFormat(sampleRate, 16, 1, 1,
-					true, true);
-			ac = new AudioContext(tarsosIO, 1024, audioFormat);
-			// get a microphone input unit generator
-			UGen microphoneIn = ac.getAudioInput();
+		public void initialiseMicrophoneStream(Mixer mixer)
+				throws LineUnavailableException {
+			this.mixer = mixer;
+			final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
+					false);
+			final DataLine.Info dataLineInfo = new DataLine.Info(
+					TargetDataLine.class, format);
+			TargetDataLine line;
+			line = (TargetDataLine) mixer.getLine(dataLineInfo);
+			final int numberOfSamples = bufferSize;
+			line.open(format, numberOfSamples);
+			line.start();
+			final AudioInputStream stream = new AudioInputStream(line);
 
-			// Oscilloscope oscilloscope = new
-			// Oscilloscope(Instrument.getInstance().getDruid().getOscilloscopeHandler());
-			// tarsosIO.getDispatcher().addAudioProcessor(oscilloscope);
-
-			tarsosFeatureSource = new TarsosFeatureSource(tarsosIO);
+			JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
+			// create a new dispatcher
+			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
-
-			List<Class<? extends FeatureExtractor<?, ?>>> extractors = new ArrayList<>();
-			// extractors.add(MelSpectrum.class);
-			extractors.add(SpectralPeaks.class);
-
-			analyzer = new Analyzer(ac, extractors);
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
-					analyzer, tarsosFeatureSource);
-			audioFeatureProcessor.setMaxFrames(100);
+					tarsosFeatureSource);
+			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
 
-			tarsosIO.getDispatcher().addAudioProcessor(audioFeatureProcessor);
+			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
-			analyzer.listenTo(microphoneIn);
-			analyzer.updateFrom(ac.out);
 		}
 
 		public void start() {
-			ac.start();
+			if (ac != null) {
+				ac.start();
+			} else if (dispatcher != null) {
+				new Thread(dispatcher, "Audio dispatching").start();
+			}
 		}
 
 		public void close() {
-			ac.stop();
+			if (ac != null) {
+				ac.stop();
+				ac = null;
+			} else if (dispatcher != null) {
+				// dispatcher.stop();
+				dispatcher = null;
+			}
 		}
 
 	}
@@ -140,7 +138,11 @@ public class Hearing {
 	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 
 	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
-		return audioStreams.get(streamId).getAudioFeatureProcessor();
+		if (audioStreams.containsKey(streamId)) {
+			return audioStreams.get(streamId).getAudioFeatureProcessor();
+		} else {
+			return null;
+		}
 	}
 
 	public void initialise() {
@@ -149,13 +151,15 @@ public class Hearing {
 	public void start() {
 	}
 
-	public void startAudioFileStream(String fileName) {
+	public void startAudioFileStream(String fileName)
+			throws UnsupportedAudioFileException, IOException,
+			LineUnavailableException {
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		System.out.println(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
-		audioStream.initialiseFileStream(fileName);
+		audioStream.initialiseAudioFileStream(fileName);
 
 		Instrument.getInstance().getCoordinator().getCortex();
 		audioStream.getAudioFeatureProcessor().addObserver(
@@ -163,7 +167,8 @@ public class Hearing {
 		audioStream.start();
 	}
 
-	public void startAudioLineStream(int mixer) {
+	public void startAudioLineStream(Mixer mixer)
+			throws LineUnavailableException {
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		System.out.println(">>!!hearing initialise: " + streamId);

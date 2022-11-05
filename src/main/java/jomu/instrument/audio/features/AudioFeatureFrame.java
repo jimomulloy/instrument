@@ -1,16 +1,11 @@
 package jomu.instrument.audio.features;
 
-import java.util.List;
-
-import jomu.instrument.audio.analysis.FeatureFrame;
-import jomu.instrument.audio.analysis.FeatureSet;
-
 public class AudioFeatureFrame {
-	private AudioEventFeatures audioEventFeatures;
+	// private AudioEventFeatures audioEventFeatures;
 	private AudioFeatureProcessor audioFeatureProcessor;
 	private BandedPitchDetectorFeatures bandedPitchDetectorFeatures;
-	private List<FeatureFrame> beadsBeatsFeatures;
-	private List<FeatureFrame> beadsFeatures;
+	// private List<FeatureFrame> beadsBeatsFeatures;
+	// private List<FeatureFrame> beadsFeatures;
 	private ConstantQFeatures constantQFeatures;
 	private double end;
 	private int frameSequence;
@@ -43,13 +38,13 @@ public class AudioFeatureFrame {
 		return bandedPitchDetectorFeatures;
 	}
 
-	public List<FeatureFrame> getBeadsBeatsFeatures() {
-		return beadsBeatsFeatures;
-	}
+	// public List<FeatureFrame> getBeadsBeatsFeatures() {
+	// return beadsBeatsFeatures;
+	// }
 
-	public List<FeatureFrame> getBeadsFeatures() {
-		return beadsFeatures;
-	}
+	// public List<FeatureFrame> getBeadsFeatures() {
+	// return beadsFeatures;
+	// }
 
 	public ConstantQFeatures getConstantQFeatures() {
 		return constantQFeatures;
@@ -94,13 +89,13 @@ public class AudioFeatureFrame {
 	void initialise() {
 		System.out.println(
 				">>PF INIT!!!: " + this.frameSequence + ", " + this.start);
-		FeatureSet results = this.audioFeatureProcessor.getAnalyzer()
-				.getResults();
-		beadsFeatures = results.get("Low Level").getRange(start, end);
-		beadsBeatsFeatures = results.get("Beats").getRange(start, end);
-		results.get("Low Level").removeRange(start, end);
-		results.get("Beats").getRange(start, end);
-		audioEventFeatures = new AudioEventFeatures();
+		// FeatureSet results = this.audioFeatureProcessor.getAnalyzer()
+		// .getResults();
+		// beadsFeatures = results.get("Low Level").getRange(start, end);
+		// beadsBeatsFeatures = results.get("Beats").getRange(start, end);
+		// results.get("Low Level").removeRange(start, end);
+		// results.get("Beats").getRange(start, end);
+		// audioEventFeatures = new AudioEventFeatures();
 		constantQFeatures = new ConstantQFeatures();
 		onsetFeatures = new OnsetFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
@@ -109,8 +104,8 @@ public class AudioFeatureFrame {
 		spectrogramFeatures = new SpectrogramFeatures();
 		goertzelFeatures = new GoertzelFeatures();
 		scalogramFeatures = new ScalogramFeatures();
-		audioEventFeatures.initialise(this.audioFeatureProcessor
-				.getTarsosFeatures().getAudioEventSource());
+		// audioEventFeatures.initialise(this.audioFeatureProcessor
+		// .getTarsosFeatures().getAudioEventSource());
 		constantQFeatures.initialise(this);
 		onsetFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures()
 				.getOnsetSource());

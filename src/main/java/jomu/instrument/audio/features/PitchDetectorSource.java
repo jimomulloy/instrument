@@ -2,6 +2,7 @@ package jomu.instrument.audio.features;
 
 import java.util.TreeMap;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
@@ -12,7 +13,6 @@ import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
 import jomu.instrument.audio.DispatchJunctionProcessor;
-import jomu.instrument.audio.TarsosAudioIO;
 
 public class PitchDetectorSource implements PitchDetectionHandler {
 
@@ -28,8 +28,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	private int overlap = 0;
 	private PitchDetectionResult pitchDetectionResult;
 	private float sampleRate = 44100;
-
-	private TarsosAudioIO tarsosIO;
 
 	AudioProcessor fftProcessor = new AudioProcessor() {
 
@@ -56,13 +54,16 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	};
 
-	public PitchDetectorSource(TarsosAudioIO tarsosIO) {
+	private AudioDispatcher dispatcher;
+
+	public PitchDetectorSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
+		this.dispatcher = dispatcher;
+		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
 	}
 
-	public PitchDetectorSource(TarsosAudioIO tarsosIO, int bufferSize) {
-		this(tarsosIO);
+	public PitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {
+		this(dispatcher);
 		this.bufferSize = bufferSize;
 	}
 
@@ -93,10 +94,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	public float getSampleRate() {
 		return sampleRate;
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
 	}
 
 	@Override
@@ -130,7 +127,7 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
 				tarsosDSPFormat, bufferSize, overlap);
 		djp.setName("PD");
-		tarsosIO.getDispatcher().addAudioProcessor(djp);
+		dispatcher.addAudioProcessor(djp);
 		djp.addAudioProcessor(
 				new PitchProcessor(algo, sampleRate, bufferSize, this));
 		djp.addAudioProcessor(fftProcessor);

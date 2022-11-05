@@ -27,26 +27,21 @@ public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
-		System.out.println(">>AudioNotateProcessor accepting");
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>AudioNotateProcessor accept: " + message);
 			if (message.source.getCellType()
 					.equals(CellTypes.AUDIO_INTEGRATE)) {
-				ToneMap integrateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE,
-								streamId));
-				ToneMap notateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(this.cell.getCellType(),
-								streamId));
-				notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
-				System.out.println(">>>PUT notat frame: " + integrateToneMap.getTimeFrame().getStartTime());
+				ToneMap integrateToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
+				ToneMap notateToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(this.cell.getCellType(), streamId));
+				notateToneMap.addTimeFrame(
+						integrateToneMap.getTimeFrame(sequence).clone());
 				AudioTuner tuner = new AudioTuner();
 
 				tuner.noteScan(notateToneMap, sequence);
 
-				System.out.println(">>AudioNotateProcessor send");
 				cell.send(streamId, sequence);
 			}
 		}

@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.SpectralPeakProcessor;
 import be.tarsos.dsp.SpectralPeakProcessor.SpectralPeak;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import jomu.instrument.audio.DispatchJunctionProcessor;
-import jomu.instrument.audio.TarsosAudioIO;
 
 public class SpectralPeaksSource {
 
@@ -22,13 +22,16 @@ public class SpectralPeaksSource {
 	int noiseFloorMedianFilterLenth = 10;
 	int numberOfSpectralPeaks = 3;
 	int sampleRate = 44100;
+	int bufferSize = 44100;
 	List<SpectralInfo> spectralInfos = new ArrayList<>();
 	SpectralPeakProcessor spectralPeakProcesser;
-	TarsosAudioIO tarsosIO;
+	private AudioDispatcher dispatcher;
 
-	public SpectralPeaksSource(TarsosAudioIO tarsosIO) {
+	public SpectralPeaksSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
+		this.dispatcher = dispatcher;
+		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
+		this.bufferSize = (int) dispatcher.getFormat().getSampleRate();
 	}
 
 	public int getCurrentFrame() {
@@ -80,10 +83,6 @@ public class SpectralPeaksSource {
 		return spectralPeakProcesser;
 	}
 
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
 	void clear() {
 		spectralInfos.clear();
 		features.clear();
@@ -91,21 +90,21 @@ public class SpectralPeaksSource {
 
 	void initialise() {
 
-		int fftsize = 1024;
+		bufferSize = 1024;
 		int stepsize = 512;
-		int overlap = fftsize - stepsize;
+		int overlap = bufferSize - stepsize;
 		if (overlap < 1) {
 			overlap = 128;
 		}
 
-		spectralPeakProcesser = new SpectralPeakProcessor(fftsize, overlap,
+		spectralPeakProcesser = new SpectralPeakProcessor(bufferSize, overlap,
 				sampleRate);
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100,
 				16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
-				tarsosDSPFormat, fftsize, overlap);
+				tarsosDSPFormat, bufferSize, overlap);
 		djp.setName("SP");
-		tarsosIO.getDispatcher().addAudioProcessor(djp);
+		dispatcher.addAudioProcessor(djp);
 		djp.addAudioProcessor(spectralPeakProcesser);
 
 		djp.addAudioProcessor(new AudioProcessor() {
@@ -145,5 +144,9 @@ public class SpectralPeaksSource {
 
 		spectralInfos.clear();
 		features.clear();
+	}
+
+	public int getBufferSize() {
+		return bufferSize;
 	}
 }

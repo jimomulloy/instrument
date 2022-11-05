@@ -2,17 +2,21 @@ package jomu.instrument.audio.features;
 
 import java.util.TreeMap;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.pitch.Goertzel.FrequenciesDetectedHandler;
-import jomu.instrument.audio.TarsosAudioIO;
 
 public class GoertzelSource implements FrequenciesDetectedHandler {
 
 	private TreeMap<Double, GoertzelInfo> features = new TreeMap<>();
-	TarsosAudioIO tarsosIO;
 
-	public GoertzelSource(TarsosAudioIO tarsosIO) {
+	private AudioDispatcher dispatcher;
+
+	private float sampleRate;
+
+	public GoertzelSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
+		this.dispatcher = dispatcher;
+		this.sampleRate = dispatcher.getFormat().getSampleRate();
 	}
 
 	public TreeMap<Double, GoertzelInfo> getFeatures() {
@@ -22,10 +26,6 @@ public class GoertzelSource implements FrequenciesDetectedHandler {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
 	}
 
 	@Override

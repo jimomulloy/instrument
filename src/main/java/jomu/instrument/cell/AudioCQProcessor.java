@@ -57,7 +57,6 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
-		System.out.println(">>ConstantQMessageProcessor accepting");
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
@@ -70,63 +69,69 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 						buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 				AudioFeatureProcessor afp = hearing
 						.getAudioFeatureProcessor(streamId);
-				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-				ConstantQFeatures cqf = aff.getConstantQFeatures();
-				cqf.buildToneMapFrame(toneMap);
-				toneMap.getTimeFrame().compress(1000F);
-				float maxAmplitude = (float) toneMap.getTimeFrame()
-						.getMaxAmplitude();
-				System.out.println(">>MAX AMP: " + maxAmplitude + ", " + tmMax);
-				if (tmMax < maxAmplitude) {
-					tmMax = maxAmplitude;
+				if (afp != null) {
+					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+					ConstantQFeatures cqf = aff.getConstantQFeatures();
+					cqf.buildToneMapFrame(toneMap);
+					toneMap.getTimeFrame().compress(1000F);
+					float maxAmplitude = (float) toneMap.getTimeFrame()
+							.getMaxAmplitude();
+					System.out.println(
+							">>MAX AMP: " + maxAmplitude + ", " + tmMax);
+					if (tmMax < maxAmplitude) {
+						tmMax = maxAmplitude;
+					}
+					toneMap.getTimeFrame().normalise(tmMax);
+					toneMap.getTimeFrame().deNoise(0.1);
+
+					maxAmplitude = (float) toneMap.getTimeFrame()
+							.getMaxAmplitude();
+					float sampleRate = (float) toneMap.getTimeFrame()
+							.getTimeSet().getSampleRate();
+					System.out.println(">>MAX AMP AFTER: " + maxAmplitude + ", "
+							+ toneMap + ", "
+							+ buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+
+					PeakProcessor peakProcessor = new PeakProcessor(
+							toneMap.getTimeFrame());
+
+					PeakInfo peakInfo = new PeakInfo(
+							peakProcessor.getMagnitudes(),
+							peakProcessor.getFrequencyEstimates());
+
+					int noiseFloorMedianFilterLenth = (int) (sampleRate
+							/ 117.0);
+					float noiseFloorFactor = 2.9F;
+					int numberOfSpectralPeaks = 7;
+					int minPeakSize = 5;
+
+					List<SpectralPeak> peaks = peakInfo.getPeakList(
+							noiseFloorMedianFilterLenth, noiseFloorFactor,
+							numberOfSpectralPeaks, minPeakSize);
+					AudioTuner tuner = new AudioTuner();
+					// tuner.normalize(toneMap);
+					// tuner.processPeaks(toneMap, peaks);
+
+					/*
+					 * FFTSpectrum fftSpectrum = toneMap.getTimeFrame()
+					 * .extractFFTSpectrum(4096); // PitchDetect pd = new
+					 * PitchDetect(4096, (float) //
+					 * toneMap.getTimeFrame().getTimeSet().getSampleRate(), //
+					 * convertDoublesToFloats(toneMap.getTimeFrame().getPitchSet
+					 * (). getFreqSet())); //
+					 * pd.whiten(fftSpectrum.getSpectrum()); Whitener whitener =
+					 * new Whitener(fftSpectrum); whitener.whiten(); FFTSpectrum
+					 * whitenedSpectrum = new FFTSpectrum(
+					 * fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
+					 * whitener.getWhitenedSpectrum()); PitchAnalyser
+					 * pitchAnalyser = new PitchAnalyser(fftSpectrum,
+					 * toneMap.getTimeFrame().getPitches(), 20);
+					 * toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+					 * toneMap.getTimeFrame().deNoise(0.05);
+					 */
+					cqf.displayToneMap();
+					cell.send(streamId, sequence);
 				}
-				toneMap.getTimeFrame().normalise(tmMax);
-				toneMap.getTimeFrame().deNoise(0.2);
-
-				maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
-				float sampleRate = (float) toneMap.getTimeFrame().getTimeSet()
-						.getSampleRate();
-				System.out.println(">>MAX AMP AFTER: " + maxAmplitude);
-
-				PeakProcessor peakProcessor = new PeakProcessor(
-						toneMap.getTimeFrame());
-
-				PeakInfo peakInfo = new PeakInfo(peakProcessor.getMagnitudes(),
-						peakProcessor.getFrequencyEstimates());
-
-				int noiseFloorMedianFilterLenth = (int) (sampleRate / 117.0);
-				float noiseFloorFactor = 2.9F;
-				int numberOfSpectralPeaks = 7;
-				int minPeakSize = 5;
-
-				List<SpectralPeak> peaks = peakInfo.getPeakList(
-						noiseFloorMedianFilterLenth, noiseFloorFactor,
-						numberOfSpectralPeaks, minPeakSize);
-				AudioTuner tuner = new AudioTuner();
-				// tuner.normalize(toneMap);
-				tuner.processPeaks(toneMap, peaks);
-
-				/*
-				 * FFTSpectrum fftSpectrum = toneMap.getTimeFrame()
-				 * .extractFFTSpectrum(4096); // PitchDetect pd = new
-				 * PitchDetect(4096, (float) //
-				 * toneMap.getTimeFrame().getTimeSet().getSampleRate(), //
-				 * convertDoublesToFloats(toneMap.getTimeFrame().getPitchSet().
-				 * getFreqSet())); // pd.whiten(fftSpectrum.getSpectrum());
-				 * Whitener whitener = new Whitener(fftSpectrum);
-				 * whitener.whiten(); FFTSpectrum whitenedSpectrum = new
-				 * FFTSpectrum( fftSpectrum.getSampleRate(),
-				 * fftSpectrum.getWindowSize(), whitener.getWhitenedSpectrum());
-				 * PitchAnalyser pitchAnalyser = new PitchAnalyser(fftSpectrum,
-				 * toneMap.getTimeFrame().getPitches(), 20);
-				 * toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-				 * toneMap.getTimeFrame().deNoise(0.05);
-				 */
-				System.out
-						.println(">>ConstantQMessageProcessor process tonemap");
-				cqf.displayToneMap();
-				System.out.println(">>ConstantQMessageProcessor send");
-				cell.send(streamId, sequence);
 			}
 		}
 	}

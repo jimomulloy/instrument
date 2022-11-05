@@ -23,16 +23,6 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 		}
 		return output;
 	}
-	private static double[] convertFloatsToDoubles(float[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		double[] output = new double[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = input[i];
-		}
-		return output;
-	}
 
 	private NuCell cell;
 
@@ -48,15 +38,11 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 
 	@Override
 	public void accept(List<NuMessage> messages) {
-		// System.out.println(">>getAudioCQProcessor");
-		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
-		System.out.println(">>AudioSinkProcessor accepting");
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>AudioSinkProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.AUDIO_NOTATE)) {
 				Voice voice = Instrument.getInstance().getCoordinator()
 						.getVoice();
@@ -68,7 +54,8 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 						.getHearing();
 				AudioFeatureProcessor afp = hearing
 						.getAudioFeatureProcessor(streamId);
-				if (afp.isClosed() && afp.isLastSequence(sequence)) {
+				if (afp == null
+						|| (afp.isClosed() && afp.isLastSequence(sequence))) {
 					voice.close(streamId);
 				}
 			}

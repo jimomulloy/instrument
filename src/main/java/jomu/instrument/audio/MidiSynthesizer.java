@@ -83,13 +83,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 							+ Thread.currentThread());
 
 					if (sampleTime != 0) {
-						TimeUnit.MILLISECONDS.sleep((long) sampleTime);
+						System.out.println(">>>midi sleep: " + sampleTime + ", "
+								+ System.currentTimeMillis());
+						TimeUnit.MILLISECONDS.sleep((long) sampleTime * 1000);
+						System.out.println(">>>midi sleep after: "
+								+ toneTimeFrame.getStartTime() + ", "
+								+ System.currentTimeMillis());
 					}
 
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();
-					int timeRange = timeSet.getRange();
-					int pitchRange = pitchSet.getRange();
 					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
 					NoteStatusElement noteStatusElement = null;
 					ShortMessage midiMessage = null;
@@ -110,16 +113,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 									midiMessage = new ShortMessage();
 									try {
 										int volume = 120;
-										if (toneMapElement.amplitude <= 1.0) {
-											volume = (int) (120
-													* toneMapElement.amplitude);
-										}
+										// if (toneMapElement.amplitude <= 1.0)
+										// {
+										// volume = (int) (120
+										// * toneMapElement.amplitude);
+										// }
 										midiMessage.setMessage(
 												ShortMessage.NOTE_ON,
 												midiStream.channelId, note,
 												volume);
-										System.out.println("!!!>>SEND ON MSG: "
-												+ note + ", " + volume);
 									} catch (InvalidMidiDataException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
@@ -150,13 +152,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 					for (ShortMessage mm : midiMessages) {
 						try {
 							synthesizer.getReceiver().send(mm, -1);
+							if (mm.getCommand() == ShortMessage.NOTE_ON
+									&& mm.getData2() == 120) {
+							}
 						} catch (MidiUnavailableException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 
-					sampleTime = timeSet.getSampleTimeSize();
+					sampleTime = timeSet.getSampleTimeSize(); // !!! WHY * 1000
+																// !!
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -638,4 +644,5 @@ public class MidiSynthesizer implements ToneMapConstants {
 		midiStreams.remove(streamId);
 	}
 
-} // End MidiModel
+}
+// End MidiModel

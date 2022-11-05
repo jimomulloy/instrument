@@ -9,13 +9,9 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.Oscilloscope;
 import jomu.instrument.Instrument;
-import jomu.instrument.audio.analysis.Analyzer;
-import net.beadsproject.beads.analysis.SegmentListener;
-import net.beadsproject.beads.core.TimeStamp;
 
-public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
+public class AudioFeatureProcessor implements AudioProcessor {
 
-	private Analyzer analyzer;
 	private Map<Double, AudioFeatureFrame> audioFeatureFrames = new Hashtable<>();
 	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<>();
 	private double currentProcessTime;
@@ -35,17 +31,14 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 	private TarsosFeatureSource tarsosFeatures;
 	private AudioFeatureFrameState state = AudioFeatureFrameState.INITIALISED;
 
-	public AudioFeatureProcessor(String streamId, Analyzer analyzer,
+	public AudioFeatureProcessor(String streamId,
 			TarsosFeatureSource tarsosFeatures) {
 		this.streamId = streamId;
-		this.analyzer = analyzer;
 		this.tarsosFeatures = tarsosFeatures;
-		analyzer.addSegmentListener(this);
 		addObserver(Instrument.getInstance().getDruid().getVisor());
 		Oscilloscope oscilloscope = new Oscilloscope(
 				Instrument.getInstance().getDruid().getVisor());
-		tarsosFeatures.getTarsosIO().getDispatcher()
-				.addAudioProcessor(oscilloscope);
+		tarsosFeatures.getDispatcher().addAudioProcessor(oscilloscope);
 	}
 
 	public void addAudioFeatureFrame(double time,
@@ -66,10 +59,6 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 		for (AudioFeatureFrameObserver observer : this.observers) {
 			observer.audioFeatureFrameChanged(audioFeatureFrame);
 		}
-	}
-
-	public Analyzer getAnalyzer() {
-		return analyzer;
 	}
 
 	public AudioFeatureFrame getAudioFeatureFrame(double startTime) {
@@ -109,16 +98,20 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 	}
 
 	@Override
-	public void newSegment(TimeStamp start, TimeStamp end) {
+	public boolean process(AudioEvent audioEvent) {
+		currentProcessTime = audioEvent.getEndTimeStamp() * 1000;
+		double startTimeMS = audioEvent.getTimeStamp() * 1000;
+		System.out.println(">>audio event: " + audioEvent.getTimeStamp() + ", "
+				+ audioEvent.getEndTimeStamp());
 		if (maxFrames > 0 && maxFrames > frameSequence) {
 			if (firstTimeStamp == -1) {
-				firstTimeStamp = start.getTimeMS();
+				firstTimeStamp = startTimeMS;
 			}
 			if (endTimeStamp == -1
-					&& (end.getTimeMS() - lastTimeStamp >= interval)) {
-				endTimeStamp = end.getTimeMS();
+					&& (currentProcessTime - lastTimeStamp >= interval)) {
+				endTimeStamp = currentProcessTime;
 			}
-			if (end.getTimeMS() - lastTimeStamp >= (interval + lag)) {
+			if (currentProcessTime - lastTimeStamp >= (interval + lag)) {
 				frameSequence++;
 				createAudioFeatureFrame(frameSequence, firstTimeStamp,
 						endTimeStamp);
@@ -127,11 +120,6 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 				endTimeStamp = -1;
 			}
 		}
-	}
-
-	@Override
-	public boolean process(AudioEvent audioEvent) {
-		currentProcessTime = audioEvent.getEndTimeStamp() * 1000;
 		return true;
 	}
 
@@ -157,10 +145,6 @@ public class AudioFeatureProcessor implements SegmentListener, AudioProcessor {
 
 	public void removeObserver(AudioFeatureFrameObserver observer) {
 		this.observers.remove(observer);
-	}
-
-	public void setAnalyzer(Analyzer analyzer) {
-		this.analyzer = analyzer;
 	}
 
 	public void setMaxFrames(int maxFrames) {

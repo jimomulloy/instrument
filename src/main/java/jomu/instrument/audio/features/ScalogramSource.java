@@ -2,12 +2,12 @@ package jomu.instrument.audio.features;
 
 import java.util.TreeMap;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.wavelet.lift.Daubechies4Wavelet;
 import jomu.instrument.audio.DispatchJunctionProcessor;
-import jomu.instrument.audio.TarsosAudioIO;
 
 public class ScalogramSource {
 
@@ -16,13 +16,14 @@ public class ScalogramSource {
 	ScalogramFrame prevFrame;
 
 	float sampleRate = 44100;
-	TarsosAudioIO tarsosIO;
 	Daubechies4Wavelet wt = new Daubechies4Wavelet();
 
-	public ScalogramSource(TarsosAudioIO tarsosIO) {
+	private AudioDispatcher dispatcher;
+
+	public ScalogramSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
-		this.sampleRate = tarsosIO.getContext().getSampleRate();
+		this.dispatcher = dispatcher;
+		this.sampleRate = dispatcher.getFormat().getSampleRate();
 	}
 
 	public TreeMap<Double, ScalogramFrame> getFeatures() {
@@ -42,10 +43,6 @@ public class ScalogramSource {
 		return sampleRate;
 	}
 
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
 	void clear() {
 		features.clear();
 	}
@@ -58,7 +55,7 @@ public class ScalogramSource {
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
 				tarsosDSPFormat, 131072, 0);
 		djp.setName("SC");
-		tarsosIO.getDispatcher().addAudioProcessor(djp);
+		dispatcher.addAudioProcessor(djp);
 
 		djp.addAudioProcessor(new AudioProcessor() {
 

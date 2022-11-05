@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import be.tarsos.dsp.onsets.OnsetHandler;
 import jomu.instrument.audio.DispatchJunctionProcessor;
-import jomu.instrument.audio.TarsosAudioIO;
 
 public class OnsetSource implements OnsetHandler {
 
@@ -20,13 +20,14 @@ public class OnsetSource implements OnsetHandler {
 	int increment = 1024;
 	int overlap = 0;
 	float sampleRate = 44100;
-	TarsosAudioIO tarsosIO;
-	double threshold = 0.4;
 
-	public OnsetSource(TarsosAudioIO tarsosIO) {
+	double threshold = 0.4;
+	private AudioDispatcher dispatcher;
+
+	public OnsetSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
-		this.sampleRate = tarsosIO.getContext().getSampleRate();
+		this.dispatcher = dispatcher;
+		this.sampleRate = dispatcher.getFormat().getSampleRate();
 	}
 
 	public TreeMap<Double, OnsetInfo[]> getFeatures() {
@@ -44,10 +45,6 @@ public class OnsetSource implements OnsetHandler {
 
 	public float getSampleRate() {
 		return sampleRate;
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
 	}
 
 	@Override
@@ -71,7 +68,7 @@ public class OnsetSource implements OnsetHandler {
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
 				tarsosDSPFormat, increment, overlap);
 		djp.setName("SC");
-		tarsosIO.getDispatcher().addAudioProcessor(djp);
+		dispatcher.addAudioProcessor(djp);
 
 		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(increment,
 				threshold);

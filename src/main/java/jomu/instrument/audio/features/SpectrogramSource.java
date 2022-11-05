@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.SpectralPeakProcessor;
@@ -15,7 +16,6 @@ import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
 import jomu.instrument.audio.DispatchJunctionProcessor;
-import jomu.instrument.audio.TarsosAudioIO;
 
 public class SpectrogramSource implements PitchDetectionHandler {
 
@@ -38,7 +38,6 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 	private SpectralPeakProcessor spectralPeakProcesser;
 	private List<SpectrogramInfo> spectrogramInfos = new ArrayList<>();
-	private TarsosAudioIO tarsosIO;
 
 	AudioProcessor fftProcessor = new AudioProcessor() {
 
@@ -66,9 +65,12 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 	};
 
-	public SpectrogramSource(TarsosAudioIO tarsosIO) {
+	private AudioDispatcher dispatcher;
+
+	public SpectrogramSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
+		this.dispatcher = dispatcher;
+		this.sampleRate = dispatcher.getFormat().getSampleRate();
 	}
 
 	public float getBinHeight() {
@@ -98,10 +100,6 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 	public SpectralPeakProcessor getSpectralPeakProcesser() {
 		return spectralPeakProcesser;
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
 	}
 
 	@Override
@@ -150,7 +148,7 @@ public class SpectrogramSource implements PitchDetectionHandler {
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
 				tarsosDSPFormat, fftsize, overlap);
 		djp.setName("SP");
-		tarsosIO.getDispatcher().addAudioProcessor(djp);
+		dispatcher.addAudioProcessor(djp);
 
 		djp.addAudioProcessor(
 				new PitchProcessor(algo, sampleRate, bufferSize, this));

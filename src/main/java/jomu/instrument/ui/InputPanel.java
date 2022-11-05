@@ -29,38 +29,22 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
 public class InputPanel extends JPanel {
 
 	/**
-	 *
+	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private ActionListener setInput = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			int mixerIndex = 0;
-			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
-				if (arg0.getActionCommand().equals(info.toString())) {
-					InputPanel.this.firePropertyChange("mixer",
-							currentMixerIndex, mixerIndex);
-					InputPanel.this.currentMixerIndex = mixerIndex;
-					break;
-				}
-				mixerIndex++;
-			}
-		}
-	};
-
-	int currentMixerIndex = -1;
+	Mixer mixer = null;
 
 	public InputPanel() {
 		super(new BorderLayout());
@@ -77,11 +61,26 @@ public class InputPanel extends JPanel {
 		}
 		this.add(
 				new JScrollPane(buttonPanel,
-						ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+						JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
 				BorderLayout.CENTER);
 		this.setMaximumSize(new Dimension(300, 150));
 		this.setPreferredSize(new Dimension(300, 150));
 	}
+
+	private ActionListener setInput = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
+				if (arg0.getActionCommand().equals(info.toString())) {
+					Mixer newValue = AudioSystem.getMixer(info);
+					InputPanel.this.firePropertyChange("mixer", mixer,
+							newValue);
+					InputPanel.this.mixer = newValue;
+					break;
+				}
+			}
+		}
+	};
 
 }

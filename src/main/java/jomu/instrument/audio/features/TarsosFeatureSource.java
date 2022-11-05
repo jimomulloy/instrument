@@ -1,10 +1,10 @@
 package jomu.instrument.audio.features;
 
-import jomu.instrument.audio.TarsosAudioIO;
+import be.tarsos.dsp.AudioDispatcher;
 
 public class TarsosFeatureSource {
 
-	private AudioEventSource audioEventSource;
+	// private AudioEventSource audioEventSource;
 	private BandedPitchDetectorSource bandedPitchDetectorSource;
 	private ConstantQSource constantQSource;
 	private GoertzelSource goertzelSource;
@@ -13,15 +13,15 @@ public class TarsosFeatureSource {
 	private ScalogramSource scalogramSource;
 	private SpectralPeaksSource spectralPeaksSource;
 	private SpectrogramSource spectrogramSource;
-	private TarsosAudioIO tarsosIO;
+	private AudioDispatcher dispatcher;
 
-	public TarsosFeatureSource(TarsosAudioIO tarsosIO) {
-		this.tarsosIO = tarsosIO;
+	public TarsosFeatureSource(AudioDispatcher dispatcher) {
+		this.dispatcher = dispatcher;
 	}
 
-	public AudioEventSource getAudioEventSource() {
-		return audioEventSource;
-	}
+	// public AudioEventSource getAudioEventSource() {
+	// return audioEventSource;
+	// }
 
 	public BandedPitchDetectorSource getBandedPitchDetectorSource() {
 		return bandedPitchDetectorSource;
@@ -55,20 +55,16 @@ public class TarsosFeatureSource {
 		return spectrogramSource;
 	}
 
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
 	public void initialise() {
-		constantQSource = new ConstantQSource(tarsosIO);
-		onsetSource = new OnsetSource(tarsosIO);
-		spectralPeaksSource = new SpectralPeaksSource(tarsosIO);
-		pitchDetectorSource = new PitchDetectorSource(tarsosIO);
-		bandedPitchDetectorSource = new BandedPitchDetectorSource(tarsosIO);
-		spectrogramSource = new SpectrogramSource(tarsosIO);
-		audioEventSource = new AudioEventSource(tarsosIO);
-		goertzelSource = new GoertzelSource(tarsosIO);
-		scalogramSource = new ScalogramSource(tarsosIO);
+		constantQSource = new ConstantQSource(dispatcher);
+		onsetSource = new OnsetSource(dispatcher);
+		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
+		pitchDetectorSource = new PitchDetectorSource(dispatcher);
+		bandedPitchDetectorSource = new BandedPitchDetectorSource(dispatcher);
+		spectrogramSource = new SpectrogramSource(dispatcher);
+		// audioEventSource = new AudioEventSource(dispatcher);
+		goertzelSource = new GoertzelSource(dispatcher);
+		scalogramSource = new ScalogramSource(dispatcher);
 		constantQSource.initialise();
 		onsetSource.initialise();
 		spectralPeaksSource.initialise();
@@ -77,5 +73,9 @@ public class TarsosFeatureSource {
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
 		// scalogramSource.initialise();
+	}
+
+	public AudioDispatcher getDispatcher() {
+		return dispatcher;
 	}
 }

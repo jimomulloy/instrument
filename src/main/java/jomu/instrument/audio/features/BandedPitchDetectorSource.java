@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import jomu.instrument.audio.TarsosAudioIO;
+import be.tarsos.dsp.AudioDispatcher;
 
 public class BandedPitchDetectorSource {
 
@@ -20,20 +20,23 @@ public class BandedPitchDetectorSource {
 
 	private Map<Integer, PitchDetectorSource> sourceMap = new HashMap<>();
 
-	private TarsosAudioIO tarsosIO;
+	private AudioDispatcher dispatcher;
 
-	public BandedPitchDetectorSource(TarsosAudioIO tarsosIO) {
+	private int sampleRate;
+
+	public BandedPitchDetectorSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
-		pitchDetectorSourceBand1 = new PitchDetectorSource(tarsosIO, 256);
+		this.dispatcher = dispatcher;
+		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
+		pitchDetectorSourceBand1 = new PitchDetectorSource(dispatcher, 256);
 		sourceMap.put(256, pitchDetectorSourceBand1);
-		pitchDetectorSourceBand2 = new PitchDetectorSource(tarsosIO, 512);
+		pitchDetectorSourceBand2 = new PitchDetectorSource(dispatcher, 512);
 		sourceMap.put(512, pitchDetectorSourceBand2);
-		pitchDetectorSourceBand3 = new PitchDetectorSource(tarsosIO, 1024);
+		pitchDetectorSourceBand3 = new PitchDetectorSource(dispatcher, 1024);
 		sourceMap.put(1024, pitchDetectorSourceBand3);
-		pitchDetectorSourceBand4 = new PitchDetectorSource(tarsosIO, 2048);
+		pitchDetectorSourceBand4 = new PitchDetectorSource(dispatcher, 2048);
 		sourceMap.put(2048, pitchDetectorSourceBand4);
-		pitchDetectorSourceBand5 = new PitchDetectorSource(tarsosIO, 4096);
+		pitchDetectorSourceBand5 = new PitchDetectorSource(dispatcher, 4096);
 		sourceMap.put(4096, pitchDetectorSourceBand5);
 	}
 
@@ -62,10 +65,6 @@ public class BandedPitchDetectorSource {
 		clonedFeatures.put(pitchDetectorSourceBand5.getBufferSize(),
 				pitchDetectorSourceBand5.getFeatures());
 		return clonedFeatures;
-	}
-
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
 	}
 
 	void clear() {

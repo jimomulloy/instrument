@@ -3,13 +3,13 @@ package jomu.instrument.audio.features;
 import java.util.Map;
 import java.util.TreeMap;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.ConstantQ;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.audio.DispatchJunctionProcessor;
-import jomu.instrument.audio.TarsosAudioIO;
 
 public class ConstantQSource {
 
@@ -26,12 +26,12 @@ public class ConstantQSource {
 	int maximumFrequencyInCents = 10800;
 	int minimumFrequencyInCents = 3600;
 	float sampleRate = 44100;
-	TarsosAudioIO tarsosIO;
+	private AudioDispatcher dispatcher;
 
-	public ConstantQSource(TarsosAudioIO tarsosIO) {
+	public ConstantQSource(AudioDispatcher dispatcher) {
 		super();
-		this.tarsosIO = tarsosIO;
-		this.sampleRate = tarsosIO.getContext().getSampleRate();
+		this.dispatcher = dispatcher;
+		this.sampleRate = dispatcher.getFormat().getSampleRate();
 	}
 
 	public float getBinHeight() {
@@ -90,10 +90,6 @@ public class ConstantQSource {
 		return startingPointsInHertz;
 	}
 
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
-	}
-
 	void clear() {
 		features.clear();
 	}
@@ -123,7 +119,7 @@ public class ConstantQSource {
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
 				tarsosDSPFormat, size, size - increment);
 		djp.setName("CQ");
-		tarsosIO.getDispatcher().addAudioProcessor(djp);
+		dispatcher.addAudioProcessor(djp);
 
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
 		System.out.println(">>CQ size: " + size);
