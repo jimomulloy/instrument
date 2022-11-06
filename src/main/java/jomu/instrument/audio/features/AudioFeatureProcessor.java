@@ -81,6 +81,10 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		return interval;
 	}
 
+	public int getLastSequence() {
+		return lastSequence;
+	}
+
 	public int getMaxFrames() {
 		return maxFrames;
 	}
@@ -95,6 +99,14 @@ public class AudioFeatureProcessor implements AudioProcessor {
 
 	public TarsosFeatureSource getTarsosFeatures() {
 		return tarsosFeatures;
+	}
+
+	public boolean isClosed() {
+		return AudioFeatureFrameState.CLOSED.equals(state);
+	}
+
+	public boolean isLastSequence(int sequence) {
+		return (getLastSequence() > -1 && sequence >= getLastSequence());
 	}
 
 	@Override
@@ -164,14 +176,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				.closeAudioStream(streamId);
 	}
 
-	public int getLastSequence() {
-		return lastSequence;
-	}
-
-	public boolean isClosed() {
-		return AudioFeatureFrameState.CLOSED.equals(state);
-	}
-
 	public void removeObserver(AudioFeatureFrameObserver observer) {
 		this.observers.remove(observer);
 	}
@@ -187,9 +191,5 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		audioFeatureFrame.initialise();
 		addAudioFeatureFrame(firstTimeStamp, audioFeatureFrame);
 		return audioFeatureFrame;
-	}
-
-	public boolean isLastSequence(int sequence) {
-		return (getLastSequence() > -1 && sequence >= getLastSequence());
 	}
 }

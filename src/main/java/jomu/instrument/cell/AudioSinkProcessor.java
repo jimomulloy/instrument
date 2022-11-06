@@ -13,17 +13,6 @@ import jomu.instrument.world.tonemap.ToneMap;
 
 public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 
-	public static float[] convertDoublesToFloats(double[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		float[] output = new float[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = (float) input[i];
-		}
-		return output;
-	}
-
 	private NuCell cell;
 
 	private float tmMax = 0;
@@ -64,5 +53,16 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 
 	private String buildToneMapKey(CellTypes cellType, String streamId) {
 		return cellType + ":" + streamId;
+	}
+
+	public static float[] convertDoublesToFloats(double[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		float[] output = new float[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = (float) input[i];
+		}
+		return output;
 	}
 }

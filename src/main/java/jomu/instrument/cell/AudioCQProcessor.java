@@ -18,29 +18,7 @@ import jomu.instrument.world.tonemap.ToneMap;
 
 public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
-	private float[] convertDoublesToFloats(double[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		float[] output = new float[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = (float) input[i];
-		}
-		return output;
-	}
-	private double[] convertFloatsToDoubles(float[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		double[] output = new double[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = input[i];
-		}
-		return output;
-	}
-
 	private NuCell cell;
-
 	private float tmMax = 0;
 
 	private WorldModel worldModel;
@@ -86,7 +64,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 					maxAmplitude = (float) toneMap.getTimeFrame()
 							.getMaxAmplitude();
-					float sampleRate = (float) toneMap.getTimeFrame()
+					float sampleRate = toneMap.getTimeFrame()
 							.getTimeSet().getSampleRate();
 					System.out.println(">>MAX AMP AFTER: " + maxAmplitude + ", "
 							+ toneMap + ", "
@@ -138,5 +116,27 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 	private String buildToneMapKey(CellTypes cellType, String streamId) {
 		return cellType + ":" + streamId;
+	}
+
+	private float[] convertDoublesToFloats(double[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		float[] output = new float[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = (float) input[i];
+		}
+		return output;
+	}
+
+	private double[] convertFloatsToDoubles(float[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		double[] output = new double[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = input[i];
+		}
+		return output;
 	}
 }

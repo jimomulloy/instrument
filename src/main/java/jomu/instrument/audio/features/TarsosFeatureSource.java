@@ -31,6 +31,10 @@ public class TarsosFeatureSource {
 		return constantQSource;
 	}
 
+	public AudioDispatcher getDispatcher() {
+		return dispatcher;
+	}
+
 	public GoertzelSource getGoertzelSource() {
 		return goertzelSource;
 	}
@@ -73,9 +77,5 @@ public class TarsosFeatureSource {
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
 		// scalogramSource.initialise();
-	}
-
-	public AudioDispatcher getDispatcher() {
-		return dispatcher;
 	}
 }

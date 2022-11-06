@@ -111,6 +111,744 @@ public class Visor extends JPanel
 			OscilloscopeEventHandler,
 			AudioFeatureFrameObserver {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 3501426880288136245L;
+
+	private List<Double> amplitudes;
+
+	private LinkedPanel bandedPitchDetectPanel;
+
+	// private BeadsLayer beadsLayer;
+	// private LinkedPanel beadsPanel;
+	private BandedPitchDetectLayer bpdLayer;
+
+	private LinkedPanel constantQPanel;
+
+	private JTextArea textArea;
+
+	private int count = 0;
+
+	private CQLayer cqLayer;
+
+	private LinkedPanel cqPanel;
+
+	// current frequencies and amplitudes of peak list, for sensory dissonance
+	// curve
+	private List<Double> frequencies;
+	private LegendLayer legend;
+	private SpectrumLayer noiseFloorLayer;
+	private OnsetLayer onsetLayer;
+	private LinkedPanel onsetPanel;
+
+	private OscilloscopePanel oscilloscopePanel;
+
+	private PitchDetectLayer pdLayer;
+	private LinkedPanel pitchDetectPanel;
+	private ScalogramLayer scalogramLayer;
+	private LinkedPanel scalogramPanel;
+	private SpectrogramLayer sLayer;
+	private SpectrumPeaksLayer spectralPeaksLayer;
+	private LinkedPanel spectralPeaksPanel;
+	private LinkedPanel spectrogramPanel;
+	private SpectrumLayer spectrumLayer;
+	private LinkedPanel spectrumPanel;
+	private ToneMapLayer toneMapLayer;
+	private LinkedPanel toneMapPanel;
+	int counter;
+	Mixer currentMixer;
+	AudioDispatcher dispatcher;
+
+	double threshold;
+
+	private int sampleRate;
+
+	private int fftsize;
+
+	private int stepsize;// 50% overlap
+
+	private int noiseFloorMedianFilterLenth;// 35
+
+	private float noiseFloorFactor;
+
+	private String fileName;
+
+	private int numberOfSpectralPeaks;
+
+	private int currentFrame;
+
+	private int minPeakSize;
+
+	private final Integer[] fftSizes = {256, 512, 1024, 2048, 4096, 8192, 16384,
+			22050, 32768, 65536, 131072};
+	private final Integer[] inputSampleRate = {8000, 22050, 44100, 192000};
+	private File inputFile;
+	private final List<SpectralInfo> spectalInfo = null;
+
+	public Visor() {
+		this.setLayout(new BorderLayout());
+
+		JPanel controlPanel = new JPanel(new GridLayout(0, 2));
+
+		controlPanel.add(createButtonPanel("D:"));
+		controlPanel.setBorder(BorderFactory.createCompoundBorder(
+				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+
+		controlPanel.add(createMixerPanel());
+		controlPanel.setBorder(BorderFactory.createCompoundBorder(
+				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.setBorder(BorderFactory.createCompoundBorder(
+				new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		// this.add(new JScrollPane(subPanel), BorderLayout.NORTH);
+		// this.add(new JScrollPane(tabbedPane),BorderLayout.CENTER);
+
+		toneMapPanel = createToneMapPanel();
+		tabbedPane.addTab("TM", toneMapPanel);
+		cqPanel = createCQPanel();
+		tabbedPane.addTab("CQ", cqPanel);
+		bandedPitchDetectPanel = createBandedPitchDetectPanel();
+		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
+		pitchDetectPanel = createPitchDetectPanel();
+		tabbedPane.addTab("Pitch", pitchDetectPanel);
+		spectrogramPanel = createSpectogramPanel();
+		tabbedPane.addTab("Spectogram", spectrogramPanel);
+		scalogramPanel = createScalogramPanel();
+		tabbedPane.addTab("Scalogram", scalogramPanel);
+		onsetPanel = createOnsetPanel();
+		tabbedPane.addTab("Onset", onsetPanel);
+		spectralPeaksPanel = createSpectralPeaksPanel();
+		tabbedPane.addTab("SP", spectralPeaksPanel);
+		oscilloscopePanel = new OscilloscopePanel();
+		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
+		// beadsPanel = createBeadsPanel();
+		// tabbedPane.addTab("Beads", beadsPanel);
+
+		// spectrumPanel = createSpectrumPanel();
+		// tabbedPane.addTab("Spectrum", spectrumPanel);
+
+		// create a splitpane
+		JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL,
+				new JScrollPane(controlPanel), new JScrollPane(tabbedPane));
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(150);
+
+		// Provide minimum sizes for the two components in the split pane
+		Dimension minimumSize = new Dimension(100, 50);
+		controlPanel.setMinimumSize(minimumSize);
+		tabbedPane.setMinimumSize(minimumSize);
+		this.add(splitPane, BorderLayout.CENTER);
+
+	}
+	@Override
+	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
+		updateView(audioFeatureFrame);
+	}
+	@Override
+	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
+		updateView(audioFeatureFrame);
+	}
+	public void clearView() {
+		toneMapLayer.clear();
+		this.toneMapPanel.repaint();
+	}
+	@Override
+	public void handleEvent(float[] data, AudioEvent event) {
+		oscilloscopePanel.paint(data, event);
+		oscilloscopePanel.repaint();
+	}
+	public void repaintSpectalInfo(SpectralInfo info) {
+
+		spectrumLayer.clearPeaks();
+		spectrumLayer.setSpectrum(info.getMagnitudes());
+		noiseFloorLayer.setSpectrum(info
+				.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
+
+		List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth,
+				noiseFloorFactor, numberOfSpectralPeaks, minPeakSize);
+
+		StringBuilder sb = new StringBuilder(
+				"Frequency(Hz);Step(cents);Magnitude\n");
+		frequencies.clear();
+		amplitudes.clear();
+		for (SpectralPeak peak : peaks) {
+
+			String message = String.format("%.2f;%.2f;%.2f\n",
+					peak.getFrequencyInHertz(),
+					peak.getRelativeFrequencyInCents(), peak.getMagnitude());
+			sb.append(message);
+			// float peakFrequencyInCents =(float)
+			// PitchConverter.hertzToAbsoluteCent(peak.getFrequencyInHertz());
+			spectrumLayer.setPeak(peak.getBin());
+			frequencies.add((double) peak.getFrequencyInHertz());
+			amplitudes.add((double) peak.getMagnitude());
+
+		}
+		// textArea.setText(sb.toString());
+		this.spectrumPanel.repaint();
+	}
+	public void updateToneMap(AudioFeatureFrame audioFeatureFrame) {
+		toneMapLayer.update(audioFeatureFrame);
+		this.toneMapPanel.repaint();
+	}
+	private LinkedPanel createBandedPitchDetectPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		bandedPitchDetectPanel = new LinkedPanel(cs);
+		bpdLayer = new BandedPitchDetectLayer(cs);
+		bandedPitchDetectPanel.addLayer(new BackgroundLayer(cs));
+		bandedPitchDetectPanel.addLayer(bpdLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		bandedPitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		bandedPitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
+		bandedPitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
+		bandedPitchDetectPanel.addLayer(new SelectionLayer(cs));
+		bandedPitchDetectPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		bandedPitchDetectPanel.addLayer(legend);
+		legend.addEntry("Pitch", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				bandedPitchDetectPanel.repaint();
+			}
+		};
+		bandedPitchDetectPanel.getViewPort()
+				.addViewPortChangedListener(listener);
+		return bandedPitchDetectPanel;
+	}
+	//
+	// private LinkedPanel createBeadsPanel() {
+	// CoordinateSystem beadsCS = getCoordinateSystem(AxisUnit.FREQUENCY);
+	// beadsCS.setMax(Axis.X, 20000);
+	// beadsPanel = new LinkedPanel(beadsCS);
+	// beadsLayer = new BeadsLayer(beadsCS);
+	// beadsPanel.addLayer(new BackgroundLayer(beadsCS));
+	// beadsPanel.addLayer(beadsLayer);
+	// beadsPanel.addLayer(new VerticalFrequencyAxisLayer(beadsCS));
+	// beadsPanel.addLayer(new ZoomMouseListenerLayer());
+	// beadsPanel.addLayer(new DragMouseListenerLayer(beadsCS));
+	// beadsPanel.addLayer(new SelectionLayer(beadsCS));
+	// beadsPanel.addLayer(new TimeAxisLayer(beadsCS));
+	//
+	// legend = new LegendLayer(beadsCS, 110);
+	// beadsPanel.addLayer(legend);
+	// legend.addEntry("Beads", Color.BLACK);
+	// ViewPortChangedListener listener = new ViewPortChangedListener() {
+	// @Override
+	// public void viewPortChanged(ViewPort newViewPort) {
+	// beadsPanel.repaint();
+	// }
+	// };
+	// beadsPanel.getViewPort().addViewPortChangedListener(listener);
+	// return beadsPanel;
+	// }
+
+	private Component createButtonPanel(String startDir) {
+		JPanel motherPanel = new JPanel(new BorderLayout());
+		JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
+
+		final JFileChooser fileChooser = new JFileChooser(new File(startDir));
+		final JButton chooseFileButton = new JButton("Open...");
+		chooseFileButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int returnVal = fileChooser.showOpenDialog(Visor.this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					inputFile = fileChooser.getSelectedFile();
+					System.out.println(inputFile.toString());
+					fileName = inputFile.getAbsolutePath();
+					try {
+						Instrument.getInstance().getCoordinator().getHearing()
+								.startAudioFileStream(fileName);
+					} catch (UnsupportedAudioFileException | IOException
+							| LineUnavailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		buttonPanel.add(new JLabel("Choose a file:"));
+		buttonPanel.add(chooseFileButton);
+
+		JComboBox<Integer> fftSizeComboBox = new JComboBox<>(fftSizes);
+		fftSizeComboBox.addActionListener(new ActionListener() {
+			private Integer fftsize;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource())
+						.getSelectedItem();
+				fftsize = value;
+				noiseFloorMedianFilterLenth = fftsize / 117;
+				System.out.println(
+						"FFT Changed to " + value + " median filter length to "
+								+ noiseFloorMedianFilterLenth);
+				// startProcessing();
+			}
+		});
+		fftSizeComboBox.setSelectedIndex(3);
+		buttonPanel.add(new JLabel("FFT-size:"));
+		buttonPanel.add(fftSizeComboBox);
+
+		Integer value = new Integer(50);
+		Integer min = new Integer(32);
+		Integer max = new Integer(131072);
+		Integer step = new Integer(32);
+		SpinnerNumberModel model = new SpinnerNumberModel(value, min, max,
+				step);
+
+		JSpinner stepSizeSpinner = new JSpinner(model);
+		stepSizeSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				Integer value = (Integer) ((JSpinner) e.getSource()).getValue();
+				stepsize = value;
+				System.out.println("Step size Changed to " + value
+						+ ", overlap is " + (fftsize - stepsize));
+				// TODO startProcessing();
+			}
+		});
+		stepSizeSpinner.setValue(512);
+		buttonPanel.add(new JLabel("Step size:"));
+		buttonPanel.add(stepSizeSpinner);
+
+		JComboBox<Integer> inputSampleRateCombobox = new JComboBox<>(
+				inputSampleRate);
+		inputSampleRateCombobox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource())
+						.getSelectedItem();
+				sampleRate = value;
+				System.out.println("Sample rate Changed to " + value);
+			}
+		});
+		inputSampleRateCombobox.setSelectedIndex(1);
+		buttonPanel.add(new JLabel("Input sample rate"));
+		buttonPanel.add(inputSampleRateCombobox);
+
+		JSlider noiseFloorSlider = new JSlider(100, 250);
+		final JLabel noiseFloorFactorLabel = new JLabel(
+				"Noise floor factor    :");
+		noiseFloorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				double actualValue = newValue / 100.0;
+				noiseFloorFactorLabel.setText(String
+						.format("Noise floor factor (%.2f):", actualValue));
+
+				System.out.println("New noise floor factor: " + actualValue);
+				noiseFloorFactor = (float) actualValue;
+				// TODO repaintSpectalInfo();
+
+			}
+		});
+		noiseFloorSlider.setValue(150);
+		buttonPanel.add(noiseFloorFactorLabel);
+		buttonPanel.add(noiseFloorSlider);
+
+		JSlider medianFilterSizeSlider = new JSlider(3, 255);
+		final JLabel medianFilterSizeLabel = new JLabel(
+				"Median Filter Size   :");
+		medianFilterSizeSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				medianFilterSizeLabel.setText(
+						String.format("Median Filter Size (%d):", newValue));
+				System.out.println("New Median filter size: " + newValue);
+				noiseFloorMedianFilterLenth = newValue;
+				// TODO repaintSpectalInfo();
+
+			}
+		});
+		medianFilterSizeSlider.setValue(17);
+		buttonPanel.add(medianFilterSizeLabel);
+		buttonPanel.add(medianFilterSizeSlider);
+
+		JSlider minPeakSizeSlider = new JSlider(5, 255);
+		final JLabel minPeakSizeLabel = new JLabel("Min Peak Size   :");
+		minPeakSizeSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				minPeakSizeLabel.setText(
+						String.format("Min Peak Size    (%d):", newValue));
+				System.out.println("Min Peak Sizee: " + newValue);
+				minPeakSize = newValue;
+				// TODO repaintSpectalInfo();
+			}
+		});
+		minPeakSizeSlider.setValue(5);
+		buttonPanel.add(minPeakSizeLabel);
+		buttonPanel.add(minPeakSizeSlider);
+
+		JSlider numberOfPeaksSlider = new JSlider(1, 40);
+		final JLabel numberOfPeaksLabel = new JLabel("Number of peaks  :");
+		numberOfPeaksSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				numberOfPeaksLabel
+						.setText("Number of peaks (" + newValue + "):");
+
+				System.out.println("New amount of peaks: " + newValue);
+				numberOfSpectralPeaks = newValue;
+				// TODO repaintSpectalInfo();
+
+			}
+		});
+		numberOfPeaksSlider.setValue(7);
+		buttonPanel.add(numberOfPeaksLabel);
+		buttonPanel.add(numberOfPeaksSlider);
+
+		textArea = new JTextArea(10, 20);
+		buttonPanel.add(new JLabel("Peaks:"));
+		motherPanel.add(buttonPanel, BorderLayout.NORTH);
+		motherPanel.add(textArea, BorderLayout.CENTER);
+		return motherPanel;
+	}
+
+	private LinkedPanel createCQPanel() {
+		CoordinateSystem constantQCS = getCoordinateSystem(AxisUnit.FREQUENCY);
+		constantQCS.setMax(Axis.X, 20000);
+		constantQPanel = new LinkedPanel(constantQCS);
+		cqLayer = new CQLayer(constantQCS);
+		constantQPanel.addLayer(new BackgroundLayer(constantQCS));
+		constantQPanel.addLayer(cqLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		constantQPanel.addLayer(new VerticalFrequencyAxisLayer(constantQCS));
+		constantQPanel.addLayer(new ZoomMouseListenerLayer());
+		constantQPanel.addLayer(new DragMouseListenerLayer(constantQCS));
+		constantQPanel.addLayer(new SelectionLayer(constantQCS));
+		constantQPanel.addLayer(new TimeAxisLayer(constantQCS));
+
+		legend = new LegendLayer(constantQCS, 110);
+		constantQPanel.addLayer(legend);
+		legend.addEntry("ConstantQ", Color.BLACK);
+		legend.addEntry("Pitch estimations", Color.RED);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				constantQPanel.repaint();
+			}
+		};
+		constantQPanel.getViewPort().addViewPortChangedListener(listener);
+		return constantQPanel;
+	}
+
+	private Component createMixerPanel() {
+		JPanel motherPanel = new JPanel(new BorderLayout());
+		JPanel inputPanel = new JPanel(new GridLayout(0, 1));
+
+		JPanel mixerPanel = new InputPanel();
+		mixerPanel.addPropertyChangeListener("mixer",
+				new PropertyChangeListener() {
+					@Override
+					public void propertyChange(PropertyChangeEvent arg0) {
+						try {
+							Instrument.getInstance().getCoordinator()
+									.getHearing().startAudioLineStream(
+											(Mixer) arg0.getNewValue());
+						} catch (LineUnavailableException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+
+		inputPanel.add(mixerPanel);
+
+		textArea = new JTextArea(10, 20);
+		inputPanel.add(new JLabel("Report:"));
+		motherPanel.add(inputPanel, BorderLayout.NORTH);
+		motherPanel.add(textArea, BorderLayout.CENTER);
+		return motherPanel;
+	}
+
+	private LinkedPanel createOnsetPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		LinkedPanel constantQPanel = new LinkedPanel(cs);
+		onsetLayer = new OnsetLayer(cs);
+		constantQPanel.addLayer(new BackgroundLayer(cs));
+		constantQPanel.addLayer(onsetLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		constantQPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		constantQPanel.addLayer(new ZoomMouseListenerLayer());
+		constantQPanel.addLayer(new DragMouseListenerLayer(cs));
+		constantQPanel.addLayer(new SelectionLayer(cs));
+		constantQPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		constantQPanel.addLayer(legend);
+		legend.addEntry("Onset", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				constantQPanel.repaint();
+			}
+		};
+		constantQPanel.getViewPort().addViewPortChangedListener(listener);
+		return constantQPanel;
+	}
+
+	private LinkedPanel createPitchDetectPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		pitchDetectPanel = new LinkedPanel(cs);
+		pdLayer = new PitchDetectLayer(cs);
+		pitchDetectPanel.addLayer(new BackgroundLayer(cs));
+		pitchDetectPanel.addLayer(pdLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		pitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		pitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
+		pitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
+		pitchDetectPanel.addLayer(new SelectionLayer(cs));
+		pitchDetectPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		pitchDetectPanel.addLayer(legend);
+		legend.addEntry("Pitch", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				pitchDetectPanel.repaint();
+			}
+		};
+		pitchDetectPanel.getViewPort().addViewPortChangedListener(listener);
+		return pitchDetectPanel;
+	}
+
+	private LinkedPanel createScalogramPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		scalogramPanel = new LinkedPanel(cs);
+		scalogramLayer = new ScalogramLayer(cs);
+		scalogramPanel.addLayer(new BackgroundLayer(cs));
+		scalogramPanel.addLayer(scalogramLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		scalogramPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		scalogramPanel.addLayer(new ZoomMouseListenerLayer());
+		scalogramPanel.addLayer(new DragMouseListenerLayer(cs));
+		scalogramPanel.addLayer(new SelectionLayer(cs));
+		scalogramPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		scalogramPanel.addLayer(legend);
+		legend.addEntry("Scalogram", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				scalogramPanel.repaint();
+			}
+		};
+		scalogramPanel.getViewPort().addViewPortChangedListener(listener);
+		return scalogramPanel;
+	}
+
+	private LinkedPanel createSpectogramPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		spectrogramPanel = new LinkedPanel(cs);
+		sLayer = new SpectrogramLayer(cs);
+		spectrogramPanel.addLayer(new BackgroundLayer(cs));
+		spectrogramPanel.addLayer(sLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		spectrogramPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		spectrogramPanel.addLayer(new ZoomMouseListenerLayer());
+		spectrogramPanel.addLayer(new DragMouseListenerLayer(cs));
+		spectrogramPanel.addLayer(new SelectionLayer(cs));
+		spectrogramPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		spectrogramPanel.addLayer(legend);
+		legend.addEntry("Pitch", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				spectrogramPanel.repaint();
+			}
+		};
+		spectrogramPanel.getViewPort().addViewPortChangedListener(listener);
+		return spectrogramPanel;
+	}
+
+	private LinkedPanel createSpectralPeaksPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		spectralPeaksPanel = new LinkedPanel(cs);
+		spectralPeaksLayer = new SpectrumPeaksLayer(cs);
+		spectralPeaksPanel.addLayer(new BackgroundLayer(cs));
+		spectralPeaksPanel.addLayer(spectralPeaksLayer);
+		spectralPeaksPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		spectralPeaksPanel.addLayer(new ZoomMouseListenerLayer());
+		spectralPeaksPanel.addLayer(new DragMouseListenerLayer(cs));
+		spectralPeaksPanel.addLayer(new SelectionLayer(cs));
+		spectralPeaksPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		spectralPeaksPanel.addLayer(legend);
+		legend.addEntry("SpectralPeaks", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				spectralPeaksPanel.repaint();
+			}
+		};
+		spectralPeaksPanel.getViewPort().addViewPortChangedListener(listener);
+		return spectralPeaksPanel;
+	}
+
+	private LinkedPanel createSpectrumPanel() {
+		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY,
+				AxisUnit.AMPLITUDE, 0, 10000, false);
+		cs.setMax(Axis.X, 4800);
+		cs.setMax(Axis.X, 13200);
+		spectrumLayer = new SpectrumLayer(cs, 1024, 44100, Color.red);
+		noiseFloorLayer = new SpectrumLayer(cs, 1024, 44100, Color.gray);
+
+		spectrumPanel = new LinkedPanel(cs);
+		spectrumPanel.addLayer(new ZoomMouseListenerLayer());
+		spectrumPanel.addLayer(new DragMouseListenerLayer(cs));
+		spectrumPanel.addLayer(new BackgroundLayer(cs));
+		spectrumPanel.addLayer(new AmplitudeAxisLayer(cs));
+
+		spectrumPanel.addLayer(new SelectionLayer(cs));
+		spectrumPanel.addLayer(new HorizontalFrequencyAxisLayer(cs));
+		spectrumPanel.addLayer(spectrumLayer);
+		spectrumPanel.addLayer(noiseFloorLayer);
+
+		spectrumPanel.getViewPort()
+				.addViewPortChangedListener(new ViewPortChangedListener() {
+					boolean painting = false;
+
+					@Override
+					public void viewPortChanged(ViewPort newViewPort) {
+						if (!painting) {
+							painting = true;
+							spectrumPanel.repaint();
+							painting = false;
+						}
+					}
+				});
+		return spectrumPanel;
+	}
+
+	private LinkedPanel createToneMapPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		toneMapPanel = new LinkedPanel(cs);
+		toneMapLayer = new ToneMapLayer(cs);
+		toneMapPanel.addLayer(new BackgroundLayer(cs));
+		toneMapPanel.addLayer(toneMapLayer);
+		// constantQ.addLayer(new PitchContourLayer(constantQCS,
+		// player.getLoadedFile(),Color.red,1024,0));
+		toneMapPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		toneMapPanel.addLayer(new ZoomMouseListenerLayer());
+		toneMapPanel.addLayer(new DragMouseListenerLayer(cs));
+		toneMapPanel.addLayer(new SelectionLayer(cs));
+		toneMapPanel.addLayer(new TimeAxisLayer(cs));
+
+		legend = new LegendLayer(cs, 110);
+		toneMapPanel.addLayer(legend);
+		legend.addEntry("ToneMap", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				toneMapPanel.repaint();
+			}
+		};
+		toneMapPanel.getViewPort().addViewPortChangedListener(listener);
+		return toneMapPanel;
+	}
+
+	private CoordinateSystem getCoordinateSystem(AxisUnit yUnits) {
+		float minValue = -1000;
+		float maxValue = 1000;
+		if (yUnits == AxisUnit.FREQUENCY) {
+			minValue = 400;
+			maxValue = 12000;
+		}
+		return new CoordinateSystem(yUnits, minValue, maxValue);
+	}
+
+	/*
+	 * private void setNewMixer(Mixer mixer) throws LineUnavailableException,
+	 * UnsupportedAudioFileException {
+	 *
+	 * if (dispatcher != null) { dispatcher.stop(); } currentMixer = mixer;
+	 *
+	 * float sampleRate = 44100; int bufferSize = 1024; int overlap = 0;
+	 *
+	 * final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
+	 * true); final DataLine.Info dataLineInfo = new DataLine.Info(
+	 * TargetDataLine.class, format); TargetDataLine line; line =
+	 * (TargetDataLine) mixer.getLine(dataLineInfo); final int numberOfSamples =
+	 * bufferSize; line.open(format, numberOfSamples); line.start(); final
+	 * AudioInputStream stream = new AudioInputStream(line);
+	 *
+	 * JVMAudioInputStream audioStream = new JVMAudioInputStream(stream); //
+	 * create a new dispatcher dispatcher = new AudioDispatcher(audioStream,
+	 * bufferSize, overlap);
+	 *
+	 * // add a processor, handle percussion event. //
+	 * dispatcher.addAudioProcessor(new DelayEffect(400,0.3,sampleRate));
+	 * dispatcher.addAudioProcessor(new Oscilloscope(this)); //
+	 * dispatcher.addAudioProcessor(new AudioPlayer(format));
+	 *
+	 * // run the dispatcher (on a new thread). new Thread(dispatcher,
+	 * "Audio dispatching").start(); }
+	 */
+	private void updateView(AudioFeatureFrame audioFeatureFrame) {
+		toneMapLayer.update(audioFeatureFrame);
+		scalogramLayer.update(audioFeatureFrame);
+		toneMapLayer.update(audioFeatureFrame);
+		// beadsLayer.update(audioFeatureFrame);
+		cqLayer.update(audioFeatureFrame);
+		onsetLayer.update(audioFeatureFrame);
+		spectralPeaksLayer.update(audioFeatureFrame);
+		pdLayer.update(audioFeatureFrame);
+		bpdLayer.update(audioFeatureFrame);
+		sLayer.update(audioFeatureFrame);
+		// if (count % 10 == 0) {
+		this.toneMapPanel.repaint();
+		this.scalogramPanel.repaint();
+		this.toneMapPanel.repaint();
+		this.spectrogramPanel.repaint();
+		this.cqPanel.repaint();
+		this.onsetPanel.repaint();
+		this.spectralPeaksPanel.repaint();
+		this.pitchDetectPanel.repaint();
+		this.bandedPitchDetectPanel.repaint();
+		// this.beadsPanel.repaint();
+		// }
+		count++;
+		// SpectralPeaksFeatures specFeatures = audioFeatureFrame
+		// .getSpectralPeaksFeatures();
+		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));
+	}
+
 	private static class BandedPitchDetectLayer implements Layer {
 
 		private float binHeight;
@@ -813,7 +1551,6 @@ public class Visor extends JPanel
 			});
 		}
 	}
-
 	private static class SpectrumPeaksLayer implements Layer {
 
 		private final CoordinateSystem cs;
@@ -901,7 +1638,7 @@ public class Visor extends JPanel
 					numberOfSpectralPeaks = sps.getNumberOfSpectralPeaks();
 					minPeakSize = sps.getMinPeakSize();
 					fftSize = sps.getBufferSize();
-					sampleRate = (int) sps.getSampleRate();
+					sampleRate = sps.getSampleRate();
 
 					TreeMap<Double, SpectralInfo> fs = audioFeatureFrame
 							.getSpectralPeaksFeatures().getFeatures();
@@ -924,6 +1661,16 @@ public class Visor extends JPanel
 
 		public ToneMapLayer(CoordinateSystem cs) {
 			this.cs = cs;
+		}
+
+		public void clear() {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					toneMaps = new TreeMap<>();
+				}
+			});
+
 		}
 
 		@Override
@@ -1010,751 +1757,5 @@ public class Visor extends JPanel
 				}
 			});
 		}
-
-		public void clear() {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					toneMaps = new TreeMap<>();
-				}
-			});
-
-		}
-	}
-
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 3501426880288136245L;
-	private List<Double> amplitudes;
-	private LinkedPanel bandedPitchDetectPanel;
-	// private BeadsLayer beadsLayer;
-	// private LinkedPanel beadsPanel;
-	private BandedPitchDetectLayer bpdLayer;
-	private LinkedPanel constantQPanel;
-
-	private JTextArea textArea;
-
-	private int count = 0;
-	private CQLayer cqLayer;
-	private LinkedPanel cqPanel;
-	// current frequencies and amplitudes of peak list, for sensory dissonance
-	// curve
-	private List<Double> frequencies;
-	private LegendLayer legend;
-	private SpectrumLayer noiseFloorLayer;
-	private OnsetLayer onsetLayer;
-	private LinkedPanel onsetPanel;
-	private OscilloscopePanel oscilloscopePanel;
-	private PitchDetectLayer pdLayer;
-	private LinkedPanel pitchDetectPanel;
-	private ScalogramLayer scalogramLayer;
-	private LinkedPanel scalogramPanel;
-	private SpectrogramLayer sLayer;
-	private SpectrumPeaksLayer spectralPeaksLayer;
-
-	private LinkedPanel spectralPeaksPanel;
-
-	private LinkedPanel spectrogramPanel;
-
-	private SpectrumLayer spectrumLayer;
-
-	private LinkedPanel spectrumPanel;
-
-	private ToneMapLayer toneMapLayer;
-
-	private LinkedPanel toneMapPanel;
-
-	int counter;
-
-	Mixer currentMixer;
-
-	AudioDispatcher dispatcher;
-
-	double threshold;
-
-	private int sampleRate;
-	private int fftsize;
-	private int stepsize;// 50% overlap
-	private int noiseFloorMedianFilterLenth;// 35
-	private float noiseFloorFactor;
-	private String fileName;
-	private int numberOfSpectralPeaks;
-	private int currentFrame;
-	private int minPeakSize;
-	private final Integer[] fftSizes = {256, 512, 1024, 2048, 4096, 8192, 16384,
-			22050, 32768, 65536, 131072};
-	private final Integer[] inputSampleRate = {8000, 22050, 44100, 192000};
-	private File inputFile;
-
-	private final List<SpectralInfo> spectalInfo = null;
-
-	public Visor() {
-		this.setLayout(new BorderLayout());
-
-		JPanel controlPanel = new JPanel(new GridLayout(0, 2));
-
-		controlPanel.add(createButtonPanel("D:"));
-		controlPanel.setBorder(BorderFactory.createCompoundBorder(
-				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-
-		controlPanel.add(createMixerPanel());
-		controlPanel.setBorder(BorderFactory.createCompoundBorder(
-				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-
-		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.setBorder(BorderFactory.createCompoundBorder(
-				new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		// this.add(new JScrollPane(subPanel), BorderLayout.NORTH);
-		// this.add(new JScrollPane(tabbedPane),BorderLayout.CENTER);
-
-		toneMapPanel = createToneMapPanel();
-		tabbedPane.addTab("TM", toneMapPanel);
-		cqPanel = createCQPanel();
-		tabbedPane.addTab("CQ", cqPanel);
-		bandedPitchDetectPanel = createBandedPitchDetectPanel();
-		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
-		pitchDetectPanel = createPitchDetectPanel();
-		tabbedPane.addTab("Pitch", pitchDetectPanel);
-		spectrogramPanel = createSpectogramPanel();
-		tabbedPane.addTab("Spectogram", spectrogramPanel);
-		scalogramPanel = createScalogramPanel();
-		tabbedPane.addTab("Scalogram", scalogramPanel);
-		onsetPanel = createOnsetPanel();
-		tabbedPane.addTab("Onset", onsetPanel);
-		spectralPeaksPanel = createSpectralPeaksPanel();
-		tabbedPane.addTab("SP", spectralPeaksPanel);
-		oscilloscopePanel = new OscilloscopePanel();
-		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
-		// beadsPanel = createBeadsPanel();
-		// tabbedPane.addTab("Beads", beadsPanel);
-
-		// spectrumPanel = createSpectrumPanel();
-		// tabbedPane.addTab("Spectrum", spectrumPanel);
-
-		// create a splitpane
-		JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL,
-				new JScrollPane(controlPanel), new JScrollPane(tabbedPane));
-		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(150);
-
-		// Provide minimum sizes for the two components in the split pane
-		Dimension minimumSize = new Dimension(100, 50);
-		controlPanel.setMinimumSize(minimumSize);
-		tabbedPane.setMinimumSize(minimumSize);
-		this.add(splitPane, BorderLayout.CENTER);
-
-	}
-
-	@Override
-	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
-		updateView(audioFeatureFrame);
-	}
-
-	@Override
-	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
-		updateView(audioFeatureFrame);
-	}
-
-	@Override
-	public void handleEvent(float[] data, AudioEvent event) {
-		oscilloscopePanel.paint(data, event);
-		oscilloscopePanel.repaint();
-	}
-
-	public void repaintSpectalInfo(SpectralInfo info) {
-
-		spectrumLayer.clearPeaks();
-		spectrumLayer.setSpectrum(info.getMagnitudes());
-		noiseFloorLayer.setSpectrum(info
-				.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
-
-		List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth,
-				noiseFloorFactor, numberOfSpectralPeaks, minPeakSize);
-
-		StringBuilder sb = new StringBuilder(
-				"Frequency(Hz);Step(cents);Magnitude\n");
-		frequencies.clear();
-		amplitudes.clear();
-		for (SpectralPeak peak : peaks) {
-
-			String message = String.format("%.2f;%.2f;%.2f\n",
-					peak.getFrequencyInHertz(),
-					peak.getRelativeFrequencyInCents(), peak.getMagnitude());
-			sb.append(message);
-			// float peakFrequencyInCents =(float)
-			// PitchConverter.hertzToAbsoluteCent(peak.getFrequencyInHertz());
-			spectrumLayer.setPeak(peak.getBin());
-			frequencies.add((double) peak.getFrequencyInHertz());
-			amplitudes.add((double) peak.getMagnitude());
-
-		}
-		// textArea.setText(sb.toString());
-		this.spectrumPanel.repaint();
-	}
-
-	public void updateToneMap(AudioFeatureFrame audioFeatureFrame) {
-		toneMapLayer.update(audioFeatureFrame);
-		this.toneMapPanel.repaint();
-	}
-
-	private LinkedPanel createBandedPitchDetectPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		bandedPitchDetectPanel = new LinkedPanel(cs);
-		bpdLayer = new BandedPitchDetectLayer(cs);
-		bandedPitchDetectPanel.addLayer(new BackgroundLayer(cs));
-		bandedPitchDetectPanel.addLayer(bpdLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		bandedPitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		bandedPitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
-		bandedPitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
-		bandedPitchDetectPanel.addLayer(new SelectionLayer(cs));
-		bandedPitchDetectPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		bandedPitchDetectPanel.addLayer(legend);
-		legend.addEntry("Pitch", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				bandedPitchDetectPanel.repaint();
-			}
-		};
-		bandedPitchDetectPanel.getViewPort()
-				.addViewPortChangedListener(listener);
-		return bandedPitchDetectPanel;
-	}
-	//
-	// private LinkedPanel createBeadsPanel() {
-	// CoordinateSystem beadsCS = getCoordinateSystem(AxisUnit.FREQUENCY);
-	// beadsCS.setMax(Axis.X, 20000);
-	// beadsPanel = new LinkedPanel(beadsCS);
-	// beadsLayer = new BeadsLayer(beadsCS);
-	// beadsPanel.addLayer(new BackgroundLayer(beadsCS));
-	// beadsPanel.addLayer(beadsLayer);
-	// beadsPanel.addLayer(new VerticalFrequencyAxisLayer(beadsCS));
-	// beadsPanel.addLayer(new ZoomMouseListenerLayer());
-	// beadsPanel.addLayer(new DragMouseListenerLayer(beadsCS));
-	// beadsPanel.addLayer(new SelectionLayer(beadsCS));
-	// beadsPanel.addLayer(new TimeAxisLayer(beadsCS));
-	//
-	// legend = new LegendLayer(beadsCS, 110);
-	// beadsPanel.addLayer(legend);
-	// legend.addEntry("Beads", Color.BLACK);
-	// ViewPortChangedListener listener = new ViewPortChangedListener() {
-	// @Override
-	// public void viewPortChanged(ViewPort newViewPort) {
-	// beadsPanel.repaint();
-	// }
-	// };
-	// beadsPanel.getViewPort().addViewPortChangedListener(listener);
-	// return beadsPanel;
-	// }
-
-	private Component createButtonPanel(String startDir) {
-		JPanel motherPanel = new JPanel(new BorderLayout());
-		JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
-
-		final JFileChooser fileChooser = new JFileChooser(new File(startDir));
-		final JButton chooseFileButton = new JButton("Open...");
-		chooseFileButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				int returnVal = fileChooser.showOpenDialog(Visor.this);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					inputFile = fileChooser.getSelectedFile();
-					System.out.println(inputFile.toString());
-					fileName = inputFile.getAbsolutePath();
-					try {
-						Instrument.getInstance().getCoordinator().getHearing()
-								.startAudioFileStream(fileName);
-					} catch (UnsupportedAudioFileException | IOException
-							| LineUnavailableException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-		buttonPanel.add(new JLabel("Choose a file:"));
-		buttonPanel.add(chooseFileButton);
-
-		JComboBox<Integer> fftSizeComboBox = new JComboBox<>(fftSizes);
-		fftSizeComboBox.addActionListener(new ActionListener() {
-			private Integer fftsize;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource())
-						.getSelectedItem();
-				fftsize = value;
-				noiseFloorMedianFilterLenth = fftsize / 117;
-				System.out.println(
-						"FFT Changed to " + value + " median filter length to "
-								+ noiseFloorMedianFilterLenth);
-				// startProcessing();
-			}
-		});
-		fftSizeComboBox.setSelectedIndex(3);
-		buttonPanel.add(new JLabel("FFT-size:"));
-		buttonPanel.add(fftSizeComboBox);
-
-		Integer value = new Integer(50);
-		Integer min = new Integer(32);
-		Integer max = new Integer(131072);
-		Integer step = new Integer(32);
-		SpinnerNumberModel model = new SpinnerNumberModel(value, min, max,
-				step);
-
-		JSpinner stepSizeSpinner = new JSpinner(model);
-		stepSizeSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				Integer value = (Integer) ((JSpinner) e.getSource()).getValue();
-				stepsize = value;
-				System.out.println("Step size Changed to " + value
-						+ ", overlap is " + (fftsize - stepsize));
-				// TODO startProcessing();
-			}
-		});
-		stepSizeSpinner.setValue(512);
-		buttonPanel.add(new JLabel("Step size:"));
-		buttonPanel.add(stepSizeSpinner);
-
-		JComboBox<Integer> inputSampleRateCombobox = new JComboBox<>(
-				inputSampleRate);
-		inputSampleRateCombobox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource())
-						.getSelectedItem();
-				sampleRate = value;
-				System.out.println("Sample rate Changed to " + value);
-			}
-		});
-		inputSampleRateCombobox.setSelectedIndex(1);
-		buttonPanel.add(new JLabel("Input sample rate"));
-		buttonPanel.add(inputSampleRateCombobox);
-
-		JSlider noiseFloorSlider = new JSlider(100, 250);
-		final JLabel noiseFloorFactorLabel = new JLabel(
-				"Noise floor factor    :");
-		noiseFloorSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-				double actualValue = newValue / 100.0;
-				noiseFloorFactorLabel.setText(String
-						.format("Noise floor factor (%.2f):", actualValue));
-
-				System.out.println("New noise floor factor: " + actualValue);
-				noiseFloorFactor = (float) actualValue;
-				// TODO repaintSpectalInfo();
-
-			}
-		});
-		noiseFloorSlider.setValue(150);
-		buttonPanel.add(noiseFloorFactorLabel);
-		buttonPanel.add(noiseFloorSlider);
-
-		JSlider medianFilterSizeSlider = new JSlider(3, 255);
-		final JLabel medianFilterSizeLabel = new JLabel(
-				"Median Filter Size   :");
-		medianFilterSizeSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-				medianFilterSizeLabel.setText(
-						String.format("Median Filter Size (%d):", newValue));
-				System.out.println("New Median filter size: " + newValue);
-				noiseFloorMedianFilterLenth = newValue;
-				// TODO repaintSpectalInfo();
-
-			}
-		});
-		medianFilterSizeSlider.setValue(17);
-		buttonPanel.add(medianFilterSizeLabel);
-		buttonPanel.add(medianFilterSizeSlider);
-
-		JSlider minPeakSizeSlider = new JSlider(5, 255);
-		final JLabel minPeakSizeLabel = new JLabel("Min Peak Size   :");
-		minPeakSizeSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-				minPeakSizeLabel.setText(
-						String.format("Min Peak Size    (%d):", newValue));
-				System.out.println("Min Peak Sizee: " + newValue);
-				minPeakSize = newValue;
-				// TODO repaintSpectalInfo();
-			}
-		});
-		minPeakSizeSlider.setValue(5);
-		buttonPanel.add(minPeakSizeLabel);
-		buttonPanel.add(minPeakSizeSlider);
-
-		JSlider numberOfPeaksSlider = new JSlider(1, 40);
-		final JLabel numberOfPeaksLabel = new JLabel("Number of peaks  :");
-		numberOfPeaksSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				numberOfPeaksLabel
-						.setText("Number of peaks (" + newValue + "):");
-
-				System.out.println("New amount of peaks: " + newValue);
-				numberOfSpectralPeaks = newValue;
-				// TODO repaintSpectalInfo();
-
-			}
-		});
-		numberOfPeaksSlider.setValue(7);
-		buttonPanel.add(numberOfPeaksLabel);
-		buttonPanel.add(numberOfPeaksSlider);
-
-		textArea = new JTextArea(10, 20);
-		buttonPanel.add(new JLabel("Peaks:"));
-		motherPanel.add(buttonPanel, BorderLayout.NORTH);
-		motherPanel.add(textArea, BorderLayout.CENTER);
-		return motherPanel;
-	}
-
-	private LinkedPanel createCQPanel() {
-		CoordinateSystem constantQCS = getCoordinateSystem(AxisUnit.FREQUENCY);
-		constantQCS.setMax(Axis.X, 20000);
-		constantQPanel = new LinkedPanel(constantQCS);
-		cqLayer = new CQLayer(constantQCS);
-		constantQPanel.addLayer(new BackgroundLayer(constantQCS));
-		constantQPanel.addLayer(cqLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		constantQPanel.addLayer(new VerticalFrequencyAxisLayer(constantQCS));
-		constantQPanel.addLayer(new ZoomMouseListenerLayer());
-		constantQPanel.addLayer(new DragMouseListenerLayer(constantQCS));
-		constantQPanel.addLayer(new SelectionLayer(constantQCS));
-		constantQPanel.addLayer(new TimeAxisLayer(constantQCS));
-
-		legend = new LegendLayer(constantQCS, 110);
-		constantQPanel.addLayer(legend);
-		legend.addEntry("ConstantQ", Color.BLACK);
-		legend.addEntry("Pitch estimations", Color.RED);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				constantQPanel.repaint();
-			}
-		};
-		constantQPanel.getViewPort().addViewPortChangedListener(listener);
-		return constantQPanel;
-	}
-
-	private Component createMixerPanel() {
-		JPanel motherPanel = new JPanel(new BorderLayout());
-		JPanel inputPanel = new JPanel(new GridLayout(0, 1));
-
-		JPanel mixerPanel = new InputPanel();
-		mixerPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						try {
-							Instrument.getInstance().getCoordinator()
-									.getHearing().startAudioLineStream(
-											(Mixer) arg0.getNewValue());
-						} catch (LineUnavailableException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-
-		inputPanel.add(mixerPanel);
-
-		textArea = new JTextArea(10, 20);
-		inputPanel.add(new JLabel("Report:"));
-		motherPanel.add(inputPanel, BorderLayout.NORTH);
-		motherPanel.add(textArea, BorderLayout.CENTER);
-		return motherPanel;
-	}
-
-	private LinkedPanel createOnsetPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		LinkedPanel constantQPanel = new LinkedPanel(cs);
-		onsetLayer = new OnsetLayer(cs);
-		constantQPanel.addLayer(new BackgroundLayer(cs));
-		constantQPanel.addLayer(onsetLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		constantQPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		constantQPanel.addLayer(new ZoomMouseListenerLayer());
-		constantQPanel.addLayer(new DragMouseListenerLayer(cs));
-		constantQPanel.addLayer(new SelectionLayer(cs));
-		constantQPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		constantQPanel.addLayer(legend);
-		legend.addEntry("Onset", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				constantQPanel.repaint();
-			}
-		};
-		constantQPanel.getViewPort().addViewPortChangedListener(listener);
-		return constantQPanel;
-	}
-
-	private LinkedPanel createPitchDetectPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		pitchDetectPanel = new LinkedPanel(cs);
-		pdLayer = new PitchDetectLayer(cs);
-		pitchDetectPanel.addLayer(new BackgroundLayer(cs));
-		pitchDetectPanel.addLayer(pdLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		pitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		pitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
-		pitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
-		pitchDetectPanel.addLayer(new SelectionLayer(cs));
-		pitchDetectPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		pitchDetectPanel.addLayer(legend);
-		legend.addEntry("Pitch", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				pitchDetectPanel.repaint();
-			}
-		};
-		pitchDetectPanel.getViewPort().addViewPortChangedListener(listener);
-		return pitchDetectPanel;
-	}
-
-	private LinkedPanel createScalogramPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		scalogramPanel = new LinkedPanel(cs);
-		scalogramLayer = new ScalogramLayer(cs);
-		scalogramPanel.addLayer(new BackgroundLayer(cs));
-		scalogramPanel.addLayer(scalogramLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		scalogramPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		scalogramPanel.addLayer(new ZoomMouseListenerLayer());
-		scalogramPanel.addLayer(new DragMouseListenerLayer(cs));
-		scalogramPanel.addLayer(new SelectionLayer(cs));
-		scalogramPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		scalogramPanel.addLayer(legend);
-		legend.addEntry("Scalogram", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				scalogramPanel.repaint();
-			}
-		};
-		scalogramPanel.getViewPort().addViewPortChangedListener(listener);
-		return scalogramPanel;
-	}
-
-	private LinkedPanel createSpectogramPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		spectrogramPanel = new LinkedPanel(cs);
-		sLayer = new SpectrogramLayer(cs);
-		spectrogramPanel.addLayer(new BackgroundLayer(cs));
-		spectrogramPanel.addLayer(sLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		spectrogramPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		spectrogramPanel.addLayer(new ZoomMouseListenerLayer());
-		spectrogramPanel.addLayer(new DragMouseListenerLayer(cs));
-		spectrogramPanel.addLayer(new SelectionLayer(cs));
-		spectrogramPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		spectrogramPanel.addLayer(legend);
-		legend.addEntry("Pitch", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				spectrogramPanel.repaint();
-			}
-		};
-		spectrogramPanel.getViewPort().addViewPortChangedListener(listener);
-		return spectrogramPanel;
-	}
-
-	private LinkedPanel createSpectralPeaksPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		spectralPeaksPanel = new LinkedPanel(cs);
-		spectralPeaksLayer = new SpectrumPeaksLayer(cs);
-		spectralPeaksPanel.addLayer(new BackgroundLayer(cs));
-		spectralPeaksPanel.addLayer(spectralPeaksLayer);
-		spectralPeaksPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		spectralPeaksPanel.addLayer(new ZoomMouseListenerLayer());
-		spectralPeaksPanel.addLayer(new DragMouseListenerLayer(cs));
-		spectralPeaksPanel.addLayer(new SelectionLayer(cs));
-		spectralPeaksPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		spectralPeaksPanel.addLayer(legend);
-		legend.addEntry("SpectralPeaks", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				spectralPeaksPanel.repaint();
-			}
-		};
-		spectralPeaksPanel.getViewPort().addViewPortChangedListener(listener);
-		return spectralPeaksPanel;
-	}
-
-	private LinkedPanel createSpectrumPanel() {
-		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY,
-				AxisUnit.AMPLITUDE, 0, 10000, false);
-		cs.setMax(Axis.X, 4800);
-		cs.setMax(Axis.X, 13200);
-		spectrumLayer = new SpectrumLayer(cs, 1024, 44100, Color.red);
-		noiseFloorLayer = new SpectrumLayer(cs, 1024, 44100, Color.gray);
-
-		spectrumPanel = new LinkedPanel(cs);
-		spectrumPanel.addLayer(new ZoomMouseListenerLayer());
-		spectrumPanel.addLayer(new DragMouseListenerLayer(cs));
-		spectrumPanel.addLayer(new BackgroundLayer(cs));
-		spectrumPanel.addLayer(new AmplitudeAxisLayer(cs));
-
-		spectrumPanel.addLayer(new SelectionLayer(cs));
-		spectrumPanel.addLayer(new HorizontalFrequencyAxisLayer(cs));
-		spectrumPanel.addLayer(spectrumLayer);
-		spectrumPanel.addLayer(noiseFloorLayer);
-
-		spectrumPanel.getViewPort()
-				.addViewPortChangedListener(new ViewPortChangedListener() {
-					boolean painting = false;
-
-					@Override
-					public void viewPortChanged(ViewPort newViewPort) {
-						if (!painting) {
-							painting = true;
-							spectrumPanel.repaint();
-							painting = false;
-						}
-					}
-				});
-		return spectrumPanel;
-	}
-
-	private LinkedPanel createToneMapPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		toneMapPanel = new LinkedPanel(cs);
-		toneMapLayer = new ToneMapLayer(cs);
-		toneMapPanel.addLayer(new BackgroundLayer(cs));
-		toneMapPanel.addLayer(toneMapLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		toneMapPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		toneMapPanel.addLayer(new ZoomMouseListenerLayer());
-		toneMapPanel.addLayer(new DragMouseListenerLayer(cs));
-		toneMapPanel.addLayer(new SelectionLayer(cs));
-		toneMapPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		toneMapPanel.addLayer(legend);
-		legend.addEntry("ToneMap", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				toneMapPanel.repaint();
-			}
-		};
-		toneMapPanel.getViewPort().addViewPortChangedListener(listener);
-		return toneMapPanel;
-	}
-
-	private CoordinateSystem getCoordinateSystem(AxisUnit yUnits) {
-		float minValue = -1000;
-		float maxValue = 1000;
-		if (yUnits == AxisUnit.FREQUENCY) {
-			minValue = 400;
-			maxValue = 12000;
-		}
-		return new CoordinateSystem(yUnits, minValue, maxValue);
-	}
-	/*
-	 * private void setNewMixer(Mixer mixer) throws LineUnavailableException,
-	 * UnsupportedAudioFileException {
-	 * 
-	 * if (dispatcher != null) { dispatcher.stop(); } currentMixer = mixer;
-	 * 
-	 * float sampleRate = 44100; int bufferSize = 1024; int overlap = 0;
-	 * 
-	 * final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-	 * true); final DataLine.Info dataLineInfo = new DataLine.Info(
-	 * TargetDataLine.class, format); TargetDataLine line; line =
-	 * (TargetDataLine) mixer.getLine(dataLineInfo); final int numberOfSamples =
-	 * bufferSize; line.open(format, numberOfSamples); line.start(); final
-	 * AudioInputStream stream = new AudioInputStream(line);
-	 * 
-	 * JVMAudioInputStream audioStream = new JVMAudioInputStream(stream); //
-	 * create a new dispatcher dispatcher = new AudioDispatcher(audioStream,
-	 * bufferSize, overlap);
-	 * 
-	 * // add a processor, handle percussion event. //
-	 * dispatcher.addAudioProcessor(new DelayEffect(400,0.3,sampleRate));
-	 * dispatcher.addAudioProcessor(new Oscilloscope(this)); //
-	 * dispatcher.addAudioProcessor(new AudioPlayer(format));
-	 * 
-	 * // run the dispatcher (on a new thread). new Thread(dispatcher,
-	 * "Audio dispatching").start(); }
-	 */
-	private void updateView(AudioFeatureFrame audioFeatureFrame) {
-		toneMapLayer.update(audioFeatureFrame);
-		scalogramLayer.update(audioFeatureFrame);
-		toneMapLayer.update(audioFeatureFrame);
-		// beadsLayer.update(audioFeatureFrame);
-		cqLayer.update(audioFeatureFrame);
-		onsetLayer.update(audioFeatureFrame);
-		spectralPeaksLayer.update(audioFeatureFrame);
-		pdLayer.update(audioFeatureFrame);
-		bpdLayer.update(audioFeatureFrame);
-		sLayer.update(audioFeatureFrame);
-		// if (count % 10 == 0) {
-		this.toneMapPanel.repaint();
-		this.scalogramPanel.repaint();
-		this.toneMapPanel.repaint();
-		this.spectrogramPanel.repaint();
-		this.cqPanel.repaint();
-		this.onsetPanel.repaint();
-		this.spectralPeaksPanel.repaint();
-		this.pitchDetectPanel.repaint();
-		this.bandedPitchDetectPanel.repaint();
-		// this.beadsPanel.repaint();
-		// }
-		count++;
-		// SpectralPeaksFeatures specFeatures = audioFeatureFrame
-		// .getSpectralPeaksFeatures();
-		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));
-	}
-
-	public void clearView() {
-		toneMapLayer.clear();
-		this.toneMapPanel.repaint();
 	}
 }

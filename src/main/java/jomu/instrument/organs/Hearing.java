@@ -24,6 +24,64 @@ import net.beadsproject.beads.core.AudioContext;
 
 public class Hearing {
 
+	private String streamId;
+
+	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
+
+	public void closeAudioStream(String streamId) {
+		AudioStream audioStream = audioStreams.get(streamId);
+		if (audioStream == null) {
+			return;
+		}
+		audioStream.close();
+		audioStreams.remove(streamId);
+	}
+
+	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
+		if (audioStreams.containsKey(streamId)) {
+			return audioStreams.get(streamId).getAudioFeatureProcessor();
+		} else {
+			return null;
+		}
+	}
+
+	public void initialise() {
+	}
+
+	public void start() {
+	}
+
+	public void startAudioFileStream(String fileName)
+			throws UnsupportedAudioFileException, IOException,
+			LineUnavailableException {
+		streamId = UUID.randomUUID().toString();
+		AudioStream audioStream = new AudioStream(streamId);
+		System.out.println(">>!!hearing initialise: " + streamId);
+		audioStreams.put(streamId, audioStream);
+
+		audioStream.initialiseAudioFileStream(fileName);
+
+		Instrument.getInstance().getCoordinator().getCortex();
+		audioStream.getAudioFeatureProcessor().addObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.start();
+	}
+
+	public void startAudioLineStream(Mixer mixer)
+			throws LineUnavailableException {
+		streamId = UUID.randomUUID().toString();
+		AudioStream audioStream = new AudioStream(streamId);
+		System.out.println(">>!!hearing initialise: " + streamId);
+		audioStreams.put(streamId, audioStream);
+
+		audioStream.initialiseMicrophoneStream(mixer);
+
+		Instrument.getInstance().getCoordinator().getCortex();
+		audioStream.getAudioFeatureProcessor().addObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.start();
+	}
+
 	private class AudioStream {
 
 		private AudioContext ac;
@@ -38,6 +96,16 @@ public class Hearing {
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
+		}
+
+		public void close() {
+			if (ac != null) {
+				ac.stop();
+				ac = null;
+			} else if (dispatcher != null) {
+				// dispatcher.stop();
+				dispatcher = null;
+			}
 		}
 
 		public AudioContext getAc() {
@@ -121,73 +189,5 @@ public class Hearing {
 			}
 		}
 
-		public void close() {
-			if (ac != null) {
-				ac.stop();
-				ac = null;
-			} else if (dispatcher != null) {
-				// dispatcher.stop();
-				dispatcher = null;
-			}
-		}
-
-	}
-
-	private String streamId;
-
-	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
-
-	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
-		if (audioStreams.containsKey(streamId)) {
-			return audioStreams.get(streamId).getAudioFeatureProcessor();
-		} else {
-			return null;
-		}
-	}
-
-	public void initialise() {
-	}
-
-	public void start() {
-	}
-
-	public void startAudioFileStream(String fileName)
-			throws UnsupportedAudioFileException, IOException,
-			LineUnavailableException {
-		streamId = UUID.randomUUID().toString();
-		AudioStream audioStream = new AudioStream(streamId);
-		System.out.println(">>!!hearing initialise: " + streamId);
-		audioStreams.put(streamId, audioStream);
-
-		audioStream.initialiseAudioFileStream(fileName);
-
-		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().addObserver(
-				Instrument.getInstance().getCoordinator().getCortex());
-		audioStream.start();
-	}
-
-	public void startAudioLineStream(Mixer mixer)
-			throws LineUnavailableException {
-		streamId = UUID.randomUUID().toString();
-		AudioStream audioStream = new AudioStream(streamId);
-		System.out.println(">>!!hearing initialise: " + streamId);
-		audioStreams.put(streamId, audioStream);
-
-		audioStream.initialiseMicrophoneStream(mixer);
-
-		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().addObserver(
-				Instrument.getInstance().getCoordinator().getCortex());
-		audioStream.start();
-	}
-
-	public void closeAudioStream(String streamId) {
-		AudioStream audioStream = audioStreams.get(streamId);
-		if (audioStream == null) {
-			return;
-		}
-		audioStream.close();
-		audioStreams.remove(streamId);
 	}
 }

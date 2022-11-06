@@ -9,31 +9,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 public class NuCell extends Cell implements Serializable {
-	private class QueueConsumer implements Runnable {
-
-		@Override
-		public void run() {
-			try {
-				while (true) {
-					NuMessage qe = (NuMessage) bq.take();
-					List<NuMessage> entries;
-					if (sequenceMap.containsKey(qe.streamId + qe.sequence)) {
-						entries = sequenceMap.get(qe.streamId + qe.sequence);
-					} else {
-						entries = new ArrayList<>();
-						sequenceMap.put(qe.streamId + qe.sequence, entries);
-					}
-					entries.add(qe);
-					if (entries.size() >= dendrites.getCount()) {
-						processor.accept(entries);
-					}
-				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
-
 	private static final long serialVersionUID = 1002;
 
 	private BlockingQueue<Object> bq;
@@ -54,10 +29,10 @@ public class NuCell extends Cell implements Serializable {
 	protected Dendrites dendrites;
 
 	protected Double expectedOutputSignal = new Double(0.000d);
+
 	// this field is for sending a signal into the Neural Network from
 	// a source outside of the Neural Network
 	protected Double externalInputSignal = new Double(0.000d);
-
 	// Each NuCell can be a combination of the various types of
 	// NetworkRole
 	// LayerClassification
@@ -111,12 +86,6 @@ public class NuCell extends Cell implements Serializable {
 		return dendrites.computeNetInput();
 	}
 
-	// ==========================================
-	// Morphology
-	// this section is unused for now
-	// possibly remove it later
-	// ==========================================
-
 	/**
 	 *
 	 * @return double
@@ -124,6 +93,12 @@ public class NuCell extends Cell implements Serializable {
 	public double computeOutputFunction(double d) {
 		return axon.getOutput(d);
 	}
+
+	// ==========================================
+	// Morphology
+	// this section is unused for now
+	// possibly remove it later
+	// ==========================================
 
 	/**
 	 * Computes the Transfer Function for a NuCell
@@ -137,10 +112,6 @@ public class NuCell extends Cell implements Serializable {
 		return ofD.doubleValue();
 	}
 
-	// ==========================================
-	// Inputs
-	// ==========================================
-
 	/**
 	 *
 	 * @param NuCell
@@ -148,6 +119,10 @@ public class NuCell extends Cell implements Serializable {
 	public void connectInput(NuCell NuCell) {
 		connectInput(NuCell, new Double(1d));
 	}
+
+	// ==========================================
+	// Inputs
+	// ==========================================
 
 	/**
 	 *
@@ -218,13 +193,13 @@ public class NuCell extends Cell implements Serializable {
 		return activationFunction.getSelection();
 	}
 
-	// ==========================================
-	// External Input Signal
-	// ==========================================
-
 	public double getActivationFunctionThreshold() {
 		return activationFunction.getThreshold();
 	}
+
+	// ==========================================
+	// External Input Signal
+	// ==========================================
 
 	/**
 	 *
@@ -234,10 +209,6 @@ public class NuCell extends Cell implements Serializable {
 		return axon;
 	}
 
-	// ==========================================
-	// Outputs
-	// ==========================================
-
 	/**
 	 *
 	 * @return
@@ -245,6 +216,10 @@ public class NuCell extends Cell implements Serializable {
 	public Dendrites getDendrites() {
 		return dendrites;
 	}
+
+	// ==========================================
+	// Outputs
+	// ==========================================
 
 	public double getExpectedOutputSignal() {
 		return expectedOutputSignal;
@@ -374,10 +349,6 @@ public class NuCell extends Cell implements Serializable {
 		return false;
 	}
 
-	// ==========================================
-	// Net Input Function
-	// ==========================================
-
 	/**
 	 * isOutputConnected returns true if this NuCell has an output connected to
 	 * the input parameter
@@ -396,12 +367,16 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	// ==========================================
-	// Activation Function
+	// Net Input Function
 	// ==========================================
 
 	public void receive(NuMessage message) {
 		bq.add(message);
 	}
+
+	// ==========================================
+	// Activation Function
+	// ==========================================
 
 	public void send(NuMessage message) {
 		axon.send(message);
@@ -425,10 +400,6 @@ public class NuCell extends Cell implements Serializable {
 		activationFunction.setThreshold(d);
 	}
 
-	// ==========================================
-	// Output Function
-	// ==========================================
-
 	/**
 	 *
 	 * @param axon
@@ -436,6 +407,10 @@ public class NuCell extends Cell implements Serializable {
 	public void setAxon(Axon axon) {
 		this.axon = axon;
 	}
+
+	// ==========================================
+	// Output Function
+	// ==========================================
 
 	/**
 	 *
@@ -507,4 +482,29 @@ public class NuCell extends Cell implements Serializable {
 		}
 
 	} // end updateLayerClassification
+
+	private class QueueConsumer implements Runnable {
+
+		@Override
+		public void run() {
+			try {
+				while (true) {
+					NuMessage qe = (NuMessage) bq.take();
+					List<NuMessage> entries;
+					if (sequenceMap.containsKey(qe.streamId + qe.sequence)) {
+						entries = sequenceMap.get(qe.streamId + qe.sequence);
+					} else {
+						entries = new ArrayList<>();
+						sequenceMap.put(qe.streamId + qe.sequence, entries);
+					}
+					entries.add(qe);
+					if (entries.size() >= dendrites.getCount()) {
+						processor.accept(entries);
+					}
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
 } // end NuCell

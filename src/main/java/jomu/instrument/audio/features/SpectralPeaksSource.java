@@ -34,6 +34,10 @@ public class SpectralPeaksSource {
 		this.bufferSize = (int) dispatcher.getFormat().getSampleRate();
 	}
 
+	public int getBufferSize() {
+		return bufferSize;
+	}
+
 	public int getCurrentFrame() {
 		return currentFrame;
 	}
@@ -144,9 +148,5 @@ public class SpectralPeaksSource {
 
 		spectralInfos.clear();
 		features.clear();
-	}
-
-	public int getBufferSize() {
-		return bufferSize;
 	}
 }

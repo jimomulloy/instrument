@@ -34,6 +34,95 @@ public class PitchSet implements Serializable {
 		}
 	}
 
+	private int currentPitchIndex;
+
+	private double freq;
+
+	private int freqRange;
+
+	private double[] freqSet;
+
+	private int highPitchIndex;
+
+	private int lowPitchIndex;
+
+	private double note;
+
+	public PitchSet() {
+		this(MIN_MIDI_NOTE, MAX_MIDI_NOTE);
+	}
+
+	public PitchSet(int lowNote, int highNote) {
+
+		setLowIndex(lowNote - MIN_MIDI_NOTE);
+		setHighIndex(highNote - MIN_MIDI_NOTE);
+		setIndex(lowNote - MIN_MIDI_NOTE);
+	}
+
+	@Override
+	public PitchSet clone() {
+		return new PitchSet(this.getLowNote(), this.getHighNote());
+	}
+
+	public double getFreq(int index) {
+		currentPitchIndex = index;
+		return PITCH_FREQ[lowPitchIndex + index];
+	}
+
+	public double[] getFreqSet() {
+		freqRange = getRange();
+		freqSet = new double[freqRange];
+		for (int i = 0; i < freqRange; i++) {
+			freqSet[i] = PITCH_FREQ[lowPitchIndex + i];
+		}
+		return freqSet;
+	}
+
+	public int getHighNote() {
+		return (highPitchIndex + MIN_MIDI_NOTE);
+	}
+
+	public int getIndex(int note) {
+		return note - getLowNote();
+	}
+
+	public int getLowNote() {
+		return (lowPitchIndex + MIN_MIDI_NOTE);
+	}
+
+	public int getNote(int index) {
+		return (lowPitchIndex + index + MIN_MIDI_NOTE);
+	}
+
+	public int getRange() {
+		return (highPitchIndex - lowPitchIndex + 1);
+	}
+
+	public int pitchToIndex(int pitchNote) {
+		setIndex(pitchNote - (lowPitchIndex + MIN_MIDI_NOTE));
+		return currentPitchIndex;
+	}
+
+	public void setHighIndex(int index) {
+		highPitchIndex = index;
+	}
+
+	public void setIndex(int index) {
+		currentPitchIndex = index;
+	}
+
+	public void setLowIndex(int index) {
+		lowPitchIndex = index;
+	}
+
+	@Override
+	public String toString() {
+		return "PitchSet [lowPitchIndex=" + lowPitchIndex + ", highPitchIndex="
+				+ highPitchIndex + ", currentPitchIndex=" + currentPitchIndex
+				+ ", freq=" + freq + ", note=" + note + ", freqSet="
+				+ Arrays.toString(freqSet) + ", freqRange=" + freqRange + "]";
+	}
+
 	/**
 	 * See craig tuner.java
 	 */
@@ -91,95 +180,6 @@ public class PitchSet implements Serializable {
 
 	public static int noteSymbolToMidi(NoteSymbol noteSymbol) {
 		return 0;
-	}
-
-	private int currentPitchIndex;
-
-	private double freq;
-
-	private int freqRange;
-
-	private double[] freqSet;
-
-	private int highPitchIndex;
-
-	private int lowPitchIndex;
-
-	private double note;
-
-	public PitchSet() {
-		this(MIN_MIDI_NOTE, MAX_MIDI_NOTE);
-	}
-
-	public PitchSet(int lowNote, int highNote) {
-
-		setLowIndex(lowNote - MIN_MIDI_NOTE);
-		setHighIndex(highNote - MIN_MIDI_NOTE);
-		setIndex(lowNote - MIN_MIDI_NOTE);
-	}
-
-	@Override
-	public PitchSet clone() {
-		return new PitchSet(this.getLowNote(), this.getHighNote());
-	}
-
-	public double getFreq(int index) {
-		currentPitchIndex = index;
-		return PITCH_FREQ[lowPitchIndex + index];
-	}
-
-	public int getIndex(int note) {
-		return note - getLowNote();
-	}
-
-	public double[] getFreqSet() {
-		freqRange = getRange();
-		freqSet = new double[freqRange];
-		for (int i = 0; i < freqRange; i++) {
-			freqSet[i] = PITCH_FREQ[lowPitchIndex + i];
-		}
-		return freqSet;
-	}
-
-	public int getHighNote() {
-		return (highPitchIndex + MIN_MIDI_NOTE);
-	}
-
-	public int getLowNote() {
-		return (lowPitchIndex + MIN_MIDI_NOTE);
-	}
-
-	public int getNote(int index) {
-		return (lowPitchIndex + index + MIN_MIDI_NOTE);
-	}
-
-	public int getRange() {
-		return (highPitchIndex - lowPitchIndex + 1);
-	}
-
-	public int pitchToIndex(int pitchNote) {
-		setIndex(pitchNote - (lowPitchIndex + MIN_MIDI_NOTE));
-		return currentPitchIndex;
-	}
-
-	public void setHighIndex(int index) {
-		highPitchIndex = index;
-	}
-
-	public void setIndex(int index) {
-		currentPitchIndex = index;
-	}
-
-	public void setLowIndex(int index) {
-		lowPitchIndex = index;
-	}
-
-	@Override
-	public String toString() {
-		return "PitchSet [lowPitchIndex=" + lowPitchIndex + ", highPitchIndex="
-				+ highPitchIndex + ", currentPitchIndex=" + currentPitchIndex
-				+ ", freq=" + freq + ", note=" + note + ", freqSet="
-				+ Arrays.toString(freqSet) + ", freqRange=" + freqRange + "]";
 	}
 
 } // End PitchSet

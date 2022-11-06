@@ -276,7 +276,7 @@ public class AudioTuner implements ToneMapConstants {
 	/**
 	 * Scan through ToneMapMatrix extracting MIDI note data into NoteList object
 	 * Apply filtering and conversion processing on basis of Tuner Parameters
-	 * 
+	 *
 	 * @param previousToneMap
 	 */
 	public boolean noteScan(ToneMap toneMap, int sequence) {
@@ -406,6 +406,25 @@ public class AudioTuner implements ToneMapConstants {
 		}
 
 		return true;
+	}
+
+	public void processPeaks(ToneMap toneMap, List<SpectralPeak> peaks) {
+
+		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
+		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+
+		peaks.iterator();
+
+		for (ToneMapElement toneMapElement : ttfElements) {
+			index = toneMapElement.getIndex();
+			toneMapElement.amplitude = 0.00001;
+		}
+		System.out.println("!!>>>number of peaks: " + peaks.size());
+		for (SpectralPeak peak : peaks) {
+			System.out.println("!!>>>peak: " + peak);
+			ttfElements[peak.getBin()].amplitude = 1.0;
+		}
+
 	}
 
 	// Apply formant conversion to ToneMapMatrix element data
@@ -696,25 +715,6 @@ public class AudioTuner implements ToneMapConstants {
 			processOvertones(toneTimeFrame, index);
 			toneMapElement.amplitude = 0;
 
-		}
-
-	}
-
-	public void processPeaks(ToneMap toneMap, List<SpectralPeak> peaks) {
-
-		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
-		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
-
-		peaks.iterator();
-
-		for (ToneMapElement toneMapElement : ttfElements) {
-			index = toneMapElement.getIndex();
-			toneMapElement.amplitude = 0.00001;
-		}
-		System.out.println("!!>>>number of peaks: " + peaks.size());
-		for (SpectralPeak peak : peaks) {
-			System.out.println("!!>>>peak: " + peak);
-			ttfElements[peak.getBin()].amplitude = 1.0;
 		}
 
 	}

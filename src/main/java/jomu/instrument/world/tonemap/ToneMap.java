@@ -122,7 +122,7 @@ public class ToneMap {
 		int counter = sequence;
 		Iterator<Double> iterator = keySet.iterator();
 		Double key = null;
-		while(counter > 0 && iterator.hasNext()) {
+		while (counter > 0 && iterator.hasNext()) {
 			key = iterator.next();
 			counter--;
 		}

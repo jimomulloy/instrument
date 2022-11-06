@@ -52,235 +52,8 @@ import jomu.instrument.world.tonemap.ToneTimeFrame;
  */
 public class MidiSynthesizer implements ToneMapConstants {
 
-	private class MidiQueueConsumer implements Runnable {
-
-		private BlockingQueue<MidiQueueMessage> bq;
-		private MidiStream midiStream;
-		double sampleTime = 0;
-		public Set<Integer> lastNotes;
-
-		public MidiQueueConsumer(BlockingQueue<MidiQueueMessage> bq,
-				MidiStream midiStream) {
-			this.bq = bq;
-			this.midiStream = midiStream;
-		}
-
-		@Override
-		public void run() {
-			try {
-				boolean running = true;
-				while (running) {
-					MidiQueueMessage mqm = bq.take();
-
-					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
-
-					if (toneTimeFrame == null) {
-						this.midiStream.close();
-						running = false;
-						break;
-					}
-					System.out.println(">>!!! midi QueueConsumer ENTER THREAD: "
-							+ Thread.currentThread());
-
-					if (sampleTime != 0) {
-						System.out.println(">>>midi sleep: " + sampleTime + ", "
-								+ System.currentTimeMillis());
-						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
-						System.out.println(">>>midi sleep after: "
-								+ toneTimeFrame.getStartTime() + ", "
-								+ System.currentTimeMillis());
-					}
-
-					TimeSet timeSet = toneTimeFrame.getTimeSet();
-					PitchSet pitchSet = toneTimeFrame.getPitchSet();
-					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
-					NoteStatusElement noteStatusElement = null;
-					ShortMessage midiMessage = null;
-
-					List<ShortMessage> midiMessages = new ArrayList<>();
-					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
-					if (lastNotes == null) {
-						lastNotes = new HashSet<>();
-					}
-					for (ToneMapElement toneMapElement : ttfElements) {
-						note = pitchSet.getNote(toneMapElement.getPitchIndex());
-						noteStatusElement = noteStatus.getNote(note);
-
-						switch (noteStatusElement.state) {
-							case ON :
-								// case PENDING :
-								if (!lastNotes.contains(note)) {
-									midiMessage = new ShortMessage();
-									try {
-										int volume = 120;
-										// if (toneMapElement.amplitude <= 1.0)
-										// {
-										// volume = (int) (120
-										// * toneMapElement.amplitude);
-										// }
-										midiMessage.setMessage(
-												ShortMessage.NOTE_ON,
-												midiStream.channelId, note,
-												volume);
-									} catch (InvalidMidiDataException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-									midiMessages.add(midiMessage);
-									lastNotes.add(note);
-								}
-								break;
-							case OFF :
-								midiMessage = new ShortMessage();
-								try {
-									midiMessage.setMessage(
-											ShortMessage.NOTE_OFF,
-											midiStream.channelId, note, 0);
-								} catch (InvalidMidiDataException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								midiMessages.add(midiMessage);
-								lastNotes.remove(note);
-								break;
-							default :
-								lastNotes.remove(note);
-								break;
-						}
-					}
-
-					for (ShortMessage mm : midiMessages) {
-						try {
-							synthesizer.getReceiver().send(mm, -1);
-							if (mm.getCommand() == ShortMessage.NOTE_ON
-									&& mm.getData2() == 120) {
-							}
-						} catch (MidiUnavailableException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-
-					sampleTime = timeSet.getSampleTimeSize();
-				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-			System.out.println(">>!!! midi QueueConsumer EXIT THREAD: "
-					+ Thread.currentThread());
-		}
-	}
-
-	private class MidiQueueMessage {
-		public ToneTimeFrame toneTimeFrame;
-
-		public MidiQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this.toneTimeFrame = toneTimeFrame;
-		}
-
-		public MidiQueueMessage() {
-		}
-	}
-
-	private class MidiStream {
-		public BlockingQueue<MidiQueueMessage> bq;
-
-		public int channelId;
-
-		public String streamId;
-
-		public MidiStream(String streamId) {
-			this.streamId = streamId;
-			// this.channelId = channelCount.getAndIncrement();
-			this.channelId = 0;
-			bq = new LinkedBlockingQueue<>();
-			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
-		}
-
-		public void close() {
-			bq.clear();
-
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if ((obj == null) || (getClass() != obj.getClass()))
-				return false;
-			MidiStream other = (MidiStream) obj;
-			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
-				return false;
-			return channelId == other.channelId
-					&& Objects.equals(streamId, other.streamId);
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getEnclosingInstance().hashCode();
-			result = prime * result + Objects.hash(channelId, streamId);
-			return result;
-		}
-
-		private MidiSynthesizer getEnclosingInstance() {
-			return MidiSynthesizer.this;
-		}
-	}
-
-	/**
-	 * Inner class contains information associated with a MIDI Channel.
-	 */
-	class ChannelData {
-
-		MidiChannel channel;
-		int num, program;
-		boolean solo, mono, mute, sustain;
-		int velocity, pressure, bend, reverb;
-
-		public ChannelData(MidiChannel channel, int num) {
-			this.channel = channel;
-			this.num = num;
-			velocity = INIT_VELOCITY_SETTING;
-			pressure = INIT_PRESSURE_SETTING;
-			bend = INIT_BEND_SETTING;
-			reverb = INIT_REVERB_SETTING;
-		}
-
-		public void setComponentStates() {
-		}
-	}
-
-	// Inner class handles MIDI data playback event listener
-	class ProcessMeta implements MetaEventListener {
-
-		@Override
-		public void meta(MetaMessage message) {
-
-			if (message.getType() == 47 && playState != PAUSED
-					&& sequence != null) {
-				midiEOM = true;
-				if (playState != STOPPED) {
-					sequencer.stop();
-					playState = EOM;
-				}
-			}
-		}
-	}
-	// Inner class defines fields associated with a MIDI Track
-	class TrackData extends Object {
-		Integer chanNum;
-		String name;
-		Track track;
-		public TrackData(int chanNum, String name, Track track) {
-			this.chanNum = new Integer(chanNum);
-			this.name = name;
-			this.track = track;
-		}
-	}
-
 	public int bpmSetting = INIT_BPM_SETTING;
+
 	public ChannelData cc;
 
 	public ChannelData channels[];
@@ -288,60 +61,57 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public Instrument instruments[];
 
 	public int instrumentSetting = INIT_INSTRUMENT_SETTING;
-
 	public boolean levelSwitch = false;
+
 	public int panSetting = INIT_PAN_SETTING;
 	public int pitchHigh = INIT_PITCH_HIGH;
+
 	public int pitchLow = INIT_PITCH_LOW;
 
 	public double quantizeBeatSetting = 0;
+
 	public double quantizeDurationSetting = 0;
+
 	public double timeEnd = INIT_TIME_END;
 	public double timeStart = INIT_TIME_START;
 	public int volumeSetting = INIT_VOLUME_SETTING;
-
 	private AtomicInteger channelCount = new AtomicInteger(0);
-	private double duration, seconds;
 
+	private double duration, seconds;
 	private String errStr;
 	private File file;
 	private String fileName;
-
 	private boolean midiEOM;
-	private Map<String, MidiStream> midiStreams = new ConcurrentHashMap<>();
 
+	private Map<String, MidiStream> midiStreams = new ConcurrentHashMap<>();
 	private int note;
+
 	private NoteList noteList;
 	private NoteListElement noteListElement;
-
 	private NoteSequence noteSequence;
-	private NoteSequenceElement noteSequenceElement;
 
+	private NoteSequenceElement noteSequenceElement;
 	private int numChannels;
+
 	private int playState = STOPPED;
 	private Sequence sequence;
 	private Sequencer sequencer;
+
 	private long startTime;
 	private Synthesizer synthesizer;
 
 	private long tick;
-
-	// private int timeRange;
-
 	private TimeSet timeSet;
-
 	private ToneMap toneMap;
-
 	private Track track;
-
 	private int velocity;
-
 	/**
 	 * MidiModel constructor. Test Java Sound MIDI System available Instantiate
 	 * MidiPanel
 	 */
 	public MidiSynthesizer() {
 	}
+
 	/**
 	 * Clear current MidiModel objects after Reset
 	 */
@@ -349,6 +119,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 		close();
 		noteSequence = null;
 	}
+
+	// private int timeRange;
+
 	/**
 	 * Close MIDI Java Sound system objects
 	 */
@@ -363,6 +136,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 		synthesizer = null;
 		instruments = null;
 	}
+
+	public void close(String streamId) {
+		if (!midiStreams.containsKey(streamId)) {
+			return;
+		}
+		MidiStream midiStream = midiStreams.get(streamId);
+
+		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
+		midiStream.bq.add(midiQueueMessage);
+		midiStreams.remove(streamId);
+	}
+
 	/**
 	 * Create MIDI message, wrap in time based MIDI event and add the MIDI event
 	 * to the current MIDI track
@@ -383,9 +168,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 			return false;
 		}
 	}
+
 	public int getBPM() {
 		return bpmSetting;
 	}
+
 	public double getDuration() {
 		return duration;
 	}
@@ -395,22 +182,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public File getFile() {
 		return file;
 	}
-
 	public String getFileName() {
 		return fileName;
 	}
 	public int getHighPitch() {
 		return pitchHigh;
 	}
-
 	public int getLowPitch() {
 		return pitchLow;
 	}
-
 	public int getNumChannels() {
 		return numChannels;
 	}
-
 	public double getStartTime() {
 		return timeStart;
 	}
@@ -418,7 +201,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public double getTickRate() {
 		return (sequence.getResolution() * getBPM() / 60);
 	}
-
 	/**
 	 * Open MIDI Java Sound system objects
 	 */
@@ -610,9 +392,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if ((endTick - startTick) < 1)
 				endTick = startTick + 1;
-			if (endTime < getStartTime())
-				continue;
-			if (startTime > getEndTime())
+			if ((endTime < getStartTime()) || (startTime > getEndTime()))
 				continue;
 
 			velocity = (int) (noteListElement.avgAmp * 127.0);
@@ -632,15 +412,233 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	}
 
-	public void close(String streamId) {
-		if (!midiStreams.containsKey(streamId)) {
-			return;
-		}
-		MidiStream midiStream = midiStreams.get(streamId);
+	private class MidiQueueConsumer implements Runnable {
 
-		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
-		midiStream.bq.add(midiQueueMessage);
-		midiStreams.remove(streamId);
+		private BlockingQueue<MidiQueueMessage> bq;
+		private MidiStream midiStream;
+		double sampleTime = 0;
+		public Set<Integer> lastNotes;
+
+		public MidiQueueConsumer(BlockingQueue<MidiQueueMessage> bq,
+				MidiStream midiStream) {
+			this.bq = bq;
+			this.midiStream = midiStream;
+		}
+
+		@Override
+		public void run() {
+			try {
+				boolean running = true;
+				while (running) {
+					MidiQueueMessage mqm = bq.take();
+
+					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
+
+					if (toneTimeFrame == null) {
+						this.midiStream.close();
+						running = false;
+						break;
+					}
+					System.out.println(">>!!! midi QueueConsumer ENTER THREAD: "
+							+ Thread.currentThread());
+
+					if (sampleTime != 0) {
+						System.out.println(">>>midi sleep: " + sampleTime + ", "
+								+ System.currentTimeMillis());
+						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
+						System.out.println(">>>midi sleep after: "
+								+ toneTimeFrame.getStartTime() + ", "
+								+ System.currentTimeMillis());
+					}
+
+					TimeSet timeSet = toneTimeFrame.getTimeSet();
+					PitchSet pitchSet = toneTimeFrame.getPitchSet();
+					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
+					NoteStatusElement noteStatusElement = null;
+					ShortMessage midiMessage = null;
+
+					List<ShortMessage> midiMessages = new ArrayList<>();
+					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+					if (lastNotes == null) {
+						lastNotes = new HashSet<>();
+					}
+					for (ToneMapElement toneMapElement : ttfElements) {
+						note = pitchSet.getNote(toneMapElement.getPitchIndex());
+						noteStatusElement = noteStatus.getNote(note);
+
+						switch (noteStatusElement.state) {
+							case ON :
+								// case PENDING :
+								if (!lastNotes.contains(note)) {
+									midiMessage = new ShortMessage();
+									try {
+										int volume = 120;
+										// if (toneMapElement.amplitude <= 1.0)
+										// {
+										// volume = (int) (120
+										// * toneMapElement.amplitude);
+										// }
+										midiMessage.setMessage(
+												ShortMessage.NOTE_ON,
+												midiStream.channelId, note,
+												volume);
+									} catch (InvalidMidiDataException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									midiMessages.add(midiMessage);
+									lastNotes.add(note);
+								}
+								break;
+							case OFF :
+								midiMessage = new ShortMessage();
+								try {
+									midiMessage.setMessage(
+											ShortMessage.NOTE_OFF,
+											midiStream.channelId, note, 0);
+								} catch (InvalidMidiDataException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								midiMessages.add(midiMessage);
+								lastNotes.remove(note);
+								break;
+							default :
+								lastNotes.remove(note);
+								break;
+						}
+					}
+
+					for (ShortMessage mm : midiMessages) {
+						try {
+							synthesizer.getReceiver().send(mm, -1);
+							if (mm.getCommand() == ShortMessage.NOTE_ON
+									&& mm.getData2() == 120) {
+							}
+						} catch (MidiUnavailableException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
+					sampleTime = timeSet.getSampleTimeSize();
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			System.out.println(">>!!! midi QueueConsumer EXIT THREAD: "
+					+ Thread.currentThread());
+		}
+	}
+
+	private class MidiQueueMessage {
+		public ToneTimeFrame toneTimeFrame;
+
+		public MidiQueueMessage() {
+		}
+
+		public MidiQueueMessage(ToneTimeFrame toneTimeFrame) {
+			this.toneTimeFrame = toneTimeFrame;
+		}
+	}
+
+	private class MidiStream {
+		public BlockingQueue<MidiQueueMessage> bq;
+
+		public int channelId;
+
+		public String streamId;
+
+		public MidiStream(String streamId) {
+			this.streamId = streamId;
+			// this.channelId = channelCount.getAndIncrement();
+			this.channelId = 0;
+			bq = new LinkedBlockingQueue<>();
+			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
+		}
+
+		public void close() {
+			bq.clear();
+
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if ((obj == null) || (getClass() != obj.getClass()))
+				return false;
+			MidiStream other = (MidiStream) obj;
+			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
+				return false;
+			return channelId == other.channelId
+					&& Objects.equals(streamId, other.streamId);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getEnclosingInstance().hashCode();
+			result = prime * result + Objects.hash(channelId, streamId);
+			return result;
+		}
+
+		private MidiSynthesizer getEnclosingInstance() {
+			return MidiSynthesizer.this;
+		}
+	}
+
+	/**
+	 * Inner class contains information associated with a MIDI Channel.
+	 */
+	class ChannelData {
+
+		MidiChannel channel;
+		int num, program;
+		boolean solo, mono, mute, sustain;
+		int velocity, pressure, bend, reverb;
+
+		public ChannelData(MidiChannel channel, int num) {
+			this.channel = channel;
+			this.num = num;
+			velocity = INIT_VELOCITY_SETTING;
+			pressure = INIT_PRESSURE_SETTING;
+			bend = INIT_BEND_SETTING;
+			reverb = INIT_REVERB_SETTING;
+		}
+
+		public void setComponentStates() {
+		}
+	}
+
+	// Inner class handles MIDI data playback event listener
+	class ProcessMeta implements MetaEventListener {
+
+		@Override
+		public void meta(MetaMessage message) {
+
+			if (message.getType() == 47 && playState != PAUSED
+					&& sequence != null) {
+				midiEOM = true;
+				if (playState != STOPPED) {
+					sequencer.stop();
+					playState = EOM;
+				}
+			}
+		}
+	}
+
+	// Inner class defines fields associated with a MIDI Track
+	class TrackData extends Object {
+		Integer chanNum;
+		String name;
+		Track track;
+		public TrackData(int chanNum, String name, Track track) {
+			this.chanNum = new Integer(chanNum);
+			this.name = name;
+			this.track = track;
+		}
 	}
 
 }

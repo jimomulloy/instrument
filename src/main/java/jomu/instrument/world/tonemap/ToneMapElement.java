@@ -67,5 +67,4 @@ public class ToneMapElement implements Serializable {
 				+ noteState + ", index=" + index + "]";
 	}
 
-
 } // End ToneMapElement

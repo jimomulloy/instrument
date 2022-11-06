@@ -14,29 +14,7 @@ import jomu.instrument.world.tonemap.ToneMap;
 
 public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 
-	public static float[] convertDoublesToFloats(double[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		float[] output = new float[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = (float) input[i];
-		}
-		return output;
-	}
-	public static double[] convertFloatsToDoubles(float[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		double[] output = new double[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = input[i];
-		}
-		return output;
-	}
-
 	private NuCell cell;
-
 	private WorldModel worldModel;
 
 	public ConstantQMessageProcessorPD(NuCell cell) {
@@ -60,10 +38,11 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator()
 						.getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
-				//cqf.buildToneMap();
+				// cqf.buildToneMap();
 				ToneMap toneMap = cqf.getToneMap(); // .clone();
 				// float[] fft = toneMap.extractFFT(4096);
 				// PitchDetect pd = new PitchDetect(4096, (float)
@@ -81,5 +60,27 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 				cell.send(streamId, sequence);
 			}
 		}
+	}
+
+	public static float[] convertDoublesToFloats(double[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		float[] output = new float[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = (float) input[i];
+		}
+		return output;
+	}
+
+	public static double[] convertFloatsToDoubles(float[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		double[] output = new double[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = input[i];
+		}
+		return output;
 	}
 }

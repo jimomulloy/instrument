@@ -70,6 +70,40 @@ public class PeakProcessor {
 		normalizeMagnitudes();
 	}
 
+	/**
+	 * @return the precise frequency for each bin.
+	 */
+	public float[] getFrequencyEstimates() {
+		return frequencyEstimates.clone();
+	}
+
+	/**
+	 * @return the magnitudes.
+	 */
+	public float[] getMagnitudes() {
+		return magnitudes.clone();
+	}
+
+	/**
+	 * For each bin, calculate a precise frequency estimate using phase offset.
+	 */
+	private void calculateFrequencyEstimates() {
+		for (int i = 0; i < frequencyEstimates.length; i++) {
+			frequencyEstimates[i] = getFrequencyForBin(i);
+		}
+	}
+
+	/**
+	 * Calculates a frequency for a bin using phase info, if available.
+	 *
+	 * @param binIndex
+	 *            The FFT bin index.
+	 * @return a frequency, in Hz, calculated using available phase info.
+	 */
+	private float getFrequencyForBin(int binIndex) {
+		return (float) pitchSet.getFreq(binIndex);
+	}
+
 	private void normalizeMagnitudes() {
 		float maxMagnitude = (float) -1e6;
 		for (float magnitude : magnitudes) {
@@ -85,42 +119,8 @@ public class PeakProcessor {
 	}
 
 	/**
-	 * For each bin, calculate a precise frequency estimate using phase offset.
-	 */
-	private void calculateFrequencyEstimates() {
-		for (int i = 0; i < frequencyEstimates.length; i++) {
-			frequencyEstimates[i] = getFrequencyForBin(i);
-		}
-	}
-
-	/**
-	 * @return the magnitudes.
-	 */
-	public float[] getMagnitudes() {
-		return magnitudes.clone();
-	}
-
-	/**
-	 * @return the precise frequency for each bin.
-	 */
-	public float[] getFrequencyEstimates() {
-		return frequencyEstimates.clone();
-	}
-
-	/**
-	 * Calculates a frequency for a bin using phase info, if available.
-	 * 
-	 * @param binIndex
-	 *            The FFT bin index.
-	 * @return a frequency, in Hz, calculated using available phase info.
-	 */
-	private float getFrequencyForBin(int binIndex) {
-		return (float) pitchSet.getFreq(binIndex);
-	}
-
-	/**
 	 * Calculate a noise floor for an array of magnitudes.
-	 * 
+	 *
 	 * @param magnitudes
 	 *            The magnitudes of the current frame.
 	 * @param medianFilterLength
@@ -173,7 +173,7 @@ public class PeakProcessor {
 
 	/**
 	 * Finds the local magintude maxima and stores them in the given list.
-	 * 
+	 *
 	 * @param magnitudes
 	 *            The magnitudes.
 	 * @param noisefloor
@@ -192,23 +192,6 @@ public class PeakProcessor {
 			}
 		}
 		return localMaximaIndexes;
-	}
-
-	/**
-	 * @param magnitudes
-	 *            the magnitudes.
-	 * @return the index for the maximum magnitude.
-	 */
-	private static int findMaxMagnitudeIndex(float[] magnitudes) {
-		int maxMagnitudeIndex = 0;
-		float maxMagnitude = (float) -1e6;
-		for (int i = 1; i < magnitudes.length - 1; i++) {
-			if (magnitudes[i] > maxMagnitude) {
-				maxMagnitude = magnitudes[i];
-				maxMagnitudeIndex = i;
-			}
-		}
-		return maxMagnitudeIndex;
 	}
 
 	/**
@@ -299,6 +282,17 @@ public class PeakProcessor {
 		return percentile(arr, 0.5);
 	}
 
+	public static double median(float[] m) {
+		// Sort the array in ascending order.
+		Arrays.sort(m);
+		int middle = m.length / 2;
+		if (m.length % 2 == 1) {
+			return m[middle];
+		} else {
+			return (m[middle - 1] + m[middle]) / 2.0;
+		}
+	}
+
 	/**
 	 * Returns the p-th percentile of values in an array. You can use this
 	 * function to establish a threshold of acceptance. For example, you can
@@ -329,15 +323,21 @@ public class PeakProcessor {
 		return (float) ((i + 1 - t) * arr[i] + (t - i) * arr[i + 1]);
 	}
 
-	public static double median(float[] m) {
-		// Sort the array in ascending order.
-		Arrays.sort(m);
-		int middle = m.length / 2;
-		if (m.length % 2 == 1) {
-			return m[middle];
-		} else {
-			return (m[middle - 1] + m[middle]) / 2.0;
+	/**
+	 * @param magnitudes
+	 *            the magnitudes.
+	 * @return the index for the maximum magnitude.
+	 */
+	private static int findMaxMagnitudeIndex(float[] magnitudes) {
+		int maxMagnitudeIndex = 0;
+		float maxMagnitude = (float) -1e6;
+		for (int i = 1; i < magnitudes.length - 1; i++) {
+			if (magnitudes[i] > maxMagnitude) {
+				maxMagnitude = magnitudes[i];
+				maxMagnitudeIndex = i;
+			}
 		}
+		return maxMagnitudeIndex;
 	}
 
 	public static class SpectralPeak {
@@ -360,6 +360,22 @@ public class PeakProcessor {
 			this.bin = bin;
 		}
 
+		public int getBin() {
+			return bin;
+		}
+
+		public float getFrequencyInHertz() {
+			return frequencyInHertz;
+		}
+
+		public float getMagnitude() {
+			return magnitude;
+		}
+
+		public float getRefFrequencyInHertz() {
+			return referenceFrequency;
+		}
+
 		public float getRelativeFrequencyInCents() {
 			if (referenceFrequency > 0 && frequencyInHertz > 0) {
 				float refInCents = (float) PitchConverter
@@ -374,22 +390,6 @@ public class PeakProcessor {
 
 		public float getTimeStamp() {
 			return timeStamp;
-		}
-
-		public float getMagnitude() {
-			return magnitude;
-		}
-
-		public float getFrequencyInHertz() {
-			return frequencyInHertz;
-		}
-
-		public float getRefFrequencyInHertz() {
-			return referenceFrequency;
-		}
-
-		public int getBin() {
-			return bin;
 		}
 
 		@Override

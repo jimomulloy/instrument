@@ -7,11 +7,6 @@ import net.beadsproject.beads.core.BeadArray;
 
 public abstract class Cell {
 
-	public static enum CellTypes {
-		AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_SINK, JUNCTION, PASS_THROUGH, SINK, SOURCE
-
-	}
-
 	private CellTypes cellType;
 
 	/** True if the Bead is marked for deletion. */
@@ -174,6 +169,11 @@ public abstract class Cell {
 		/*
 		 * To be subclassed, but not compulsory.
 		 */
+	}
+
+	public static enum CellTypes {
+		AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_SINK, JUNCTION, PASS_THROUGH, SINK, SOURCE
+
 	}
 
 }

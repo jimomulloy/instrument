@@ -34,6 +34,11 @@ public class Voice {
 		return this.midiSynthesizer;
 	}
 
+	public void close(String streamId) {
+		audioSynthesizer.close(streamId);
+		midiSynthesizer.close(streamId);
+	}
+
 	public AudioGenerator getAudioGenerator() {
 		return this.generator;
 	}
@@ -83,10 +88,5 @@ public class Voice {
 			e.printStackTrace();
 		}
 
-	}
-
-	public void close(String streamId) {
-		audioSynthesizer.close(streamId);
-		midiSynthesizer.close(streamId);
 	}
 }

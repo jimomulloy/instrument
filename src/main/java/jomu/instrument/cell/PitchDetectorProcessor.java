@@ -37,7 +37,8 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator()
 						.getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
 				pdf.buildToneMap();

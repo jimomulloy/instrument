@@ -26,11 +26,6 @@ public class NoteStatusElement {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(highFlag, index, note, offTime, onTime, state);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -47,11 +42,15 @@ public class NoteStatusElement {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(highFlag, index, note, offTime, onTime, state);
+	}
+
+	@Override
 	public String toString() {
 		return "NoteStatusElement [highFlag=" + highFlag + ", index=" + index
 				+ ", note=" + note + ", offTime=" + offTime + ", onTime="
 				+ onTime + ", state=" + state + "]";
 	}
-
 
 } // End NoteStatusElement

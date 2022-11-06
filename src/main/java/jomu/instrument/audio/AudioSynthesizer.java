@@ -36,286 +36,10 @@ import net.beadsproject.beads.ugens.WavePlayer;
  */
 public class AudioSynthesizer implements ToneMapConstants {
 
-	private class AudioQueueConsumer implements Runnable {
-
-		private AudioStream audioStream;
-		private BlockingQueue<AudioQueueMessage> bq;
-		double sampleTime = -1;
-		int counter = 0;
-
-		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq,
-				AudioStream audioStream) {
-			this.bq = bq;
-			this.audioStream = audioStream;
-		}
-
-		@Override
-		public void run() {
-			try {
-				boolean running = true;
-				while (running) {
-					AudioQueueMessage aqm = bq.take();
-					counter++;
-
-					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
-					System.out.println(">>!!! Audio QueueConsumer take: "
-							+ this.audioStream.getStreamId() + ", " + counter
-							+ ", " + toneTimeFrame);
-
-					if (toneTimeFrame == null) {
-						this.audioStream.close();
-						running = false;
-						break;
-					}
-
-					if (sampleTime != -1) {
-						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
-					} else {
-						if (!this.audioStream.getAc().isRunning()) {
-							this.audioStream.getAc().start();
-							System.out.println(
-									">>!!! Audio QueueConsumer start AC");
-							JavaSoundAudioIO.printMixerInfo();
-						}
-					}
-
-					TimeSet timeSet = toneTimeFrame.getTimeSet();
-					PitchSet pitchSet = toneTimeFrame.getPitchSet();
-
-					double time, frequency;
-					double maxSumAmp = 0;
-					double minSumAmp = 0;
-					double sumAmp = 0;
-					int numPitches = 0;
-					boolean condition = false;
-
-					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
-					sumAmp = 0;
-					numPitches = 0;
-
-					time = timeSet.getStartTime();
-					NoteListElement noteListElement;
-					for (ToneMapElement toneMapElement : ttfElements) {
-						frequency = pitchSet.getFreq(toneMapElement.getIndex());
-						noteListElement = toneMapElement.noteListElement;
-						if (osc1Switch) {
-							condition = (toneMapElement.amplitude == -1
-									|| noteListElement == null
-									|| noteListElement.underTone);
-						} else {
-							condition = (toneMapElement.amplitude == -1);
-						}
-						if (!condition) {
-							sumAmp += toneMapElement.amplitude;
-						}
-						numPitches++;
-
-					}
-					if (maxSumAmp < sumAmp)
-						maxSumAmp = sumAmp;
-					if (minSumAmp > sumAmp)
-						minSumAmp = sumAmp;
-
-					if (lastAmps == null) {
-						lastAmps = new double[numPitches];
-					}
-
-					System.out.println(
-							"min/max sums: " + maxSumAmp + ", " + minSumAmp);
-
-					int i, iStart, iEnd;
-					sumAmp = 0;
-					float sampleRate = timeSet.getSampleRate();
-					iStart = 0;
-					iEnd = 0;
-					i = 0;
-
-					for (int j = 0; j < numPitches; j++) {
-						lastAmps[j] = 0;
-					}
-
-					double ampFactor = 0;
-					double ampAdjust = 0;
-					iStart = iEnd;
-					if (iStart > (int) (time * sampleRate))
-						iStart = (int) (time * sampleRate);
-					iEnd = iStart
-							+ (int) (timeSet.getSampleTimeSize() * sampleRate);
-					double power;
-					System.out.println("istart/end: " + time + ", " + iStart
-							+ ", " + iEnd);
-					for (ToneMapElement toneMapElement : ttfElements) {
-						ampAdjust = 0;
-						ampFactor = 0;
-						power = toneMapElement.amplitude;
-						frequency = pitchSet.getFreq(toneMapElement.getIndex());
-						noteListElement = toneMapElement.noteListElement;
-						if (osc1Switch) {
-							condition = (toneMapElement.amplitude == -1
-									|| noteListElement == null
-									|| noteListElement.underTone);
-						} else {
-							// condition = (toneMapElement.amplitude == -1);
-							condition = (toneMapElement.amplitude < 0.9);
-						}
-						if (condition) {
-							power = 0;
-						}
-						if (power != 0) {
-							audioStream.getSineGain()[toneMapElement.getIndex()]
-									.setGain(1.0F);
-							lastAmps[toneMapElement.getIndex()] = 1.0F; // ampAdjust;
-							// }
-						} else {
-							audioStream.getSineGain()[toneMapElement.getIndex()]
-									.setGain(0F);
-							lastAmps[toneMapElement.getIndex()] = 0F;
-						}
-					}
-					sampleTime = timeSet.getSampleTimeSize();
-
-				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
-
-	private class AudioQueueMessage {
-		public ToneTimeFrame toneTimeFrame = null;
-
-		public AudioQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this.toneTimeFrame = toneTimeFrame;
-		}
-
-		public AudioQueueMessage() {
-		}
-	}
-
-	private class AudioStream {
-		private AudioContext ac;
-
-		private float baseFrequency;
-
-		private BlockingQueue<AudioQueueMessage> bq;
-
-		private int frequencies;
-
-		private Gain masterGain;
-
-		private Glide[] sineFrequency;
-
-		private Gain[] sineGain;
-
-		private WavePlayer[] sineTone;
-
-		private String streamId;
-
-		public AudioStream(String streamId, PitchSet pitchSet) {
-			this.streamId = streamId;
-			this.baseFrequency = (float) pitchSet.getFreq(0);
-			this.frequencies = pitchSet.getRange();
-			bq = new LinkedBlockingQueue<>();
-			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
-			// initialize our AudioContext
-			// JavaSoundAudioIO audioIO = new JavaSoundAudioIO();
-			// audioIO.selectMixer(2);
-			// this.ac = new AudioContext(audioIO);
-			this.ac = new AudioContext();
-			masterGain = new Gain(ac, 1, 0.5F);
-			ac.out.addInput(masterGain);
-			sineFrequency = new Glide[frequencies];
-			sineTone = new WavePlayer[frequencies];
-			sineGain = new Gain[frequencies];
-			float currentGain = 1.0f;
-			for (int i = 0; i < frequencies; i++) {
-				sineFrequency[i] = new Glide(ac, baseFrequency * i, 10);
-				sineTone[i] = new WavePlayer(ac, sineFrequency[i], Buffer.SINE);
-
-				// create the gain object
-				sineGain[i] = new Gain(ac, 1, currentGain);
-				// then connect the waveplayer to the gain
-				sineGain[i].addInput(sineTone[i]);
-
-				// finally, connect the gain to the master gain
-				masterGain.addInput(sineGain[i]);
-
-				// lower the gain for the next tone in the additive
-				// complex
-				currentGain -= (1.0 / frequencies);
-			}
-			masterGain.setGain(1.0F);
-			System.out.println(">>!!! Audio added freqs: " + frequencies);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if ((obj == null) || (getClass() != obj.getClass()))
-				return false;
-			AudioStream other = (AudioStream) obj;
-			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
-				return false;
-			return Objects.equals(streamId, other.streamId);
-		}
-
-		public AudioContext getAc() {
-			return ac;
-		}
-
-		public float getBaseFrequency() {
-			return baseFrequency;
-		}
-
-		public BlockingQueue<AudioQueueMessage> getBq() {
-			return bq;
-		}
-
-		public int getFrequencies() {
-			return frequencies;
-		}
-
-		public Gain getMasterGain() {
-			return masterGain;
-		}
-
-		public Glide[] getSineFrequency() {
-			return sineFrequency;
-		}
-
-		public Gain[] getSineGain() {
-			return sineGain;
-		}
-
-		public WavePlayer[] getSineTone() {
-			return sineTone;
-		}
-
-		public String getStreamId() {
-			return streamId;
-		}
-
-		public void close() {
-			this.ac.stop();
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getEnclosingInstance().hashCode();
-			result = prime * result + Objects.hash(streamId);
-			return result;
-		}
-
-		private AudioSynthesizer getEnclosingInstance() {
-			return AudioSynthesizer.this;
-		}
-
-	}
 	public int gainSetting = INIT_VOLUME_SETTING;
+
 	public boolean logSwitch = false;
+
 	public int osc1Setting = 0;
 	public boolean osc1Switch = false;
 	public int osc2Setting = 0;
@@ -336,21 +60,18 @@ public class AudioSynthesizer implements ToneMapConstants {
 	public boolean t1Switch = false;
 	public int t2Setting = 50;
 	public boolean t2Switch = false;
-
 	public int t3Setting = 50;
 	public boolean t3Switch = false;
 	public int t4Setting = 50;
+
 	public boolean t4Switch = false;
 	public int tFactor = 50;
 	public double timeEnd = INIT_TIME_END;
 	public double timeStart = INIT_TIME_START;
 	public int transformMode = TRANSFORM_MODE_JAVA;
 	private Map<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
-
 	private BlockingQueue<Object> bq;
-
 	private double[] lastAmps;
-
 	/**
 	 * AudioModel constructor. Test Java Sound Audio System available
 	 * Instantiate AudioPanel
@@ -363,6 +84,19 @@ public class AudioSynthesizer implements ToneMapConstants {
 	 */
 
 	public void clear() {
+	}
+
+	public void close(String streamId) {
+		if (!audioStreams.containsKey(streamId)) {
+			return;
+		}
+		System.out.println(">>!!! Audio audioStreams.close: " + streamId);
+		AudioStream audioStream = audioStreams.get(streamId);
+		AudioQueueMessage audioQueueMessage = new AudioQueueMessage();
+		audioStream.bq.add(audioQueueMessage);
+		System.out.println(">>!!! Audio audioStreams.remove: " + streamId);
+
+		audioStreams.remove(streamId);
 	}
 
 	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId,
@@ -555,17 +289,283 @@ public class AudioSynthesizer implements ToneMapConstants {
 		return outAudioBytes;
 	}
 
-	public void close(String streamId) {
-		if (!audioStreams.containsKey(streamId)) {
-			return;
-		}
-		System.out.println(">>!!! Audio audioStreams.close: " + streamId);
-		AudioStream audioStream = audioStreams.get(streamId);
-		AudioQueueMessage audioQueueMessage = new AudioQueueMessage();
-		audioStream.bq.add(audioQueueMessage);
-		System.out.println(">>!!! Audio audioStreams.remove: " + streamId);
+	private class AudioQueueConsumer implements Runnable {
 
-		audioStreams.remove(streamId);
+		private AudioStream audioStream;
+		private BlockingQueue<AudioQueueMessage> bq;
+		double sampleTime = -1;
+		int counter = 0;
+
+		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq,
+				AudioStream audioStream) {
+			this.bq = bq;
+			this.audioStream = audioStream;
+		}
+
+		@Override
+		public void run() {
+			try {
+				boolean running = true;
+				while (running) {
+					AudioQueueMessage aqm = bq.take();
+					counter++;
+
+					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
+					System.out.println(">>!!! Audio QueueConsumer take: "
+							+ this.audioStream.getStreamId() + ", " + counter
+							+ ", " + toneTimeFrame);
+
+					if (toneTimeFrame == null) {
+						this.audioStream.close();
+						running = false;
+						break;
+					}
+
+					if (sampleTime != -1) {
+						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
+					} else {
+						if (!this.audioStream.getAc().isRunning()) {
+							this.audioStream.getAc().start();
+							System.out.println(
+									">>!!! Audio QueueConsumer start AC");
+							JavaSoundAudioIO.printMixerInfo();
+						}
+					}
+
+					TimeSet timeSet = toneTimeFrame.getTimeSet();
+					PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+					double time, frequency;
+					double maxSumAmp = 0;
+					double minSumAmp = 0;
+					double sumAmp = 0;
+					int numPitches = 0;
+					boolean condition = false;
+
+					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+					sumAmp = 0;
+					numPitches = 0;
+
+					time = timeSet.getStartTime();
+					NoteListElement noteListElement;
+					for (ToneMapElement toneMapElement : ttfElements) {
+						frequency = pitchSet.getFreq(toneMapElement.getIndex());
+						noteListElement = toneMapElement.noteListElement;
+						if (osc1Switch) {
+							condition = (toneMapElement.amplitude == -1
+									|| noteListElement == null
+									|| noteListElement.underTone);
+						} else {
+							condition = (toneMapElement.amplitude == -1);
+						}
+						if (!condition) {
+							sumAmp += toneMapElement.amplitude;
+						}
+						numPitches++;
+
+					}
+					if (maxSumAmp < sumAmp)
+						maxSumAmp = sumAmp;
+					if (minSumAmp > sumAmp)
+						minSumAmp = sumAmp;
+
+					if (lastAmps == null) {
+						lastAmps = new double[numPitches];
+					}
+
+					System.out.println(
+							"min/max sums: " + maxSumAmp + ", " + minSumAmp);
+
+					int i, iStart, iEnd;
+					sumAmp = 0;
+					float sampleRate = timeSet.getSampleRate();
+					iStart = 0;
+					iEnd = 0;
+					i = 0;
+
+					for (int j = 0; j < numPitches; j++) {
+						lastAmps[j] = 0;
+					}
+
+					double ampFactor = 0;
+					double ampAdjust = 0;
+					iStart = iEnd;
+					if (iStart > (int) (time * sampleRate))
+						iStart = (int) (time * sampleRate);
+					iEnd = iStart
+							+ (int) (timeSet.getSampleTimeSize() * sampleRate);
+					double power;
+					System.out.println("istart/end: " + time + ", " + iStart
+							+ ", " + iEnd);
+					for (ToneMapElement toneMapElement : ttfElements) {
+						ampAdjust = 0;
+						ampFactor = 0;
+						power = toneMapElement.amplitude;
+						frequency = pitchSet.getFreq(toneMapElement.getIndex());
+						noteListElement = toneMapElement.noteListElement;
+						if (osc1Switch) {
+							condition = (toneMapElement.amplitude == -1
+									|| noteListElement == null
+									|| noteListElement.underTone);
+						} else {
+							// condition = (toneMapElement.amplitude == -1);
+							condition = (toneMapElement.amplitude < 0.9);
+						}
+						if (condition) {
+							power = 0;
+						}
+						if (power != 0) {
+							audioStream.getSineGain()[toneMapElement.getIndex()]
+									.setGain(1.0F);
+							lastAmps[toneMapElement.getIndex()] = 1.0F; // ampAdjust;
+							// }
+						} else {
+							audioStream.getSineGain()[toneMapElement.getIndex()]
+									.setGain(0F);
+							lastAmps[toneMapElement.getIndex()] = 0F;
+						}
+					}
+					sampleTime = timeSet.getSampleTimeSize();
+
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+
+	private class AudioQueueMessage {
+		public ToneTimeFrame toneTimeFrame = null;
+
+		public AudioQueueMessage() {
+		}
+
+		public AudioQueueMessage(ToneTimeFrame toneTimeFrame) {
+			this.toneTimeFrame = toneTimeFrame;
+		}
+	}
+
+	private class AudioStream {
+		private AudioContext ac;
+
+		private float baseFrequency;
+
+		private BlockingQueue<AudioQueueMessage> bq;
+
+		private int frequencies;
+
+		private Gain masterGain;
+
+		private Glide[] sineFrequency;
+
+		private Gain[] sineGain;
+
+		private WavePlayer[] sineTone;
+
+		private String streamId;
+
+		public AudioStream(String streamId, PitchSet pitchSet) {
+			this.streamId = streamId;
+			this.baseFrequency = (float) pitchSet.getFreq(0);
+			this.frequencies = pitchSet.getRange();
+			bq = new LinkedBlockingQueue<>();
+			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
+			// initialize our AudioContext
+			// JavaSoundAudioIO audioIO = new JavaSoundAudioIO();
+			// audioIO.selectMixer(2);
+			// this.ac = new AudioContext(audioIO);
+			this.ac = new AudioContext();
+			masterGain = new Gain(ac, 1, 0.5F);
+			ac.out.addInput(masterGain);
+			sineFrequency = new Glide[frequencies];
+			sineTone = new WavePlayer[frequencies];
+			sineGain = new Gain[frequencies];
+			float currentGain = 1.0f;
+			for (int i = 0; i < frequencies; i++) {
+				sineFrequency[i] = new Glide(ac, baseFrequency * i, 10);
+				sineTone[i] = new WavePlayer(ac, sineFrequency[i], Buffer.SINE);
+
+				// create the gain object
+				sineGain[i] = new Gain(ac, 1, currentGain);
+				// then connect the waveplayer to the gain
+				sineGain[i].addInput(sineTone[i]);
+
+				// finally, connect the gain to the master gain
+				masterGain.addInput(sineGain[i]);
+
+				// lower the gain for the next tone in the additive
+				// complex
+				currentGain -= (1.0 / frequencies);
+			}
+			masterGain.setGain(1.0F);
+			System.out.println(">>!!! Audio added freqs: " + frequencies);
+		}
+
+		public void close() {
+			this.ac.stop();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if ((obj == null) || (getClass() != obj.getClass()))
+				return false;
+			AudioStream other = (AudioStream) obj;
+			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
+				return false;
+			return Objects.equals(streamId, other.streamId);
+		}
+
+		public AudioContext getAc() {
+			return ac;
+		}
+
+		public float getBaseFrequency() {
+			return baseFrequency;
+		}
+
+		public BlockingQueue<AudioQueueMessage> getBq() {
+			return bq;
+		}
+
+		public int getFrequencies() {
+			return frequencies;
+		}
+
+		public Gain getMasterGain() {
+			return masterGain;
+		}
+
+		public Glide[] getSineFrequency() {
+			return sineFrequency;
+		}
+
+		public Gain[] getSineGain() {
+			return sineGain;
+		}
+
+		public WavePlayer[] getSineTone() {
+			return sineTone;
+		}
+
+		public String getStreamId() {
+			return streamId;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getEnclosingInstance().hashCode();
+			result = prime * result + Objects.hash(streamId);
+			return result;
+		}
+
+		private AudioSynthesizer getEnclosingInstance() {
+			return AudioSynthesizer.this;
+		}
+
 	}
 
 }

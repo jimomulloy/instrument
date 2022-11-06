@@ -43,6 +43,29 @@ public class ScalogramFrame {
 		return cloned;
 	}
 
+	public float getCurrentMax() {
+		return currentMax;
+	}
+
+	public float[][] getDataPerScale() {
+		return dataPerScale;
+	}
+	public float[] getDurationsOfBlockPerLevel() {
+		return durationsOfBlockPerLevel;
+	}
+
+	public float[] getStartFrequencyPerLevel() {
+		return startFrequencyPerLevel;
+	}
+
+	public float[] getStopFrequencyPerLevel() {
+		return stopFrequencyPerLevel;
+	}
+
+	public float[] getTransformedData() {
+		return transformedData;
+	}
+
 	private void mra(float[] transformedData, int level,
 			float[][] dataPerScale) {
 		int startIndex = transformedData.length
@@ -65,29 +88,6 @@ public class ScalogramFrame {
 		for (int i = 0; i < data.length; i++) {
 			// data[i]=data[i]/maxValue;
 		}
-	}
-	public float[] getTransformedData() {
-		return transformedData;
-	}
-
-	public float getCurrentMax() {
-		return currentMax;
-	}
-
-	public float[][] getDataPerScale() {
-		return dataPerScale;
-	}
-
-	public float[] getDurationsOfBlockPerLevel() {
-		return durationsOfBlockPerLevel;
-	}
-
-	public float[] getStartFrequencyPerLevel() {
-		return startFrequencyPerLevel;
-	}
-
-	public float[] getStopFrequencyPerLevel() {
-		return stopFrequencyPerLevel;
 	}
 
 }

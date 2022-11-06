@@ -8,13 +8,6 @@ import jomu.instrument.world.WorldModel;
 public class Instrument {
 	private static Instrument instrument;
 
-	public static Instrument getInstance() {
-		if (instrument == null) {
-			instrument = new Instrument();
-		}
-		return instrument;
-	}
-
 	private Coordinator coordinator;
 
 	private Controller controller;
@@ -23,12 +16,12 @@ public class Instrument {
 
 	private WorldModel worldModel;
 
-	public Coordinator getCoordinator() {
-		return coordinator;
-	}
-
 	public Controller getController() {
 		return controller;
+	}
+
+	public Coordinator getCoordinator() {
+		return coordinator;
 	}
 
 	public Druid getDruid() {
@@ -52,6 +45,13 @@ public class Instrument {
 		coordinator = new Coordinator();
 		coordinator.initialise();
 		coordinator.start();
+	}
+
+	public static Instrument getInstance() {
+		if (instrument == null) {
+			instrument = new Instrument();
+		}
+		return instrument;
 	}
 
 }

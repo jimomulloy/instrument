@@ -32,20 +32,6 @@ package jomu.instrument.audio;
 import java.util.Objects;
 
 public class Complex {
-	// sample client for testing
-	public static void main(String[] args) {
-		Complex a = new Complex(5.0, 6.0);
-		Complex b = new Complex(-3.0, 4.0);
-	}
-
-	// a static version of plus
-	public static Complex plus(Complex a, Complex b) {
-		double real = a.re + b.re;
-		double imag = a.im + b.im;
-		Complex sum = new Complex(real, imag);
-		return sum;
-	}
-
 	private final double im; // the imaginary part
 
 	private final double re; // the real part
@@ -170,6 +156,20 @@ public class Complex {
 		if (im < 0)
 			return re + " - " + (-im) + "i";
 		return re + " + " + im + "i";
+	}
+
+	// sample client for testing
+	public static void main(String[] args) {
+		Complex a = new Complex(5.0, 6.0);
+		Complex b = new Complex(-3.0, 4.0);
+	}
+
+	// a static version of plus
+	public static Complex plus(Complex a, Complex b) {
+		double real = a.re + b.re;
+		double imag = a.im + b.im;
+		Complex sum = new Complex(real, imag);
+		return sum;
 	}
 
 }

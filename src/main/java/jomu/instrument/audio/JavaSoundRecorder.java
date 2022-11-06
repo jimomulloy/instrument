@@ -19,32 +19,6 @@ public class JavaSoundRecorder {
 	// record duration, in milliseconds
 	static final long RECORD_TIME = 60000; // 1 minute
 
-	/**
-	 * Entry to run the program
-	 */
-	public static void main(String[] args) {
-		final JavaSoundRecorder recorder = new JavaSoundRecorder();
-
-		// creates a new thread that waits for a specified
-		// of time before stopping
-		Thread stopper = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(RECORD_TIME);
-				} catch (InterruptedException ex) {
-					ex.printStackTrace();
-				}
-				recorder.finish();
-			}
-		});
-
-		stopper.start();
-
-		// start recording
-		recorder.start();
-	}
-
 	// format of audio file
 	AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
 
@@ -109,5 +83,31 @@ public class JavaSoundRecorder {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+	}
+
+	/**
+	 * Entry to run the program
+	 */
+	public static void main(String[] args) {
+		final JavaSoundRecorder recorder = new JavaSoundRecorder();
+
+		// creates a new thread that waits for a specified
+		// of time before stopping
+		Thread stopper = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(RECORD_TIME);
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
+				recorder.finish();
+			}
+		});
+
+		stopper.start();
+
+		// start recording
+		recorder.start();
 	}
 }
