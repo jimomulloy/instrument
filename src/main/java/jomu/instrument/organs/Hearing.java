@@ -22,7 +22,7 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
 import net.beadsproject.beads.core.AudioContext;
 
-public class Hearing {
+public class Hearing implements Organ {
 
 	private String streamId;
 
@@ -45,9 +45,11 @@ public class Hearing {
 		}
 	}
 
+	@Override
 	public void initialise() {
 	}
 
+	@Override
 	public void start() {
 	}
 
@@ -188,6 +190,12 @@ public class Hearing {
 				new Thread(dispatcher, "Audio dispatching").start();
 			}
 		}
+
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
 
 	}
 }

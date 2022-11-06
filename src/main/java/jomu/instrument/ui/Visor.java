@@ -55,7 +55,6 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -126,10 +125,6 @@ public class Visor extends JPanel
 
 	private LinkedPanel constantQPanel;
 
-	private JTextArea textArea;
-
-	private int count = 0;
-
 	private CQLayer cqLayer;
 
 	private LinkedPanel cqPanel;
@@ -142,7 +137,7 @@ public class Visor extends JPanel
 	private OnsetLayer onsetLayer;
 	private LinkedPanel onsetPanel;
 
-	private OscilloscopePanel oscilloscopePanel;
+	private OscilloscopePanel doscilloscopePanel;
 
 	private PitchDetectLayer pdLayer;
 	private LinkedPanel pitchDetectPanel;
@@ -186,24 +181,49 @@ public class Visor extends JPanel
 	private File inputFile;
 	private final List<SpectralInfo> spectalInfo = null;
 
+	private JPanel controlPanel;
+
+	private JPanel graphPanel;
+
+	private JPanel diagnosticsPanel;
+
+	private OscilloscopePanel oscilloscopePanel;
+
 	public Visor() {
 		this.setLayout(new BorderLayout());
+		JPanel topPanel = buildTopPanel();
+		graphPanel = buildGraphPanel();
+		JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL,
+				new JScrollPane(topPanel), new JScrollPane(graphPanel));
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(150);
+		this.add(splitPane, BorderLayout.CENTER);
+	}
 
-		JPanel controlPanel = new JPanel(new GridLayout(0, 2));
+	private JPanel buildTopPanel() {
 
-		controlPanel.add(createButtonPanel("D:"));
-		controlPanel.setBorder(BorderFactory.createCompoundBorder(
+		JPanel panel = new JPanel(new GridLayout(1, 2));
+
+		controlPanel = buildControlPanel();
+		panel.add(controlPanel);
+		panel.setBorder(BorderFactory.createCompoundBorder(
 				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
-		controlPanel.add(createMixerPanel());
-		controlPanel.setBorder(BorderFactory.createCompoundBorder(
+		diagnosticsPanel = buildDiagnosticsPanel();
+		panel.add(diagnosticsPanel);
+		panel.setBorder(BorderFactory.createCompoundBorder(
 				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+
+		Dimension minimumSize = new Dimension(100, 50);
+		panel.setMinimumSize(minimumSize);
+		return panel;
+	}
+
+	private JPanel buildGraphPanel() {
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.setBorder(BorderFactory.createCompoundBorder(
 				new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		// this.add(new JScrollPane(subPanel), BorderLayout.NORTH);
-		// this.add(new JScrollPane(tabbedPane),BorderLayout.CENTER);
 
 		toneMapPanel = createToneMapPanel();
 		tabbedPane.addTab("TM", toneMapPanel);
@@ -221,27 +241,36 @@ public class Visor extends JPanel
 		tabbedPane.addTab("Onset", onsetPanel);
 		spectralPeaksPanel = createSpectralPeaksPanel();
 		tabbedPane.addTab("SP", spectralPeaksPanel);
-		oscilloscopePanel = new OscilloscopePanel();
-		tabbedPane.addTab("Oscilloscope", oscilloscopePanel);
-		// beadsPanel = createBeadsPanel();
-		// tabbedPane.addTab("Beads", beadsPanel);
 
-		// spectrumPanel = createSpectrumPanel();
-		// tabbedPane.addTab("Spectrum", spectrumPanel);
-
-		// create a splitpane
-		JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL,
-				new JScrollPane(controlPanel), new JScrollPane(tabbedPane));
-		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(150);
-
-		// Provide minimum sizes for the two components in the split pane
 		Dimension minimumSize = new Dimension(100, 50);
-		controlPanel.setMinimumSize(minimumSize);
 		tabbedPane.setMinimumSize(minimumSize);
-		this.add(splitPane, BorderLayout.CENTER);
 
+		JPanel panel = new JPanel(new GridLayout(1, 1));
+		panel.add(tabbedPane);
+		return panel;
 	}
+
+	private JPanel buildDiagnosticsPanel() {
+		JPanel panel = new JPanel(new GridLayout(1, 1));
+		oscilloscopePanel = new OscilloscopePanel();
+		panel.add(oscilloscopePanel);
+		return panel;
+	}
+
+	private JPanel buildControlPanel() {
+
+		JPanel panel = new JPanel(new GridLayout(2, 1));
+
+		// panel.add(createMixerPanel());
+		// panel.setBorder(BorderFactory.createCompoundBorder(
+		// new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+
+		panel.add(createButtonPanel("D:/audio"));
+		panel.setBorder(BorderFactory.createCompoundBorder(
+				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+		return panel;
+	}
+
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
 		updateView(audioFeatureFrame);
@@ -254,11 +283,13 @@ public class Visor extends JPanel
 		toneMapLayer.clear();
 		this.toneMapPanel.repaint();
 	}
+
 	@Override
 	public void handleEvent(float[] data, AudioEvent event) {
 		oscilloscopePanel.paint(data, event);
 		oscilloscopePanel.repaint();
 	}
+
 	public void repaintSpectalInfo(SpectralInfo info) {
 
 		spectrumLayer.clearPeaks();
@@ -351,6 +382,8 @@ public class Visor extends JPanel
 	private Component createButtonPanel(String startDir) {
 		JPanel motherPanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
+
+		motherPanel.add(createMixerPanel(), BorderLayout.NORTH);
 
 		final JFileChooser fileChooser = new JFileChooser(new File(startDir));
 		final JButton chooseFileButton = new JButton("Open...");
@@ -517,10 +550,7 @@ public class Visor extends JPanel
 		buttonPanel.add(numberOfPeaksLabel);
 		buttonPanel.add(numberOfPeaksSlider);
 
-		textArea = new JTextArea(10, 20);
-		buttonPanel.add(new JLabel("Peaks:"));
-		motherPanel.add(buttonPanel, BorderLayout.NORTH);
-		motherPanel.add(textArea, BorderLayout.CENTER);
+		motherPanel.add(buttonPanel, BorderLayout.SOUTH);
 		return motherPanel;
 	}
 
@@ -554,9 +584,6 @@ public class Visor extends JPanel
 	}
 
 	private Component createMixerPanel() {
-		JPanel motherPanel = new JPanel(new BorderLayout());
-		JPanel inputPanel = new JPanel(new GridLayout(0, 1));
-
 		JPanel mixerPanel = new InputPanel();
 		mixerPanel.addPropertyChangeListener("mixer",
 				new PropertyChangeListener() {
@@ -573,13 +600,7 @@ public class Visor extends JPanel
 					}
 				});
 
-		inputPanel.add(mixerPanel);
-
-		textArea = new JTextArea(10, 20);
-		inputPanel.add(new JLabel("Report:"));
-		motherPanel.add(inputPanel, BorderLayout.NORTH);
-		motherPanel.add(textArea, BorderLayout.CENTER);
-		return motherPanel;
+		return mixerPanel;
 	}
 
 	private LinkedPanel createOnsetPanel() {
@@ -843,7 +864,7 @@ public class Visor extends JPanel
 		this.bandedPitchDetectPanel.repaint();
 		// this.beadsPanel.repaint();
 		// }
-		count++;
+		// count++;
 		// SpectralPeaksFeatures specFeatures = audioFeatureFrame
 		// .getSpectralPeaksFeatures();
 		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));

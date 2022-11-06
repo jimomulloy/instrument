@@ -1,6 +1,6 @@
 package jomu.instrument.organs;
 
-public class Coordinator {
+public class Coordinator implements Organ {
 	private Cortex cortex;
 	private Hearing hearing;
 	private Voice voice;
@@ -17,6 +17,7 @@ public class Coordinator {
 		return voice;
 	}
 
+	@Override
 	public void initialise() {
 		cortex = new Cortex();
 		cortex.initialise();
@@ -29,7 +30,14 @@ public class Coordinator {
 		voice.start();
 	}
 
+	@Override
 	public void start() {
 		hearing.start();
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
+
 	}
 }

@@ -8,21 +8,12 @@ import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.world.tonemap.ToneTimeFrame;
 
-public class Voice {
+public class Voice implements Organ {
 
 	private AudioSynthesizer audioSynthesizer;
 	private AudioGenerator generator;
 	private MidiSynthesizer midiSynthesizer;
 
-	/*
-	 * public AudioGenerator buildAudioGenerator(int sampleRate, int
-	 * audioBufferSize) throws LineUnavailableException { Hearing hearing =
-	 * Instrument.getInstance().getCoordinator() .getHearing(); SourceDataLine
-	 * audioOutput = hearing.getTarsosIO().getAudioOutput(); generator = new
-	 * AudioGenerator(audioBufferSize, 0, sampleRate, audioOutput);
-	 * generator.addAudioProcessor(new AudioPlayer( new AudioFormat(sampleRate,
-	 * 16, 1, true, false))); return this.generator; }
-	 */
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new AudioSynthesizer();
 		return this.audioSynthesizer;
@@ -51,6 +42,7 @@ public class Voice {
 		return audioSynthesizer;
 	}
 
+	@Override
 	public void initialise() {
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
@@ -64,6 +56,7 @@ public class Voice {
 		writeAudio(toneTimeFrame, streamId, sequence);
 	}
 
+	@Override
 	public void start() {
 		// TODO Auto-generated method stub
 
@@ -87,6 +80,12 @@ public class Voice {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
 
 	}
 }

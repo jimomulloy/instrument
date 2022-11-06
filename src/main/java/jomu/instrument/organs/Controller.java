@@ -2,7 +2,7 @@ package jomu.instrument.organs;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Controller {
+public class Controller implements Organ {
 
 	private ConcurrentHashMap<String, String> parameters = new ConcurrentHashMap<>();
 
@@ -10,6 +10,7 @@ public class Controller {
 		return parameters.get(key);
 	}
 
+	@Override
 	public void initialise() {
 	}
 
@@ -17,6 +18,13 @@ public class Controller {
 		return parameters.get(key);
 	}
 
+	@Override
 	public void start() {
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
+
 	}
 }

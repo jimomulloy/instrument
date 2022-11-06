@@ -24,7 +24,6 @@
 package jomu.instrument.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -79,9 +78,9 @@ public class InputPanel extends JPanel {
 				new JScrollPane(buttonPanel,
 						ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-				BorderLayout.CENTER);
-		this.setMaximumSize(new Dimension(300, 150));
-		this.setPreferredSize(new Dimension(300, 150));
+				BorderLayout.NORTH);
+		// this.setMaximumSize(new Dimension(300, 150));
+		// this.setPreferredSize(new Dimension(300, 150));
 	}
 
 }

@@ -7,7 +7,7 @@ import jomu.instrument.cell.Generator;
 import jomu.instrument.cell.NuCell;
 import jomu.instrument.cell.Weaver;
 
-public class Cortex implements AudioFeatureFrameObserver {
+public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
@@ -28,6 +28,7 @@ public class Cortex implements AudioFeatureFrameObserver {
 		}
 	}
 
+	@Override
 	public void initialise() {
 
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
@@ -50,7 +51,14 @@ public class Cortex implements AudioFeatureFrameObserver {
 		Weaver.connect(sourceUpdateCell, audioCQCell);
 	}
 
+	@Override
 	public void start() {
+
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
 
 	}
 }
