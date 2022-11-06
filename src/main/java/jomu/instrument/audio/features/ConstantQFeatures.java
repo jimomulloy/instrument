@@ -81,6 +81,8 @@ public class ConstantQFeatures implements ToneMapConstants {
 				}
 			}
 
+			System.out.println(">>CQ: " + timeStart + ", " + nextTime + binWidth
+					+ ", " + cqs.getSampleRate());
 			timeSet = new TimeSet(timeStart, nextTime + binWidth,
 					cqs.getSampleRate(), nextTime + binWidth - timeStart);
 

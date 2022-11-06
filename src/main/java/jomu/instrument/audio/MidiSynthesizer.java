@@ -85,7 +85,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (sampleTime != 0) {
 						System.out.println(">>>midi sleep: " + sampleTime + ", "
 								+ System.currentTimeMillis());
-						TimeUnit.MILLISECONDS.sleep((long) sampleTime * 1000);
+						TimeUnit.MILLISECONDS.sleep((long) sampleTime);
 						System.out.println(">>>midi sleep after: "
 								+ toneTimeFrame.getStartTime() + ", "
 								+ System.currentTimeMillis());

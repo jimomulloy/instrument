@@ -101,7 +101,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 					int noiseFloorMedianFilterLenth = (int) (sampleRate
 							/ 117.0);
-					float noiseFloorFactor = 2.9F;
+					float noiseFloorFactor = 0.0F; // 2.9F;
 					int numberOfSpectralPeaks = 7;
 					int minPeakSize = 5;
 
@@ -109,8 +109,8 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 							noiseFloorMedianFilterLenth, noiseFloorFactor,
 							numberOfSpectralPeaks, minPeakSize);
 					AudioTuner tuner = new AudioTuner();
-					// tuner.normalize(toneMap);
-					// tuner.processPeaks(toneMap, peaks);
+					tuner.normalize(toneMap);
+					tuner.processPeaks(toneMap, peaks);
 
 					/*
 					 * FFTSpectrum fftSpectrum = toneMap.getTimeFrame()

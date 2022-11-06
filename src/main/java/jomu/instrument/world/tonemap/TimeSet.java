@@ -37,7 +37,7 @@ public class TimeSet implements Serializable {
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.sampleRate = sampleRate;
-		this.sampleTimeSize = sampleTimeSize;
+		this.sampleTimeSize = sampleTimeSize * 1000; // !!TODO
 		sampleIndexSize = timeToSamples(sampleTimeSize);
 	}
 

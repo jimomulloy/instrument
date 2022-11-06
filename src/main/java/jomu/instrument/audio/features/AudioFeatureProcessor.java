@@ -99,27 +99,56 @@ public class AudioFeatureProcessor implements AudioProcessor {
 
 	@Override
 	public boolean process(AudioEvent audioEvent) {
-		currentProcessTime = audioEvent.getEndTimeStamp() * 1000;
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
-		System.out.println(">>audio event: " + audioEvent.getTimeStamp() + ", "
-				+ audioEvent.getEndTimeStamp());
-		if (maxFrames > 0 && maxFrames > frameSequence) {
-			if (firstTimeStamp == -1) {
-				firstTimeStamp = startTimeMS;
-			}
-			if (endTimeStamp == -1
-					&& (currentProcessTime - lastTimeStamp >= interval)) {
-				endTimeStamp = currentProcessTime;
-			}
-			if (currentProcessTime - lastTimeStamp >= (interval + lag)) {
-				frameSequence++;
-				createAudioFeatureFrame(frameSequence, firstTimeStamp,
-						endTimeStamp);
-				lastTimeStamp = endTimeStamp;
-				firstTimeStamp = -1;
-				endTimeStamp = -1;
+		if (lastTimeStamp < startTimeMS) {
+			System.out.println(
+					">>audio event: " + startTimeMS + ", " + lastTimeStamp);
+			if (maxFrames > 0 && maxFrames > frameSequence) {
+				if (firstTimeStamp == -1) {
+					firstTimeStamp = lastTimeStamp;
+				}
+				if (endTimeStamp == -1
+						&& (startTimeMS - lastTimeStamp >= interval)) {
+					endTimeStamp = startTimeMS;
+				}
+				if (startTimeMS - lastTimeStamp >= (interval + lag)) {
+					frameSequence++;
+					createAudioFeatureFrame(frameSequence, firstTimeStamp,
+							endTimeStamp);
+					lastTimeStamp = startTimeMS;
+					firstTimeStamp = -1;
+					endTimeStamp = -1;
+				}
 			}
 		}
+		currentProcessTime = startTimeMS;
+		return true;
+	}
+
+	public boolean process2(AudioEvent audioEvent) {
+		double startTimeMS = audioEvent.getTimeStamp() * 1000;
+		if (currentProcessTime < startTimeMS) {
+			System.out.println(">>audio event: " + startTimeMS + ", "
+					+ currentProcessTime);
+			if (maxFrames > 0 && maxFrames > frameSequence) {
+				if (firstTimeStamp == -1) {
+					firstTimeStamp = startTimeMS;
+				}
+				if (endTimeStamp == -1
+						&& (currentProcessTime - lastTimeStamp >= interval)) {
+					endTimeStamp = currentProcessTime;
+				}
+				if (currentProcessTime - lastTimeStamp >= (interval + lag)) {
+					frameSequence++;
+					createAudioFeatureFrame(frameSequence, firstTimeStamp,
+							endTimeStamp);
+					lastTimeStamp = endTimeStamp;
+					firstTimeStamp = -1;
+					endTimeStamp = -1;
+				}
+			}
+		}
+		currentProcessTime = audioEvent.getTimeStamp() * 1000;
 		return true;
 	}
 
