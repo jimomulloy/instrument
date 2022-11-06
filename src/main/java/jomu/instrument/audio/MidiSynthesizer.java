@@ -85,7 +85,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (sampleTime != 0) {
 						System.out.println(">>>midi sleep: " + sampleTime + ", "
 								+ System.currentTimeMillis());
-						TimeUnit.MILLISECONDS.sleep((long) sampleTime);
+						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 						System.out.println(">>>midi sleep after: "
 								+ toneTimeFrame.getStartTime() + ", "
 								+ System.currentTimeMillis());
@@ -161,8 +161,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						}
 					}
 
-					sampleTime = timeSet.getSampleTimeSize(); // !!! WHY * 1000
-																// !!
+					sampleTime = timeSet.getSampleTimeSize();
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();

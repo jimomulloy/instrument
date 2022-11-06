@@ -69,7 +69,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 					}
 
 					if (sampleTime != -1) {
-						TimeUnit.MILLISECONDS.sleep((long) sampleTime);
+						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 					} else {
 						if (!this.audioStream.getAc().isRunning()) {
 							this.audioStream.getAc().start();
