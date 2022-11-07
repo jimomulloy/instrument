@@ -419,9 +419,7 @@ public class AudioTuner implements ToneMapConstants {
 			index = toneMapElement.getIndex();
 			toneMapElement.amplitude = 0.00001;
 		}
-		System.out.println("!!>>>number of peaks: " + peaks.size());
 		for (SpectralPeak peak : peaks) {
-			System.out.println("!!>>>peak: " + peak);
 			ttfElements[peak.getBin()].amplitude = 1.0;
 		}
 
@@ -680,6 +678,21 @@ public class AudioTuner implements ToneMapConstants {
 				continue;
 			index = toneMapElement.getIndex();
 			attenuate(toneMapElement, toneMapElement.amplitude, harmonic);
+			if (index > 0) {
+				toneMapElement = ttfElements[index - 1];
+				if (toneMapElement != null && toneMapElement.amplitude > -1) {
+					attenuate(toneMapElement, toneMapElement.amplitude,
+							harmonic);
+				}
+			}
+			if (index < ttfElements.length - 1) {
+				toneMapElement = ttfElements[index + 1];
+				if (toneMapElement != null && toneMapElement.amplitude > -1) {
+					attenuate(toneMapElement, toneMapElement.amplitude,
+							harmonic);
+				}
+			}
+
 			n++;
 		}
 	}

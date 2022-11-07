@@ -10,7 +10,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -69,19 +68,30 @@ public class Hearing implements Organ {
 		audioStream.start();
 	}
 
-	public void startAudioLineStream(Mixer mixer)
-			throws LineUnavailableException {
+	public void startAudioLineStream() throws LineUnavailableException {
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		System.out.println(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
-		audioStream.initialiseMicrophoneStream(mixer);
+		audioStream.initialiseMicrophoneStream();
 
 		Instrument.getInstance().getCoordinator().getCortex();
 		audioStream.getAudioFeatureProcessor().addObserver(
 				Instrument.getInstance().getCoordinator().getCortex());
 		audioStream.start();
+	}
+
+	public void stopAudioLineStream() throws LineUnavailableException {
+		AudioStream audioStream = audioStreams.get(streamId);
+		audioStream.stop();
+
+		Instrument.getInstance().getCoordinator().getCortex();
+		audioStream.getAudioFeatureProcessor().removeObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
+
+		closeAudioStream(streamId);
+
 	}
 
 	private class AudioStream {
@@ -94,7 +104,6 @@ public class Hearing implements Organ {
 		private int bufferSize = 1024 * 4;
 		private int overlap = 768 * 4;
 		private AudioDispatcher dispatcher;
-		private Mixer mixer;
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
@@ -156,15 +165,14 @@ public class Hearing implements Organ {
 
 		}
 
-		public void initialiseMicrophoneStream(Mixer mixer)
+		public void initialiseMicrophoneStream()
 				throws LineUnavailableException {
-			this.mixer = mixer;
-			final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-					false);
+			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			final DataLine.Info dataLineInfo = new DataLine.Info(
 					TargetDataLine.class, format);
 			TargetDataLine line;
-			line = (TargetDataLine) mixer.getLine(dataLineInfo);
+			// line = (TargetDataLine) mixer.getLine(dataLineInfo);
+			line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
 			final int numberOfSamples = bufferSize;
 			line.open(format, numberOfSamples);
 			line.start();
@@ -188,6 +196,14 @@ public class Hearing implements Organ {
 				ac.start();
 			} else if (dispatcher != null) {
 				new Thread(dispatcher, "Audio dispatching").start();
+			}
+		}
+
+		public void stop() {
+			if (ac != null) {
+				ac.stop();
+			} else if (dispatcher != null) {
+				dispatcher.stop();
 			}
 		}
 

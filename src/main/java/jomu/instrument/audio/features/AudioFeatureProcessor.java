@@ -113,8 +113,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	public boolean process(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
 		if (lastTimeStamp < startTimeMS) {
-			System.out.println(
-					">>audio event: " + startTimeMS + ", " + lastTimeStamp);
 			if (maxFrames > 0 && maxFrames > frameSequence) {
 				if (firstTimeStamp == -1) {
 					firstTimeStamp = lastTimeStamp;
@@ -140,8 +138,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	public boolean process2(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
 		if (currentProcessTime < startTimeMS) {
-			System.out.println(">>audio event: " + startTimeMS + ", "
-					+ currentProcessTime);
 			if (maxFrames > 0 && maxFrames > frameSequence) {
 				if (firstTimeStamp == -1) {
 					firstTimeStamp = startTimeMS;

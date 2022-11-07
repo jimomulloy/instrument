@@ -51,7 +51,8 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					ConstantQFeatures cqf = aff.getConstantQFeatures();
 					cqf.buildToneMapFrame(toneMap);
-					toneMap.getTimeFrame().compress(1000F);
+					// toneMap.getTimeFrame().compress(10F);
+					// toneMap.getTimeFrame().square();
 					float maxAmplitude = (float) toneMap.getTimeFrame()
 							.getMaxAmplitude();
 					System.out.println(
@@ -59,16 +60,15 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					if (tmMax < maxAmplitude) {
 						tmMax = maxAmplitude;
 					}
-					toneMap.getTimeFrame().normalise(tmMax);
-					toneMap.getTimeFrame().deNoise(0.1);
+					// toneMap.getTimeFrame().deNoise(0.01);
+					// toneMap.getTimeFrame()
+					// .normalise(tmMax > 0.01F ? tmMax : 0.01F);
 
 					maxAmplitude = (float) toneMap.getTimeFrame()
 							.getMaxAmplitude();
-					float sampleRate = toneMap.getTimeFrame()
-							.getTimeSet().getSampleRate();
-					System.out.println(">>MAX AMP AFTER: " + maxAmplitude + ", "
-							+ toneMap + ", "
-							+ buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+					float sampleRate = toneMap.getTimeFrame().getTimeSet()
+							.getSampleRate();
+					System.out.println(">>MAX AMP AFTER: " + maxAmplitude);
 
 					PeakProcessor peakProcessor = new PeakProcessor(
 							toneMap.getTimeFrame());
@@ -79,8 +79,8 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 					int noiseFloorMedianFilterLenth = (int) (sampleRate
 							/ 117.0);
-					float noiseFloorFactor = 0.0F; // 2.9F;
-					int numberOfSpectralPeaks = 7;
+					float noiseFloorFactor = 1.2F; // 1.8F; // 2.9F;
+					int numberOfSpectralPeaks = 6;
 					int minPeakSize = 5;
 
 					List<SpectralPeak> peaks = peakInfo.getPeakList(

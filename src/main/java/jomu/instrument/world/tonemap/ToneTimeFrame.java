@@ -268,4 +268,13 @@ public class ToneTimeFrame {
 		}
 		avgAmplitude = avgAmplitude / count;
 	}
+
+	public void square() {
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] != null) {
+				elements[i].amplitude = Math.pow(elements[i].amplitude, 2);
+			}
+		}
+		reset();
+	}
 }
