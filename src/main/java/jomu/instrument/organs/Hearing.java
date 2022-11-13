@@ -14,6 +14,8 @@ import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import be.tarsos.dsp.AudioDispatcher;
+import be.tarsos.dsp.filters.HighPass;
+import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import jomu.instrument.Instrument;
@@ -101,8 +103,8 @@ public class Hearing implements Organ {
 		private String streamId;
 		private TarsosFeatureSource tarsosFeatureSource;
 		private int sampleRate = 44100;
-		private int bufferSize = 1024 * 4;
-		private int overlap = 768 * 4;
+		private int bufferSize = 1024; // TODO * 4;
+		private int overlap = 0; // TODO 768 * 4;
 		private AudioDispatcher dispatcher;
 
 		public AudioStream(String streamId) {
@@ -149,18 +151,15 @@ public class Hearing implements Organ {
 					overlap);
 			AudioFormat format = AudioSystem.getAudioFileFormat(file)
 					.getFormat();
-			// dispatcher.addAudioProcessor(new AudioPlayer(format));
-
-			// Oscilloscope oscilloscope = new
-			// Oscilloscope(Instrument.getInstance().getDruid().getOscilloscopeHandler());
-			// tarsosIO.getDispatcher().addAudioProcessor(oscilloscope);
-
+		
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
 					tarsosFeatureSource);
 			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
 
+			//dispatcher.addAudioProcessor(new HighPass(12000, sampleRate));
+			//dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
 		}
@@ -186,7 +185,9 @@ public class Hearing implements Organ {
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
 					tarsosFeatureSource);
 			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
-
+			
+			dispatcher.addAudioProcessor(new HighPass(12000, sampleRate));
+			dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
 		}

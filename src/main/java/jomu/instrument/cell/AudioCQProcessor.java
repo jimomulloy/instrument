@@ -51,8 +51,10 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					ConstantQFeatures cqf = aff.getConstantQFeatures();
 					cqf.buildToneMapFrame(toneMap);
-					// toneMap.getTimeFrame().compress(10F);
-					// toneMap.getTimeFrame().square();
+					toneMap.getTimeFrame().compress(10F);
+					toneMap.getTimeFrame().square();
+					toneMap.getTimeFrame().lowThreshold(0.01, 0.0000001);
+					toneMap.getTimeFrame().normaliseThreshold(200, 0.0000001);
 					float maxAmplitude = (float) toneMap.getTimeFrame()
 							.getMaxAmplitude();
 					System.out.println(
