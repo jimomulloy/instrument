@@ -1686,6 +1686,7 @@ public class Visor extends JPanel
 		public void draw(Graphics2D g) {
 
 			if (toneMaps != null) {
+
 				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(
 						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
 				double timeStart = 0.0F;
@@ -1714,6 +1715,10 @@ public class Visor extends JPanel
 									amplitude = 100.0 * toneMapElement.amplitude
 											/ ttf.getMaxAmplitude();
 								}
+								int greyValue = (int) (Math
+										.log1p(toneMapElement.amplitude
+												/ ttf.getMaxAmplitude())
+										/ Math.log1p(1.0000001) * 255);
 
 								if (amplitude > maxAmplitude) {
 									maxAmplitude = amplitude;
@@ -1725,7 +1730,8 @@ public class Visor extends JPanel
 								} else {
 									ampT = (amplitude - lowThreshhold)
 											/ (highThreshhold - lowThreshhold);
-									int greyValue = 255 - (int) (ampT * 255);
+									// greyValue = 255 - (int) (ampT * 255);
+									greyValue = 255 - greyValue;
 									greyValue = Math.max(0, greyValue);
 									Color color = new Color(greyValue,
 											greyValue, greyValue);
@@ -1759,19 +1765,31 @@ public class Visor extends JPanel
 		}
 
 		public void update(AudioFeatureFrame audioFeatureFrame) {
+
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
 					ToneMap toneMap = audioFeatureFrame.getConstantQFeatures()
 							.getToneMap();
-					// ToneMap toneMap =
-					// pitchFrame.getPitchDetectorFeatures().getToneMap();
 					if (toneMap != null) {
 						if (toneMaps == null) {
 							toneMaps = new TreeMap<>();
 						}
 						toneMaps.put(audioFeatureFrame.getStart() / 1000.0,
 								toneMap);
+					}
+					float timeEnd = 0.0F;
+					for (Map.Entry<Double, ToneMap> column : toneMaps
+							.entrySet()) {
+						timeEnd = (float) (column.getKey() * 1000);
+					}
+					float csX = cs.getMax(Axis.X) - cs.getMin(Axis.X);
+					if (timeEnd > cs.getMax(Axis.X)) {
+						cs.setMax(Axis.X, timeEnd);
+						cs.setMin(Axis.X, timeEnd - csX);
+					} else {
+						cs.setMax(Axis.X, csX);
+						cs.setMin(Axis.X, 0);
 					}
 				}
 			});
