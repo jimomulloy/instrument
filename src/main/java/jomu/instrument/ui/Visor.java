@@ -1709,23 +1709,12 @@ public class Visor extends JPanel
 
 							ToneMapElement toneMapElement = elements[elementIndex];
 							if (toneMapElement != null) {
-								double amplitude = 100.0
-										* toneMapElement.amplitude / 1.0;
-								// if (amplitude > maxAmplitude) {
-								// maxAmplitude = amplitude;
-								// }
-								// if (amplitude == -1) {
-								// g.setColor(new Color(155, 155, 155));
-								// } else if (amplitude < lowThreshhold) {
-								// g.setColor(Color.black);
-								// } else if (amplitude > highThreshhold) {
-								// g.setColor(Color.red);
-								// } else {
-								// ampT = (amplitude - lowThreshhold)
-								// / (highThreshhold - lowThreshhold);
-								// g.setColor(new Color((int) (255 * ampT), 0,
-								// (int) (255 * (1 - ampT))));
-								// }
+								double amplitude = 0.0;
+								if (toneMapElement.amplitude > 1.0) {
+									amplitude = 100.0 * toneMapElement.amplitude
+											/ ttf.getMaxAmplitude();
+								}
+
 								if (amplitude > maxAmplitude) {
 									maxAmplitude = amplitude;
 								}

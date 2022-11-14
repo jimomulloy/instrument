@@ -79,7 +79,6 @@ public class AudioTuner implements ToneMapConstants {
 	public double timeStart = INIT_TIME_START;
 	public int undertoneSetting = 100;
 	public boolean undertoneSwitch;
-	private double amplitude;
 	private double duration, seconds;
 	private ToneMapElement element;
 	private String errStr;
@@ -182,7 +181,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 
-		maxAmp = 0;
+		maxAmp = 0.00001;
 
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 		for (ToneMapElement toneMapElement : ttfElements) {
@@ -194,15 +193,18 @@ public class AudioTuner implements ToneMapConstants {
 				maxAmp = amplitude;
 				thresholdElement = toneMapElement;
 			}
+			if (toneMapElement.amplitude < 0) {
+				System.out
+						.println("!!!AMM < 0 !!: " + toneMapElement.amplitude);
+			}
 
 		}
 
-		troughAmp = maxAmp;
-
+		troughAmp = 1.0;
+		System.out.println("!!!trough: " + troughAmp);
 		startPeak = 0;
 		endPeak = 0;
 		lastAmp = 0;
-		maxAmp = 0;
 		if (!n1Switch) {
 			thresholdElement = null;
 		}
@@ -219,7 +221,8 @@ public class AudioTuner implements ToneMapConstants {
 
 			index = toneMapElement.getIndex();
 			note = pitchSet.getNote(toneMapElement.getPitchIndex());
-			amplitude = toneMapElement.amplitude;
+
+			amplitude = toneMapElement.amplitude / maxAmp;
 			if (amplitude > lastAmp)
 				startPeak = index;
 			if (amplitude >= lastAmp)
@@ -240,7 +243,7 @@ public class AudioTuner implements ToneMapConstants {
 						lastEndPeak = endPeak;
 						startPeak = 0;
 						endPeak = 0;
-						troughAmp = maxAmp;
+						troughAmp = 1.0; // maxAmp;
 					}
 				} else {
 					if (startPeak != 0) {
@@ -251,14 +254,16 @@ public class AudioTuner implements ToneMapConstants {
 							lastEndPeak = endPeak;
 							startPeak = 0;
 							endPeak = 0;
-							troughAmp = maxAmp;
+							troughAmp = 1.0; // maxAmp;
 						}
 					}
 				}
 
 			}
-			if (amplitude < troughAmp)
+			if (amplitude < troughAmp) {
 				troughAmp = amplitude;
+				System.out.println("!!!trough2: " + troughAmp);
+			}
 			lastAmp = amplitude;
 
 		}
@@ -312,7 +317,7 @@ public class AudioTuner implements ToneMapConstants {
 			if (toneMapElement == null || toneMapElement.amplitude == -1)
 				continue;
 
-			amplitude = toneMapElement.amplitude;
+			double amplitude = toneMapElement.amplitude;
 
 			time = timeSet.getStartTime();
 			// Establish range of Matrix entries within a sequence constituting
@@ -420,7 +425,8 @@ public class AudioTuner implements ToneMapConstants {
 			toneMapElement.amplitude = 0.00001;
 		}
 		for (SpectralPeak peak : peaks) {
-			ttfElements[peak.getBin()].amplitude = 1.0;
+			ttfElements[peak.getBin()].amplitude = toneTimeFrame
+					.getMaxAmplitude();
 		}
 
 	}
@@ -458,7 +464,19 @@ public class AudioTuner implements ToneMapConstants {
 		if (overToneElement.amplitude <= overToneData) {
 			overToneElement.amplitude = 0;
 		} else {
+			if (harmonic == 0.7 && overToneElement.amplitude > 0.01) {
+				System.out.println(">>ATTENUATE " + fundamental + ", "
+						+ harmonic + ", " + overToneData + ", "
+						+ overToneElement.amplitude);
+			}
+			// System.out.println(">>ATTENUATE " + fundamental + ", " + harmonic
+			// + ", " + overToneData + ", " + overToneElement.amplitude);
 			overToneElement.amplitude -= overToneData;
+			if (harmonic == 0.7 && overToneElement.amplitude > 0.01) {
+				System.out.println(">>ATTENUATED " + fundamental + ", "
+						+ harmonic + ", " + overToneData + ", "
+						+ overToneElement.amplitude);
+			}
 		}
 
 	}
@@ -651,7 +669,7 @@ public class AudioTuner implements ToneMapConstants {
 
 	// Process Harmonic overtones
 	private void processOvertones(ToneTimeFrame toneTimeFrame, int pitchIndex) {
-
+		System.out.println(">>processOvertones " + pitchIndex);
 		TimeSet timeSet = toneTimeFrame.getTimeSet();
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 
@@ -677,19 +695,23 @@ public class AudioTuner implements ToneMapConstants {
 			if (toneMapElement == null || toneMapElement.amplitude == -1)
 				continue;
 			index = toneMapElement.getIndex();
+			if (harmonic == 0.7) {
+				System.out.println(">>processOvertones attenuate: " + pitchIndex
+						+ ", " + toneMapElement.amplitude);
+			}
 			attenuate(toneMapElement, toneMapElement.amplitude, harmonic);
 			if (index > 0) {
 				toneMapElement = ttfElements[index - 1];
 				if (toneMapElement != null && toneMapElement.amplitude > -1) {
-					attenuate(toneMapElement, toneMapElement.amplitude,
-							harmonic);
+					// attenuate(toneMapElement, toneMapElement.amplitude,
+					// harmonic);
 				}
 			}
 			if (index < ttfElements.length - 1) {
 				toneMapElement = ttfElements[index + 1];
 				if (toneMapElement != null && toneMapElement.amplitude > -1) {
-					attenuate(toneMapElement, toneMapElement.amplitude,
-							harmonic);
+					// attenuate(toneMapElement, toneMapElement.amplitude,
+					// harmonic);
 				}
 			}
 
@@ -717,7 +739,7 @@ public class AudioTuner implements ToneMapConstants {
 				break;
 			}
 			note = pitchSet.getNote(index);
-			amplitude = toneMapElement.amplitude;
+			double amplitude = toneMapElement.amplitude / maxAmp;
 
 			if (amplitude >= normalThreshold(toneTimeFrame, toneMapElement,
 					thresholdElement) && amplitude > ampThres) {
@@ -726,7 +748,7 @@ public class AudioTuner implements ToneMapConstants {
 			}
 
 			processOvertones(toneTimeFrame, index);
-			toneMapElement.amplitude = 0;
+			// toneMapElement.amplitude = 0;
 
 		}
 

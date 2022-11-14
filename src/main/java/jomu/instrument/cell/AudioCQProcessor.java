@@ -51,26 +51,35 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					ConstantQFeatures cqf = aff.getConstantQFeatures();
 					cqf.buildToneMapFrame(toneMap);
-					toneMap.getTimeFrame().compress(10F);
+					// toneMap.getTimeFrame().compress(10F);
 					toneMap.getTimeFrame().square();
 					toneMap.getTimeFrame().lowThreshold(0.01, 0.0000001);
-					toneMap.getTimeFrame().normaliseThreshold(200, 0.0000001);
+					toneMap.getTimeFrame().normaliseThreshold(20, 0.0000001);
+
 					float maxAmplitude = (float) toneMap.getTimeFrame()
 							.getMaxAmplitude();
+					float minAmplitude = (float) toneMap.getTimeFrame()
+							.getMinAmplitude();
+					System.out.println(
+							">>MAX AMP PRE DB: " + maxAmplitude + ", " + tmMax);
+					System.out.println(">>MIN AMP PRE DB: " + minAmplitude);
+					toneMap.getTimeFrame().decibel(0.01);
+					maxAmplitude = (float) toneMap.getTimeFrame()
+							.getMaxAmplitude();
+					minAmplitude = (float) toneMap.getTimeFrame()
+							.getMinAmplitude();
 					System.out.println(
 							">>MAX AMP: " + maxAmplitude + ", " + tmMax);
+					System.out.println(">>MIN AMP: " + minAmplitude);
 					if (tmMax < maxAmplitude) {
 						tmMax = maxAmplitude;
 					}
-					// toneMap.getTimeFrame().deNoise(0.01);
-					// toneMap.getTimeFrame()
-					// .normalise(tmMax > 0.01F ? tmMax : 0.01F);
 
-					maxAmplitude = (float) toneMap.getTimeFrame()
-							.getMaxAmplitude();
-					float sampleRate = toneMap.getTimeFrame().getTimeSet()
-							.getSampleRate();
-					System.out.println(">>MAX AMP AFTER: " + maxAmplitude);
+					AudioTuner tuner = new AudioTuner();
+					tuner.normalize(toneMap);
+					float threshold = (0.5F * (maxAmplitude - minAmplitude))
+							+ minAmplitude;
+					toneMap.getTimeFrame().lowThreshold(threshold, 0.0000001);
 
 					PeakProcessor peakProcessor = new PeakProcessor(
 							toneMap.getTimeFrame());
@@ -79,17 +88,15 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 							peakProcessor.getMagnitudes(),
 							peakProcessor.getFrequencyEstimates());
 
-					int noiseFloorMedianFilterLenth = (int) (sampleRate
-							/ 117.0);
-					float noiseFloorFactor = 1.2F; // 1.8F; // 2.9F;
-					int numberOfSpectralPeaks = 6;
-					int minPeakSize = 5;
+					int noiseFloorMedianFilterLenth = 12;
+					float noiseFloorFactor = 100F; // 1.8F; // 2.9F;
+					int numberOfSpectralPeaks = 4;
+					int minPeakSize = 1;
 
 					List<SpectralPeak> peaks = peakInfo.getPeakList(
 							noiseFloorMedianFilterLenth, noiseFloorFactor,
 							numberOfSpectralPeaks, minPeakSize);
-					AudioTuner tuner = new AudioTuner();
-					tuner.normalize(toneMap);
+
 					tuner.processPeaks(toneMap, peaks);
 
 					/*

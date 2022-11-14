@@ -27,7 +27,7 @@ public class Voice implements Organ {
 
 	public void close(String streamId) {
 		audioSynthesizer.close(streamId);
-		// midiSynthesizer.close(streamId);
+		midiSynthesizer.close(streamId);
 	}
 
 	public AudioGenerator getAudioGenerator() {
@@ -44,7 +44,7 @@ public class Voice implements Organ {
 
 	@Override
 	public void initialise() {
-		// midiSynthesizer = buildMidiSynthesizer();
+		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
 	}
 
@@ -52,8 +52,8 @@ public class Voice implements Organ {
 			int sequence) {
 		System.out.println(
 				">>send!!!: " + toneTimeFrame.getTimeSet().getStartTime());
-		// writeMidi(toneTimeFrame, streamId, sequence);
-		writeAudio(toneTimeFrame, streamId, sequence);
+		writeMidi(toneTimeFrame, streamId, sequence);
+		// writeAudio(toneTimeFrame, streamId, sequence);
 	}
 
 	@Override
