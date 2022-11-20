@@ -52,7 +52,7 @@ public class PeakProcessor {
 		this.pitchSet = pitchSet;
 		frequencyEstimates = new float[magnitudes.length];
 		calculateFrequencyEstimates();
-		normalizeMagnitudes();
+		// normalizeMagnitudes();
 
 	}
 
@@ -67,7 +67,7 @@ public class PeakProcessor {
 		this.pitchSet = timeFrame.getPitchSet();
 		frequencyEstimates = new float[magnitudes.length];
 		calculateFrequencyEstimates();
-		normalizeMagnitudes();
+		// normalizeMagnitudes();
 	}
 
 	/**
