@@ -21,7 +21,6 @@
 * 
 */
 
-
 package be.tarsos.dsp.example;
 
 import java.beans.PropertyChangeListener;
@@ -45,39 +44,36 @@ import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.AudioPlayer;
 
 public class Player implements AudioProcessor {
-	
 
 	private PropertyChangeSupport support = new PropertyChangeSupport(this);
-	
+
 	private PlayerState state;
 	private File loadedFile;
 	private GainProcessor gainProcessor;
 	private AudioPlayer audioPlayer;
 	private WaveformSimilarityBasedOverlapAdd wsola;
 	private AudioDispatcher dispatcher;
-	
+
 	private double durationInSeconds;
 	private double currentTime;
 	private double pauzedAt;
-	
+
 	private final AudioProcessor beforeWSOLAProcessor;
 	private final AudioProcessor afterWSOLAProcessor;
-	
+
 	private double gain;
 	private double tempo;
-	
-	public Player(AudioProcessor beforeWSOLAProcessor,AudioProcessor afterWSOLAProcessor){
+
+	public Player(AudioProcessor beforeWSOLAProcessor, AudioProcessor afterWSOLAProcessor) {
 		state = PlayerState.NO_FILE_LOADED;
 		gain = 1.0;
 		tempo = 1.0;
 		this.beforeWSOLAProcessor = beforeWSOLAProcessor;
 		this.afterWSOLAProcessor = afterWSOLAProcessor;
 	}
-	
 
-	
 	public void load(File file) {
-		if(state != PlayerState.NO_FILE_LOADED){
+		if (state != PlayerState.NO_FILE_LOADED) {
 			eject();
 		}
 		loadedFile = file;
@@ -95,50 +91,51 @@ public class Player implements AudioProcessor {
 		currentTime = 0;
 		setState(PlayerState.FILE_LOADED);
 	}
-	
-	public void eject(){
+
+	public void eject() {
 		loadedFile = null;
 		stop();
 		setState(PlayerState.NO_FILE_LOADED);
 	}
-	
-	public void play(){
-		if(state == PlayerState.NO_FILE_LOADED){
+
+	public void play() {
+		if (state == PlayerState.NO_FILE_LOADED) {
 			throw new IllegalStateException("Can not play when no file is loaded");
-		} else if(state == PlayerState.PAUZED) {
+		} else if (state == PlayerState.PAUZED) {
 			play(pauzedAt);
 		} else {
 			play(0);
 		}
 	}
-	
+
 	public void play(double startTime) {
-		if(state == PlayerState.NO_FILE_LOADED){
+		if (state == PlayerState.NO_FILE_LOADED) {
 			throw new IllegalStateException("Can not play when no file is loaded");
 		} else {
 			try {
 				AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(loadedFile);
 				AudioFormat format = fileFormat.getFormat();
-				
+
 				gainProcessor = new GainProcessor(gain);
-				audioPlayer = new AudioPlayer(format);		
-				wsola = new WaveformSimilarityBasedOverlapAdd(Parameters.slowdownDefaults(tempo,format.getSampleRate()));
-				
-				dispatcher = AudioDispatcherFactory.fromFile(loadedFile,wsola.getInputBufferSize(),wsola.getOverlap());
-				
+				audioPlayer = new AudioPlayer(format);
+				wsola = new WaveformSimilarityBasedOverlapAdd(
+						Parameters.slowdownDefaults(tempo, format.getSampleRate()));
+
+				dispatcher = AudioDispatcherFactory.fromFile(loadedFile, wsola.getInputBufferSize(),
+						wsola.getOverlap());
+
 				wsola.setDispatcher(dispatcher);
 				dispatcher.skip(startTime);
-				
+
 				dispatcher.addAudioProcessor(this);
 				dispatcher.addAudioProcessor(beforeWSOLAProcessor);
 				dispatcher.addAudioProcessor(wsola);
 				dispatcher.addAudioProcessor(afterWSOLAProcessor);
 				dispatcher.addAudioProcessor(gainProcessor);
-				
-				
+
 				dispatcher.addAudioProcessor(audioPlayer);
 
-				Thread t = new Thread(dispatcher,"Audio Player Thread");
+				Thread t = new Thread(dispatcher, "Audio Player Thread");
 				t.start();
 				setState(PlayerState.PLAYING);
 			} catch (UnsupportedAudioFileException e) {
@@ -150,13 +147,13 @@ public class Player implements AudioProcessor {
 			}
 		}
 	}
-	
-	public void pauze(){
+
+	public void pauze() {
 		pauze(currentTime);
 	}
-	
+
 	public void pauze(double pauzeAt) {
-		if(state == PlayerState.PLAYING || state == PlayerState.PAUZED){
+		if (state == PlayerState.PLAYING || state == PlayerState.PAUZED) {
 			setState(PlayerState.PAUZED);
 			dispatcher.stop();
 			pauzedAt = pauzeAt;
@@ -164,44 +161,44 @@ public class Player implements AudioProcessor {
 			throw new IllegalStateException("Can not pauze when nothing is playing");
 		}
 	}
-	
-	public void stop(){
-		if(state == PlayerState.PLAYING || state == PlayerState.PAUZED){
+
+	public void stop() {
+		if (state == PlayerState.PLAYING || state == PlayerState.PAUZED) {
 			setState(PlayerState.STOPPED);
 			dispatcher.stop();
-		} else if(state != PlayerState.STOPPED){
+		} else if (state != PlayerState.STOPPED) {
 			throw new IllegalStateException("Can not stop when nothing is playing");
 		}
-		
+
 	}
-	
-	public void setGain(double newGain){
+
+	public void setGain(double newGain) {
 		gain = newGain;
-		if(state == PlayerState.PLAYING ){
+		if (state == PlayerState.PLAYING) {
 			gainProcessor.setGain(gain);
 		}
 	}
-	
-	public void setTempo(double newTempo){
+
+	public void setTempo(double newTempo) {
 		tempo = newTempo;
-		if(state == PlayerState.PLAYING ){
-			wsola.setParameters(Parameters.slowdownDefaults(tempo,dispatcher.getFormat().getSampleRate()));
+		if (state == PlayerState.PLAYING) {
+			wsola.setParameters(Parameters.slowdownDefaults(tempo, dispatcher.getFormat().getSampleRate()));
 		}
 	}
-	
+
 	public double getDurationInSeconds() {
-		if(state == PlayerState.NO_FILE_LOADED){
+		if (state == PlayerState.NO_FILE_LOADED) {
 			throw new IllegalStateException("No file loaded, unable to determine the duration in seconds");
 		}
 		return durationInSeconds;
 	}
 
-	private void setState(PlayerState newState){
+	private void setState(PlayerState newState) {
 		PlayerState oldState = state;
 		state = newState;
 		support.firePropertyChange("state", oldState, newState);
 	}
-	
+
 	public PlayerState getState() {
 		return state;
 	}
@@ -213,8 +210,7 @@ public class Player implements AudioProcessor {
 	public void removePropertyChangeListener(PropertyChangeListener l) {
 		support.removePropertyChangeListener(l);
 	}
-	
-	
+
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		currentTime = audioEvent.getTimeStamp();
@@ -223,17 +219,17 @@ public class Player implements AudioProcessor {
 
 	@Override
 	public void processingFinished() {
-		if(state==PlayerState.PLAYING){
+		if (state == PlayerState.PLAYING) {
 			setState(PlayerState.STOPPED);
 		}
 	}
 
-	
 	/**
 	 * Defines the state of the audio player.
+	 * 
 	 * @author Joren Six
 	 */
-	public static enum PlayerState{
+	public static enum PlayerState {
 		/**
 		 * No file is loaded.
 		 */
@@ -249,9 +245,9 @@ public class Player implements AudioProcessor {
 		/**
 		 * Audio play back is paused.
 		 */
-		PAUZED,		
+		PAUZED,
 		/**
-		 * Audio play back is stopped. 
+		 * Audio play back is stopped.
 		 */
 		STOPPED
 	}

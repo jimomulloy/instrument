@@ -32,13 +32,9 @@ public class NoteStatusElement {
 		if ((obj == null) || (getClass() != obj.getClass()))
 			return false;
 		NoteStatusElement other = (NoteStatusElement) obj;
-		return highFlag == other.highFlag && index == other.index
-				&& note == other.note
-				&& Double.doubleToLongBits(offTime) == Double
-						.doubleToLongBits(other.offTime)
-				&& Double.doubleToLongBits(onTime) == Double
-						.doubleToLongBits(other.onTime)
-				&& state == other.state;
+		return highFlag == other.highFlag && index == other.index && note == other.note
+				&& Double.doubleToLongBits(offTime) == Double.doubleToLongBits(other.offTime)
+				&& Double.doubleToLongBits(onTime) == Double.doubleToLongBits(other.onTime) && state == other.state;
 	}
 
 	@Override
@@ -48,9 +44,8 @@ public class NoteStatusElement {
 
 	@Override
 	public String toString() {
-		return "NoteStatusElement [highFlag=" + highFlag + ", index=" + index
-				+ ", note=" + note + ", offTime=" + offTime + ", onTime="
-				+ onTime + ", state=" + state + "]";
+		return "NoteStatusElement [highFlag=" + highFlag + ", index=" + index + ", note=" + note + ", offTime="
+				+ offTime + ", onTime=" + onTime + ", state=" + state + "]";
 	}
 
 } // End NoteStatusElement

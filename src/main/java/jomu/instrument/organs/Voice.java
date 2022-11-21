@@ -48,10 +48,8 @@ public class Voice implements Organ {
 		audioSynthesizer = buildAudioSynthesizer();
 	}
 
-	public void send(ToneTimeFrame toneTimeFrame, String streamId,
-			int sequence) {
-		System.out.println(
-				">>send!!!: " + toneTimeFrame.getTimeSet().getStartTime());
+	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
+		System.out.println(">>send!!!: " + toneTimeFrame.getTimeSet().getStartTime());
 		writeMidi(toneTimeFrame, streamId, sequence);
 		// writeAudio(toneTimeFrame, streamId, sequence);
 	}
@@ -62,17 +60,14 @@ public class Voice implements Organ {
 
 	}
 
-	public void writeAudio(ToneTimeFrame toneTimeFrame, String streamId,
-			int sequence) {
+	public void writeAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 
 	}
 
-	public void writeMidi(ToneTimeFrame toneTimeFrame, String streamId,
-			int sequence) {
+	public void writeMidi(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		try {
-			midiSynthesizer.playFrameSequence(toneTimeFrame, streamId,
-					sequence);
+			midiSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 		} catch (InvalidMidiDataException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

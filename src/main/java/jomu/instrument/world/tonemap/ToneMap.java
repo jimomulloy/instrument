@@ -90,8 +90,7 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getPreviousTimeFrame() {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore
-				.lowerEntry(toneMapStore.lastKey());
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(toneMapStore.lastKey());
 		if (previousEntry != null) {
 			return previousEntry.getValue();
 		} else {
@@ -100,8 +99,7 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getPreviousTimeFrame(Double key) {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore
-				.lowerEntry(key);
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(key);
 		if (previousEntry != null) {
 			return previousEntry.getValue();
 		} else {
@@ -110,7 +108,10 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getTimeFrame() {
-		return toneMapStore.lastEntry().getValue();
+		if (!toneMapStore.isEmpty()) {
+			return toneMapStore.lastEntry().getValue();
+		}
+		return null;
 	}
 
 	public ToneTimeFrame getTimeFrame(Double key) {

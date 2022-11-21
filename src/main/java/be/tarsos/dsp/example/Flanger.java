@@ -21,7 +21,6 @@
 * 
 */
 
-
 package be.tarsos.dsp.example;
 
 import java.awt.BorderLayout;
@@ -68,7 +67,7 @@ import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 
 public class Flanger extends JFrame {
-	
+
 	/**
 	 * 
 	 */
@@ -76,33 +75,32 @@ public class Flanger extends JFrame {
 	private AudioDispatcher dispatcher;
 	private FlangerEffect flangerEffect;
 	private GainProcessor inputGain;
-	
-	private int defaultInputGain = 100;//%
-	private int defaultLength = 20;//ms
-	private int defaultImpact = 50;//%
-	private int defaultFrequency = 3;//Hz
-	
-	
+
+	private int defaultInputGain = 100;// %
+	private int defaultLength = 20;// ms
+	private int defaultImpact = 50;// %
+	private int defaultFrequency = 3;// Hz
+
 	public Flanger() {
 		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		this.addWindowListener( new WindowAdapter() {
-              @Override
-              public void windowClosing(WindowEvent we) {
-                  if(dispatcher != null){
-                	  dispatcher.stop();
-                  }
-                  System.exit(0);
-              }
-          } );
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent we) {
+				if (dispatcher != null) {
+					dispatcher.stop();
+				}
+				System.exit(0);
+			}
+		});
 		this.setTitle("Flanger Effect Example");
-		
-		JPanel inputPanel = buildInputPanel();		
-		
+
+		JPanel inputPanel = buildInputPanel();
+
 		final JSlider flangerLengthSlider = new JSlider(1, 100);
 		flangerLengthSlider.setValue(defaultLength);
 		flangerLengthSlider.setPaintLabels(true);
-		flangerLengthSlider.addChangeListener(new ChangeListener(){
+		flangerLengthSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				if (flangerEffect != null) {
@@ -112,8 +110,8 @@ public class Flanger extends JFrame {
 				defaultLength = flangerLengthSlider.getValue();
 			}
 		});
-		
-		final JSlider impact = new JSlider(0,100);
+
+		final JSlider impact = new JSlider(0, 100);
 		impact.setValue(defaultImpact);
 		impact.setPaintLabels(true);
 		impact.addChangeListener(new ChangeListener() {
@@ -126,8 +124,8 @@ public class Flanger extends JFrame {
 				defaultImpact = impact.getValue();
 			}
 		});
-		
-		final JSlider lfoFrequency = new JSlider(0,100);
+
+		final JSlider lfoFrequency = new JSlider(0, 100);
 		lfoFrequency.setValue(defaultFrequency);
 		lfoFrequency.setPaintLabels(true);
 		lfoFrequency.addChangeListener(new ChangeListener() {
@@ -135,33 +133,31 @@ public class Flanger extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				if (flangerEffect != null) {
 					double frequency = lfoFrequency.getValue() / 10.0;
-					flangerEffect.setLFOFrequency(frequency);		
+					flangerEffect.setLFOFrequency(frequency);
 				}
-				defaultFrequency = lfoFrequency.getValue();		
+				defaultFrequency = lfoFrequency.getValue();
 			}
 		});
-		
-		
-		
-		JPanel params = new JPanel(new GridLayout(0,1));
+
+		JPanel params = new JPanel(new GridLayout(0, 1));
 		params.setBorder(new TitledBorder("2. Set the algorithm parameters"));
-		
+
 		JLabel label = new JLabel("Impact (%)");
 		label.setToolTipText("The impact factor in % (100 is no change).");
 		params.add(label);
 		params.add(impact);
-		
+
 		label = new JLabel("Flanger length (in ms)");
 		label.setToolTipText("The flanger buffer lengt in ms.");
 		params.add(label);
-		params.add(flangerLengthSlider);	
-		
+		params.add(flangerLengthSlider);
+
 		label = new JLabel("Flanger LFO Frequency (in Hz x 10)");
 		label.setToolTipText("The flanger LFO Frequency lengt in dHz.");
 		params.add(label);
 		params.add(lfoFrequency);
-		
-		final JSlider gainSlider = new JSlider(0,200);
+
+		final JSlider gainSlider = new JSlider(0, 200);
 		gainSlider.setValue(defaultInputGain);
 		gainSlider.setPaintLabels(true);
 		gainSlider.addChangeListener(new ChangeListener() {
@@ -174,58 +170,54 @@ public class Flanger extends JFrame {
 				defaultInputGain = gainSlider.getValue();
 			}
 		});
-		
+
 		JPanel gainPanel = new JPanel(new BorderLayout());
 		label = new JLabel("Gain (in %)");
 		label.setToolTipText("Volume in % (100 is no change).");
-		gainPanel.add(label,BorderLayout.NORTH);
-		gainPanel.add(gainSlider,BorderLayout.CENTER);
+		gainPanel.add(label, BorderLayout.NORTH);
+		gainPanel.add(gainSlider, BorderLayout.CENTER);
 		gainPanel.setBorder(new TitledBorder("3. Optionally change the input volume"));
-		
-		add(inputPanel,BorderLayout.NORTH);
-		add(params,BorderLayout.CENTER);
-		add(gainPanel,BorderLayout.SOUTH);
-	}
-	
 
+		add(inputPanel, BorderLayout.NORTH);
+		add(params, BorderLayout.CENTER);
+		add(gainPanel, BorderLayout.SOUTH);
+	}
 
 	private JPanel buildInputPanel() {
 		JPanel fileChooserPanel = new JPanel(new BorderLayout());
 		fileChooserPanel.setBorder(new TitledBorder("1... Or choose your audio (wav mono)"));
-		
+
 		final JFileChooser fileChooser = new JFileChooser();
-		
+
 		JButton chooseFileButton = new JButton("Choose a file...");
-		chooseFileButton.addActionListener(new ActionListener(){
+		chooseFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int returnVal = fileChooser.showOpenDialog(Flanger.this);
-	            if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                File file = fileChooser.getSelectedFile();
-	                startFile(file,null);
-	            } else {
-	                //canceled
-	            }
-			}			
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fileChooser.getSelectedFile();
+					startFile(file, null);
+				} else {
+					// canceled
+				}
+			}
 		});
 		fileChooserPanel.add(chooseFileButton);
 		fileChooser.setLayout(new BoxLayout(fileChooser, BoxLayout.PAGE_AXIS));
-		
 
 		JPanel inputSubPanel = new JPanel(new BorderLayout());
 		JPanel inputPanel = new InputPanel();
-		inputPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						startFile(null,(Mixer) arg0.getNewValue());
-					}
-				});
-		inputSubPanel.add(inputPanel,BorderLayout.NORTH);
-		inputSubPanel.add(fileChooserPanel,BorderLayout.SOUTH);
+		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				startFile(null, (Mixer) arg0.getNewValue());
+			}
+		});
+		inputSubPanel.add(inputPanel, BorderLayout.NORTH);
+		inputSubPanel.add(fileChooserPanel, BorderLayout.SOUTH);
 		return inputSubPanel;
 	}
-	
+
 	private void startFile(File inputFile, Mixer mixer) {
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -235,36 +227,38 @@ public class Flanger extends JFrame {
 		int overlap = 0;
 		double sampleRate = 44100;
 		try {
-			if(inputFile != null){
+			if (inputFile != null) {
 				format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
 				sampleRate = format.getSampleRate();
-			}else{
-				format = new AudioFormat((float) sampleRate, 16, 1, true,true);
+			} else {
+				format = new AudioFormat((float) sampleRate, 16, 1, true, true);
 			}
-			
-			inputGain = new GainProcessor(defaultInputGain/100.0);
-			AudioPlayer audioPlayer = new AudioPlayer(format);	
-			
-			 if(inputFile == null){
-				 DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+
+			inputGain = new GainProcessor(defaultInputGain / 100.0);
+			AudioPlayer audioPlayer = new AudioPlayer(format);
+
+			if (inputFile == null) {
+				DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 				TargetDataLine line;
 				line = (TargetDataLine) mixer.getLine(dataLineInfo);
 				line.open(format, bufferSize);
 				line.start();
 				final AudioInputStream stream = new AudioInputStream(line);
 				final TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
-				dispatcher = new AudioDispatcher(audioStream, bufferSize,overlap); 
-			 }else{
-					if(format.getChannels() != 1){
-						dispatcher = AudioDispatcherFactory.fromFile(inputFile,bufferSize * format.getChannels(),overlap * format.getChannels());
-						dispatcher.addAudioProcessor(new MultichannelToMono(format.getChannels(),true));
-					}else{
-						dispatcher = AudioDispatcherFactory.fromFile(inputFile,bufferSize,overlap);
-					}
-			 }
-			 
-			flangerEffect = new FlangerEffect(defaultLength/1000.0,defaultImpact/100.0,sampleRate,defaultFrequency/10.0);
-				
+				dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+			} else {
+				if (format.getChannels() != 1) {
+					dispatcher = AudioDispatcherFactory.fromFile(inputFile, bufferSize * format.getChannels(),
+							overlap * format.getChannels());
+					dispatcher.addAudioProcessor(new MultichannelToMono(format.getChannels(), true));
+				} else {
+					dispatcher = AudioDispatcherFactory.fromFile(inputFile, bufferSize, overlap);
+				}
+			}
+
+			flangerEffect = new FlangerEffect(defaultLength / 1000.0, defaultImpact / 100.0, sampleRate,
+					defaultFrequency / 10.0);
+
 			dispatcher.addAudioProcessor(flangerEffect);
 			dispatcher.addAudioProcessor(inputGain);
 			dispatcher.addAudioProcessor(new WaveformWriter(format, "flanger.wav"));
@@ -281,18 +275,17 @@ public class Flanger extends JFrame {
 		} catch (LineUnavailableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}
 	}
 
-	public static void main(String... strings) throws InterruptedException,
-			InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
-					//ignore failure to set default look en feel;
+					// ignore failure to set default look en feel;
 				}
 				JFrame frame = new Flanger();
 				frame.pack();

@@ -21,7 +21,6 @@
 * 
 */
 
-
 package be.tarsos.dsp.example;
 
 import java.awt.BorderLayout;
@@ -74,62 +73,57 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 	Mixer currentMixer;
 	private final GaphPanel graphPanel;
 	SilenceDetector silenceDetector;
-	
 
 	public SoundDetector() {
 		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Sound Detector");
 		this.threshold = SilenceDetector.DEFAULT_SILENCE_THRESHOLD;
-		
+
 		JPanel inputPanel = new InputPanel();
-		//add(inputPanel);
-		inputPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						try {
-							setNewMixer((Mixer) arg0.getNewValue());
-						} catch (LineUnavailableException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedAudioFileException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-		
-				
-		JSlider thresholdSlider = initialzeThresholdSlider();		
+		// add(inputPanel);
+		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				try {
+					setNewMixer((Mixer) arg0.getNewValue());
+				} catch (LineUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedAudioFileException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+
+		JSlider thresholdSlider = initialzeThresholdSlider();
 		JPanel params = new JPanel(new BorderLayout());
 		params.setBorder(new TitledBorder("2. Set the algorithm parameters"));
-		
+
 		JLabel label = new JLabel("Threshold");
 		label.setToolTipText("Energy level when sound is counted (dB SPL).");
-		params.add(label,BorderLayout.NORTH);
-		params.add(thresholdSlider,BorderLayout.CENTER);
-		
+		params.add(label, BorderLayout.NORTH);
+		params.add(thresholdSlider, BorderLayout.CENTER);
+
 		JPanel inputAndParamsPanel = new JPanel(new BorderLayout());
-		inputAndParamsPanel.add(inputPanel,BorderLayout.NORTH);
-		inputAndParamsPanel.add(params,BorderLayout.SOUTH);
+		inputAndParamsPanel.add(inputPanel, BorderLayout.NORTH);
+		inputAndParamsPanel.add(params, BorderLayout.SOUTH);
 
-		
 		JPanel panelWithTextArea = new JPanel(new BorderLayout());
-		textArea = new JTextArea(8,30);
+		textArea = new JTextArea(8, 30);
 		textArea.setEditable(false);
-		panelWithTextArea.add(inputAndParamsPanel,BorderLayout.NORTH);
-		panelWithTextArea.add(new JScrollPane(textArea),BorderLayout.CENTER);
+		panelWithTextArea.add(inputAndParamsPanel, BorderLayout.NORTH);
+		panelWithTextArea.add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-		add(panelWithTextArea,BorderLayout.NORTH);
-		
-	
+		add(panelWithTextArea, BorderLayout.NORTH);
+
 		graphPanel = new GaphPanel(threshold);
-		graphPanel.setSize(80,100);
-		add(graphPanel,BorderLayout.CENTER);
+		graphPanel.setSize(80, 100);
+		add(graphPanel, BorderLayout.CENTER);
 	}
-	
-	private static class GaphPanel extends JPanel{
+
+	private static class GaphPanel extends JPanel {
 
 		/**
 		 * 
@@ -137,96 +131,92 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 		private static final long serialVersionUID = 5969781241442094359L;
 		private double threshold;
 		private double maxLevel = -1000;
-		private long currentModulo = System.currentTimeMillis()/15000;
+		private long currentModulo = System.currentTimeMillis() / 15000;
 		private List<Double> levels;
 		private List<Long> startTimes;
-		
-		public GaphPanel(double defaultThreshold){			
+
+		public GaphPanel(double defaultThreshold) {
 			setThresholdLevel(defaultThreshold);
 			levels = new ArrayList<Double>();
-			startTimes=new ArrayList<Long>();
-			setMinimumSize(new Dimension(80,60)); 
+			startTimes = new ArrayList<Long>();
+			setMinimumSize(new Dimension(80, 60));
 		}
-		
-		private void setMaxLevel(double newMaxLevel){
-			if(newMaxLevel> maxLevel){
-				maxLevel=newMaxLevel;
+
+		private void setMaxLevel(double newMaxLevel) {
+			if (newMaxLevel > maxLevel) {
+				maxLevel = newMaxLevel;
 			}
 		}
-		
-		public void setThresholdLevel(double newThreshold){
-			threshold=newThreshold;
+
+		public void setThresholdLevel(double newThreshold) {
+			threshold = newThreshold;
 			repaint();
 		}
-		
-		public void addDataPoint(double level,long ms){
+
+		public void addDataPoint(double level, long ms) {
 			levels.add(level);
 			startTimes.add(ms);
 			setMaxLevel(level);
 			repaint();
 		}
-		
+
 		public void paintComponent(Graphics g) {
-	        super.paintComponent(g); //paint background
-	        g.setColor(Color.BLACK);
-			g.fillRect(0, 0,getWidth(), getHeight());
-			
-			if(System.currentTimeMillis()/15000 > currentModulo){
-				currentModulo = System.currentTimeMillis()/15000;
+			super.paintComponent(g); // paint background
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, getWidth(), getHeight());
+
+			if (System.currentTimeMillis() / 15000 > currentModulo) {
+				currentModulo = System.currentTimeMillis() / 15000;
 				levels.clear();
 				startTimes.clear();
 			}
-			
-	
-			for(int i =0 ; i < levels.size();i++){
-				g.setColor( levels.get(i) > threshold ? Color.GREEN:Color.ORANGE ); 
+
+			for (int i = 0; i < levels.size(); i++) {
+				g.setColor(levels.get(i) > threshold ? Color.GREEN : Color.ORANGE);
 				int x = msToXCoordinate(startTimes.get(i));
 				int y = levelToYCoordinate(levels.get(i));
-				g.drawLine(x, y, x+1, y);
+				g.drawLine(x, y, x + 1, y);
 			}
-			
+
 			int thresholdYCoordinate = levelToYCoordinate(threshold);
 			g.setColor(Color.ORANGE);
-			g.drawLine(0, thresholdYCoordinate, getWidth(),thresholdYCoordinate);
-			g.drawString(String.valueOf((int)threshold), 0, thresholdYCoordinate + 15);
-			
-			
+			g.drawLine(0, thresholdYCoordinate, getWidth(), thresholdYCoordinate);
+			g.drawString(String.valueOf((int) threshold), 0, thresholdYCoordinate + 15);
+
 			int maxYCoordinate = levelToYCoordinate(maxLevel);
 			g.setColor(Color.RED);
-			g.drawLine(0, maxYCoordinate, getWidth(),maxYCoordinate);
-			g.drawString(String.valueOf(((int)(maxLevel*100))/100.0), getWidth() - 40, maxYCoordinate + 15);
-			
-	    }
-		
-		private int levelToYCoordinate(double level){
-			int inPixels = (int)((120 + level)  / 120 * (getHeight()-1));
-			int yCoordinate =  getHeight() - inPixels;
+			g.drawLine(0, maxYCoordinate, getWidth(), maxYCoordinate);
+			g.drawString(String.valueOf(((int) (maxLevel * 100)) / 100.0), getWidth() - 40, maxYCoordinate + 15);
+
+		}
+
+		private int levelToYCoordinate(double level) {
+			int inPixels = (int) ((120 + level) / 120 * (getHeight() - 1));
+			int yCoordinate = getHeight() - inPixels;
 			return yCoordinate;
 		}
-		
-		private int msToXCoordinate(long ms){
-			return (int) ((ms % 15000)/15000.0 * getWidth());
+
+		private int msToXCoordinate(long ms) {
+			return (int) ((ms % 15000) / 15000.0 * getWidth());
 		}
-				
+
 	}
-	
-	
 
 	private JSlider initialzeThresholdSlider() {
-		JSlider thresholdSlider = new JSlider(-120,0);
-		thresholdSlider.setValue((int)threshold);
+		JSlider thresholdSlider = new JSlider(-120, 0);
+		thresholdSlider.setValue((int) threshold);
 		thresholdSlider.setPaintLabels(true);
 		thresholdSlider.setPaintTicks(true);
 		thresholdSlider.setMajorTickSpacing(20);
 		thresholdSlider.setMinorTickSpacing(10);
-		thresholdSlider.addChangeListener(new ChangeListener(){
+		thresholdSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				threshold = source.getValue();
 				graphPanel.setThresholdLevel(threshold);
-			    if (!source.getValueIsAdjusting()) {			        
-			        try {
+				if (!source.getValueIsAdjusting()) {
+					try {
 						setNewMixer(currentMixer);
 					} catch (LineUnavailableException e1) {
 						// TODO Auto-generated catch block
@@ -235,30 +225,28 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-			    }
+				}
 			}
 		});
 		return thresholdSlider;
 	}
 
-	private void setNewMixer(Mixer mixer) throws LineUnavailableException,
-			UnsupportedAudioFileException {
-		
-		if(dispatcher!= null){
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
+
+		if (dispatcher != null) {
 			dispatcher.stop();
 		}
 		currentMixer = mixer;
-		
+
 		float sampleRate = 44100;
 		int bufferSize = 512;
 		int overlap = 0;
-		
-		textArea.append("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName()) + "\n\tparams: " + threshold + "dB\n");
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-				true);
-		final DataLine.Info dataLineInfo = new DataLine.Info(
-				TargetDataLine.class, format);
+		textArea.append("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName())
+				+ "\n\tparams: " + threshold + "dB\n");
+
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -268,26 +256,24 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 
 		JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
 		// create a new dispatcher
-		dispatcher = new AudioDispatcher(audioStream, bufferSize,
-				overlap);
+		dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
 		// add a processor, handle percussion event.
-		silenceDetector = new SilenceDetector(threshold,false);
+		silenceDetector = new SilenceDetector(threshold, false);
 		dispatcher.addAudioProcessor(silenceDetector);
 		dispatcher.addAudioProcessor(this);
 
 		// run the dispatcher (on a new thread).
-		new Thread(dispatcher,"Audio dispatching").start();
+		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings) throws InterruptedException,
-			InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				JFrame frame = new SoundDetector();
 				frame.pack();
-				frame.setSize(640,480);
+				frame.setSize(640, 480);
 				frame.setVisible(true);
 			}
 		});
@@ -299,18 +285,18 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 		return true;
 	}
 
-	private void handleSound(){
-		if(silenceDetector.currentSPL() > threshold){
-			textArea.append("Sound detected at:" + System.currentTimeMillis() + ", " + (int)(silenceDetector.currentSPL()) + "dB SPL\n");
+	private void handleSound() {
+		if (silenceDetector.currentSPL() > threshold) {
+			textArea.append("Sound detected at:" + System.currentTimeMillis() + ", "
+					+ (int) (silenceDetector.currentSPL()) + "dB SPL\n");
 			textArea.setCaretPosition(textArea.getDocument().getLength());
 		}
-		graphPanel.addDataPoint(silenceDetector.currentSPL(), System.currentTimeMillis());		
-	}
-	@Override
-	public void processingFinished() {		
-		
+		graphPanel.addDataPoint(silenceDetector.currentSPL(), System.currentTimeMillis());
 	}
 
-	
+	@Override
+	public void processingFinished() {
+
+	}
 
 }

@@ -21,7 +21,6 @@
 * 
 */
 
-
 package be.tarsos.dsp.example;
 
 import java.awt.BorderLayout;
@@ -55,7 +54,7 @@ import be.tarsos.dsp.io.jvm.AudioPlayer;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 
 public class Delay extends JFrame {
-	
+
 	/**
 	 * 
 	 */
@@ -63,11 +62,11 @@ public class Delay extends JFrame {
 	private AudioDispatcher dispatcher;
 	private DelayEffect delayEffect;
 	private GainProcessor inputGain;
-	
-	private int defaultInputGain = 100;//%
-	private int defaultDelay = 200;//ms
-	private int defaultDecay = 50;//%
-	
+
+	private int defaultInputGain = 100;// %
+	private int defaultDelay = 200;// ms
+	private int defaultDecay = 50;// %
+
 	PropertyChangeListener mixerChangedListener = new PropertyChangeListener() {
 		@Override
 		public void propertyChange(PropertyChangeEvent arg0) {
@@ -82,32 +81,30 @@ public class Delay extends JFrame {
 			}
 		}
 	};
-	
-	
+
 	public Delay() {
 		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Delay Effect Example");
 		JPanel inputPanel = new InputPanel();
-		inputPanel.addPropertyChangeListener("mixer",mixerChangedListener);
-		
-		
+		inputPanel.addPropertyChangeListener("mixer", mixerChangedListener);
+
 		final JSlider echoLengthSlider = new JSlider(1, 4000);
 		echoLengthSlider.setValue(defaultDelay);
 		echoLengthSlider.setPaintLabels(true);
-		echoLengthSlider.addChangeListener(new ChangeListener(){
+		echoLengthSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				if (delayEffect != null) {
 					double echoLength = echoLengthSlider.getValue() / 1000.0;
 					delayEffect.setEchoLength(echoLength);
 				}
-				
+
 			}
-			
+
 		});
-		
-		final JSlider decaySlider = new JSlider(0,100);
+
+		final JSlider decaySlider = new JSlider(0, 100);
 		decaySlider.setValue(defaultDecay);
 		decaySlider.setPaintLabels(true);
 		decaySlider.addChangeListener(new ChangeListener() {
@@ -119,23 +116,21 @@ public class Delay extends JFrame {
 				}
 			}
 		});
-		
-		
-		
-		JPanel params = new JPanel(new GridLayout(0,1));
+
+		JPanel params = new JPanel(new GridLayout(0, 1));
 		params.setBorder(new TitledBorder("2. Set the algorithm parameters"));
-		
+
 		JLabel label = new JLabel("Decay");
 		label.setToolTipText("The decay factor in % (100 is no change).");
 		params.add(label);
 		params.add(decaySlider);
-		
+
 		label = new JLabel("Echo length (in ms)");
 		label.setToolTipText("The echo lengt in ms.");
 		params.add(label);
-		params.add(echoLengthSlider);	
-		
-		final JSlider gainSlider = new JSlider(0,200);
+		params.add(echoLengthSlider);
+
+		final JSlider gainSlider = new JSlider(0, 200);
 		gainSlider.setValue(defaultInputGain);
 		gainSlider.setPaintLabels(true);
 		gainSlider.addChangeListener(new ChangeListener() {
@@ -147,23 +142,20 @@ public class Delay extends JFrame {
 				}
 			}
 		});
-		
+
 		JPanel gainPanel = new JPanel(new BorderLayout());
 		label = new JLabel("Gain (in %)");
 		label.setToolTipText("Volume in % (100 is no change).");
-		gainPanel.add(label,BorderLayout.NORTH);
-		gainPanel.add(gainSlider,BorderLayout.CENTER);
+		gainPanel.add(label, BorderLayout.NORTH);
+		gainPanel.add(gainSlider, BorderLayout.CENTER);
 		gainPanel.setBorder(new TitledBorder("3. Optionally change the input volume"));
-		
-		add(inputPanel,BorderLayout.NORTH);
-		add(params,BorderLayout.CENTER);
-		add(gainPanel,BorderLayout.SOUTH);
+
+		add(inputPanel, BorderLayout.NORTH);
+		add(params, BorderLayout.CENTER);
+		add(gainPanel, BorderLayout.SOUTH);
 	}
-	
 
-
-	private void setNewMixer(Mixer mixer) throws LineUnavailableException,
-			UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -173,10 +165,8 @@ public class Delay extends JFrame {
 		int bufferSize = 1024;
 		int overlap = 0;
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-				false);
-		final DataLine.Info dataLineInfo = new DataLine.Info(
-				TargetDataLine.class, format);
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
+		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -187,11 +177,11 @@ public class Delay extends JFrame {
 
 		// create a new dispatcher
 		dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
-		
-		delayEffect = new DelayEffect(defaultDelay/1000.0,defaultDecay/100.0,sampleRate);
-		inputGain = new GainProcessor(defaultInputGain/100.0);
-		
-		//add  processors
+
+		delayEffect = new DelayEffect(defaultDelay / 1000.0, defaultDecay / 100.0, sampleRate);
+		inputGain = new GainProcessor(defaultInputGain / 100.0);
+
+		// add processors
 		dispatcher.addAudioProcessor(inputGain);
 		dispatcher.addAudioProcessor(delayEffect);
 		dispatcher.addAudioProcessor(new AudioPlayer(format));
@@ -200,15 +190,14 @@ public class Delay extends JFrame {
 		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings) throws InterruptedException,
-			InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
-					//ignore failure to set default look en feel;
+					// ignore failure to set default look en feel;
 				}
 				JFrame frame = new Delay();
 				frame.pack();

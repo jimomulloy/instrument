@@ -18,8 +18,7 @@ public class AudioEventSource {
 	public TreeMap<Double, AudioEvent> getFeatures() {
 		features = tarsosIO.getFeatures();
 		TreeMap<Double, AudioEvent> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, AudioEvent> entry : features
-				.entrySet()) {
+		for (java.util.Map.Entry<Double, AudioEvent> entry : features.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue());
 		}
 		return clonedFeatures;

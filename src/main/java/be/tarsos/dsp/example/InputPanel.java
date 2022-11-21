@@ -21,7 +21,6 @@
 * 
 */
 
-
 package be.tarsos.dsp.example;
 
 import java.awt.BorderLayout;
@@ -44,15 +43,15 @@ public class InputPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	Mixer mixer = null;
-	
-	public InputPanel(){
+
+	public InputPanel() {
 		super(new BorderLayout());
 		this.setBorder(new TitledBorder("1. Choose a microphone input"));
-		JPanel buttonPanel = new JPanel(new GridLayout(0,1));
+		JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
 		ButtonGroup group = new ButtonGroup();
-		for(Mixer.Info info : Shared.getMixerInfo(false, true)){
+		for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
 			JRadioButton button = new JRadioButton();
 			button.setText(Shared.toLocalString(info));
 			buttonPanel.add(button);
@@ -60,16 +59,17 @@ public class InputPanel extends JPanel {
 			button.setActionCommand(info.toString());
 			button.addActionListener(setInput);
 		}
-		this.add(new JScrollPane(buttonPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),BorderLayout.CENTER);
-		this.setMaximumSize(new Dimension(300,150));
-		this.setPreferredSize(new Dimension(300,150));
+		this.add(new JScrollPane(buttonPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		this.setMaximumSize(new Dimension(300, 150));
+		this.setPreferredSize(new Dimension(300, 150));
 	}
-	
-	private ActionListener setInput = new ActionListener(){
+
+	private ActionListener setInput = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			for(Mixer.Info info : Shared.getMixerInfo(false, true)){
-				if(arg0.getActionCommand().equals(info.toString())){
+			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
+				if (arg0.getActionCommand().equals(info.toString())) {
 					Mixer newValue = AudioSystem.getMixer(info);
 					InputPanel.this.firePropertyChange("mixer", mixer, newValue);
 					InputPanel.this.mixer = newValue;

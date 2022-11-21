@@ -37,29 +37,30 @@ import be.tarsos.dsp.synthesis.SineGenerator;
 
 /**
  * Shows how a synthesizer can be constructed using some simple ugen blocks.
+ * 
  * @author Joren Six
  */
 public class SynthesisExample {
-	
-	public static void main(String... args) throws LineUnavailableException{
-		AudioGenerator generator = new AudioGenerator(1024,0);
+
+	public static void main(String... args) throws LineUnavailableException {
+		AudioGenerator generator = new AudioGenerator(1024, 0);
 		generator.addAudioProcessor(new NoiseGenerator(0.2));
-		generator.addAudioProcessor(new LowPassFS(1000,44100));
-		generator.addAudioProcessor(new LowPassFS(1000,44100));
-		generator.addAudioProcessor(new LowPassFS(1000,44100));
-		generator.addAudioProcessor(new SineGenerator(0.05,220));
-		generator.addAudioProcessor(new AmplitudeLFO(10,0.9));
-		generator.addAudioProcessor(new SineGenerator(0.2,440));
-		generator.addAudioProcessor(new SineGenerator(0.1,880));
+		generator.addAudioProcessor(new LowPassFS(1000, 44100));
+		generator.addAudioProcessor(new LowPassFS(1000, 44100));
+		generator.addAudioProcessor(new LowPassFS(1000, 44100));
+		generator.addAudioProcessor(new SineGenerator(0.05, 220));
+		generator.addAudioProcessor(new AmplitudeLFO(10, 0.9));
+		generator.addAudioProcessor(new SineGenerator(0.2, 440));
+		generator.addAudioProcessor(new SineGenerator(0.1, 880));
 		generator.addAudioProcessor(new DelayEffect(1.5, 0.4, 44100));
 		generator.addAudioProcessor(new AmplitudeLFO());
 		generator.addAudioProcessor(new NoiseGenerator(0.02));
-		generator.addAudioProcessor(new SineGenerator(0.05,1760));
-		generator.addAudioProcessor(new SineGenerator(0.01,2460));
-		generator.addAudioProcessor(new AmplitudeLFO(0.1,0.7));
+		generator.addAudioProcessor(new SineGenerator(0.05, 1760));
+		generator.addAudioProcessor(new SineGenerator(0.01, 2460));
+		generator.addAudioProcessor(new AmplitudeLFO(0.1, 0.7));
 		generator.addAudioProcessor(new DelayEffect(0.757, 0.4, 44100));
-		generator.addAudioProcessor(new FlangerEffect(0.1,0.2,44100,4));
-		generator.addAudioProcessor(new AudioPlayer( new AudioFormat(44100, 16, 1, true, false)));
+		generator.addAudioProcessor(new FlangerEffect(0.1, 0.2, 44100, 4));
+		generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, false)));
 		generator.run();
 	}
 }

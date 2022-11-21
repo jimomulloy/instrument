@@ -54,16 +54,11 @@ public class BandedPitchDetectorSource {
 
 	public Map<Integer, TreeMap<Double, SpectrogramInfo>> getFeatures() {
 		Map<Integer, TreeMap<Double, SpectrogramInfo>> clonedFeatures = new HashMap<>();
-		clonedFeatures.put(pitchDetectorSourceBand1.getBufferSize(),
-				pitchDetectorSourceBand1.getFeatures());
-		clonedFeatures.put(pitchDetectorSourceBand2.getBufferSize(),
-				pitchDetectorSourceBand2.getFeatures());
-		clonedFeatures.put(pitchDetectorSourceBand3.getBufferSize(),
-				pitchDetectorSourceBand3.getFeatures());
-		clonedFeatures.put(pitchDetectorSourceBand4.getBufferSize(),
-				pitchDetectorSourceBand4.getFeatures());
-		clonedFeatures.put(pitchDetectorSourceBand5.getBufferSize(),
-				pitchDetectorSourceBand5.getFeatures());
+		clonedFeatures.put(pitchDetectorSourceBand1.getBufferSize(), pitchDetectorSourceBand1.getFeatures());
+		clonedFeatures.put(pitchDetectorSourceBand2.getBufferSize(), pitchDetectorSourceBand2.getFeatures());
+		clonedFeatures.put(pitchDetectorSourceBand3.getBufferSize(), pitchDetectorSourceBand3.getFeatures());
+		clonedFeatures.put(pitchDetectorSourceBand4.getBufferSize(), pitchDetectorSourceBand4.getFeatures());
+		clonedFeatures.put(pitchDetectorSourceBand5.getBufferSize(), pitchDetectorSourceBand5.getFeatures());
 		return clonedFeatures;
 	}
 

@@ -35,8 +35,7 @@ public final class ActivationFunction implements Serializable {
 
 	/**
 	 *
-	 * @param afe
-	 *            ActivationFunctionEnum
+	 * @param afe ActivationFunctionEnum
 	 */
 	public ActivationFunction(ActivationFunctionEnum afe) {
 		this.afe = afe;
@@ -44,8 +43,7 @@ public final class ActivationFunction implements Serializable {
 
 	/**
 	 *
-	 * @param d
-	 *            double
+	 * @param d double
 	 * @return
 	 */
 	public double compute(double d) {
@@ -54,24 +52,24 @@ public final class ActivationFunction implements Serializable {
 		// use a switch statement to determine which
 		// activation function to use
 		switch (afe) {
-			case GAUSSIAN :
-				output = gaussian(d);
-				break;
-			case LINEAR :
-				output = linear(d);
-				break;
-			case PIECEWISE_LINEAR :
-				output = pieceWiseLinear(d);
-				break;
-			case SIGMOIDAL :
-				output = sigmoidal(d);
-				break;
-			case UNIT_STEP :
-				output = unitStep(d);
-				break;
-			default :
-				output = sigmoidal(d);
-				break;
+		case GAUSSIAN:
+			output = gaussian(d);
+			break;
+		case LINEAR:
+			output = linear(d);
+			break;
+		case PIECEWISE_LINEAR:
+			output = pieceWiseLinear(d);
+			break;
+		case SIGMOIDAL:
+			output = sigmoidal(d);
+			break;
+		case UNIT_STEP:
+			output = unitStep(d);
+			break;
+		default:
+			output = sigmoidal(d);
+			break;
 		}
 
 		return output; // dendrites.computeNetInput();
@@ -154,11 +152,10 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 * Unit Step with a threshold. If input x is equal or greater than
-	 * threshold, then method returns a 1. Otherwise, method returns a 0.
+	 * Unit Step with a threshold. If input x is equal or greater than threshold,
+	 * then method returns a 1. Otherwise, method returns a 0.
 	 *
-	 * @param x
-	 *            double
+	 * @param x double
 	 * @return
 	 */
 	public double unitStep(double x) {

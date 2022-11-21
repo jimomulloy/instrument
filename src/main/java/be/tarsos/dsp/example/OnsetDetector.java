@@ -21,7 +21,6 @@
 * 
 */
 
-
 package be.tarsos.dsp.example;
 
 import java.awt.BorderLayout;
@@ -60,7 +59,6 @@ import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import be.tarsos.dsp.onsets.OnsetHandler;
 
-
 public class OnsetDetector extends JFrame implements OnsetHandler {
 
 	/**
@@ -77,86 +75,85 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Percussion Detector");
-			
+
 		JPanel inputPanel = new InputPanel();
-		inputPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						try {
-							setNewMixer((Mixer) arg0.getNewValue());
-						} catch (LineUnavailableException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedAudioFileException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-		
-			
-		JSlider thresholdSlider = initialzeThresholdSlider();		
-		JPanel params = new JPanel(new GridLayout(0,1));
+		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				try {
+					setNewMixer((Mixer) arg0.getNewValue());
+				} catch (LineUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedAudioFileException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+
+		JSlider thresholdSlider = initialzeThresholdSlider();
+		JPanel params = new JPanel(new GridLayout(0, 1));
 		params.setBorder(new TitledBorder("2. Set the algorithm parameters"));
-		
+
 		JLabel label = new JLabel("Threshold");
 		label.setToolTipText("Peak picking threshold.");
 		params.add(label);
 		params.add(thresholdSlider);
-		
-		JPanel paramsAndInputPanel = new JPanel(new GridLayout(1,0));
+
+		JPanel paramsAndInputPanel = new JPanel(new GridLayout(1, 0));
 		paramsAndInputPanel.add(inputPanel);
 		paramsAndInputPanel.add(params);
-		
-		
+
 		textArea = new JTextArea();
 		textArea.setEditable(false);
-		
-		this.add(paramsAndInputPanel,BorderLayout.NORTH);
-		this.add(new JScrollPane(textArea),BorderLayout.CENTER);
-		
+
+		this.add(paramsAndInputPanel, BorderLayout.NORTH);
+		this.add(new JScrollPane(textArea), BorderLayout.CENTER);
+
 		clipList = new ArrayList<Clip>();
-	
+
 		addClips();
 	}
-	
+
 	private JSlider initialzeThresholdSlider() {
-		JSlider thresholdSlider = new JSlider(0,100);
-		thresholdSlider.setValue((int)threshold);
+		JSlider thresholdSlider = new JSlider(0, 100);
+		thresholdSlider.setValue((int) threshold);
 		thresholdSlider.setPaintLabels(true);
 		thresholdSlider.setPaintTicks(true);
 		thresholdSlider.setMajorTickSpacing(20);
 		thresholdSlider.setMinorTickSpacing(10);
 		thresholdSlider.setValue(25);
-		thresholdSlider.addChangeListener(new ChangeListener(){
+		thresholdSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
-			    if (!source.getValueIsAdjusting()) {
-			       threshold = source.getValue()/100.0;
-			       if(onsetDetector!=null){
-			    	   onsetDetector.setThreshold(threshold);
-			       }
-			    }
+				if (!source.getValueIsAdjusting()) {
+					threshold = source.getValue() / 100.0;
+					if (onsetDetector != null) {
+						onsetDetector.setThreshold(threshold);
+					}
+				}
 			}
 		});
 		return thresholdSlider;
 	}
-	
-	private void addClips(){
-		String[] clips = {"50863__chipfork__Echopop.wav","50771__Digital_System__BOOM_reverb.wav","30667__HardPCM__HardBassDrum001.wav","30669__HardPCM__HardKick002.wav","33637__HerbertBoland__CinematicBoomNorm.wav"};
-		for(String clipName : clips){
-		
+
+	private void addClips() {
+		String[] clips = { "50863__chipfork__Echopop.wav", "50771__Digital_System__BOOM_reverb.wav",
+				"30667__HardPCM__HardBassDrum001.wav", "30669__HardPCM__HardKick002.wav",
+				"33637__HerbertBoland__CinematicBoomNorm.wav" };
+		for (String clipName : clips) {
+
 			try {
 				final InputStream inputStream = this.getClass().getResourceAsStream("resources/" + clipName);
 				AudioInputStream sound;
 				sound = AudioSystem.getAudioInputStream(inputStream);
-				  // load the sound into memory (a Clip)
-			    DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
-			    Clip clip = (Clip) AudioSystem.getLine(info);
-			    clip.open(sound);
-			    clipList.add(clip);
+				// load the sound into memory (a Clip)
+				DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
+				Clip clip = (Clip) AudioSystem.getLine(info);
+				clip.open(sound);
+				clipList.add(clip);
 			} catch (UnsupportedAudioFileException e) {
 				System.out.println(clipName);
 				// TODO Auto-generated catch block
@@ -167,7 +164,7 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 			} catch (LineUnavailableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}	
+			}
 
 		}
 	}
@@ -175,24 +172,23 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 	ComplexOnsetDetector onsetDetector;
 	AudioDispatcher dispatcher;
 	Mixer currentMixer;
-	private void setNewMixer(Mixer mixer) throws LineUnavailableException,
-			UnsupportedAudioFileException {
-		
-		if(dispatcher!= null){
+
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
+
+		if (dispatcher != null) {
 			dispatcher.stop();
 		}
 		currentMixer = mixer;
-		
+
 		float sampleRate = 44100;
 		int bufferSize = 512;
 		int overlap = 0;
-		
-		textArea.append("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName()) + "\n\tparams: " + threshold + "dB\n");
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-				true);
-		final DataLine.Info dataLineInfo = new DataLine.Info(
-				TargetDataLine.class, format);
+		textArea.append("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName())
+				+ "\n\tparams: " + threshold + "dB\n");
+
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -201,27 +197,25 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 		final AudioInputStream stream = new AudioInputStream(line);
 		JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
 		// create a new dispatcher
-		dispatcher = new AudioDispatcher(audioStream, bufferSize,
-				overlap);
+		dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
-		onsetDetector = new ComplexOnsetDetector(bufferSize, threshold,0.07,-60);
+		onsetDetector = new ComplexOnsetDetector(bufferSize, threshold, 0.07, -60);
 		onsetDetector.setHandler(this);
 		// add a processor, handle percussion event.
 		dispatcher.addAudioProcessor(onsetDetector);
 
 		// run the dispatcher (on a new thread).
-		new Thread(dispatcher,"Audio dispatching").start();
+		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings) throws InterruptedException,
-			InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
-					//ignore failure to set default look en feel;
+					// ignore failure to set default look en feel;
 				}
 				JFrame frame = new OnsetDetector();
 				frame.pack();
@@ -239,7 +233,7 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 		clip.setFramePosition(0);
 		clip.start();
 		counter++;
-		if(counter == clipList.size()){
+		if (counter == clipList.size()) {
 			Collections.shuffle(clipList);
 		}
 	}

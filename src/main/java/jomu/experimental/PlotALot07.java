@@ -35,6 +35,7 @@ public class PlotALot07 {
 	String title;
 	int traceSpacing;// pixels between traces
 	int tracesPerPage;
+
 	PlotALot07(String title) {
 		// Invoke the other overloaded constructor
 		// passing default values for all but the
@@ -112,8 +113,7 @@ public class PlotALot07 {
 
 	// Invoke this method once for each quadruplet of
 	// data values to be plotted.
-	void feedData(double valBlack, double valRed, double valBlue,
-			double valGreen, double valMagenta, double valCyan) {
+	void feedData(double valBlack, double valRed, double valBlue, double valGreen, double valMagenta, double valCyan) {
 		if ((sampleCounter) == samplesPerPage) {
 			// if the page is full, increment the page
 			// counter, create a new empty page, and
@@ -128,8 +128,7 @@ public class PlotALot07 {
 			// counter. The sample values pass through
 			// the page object into the current MyCanvas
 			// object.
-		pageLinks.get(pageCounter).putData(valBlack, valRed, valBlue, valGreen,
-				valMagenta, valCyan, sampleCounter);
+		pageLinks.get(pageCounter).putData(valBlack, valRed, valBlue, valGreen, valMagenta, valCyan, sampleCounter);
 		sampleCounter++;
 	}// end feedData
 		// -------------------------------------------//
@@ -250,8 +249,7 @@ public class PlotALot07 {
 			} else if (cnt == 33) {
 				plotObjectA.feedData(0, 0, 0, 0, 0, 0);
 			} else {
-				plotObjectA.feedData(valBlack, valRed, valBlue, valGreen,
-						valMagenta, valCyan);
+				plotObjectA.feedData(valBlack, valRed, valBlue, valGreen, valMagenta, valCyan);
 			} // end else
 		} // end for loop
 			// Cause the data to be plotted in the default
@@ -289,8 +287,7 @@ public class PlotALot07 {
 		// values of type double and stores each of
 		// them in a separate array object belonging
 		// to the MyCanvas object.
-		void putData(double valBlack, double valRed, double valBlue,
-				double valGreen, double valMagenta, double valCyan,
+		void putData(double valBlack, double valRed, double valBlue, double valGreen, double valMagenta, double valCyan,
 				int sampleCounter) {
 			canvas.blackData[sampleCounter] = valBlack;
 			canvas.redData[sampleCounter] = valRed;
@@ -323,8 +320,7 @@ public class PlotALot07 {
 				// Draw horizontal axes, one for each
 				// trace.
 				for (int cnt = 0; cnt < tracesPerPage; cnt++) {
-					g.drawLine(0, (cnt + 1) * traceSpacing, this.getWidth(),
-							(cnt + 1) * traceSpacing);
+					g.drawLine(0, (cnt + 1) * traceSpacing, this.getWidth(), (cnt + 1) * traceSpacing);
 				} // end for loop
 
 				// Plot the points if there are any to be
@@ -339,9 +335,8 @@ public class PlotALot07 {
 						// Compute a vertical offset to locate
 						// the black data on every third axis
 						// on the page.
-						int yOffset = ((1
-								+ cnt * (sampSpacing + 1) / this.getWidth()) * 6
-								* traceSpacing) - 5 * traceSpacing;
+						int yOffset = ((1 + cnt * (sampSpacing + 1) / this.getWidth()) * 6 * traceSpacing)
+								- 5 * traceSpacing;
 						// Draw an oval centered on the sample
 						// value to mark the sample in the
 						// plot. It is best if the dimensions
@@ -351,24 +346,17 @@ public class PlotALot07 {
 						// value to cause positive sample
 						// values to be plotted above the
 						// axis.
-						g.drawOval(
-								cnt * (sampSpacing + 1) % this.getWidth()
-										- ovalWidth / 2,
-								yOffset - (int) blackData[cnt] - ovalHeight / 2,
-								ovalWidth, ovalHeight);
+						g.drawOval(cnt * (sampSpacing + 1) % this.getWidth() - ovalWidth / 2,
+								yOffset - (int) blackData[cnt] - ovalHeight / 2, ovalWidth, ovalHeight);
 
 						// Connect the sample values with
 						// straight lines. Do not draw a
 						// line connecting the last sample in
 						// one trace to the first sample in
 						// the next trace.
-						if (cnt * (sampSpacing + 1)
-								% this.getWidth() >= sampSpacing + 1) {
-							g.drawLine(
-									(cnt - 1) * (sampSpacing + 1)
-											% this.getWidth(),
-									yOffset - (int) blackData[cnt - 1],
-									cnt * (sampSpacing + 1) % this.getWidth(),
+						if (cnt * (sampSpacing + 1) % this.getWidth() >= sampSpacing + 1) {
+							g.drawLine((cnt - 1) * (sampSpacing + 1) % this.getWidth(),
+									yOffset - (int) blackData[cnt - 1], cnt * (sampSpacing + 1) % this.getWidth(),
 									yOffset - (int) blackData[cnt]);
 						} // end if
 							// Now plot the data stored in the
@@ -377,26 +365,17 @@ public class PlotALot07 {
 						// Compute a vertical offset to locate
 						// the red data on every third axis
 						// on the page.
-						yOffset = (1
-								+ cnt * (sampSpacing + 1) / this.getWidth()) * 6
-								* traceSpacing - 4 * traceSpacing;
+						yOffset = (1 + cnt * (sampSpacing + 1) / this.getWidth()) * 6 * traceSpacing - 4 * traceSpacing;
 
 						// Draw the ovals as described above.
-						g.drawOval(
-								cnt * (sampSpacing + 1) % this.getWidth()
-										- ovalWidth / 2,
-								yOffset - (int) redData[cnt] - ovalHeight / 2,
-								ovalWidth, ovalHeight);
+						g.drawOval(cnt * (sampSpacing + 1) % this.getWidth() - ovalWidth / 2,
+								yOffset - (int) redData[cnt] - ovalHeight / 2, ovalWidth, ovalHeight);
 
 						// Connect the sample values with
 						// straight lines as described above.
-						if (cnt * (sampSpacing + 1)
-								% this.getWidth() >= sampSpacing + 1) {
-							g.drawLine(
-									(cnt - 1) * (sampSpacing + 1)
-											% this.getWidth(),
-									yOffset - (int) redData[cnt - 1],
-									cnt * (sampSpacing + 1) % this.getWidth(),
+						if (cnt * (sampSpacing + 1) % this.getWidth() >= sampSpacing + 1) {
+							g.drawLine((cnt - 1) * (sampSpacing + 1) % this.getWidth(),
+									yOffset - (int) redData[cnt - 1], cnt * (sampSpacing + 1) % this.getWidth(),
 									yOffset - (int) redData[cnt]);
 
 						} // end if
@@ -407,26 +386,17 @@ public class PlotALot07 {
 						// Compute a vertical offset to locate
 						// the blue data on every third axis
 						// on the page.
-						yOffset = (1
-								+ cnt * (sampSpacing + 1) / this.getWidth()) * 6
-								* traceSpacing - 3 * traceSpacing;
+						yOffset = (1 + cnt * (sampSpacing + 1) / this.getWidth()) * 6 * traceSpacing - 3 * traceSpacing;
 
 						// Draw the ovals as described above.
-						g.drawOval(
-								cnt * (sampSpacing + 1) % this.getWidth()
-										- ovalWidth / 2,
-								yOffset - (int) blueData[cnt] - ovalHeight / 2,
-								ovalWidth, ovalHeight);
+						g.drawOval(cnt * (sampSpacing + 1) % this.getWidth() - ovalWidth / 2,
+								yOffset - (int) blueData[cnt] - ovalHeight / 2, ovalWidth, ovalHeight);
 
 						// Connect the sample values with
 						// straight lines as described above.
-						if (cnt * (sampSpacing + 1)
-								% this.getWidth() >= sampSpacing + 1) {
-							g.drawLine(
-									(cnt - 1) * (sampSpacing + 1)
-											% this.getWidth(),
-									yOffset - (int) blueData[cnt - 1],
-									cnt * (sampSpacing + 1) % this.getWidth(),
+						if (cnt * (sampSpacing + 1) % this.getWidth() >= sampSpacing + 1) {
+							g.drawLine((cnt - 1) * (sampSpacing + 1) % this.getWidth(),
+									yOffset - (int) blueData[cnt - 1], cnt * (sampSpacing + 1) % this.getWidth(),
 									yOffset - (int) blueData[cnt]);
 						} // end if
 
@@ -436,26 +406,17 @@ public class PlotALot07 {
 						// Compute a vertical offset to locate
 						// the green data on every third axis
 						// on the page.
-						yOffset = (1
-								+ cnt * (sampSpacing + 1) / this.getWidth()) * 6
-								* traceSpacing - 2 * traceSpacing;
+						yOffset = (1 + cnt * (sampSpacing + 1) / this.getWidth()) * 6 * traceSpacing - 2 * traceSpacing;
 
 						// Draw the ovals as described above.
-						g.drawOval(
-								cnt * (sampSpacing + 1) % this.getWidth()
-										- ovalWidth / 2,
-								yOffset - (int) greenData[cnt] - ovalHeight / 2,
-								ovalWidth, ovalHeight);
+						g.drawOval(cnt * (sampSpacing + 1) % this.getWidth() - ovalWidth / 2,
+								yOffset - (int) greenData[cnt] - ovalHeight / 2, ovalWidth, ovalHeight);
 
 						// Connect the sample values with
 						// straight lines as described above.
-						if (cnt * (sampSpacing + 1)
-								% this.getWidth() >= sampSpacing + 1) {
-							g.drawLine(
-									(cnt - 1) * (sampSpacing + 1)
-											% this.getWidth(),
-									yOffset - (int) greenData[cnt - 1],
-									cnt * (sampSpacing + 1) % this.getWidth(),
+						if (cnt * (sampSpacing + 1) % this.getWidth() >= sampSpacing + 1) {
+							g.drawLine((cnt - 1) * (sampSpacing + 1) % this.getWidth(),
+									yOffset - (int) greenData[cnt - 1], cnt * (sampSpacing + 1) % this.getWidth(),
 									yOffset - (int) greenData[cnt]);
 						} // end if
 
@@ -465,27 +426,17 @@ public class PlotALot07 {
 						// Compute a vertical offset to locate
 						// the magenta data on every third axis
 						// on the page.
-						yOffset = (1
-								+ cnt * (sampSpacing + 1) / this.getWidth()) * 6
-								* traceSpacing - traceSpacing;
+						yOffset = (1 + cnt * (sampSpacing + 1) / this.getWidth()) * 6 * traceSpacing - traceSpacing;
 
 						// Draw the ovals as described above.
-						g.drawOval(
-								cnt * (sampSpacing + 1) % this.getWidth()
-										- ovalWidth / 2,
-								yOffset - (int) magentaData[cnt]
-										- ovalHeight / 2,
-								ovalWidth, ovalHeight);
+						g.drawOval(cnt * (sampSpacing + 1) % this.getWidth() - ovalWidth / 2,
+								yOffset - (int) magentaData[cnt] - ovalHeight / 2, ovalWidth, ovalHeight);
 
 						// Connect the sample values with
 						// straight lines as described above.
-						if (cnt * (sampSpacing + 1)
-								% this.getWidth() >= sampSpacing + 1) {
-							g.drawLine(
-									(cnt - 1) * (sampSpacing + 1)
-											% this.getWidth(),
-									yOffset - (int) magentaData[cnt - 1],
-									cnt * (sampSpacing + 1) % this.getWidth(),
+						if (cnt * (sampSpacing + 1) % this.getWidth() >= sampSpacing + 1) {
+							g.drawLine((cnt - 1) * (sampSpacing + 1) % this.getWidth(),
+									yOffset - (int) magentaData[cnt - 1], cnt * (sampSpacing + 1) % this.getWidth(),
 									yOffset - (int) magentaData[cnt]);
 						} // end if
 
@@ -495,26 +446,17 @@ public class PlotALot07 {
 						// Compute a vertical offset to locate
 						// the cyan data on every third axis
 						// on the page.
-						yOffset = (1
-								+ cnt * (sampSpacing + 1) / this.getWidth()) * 6
-								* traceSpacing;
+						yOffset = (1 + cnt * (sampSpacing + 1) / this.getWidth()) * 6 * traceSpacing;
 
 						// Draw the ovals as described above.
-						g.drawOval(
-								cnt * (sampSpacing + 1) % this.getWidth()
-										- ovalWidth / 2,
-								yOffset - (int) cyanData[cnt] - ovalHeight / 2,
-								ovalWidth, ovalHeight);
+						g.drawOval(cnt * (sampSpacing + 1) % this.getWidth() - ovalWidth / 2,
+								yOffset - (int) cyanData[cnt] - ovalHeight / 2, ovalWidth, ovalHeight);
 
 						// Connect the sample values with
 						// straight lines as described above.
-						if (cnt * (sampSpacing + 1)
-								% this.getWidth() >= sampSpacing + 1) {
-							g.drawLine(
-									(cnt - 1) * (sampSpacing + 1)
-											% this.getWidth(),
-									yOffset - (int) cyanData[cnt - 1],
-									cnt * (sampSpacing + 1) % this.getWidth(),
+						if (cnt * (sampSpacing + 1) % this.getWidth() >= sampSpacing + 1) {
+							g.drawLine((cnt - 1) * (sampSpacing + 1) % this.getWidth(),
+									yOffset - (int) cyanData[cnt - 1], cnt * (sampSpacing + 1) % this.getWidth(),
 									yOffset - (int) cyanData[cnt]);
 						} // end if
 

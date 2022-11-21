@@ -12,9 +12,9 @@ public class FFTSpectrum {
 		this.windowSize = windowSize;
 		this.spectrum = spectrum;
 		/*
-		 * Frequencies, always the same after capture init... captured signal
-		 * will be zero padded to twice its length, so valid fft bins are equal
-		 * to original epoch length
+		 * Frequencies, always the same after capture init... captured signal will be
+		 * zero padded to twice its length, so valid fft bins are equal to original
+		 * epoch length
 		 */
 		binFrequencies = new double[(int) Math.floor(getWindowSize())];
 		for (int b = 0; b < Math.floor(getWindowSize()); ++b) {

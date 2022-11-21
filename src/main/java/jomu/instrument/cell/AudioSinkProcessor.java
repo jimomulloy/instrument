@@ -33,18 +33,13 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 			sequence = message.sequence;
 			streamId = message.streamId;
 			if (message.source.getCellType().equals(CellTypes.AUDIO_NOTATE)) {
-				Voice voice = Instrument.getInstance().getCoordinator()
-						.getVoice();
-				ToneMap notateToneMap = worldModel.getAtlas().getToneMap(
-						buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
-				voice.send(notateToneMap.getTimeFrame(sequence), streamId,
-						sequence);
-				Hearing hearing = Instrument.getInstance().getCoordinator()
-						.getHearing();
-				AudioFeatureProcessor afp = hearing
-						.getAudioFeatureProcessor(streamId);
-				if (afp == null
-						|| (afp.isClosed() && afp.isLastSequence(sequence))) {
+				Voice voice = Instrument.getInstance().getCoordinator().getVoice();
+				ToneMap notateToneMap = worldModel.getAtlas()
+						.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
+				voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
+				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+				if (afp == null || (afp.isClosed() && afp.isLastSequence(sequence))) {
 					voice.close(streamId);
 				}
 			}

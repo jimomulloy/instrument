@@ -30,12 +30,10 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 			sequence = message.sequence;
 			streamId = message.streamId;
 			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
-				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(
-						buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-				ToneMap integrateToneMap = worldModel.getAtlas().getToneMap(
-						buildToneMapKey(this.cell.getCellType(), streamId));
-				integrateToneMap
-						.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+				ToneMap integrateToneMap = worldModel.getAtlas()
+						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+				integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 				cell.send(streamId, sequence);
 			}
 		}

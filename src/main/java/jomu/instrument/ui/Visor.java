@@ -104,10 +104,7 @@ import jomu.instrument.world.tonemap.ToneMap;
 import jomu.instrument.world.tonemap.ToneMapElement;
 import jomu.instrument.world.tonemap.ToneTimeFrame;
 
-public class Visor extends JPanel
-		implements
-			OscilloscopeEventHandler,
-			AudioFeatureFrameObserver {
+public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
 
 	/**
 	 *
@@ -148,8 +145,9 @@ public class Visor extends JPanel
 	private LinkedPanel spectrogramPanel;
 	private SpectrumLayer spectrumLayer;
 	private LinkedPanel spectrumPanel;
-	private ToneMapLayer toneMapLayer;
-	private LinkedPanel toneMapPanel;
+	// private ToneMapLayer toneMapLayer;
+	private JPanel toneMapPanel;
+	private ToneMapView toneMapView;
 	int counter;
 	Mixer currentMixer;
 	AudioDispatcher dispatcher;
@@ -174,9 +172,8 @@ public class Visor extends JPanel
 
 	private int minPeakSize;
 
-	private final Integer[] fftSizes = {256, 512, 1024, 2048, 4096, 8192, 16384,
-			22050, 32768, 65536, 131072};
-	private final Integer[] inputSampleRate = {8000, 22050, 44100, 192000};
+	private final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
+	private final Integer[] inputSampleRate = { 8000, 22050, 44100, 192000 };
 	private File inputFile;
 	private final List<SpectralInfo> spectalInfo = null;
 
@@ -192,8 +189,8 @@ public class Visor extends JPanel
 		this.setLayout(new BorderLayout());
 		JPanel topPanel = buildTopPanel();
 		graphPanel = buildGraphPanel();
-		JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL,
-				new JScrollPane(topPanel), new JScrollPane(graphPanel));
+		JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(topPanel),
+				new JScrollPane(graphPanel));
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(150);
 		this.add(splitPane, BorderLayout.CENTER);
@@ -205,13 +202,11 @@ public class Visor extends JPanel
 
 		controlPanel = buildControlPanel();
 		panel.add(controlPanel);
-		panel.setBorder(BorderFactory.createCompoundBorder(
-				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
 		diagnosticsPanel = buildDiagnosticsPanel();
 		panel.add(diagnosticsPanel);
-		panel.setBorder(BorderFactory.createCompoundBorder(
-				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
 		Dimension minimumSize = new Dimension(100, 50);
 		panel.setMinimumSize(minimumSize);
@@ -221,11 +216,10 @@ public class Visor extends JPanel
 	private JPanel buildGraphPanel() {
 
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.setBorder(BorderFactory.createCompoundBorder(
-				new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		tabbedPane.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
 
 		toneMapPanel = createToneMapPanel();
-		tabbedPane.addTab("TM", toneMapPanel);
+		tabbedPane.addTab("ToneMap", toneMapPanel);
 		cqPanel = createCQPanel();
 		tabbedPane.addTab("CQ", cqPanel);
 		bandedPitchDetectPanel = createBandedPitchDetectPanel();
@@ -260,8 +254,7 @@ public class Visor extends JPanel
 
 		JPanel panel = new JPanel(new BorderLayout());
 		// panel = new JPanel(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.setBorder(BorderFactory.createCompoundBorder(
-				new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
 		JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
@@ -279,10 +272,8 @@ public class Visor extends JPanel
 					System.out.println(inputFile.toString());
 					fileName = inputFile.getAbsolutePath();
 					try {
-						Instrument.getInstance().getCoordinator().getHearing()
-								.startAudioFileStream(fileName);
-					} catch (UnsupportedAudioFileException | IOException
-							| LineUnavailableException e) {
+						Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
+					} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -300,8 +291,7 @@ public class Visor extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					Instrument.getInstance().getCoordinator().getHearing()
-							.startAudioLineStream();
+					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream();
 					startListeningButton.setEnabled(false);
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
@@ -317,8 +307,7 @@ public class Visor extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					Instrument.getInstance().getCoordinator().getHearing()
-							.stopAudioLineStream();
+					Instrument.getInstance().getCoordinator().getHearing().stopAudioLineStream();
 					startListeningButton.setEnabled(true);
 					stopListeningButton.setEnabled(false);
 					chooseFileButton.setEnabled(true);
@@ -335,8 +324,7 @@ public class Visor extends JPanel
 		panel.add(actionPanel, BorderLayout.NORTH);
 
 		JPanel parameterPanel = new JPanel();
-		parameterPanel
-				.setLayout(new BoxLayout(parameterPanel, BoxLayout.Y_AXIS));
+		parameterPanel.setLayout(new BoxLayout(parameterPanel, BoxLayout.Y_AXIS));
 		parameterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		JComboBox<Integer> fftSizeComboBox = new JComboBox<>(fftSizes);
@@ -346,13 +334,11 @@ public class Visor extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource())
-						.getSelectedItem();
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
 				fftsize = value;
 				noiseFloorMedianFilterLenth = fftsize / 117;
-				System.out.println(
-						"FFT Changed to " + value + " median filter length to "
-								+ noiseFloorMedianFilterLenth);
+				System.out
+						.println("FFT Changed to " + value + " median filter length to " + noiseFloorMedianFilterLenth);
 				// startProcessing();
 			}
 		});
@@ -365,8 +351,7 @@ public class Visor extends JPanel
 		Integer min = new Integer(32);
 		Integer max = new Integer(131072);
 		Integer step = new Integer(32);
-		SpinnerNumberModel model = new SpinnerNumberModel(value, min, max,
-				step);
+		SpinnerNumberModel model = new SpinnerNumberModel(value, min, max, step);
 
 		JSpinner stepSizeSpinner = new JSpinner(model);
 		stepSizeSpinner.addChangeListener(new ChangeListener() {
@@ -374,8 +359,7 @@ public class Visor extends JPanel
 			public void stateChanged(ChangeEvent e) {
 				Integer value = (Integer) ((JSpinner) e.getSource()).getValue();
 				stepsize = value;
-				System.out.println("Step size Changed to " + value
-						+ ", overlap is " + (fftsize - stepsize));
+				System.out.println("Step size Changed to " + value + ", overlap is " + (fftsize - stepsize));
 				// TODO startProcessing();
 			}
 		});
@@ -383,14 +367,12 @@ public class Visor extends JPanel
 		parameterPanel.add(new JLabel("Step size:"));
 		parameterPanel.add(stepSizeSpinner);
 
-		JComboBox<Integer> inputSampleRateCombobox = new JComboBox<>(
-				inputSampleRate);
+		JComboBox<Integer> inputSampleRateCombobox = new JComboBox<>(inputSampleRate);
 		inputSampleRateCombobox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource())
-						.getSelectedItem();
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
 				sampleRate = value;
 				System.out.println("Sample rate Changed to " + value);
 			}
@@ -400,16 +382,14 @@ public class Visor extends JPanel
 		parameterPanel.add(inputSampleRateCombobox);
 
 		JSlider noiseFloorSlider = new JSlider(100, 250);
-		final JLabel noiseFloorFactorLabel = new JLabel(
-				"Noise floor factor    :");
+		final JLabel noiseFloorFactorLabel = new JLabel("Noise floor factor    :");
 		noiseFloorSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				int newValue = source.getValue();
 				double actualValue = newValue / 100.0;
-				noiseFloorFactorLabel.setText(String
-						.format("Noise floor factor (%.2f):", actualValue));
+				noiseFloorFactorLabel.setText(String.format("Noise floor factor (%.2f):", actualValue));
 
 				System.out.println("New noise floor factor: " + actualValue);
 				noiseFloorFactor = (float) actualValue;
@@ -422,15 +402,13 @@ public class Visor extends JPanel
 		parameterPanel.add(noiseFloorSlider);
 
 		JSlider medianFilterSizeSlider = new JSlider(3, 255);
-		final JLabel medianFilterSizeLabel = new JLabel(
-				"Median Filter Size   :");
+		final JLabel medianFilterSizeLabel = new JLabel("Median Filter Size   :");
 		medianFilterSizeSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				int newValue = source.getValue();
-				medianFilterSizeLabel.setText(
-						String.format("Median Filter Size (%d):", newValue));
+				medianFilterSizeLabel.setText(String.format("Median Filter Size (%d):", newValue));
 				System.out.println("New Median filter size: " + newValue);
 				noiseFloorMedianFilterLenth = newValue;
 				// TODO repaintSpectalInfo();
@@ -448,8 +426,7 @@ public class Visor extends JPanel
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				int newValue = source.getValue();
-				minPeakSizeLabel.setText(
-						String.format("Min Peak Size    (%d):", newValue));
+				minPeakSizeLabel.setText(String.format("Min Peak Size    (%d):", newValue));
 				System.out.println("Min Peak Sizee: " + newValue);
 				minPeakSize = newValue;
 				// TODO repaintSpectalInfo();
@@ -467,8 +444,7 @@ public class Visor extends JPanel
 				JSlider source = (JSlider) e.getSource();
 				int newValue = source.getValue();
 
-				numberOfPeaksLabel
-						.setText("Number of peaks (" + newValue + "):");
+				numberOfPeaksLabel.setText("Number of peaks (" + newValue + "):");
 
 				System.out.println("New amount of peaks: " + newValue);
 				numberOfSpectralPeaks = newValue;
@@ -489,13 +465,15 @@ public class Visor extends JPanel
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
 		updateView(audioFeatureFrame);
 	}
+
 	@Override
 	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
 		updateView(audioFeatureFrame);
 	}
+
 	public void clearView() {
-		toneMapLayer.clear();
-		this.toneMapPanel.repaint();
+		// ??toneMapLayer.clear();
+		// ??this.toneMapPanel.repaint();
 	}
 
 	@Override
@@ -508,20 +486,17 @@ public class Visor extends JPanel
 
 		spectrumLayer.clearPeaks();
 		spectrumLayer.setSpectrum(info.getMagnitudes());
-		noiseFloorLayer.setSpectrum(info
-				.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
+		noiseFloorLayer.setSpectrum(info.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
 
-		List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth,
-				noiseFloorFactor, numberOfSpectralPeaks, minPeakSize);
+		List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
+				numberOfSpectralPeaks, minPeakSize);
 
-		StringBuilder sb = new StringBuilder(
-				"Frequency(Hz);Step(cents);Magnitude\n");
+		StringBuilder sb = new StringBuilder("Frequency(Hz);Step(cents);Magnitude\n");
 		frequencies.clear();
 		amplitudes.clear();
 		for (SpectralPeak peak : peaks) {
 
-			String message = String.format("%.2f;%.2f;%.2f\n",
-					peak.getFrequencyInHertz(),
+			String message = String.format("%.2f;%.2f;%.2f\n", peak.getFrequencyInHertz(),
 					peak.getRelativeFrequencyInCents(), peak.getMagnitude());
 			sb.append(message);
 			// float peakFrequencyInCents =(float)
@@ -535,9 +510,8 @@ public class Visor extends JPanel
 		this.spectrumPanel.repaint();
 	}
 
-	public void updateToneMap(AudioFeatureFrame audioFeatureFrame) {
-		toneMapLayer.update(audioFeatureFrame);
-		this.toneMapPanel.repaint();
+	public void updateToneMap(ToneMap toneMap) {
+		toneMapView.drawToneMap(toneMap);
 	}
 
 	private LinkedPanel createBandedPitchDetectPanel() {
@@ -564,8 +538,7 @@ public class Visor extends JPanel
 				bandedPitchDetectPanel.repaint();
 			}
 		};
-		bandedPitchDetectPanel.getViewPort()
-				.addViewPortChangedListener(listener);
+		bandedPitchDetectPanel.getViewPort().addViewPortChangedListener(listener);
 		return bandedPitchDetectPanel;
 	}
 
@@ -757,8 +730,7 @@ public class Visor extends JPanel
 	}
 
 	private LinkedPanel createSpectrumPanel() {
-		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY,
-				AxisUnit.AMPLITUDE, 0, 10000, false);
+		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY, AxisUnit.AMPLITUDE, 0, 10000, false);
 		cs.setMax(Axis.X, 4800);
 		cs.setMax(Axis.X, 13200);
 		spectrumLayer = new SpectrumLayer(cs, 1024, 44100, Color.red);
@@ -775,48 +747,27 @@ public class Visor extends JPanel
 		spectrumPanel.addLayer(spectrumLayer);
 		spectrumPanel.addLayer(noiseFloorLayer);
 
-		spectrumPanel.getViewPort()
-				.addViewPortChangedListener(new ViewPortChangedListener() {
-					boolean painting = false;
+		spectrumPanel.getViewPort().addViewPortChangedListener(new ViewPortChangedListener() {
+			boolean painting = false;
 
-					@Override
-					public void viewPortChanged(ViewPort newViewPort) {
-						if (!painting) {
-							painting = true;
-							spectrumPanel.repaint();
-							painting = false;
-						}
-					}
-				});
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				if (!painting) {
+					painting = true;
+					spectrumPanel.repaint();
+					painting = false;
+				}
+			}
+		});
 		return spectrumPanel;
 	}
 
-	private LinkedPanel createToneMapPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		toneMapPanel = new LinkedPanel(cs);
-		toneMapLayer = new ToneMapLayer(cs);
-		toneMapPanel.addLayer(new BackgroundLayer(cs));
-		toneMapPanel.addLayer(toneMapLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		toneMapPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		toneMapPanel.addLayer(new ZoomMouseListenerLayer());
-		toneMapPanel.addLayer(new DragMouseListenerLayer(cs));
-		toneMapPanel.addLayer(new SelectionLayer(cs));
-		toneMapPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		toneMapPanel.addLayer(legend);
-		legend.addEntry("ToneMap", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				toneMapPanel.repaint();
-			}
-		};
-		toneMapPanel.getViewPort().addViewPortChangedListener(listener);
-		return toneMapPanel;
+	private JPanel createToneMapPanel() {
+		toneMapView = new ToneMapView();
+		JPanel tmContainer = new JPanel(new BorderLayout());
+		tmContainer.add(toneMapView, BorderLayout.CENTER);
+		tmContainer.setBackground(Color.BLACK);
+		return tmContainer;
 	}
 
 	private CoordinateSystem getCoordinateSystem(AxisUnit yUnits) {
@@ -830,9 +781,9 @@ public class Visor extends JPanel
 	}
 
 	private void updateView(AudioFeatureFrame audioFeatureFrame) {
-		toneMapLayer.update(audioFeatureFrame);
+		// toneMapLayer.update(audioFeatureFrame);
 		scalogramLayer.update(audioFeatureFrame);
-		toneMapLayer.update(audioFeatureFrame);
+		// toneMapLayer.update(audioFeatureFrame);
 		// beadsLayer.update(audioFeatureFrame);
 		cqLayer.update(audioFeatureFrame);
 		onsetLayer.update(audioFeatureFrame);
@@ -841,9 +792,8 @@ public class Visor extends JPanel
 		bpdLayer.update(audioFeatureFrame);
 		sLayer.update(audioFeatureFrame);
 		// if (count % 10 == 0) {
-		this.toneMapPanel.repaint();
+		// this.toneMapPanel.repaint();
 		this.scalogramPanel.repaint();
-		this.toneMapPanel.repaint();
 		this.spectrogramPanel.repaint();
 		this.cqPanel.repaint();
 		this.onsetPanel.repaint();
@@ -874,44 +824,36 @@ public class Visor extends JPanel
 		public void draw(Graphics2D graphics) {
 
 			if (features != null) {
-				System.out.println(
-						">>PD max amp: " + binWidth + ", " + binHeight);
+				System.out.println(">>PD max amp: " + binWidth + ", " + binHeight);
 
-				Map<Double, SpectrogramInfo> spSubMap = features.subMap(
-						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
+				Map<Double, SpectrogramInfo> spSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
 				double maxAmp = 0.00001;
-				for (Entry<Double, SpectrogramInfo> column : spSubMap
-						.entrySet()) {
+				for (Entry<Double, SpectrogramInfo> column : spSubMap.entrySet()) {
 
 					double timeStart = column.getKey();// in seconds
 					SpectrogramInfo spectrogramInfo = column.getValue();// in
 																		// cents
-					float pitch = spectrogramInfo.getPitchDetectionResult()
-							.getPitch(); // -1?
+					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
 					float[] amplitudes = spectrogramInfo.getAmplitudes();
 					// draw the pixels
 					for (int i = 0; i < amplitudes.length; i++) {
 						Color color = Color.black;
 						float centsStartingPoint = binStartingPointsInCents[i];
 						// only draw the visible frequency range
-						if (centsStartingPoint >= cs.getMin(Axis.Y)
-								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
+						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
 							// int greyValue = 255 - (int)
 							// (Math.log1p(spectralEnergy[i])
 							// / Math.log1p(currentMaxSpectralEnergy) * 255);
 							if (amplitudes[i] > maxAmp) {
 								maxAmp = amplitudes[i];
 							}
-							int greyValue = 255
-									- (int) (amplitudes[i] / (maxAmp) * 255);
+							int greyValue = 255 - (int) (amplitudes[i] / (maxAmp) * 255);
 							greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									Math.round(centsStartingPoint),
-									Math.round(binWidth * 1000),
-									(int) Math.ceil(binHeight));
+							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
+									Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
 							// graphics.fillRect((int) Math.round(timeStart *
 							// 1000),
 							// Math.round(centsStartingPoint),
@@ -923,20 +865,16 @@ public class Visor extends JPanel
 					// timeStart);
 
 					if (pitch > -1) {
-						double cents = PitchConverter
-								.hertzToAbsoluteCent(pitch);
+						double cents = PitchConverter.hertzToAbsoluteCent(pitch);
 						Color color = Color.red;
 						// only draw the visible frequency range
-						if (cents >= cs.getMin(Axis.Y)
-								&& cents <= cs.getMax(Axis.Y)) {
+						if (cents >= cs.getMin(Axis.Y) && cents <= cs.getMax(Axis.Y)) {
 							// int greyValue = (int) (255F * probability);
 							// greyValue = Math.max(0, greyValue);
 							// color = new Color(greyValue, greyValue,
 							// greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									(int) cents, Math.round(40),
+							graphics.fillRect((int) Math.round(timeStart * 1000), (int) cents, Math.round(40),
 									(int) Math.ceil(100));
 						}
 					}
@@ -955,10 +893,8 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					BandedPitchDetectorSource bpds = audioFeatureFrame
-							.getBandedPitchDetectorFeatures().getBpds();
-					binStartingPointsInCents = bpds
-							.getBinStartingPointsInCents(2048);
+					BandedPitchDetectorSource bpds = audioFeatureFrame.getBandedPitchDetectorFeatures().getBpds();
+					binStartingPointsInCents = bpds.getBinStartingPointsInCents(2048);
 					binWidth = bpds.getBinWidth(2048);
 					binHeight = bpds.getBinHeight(2048);
 					Map<Integer, TreeMap<Double, SpectrogramInfo>> bfs = audioFeatureFrame
@@ -968,8 +904,7 @@ public class Visor extends JPanel
 					}
 					TreeMap<Double, SpectrogramInfo> fs = bfs.get(2048);
 					if (fs != null) {
-						for (Entry<Double, SpectrogramInfo> entry : fs
-								.entrySet()) {
+						for (Entry<Double, SpectrogramInfo> entry : fs.entrySet()) {
 							features.put(entry.getKey(), entry.getValue());
 						}
 					}
@@ -1077,22 +1012,19 @@ public class Visor extends JPanel
 		public void draw(Graphics2D graphics) {
 
 			if (cqFeatures != null) {
-				Map<Double, float[]> spectralInfoSubMap = cqFeatures.subMap(
-						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
+				Map<Double, float[]> spectralInfoSubMap = cqFeatures.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
 				float minValue = 5 / 1000000.0F;
 				float currentMaxSpectralEnergy = 0;
-				for (Map.Entry<Double, float[]> column : spectralInfoSubMap
-						.entrySet()) {
+				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
 					float[] spectralEnergy = column.getValue();
 					for (float element : spectralEnergy) {
 						float magnitude = Math.max(minValue, element);
 						magnitude = (float) Math.log10(1 + (100.0 * magnitude));
-						currentMaxSpectralEnergy = Math
-								.max(currentMaxSpectralEnergy, magnitude);
+						currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy, magnitude);
 					}
 				}
-				for (Map.Entry<Double, float[]> column : spectralInfoSubMap
-						.entrySet()) {
+				for (Map.Entry<Double, float[]> column : spectralInfoSubMap.entrySet()) {
 					double timeStart = column.getKey();// in seconds
 					float[] spectralEnergy = column.getValue();// in cents
 					// draw the pixels
@@ -1100,25 +1032,18 @@ public class Visor extends JPanel
 						Color color = Color.black;
 						float centsStartingPoint = binStartingPointsInCents[i];
 						// only draw the visible frequency range
-						if (centsStartingPoint >= cs.getMin(Axis.Y)
-								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
+						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
 							// int greyValue = 255 - (int)
 							// (Math.log1p(spectralEnergy[i])
 							// / Math.log1p(currentMaxSpectralEnergy) * 255);
-							float magnitude = Math.max(minValue,
-									spectralEnergy[i]);
-							magnitude = (float) Math
-									.log10(1 + (100.0 * magnitude));
-							int greyValue = 255 - (int) (magnitude
-									/ (currentMaxSpectralEnergy) * 255);
+							float magnitude = Math.max(minValue, spectralEnergy[i]);
+							magnitude = (float) Math.log10(1 + (100.0 * magnitude));
+							int greyValue = 255 - (int) (magnitude / (currentMaxSpectralEnergy) * 255);
 							greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									Math.round(centsStartingPoint),
-									Math.round(binWidth * 1000),
-									(int) Math.ceil(binHeight));
+							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
+									Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
 						}
 					}
 				}
@@ -1134,19 +1059,15 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					ConstantQSource cqs = audioFeatureFrame
-							.getConstantQFeatures().getCqs();
-					binStartingPointsInCents = cqs
-							.getBinStartingPointsInCents();
+					ConstantQSource cqs = audioFeatureFrame.getConstantQFeatures().getCqs();
+					binStartingPointsInCents = cqs.getBinStartingPointsInCents();
 					binWidth = cqs.getBinWidth();
 					binHeight = cqs.getBinHeight();
-					Map<Double, float[]> fs = audioFeatureFrame
-							.getConstantQFeatures().getFeatures();
+					Map<Double, float[]> fs = audioFeatureFrame.getConstantQFeatures().getFeatures();
 					if (cqFeatures == null) {
 						cqFeatures = new TreeMap<>();
 					}
-					for (java.util.Map.Entry<Double, float[]> entry : fs
-							.entrySet()) {
+					for (java.util.Map.Entry<Double, float[]> entry : fs.entrySet()) {
 						cqFeatures.put(entry.getKey(), entry.getValue());
 					}
 				}
@@ -1167,24 +1088,20 @@ public class Visor extends JPanel
 		public void draw(Graphics2D graphics) {
 
 			if (features != null) {
-				Map<Double, OnsetInfo[]> onsetInfoSubMap = features.subMap(
-						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
+				Map<Double, OnsetInfo[]> onsetInfoSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
 
-				for (Map.Entry<Double, OnsetInfo[]> column : onsetInfoSubMap
-						.entrySet()) {
+				for (Map.Entry<Double, OnsetInfo[]> column : onsetInfoSubMap.entrySet()) {
 					double timeStart = column.getKey();// in seconds
 					OnsetInfo[] onsetInfo = column.getValue();// in cents
 					// draw the pixels
 					for (OnsetInfo element : onsetInfo) {
-						float centsStartingPoint = (float) (((cs.getMax(Axis.Y)
-								- cs.getMin(Axis.Y)) / 2.0)
+						float centsStartingPoint = (float) (((cs.getMax(Axis.Y) - cs.getMin(Axis.Y)) / 2.0)
 								+ cs.getMin(Axis.Y));
 						Color color = Color.red;
 						graphics.setColor(color);
-						graphics.fillRect(
-								(int) Math.round(element.getTime() * 1000),
-								Math.round(centsStartingPoint), Math.round(100),
-								(int) Math.ceil(100));
+						graphics.fillRect((int) Math.round(element.getTime() * 1000), Math.round(centsStartingPoint),
+								Math.round(100), (int) Math.ceil(100));
 					}
 				}
 			}
@@ -1199,8 +1116,7 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					Map<Double, OnsetInfo[]> fs = audioFeatureFrame
-							.getOnsetFeatures().getFeatures();
+					Map<Double, OnsetInfo[]> fs = audioFeatureFrame.getOnsetFeatures().getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
@@ -1240,10 +1156,8 @@ public class Visor extends JPanel
 				float height = getHeight();
 				float halfHeight = height / 2;
 				for (int i = 0; i < data.length; i += 4) {
-					g.drawLine((int) (data[i] * width),
-							(int) (halfHeight - data[i + 1] * height),
-							(int) (data[i + 2] * width),
-							(int) (halfHeight - data[i + 3] * height));
+					g.drawLine((int) (data[i] * width), (int) (halfHeight - data[i + 1] * height),
+							(int) (data[i + 2] * width), (int) (halfHeight - data[i + 3] * height));
 				}
 			}
 		}
@@ -1265,44 +1179,36 @@ public class Visor extends JPanel
 		public void draw(Graphics2D graphics) {
 
 			if (features != null) {
-				System.out.println(
-						">>PD max amp: " + binWidth + ", " + binHeight);
+				System.out.println(">>PD max amp: " + binWidth + ", " + binHeight);
 
-				Map<Double, SpectrogramInfo> spSubMap = features.subMap(
-						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
+				Map<Double, SpectrogramInfo> spSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
 				double maxAmp = 0.00001;
-				for (Entry<Double, SpectrogramInfo> column : spSubMap
-						.entrySet()) {
+				for (Entry<Double, SpectrogramInfo> column : spSubMap.entrySet()) {
 
 					double timeStart = column.getKey();// in seconds
 					SpectrogramInfo spectrogramInfo = column.getValue();// in
 																		// cents
-					float pitch = spectrogramInfo.getPitchDetectionResult()
-							.getPitch(); // -1?
+					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
 					float[] amplitudes = spectrogramInfo.getAmplitudes();
 					// draw the pixels
 					for (int i = 0; i < amplitudes.length; i++) {
 						Color color = Color.black;
 						float centsStartingPoint = binStartingPointsInCents[i];
 						// only draw the visible frequency range
-						if (centsStartingPoint >= cs.getMin(Axis.Y)
-								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
+						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
 							// int greyValue = 255 - (int)
 							// (Math.log1p(spectralEnergy[i])
 							// / Math.log1p(currentMaxSpectralEnergy) * 255);
 							if (amplitudes[i] > maxAmp) {
 								maxAmp = amplitudes[i];
 							}
-							int greyValue = 255
-									- (int) (amplitudes[i] / (maxAmp) * 255);
+							int greyValue = 255 - (int) (amplitudes[i] / (maxAmp) * 255);
 							greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									Math.round(centsStartingPoint),
-									Math.round(binWidth * 1000),
-									(int) Math.ceil(binHeight));
+							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
+									Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
 
 						}
 					}
@@ -1310,20 +1216,16 @@ public class Visor extends JPanel
 					// timeStart);
 
 					if (pitch > -1) {
-						double cents = PitchConverter
-								.hertzToAbsoluteCent(pitch);
+						double cents = PitchConverter.hertzToAbsoluteCent(pitch);
 						Color color = Color.red;
 						// only draw the visible frequency range
-						if (cents >= cs.getMin(Axis.Y)
-								&& cents <= cs.getMax(Axis.Y)) {
+						if (cents >= cs.getMin(Axis.Y) && cents <= cs.getMax(Axis.Y)) {
 							// int greyValue = (int) (255F * probability);
 							// greyValue = Math.max(0, greyValue);
 							// color = new Color(greyValue, greyValue,
 							// greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									(int) cents, Math.round(40),
+							graphics.fillRect((int) Math.round(timeStart * 1000), (int) cents, Math.round(40),
 									(int) Math.ceil(100));
 						}
 					}
@@ -1342,14 +1244,11 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					PitchDetectorSource pds = audioFeatureFrame
-							.getPitchDetectorFeatures().getPds();
-					binStartingPointsInCents = pds
-							.getBinStartingPointsInCents();
+					PitchDetectorSource pds = audioFeatureFrame.getPitchDetectorFeatures().getPds();
+					binStartingPointsInCents = pds.getBinStartingPointsInCents();
 					binWidth = pds.getBinWidth();
 					binHeight = pds.getBinHeight();
-					TreeMap<Double, SpectrogramInfo> fs = audioFeatureFrame
-							.getPitchDetectorFeatures().getFeatures();
+					TreeMap<Double, SpectrogramInfo> fs = audioFeatureFrame.getPitchDetectorFeatures().getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
@@ -1375,35 +1274,25 @@ public class Visor extends JPanel
 			if (features == null) {
 				return;
 			}
-			Map<Double, ScalogramFrame> spectralInfoSubMap = features.subMap(
-					cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
-			for (Map.Entry<Double, ScalogramFrame> frameEntry : spectralInfoSubMap
-					.entrySet()) {
+			Map<Double, ScalogramFrame> spectralInfoSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
+					cs.getMax(Axis.X) / 1000.0);
+			for (Map.Entry<Double, ScalogramFrame> frameEntry : spectralInfoSubMap.entrySet()) {
 				double timeStart = frameEntry.getKey();// in seconds
 				ScalogramFrame frame = frameEntry.getValue();// in cents
 
-				for (int level = 0; level < frame
-						.getDataPerScale().length; level++) {
-					for (int block = 0; block < frame
-							.getDataPerScale()[level].length; block++) {
+				for (int level = 0; level < frame.getDataPerScale().length; level++) {
+					for (int block = 0; block < frame.getDataPerScale()[level].length; block++) {
 						Color color = Color.black;
-						float centsStartingPoint = frame
-								.getStartFrequencyPerLevel()[level];
-						float centsHeight = frame
-								.getStopFrequencyPerLevel()[level]
-								- centsStartingPoint;
+						float centsStartingPoint = frame.getStartFrequencyPerLevel()[level];
+						float centsHeight = frame.getStopFrequencyPerLevel()[level] - centsStartingPoint;
 						// only draw the visible frequency range
-						if (centsStartingPoint + centsHeight >= cs
-								.getMin(Axis.Y)
+						if (centsStartingPoint + centsHeight >= cs.getMin(Axis.Y)
 								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
-							float factor = Math
-									.abs(frame.getDataPerScale()[level][block]
-											/ frame.getCurrentMax());
+							float factor = Math.abs(frame.getDataPerScale()[level][block] / frame.getCurrentMax());
 
-							double startTimeBlock = timeStart + (block + 1)
-									* frame.getDurationsOfBlockPerLevel()[level];
-							double timeDuration = frame
-									.getDurationsOfBlockPerLevel()[level];
+							double startTimeBlock = timeStart
+									+ (block + 1) * frame.getDurationsOfBlockPerLevel()[level];
+							double timeDuration = frame.getDurationsOfBlockPerLevel()[level];
 
 							int greyValue = (int) (factor * 0.99 * 255);
 							greyValue = Math.max(0, greyValue);
@@ -1415,9 +1304,7 @@ public class Visor extends JPanel
 							// Math.round(centsStartingPoint),
 							// (int) Math.round(timeDuration * 1000), (int)
 							// Math.ceil(centsHeight));
-							graphics.fillRect(
-									(int) Math.round(startTimeBlock * 1000),
-									Math.round(centsStartingPoint),
+							graphics.fillRect((int) Math.round(startTimeBlock * 1000), Math.round(centsStartingPoint),
 									Math.round(100), (int) Math.ceil(100));
 							// System.out.println(">>scalo: " + startTimeBlock +
 							// ", " + centsStartingPoint +
@@ -1437,14 +1324,12 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					ScalogramFeatures scf = audioFeatureFrame
-							.getScalogramFeatures();
+					ScalogramFeatures scf = audioFeatureFrame.getScalogramFeatures();
 					TreeMap<Double, ScalogramFrame> fs = scf.getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
-					for (java.util.Map.Entry<Double, ScalogramFrame> entry : fs
-							.entrySet()) {
+					for (java.util.Map.Entry<Double, ScalogramFrame> entry : fs.entrySet()) {
 						features.put(entry.getKey(), entry.getValue());
 					}
 				}
@@ -1469,17 +1354,15 @@ public class Visor extends JPanel
 		public void draw(Graphics2D graphics) {
 
 			if (features != null) {
-				Map<Double, SpectrogramInfo> spSubMap = features.subMap(
-						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
+				Map<Double, SpectrogramInfo> spSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
 				double maxAmp = 100;
-				for (Entry<Double, SpectrogramInfo> column : spSubMap
-						.entrySet()) {
+				for (Entry<Double, SpectrogramInfo> column : spSubMap.entrySet()) {
 
 					double timeStart = column.getKey();// in seconds
 					SpectrogramInfo spectrogramInfo = column.getValue();// in
 																		// cents
-					float pitch = spectrogramInfo.getPitchDetectionResult()
-							.getPitch(); // -1?
+					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
 					float[] amplitudes = spectrogramInfo.getAmplitudes();
 					// draw the pixels
 					for (int i = 0; i < amplitudes.length; i++) {
@@ -1487,43 +1370,34 @@ public class Visor extends JPanel
 						float centsStartingPoint = binStartingPointsInCents[i];
 						float binHeight = binHeightInCents[i];
 						// only draw the visible frequency range
-						if (centsStartingPoint >= cs.getMin(Axis.Y)
-								&& centsStartingPoint <= cs.getMax(Axis.Y)) {
+						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
 							// int greyValue = 255 - (int)
 							// (Math.log1p(spectralEnergy[i])
 							// / Math.log1p(currentMaxSpectralEnergy) * 255);
 							if (amplitudes[i] > maxAmp) {
 								maxAmp = amplitudes[i];
 							}
-							int greyValue = 255
-									- (int) (amplitudes[i] / (maxAmp) * 255);
+							int greyValue = 255 - (int) (amplitudes[i] / (maxAmp) * 255);
 							greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									Math.round(centsStartingPoint),
-									Math.round(binWidth * 1000),
-									(int) Math.ceil(binHeight));
+							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
+									Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
 
 						}
 					}
 
 					if (pitch > -1) {
-						double cents = PitchConverter
-								.hertzToAbsoluteCent(pitch);
+						double cents = PitchConverter.hertzToAbsoluteCent(pitch);
 						Color color = Color.red;
 						// only draw the visible frequency range
-						if (cents >= cs.getMin(Axis.Y)
-								&& cents <= cs.getMax(Axis.Y)) {
+						if (cents >= cs.getMin(Axis.Y) && cents <= cs.getMax(Axis.Y)) {
 							// int greyValue = (int) (255F * probability);
 							// greyValue = Math.max(0, greyValue);
 							// color = new Color(greyValue, greyValue,
 							// greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									(int) cents, Math.round(40),
+							graphics.fillRect((int) Math.round(timeStart * 1000), (int) cents, Math.round(40),
 									(int) Math.ceil(100));
 						}
 					}
@@ -1542,14 +1416,12 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					SpectrogramSource ss = audioFeatureFrame
-							.getSpectrogramFeatures().getSs();
+					SpectrogramSource ss = audioFeatureFrame.getSpectrogramFeatures().getSs();
 					binStartingPointsInCents = ss.getBinStartingPointsInCents();
 					binHeightInCents = ss.getBinhHeightInCents();
 					binWidth = ss.getBinWidth();
 					binHeight = ss.getBinHeight();
-					TreeMap<Double, SpectrogramInfo> fs = audioFeatureFrame
-							.getSpectrogramFeatures().getFeatures();
+					TreeMap<Double, SpectrogramInfo> fs = audioFeatureFrame.getSpectrogramFeatures().getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}
@@ -1560,6 +1432,7 @@ public class Visor extends JPanel
 			});
 		}
 	}
+
 	private static class SpectrumPeaksLayer implements Layer {
 
 		private final CoordinateSystem cs;
@@ -1582,36 +1455,29 @@ public class Visor extends JPanel
 		public void draw(Graphics2D graphics) {
 
 			if (spFeatures != null && !spFeatures.isEmpty()) {
-				Map<Double, SpectralInfo> spectralInfoSubMap = spFeatures
-						.subMap(cs.getMin(Axis.X) / 1000.0,
-								cs.getMax(Axis.X) / 1000.0);
+				Map<Double, SpectralInfo> spectralInfoSubMap = spFeatures.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
 
-				for (Map.Entry<Double, SpectralInfo> column : spectralInfoSubMap
-						.entrySet()) {
+				for (Map.Entry<Double, SpectralInfo> column : spectralInfoSubMap.entrySet()) {
 					double timeStart = column.getKey();// in seconds
 					SpectralInfo spectralInfo = column.getValue();
 
-					List<SpectralPeak> peaks = spectralInfo.getPeakList(
-							noiseFloorMedianFilterLenth, noiseFloorFactor,
+					List<SpectralPeak> peaks = spectralInfo.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
 							numberOfSpectralPeaks, minPeakSize);
 
-					int markerWidth = Math.round(
-							LayerUtilities.pixelsToUnits(graphics, 7, true));
-					int markerheight = Math.round(
-							LayerUtilities.pixelsToUnits(graphics, 7, false));
+					int markerWidth = Math.round(LayerUtilities.pixelsToUnits(graphics, 7, true));
+					int markerheight = Math.round(LayerUtilities.pixelsToUnits(graphics, 7, false));
 					// draw the pixels
 					for (SpectralPeak peak : peaks) {
 						int bin = peak.getBin();
 						float hertzValue = (bin * sampleRate) / (float) fftSize;
-						int frequencyInCents = (int) Math.round(
-								PitchConverter.hertzToAbsoluteCent(hertzValue)
-										- markerWidth / 2.0f);
+						int frequencyInCents = (int) Math
+								.round(PitchConverter.hertzToAbsoluteCent(hertzValue) - markerWidth / 2.0f);
 
 						Color color = Color.black;
 						float magnitude = peak.getMagnitude();
 						// only draw the visible frequency range
-						if (frequencyInCents >= cs.getMin(Axis.Y)
-								&& frequencyInCents <= cs.getMax(Axis.Y)) {
+						if (frequencyInCents >= cs.getMin(Axis.Y) && frequencyInCents <= cs.getMax(Axis.Y)) {
 							int greyValue = (int) ((magnitude / 100F) * 255F);
 							// int greyValue = 255 - (int)
 							// (Math.log1p(magnitude)
@@ -1619,9 +1485,7 @@ public class Visor extends JPanel
 							// greyValue = Math.max(0, greyValue);
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
-							graphics.fillRect(
-									(int) Math.round(timeStart * 1000),
-									frequencyInCents, markerWidth,
+							graphics.fillRect((int) Math.round(timeStart * 1000), frequencyInCents, markerWidth,
 									markerheight);
 						}
 					}
@@ -1638,24 +1502,20 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					SpectralPeaksSource sps = audioFeatureFrame
-							.getSpectralPeaksFeatures().getSps();
+					SpectralPeaksSource sps = audioFeatureFrame.getSpectralPeaksFeatures().getSps();
 
-					noiseFloorMedianFilterLenth = sps
-							.getNoiseFloorMedianFilterLenth();
+					noiseFloorMedianFilterLenth = sps.getNoiseFloorMedianFilterLenth();
 					noiseFloorFactor = sps.getNoiseFloorFactor();
 					numberOfSpectralPeaks = sps.getNumberOfSpectralPeaks();
 					minPeakSize = sps.getMinPeakSize();
 					fftSize = sps.getBufferSize();
 					sampleRate = sps.getSampleRate();
 
-					TreeMap<Double, SpectralInfo> fs = audioFeatureFrame
-							.getSpectralPeaksFeatures().getFeatures();
+					TreeMap<Double, SpectralInfo> fs = audioFeatureFrame.getSpectralPeaksFeatures().getFeatures();
 					if (spFeatures == null) {
 						spFeatures = new TreeMap<>();
 					}
-					for (java.util.Map.Entry<Double, SpectralInfo> entry : fs
-							.entrySet()) {
+					for (java.util.Map.Entry<Double, SpectralInfo> entry : fs.entrySet()) {
 						spFeatures.put(entry.getKey(), entry.getValue());
 					}
 				}
@@ -1687,11 +1547,10 @@ public class Visor extends JPanel
 
 			if (toneMaps != null) {
 
-				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(
-						cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
+				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(cs.getMin(Axis.X) / 1000.0,
+						cs.getMax(Axis.X) / 1000.0);
 				double timeStart = 0.0F;
-				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap
-						.entrySet()) {
+				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap.entrySet()) {
 					timeStart = column.getKey();
 					ToneMap toneMap = column.getValue();
 					ToneTimeFrame[] ttfs = toneMap.getTimeFramesFrom(0.0);
@@ -1712,12 +1571,9 @@ public class Visor extends JPanel
 							if (toneMapElement != null) {
 								double amplitude = 0.0;
 								if (toneMapElement.amplitude > 1.0) {
-									amplitude = 100.0 * toneMapElement.amplitude
-											/ ttf.getMaxAmplitude();
+									amplitude = 100.0 * toneMapElement.amplitude / ttf.getMaxAmplitude();
 								}
-								int greyValue = (int) (Math
-										.log1p(toneMapElement.amplitude
-												/ ttf.getMaxAmplitude())
+								int greyValue = (int) (Math.log1p(toneMapElement.amplitude / ttf.getMaxAmplitude())
 										/ Math.log1p(1.0000001) * 255);
 
 								if (amplitude > maxAmplitude) {
@@ -1728,28 +1584,22 @@ public class Visor extends JPanel
 								} else if (amplitude >= highThreshhold) {
 									g.setColor(Color.black);
 								} else {
-									ampT = (amplitude - lowThreshhold)
-											/ (highThreshhold - lowThreshhold);
+									ampT = (amplitude - lowThreshhold) / (highThreshhold - lowThreshhold);
 									// greyValue = 255 - (int) (ampT * 255);
 									greyValue = 255 - greyValue;
 									greyValue = Math.max(0, greyValue);
-									Color color = new Color(greyValue,
-											greyValue, greyValue);
+									Color color = new Color(greyValue, greyValue, greyValue);
 									g.setColor(color);
 									// g.setColor(new Color(255, 0, 0));
 									// g.setColor(new Color((int) (255 * ampT),
 									// (int) (255 * ampT),
 									// (int) (255 * ampT)));
 								}
-								double cents = PitchConverter
-										.hertzToAbsoluteCent(
-												pitchSet.getFreq(elementIndex));
+								double cents = PitchConverter.hertzToAbsoluteCent(pitchSet.getFreq(elementIndex));
 
-								double width = timeSet.getEndTime()
-										- timeSet.getStartTime();
+								double width = timeSet.getEndTime() - timeSet.getStartTime();
 
-								g.fillRect((int) Math.floor(timeStart * 1000),
-										(int) Math.floor(cents),
+								g.fillRect((int) Math.floor(timeStart * 1000), (int) Math.floor(cents),
 										(int) Math.round(width * 1000), 100);
 							}
 						}
@@ -1769,18 +1619,15 @@ public class Visor extends JPanel
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					ToneMap toneMap = audioFeatureFrame.getConstantQFeatures()
-							.getToneMap();
+					ToneMap toneMap = audioFeatureFrame.getConstantQFeatures().getToneMap();
 					if (toneMap != null) {
 						if (toneMaps == null) {
 							toneMaps = new TreeMap<>();
 						}
-						toneMaps.put(audioFeatureFrame.getStart() / 1000.0,
-								toneMap);
+						toneMaps.put(audioFeatureFrame.getStart() / 1000.0, toneMap);
 					}
 					float timeEnd = 0.0F;
-					for (Map.Entry<Double, ToneMap> column : toneMaps
-							.entrySet()) {
+					for (Map.Entry<Double, ToneMap> column : toneMaps.entrySet()) {
 						timeEnd = (float) (column.getKey() * 1000);
 					}
 					float csX = cs.getMax(Axis.X) - cs.getMin(Axis.X);

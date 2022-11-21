@@ -33,13 +33,10 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out
-					.println(">>ConstantQMessageProcessor accept: " + message);
+			System.out.println(">>ConstantQMessageProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator()
-						.getHearing();
-				AudioFeatureProcessor afp = hearing
-						.getAudioFeatureProcessor(streamId);
+				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
 				// cqf.buildToneMap();
@@ -51,8 +48,7 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 				// pd.detect(fft);
 				// toneMap.loadFFT(fft, 4096);
 				// toneMap.reset();
-				System.out
-						.println(">>ConstantQMessageProcessor process tonemap");
+				System.out.println(">>ConstantQMessageProcessor process tonemap");
 				// worldModel.getAtlas().putToneMap(this.cell.getCellType(),
 				// toneMap);
 				cqf.displayToneMap();

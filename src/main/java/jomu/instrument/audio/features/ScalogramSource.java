@@ -28,8 +28,7 @@ public class ScalogramSource {
 
 	public TreeMap<Double, ScalogramFrame> getFeatures() {
 		TreeMap<Double, ScalogramFrame> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, ScalogramFrame> entry : features
-				.entrySet()) {
+		for (java.util.Map.Entry<Double, ScalogramFrame> entry : features.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -49,11 +48,9 @@ public class ScalogramSource {
 
 	void initialise() {
 
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(
-				sampleRate, 16, 1, true, true);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
-				tarsosDSPFormat, 131072, 0);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, 131072, 0);
 		djp.setName("SC");
 		dispatcher.addAudioProcessor(djp);
 
@@ -67,8 +64,7 @@ public class ScalogramSource {
 				if (prevFrame != null) {
 					currentMax = prevFrame.currentMax * 0.99f;
 				}
-				ScalogramFrame currentFrame = new ScalogramFrame(audioBuffer,
-						currentMax);
+				ScalogramFrame currentFrame = new ScalogramFrame(audioBuffer, currentMax);
 				features.put(audioEvent.getTimeStamp(), currentFrame);
 				prevFrame = currentFrame;
 				return true;

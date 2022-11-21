@@ -14,16 +14,14 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
-		sourceAddCell.send(
-				audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+		sourceAddCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
 				audioFeatureFrame.getFrameSequence());
 	}
 
 	@Override
 	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
 		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
-			sourceUpdateCell.send(
-					audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+			sourceUpdateCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
 					audioFeatureFrame.getFrameSequence());
 		}
 	}
@@ -34,8 +32,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
 		NuCell audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
-		NuCell audioIntegrateCell = Generator
-				.createNuCell(CellTypes.AUDIO_INTEGRATE);
+		NuCell audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
 		NuCell audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
 		NuCell audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
 		Weaver.connect(audioCQCell, audioIntegrateCell);

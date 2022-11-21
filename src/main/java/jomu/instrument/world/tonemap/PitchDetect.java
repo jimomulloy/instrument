@@ -37,8 +37,8 @@ public class PitchDetect {
 	}
 
 	/**
-	 * This method takes an AudioBuffer object as argument. It detects all notes
-	 * in presence in buffer.
+	 * This method takes an AudioBuffer object as argument. It detects all notes in
+	 * presence in buffer.
 	 */
 	public void detect(float[] spec) {
 		for (int i = 0; i < spec.length; i++)
@@ -78,25 +78,20 @@ public class PitchDetect {
 			// subtract the information of the found pitch from the current
 			// spectrum
 			float fpitch = fzeroInfo[0];
-			int highInd = (int) Math
-					.floor(fzeroInfo[0] * timeSize / sampleRate);
+			int highInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
 			int lowInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
 			for (int i = 1; i * fzeroInfo[0] < sampleRate / 2; ++i) {
 				for (int j = 0; j < pitches.length; j++) {
 					if (pitches[j] >= fpitch) {
 						if (j > 0) {
-							lowInd = (int) Math.floor(
-									pitches[j - 1] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
 						} else {
-							lowInd = (int) Math
-									.floor(pitches[j] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
 						}
 						if (j < pitches.length - 1) {
-							highInd = (int) Math
-									.floor(pitches[j] * timeSize / sampleRate);
+							highInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
 						} else {
-							highInd = (int) Math.floor(
-									pitches[j - 1] * timeSize / sampleRate);
+							highInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
 						}
 						break;
 					}
@@ -117,8 +112,7 @@ public class PitchDetect {
 			float pitch = i * sampleRate / timeSize;
 			spec[i] = 0F;
 			for (int j = 0; j < pitches.length; j++) {
-				if (fzeros[j] > 0 && pitches[j] <= pitch
-						&& pitches[j + 1] > pitch) {
+				if (fzeros[j] > 0 && pitches[j] <= pitch && pitches[j + 1] > pitch) {
 					spec[i] = fzeros[j];
 				}
 			}
@@ -155,18 +149,14 @@ public class PitchDetect {
 				for (int k = 0; k < pitches.length; k++) {
 					if (pitches[k] >= fpitch) {
 						if (k > 0) {
-							lowInd = (int) Math.floor(
-									pitches[k - 1] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
 						} else {
-							lowInd = (int) Math
-									.floor(pitches[k] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
 						}
 						if (k < pitches.length - 1) {
-							highInd = (int) Math
-									.floor(pitches[k] * timeSize / sampleRate);
+							highInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
 						} else {
-							highInd = (int) Math.floor(
-									pitches[k - 1] * timeSize / sampleRate);
+							highInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
 						}
 						break;
 					}
@@ -250,16 +240,13 @@ final class SpecWhitener {
 			for (int i = banksRanTable[j][0]; i <= banksRanTable[j][1]; ++i) {
 				float bandFreq = i * sr / bufferSize;
 				if (bandFreq < cenFreqs[j]) {
-					sum += Math.pow(spec[i], 2) * (bandFreq - cenFreqs[j - 1])
-							/ cenFreqsSteps[j];
+					sum += Math.pow(spec[i], 2) * (bandFreq - cenFreqs[j - 1]) / cenFreqsSteps[j];
 				} else {//
-					sum += Math.pow(spec[i], 2) * (cenFreqs[j + 1] - bandFreq)
-							/ cenFreqsSteps[j + 1];
+					sum += Math.pow(spec[i], 2) * (cenFreqs[j + 1] - bandFreq) / cenFreqsSteps[j + 1];
 				}
 			}
 			if (sum > 0) {
-				bwCompCoef[j] = (float) Math
-						.pow(Math.pow(sum / bufferSize, .5f), .33f - 1);
+				bwCompCoef[j] = (float) Math.pow(Math.pow(sum / bufferSize, .5f), .33f - 1);
 			}
 		}
 
@@ -277,13 +264,11 @@ final class SpecWhitener {
 			if (bandFreq > cenFreqs[bankCount])
 				bankCount++;
 			if (bwCompCoefSteps[bankCount] > 0) {
-				compCoef = (bwCompCoefSteps[bankCount]
-						* (bandFreq - cenFreqs[bankCount - 1])
+				compCoef = (bwCompCoefSteps[bankCount] * (bandFreq - cenFreqs[bankCount - 1])
 						/ cenFreqsSteps[bankCount]) + bwCompCoef[bankCount - 1];
 			} else {
-				compCoef = (-bwCompCoefSteps[bankCount]
-						* (cenFreqs[bankCount] - bandFreq)
-						/ cenFreqsSteps[bankCount]) + bwCompCoef[bankCount];
+				compCoef = (-bwCompCoefSteps[bankCount] * (cenFreqs[bankCount] - bandFreq) / cenFreqsSteps[bankCount])
+						+ bwCompCoef[bankCount];
 			}
 			// wSpec[i] = spec[i] * compCoef;
 			spec[i] = spec[i] * compCoef;

@@ -9,24 +9,24 @@ public class Generator {
 
 	public static NuCell createNuCell(CellTypes cellType) {
 		switch (cellType) {
-			case SOURCE :
-				return createSourceTypeCell();
-			case SINK :
-				return createSinkTypeCell();
-			case AUDIO_SINK :
-				return createAudioSinkTypeCell();
-			case AUDIO_PITCH :
-				return createAudioPitchTypeCell();
-			case AUDIO_CQ :
-				return createAudioCQTypeCell();
-			case AUDIO_INTEGRATE :
-				return createAudioIntegrateTypeCell();
-			case AUDIO_NOTATE :
-				return createAudioNotateTypeCell();
-			case JUNCTION :
-				return createJunctionTypeCell();
-			default :
-				return null;
+		case SOURCE:
+			return createSourceTypeCell();
+		case SINK:
+			return createSinkTypeCell();
+		case AUDIO_SINK:
+			return createAudioSinkTypeCell();
+		case AUDIO_PITCH:
+			return createAudioPitchTypeCell();
+		case AUDIO_CQ:
+			return createAudioCQTypeCell();
+		case AUDIO_INTEGRATE:
+			return createAudioIntegrateTypeCell();
+		case AUDIO_NOTATE:
+			return createAudioNotateTypeCell();
+		case JUNCTION:
+			return createJunctionTypeCell();
+		default:
+			return null;
 		}
 	}
 
@@ -82,23 +82,19 @@ public class Generator {
 		return new AudioCQProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioIntegrateProcessor(
-			NuCell cell) {
+	private static Consumer<List<NuMessage>> getAudioIntegrateProcessor(NuCell cell) {
 		return new AudioIntegrateProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioNotateProcessor(
-			NuCell cell) {
+	private static Consumer<List<NuMessage>> getAudioNotateProcessor(NuCell cell) {
 		return new AudioNotateProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioPitchProcessor(
-			NuCell cell) {
+	private static Consumer<List<NuMessage>> getAudioPitchProcessor(NuCell cell) {
 		return new PitchDetectorProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioSinkProcessor(
-			NuCell cell) {
+	private static Consumer<List<NuMessage>> getAudioSinkProcessor(NuCell cell) {
 		return new AudioSinkProcessor(cell);
 	}
 
@@ -117,8 +113,7 @@ public class Generator {
 			// System.out.println(">>getSinkProcessor");
 			// System.out.println(cell.toString());
 			for (NuMessage message : messages) {
-				System.out
-						.println(">>SinkProcessor process message: " + message);
+				System.out.println(">>SinkProcessor process message: " + message);
 			}
 		};
 	}

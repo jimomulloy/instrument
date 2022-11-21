@@ -44,8 +44,7 @@ public class SpectralPeaksSource {
 
 	public TreeMap<Double, SpectralInfo> getFeatures() {
 		TreeMap<Double, SpectralInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectralInfo> entry : features
-				.entrySet()) {
+		for (java.util.Map.Entry<Double, SpectralInfo> entry : features.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -101,12 +100,9 @@ public class SpectralPeaksSource {
 			overlap = 128;
 		}
 
-		spectralPeakProcesser = new SpectralPeakProcessor(bufferSize, overlap,
-				sampleRate);
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100,
-				16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
-				tarsosDSPFormat, bufferSize, overlap);
+		spectralPeakProcesser = new SpectralPeakProcessor(bufferSize, overlap, sampleRate);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, true);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, bufferSize, overlap);
 		djp.setName("SP");
 		dispatcher.addAudioProcessor(djp);
 		djp.addAudioProcessor(spectralPeakProcesser);
@@ -117,25 +113,20 @@ public class SpectralPeaksSource {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				currentFrame = frameCounter;
-				SpectralInfo si = new SpectralInfo(
-						spectralPeakProcesser.getMagnitudes(),
+				SpectralInfo si = new SpectralInfo(spectralPeakProcesser.getMagnitudes(),
 						spectralPeakProcesser.getFrequencyEstimates());
 				spectralInfos.add(si);
 				features.put(audioEvent.getTimeStamp(), si);
 				SpectralInfo info = spectralInfos.get(currentFrame);
 
-				List<SpectralPeak> peaks = info.getPeakList(
-						noiseFloorMedianFilterLenth, noiseFloorFactor,
+				List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
 						numberOfSpectralPeaks, minPeakSize);
 
-				StringBuilder sb = new StringBuilder(
-						"Frequency(Hz);Step(cents);Magnitude\n");
+				StringBuilder sb = new StringBuilder("Frequency(Hz);Step(cents);Magnitude\n");
 				for (SpectralPeak peak : peaks) {
 
-					String message = String.format("%.2f;%.2f;%.2f\n",
-							peak.getFrequencyInHertz(),
-							peak.getRelativeFrequencyInCents(),
-							peak.getMagnitude());
+					String message = String.format("%.2f;%.2f;%.2f\n", peak.getFrequencyInHertz(),
+							peak.getRelativeFrequencyInCents(), peak.getMagnitude());
 					sb.append(message);
 				}
 				return true;

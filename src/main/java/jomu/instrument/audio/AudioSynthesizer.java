@@ -72,9 +72,10 @@ public class AudioSynthesizer implements ToneMapConstants {
 	private Map<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 	private BlockingQueue<Object> bq;
 	private double[] lastAmps;
+
 	/**
-	 * AudioModel constructor. Test Java Sound Audio System available
-	 * Instantiate AudioPanel
+	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
+	 * AudioPanel
 	 */
 	public AudioSynthesizer() {
 	}
@@ -99,8 +100,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 		audioStreams.remove(streamId);
 	}
 
-	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId,
-			int sequence) {
+	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 		System.out.println(">>!!! Audio audioStreams play: " + streamId);
 		if (!audioStreams.containsKey(streamId)) {
@@ -108,8 +108,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 			System.out.println(">>!!! Audio audioStreams create: " + streamId);
 		}
 		AudioStream audioStream = audioStreams.get(streamId);
-		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(
-				toneTimeFrame);
+		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(toneTimeFrame);
 
 		audioStream.bq.add(audioQueueMessage);
 
@@ -123,8 +122,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 	 * @param audioOutput
 	 * @return
 	 */
-	public AudioInputStream writeStream(ToneMap toneMap,
-			float[] audioOutSamples, SourceDataLine audioOutput) {
+	public AudioInputStream writeStream(ToneMap toneMap, float[] audioOutSamples, SourceDataLine audioOutput) {
 
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 
@@ -154,9 +152,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 			frequency = pitchSet.getFreq(toneMapElement.getIndex());
 			noteListElement = toneMapElement.noteListElement;
 			if (osc1Switch) {
-				condition = (toneMapElement.amplitude == -1
-						|| noteListElement == null
-						|| noteListElement.underTone);
+				condition = (toneMapElement.amplitude == -1 || noteListElement == null || noteListElement.underTone);
 			} else {
 				condition = (toneMapElement.amplitude == -1);
 			}
@@ -184,8 +180,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 		float sampleRate = timeSet.getSampleRate();
 		for (ToneMapElement toneMapElement : ttfElements) {
 			frequency = pitchSet.getFreq(toneMapElement.getIndex());
-			oscillators[i] = new Oscillator(oscType, (int) frequency,
-					(int) sampleRate, 1);
+			oscillators[i] = new Oscillator(oscType, (int) frequency, (int) sampleRate, 1);
 			i++;
 		}
 		System.out.println("created oscs: " + i);
@@ -214,9 +209,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 			frequency = pitchSet.getFreq(toneMapElement.getIndex());
 			noteListElement = toneMapElement.noteListElement;
 			if (osc1Switch) {
-				condition = (toneMapElement.amplitude == -1
-						|| noteListElement == null
-						|| noteListElement.underTone);
+				condition = (toneMapElement.amplitude == -1 || noteListElement == null || noteListElement.underTone);
 			} else {
 				// condition = (toneMapElement.amplitude == -1);
 				condition = (toneMapElement.amplitude < 0.2);
@@ -224,20 +217,15 @@ public class AudioSynthesizer implements ToneMapConstants {
 			if (condition) {
 				power = 0;
 			}
-			if ((toneMapElement.getIndex() > 20
-					&& toneMapElement.getIndex() < 40)
-					&& (power != 0
-							|| lastAmps[toneMapElement.getIndex()] != 0)) {
+			if ((toneMapElement.getIndex() > 20 && toneMapElement.getIndex() < 40)
+					&& (power != 0 || lastAmps[toneMapElement.getIndex()] != 0)) {
 				for (i = iStart; i < iEnd; i++) {
-					ampFactor = (double) (i - iStart)
-							/ (double) (iEnd - iStart);
-					ampAdjust = lastAmps[toneMapElement.getIndex()] + ampFactor
-							* (power - lastAmps[toneMapElement.getIndex()]);
-					oscillators[toneMapElement.getIndex()]
-							.setAmplitudeAdj(ampAdjust / (1000 * maxSumAmp));
+					ampFactor = (double) (i - iStart) / (double) (iEnd - iStart);
+					ampAdjust = lastAmps[toneMapElement.getIndex()]
+							+ ampFactor * (power - lastAmps[toneMapElement.getIndex()]);
+					oscillators[toneMapElement.getIndex()].setAmplitudeAdj(ampAdjust / (1000 * maxSumAmp));
 					oscillators[toneMapElement.getIndex()].setAmplitudeAdj(1.0);
-					lastSample = oscillators[toneMapElement.getIndex()]
-							.getSample();
+					lastSample = oscillators[toneMapElement.getIndex()].getSample();
 					audioOutSamples[i] += lastSample / 100.0;
 				}
 			}
@@ -248,8 +236,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 
 		System.out.println("getout audio bytes");
 
-		AudioFormat outFormat = new AudioFormat(timeSet.getSampleRate(), 16, 1,
-				true, false);
+		AudioFormat outFormat = new AudioFormat(timeSet.getSampleRate(), 16, 1, true, false);
 
 		byte[] outAudioBytes = getOutAudioBytes(audioOutSamples, outFormat);
 
@@ -296,8 +283,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 		double sampleTime = -1;
 		int counter = 0;
 
-		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq,
-				AudioStream audioStream) {
+		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq, AudioStream audioStream) {
 			this.bq = bq;
 			this.audioStream = audioStream;
 		}
@@ -311,9 +297,8 @@ public class AudioSynthesizer implements ToneMapConstants {
 					counter++;
 
 					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
-					System.out.println(">>!!! Audio QueueConsumer take: "
-							+ this.audioStream.getStreamId() + ", " + counter
-							+ ", " + toneTimeFrame);
+					System.out.println(">>!!! Audio QueueConsumer take: " + this.audioStream.getStreamId() + ", "
+							+ counter + ", " + toneTimeFrame);
 
 					if (toneTimeFrame == null) {
 						this.audioStream.close();
@@ -326,8 +311,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 					} else {
 						if (!this.audioStream.getAc().isRunning()) {
 							this.audioStream.getAc().start();
-							System.out.println(
-									">>!!! Audio QueueConsumer start AC");
+							System.out.println(">>!!! Audio QueueConsumer start AC");
 							JavaSoundAudioIO.printMixerInfo();
 						}
 					}
@@ -352,8 +336,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 						frequency = pitchSet.getFreq(toneMapElement.getIndex());
 						noteListElement = toneMapElement.noteListElement;
 						if (osc1Switch) {
-							condition = (toneMapElement.amplitude == -1
-									|| noteListElement == null
+							condition = (toneMapElement.amplitude == -1 || noteListElement == null
 									|| noteListElement.underTone);
 						} else {
 							condition = (toneMapElement.amplitude == -1);
@@ -373,8 +356,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 						lastAmps = new double[numPitches];
 					}
 
-					System.out.println(
-							"min/max sums: " + maxSumAmp + ", " + minSumAmp);
+					System.out.println("min/max sums: " + maxSumAmp + ", " + minSumAmp);
 
 					int i, iStart, iEnd;
 					sumAmp = 0;
@@ -392,11 +374,9 @@ public class AudioSynthesizer implements ToneMapConstants {
 					iStart = iEnd;
 					if (iStart > (int) (time * sampleRate))
 						iStart = (int) (time * sampleRate);
-					iEnd = iStart
-							+ (int) (timeSet.getSampleTimeSize() * sampleRate);
+					iEnd = iStart + (int) (timeSet.getSampleTimeSize() * sampleRate);
 					double power;
-					System.out.println("istart/end: " + time + ", " + iStart
-							+ ", " + iEnd);
+					System.out.println("istart/end: " + time + ", " + iStart + ", " + iEnd);
 					for (ToneMapElement toneMapElement : ttfElements) {
 						ampAdjust = 0;
 						ampFactor = 0;
@@ -404,8 +384,7 @@ public class AudioSynthesizer implements ToneMapConstants {
 						frequency = pitchSet.getFreq(toneMapElement.getIndex());
 						noteListElement = toneMapElement.noteListElement;
 						if (osc1Switch) {
-							condition = (toneMapElement.amplitude == -1
-									|| noteListElement == null
+							condition = (toneMapElement.amplitude == -1 || noteListElement == null
 									|| noteListElement.underTone);
 						} else {
 							// condition = (toneMapElement.amplitude == -1);
@@ -415,13 +394,11 @@ public class AudioSynthesizer implements ToneMapConstants {
 							power = 0;
 						}
 						if (power != 0) {
-							audioStream.getSineGain()[toneMapElement.getIndex()]
-									.setGain(1.0F);
+							audioStream.getSineGain()[toneMapElement.getIndex()].setGain(1.0F);
 							lastAmps[toneMapElement.getIndex()] = 1.0F; // ampAdjust;
 							// }
 						} else {
-							audioStream.getSineGain()[toneMapElement.getIndex()]
-									.setGain(0F);
+							audioStream.getSineGain()[toneMapElement.getIndex()].setGain(0F);
 							lastAmps[toneMapElement.getIndex()] = 0F;
 						}
 					}

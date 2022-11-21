@@ -281,12 +281,11 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * Returns true if this is explicitly or implicitly connected to
-	 * NuCellB.<br>
+	 * Returns true if this is explicitly or implicitly connected to NuCellB.<br>
 	 *
 	 * Explicit case is if this NuCell is directly connected to NuCellB.<br>
-	 * Implicit case is if this NuCell is connected to NuCellB through a
-	 * feedback loop
+	 * Implicit case is if this NuCell is connected to NuCellB through a feedback
+	 * loop
 	 * <p>
 	 *
 	 * @param NuCellB
@@ -306,17 +305,14 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * isCircularConnectionFound is a recursive method used to find out if a
-	 * NuCell has a circular connection in its network.<br>
+	 * isCircularConnectionFound is a recursive method used to find out if a NuCell
+	 * has a circular connection in its network.<br>
 	 *
-	 * @param visitedNuCells
-	 *            type List<NuCell>
-	 * @param n
-	 *            type NuCell
+	 * @param visitedNuCells type List<NuCell>
+	 * @param n              type NuCell
 	 * @return boolean
 	 */
-	public boolean isCircularConnectionFound(List<NuCell> visitedNuCells,
-			NuCell n) {
+	public boolean isCircularConnectionFound(List<NuCell> visitedNuCells, NuCell n) {
 		// System.out.println("NuCell.isCircularConnection: " +
 		// n.getNuCellID() );
 
@@ -350,8 +346,8 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 * isOutputConnected returns true if this NuCell has an output connected to
-	 * the input parameter
+	 * isOutputConnected returns true if this NuCell has an output connected to the
+	 * input parameter
 	 *
 	 * @param NuCell
 	 */
@@ -390,8 +386,7 @@ public class NuCell extends Cell implements Serializable {
 	 *
 	 * @param selection
 	 */
-	public void setActivationFunctionSelection(
-			ActivationFunctionEnum selection) {
+	public void setActivationFunctionSelection(ActivationFunctionEnum selection) {
 		activationFunction.setSelection(selection);
 	}
 
