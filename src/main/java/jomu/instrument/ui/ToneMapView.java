@@ -115,17 +115,27 @@ public class ToneMapView extends JComponent implements ComponentListener {
 			double timeEnd = timeSet.getEndTime() * 1000;
 			if (timeStart > timeAxisEnd) {
 				timeAxisStart = timeStart;
-				timeAxisEnd = timeStart + 20000;
+				timeAxisEnd = timeStart + 20000.0;
+				this.currentWidth = getWidth();
+				this.currentHeight = getHeight();
+				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+				bufferedGraphics = bufferedImage.createGraphics();
+			} else if (timeStart == 0) {
+				timeAxisStart = timeStart;
+				timeAxisEnd = timeStart + 20000.0;
+				this.currentWidth = getWidth();
+				this.currentHeight = getHeight();
+				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+				bufferedGraphics = bufferedImage.createGraphics();
+			} else if (timeStart < timeAxisStart) {
+				timeAxisStart -= 20000.0;
+				timeAxisEnd -= 20000.0;
 				this.currentWidth = getWidth();
 				this.currentHeight = getHeight();
 				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
 				bufferedGraphics = bufferedImage.createGraphics();
 			}
-			
-			if (timeStart == 0) {
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-				bufferedGraphics = bufferedImage.createGraphics();
-			}
+		
 			bufferedGraphics.setColor(Color.black);
 
 			ToneMapElement[] elements = ttf.getElements();
@@ -137,7 +147,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				Color color = Color.black;
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
-					int width = (int) (timeEnd - timeStart);
+					int width = (int)Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
 					int height = (int) ((100.0/(double)(maxCents - minCents)) * getHeight());
 					if (toneMapElement.amplitude > 1.0) {
 						amplitude = 100.0 * toneMapElement.amplitude / ttf.getMaxAmplitude();
@@ -160,7 +170,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					}
 
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
-					int timeCoordinate = getTimeCoordinate(timeStart);
+					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
 					bufferedGraphics.setColor(color);
 					bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
