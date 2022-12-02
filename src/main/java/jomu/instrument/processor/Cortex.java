@@ -3,10 +3,10 @@ package jomu.instrument.processor;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
-import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.cell.Generator;
-import jomu.instrument.cell.NuCell;
-import jomu.instrument.cell.Weaver;
+import jomu.instrument.processor.cell.Generator;
+import jomu.instrument.processor.cell.NuCell;
+import jomu.instrument.processor.cell.Weaver;
+import jomu.instrument.processor.cell.Cell.CellTypes;
 
 public class Cortex implements Organ, AudioFeatureFrameObserver {
 

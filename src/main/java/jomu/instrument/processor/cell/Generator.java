@@ -1,9 +1,9 @@
-package jomu.instrument.cell;
+package jomu.instrument.processor.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-import jomu.instrument.cell.Cell.CellTypes;
+import jomu.instrument.processor.cell.Cell.CellTypes;
 
 public class Generator {
 

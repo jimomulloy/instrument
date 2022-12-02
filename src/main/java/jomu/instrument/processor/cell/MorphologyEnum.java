@@ -1,4 +1,4 @@
-package jomu.instrument.cell;
+package jomu.instrument.processor.cell;
 
 /**
  * MorphologyEnum enum representing the 4 main different types of NuCell

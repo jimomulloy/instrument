@@ -1,4 +1,4 @@
-package jomu.instrument.cell;
+package jomu.instrument.processor.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -11,7 +11,7 @@ import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.audio.features.PeakInfo;
 import jomu.instrument.audio.features.PeakProcessor;
 import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
-import jomu.instrument.cell.Cell.CellTypes;
+import jomu.instrument.processor.cell.Cell.CellTypes;
 import jomu.instrument.sensor.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;

@@ -1,4 +1,4 @@
-package jomu.instrument.cell;
+package jomu.instrument.processor.cell;
 
 public enum ActivationFunctionEnum {
 
