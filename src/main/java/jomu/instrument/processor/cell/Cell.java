@@ -58,8 +58,8 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Returns the cell type. This is just a convenient way to store some property
-	 * for the cell. Should not be confused with NeuroMLType.
+	 * Returns the cell type. This is just a convenient way to store some
+	 * property for the cell. Should not be confused with NeuroMLType.
 	 */
 	public String getType() {
 		return "cellType";
@@ -90,8 +90,8 @@ public abstract class Cell {
 
 	/**
 	 * Stops this Bead, and flags it as deleted. This means that the Bead will
-	 * automatically be removed from any {@link BeadArray}s. Calling this method for
-	 * the first time also causes the killListener to be notified.
+	 * automatically be removed from any {@link BeadArray}s. Calling this method
+	 * for the first time also causes the killListener to be notified.
 	 */
 	public void kill() {
 		if (!deleted) {
@@ -104,10 +104,11 @@ public abstract class Cell {
 	}
 
 	/**
-	 * Send this Bead a message. Typically if another Bead was sending the message,
-	 * it would send itself as the argument.
+	 * Send this Bead a message. Typically if another Bead was sending the
+	 * message, it would send itself as the argument.
 	 *
-	 * @param message the Bead is the message.
+	 * @param message
+	 *            the Bead is the message.
 	 */
 
 	public final void message(Cell message) {
@@ -118,7 +119,8 @@ public abstract class Cell {
 	/**
 	 * Toggle the paused state of the Bead.
 	 *
-	 * @param paused true to pause Bead.
+	 * @param paused
+	 *            true to pause Bead.
 	 */
 	public void pause(boolean paused) {
 		this.paused = paused;
@@ -128,15 +130,16 @@ public abstract class Cell {
 	 * Sets this Bead's kill listener. The kill listener will receive a message
 	 * containing this Bead as an argument when this Bead is killed.
 	 *
-	 * @param killListener the new kill listener.
+	 * @param killListener
+	 *            the new kill listener.
 	 */
 	public void setKillListener(Cell killListener) {
 		this.killListener = killListener;
 	}
 
 	/**
-	 * Sets the cell type. This is just a convenient way to store some property for
-	 * the cell. Should not be confused with NeuroMLType.
+	 * Sets the cell type. This is just a convenient way to store some property
+	 * for the cell. Should not be confused with NeuroMLType.
 	 */
 	public void setType(String type) {
 		// somaElement.setPropertiy("cellType", type);
@@ -156,10 +159,11 @@ public abstract class Cell {
 
 	/**
 	 * Responds to an incoming message. Subclasses can override this in order to
-	 * handle incoming messages. Typically a Bead would send a message to another
-	 * Bead with itself as the arugment.
+	 * handle incoming messages. Typically a Bead would send a message to
+	 * another Bead with itself as the arugment.
 	 *
-	 * @param message the message
+	 * @param message
+	 *            the message
 	 */
 	protected void messageReceived(Cell message) {
 		/*
@@ -168,7 +172,7 @@ public abstract class Cell {
 	}
 
 	public static enum CellTypes {
-		AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_SINK, JUNCTION, PASS_THROUGH, SINK, SOURCE
+		AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_SPECTRUM, AUDIO_SINK, JUNCTION, PASS_THROUGH, SINK, SOURCE
 
 	}
 

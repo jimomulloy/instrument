@@ -3,10 +3,10 @@ package jomu.instrument.processor;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
+import jomu.instrument.processor.cell.Cell.CellTypes;
 import jomu.instrument.processor.cell.Generator;
 import jomu.instrument.processor.cell.NuCell;
 import jomu.instrument.processor.cell.Weaver;
-import jomu.instrument.processor.cell.Cell.CellTypes;
 
 public class Cortex implements Organ, AudioFeatureFrameObserver {
 
@@ -15,14 +15,16 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
-		sourceAddCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+		sourceAddCell.send(
+				audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
 				audioFeatureFrame.getFrameSequence());
 	}
 
 	@Override
 	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
 		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
-			sourceUpdateCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
+			sourceUpdateCell.send(
+					audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
 					audioFeatureFrame.getFrameSequence());
 		}
 	}
@@ -33,10 +35,14 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
 		NuCell audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
-		NuCell audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
+		NuCell audioSpectrumCell = Generator
+				.createNuCell(CellTypes.AUDIO_SPECTRUM);
+		NuCell audioIntegrateCell = Generator
+				.createNuCell(CellTypes.AUDIO_INTEGRATE);
 		NuCell audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
 		NuCell audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
 		Weaver.connect(audioCQCell, audioIntegrateCell);
+		Weaver.connect(audioSpectrumCell, audioIntegrateCell);
 		Weaver.connect(audioIntegrateCell, audioNotateCell);
 		Weaver.connect(audioNotateCell, audioSinkCell);
 		NuCell[] pitchCells = new NuCell[1];
@@ -47,6 +53,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		// Weaver.connect(sourceUpdateCell, pitchCell);
 		// }
 		Weaver.connect(sourceUpdateCell, audioCQCell);
+		Weaver.connect(sourceUpdateCell, audioSpectrumCell);
 	}
 
 	@Override

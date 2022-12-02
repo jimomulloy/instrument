@@ -22,20 +22,31 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 
 	@Override
 	public void accept(List<NuMessage> messages) {
-		// System.out.println(">>getAudioCQProcessor");
-		// System.out.println(cell.toString());
-		int sequence;
-		String streamId;
+		int sequence = 0;
+		String streamId = null;
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
 			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
-				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-				ToneMap integrateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-				integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-				cell.send(streamId, sequence);
+				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+				ToneMap integrateToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(this.cell.getCellType(), streamId));
+				integrateToneMap
+						.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			} else if (message.source.getCellType()
+					.equals(CellTypes.AUDIO_SPECTRUM)) {
+				// ToneMap cqToneMap =
+				// worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
+				// streamId));
+				// ToneMap integrateToneMap = worldModel.getAtlas()
+				// .getToneMap(buildToneMapKey(this.cell.getCellType(),
+				// streamId));
+				// integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 			}
+		}
+		if (streamId != null) {
+			cell.send(streamId, sequence);
 		}
 	}
 

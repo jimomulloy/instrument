@@ -4,6 +4,7 @@ public class AudioFeatureFrame {
 	// private AudioEventFeatures audioEventFeatures;
 	private AudioFeatureProcessor audioFeatureProcessor;
 	private BandedPitchDetectorFeatures bandedPitchDetectorFeatures;
+	private SpectrumFeatures spectrumFeatures;
 	// private List<FeatureFrame> beadsBeatsFeatures;
 	// private List<FeatureFrame> beadsFeatures;
 	private ConstantQFeatures constantQFeatures;
@@ -18,7 +19,8 @@ public class AudioFeatureFrame {
 	private SpectrogramFeatures spectrogramFeatures;
 	private double start;
 
-	public AudioFeatureFrame(AudioFeatureProcessor audioFeatureProcessor, int frameSequence, double start, double end) {
+	public AudioFeatureFrame(AudioFeatureProcessor audioFeatureProcessor,
+			int frameSequence, double start, double end) {
 		this.audioFeatureProcessor = audioFeatureProcessor;
 		this.frameSequence = frameSequence;
 		this.start = start;
@@ -35,6 +37,10 @@ public class AudioFeatureFrame {
 
 	public BandedPitchDetectorFeatures getBandedPitchDetectorFeatures() {
 		return bandedPitchDetectorFeatures;
+	}
+
+	public SpectrumFeatures getSpectrumFeatures() {
+		return spectrumFeatures;
 	}
 
 	// public List<FeatureFrame> getBeadsBeatsFeatures() {
@@ -86,7 +92,8 @@ public class AudioFeatureFrame {
 	}
 
 	void initialise() {
-		System.out.println(">>PF INIT!!!: " + this.frameSequence + ", " + this.start);
+		System.out.println(
+				">>PF INIT!!!: " + this.frameSequence + ", " + this.start);
 		// FeatureSet results = this.audioFeatureProcessor.getAnalyzer()
 		// .getResults();
 		// beadsFeatures = results.get("Low Level").getRange(start, end);
@@ -99,20 +106,27 @@ public class AudioFeatureFrame {
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
 		bandedPitchDetectorFeatures = new BandedPitchDetectorFeatures();
+		spectrumFeatures = new SpectrumFeatures();
 		spectrogramFeatures = new SpectrogramFeatures();
 		goertzelFeatures = new GoertzelFeatures();
 		scalogramFeatures = new ScalogramFeatures();
 		// audioEventFeatures.initialise(this.audioFeatureProcessor
 		// .getTarsosFeatures().getAudioEventSource());
 		constantQFeatures.initialise(this);
-		onsetFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getOnsetSource());
-		spectralPeaksFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getSpectralPeaksSource());
+		onsetFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures()
+				.getOnsetSource());
+		spectralPeaksFeatures.initialise(this.audioFeatureProcessor
+				.getTarsosFeatures().getSpectralPeaksSource());
 		pitchDetectorFeatures.initialise(this);
-		bandedPitchDetectorFeatures
-				.initialise(this.audioFeatureProcessor.getTarsosFeatures().getBandedPitchDetectorSource());
-		spectrogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getSpectrogramSource());
-		goertzelFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getGoertzelSource());
-		scalogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getScalogramSource());
+		bandedPitchDetectorFeatures.initialise(this.audioFeatureProcessor
+				.getTarsosFeatures().getBandedPitchDetectorSource());
+		spectrumFeatures.initialise(this);
+		spectrogramFeatures.initialise(this.audioFeatureProcessor
+				.getTarsosFeatures().getSpectrogramSource());
+		goertzelFeatures.initialise(this.audioFeatureProcessor
+				.getTarsosFeatures().getGoertzelSource());
+		scalogramFeatures.initialise(this.audioFeatureProcessor
+				.getTarsosFeatures().getScalogramSource());
 
 	}
 

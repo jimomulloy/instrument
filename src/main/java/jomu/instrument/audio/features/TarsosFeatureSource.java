@@ -6,6 +6,7 @@ public class TarsosFeatureSource {
 
 	// private AudioEventSource audioEventSource;
 	private BandedPitchDetectorSource bandedPitchDetectorSource;
+	private SpectrumSource spectrumSource;
 	private ConstantQSource constantQSource;
 	private GoertzelSource goertzelSource;
 	private OnsetSource onsetSource;
@@ -25,6 +26,10 @@ public class TarsosFeatureSource {
 
 	public BandedPitchDetectorSource getBandedPitchDetectorSource() {
 		return bandedPitchDetectorSource;
+	}
+
+	public SpectrumSource getSpectrumSource() {
+		return spectrumSource;
 	}
 
 	public ConstantQSource getConstantQSource() {
@@ -65,6 +70,7 @@ public class TarsosFeatureSource {
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
 		bandedPitchDetectorSource = new BandedPitchDetectorSource(dispatcher);
+		spectrumSource = new SpectrumSource(dispatcher);
 		spectrogramSource = new SpectrogramSource(dispatcher);
 		// audioEventSource = new AudioEventSource(dispatcher);
 		goertzelSource = new GoertzelSource(dispatcher);
