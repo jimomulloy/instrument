@@ -8,9 +8,9 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.organs.Hearing;
-import jomu.instrument.world.WorldModel;
-import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.sensor.Hearing;
+import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 

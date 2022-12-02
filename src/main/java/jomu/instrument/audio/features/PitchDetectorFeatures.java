@@ -4,13 +4,13 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.ui.Visor;
-import jomu.instrument.world.tonemap.PitchSet;
-import jomu.instrument.world.tonemap.TimeSet;
-import jomu.instrument.world.tonemap.ToneMap;
-import jomu.instrument.world.tonemap.ToneMapConstants;
-import jomu.instrument.world.tonemap.ToneMapElement;
-import jomu.instrument.world.tonemap.ToneTimeFrame;
+import jomu.instrument.monitor.Visor;
+import jomu.instrument.workspace.tonemap.PitchSet;
+import jomu.instrument.workspace.tonemap.TimeSet;
+import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMapConstants;
+import jomu.instrument.workspace.tonemap.ToneMapElement;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
 

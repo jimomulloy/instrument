@@ -12,9 +12,9 @@ import jomu.instrument.audio.features.PeakInfo;
 import jomu.instrument.audio.features.PeakProcessor;
 import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.organs.Hearing;
-import jomu.instrument.world.WorldModel;
-import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.sensor.Hearing;
+import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 

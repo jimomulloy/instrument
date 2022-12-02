@@ -33,7 +33,7 @@ import javax.sound.sampled.SourceDataLine;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
-import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioGenerator implements Runnable {
 

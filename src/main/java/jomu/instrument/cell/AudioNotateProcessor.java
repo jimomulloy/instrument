@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.world.WorldModel;
-import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 

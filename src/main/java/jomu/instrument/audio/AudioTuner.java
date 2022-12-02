@@ -4,19 +4,19 @@ package jomu.instrument.audio;
 import java.util.List;
 
 import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
-import jomu.instrument.world.tonemap.NoteList;
-import jomu.instrument.world.tonemap.NoteListElement;
-import jomu.instrument.world.tonemap.NoteSequence;
-import jomu.instrument.world.tonemap.NoteSequenceElement;
-import jomu.instrument.world.tonemap.NoteStatus;
-import jomu.instrument.world.tonemap.NoteStatusElement;
-import jomu.instrument.world.tonemap.OvertoneSet;
-import jomu.instrument.world.tonemap.PitchSet;
-import jomu.instrument.world.tonemap.TimeSet;
-import jomu.instrument.world.tonemap.ToneMap;
-import jomu.instrument.world.tonemap.ToneMapConstants;
-import jomu.instrument.world.tonemap.ToneMapElement;
-import jomu.instrument.world.tonemap.ToneTimeFrame;
+import jomu.instrument.workspace.tonemap.NoteList;
+import jomu.instrument.workspace.tonemap.NoteListElement;
+import jomu.instrument.workspace.tonemap.NoteSequence;
+import jomu.instrument.workspace.tonemap.NoteSequenceElement;
+import jomu.instrument.workspace.tonemap.NoteStatus;
+import jomu.instrument.workspace.tonemap.NoteStatusElement;
+import jomu.instrument.workspace.tonemap.OvertoneSet;
+import jomu.instrument.workspace.tonemap.PitchSet;
+import jomu.instrument.workspace.tonemap.TimeSet;
+import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMapConstants;
+import jomu.instrument.workspace.tonemap.ToneMapElement;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 /**
  * This class defines the Tuner Sub System Data Model processing functions for

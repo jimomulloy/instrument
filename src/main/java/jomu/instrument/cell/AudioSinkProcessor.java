@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.actuator.Voice;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.cell.Cell.CellTypes;
-import jomu.instrument.organs.Hearing;
-import jomu.instrument.organs.Voice;
-import jomu.instrument.world.WorldModel;
-import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.sensor.Hearing;
+import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 

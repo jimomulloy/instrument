@@ -1,9 +1,9 @@
 package jomu.instrument;
 
-import jomu.instrument.organs.Controller;
-import jomu.instrument.organs.Coordinator;
-import jomu.instrument.organs.Druid;
-import jomu.instrument.world.WorldModel;
+import jomu.instrument.control.Controller;
+import jomu.instrument.control.Coordinator;
+import jomu.instrument.monitor.Druid;
+import jomu.instrument.workspace.WorldModel;
 
 public class Instrument {
 	private static Instrument instrument;
