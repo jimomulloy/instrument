@@ -1,4 +1,4 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 /**
  * LayerClassification Denotes the layer of a given NuCell

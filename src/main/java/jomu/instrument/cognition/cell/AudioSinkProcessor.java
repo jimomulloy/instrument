@@ -1,13 +1,13 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.actuator.Voice;
+import jomu.instrument.actuation.Voice;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
-import jomu.instrument.processor.cell.Cell.CellTypes;
-import jomu.instrument.sensor.Hearing;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -32,14 +32,21 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
+			System.out.println(">>AudioSinkProcessor accept: " + message
+					+ ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.AUDIO_NOTATE)) {
-				Voice voice = Instrument.getInstance().getCoordinator().getVoice();
-				ToneMap notateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
-				voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
-				if (afp == null || (afp.isClosed() && afp.isLastSequence(sequence))) {
+				Voice voice = Instrument.getInstance().getCoordinator()
+						.getVoice();
+				ToneMap notateToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
+				voice.send(notateToneMap.getTimeFrame(sequence), streamId,
+						sequence);
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
+				if (afp == null
+						|| (afp.isClosed() && afp.isLastSequence(sequence))) {
 					voice.close(streamId);
 				}
 			}

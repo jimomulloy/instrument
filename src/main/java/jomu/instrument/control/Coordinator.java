@@ -1,9 +1,9 @@
 package jomu.instrument.control;
 
 import jomu.instrument.Organ;
-import jomu.instrument.actuator.Voice;
-import jomu.instrument.processor.Cortex;
-import jomu.instrument.sensor.Hearing;
+import jomu.instrument.actuation.Voice;
+import jomu.instrument.cognition.Cortex;
+import jomu.instrument.perception.Hearing;
 
 public class Coordinator implements Organ {
 	private Cortex cortex;

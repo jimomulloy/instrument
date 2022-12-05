@@ -115,8 +115,7 @@ public class AudioFeatureFrame {
 		constantQFeatures.initialise(this);
 		onsetFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures()
 				.getOnsetSource());
-		spectralPeaksFeatures.initialise(this.audioFeatureProcessor
-				.getTarsosFeatures().getSpectralPeaksSource());
+		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);
 		bandedPitchDetectorFeatures.initialise(this.audioFeatureProcessor
 				.getTarsosFeatures().getBandedPitchDetectorSource());

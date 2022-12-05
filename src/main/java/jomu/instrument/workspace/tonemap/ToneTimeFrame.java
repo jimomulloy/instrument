@@ -54,7 +54,8 @@ public class ToneTimeFrame {
 	public void compress(float factor) {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
-				elements[i].amplitude = (float) Math.log10(1 + (factor * elements[i].amplitude));
+				elements[i].amplitude = (float) Math
+						.log10(1 + (factor * elements[i].amplitude));
 			}
 		}
 		reset();
@@ -75,7 +76,9 @@ public class ToneTimeFrame {
 		double binStartFreq, binEndFreq;
 		int binStartIndex, binEndIndex;
 		binStartFreq = pitchSet.getFreq(0);
-		binStartIndex = (int) ((binStartFreq * windowSize * 2.0) / (timeSet.getSampleRate()));
+		binStartIndex = (int) ((binStartFreq * windowSize * 2.0) // !! TODO !!
+																	// NOT 2.0!!
+				/ (timeSet.getSampleRate()));
 		for (int j = 0; j < binStartIndex; j++) {
 			spec[j] = 0F;
 		}
@@ -83,15 +86,22 @@ public class ToneTimeFrame {
 		for (int i = 0; i < elements.length; i++) {
 			binStartFreq = pitchSet.getFreq(i);
 			binEndFreq = pitchSet.getFreq(i + 1);
-			binStartIndex = (int) ((binStartFreq * windowSize * 2.0) / (timeSet.getSampleRate()));
-			binEndIndex = (int) ((binEndFreq * windowSize * 2.0) / (timeSet.getSampleRate()));
+			binStartIndex = (int) ((binStartFreq * windowSize * 2.0) // !! TODO
+																		// !!
+																		// NOT
+																		// 2.0!!
+					/ (timeSet.getSampleRate()));
+			binEndIndex = (int) ((binEndFreq * windowSize * 2.0) // !! TODO !!
+																	// NOT 2.0!!
+					/ (timeSet.getSampleRate()));
 			// System.out.println(">>extractFFT binStartFreq: " + binStartFreq);
 			// System.out.println(">>extractFFT binEndFreq: " + binEndFreq);
 			// System.out.println(">>extractFFT binStartIndex: " +
 			// binStartIndex);
 			// System.out.println(">>extractFFT binEndIndex: " + binEndIndex);
 			if (binEndIndex > binStartIndex) {
-				float partialValue = (float) (elements[i].amplitude) / (binEndIndex - binStartIndex);
+				float partialValue = (float) (elements[i].amplitude)
+						/ (binEndIndex - binStartIndex);
 				for (int j = 0; j < (binEndIndex - binStartIndex); j++) {
 					spec[binStartIndex + j] += partialValue;
 				}
@@ -100,7 +110,8 @@ public class ToneTimeFrame {
 			}
 		}
 		System.out.println(">> MAXP, MAXA: " + maxP + ", " + maxA);
-		FFTSpectrum fftSpectrum = new FFTSpectrum(timeSet.getSampleRate(), windowSize, spec);
+		FFTSpectrum fftSpectrum = new FFTSpectrum(timeSet.getSampleRate(),
+				windowSize, spec);
 		return fftSpectrum;
 	}
 
@@ -122,12 +133,13 @@ public class ToneTimeFrame {
 				amplitude = 0.0;
 		} else {
 			/*
-			 * if ((maxPower - minPower) <= 0) { amplitude = 0.0; } else { double minpow =
-			 * minPower + (maxPower - minPower) * ((double) lowThres / 100.0); double maxpow
-			 * = maxPower - (maxPower - minPower) * ((double) (100 - highThres) / 100.0); if
-			 * (power > maxpow) { amplitude = 1.0; } else if (power < minpow) { amplitude =
-			 * 0.0; } else { amplitude = (Math.sqrt(power - minpow) / Math.sqrt(maxpow -
-			 * minpow)); } }
+			 * if ((maxPower - minPower) <= 0) { amplitude = 0.0; } else {
+			 * double minpow = minPower + (maxPower - minPower) * ((double)
+			 * lowThres / 100.0); double maxpow = maxPower - (maxPower -
+			 * minPower) * ((double) (100 - highThres) / 100.0); if (power >
+			 * maxpow) { amplitude = 1.0; } else if (power < minpow) { amplitude
+			 * = 0.0; } else { amplitude = (Math.sqrt(power - minpow) /
+			 * Math.sqrt(maxpow - minpow)); } }
 			 */
 		}
 
@@ -168,8 +180,8 @@ public class ToneTimeFrame {
 
 	public double[] getPitches() {
 		double[] result = new double[elements.length];
-		for (int i = 0; i < elements.length; i++) {
-			result[i] = pitchSet.getFreq(i + 1);
+		for (int i = 0; i < elements.length - 1; i++) {
+			result[i] = pitchSet.getFreq(i + 1); // ?? !! pitchSet.getFreq(i)
 		}
 		return result;
 	}
@@ -199,19 +211,13 @@ public class ToneTimeFrame {
 		double binStartFreq = pitchSet.getFreq(elementIndex);
 		double binEndFreq = pitchSet.getFreq(elementIndex + 1);
 		elements[elementIndex].amplitude = 0;
-		// System.out.println(">>loadFFT timeSet.getSampleRate(): " +
-		// timeSet.getSampleRate());
-		// System.out.println(">>loadFFT bufferSize: " + bufferSize);
 		for (int i = 0; i < fftSpectrum.getSpectrum().length; i++) {
-			// double currentFreq = (timeSet.getSampleRate() / (2.0)) *
-			// (((double) i) /
-			// bufferSize);
-			double currentFreq = i * (timeSet.getSampleRate() / ((fftSpectrum.getWindowSize()) * 2.0));
-			// System.out.println(">>loadFFT currentFreq 1 : " + currentFreq);
+			double currentFreq = i * timeSet.getSampleRate()
+					/ (double) fftSpectrum.getWindowSize();
 			if (currentFreq < binStartFreq) {
 				continue;
 			}
-			if (currentFreq >= binEndFreq) {
+			while (currentFreq >= binEndFreq) {
 				elementIndex++;
 				if (elementIndex == elements.length) {
 					break;
@@ -219,10 +225,6 @@ public class ToneTimeFrame {
 				elements[elementIndex].amplitude = 0;
 				binEndFreq = pitchSet.getFreq(elementIndex + 1);
 			}
-			// System.out.println(">>loadFFT elementIndex: " + elementIndex);
-			// System.out.println(">>loadFFT currentFreq : " + currentFreq);
-			// System.out.println(">>loadFFT binStartFreq: " + binStartFreq);
-			// System.out.println(">>loadFFT binEndFreq: " + binEndFreq);
 			elements[elementIndex].amplitude += fftSpectrum.getSpectrum()[i];
 		}
 	}
@@ -252,7 +254,8 @@ public class ToneTimeFrame {
 					count++;
 					if (maxAmplitude < elements[i].amplitude)
 						maxAmplitude = elements[i].amplitude;
-					if ((minAmplitude == 0) || (minAmplitude > elements[i].amplitude))
+					if ((minAmplitude == 0)
+							|| (minAmplitude > elements[i].amplitude))
 						minAmplitude = elements[i].amplitude;
 				}
 			}
@@ -290,7 +293,8 @@ public class ToneTimeFrame {
 		float maxdbRatio = 0;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
-				float dbRatio = (float) (20.0 * Math.log(maxAmplitude / elements[i].amplitude));
+				float dbRatio = (float) (20.0
+						* Math.log(maxAmplitude / elements[i].amplitude));
 				if (dbRatio > threshold) {
 					elements[i].amplitude = value;
 				}
@@ -308,7 +312,9 @@ public class ToneTimeFrame {
 		System.out.println(">>maxAmplitude decibel before: " + maxAmplitude);
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
-				double value = elements[i].amplitude > base ? elements[i].amplitude : base;
+				double value = elements[i].amplitude > base
+						? elements[i].amplitude
+						: base;
 				elements[i].amplitude = (float) (20.0 * Math.log(value / base));
 				if (elements[i].amplitude < base) {
 					elements[i].amplitude = base;

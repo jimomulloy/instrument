@@ -1,4 +1,4 @@
-package jomu.instrument.actuator;
+package jomu.instrument.actuation;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;

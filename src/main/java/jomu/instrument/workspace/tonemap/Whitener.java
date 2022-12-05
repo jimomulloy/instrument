@@ -20,7 +20,8 @@ public class Whitener {
 
 		cb = new double[32];
 		/*
-		 * CB filterbank always the same values, could be included from somewhere...
+		 * CB filterbank always the same values, could be included from
+		 * somewhere...
 		 */
 		for (
 
@@ -40,9 +41,11 @@ public class Whitener {
 			while (freqs[kk] <= cb[i + 1]) {
 				hbIndices[i - 1].add(kk);
 				if (freqs[kk] <= cb[i]) {
-					Hb[i - 1].add(1 - Math.abs(cb[i] - freqs[kk]) / (cb[i] - cb[i - 1]));
+					Hb[i - 1].add(1 - Math.abs(cb[i] - freqs[kk])
+							/ (cb[i] - cb[i - 1]));
 				} else {
-					Hb[i - 1].add(1 - Math.abs(cb[i] - freqs[kk]) / (cb[i + 1] - cb[i]));
+					Hb[i - 1].add(1 - Math.abs(cb[i] - freqs[kk])
+							/ (cb[i + 1] - cb[i]));
 				}
 				++kk;
 			}
@@ -65,7 +68,8 @@ public class Whitener {
 		for (int i = 0; i < Hb.length; ++i) {
 			double tempSum = 0;
 			for (int j = 0; j < Hb[i].size(); ++j) {
-				tempSum += Hb[i].get(j) * Math.pow(fftSpectrum.getSpectrum()[hbIndices[i].get(j)], 2.0);
+				tempSum += Hb[i].get(j) * Math.pow(
+						fftSpectrum.getSpectrum()[hbIndices[i].get(j)], 2.0);
 			}
 			stdb.add(Math.sqrt(tempSum / (fftSpectrum.getSpectrum().length)));
 			gammab.add(Math.pow(stdb.lastElement(), 0.33 - 1.0));
@@ -86,7 +90,8 @@ public class Whitener {
 			int end = ind(freqs, cb[i + 2]);
 			while (kk < end) {
 				gammaCoeff[kk] = gammab.get(i)
-						+ (gammab.get(i + 1) - gammab.get(i)) * Math.abs((double) (kk - init)) / (end - init);
+						+ (gammab.get(i + 1) - gammab.get(i))
+								* Math.abs((double) (kk - init)) / (end - init);
 				++kk;
 			}
 		}
@@ -97,7 +102,8 @@ public class Whitener {
 		}
 		/* whiten the signal */
 		for (int i = 0; i < whitenedSpectrum.length; ++i) {
-			whitenedSpectrum[i] = (float) (fftSpectrum.getSpectrum()[i] * gammaCoeff[i]);
+			whitenedSpectrum[i] = (float) (fftSpectrum.getSpectrum()[i]
+					* gammaCoeff[i]);
 		}
 		return whitenedSpectrum;
 	}

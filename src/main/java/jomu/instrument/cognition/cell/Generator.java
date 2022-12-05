@@ -1,9 +1,9 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-import jomu.instrument.processor.cell.Cell.CellTypes;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
 
 public class Generator {
 
@@ -19,8 +19,12 @@ public class Generator {
 				return createAudioPitchTypeCell();
 			case AUDIO_SPECTRUM :
 				return createAudioSpectrumTypeCell();
+			case AUDIO_SPECTRAL_PEAKS :
+				return createAudioSpectralPeaksTypeCell();
 			case AUDIO_CQ :
 				return createAudioCQTypeCell();
+			case AUDIO_CHROMA :
+				return createAudioChromaTypeCell();
 			case AUDIO_INTEGRATE :
 				return createAudioIntegrateTypeCell();
 			case AUDIO_NOTATE :
@@ -60,6 +64,18 @@ public class Generator {
 	private static NuCell createAudioSpectrumTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_SPECTRUM);
 		cell.setProcessor(getAudioSpectrumProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioSpectralPeaksTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
+		cell.setProcessor(getAudioSpectralPeaksProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioChromaTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_CHROMA);
+		cell.setProcessor(getAudioChromaProcessor(cell));
 		return cell;
 	}
 
@@ -109,6 +125,16 @@ public class Generator {
 	private static Consumer<List<NuMessage>> getAudioSpectrumProcessor(
 			NuCell cell) {
 		return new AudioSpectrumProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioSpectralPeaksProcessor(
+			NuCell cell) {
+		return new AudioSpectralPeaksProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioChromaProcessor(
+			NuCell cell) {
+		return new AudioChromaProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getAudioSinkProcessor(

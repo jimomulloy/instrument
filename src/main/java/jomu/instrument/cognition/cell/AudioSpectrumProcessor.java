@@ -1,4 +1,4 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -7,14 +7,13 @@ import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.SpectrumFeatures;
-import jomu.instrument.processor.cell.Cell.CellTypes;
-import jomu.instrument.sensor.Hearing;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.PitchAnalyser;
 import jomu.instrument.workspace.tonemap.PitchDetect;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.Whitener;
 
 public class AudioSpectrumProcessor implements Consumer<List<NuMessage>> {
 
@@ -31,8 +30,6 @@ public class AudioSpectrumProcessor implements Consumer<List<NuMessage>> {
 
 	@Override
 	public void accept(List<NuMessage> messages) {
-		// System.out.println(">>getAudioCQProcessor");
-		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
 		for (NuMessage message : messages) {
@@ -50,26 +47,56 @@ public class AudioSpectrumProcessor implements Consumer<List<NuMessage>> {
 				if (afp != null) {
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					SpectrumFeatures spf = aff.getSpectrumFeatures();
+					spf.buildToneMapFrame(toneMap);
+
 					FFTSpectrum fftSpectrum = new FFTSpectrum(
-							spf.getSps().getSampleRate(), 4096,
+							spf.getSps().getSampleRate(), 1024,
 							spf.getSpectrum());
-					PitchDetect pd = new PitchDetect(4096,
+					// Whitener whitener = new Whitener(fftSpectrum);
+					// float[] whitenedSpectrum = whitener.whiten();
+					// fftSpectrum = new
+					// FFTSpectrum(spf.getSps().getSampleRate(),
+					// 1024, whitenedSpectrum);
+
+					PitchAnalyser pitchAnalyser = new PitchAnalyser(fftSpectrum,
+							toneMap.getTimeFrame().getPitches(), 20);
+
+					// Vector<Double> f0s = pitchAnalyser.detectF0s();
+
+					// float[] f0Spectrum = pitchAnalyser.getF0Spectrum();
+
+					// fftSpectrum = new
+					// FFTSpectrum(spf.getSps().getSampleRate(),
+					// 1024, f0Spectrum);
+
+					PitchDetect pd = new PitchDetect(1024,
 							(float) toneMap.getTimeFrame().getTimeSet()
 									.getSampleRate(),
 							convertDoublesToFloats(toneMap.getTimeFrame()
 									.getPitchSet().getFreqSet()));
 					pd.detect(fftSpectrum.getSpectrum());
-					Whitener whitener = new Whitener(fftSpectrum);
-					whitener.whiten();
-					FFTSpectrum whitenedSpectrum = new FFTSpectrum(
-							fftSpectrum.getSampleRate(),
-							fftSpectrum.getWindowSize(),
-							whitener.getWhitenedSpectrum());
-					PitchAnalyser pitchAnalyser = new PitchAnalyser(fftSpectrum,
-							toneMap.getTimeFrame().getPitches(), 20);
-					toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-					toneMap.getTimeFrame().deNoise(0.05);
 
+					// f0Spectrum = pd.getF0Spectrum();
+
+					// fftSpectrum = new
+					// FFTSpectrum(spf.getSps().getSampleRate(),
+					// 1024, f0Spectrum);
+
+					toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+
+					// Whitener whitener = new Whitener(fftSpectrum);
+					// whitener.whiten();
+					// FFTSpectrum whitenedSpectrum = new FFTSpectrum(
+					// fftSpectrum.getSampleRate(),
+					// fftSpectrum.getWindowSize(),
+					// whitener.getWhitenedSpectrum());
+					// PitchAnalyser pitchAnalyser = new
+					// PitchAnalyser(fftSpectrum,
+					// toneMap.getTimeFrame().getPitches(), 20);
+					// toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+
+					toneMap.getTimeFrame().deNoise(0.05);
+					// spf.displayToneMap();
 					cell.send(streamId, sequence);
 				}
 			}

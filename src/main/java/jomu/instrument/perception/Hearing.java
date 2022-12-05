@@ -1,4 +1,4 @@
-package jomu.instrument.sensor;
+package jomu.instrument.perception;
 
 import java.io.File;
 import java.io.IOException;

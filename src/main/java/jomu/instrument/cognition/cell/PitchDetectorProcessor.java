@@ -1,4 +1,4 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -7,8 +7,8 @@ import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.PitchDetectorFeatures;
-import jomu.instrument.processor.cell.Cell.CellTypes;
-import jomu.instrument.sensor.Hearing;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
 

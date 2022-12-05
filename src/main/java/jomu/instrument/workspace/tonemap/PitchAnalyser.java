@@ -11,49 +11,59 @@ public class PitchAnalyser {
 	private double[] f0cands;
 	private ArrayList<Integer>[] f0index; /* Klapuri F0 candidate indices */
 	private ArrayList<Integer>[] f0indHarm; /*
-											 * Klapuri F0 candidate indices harmonics
+											 * Klapuri F0 candidate indices
+											 * harmonics
 											 */
 	private FFTSpectrum fftSpectrum;
 	private int harmonics = 20;
 	int surroundingBins = 1;
+	private float[] f0Spectrum;
 
-	public PitchAnalyser(FFTSpectrum fftSpectrum, double[] f0cands, int harmonics) {
+	public PitchAnalyser(FFTSpectrum fftSpectrum, double[] f0cands,
+			int harmonics) {
 		this.fftSpectrum = fftSpectrum;
 		this.harmonics = harmonics;
 		this.f0cands = f0cands;
 		/*
 		 * Create candidate frequencies here
-		 * (http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html) Five octaves of candidate
-		 * notes. Use quarter a half-step to get out of tune freqs Lowest freq (f0) =
-		 * 55.0 Hz, A three octaves below A above the middle C
+		 * (http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html) Five octaves of
+		 * candidate notes. Use quarter a half-step to get out of tune freqs
+		 * Lowest freq (f0) = 55.0 Hz, A three octaves below A above the middle
+		 * C
 		 */
-		double f0Init = 55; // Hz
-		double a = Math.pow(2.0, (1.0 / 12.0));
-		f0cands = new double[5 * 12 * 4]; // 5 octaves, 12 half-steps per
-											// octave, quarter half-steps
-		for (int kk = 0; kk < f0cands.length; ++kk) {
-			f0cands[kk] = f0Init * Math.pow(a, (kk) / 4.0);
-		}
+		// double f0Init = 55; // Hz
+		// double a = Math.pow(2.0, (1.0 / 12.0));
+		// f0cands = new double[5 * 12 * 4]; // 5 octaves, 12 half-steps per
+		// octave, quarter half-steps
+		// for (int kk = 0; kk < f0cands.length; ++kk) {
+		// f0cands[kk] = f0Init * Math.pow(a, (kk) / 4.0);
+		// }
 
 		/*
 		 * Pre-calculate frequency bins for a given f0 candidate
 		 */
 		f0index = new ArrayList[f0cands.length];
 		f0indHarm = new ArrayList[f0cands.length];
-		double halfBinWidth = ((double) this.fftSpectrum.getSampleRate() / (double) this.fftSpectrum.getWindowSize())
-				/ 2.0;
+		System.out.println(">>!! AA f0cands.length: " + f0cands.length + ", "
+				+ f0index.length);
+		double halfBinWidth = ((double) this.fftSpectrum.getSampleRate()
+				/ (double) this.fftSpectrum.getWindowSize()) / 2.0;
 		for (int k = 0; k < f0index.length; ++k) {
 			f0index[k] = new ArrayList();
 			f0indHarm[k] = new ArrayList();
 			for (int h = 0; h < harmonics; ++h) {
-				ArrayList<Integer> tempInd = find(this.fftSpectrum.getBinFrequencies(),
-						f0cands[k] * (h + 1.0) - halfBinWidth, f0cands[k] * (h + 1.0) + halfBinWidth);
+				ArrayList<Integer> tempInd = find(
+						this.fftSpectrum.getBinFrequencies(),
+						f0cands[k] * (h + 1.0) - halfBinWidth,
+						f0cands[k] * (h + 1.0) + halfBinWidth);
 				f0index[k].addAll(tempInd);
 				for (int t = 0; t < tempInd.size(); ++t) {
 					f0indHarm[k].add(h + 1);
 				}
 			}
 		}
+		System.out.println(">>!! BB f0cands.length: " + f0cands.length + ", "
+				+ f0index.length);
 	}
 
 	public Vector<Double> detectF0s() {
@@ -72,22 +82,28 @@ public class PitchAnalyser {
 		double[] resultsk = new double[fftSpectrum.getBinFrequencies().length];
 		double[] salience;
 		double summa;
-		float[] spec = fftSpectrum.getSpectrum();
-		while (S.lastElement() >= smax) {
+		f0Spectrum = fftSpectrum.getSpectrum().clone();
+		do {
+			System.out.println(">>!! smax: " + smax + ", " + S.lastElement());
 			// Calculating the salience function (the hard way...)
 			salience = new double[f0cands.length];
 			double salmax = 0;
 
-			for (int i = 0; i < f0index.length; ++i) {
+			for (int i = 0; i < f0index.length - 1; ++i) {
 				summa = 0;
 				for (int j = 0; j < f0index[i].size(); ++j) {
 					if (f0index[i].get(j) > freqs.length) {
-						System.out.println(">>!! freqs!!: " + f0index[i].get(j));
-					} else if (f0index[i].get(j) >= spec.length) {
-						System.out.println(">>!! whitenedSpec!!: " + f0index[i].get(j));
+						// System.out
+						// .println(">>!! freqs!!: " + f0index[i].get(j));
+					} else if (f0index[i].get(j) >= f0Spectrum.length) {
+						// System.out.println(
+						// ">>!! whitenedSpec!!: " + f0index[i].get(j));
 					} else {
-						summa += (samplingRate * freqs[f0index[i].get(j)] + alpha)
-								/ ((j + 1) * samplingRate * freqs[f0index[i].get(j)] + beta) * spec[f0index[i].get(j)];
+						summa += (samplingRate * freqs[f0index[i].get(j)]
+								+ alpha)
+								/ ((j + 1) * samplingRate
+										* freqs[f0index[i].get(j)] + beta)
+								* f0Spectrum[f0index[i].get(j)];
 					}
 				}
 				salience[i] = summa;
@@ -107,22 +123,39 @@ public class PitchAnalyser {
 			// System.out.println("To cancellation "+f0index[index].size()+"
 			// "+f0indHarm[index].size());
 			int[] tempCancelled = new int[resultsk.length];
+			System.out.println(">>>PA IN");
+
 			for (int j = 0; j < f0index[index].size(); ++j) {
 				/* Suppress the surrounding bins as well */
 				for (int i = -1; i <= 1; ++i) {
-					if (tempCancelled[f0index[index].get(j) + i] == 0 && f0index[index].get(j) + i < resultsk.length) {
+					int tcIndex = f0index[index].get(j) + i;
+					if (tcIndex > -1 && tempCancelled[tcIndex] == 0
+							&& tcIndex < resultsk.length) {
 						// System.out.println(f0index[index].get(j)+"
 						// "+freq[f0index[index].get(j)]);
-						resultsk[f0index[index].get(j) + i] = resultsk[f0index[index].get(j) + i]
-								+ (samplingRate * freqs[f0index[index].get(j) + i] + alpha)
-										/ (((double) f0indHarm[index].get(j)) * samplingRate
-												* freqs[f0index[index].get(j) + i] + beta)
-										* spec[f0index[index].get(j) + i];
-						if (spec[f0index[index].get(j) + i] - resultsk[f0index[index].get(j) + i] > 0) {
-							spec[f0index[index].get(j) + i] = (float) (spec[f0index[index].get(j) + i]
-									- resultsk[f0index[index].get(j) + i] * dee);
+						resultsk[f0index[index].get(j)
+								+ i] = resultsk[f0index[index].get(j) + i]
+										+ (samplingRate
+												* freqs[f0index[index].get(j)
+														+ i]
+												+ alpha)
+												/ (((double) f0indHarm[index]
+														.get(j))
+														* samplingRate
+														* freqs[f0index[index]
+																.get(j) + i]
+														+ beta)
+												* f0Spectrum[f0index[index]
+														.get(j) + i];
+						if (f0Spectrum[f0index[index].get(j) + i]
+								- resultsk[f0index[index].get(j) + i] > 0) {
+							f0Spectrum[f0index[index].get(j)
+									+ i] = (float) (f0Spectrum[f0index[index]
+											.get(j) + i]
+											- resultsk[f0index[index].get(j)
+													+ i] * dee);
 						} else {
-							spec[f0index[index].get(j) + i] = 0;
+							f0Spectrum[f0index[index].get(j) + i] = 0;
 						}
 						tempCancelled[f0index[index].get(j) + i] = 1;
 					}
@@ -130,7 +163,8 @@ public class PitchAnalyser {
 				}
 
 			}
-			// System.out.println("Cancellation done");
+			System.out.println(">>>PA OUT");
+
 			// requency cancellation done
 			// Polyphony estimation
 			if (S.size() < detectedF0s) {
@@ -145,7 +179,8 @@ public class PitchAnalyser {
 				smax = S.lastElement();
 			}
 			// Polyphony estimated
-		}
+		} while (S.lastElement() >= smax && smax > 0);
+
 		// The last F0 is extra...
 		// System.out.println("Remove extra");
 		if (F0s.size() > 1) {
@@ -153,15 +188,19 @@ public class PitchAnalyser {
 			F0BinIndexes.remove(F0BinIndexes.size() - 1);
 		}
 
-		for (int i = 0; i < spec.length; i++) {
-			spec[i] = 0F;
+		for (int i = 0; i < f0Spectrum.length; i++) {
+			f0Spectrum[i] = 0F;
 		}
 		for (ArrayList<Integer> f0Bins : F0BinIndexes) {
 			for (Integer f0Bin : f0Bins) {
-				spec[f0Bin] = 1.0F;
+				f0Spectrum[f0Bin] = 1.0F;
 			}
 		}
 		return F0s;
+	}
+
+	public float[] getF0Spectrum() {
+		return f0Spectrum;
 	}
 
 	private ArrayList<Integer> find(double[] arr, double lower, double upper) {

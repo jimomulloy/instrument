@@ -32,7 +32,6 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
-import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -87,7 +86,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		bufferedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+		bufferedImage = new BufferedImage(getWidth(), getHeight(),
+				BufferedImage.TYPE_INT_RGB);
 		bufferedGraphics = bufferedImage.createGraphics();
 		position = 0;
 		this.currentWidth = getWidth();
@@ -100,7 +100,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 	public void drawToneMap(ToneMap toneMap) {
 		if (bufferedImage == null) {
-			bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+			bufferedImage = new BufferedImage(currentWidth, currentHeight,
+					BufferedImage.TYPE_INT_RGB);
 			bufferedGraphics = bufferedImage.createGraphics();
 			this.currentWidth = getWidth();
 			this.currentHeight = getHeight();
@@ -108,7 +109,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 		if (ttf != null) {
 			TimeSet timeSet = ttf.getTimeSet();
-			System.out.println(">>!!draw tm: " + timeSet.getStartTime() + ", " + timeSet.getEndTime());
+			System.out.println(">>!!draw tm: " + timeSet.getStartTime() + ", "
+					+ timeSet.getEndTime());
 			PitchSet pitchSet = ttf.getPitchSet();
 			updateAxis(timeSet, pitchSet);
 			double timeStart = timeSet.getStartTime() * 1000;
@@ -118,24 +120,27 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				timeAxisEnd = timeStart + 20000.0;
 				this.currentWidth = getWidth();
 				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+				bufferedImage = new BufferedImage(currentWidth, currentHeight,
+						BufferedImage.TYPE_INT_RGB);
 				bufferedGraphics = bufferedImage.createGraphics();
 			} else if (timeStart == 0) {
 				timeAxisStart = timeStart;
 				timeAxisEnd = timeStart + 20000.0;
 				this.currentWidth = getWidth();
 				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+				bufferedImage = new BufferedImage(currentWidth, currentHeight,
+						BufferedImage.TYPE_INT_RGB);
 				bufferedGraphics = bufferedImage.createGraphics();
 			} else if (timeStart < timeAxisStart) {
 				timeAxisStart -= 20000.0;
 				timeAxisEnd -= 20000.0;
 				this.currentWidth = getWidth();
 				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+				bufferedImage = new BufferedImage(currentWidth, currentHeight,
+						BufferedImage.TYPE_INT_RGB);
 				bufferedGraphics = bufferedImage.createGraphics();
 			}
-		
+
 			bufferedGraphics.setColor(Color.black);
 
 			ToneMapElement[] elements = ttf.getElements();
@@ -147,12 +152,17 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				Color color = Color.black;
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
-					int width = (int)Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
-					int height = (int) ((100.0/(double)(maxCents - minCents)) * getHeight());
+					int width = (int) Math
+							.ceil((((timeEnd - timeStart + 1) / (20000.0))
+									* (getWidth() - 1)));
+					int height = (int) ((100.0 / (double) (maxCents - minCents))
+							* getHeight());
 					if (toneMapElement.amplitude > 1.0) {
-						amplitude = 100.0 * toneMapElement.amplitude / ttf.getMaxAmplitude();
+						amplitude = 100.0 * toneMapElement.amplitude
+								/ ttf.getMaxAmplitude();
 					}
-					int greyValue = (int) (Math.log1p(toneMapElement.amplitude / ttf.getMaxAmplitude())
+					int greyValue = (int) (Math.log1p(
+							toneMapElement.amplitude / ttf.getMaxAmplitude())
 							/ Math.log1p(1.0000001) * 255);
 
 					if (amplitude > maxAmplitude) {
@@ -164,56 +174,63 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					} else {
 						greyValue = Math.max(0, greyValue);
 						color = new Color(greyValue, greyValue, greyValue);
-						System.out.println(">>WIDTH: " + width + ", "+ elementIndex + ", " + pitchSet.getNote(elementIndex)+ ", " + pitchSet.getFreq(elementIndex));
-						System.out.println(">>WIDTH minCents: " + minCents + ", "+ maxCents + ", " + getHeight() + ", "+ pitchSet.getNote(elementIndex) * 100);
-						System.out.println(">>WIDTH coord: " + getCentsCoordinate(pitchSet.getNote(elementIndex) * 100));
 					}
 
-					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
-					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+					int centsCoordinate = getCentsCoordinate(
+							pitchSet.getNote(elementIndex) * 100);
+					int timeCoordinate = getTimeCoordinate(
+							timeStart - timeAxisStart);
 
 					bufferedGraphics.setColor(color);
-					bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
-					
+					bufferedGraphics.fillRect(timeCoordinate,
+							centsCoordinate - height, width, height);
+
 				}
 			}
 		}
-		drawGrid();	
+		drawGrid();
 		repaint();
 	}
 
-		
 	private void drawGrid() {
 		Color gridColor = new Color(50, 50, 50);
-	
+
 		for (int i = 0; i < maxCents; i += 100) {
 			int centsCoordinate = getCentsCoordinate(i);
 			bufferedGraphics.setColor(Color.WHITE);
 			bufferedGraphics.drawLine(0, centsCoordinate, 5, centsCoordinate);
 			if (i % 1200 == 0) {
-				bufferedGraphics.drawString(String.valueOf(i), 10, centsCoordinate);
+				bufferedGraphics.drawString(String.valueOf(i), 10,
+						centsCoordinate);
 				bufferedGraphics.setColor(gridColor);
-				bufferedGraphics.drawLine(0, centsCoordinate, getWidth() - 1, centsCoordinate);
-				System.out.println(">>drawGrid: " + centsCoordinate + ", " + String.valueOf(i));
+				bufferedGraphics.drawLine(0, centsCoordinate, getWidth() - 1,
+						centsCoordinate);
 			}
 		}
-	    
-	    for(int i = 0 ; i <= 20000; i+=1000){
-	    	bufferedGraphics.setColor(Color.WHITE);
+
+		for (int i = 0; i <= 20000; i += 1000) {
+			bufferedGraphics.setColor(Color.WHITE);
 			int timeCoordinate = getTimeCoordinate(i);
-			bufferedGraphics.drawLine(timeCoordinate, getHeight(), timeCoordinate, getHeight() - 5);
-			bufferedGraphics.drawString(String.valueOf((int)((timeAxisStart + i) / 1000)), timeCoordinate, getHeight() - 10);
+			bufferedGraphics.drawLine(timeCoordinate, getHeight(),
+					timeCoordinate, getHeight() - 5);
+			bufferedGraphics.drawString(
+					String.valueOf((int) ((timeAxisStart + i) / 1000)),
+					timeCoordinate, getHeight() - 10);
 			bufferedGraphics.setColor(gridColor);
-			bufferedGraphics.drawLine(timeCoordinate, getHeight(), timeCoordinate, 0);
+			bufferedGraphics.drawLine(timeCoordinate, getHeight(),
+					timeCoordinate, 0);
 		}
 	}
-	
+
 	private int getCentsCoordinate(int cents) {
-		return getHeight() - 1 - (int)(((double)(cents - minCents) / (double)maxCents) * getHeight());
+		return getHeight() - 1
+				- (int) (((double) (cents - minCents) / (double) maxCents)
+						* getHeight());
 	}
 
 	private int getTimeCoordinate(double timeStart) {
-		return (int) Math.floor((double) getWidth() * (timeStart / (timeAxisEnd - timeAxisStart)));
+		return (int) Math.floor((double) getWidth()
+				* (timeStart / (timeAxisEnd - timeAxisStart)));
 	}
 
 	public void paintComponent(final Graphics g) {

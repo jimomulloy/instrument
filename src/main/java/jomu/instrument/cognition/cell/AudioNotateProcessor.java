@@ -1,11 +1,11 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.AudioTuner;
-import jomu.instrument.processor.cell.Cell.CellTypes;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
 

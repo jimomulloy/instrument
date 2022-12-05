@@ -1,10 +1,10 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.processor.cell.Cell.CellTypes;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -27,6 +27,8 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
+			System.out.println(">>AudioIntegrateProcessor accept: " + message
+					+ ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
 				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(
 						buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
@@ -36,6 +38,24 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 						.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 			} else if (message.source.getCellType()
 					.equals(CellTypes.AUDIO_SPECTRUM)) {
+				// ToneMap cqToneMap =
+				// worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
+				// streamId));
+				// ToneMap integrateToneMap = worldModel.getAtlas()
+				// .getToneMap(buildToneMapKey(this.cell.getCellType(),
+				// streamId));
+				// integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			} else if (message.source.getCellType()
+					.equals(CellTypes.AUDIO_SPECTRAL_PEAKS)) {
+				// ToneMap cqToneMap =
+				// worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
+				// streamId));
+				// ToneMap integrateToneMap = worldModel.getAtlas()
+				// .getToneMap(buildToneMapKey(this.cell.getCellType(),
+				// streamId));
+				// integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			} else if (message.source.getCellType()
+					.equals(CellTypes.AUDIO_CHROMA)) {
 				// ToneMap cqToneMap =
 				// worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
 				// streamId));

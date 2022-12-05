@@ -1,4 +1,4 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -7,8 +7,8 @@ import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
-import jomu.instrument.processor.cell.Cell.CellTypes;
-import jomu.instrument.sensor.Hearing;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -33,10 +33,13 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>ConstantQMessageProcessor accept: " + message);
+			System.out
+					.println(">>ConstantQMessageProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				ConstantQFeatures cqf = aff.getConstantQFeatures();
 				// cqf.buildToneMap();
@@ -48,10 +51,11 @@ public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 				// pd.detect(fft);
 				// toneMap.loadFFT(fft, 4096);
 				// toneMap.reset();
-				System.out.println(">>ConstantQMessageProcessor process tonemap");
+				System.out
+						.println(">>ConstantQMessageProcessor process tonemap");
 				// worldModel.getAtlas().putToneMap(this.cell.getCellType(),
 				// toneMap);
-				cqf.displayToneMap();
+				// !! TODO !! cqf.displayToneMap();
 				System.out.println(">>ConstantQMessageProcessor send");
 				cell.send(streamId, sequence);
 			}

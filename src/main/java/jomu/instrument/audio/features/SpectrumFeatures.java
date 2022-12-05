@@ -9,6 +9,7 @@ import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class SpectrumFeatures implements ToneMapConstants {
 
@@ -61,4 +62,37 @@ public class SpectrumFeatures implements ToneMapConstants {
 		return spectrum;
 	}
 
+	public void buildToneMapFrame(ToneMap toneMap) {
+
+		this.toneMap = toneMap;
+
+		if (features.size() > 0) {
+
+			float binWidth = sps.getBinWidth();
+			double timeStart = -1;
+			double nextTime = -1;
+
+			for (Entry<Double, SpectrogramInfo> column : features.entrySet()) {
+				nextTime = column.getKey();
+				if (timeStart == -1) {
+					timeStart = nextTime;
+				}
+			}
+
+			timeSet = new TimeSet(timeStart, nextTime + binWidth,
+					sps.getSampleRate(), nextTime + binWidth - timeStart);
+
+			pitchSet = new PitchSet();
+
+			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
+			ttf.reset();
+		}
+	}
+
+	public void displayToneMap() {
+		if (toneMap != null) {
+			visor.updateToneMap(toneMap);
+		}
+	}
 }

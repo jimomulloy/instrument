@@ -80,6 +80,7 @@ public class TarsosFeatureSource {
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();
 		bandedPitchDetectorSource.initialise();
+		spectrumSource.initialise();
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
 		// scalogramSource.initialise();

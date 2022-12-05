@@ -1,4 +1,4 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 public enum CellEnum {
 	INPUTSIGNAL, INTERNuCell, MOTORNuCell, SENSORYNuCell

@@ -1,4 +1,4 @@
-package jomu.instrument.processor.cell;
+package jomu.instrument.cognition.cell;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -172,7 +172,7 @@ public abstract class Cell {
 	}
 
 	public static enum CellTypes {
-		AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_SPECTRUM, AUDIO_SINK, JUNCTION, PASS_THROUGH, SINK, SOURCE
+		AUDIO_CQ, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_SPECTRUM, AUDIO_SPECTRAL_PEAKS, AUDIO_SINK, AUDIO_CHROMA, JUNCTION, PASS_THROUGH, SINK, SOURCE
 
 	}
 
