@@ -28,9 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import be.tarsos.dsp.util.PitchConverter;
-import jomu.instrument.world.tonemap.PitchSet;
-import jomu.instrument.world.tonemap.ToneMapElement;
-import jomu.instrument.world.tonemap.ToneTimeFrame;
+import jomu.instrument.workspace.tonemap.PitchSet;
+import jomu.instrument.workspace.tonemap.ToneMapElement;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class PeakProcessor {
 
