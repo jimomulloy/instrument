@@ -18,7 +18,8 @@ public class NoteSymbol {
 		if (noteSharp == ' ')
 			s = String.valueOf(noteChar) + String.valueOf(noteOctave);
 		else
-			s = String.valueOf(noteChar) + String.valueOf(noteSharp) + String.valueOf(noteOctave);
+			s = String.valueOf(noteChar) + String.valueOf(noteSharp)
+					+ String.valueOf(noteOctave);
 		return s;
 	}
 

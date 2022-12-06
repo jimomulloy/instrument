@@ -43,11 +43,14 @@ public class GranulatorExample extends JFrame {
 	public GranulatorExample() {
 		setLayout(new GridLayout(0, 2));
 		final JLabel openFileLabel = new JLabel("Open file:");
-		final JLabel timeStretchLabel = new JLabel("Time stretch factor (%): 100%");
-		final JLabel pitchShiftLabel = new JLabel("Pitch shift factor (%): 100%");
+		final JLabel timeStretchLabel = new JLabel(
+				"Time stretch factor (%): 100%");
+		final JLabel pitchShiftLabel = new JLabel(
+				"Pitch shift factor (%): 100%");
 		final JLabel grainSizeLabel = new JLabel("Grain size (ms): 100");
 		final JLabel grainIntervalLabel = new JLabel("Grain interval (ms): 40");
-		final JLabel grainRandomnessLabel = new JLabel("Grain randomness (%): 10");
+		final JLabel grainRandomnessLabel = new JLabel(
+				"Grain randomness (%): 10");
 		final JLabel positionLabel = new JLabel("Position (s): 0");
 
 		final JFileChooser fileChooser = new JFileChooser();
@@ -55,7 +58,8 @@ public class GranulatorExample extends JFrame {
 		openFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int returnVal = fileChooser.showOpenDialog(GranulatorExample.this);
+				int returnVal = fileChooser
+						.showOpenDialog(GranulatorExample.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
 					openFile(file.getAbsolutePath());
@@ -70,8 +74,10 @@ public class GranulatorExample extends JFrame {
 		timeStretchSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				float currentFactor = (float) timeStretchSlider.getValue() / 1000.0f;
-				timeStretchLabel.setText(String.format("Time stretch factor: %.1f", currentFactor * 100));
+				float currentFactor = (float) timeStretchSlider.getValue()
+						/ 1000.0f;
+				timeStretchLabel.setText(String.format(
+						"Time stretch factor: %.1f", currentFactor * 100));
 				if (granulator != null)
 					granulator.setTimestretchFactor(currentFactor);
 			}
@@ -80,8 +86,10 @@ public class GranulatorExample extends JFrame {
 		pitchShiftSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				float currentFactor = (float) pitchShiftSlider.getValue() / 1000.0f;
-				pitchShiftLabel.setText(String.format("Pitch shift factor: %.1f", currentFactor * 100));
+				float currentFactor = (float) pitchShiftSlider.getValue()
+						/ 1000.0f;
+				pitchShiftLabel.setText(String.format(
+						"Pitch shift factor: %.1f", currentFactor * 100));
 				if (granulator != null)
 					granulator.setPitchShiftFactor(currentFactor);
 			}
@@ -91,7 +99,8 @@ public class GranulatorExample extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				int grainInterval = grainIntervallSlider.getValue();
-				grainIntervalLabel.setText(String.format("Grain interval (ms): %d", grainInterval));
+				grainIntervalLabel.setText(String
+						.format("Grain interval (ms): %d", grainInterval));
 				if (granulator != null)
 					granulator.setGrainInterval(grainInterval);
 			}
@@ -101,7 +110,8 @@ public class GranulatorExample extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				int grainSize = grainSizeSlider.getValue();
-				grainSizeLabel.setText(String.format("Grain size (ms): %d", grainSize));
+				grainSizeLabel.setText(
+						String.format("Grain size (ms): %d", grainSize));
 				if (granulator != null)
 					granulator.setGrainSize(grainSize);
 			}
@@ -110,8 +120,10 @@ public class GranulatorExample extends JFrame {
 		grainRandomnesslSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				float grainRandomness = (float) grainRandomnesslSlider.getValue() / 1000.0f;
-				grainRandomnessLabel.setText(String.format("Grain randomness (%%): %.1f", grainRandomness * 100));
+				float grainRandomness = (float) grainRandomnesslSlider
+						.getValue() / 1000.0f;
+				grainRandomnessLabel.setText(String.format(
+						"Grain randomness (%%): %.1f", grainRandomness * 100));
 				if (granulator != null)
 					granulator.setGrainRandomness(grainRandomness);
 			}
@@ -121,7 +133,8 @@ public class GranulatorExample extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				float position = (float) positionSlider.getValue() / 1000.0f;
-				positionLabel.setText(String.format("Position (s): %.3f", position));
+				positionLabel
+						.setText(String.format("Position (s): %.3f", position));
 				if (granulator != null)
 					granulator.setPosition(position);
 			}
@@ -152,7 +165,8 @@ public class GranulatorExample extends JFrame {
 	}
 
 	private void openFile(String audioFile) {
-		AudioDispatcher d = AudioDispatcherFactory.fromPipe(audioFile, sampleRate, bufferSize, 0);
+		AudioDispatcher d = AudioDispatcherFactory.fromPipe(audioFile,
+				sampleRate, bufferSize, 0);
 		granulator = new OptimizedGranulator(sampleRate, bufferSize);
 		d.addAudioProcessor(new AudioProcessor() {
 
@@ -191,7 +205,8 @@ public class GranulatorExample extends JFrame {
 		granulator.setTimestretchFactor(timeStretchSlider.getValue() / 1000.0f);
 		granulator.setPitchShiftFactor(pitchShiftSlider.getValue() / 1000.0f);
 		granulator.setPosition(positionSlider.getValue() / 1000f);
-		granulator.setGrainRandomness(grainRandomnesslSlider.getValue() / 100.0f);
+		granulator
+				.setGrainRandomness(grainRandomnesslSlider.getValue() / 100.0f);
 
 		new Thread(d).start();
 

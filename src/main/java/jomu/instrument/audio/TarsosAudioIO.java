@@ -76,7 +76,8 @@ public class TarsosAudioIO extends AudioIO {
 	public void chooseMixerCommandLine() {
 		System.out.println("Choose a mixer...");
 		printMixerInfo();
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader br = new BufferedReader(
+				new InputStreamReader(System.in));
 		try {
 			selectMixer(Integer.parseInt(br.readLine()) - 1);
 		} catch (Exception e) {
@@ -109,25 +110,30 @@ public class TarsosAudioIO extends AudioIO {
 	 */
 	public boolean initJSOutput() {
 		IOAudioFormat ioAudioFormat = getContext().getAudioFormat();
-		AudioFormat audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth,
-				ioAudioFormat.outputs, ioAudioFormat.signed, ioAudioFormat.bigEndian);
+		AudioFormat audioFormat = new AudioFormat(ioAudioFormat.sampleRate,
+				ioAudioFormat.bitDepth, ioAudioFormat.outputs,
+				ioAudioFormat.signed, ioAudioFormat.bigEndian);
 		getDefaultMixerIfNotAlreadyChosen();
 		if (outputMixer == null) {
 			return false;
 		}
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
+		DataLine.Info info = new DataLine.Info(SourceDataLine.class,
+				audioFormat);
 		try {
 			sourceDataLine = (SourceDataLine) outputMixer.getLine(info);
 			if (systemBufferSizeInFrames < 0) {
 				sourceDataLine.open(audioFormat);
 			} else {
-				int sound_output_buffer_size = systemBufferSizeInFrames * audioFormat.getFrameSize() * 2;
+				int sound_output_buffer_size = systemBufferSizeInFrames
+						* audioFormat.getFrameSize() * 2;
 
 				sourceDataLine.open(audioFormat, sound_output_buffer_size);
-				System.out.println("Beads Output buffer size=" + sound_output_buffer_size);
+				System.out.println(
+						"Beads Output buffer size=" + sound_output_buffer_size);
 			}
 		} catch (LineUnavailableException ex) {
-			System.out.println(getClass().getName() + " : Error getting line\n");
+			System.out
+					.println(getClass().getName() + " : Error getting line\n");
 		}
 
 		sourceDataLine.start();
@@ -137,7 +143,8 @@ public class TarsosAudioIO extends AudioIO {
 	/**
 	 * Select a mixer by index.
 	 *
-	 * @param i the index of the selected mixer.
+	 * @param i
+	 *            the index of the selected mixer.
 	 */
 	public void selectMixer(int i) {
 		if (i < 0) {
@@ -188,22 +195,29 @@ public class TarsosAudioIO extends AudioIO {
 	 * Read audio from UGens and copy them into a buffer ready to write to Audio
 	 * Line
 	 *
-	 * @param audioFormat        The AudioFormat
-	 * @param outputBUffer       The buffer that will contain the prepared bytes for
-	 *                           the AudioLine
-	 * @param interleavedSamples Interleaved samples as floats
-	 * @param bufferSizeInFrames The size of interleaved samples in frames
-	 * @param sampleBufferSize   The size of our actual sample buffer size
+	 * @param audioFormat
+	 *            The AudioFormat
+	 * @param outputBUffer
+	 *            The buffer that will contain the prepared bytes for the
+	 *            AudioLine
+	 * @param interleavedSamples
+	 *            Interleaved samples as floats
+	 * @param bufferSizeInFrames
+	 *            The size of interleaved samples in frames
+	 * @param sampleBufferSize
+	 *            The size of our actual sample buffer size
 	 */
-	private void prepareLineBuffer(AudioFormat audioFormat, byte[] outputBUffer, float[] interleavedSamples,
-			int bufferSizeInFrames, int sampleBufferSize) {
+	private void prepareLineBuffer(AudioFormat audioFormat, byte[] outputBUffer,
+			float[] interleavedSamples, int bufferSizeInFrames,
+			int sampleBufferSize) {
 		update(); // this propagates update call to context
 		for (int i = 0, counter = 0; i < bufferSizeInFrames; ++i) {
 			for (int j = 0; j < audioFormat.getChannels(); ++j) {
 				interleavedSamples[counter++] = context.out.getValue(j, i);
 			}
 		}
-		AudioUtils.floatToByte(outputBUffer, 0, interleavedSamples, 0, sampleBufferSize, audioFormat.isBigEndian());
+		AudioUtils.floatToByte(outputBUffer, 0, interleavedSamples, 0,
+				sampleBufferSize, audioFormat.isBigEndian());
 
 	}
 
@@ -227,7 +241,8 @@ public class TarsosAudioIO extends AudioIO {
 			try {
 				// audioFormat =
 				// AudioSystem.getAudioFileFormat(audioFile).getFormat();
-				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+				AudioInputStream audioInputStream = AudioSystem
+						.getAudioInputStream(audioFile);
 				audioFormat = audioInputStream.getFormat();
 				audioInputStream.close();
 				System.out.println(">>audioFormat: " + audioFormat);
@@ -237,7 +252,8 @@ public class TarsosAudioIO extends AudioIO {
 				throw new Error(e);
 			}
 		} else {
-			audioFormat = new AudioFormat(ioAudioFormat.sampleRate, ioAudioFormat.bitDepth, ioAudioFormat.inputs,
+			audioFormat = new AudioFormat(ioAudioFormat.sampleRate,
+					ioAudioFormat.bitDepth, ioAudioFormat.inputs,
 					ioAudioFormat.signed, ioAudioFormat.bigEndian);
 		}
 		inputProcessor = new AudioIOProcessor(getContext(), audioFormat);
@@ -247,8 +263,8 @@ public class TarsosAudioIO extends AudioIO {
 
 	/**
 	 * Prepares the AudioIO. This method is called by {@link AudioContext}'s
-	 * constructor. This has default implementation as it will not be needed by most
-	 * implementation.
+	 * constructor. This has default implementation as it will not be needed by
+	 * most implementation.
 	 *
 	 * @return true, if successful.
 	 */
@@ -279,9 +295,9 @@ public class TarsosAudioIO extends AudioIO {
 	}
 
 	/**
-	 * Stops the AudioIO. Note this is not usually needed because the more usual way
-	 * for the system to stop is simply to check {@link AudioContext#isRunning()} at
-	 * each time step.
+	 * Stops the AudioIO. Note this is not usually needed because the more usual
+	 * way for the system to stop is simply to check
+	 * {@link AudioContext#isRunning()} at each time step.
 	 *
 	 * @return true, if successful.
 	 */
@@ -308,7 +324,8 @@ public class TarsosAudioIO extends AudioIO {
 			String name = mixerinfo[i].getName();
 			if (name.equals(""))
 				name = "No name";
-			System.out.println((i + 1) + ") " + name + " --- " + mixerinfo[i].getDescription());
+			System.out.println((i + 1) + ") " + name + " --- "
+					+ mixerinfo[i].getDescription());
 			Mixer m = AudioSystem.getMixer(mixerinfo[i]);
 			Line.Info[] lineinfo = m.getSourceLineInfo();
 			for (Info element : lineinfo) {
@@ -341,8 +358,10 @@ public class TarsosAudioIO extends AudioIO {
 		/**
 		 * Instantiates a new RTInput.
 		 *
-		 * @param context     the AudioContext.
-		 * @param audioFormat the AudioFormat.
+		 * @param context
+		 *            the AudioContext.
+		 * @param audioFormat
+		 *            the AudioFormat.
 		 */
 		AudioIOProcessor(AudioContext context, AudioFormat audioFormat) {
 			super(context, 2);
@@ -374,7 +393,8 @@ public class TarsosAudioIO extends AudioIO {
 		public boolean initJSInput() {
 
 			javaSoundInitialized = true;
-			interleavedSamples = new float[bufferSize * audioFormat.getChannels()];
+			interleavedSamples = new float[bufferSize
+					* audioFormat.getChannels()];
 			System.out.println(">>bs: " + bufferSize);
 			System.out.println(">>af: " + audioFormat);
 			System.out.println(">>fs: " + audioFormat.getFrameSize());
@@ -386,7 +406,8 @@ public class TarsosAudioIO extends AudioIO {
 					// GainProcessor gainProcessor = new GainProcessor(1.0);
 					// AudioPlayer audioPlayer = new AudioPlayer(audioFormat);
 
-					dispatcher = AudioDispatcherFactory.fromFile(audioFile, context.getBufferSize(), 0);
+					dispatcher = AudioDispatcherFactory.fromFile(audioFile,
+							context.getBufferSize(), 0);
 
 					// dispatcher.skip(startTime);
 					dispatcher.addAudioProcessor(this);
@@ -405,18 +426,23 @@ public class TarsosAudioIO extends AudioIO {
 				Mixer.Info[] mixerinfo = AudioSystem.getMixerInfo();
 				inputMixer = AudioSystem.getMixer(mixerinfo[2]);
 				if (inputMixer != null) {
-					System.out.print("JavaSoundAudioIO INPUT MIXER: Chosen mixer is ");
-					System.out.println(inputMixer.getMixerInfo().getName() + ".");
+					System.out.print(
+							"JavaSoundAudioIO INPUT MIXER: Chosen mixer is ");
+					System.out
+							.println(inputMixer.getMixerInfo().getName() + ".");
 				} else {
-					System.out.println("JavaSoundAudioIO INPUT MIXER: Failed to get mixer.");
+					System.out.println(
+							"JavaSoundAudioIO INPUT MIXER: Failed to get mixer.");
 					return false;
 				}
 
 				float sampleRate = 44100;
 				int bufferSize = 1024;
 				int overlap = 0;
-				final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
-				DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+				final AudioFormat format = new AudioFormat(sampleRate, 16, 1,
+						true, false);
+				DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+						format);
 				TargetDataLine targetDataLine = null;
 				int inputBufferSize = 1024;
 				try {
@@ -428,18 +454,22 @@ public class TarsosAudioIO extends AudioIO {
 					e.printStackTrace();
 					return false;
 				}
-				System.out.println(
-						"CHOSEN INPUT: " + targetDataLine.getLineInfo() + ", buffer size in bytes: " + inputBufferSize);
+				System.out
+						.println("CHOSEN INPUT: " + targetDataLine.getLineInfo()
+								+ ", buffer size in bytes: " + inputBufferSize);
 				targetDataLine.start();
-				interleavedSamples = new float[bufferSize * format.getChannels()];
+				interleavedSamples = new float[bufferSize
+						* format.getChannels()];
 				bbuf = new byte[bufferSize * format.getFrameSize()];
 
 				inputStream = new AudioInputStream(targetDataLine);
 
-				JVMAudioInputStream audioStream = new JVMAudioInputStream(inputStream);
+				JVMAudioInputStream audioStream = new JVMAudioInputStream(
+						inputStream);
 
 				// create a new dispatcher
-				dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+				dispatcher = new AudioDispatcher(audioStream, bufferSize,
+						overlap);
 				// add a processor
 				dispatcher.addAudioProcessor(this);
 			}
@@ -457,11 +487,13 @@ public class TarsosAudioIO extends AudioIO {
 
 			int bufferSizeInFrames = context.getBufferSize();
 
-			final int outputBufferLength = bufferSizeInFrames * audioFormat.getFrameSize();
+			final int outputBufferLength = bufferSizeInFrames
+					* audioFormat.getFrameSize();
 
 			byte[][] output_buffers = new byte[NUM_OUTPUT_BUFFERS][outputBufferLength];
 			byte[] current_buffer;
-			final int sampleBufferSize = audioFormat.getChannels() * bufferSizeInFrames;
+			final int sampleBufferSize = audioFormat.getChannels()
+					* bufferSizeInFrames;
 			float[] interleavedOutput = new float[sampleBufferSize];
 
 			if (buffers_sent == 0) {
@@ -471,7 +503,8 @@ public class TarsosAudioIO extends AudioIO {
 			}
 
 			current_buffer = output_buffers[buffers_sent % NUM_OUTPUT_BUFFERS];
-			prepareLineBuffer(audioFormat, current_buffer, interleavedOutput, bufferSizeInFrames, sampleBufferSize);
+			prepareLineBuffer(audioFormat, current_buffer, interleavedOutput,
+					bufferSizeInFrames, sampleBufferSize);
 			// AudioUtils.floatToByte(bbuf, interleavedOutput,
 			// audioFormat.isBigEndian());
 			sourceDataLine.write(current_buffer, 0, outputBufferLength);

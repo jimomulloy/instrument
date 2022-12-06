@@ -59,8 +59,11 @@ public class InputPanel extends JPanel {
 			button.setActionCommand(info.toString());
 			button.addActionListener(setInput);
 		}
-		this.add(new JScrollPane(buttonPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		this.add(
+				new JScrollPane(buttonPanel,
+						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+						JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+				BorderLayout.CENTER);
 		this.setMaximumSize(new Dimension(300, 150));
 		this.setPreferredSize(new Dimension(300, 150));
 	}
@@ -71,7 +74,8 @@ public class InputPanel extends JPanel {
 			for (Mixer.Info info : Shared.getMixerInfo(false, true)) {
 				if (arg0.getActionCommand().equals(info.toString())) {
 					Mixer newValue = AudioSystem.getMixer(info);
-					InputPanel.this.firePropertyChange("mixer", mixer, newValue);
+					InputPanel.this.firePropertyChange("mixer", mixer,
+							newValue);
 					InputPanel.this.mixer = newValue;
 					break;
 				}

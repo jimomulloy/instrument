@@ -97,7 +97,8 @@ public class PitchShiftingExample extends JFrame {
 		@Override
 		public void stateChanged(ChangeEvent arg0) {
 			if (arg0.getSource() instanceof JSpinner) {
-				int centValue = Integer.valueOf(((JSpinner) arg0.getSource()).getValue().toString());
+				int centValue = Integer.valueOf(
+						((JSpinner) arg0.getSource()).getValue().toString());
 				currentFactor = centToFactor(centValue);
 				factorSlider.removeChangeListener(this);
 				factorSlider.setValue((int) Math.round(currentFactor * 100));
@@ -108,13 +109,17 @@ public class PitchShiftingExample extends JFrame {
 				centsSpinner.setValue(factorToCents(currentFactor));
 				centsSpinner.addChangeListener(this);
 			}
-			factorLabel.setText("Factor " + Math.round(currentFactor * 100) + "%");
+			factorLabel
+					.setText("Factor " + Math.round(currentFactor * 100) + "%");
 			if (PitchShiftingExample.this.dispatcher != null) {
 				if (originalTempoCheckBox.getModel().isSelected()) {
 					wsola.setParameters(
-							WaveformSimilarityBasedOverlapAdd.Parameters.musicDefaults(currentFactor, sampleRate));
+							WaveformSimilarityBasedOverlapAdd.Parameters
+									.musicDefaults(currentFactor, sampleRate));
 				} else {
-					wsola.setParameters(WaveformSimilarityBasedOverlapAdd.Parameters.musicDefaults(1, sampleRate));
+					wsola.setParameters(
+							WaveformSimilarityBasedOverlapAdd.Parameters
+									.musicDefaults(1, sampleRate));
 				}
 				rateTransposer.setFactor(currentFactor);
 			}
@@ -127,7 +132,8 @@ public class PitchShiftingExample extends JFrame {
 		this.setTitle("Pitch shifting: change the pitch of your audio.");
 
 		originalTempoCheckBox = new JCheckBox("Keep original tempo?", true);
-		originalTempoCheckBox.addChangeListener(parameterSettingChangedListener);
+		originalTempoCheckBox
+				.addChangeListener(parameterSettingChangedListener);
 
 		this.loop = false;
 
@@ -139,7 +145,8 @@ public class PitchShiftingExample extends JFrame {
 		factorSlider.addChangeListener(parameterSettingChangedListener);
 
 		JPanel fileChooserPanel = new JPanel(new BorderLayout());
-		fileChooserPanel.setBorder(new TitledBorder("1... Or choose your audio (wav mono)"));
+		fileChooserPanel.setBorder(
+				new TitledBorder("1... Or choose your audio (wav mono)"));
 
 		fileChooser = new JFileChooser();
 
@@ -147,7 +154,8 @@ public class PitchShiftingExample extends JFrame {
 		chooseFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int returnVal = fileChooser.showOpenDialog(PitchShiftingExample.this);
+				int returnVal = fileChooser
+						.showOpenDialog(PitchShiftingExample.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
 					startFile(file, null);
@@ -161,12 +169,13 @@ public class PitchShiftingExample extends JFrame {
 
 		JPanel inputSubPanel = new JPanel(new BorderLayout());
 		JPanel inputPanel = new InputPanel();
-		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent arg0) {
-				startFile(null, (Mixer) arg0.getNewValue());
-			}
-		});
+		inputPanel.addPropertyChangeListener("mixer",
+				new PropertyChangeListener() {
+					@Override
+					public void propertyChange(PropertyChangeEvent arg0) {
+						startFile(null, (Mixer) arg0.getNewValue());
+					}
+				});
 		inputSubPanel.add(inputPanel, BorderLayout.NORTH);
 		inputSubPanel.add(fileChooserPanel, BorderLayout.SOUTH);
 
@@ -195,7 +204,8 @@ public class PitchShiftingExample extends JFrame {
 		});
 
 		JLabel label = new JLabel("Factor 100%");
-		label.setToolTipText("The pitch shift factor in % (100 is no change, 50 is double pitch, 200 half).");
+		label.setToolTipText(
+				"The pitch shift factor in % (100 is no change, 50 is double pitch, 200 half).");
 		factorLabel = label;
 		params.add(label, BorderLayout.NORTH);
 		params.add(factorSlider, BorderLayout.CENTER);
@@ -225,7 +235,8 @@ public class PitchShiftingExample extends JFrame {
 		label.setToolTipText("Volume in % (100 is no change).");
 		gainPanel.add(label, BorderLayout.NORTH);
 		gainPanel.add(gainSlider, BorderLayout.CENTER);
-		gainPanel.setBorder(new TitledBorder("3. Optionally change the volume"));
+		gainPanel
+				.setBorder(new TitledBorder("3. Optionally change the volume"));
 
 		this.add(inputSubPanel, BorderLayout.NORTH);
 		this.add(params, BorderLayout.CENTER);
@@ -234,7 +245,8 @@ public class PitchShiftingExample extends JFrame {
 	}
 
 	public static double centToFactor(double cents) {
-		return 1 / Math.pow(Math.E, cents * Math.log(2) / 1200 / Math.log(Math.E));
+		return 1 / Math.pow(Math.E,
+				cents * Math.log(2) / 1200 / Math.log(Math.E));
 	}
 
 	private static double factorToCents(double factor) {
@@ -257,32 +269,40 @@ public class PitchShiftingExample extends JFrame {
 			audioPlayer = new AudioPlayer(format);
 			sampleRate = format.getSampleRate();
 
-			// can not time travel, unfortunately. It would be nice to go back and kill
+			// can not time travel, unfortunately. It would be nice to go back
+			// and kill
 			// Hitler or something...
-			if (originalTempoCheckBox.getModel().isSelected() && inputFile != null) {
-				wsola = new WaveformSimilarityBasedOverlapAdd(Parameters.musicDefaults(currentFactor, sampleRate));
+			if (originalTempoCheckBox.getModel().isSelected()
+					&& inputFile != null) {
+				wsola = new WaveformSimilarityBasedOverlapAdd(
+						Parameters.musicDefaults(currentFactor, sampleRate));
 			} else {
-				wsola = new WaveformSimilarityBasedOverlapAdd(Parameters.musicDefaults(1, sampleRate));
+				wsola = new WaveformSimilarityBasedOverlapAdd(
+						Parameters.musicDefaults(1, sampleRate));
 			}
 			if (inputFile == null) {
-				DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+				DataLine.Info dataLineInfo = new DataLine.Info(
+						TargetDataLine.class, format);
 				TargetDataLine line;
 				line = (TargetDataLine) mixer.getLine(dataLineInfo);
 				line.open(format, wsola.getInputBufferSize());
 				line.start();
 				final AudioInputStream stream = new AudioInputStream(line);
-				JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
+				JVMAudioInputStream audioStream = new JVMAudioInputStream(
+						stream);
 				// create a new dispatcher
-				dispatcher = new AudioDispatcher(audioStream, wsola.getInputBufferSize(), wsola.getOverlap());
+				dispatcher = new AudioDispatcher(audioStream,
+						wsola.getInputBufferSize(), wsola.getOverlap());
 			} else {
 				if (format.getChannels() != 1) {
 					dispatcher = AudioDispatcherFactory.fromFile(inputFile,
 							wsola.getInputBufferSize() * format.getChannels(),
 							wsola.getOverlap() * format.getChannels());
-					dispatcher.addAudioProcessor(new MultichannelToMono(format.getChannels(), true));
+					dispatcher.addAudioProcessor(
+							new MultichannelToMono(format.getChannels(), true));
 				} else {
-					dispatcher = AudioDispatcherFactory.fromFile(inputFile, wsola.getInputBufferSize(),
-							wsola.getOverlap());
+					dispatcher = AudioDispatcherFactory.fromFile(inputFile,
+							wsola.getInputBufferSize(), wsola.getOverlap());
 				}
 				// dispatcher =
 				// AudioDispatcher.fromFile(inputFile,wsola.getInputBufferSize(),wsola.getOverlap());
@@ -328,11 +348,14 @@ public class PitchShiftingExample extends JFrame {
 			try {
 				startCli(argv[0], argv[1], Double.parseDouble(argv[2]));
 			} catch (NumberFormatException e) {
-				printHelp("Please provide a well formatted number for the time stretching factor. See Synopsis.");
+				printHelp(
+						"Please provide a well formatted number for the time stretching factor. See Synopsis.");
 			} catch (UnsupportedAudioFileException e) {
-				printHelp("Unsupported audio file, please check if the input is 16bit 44.1kHz MONO PCM wav.");
+				printHelp(
+						"Unsupported audio file, please check if the input is 16bit 44.1kHz MONO PCM wav.");
 			} catch (IOException e) {
-				printHelp("IO error, could not read from, or write to the audio file, does it exist?");
+				printHelp(
+						"IO error, could not read from, or write to the audio file, does it exist?");
 			}
 		} else if (argv.length != 0) {
 			printHelp("Please provide exactly 3 arguments, see Synopsis.");
@@ -349,12 +372,14 @@ public class PitchShiftingExample extends JFrame {
 		}
 	}
 
-	private static void startGui() throws InterruptedException, InvocationTargetException {
+	private static void startGui()
+			throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(
+							UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}
@@ -369,7 +394,8 @@ public class PitchShiftingExample extends JFrame {
 	private static void startCli(String source, String target, double cents)
 			throws UnsupportedAudioFileException, IOException {
 		File inputFile = new File(source);
-		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
+		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile)
+				.getFormat();
 		double sampleRate = format.getSampleRate();
 		double factor = PitchShiftingExample.centToFactor(cents);
 		RateTransposer rateTransposer = new RateTransposer(factor);
@@ -378,11 +404,14 @@ public class PitchShiftingExample extends JFrame {
 		WaveformWriter writer = new WaveformWriter(format, target);
 		AudioDispatcher dispatcher;
 		if (format.getChannels() != 1) {
-			dispatcher = AudioDispatcherFactory.fromFile(inputFile, wsola.getInputBufferSize() * format.getChannels(),
+			dispatcher = AudioDispatcherFactory.fromFile(inputFile,
+					wsola.getInputBufferSize() * format.getChannels(),
 					wsola.getOverlap() * format.getChannels());
-			dispatcher.addAudioProcessor(new MultichannelToMono(format.getChannels(), true));
+			dispatcher.addAudioProcessor(
+					new MultichannelToMono(format.getChannels(), true));
 		} else {
-			dispatcher = AudioDispatcherFactory.fromFile(inputFile, wsola.getInputBufferSize(), wsola.getOverlap());
+			dispatcher = AudioDispatcherFactory.fromFile(inputFile,
+					wsola.getInputBufferSize(), wsola.getOverlap());
 		}
 		wsola.setDispatcher(dispatcher);
 		dispatcher.addAudioProcessor(wsola);
@@ -397,12 +426,15 @@ public class PitchShiftingExample extends JFrame {
 		System.err.println("\tTarsosDSP Pitch shifting utility.");
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Synopsis:");
-		System.err.println("\tjava -jar PitchShift.jar source.wav target.wav cents");
+		System.err.println(
+				"\tjava -jar PitchShift.jar source.wav target.wav cents");
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Description:");
-		System.err.println("\tChange the play back speed of audio without changing the pitch.\n");
+		System.err.println(
+				"\tChange the play back speed of audio without changing the pitch.\n");
 		System.err.println("\t\tsource.wav\tA readable, mono wav file.");
-		System.err.println("\t\ttarget.wav\tTarget location for the pitch shifted file.");
+		System.err.println(
+				"\t\ttarget.wav\tTarget location for the pitch shifted file.");
 		System.err.println(
 				"\t\tcents\t\tPitch shifting in cents: 100 means one semitone up, -100 one down, 0 is no change. 1200 is one octave up.");
 		if (!error.isEmpty()) {

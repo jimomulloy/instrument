@@ -30,12 +30,14 @@ public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			if (message.source.getCellType().equals(CellTypes.AUDIO_INTEGRATE)) {
-				ToneMap integrateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
-				ToneMap notateToneMap = worldModel.getAtlas()
-						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-				notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
+			if (message.source.getCellType()
+					.equals(CellTypes.AUDIO_INTEGRATE)) {
+				ToneMap integrateToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
+				ToneMap notateToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(this.cell.getCellType(), streamId));
+				notateToneMap.addTimeFrame(
+						integrateToneMap.getTimeFrame(sequence).clone());
 				AudioTuner tuner = new AudioTuner();
 
 				tuner.noteScan(notateToneMap, sequence);

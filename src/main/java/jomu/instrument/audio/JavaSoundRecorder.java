@@ -46,7 +46,8 @@ public class JavaSoundRecorder {
 		int channels = 2;
 		boolean signed = true;
 		boolean bigEndian = true;
-		AudioFormat format = new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
+		AudioFormat format = new AudioFormat(sampleRate, sampleSizeInBits,
+				channels, signed, bigEndian);
 		return format;
 	}
 
@@ -56,7 +57,8 @@ public class JavaSoundRecorder {
 	void start() {
 		try {
 			AudioFormat format = getAudioFormat();
-			DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+			DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+					format);
 
 			// checks if system supports the data line
 			if (!AudioSystem.isLineSupported(info)) {

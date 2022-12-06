@@ -35,8 +35,10 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 			// TODO ONLY Process one message?
 			System.out.println(">>PitchDetectorProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
 				pdf.buildToneMap();

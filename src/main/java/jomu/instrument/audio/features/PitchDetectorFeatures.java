@@ -46,7 +46,8 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 				}
 			}
 
-			timeSet = new TimeSet(timeStart, nextTime + binWidth, pds.getSampleRate(), nextTime + binWidth - timeStart);
+			timeSet = new TimeSet(timeStart, nextTime + binWidth,
+					pds.getSampleRate(), nextTime + binWidth - timeStart);
 
 			double highFreq = pds.getSampleRate() / (2.0); // *
 															// pds.getBufferSize());
@@ -64,7 +65,8 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 				double binStartFreq = pitchSet.getFreq(elementIndex);
 				double binEndFreq = pitchSet.getFreq(elementIndex + 1);
 				for (int i = 0; i < spectralEnergy.length; i++) {
-					double currentFreq = highFreq * (((double) i) / pds.getBufferSize());
+					double currentFreq = highFreq
+							* (((double) i) / pds.getBufferSize());
 					if (currentFreq < binStartFreq) {
 						continue;
 					}
@@ -86,7 +88,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			//??visor.updateToneMap(toneMap);
+			// ??visor.updateToneMap(toneMap);
 		}
 	}
 
@@ -104,7 +106,8 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
+		this.pds = audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures().getPitchDetectorSource();
 		this.features = pds.getFeatures();
 		this.visor = Instrument.getInstance().getDruid().getVisor();
 		pds.clear();

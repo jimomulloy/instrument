@@ -78,13 +78,15 @@ public class Resynthesizer {
 	 * @throws InterruptedException
 	 * @throws InvocationTargetException
 	 */
-	public static void main(String... arguments) throws InterruptedException, InvocationTargetException {
+	public static void main(String... arguments)
+			throws InterruptedException, InvocationTargetException {
 		if (arguments.length == 0) {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						UIManager.setLookAndFeel(
+								UIManager.getSystemLookAndFeelClassName());
 					} catch (Exception e) {
 						// ignore failure to set default look en feel;
 					}
@@ -119,7 +121,8 @@ public class Resynthesizer {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				String name = e.getActionCommand();
-				PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm.valueOf(name);
+				PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm
+						.valueOf(name);
 				algo = newAlgo;
 				if (currentFile != null) {
 					estimationDispatcher.stop();
@@ -142,7 +145,8 @@ public class Resynthesizer {
 				@Override
 				public void stateChanged(ChangeEvent arg0) {
 					if (GraphicalResynthesizer.this.estimationDispatcher != null) {
-						double gainValue = estimationGainSlider.getValue() / 100.0;
+						double gainValue = estimationGainSlider.getValue()
+								/ 100.0;
 						estimationGain.setGain(gainValue);
 					}
 				}
@@ -162,7 +166,8 @@ public class Resynthesizer {
 			});
 
 			JPanel fileChooserPanel = new JPanel(new BorderLayout());
-			fileChooserPanel.setBorder(new TitledBorder("1. Choose your audio (wav mono)"));
+			fileChooserPanel.setBorder(
+					new TitledBorder("1. Choose your audio (wav mono)"));
 
 			fileChooser = new JFileChooser();
 
@@ -170,7 +175,8 @@ public class Resynthesizer {
 			chooseFileButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					int returnVal = fileChooser.showOpenDialog(GraphicalResynthesizer.this);
+					int returnVal = fileChooser
+							.showOpenDialog(GraphicalResynthesizer.this);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						File file = fileChooser.getSelectedFile();
 						startFile(file);
@@ -190,10 +196,12 @@ public class Resynthesizer {
 			label.setToolTipText("Volume in % (100 is no change).");
 			gainPanel.add(label);
 			gainPanel.add(estimationGainSlider);
-			gainPanel.setBorder(new TitledBorder("3. Change the estimation / source"));
+			gainPanel.setBorder(
+					new TitledBorder("3. Change the estimation / source"));
 			this.add(fileChooserPanel, BorderLayout.NORTH);
 			this.add(gainPanel, BorderLayout.SOUTH);
-			JPanel pitchDetectionPanel = new PitchDetectionPanel(algoChangeListener);
+			JPanel pitchDetectionPanel = new PitchDetectionPanel(
+					algoChangeListener);
 			algo = PitchEstimationAlgorithm.YIN;
 			this.add(pitchDetectionPanel, BorderLayout.CENTER);
 		}
@@ -208,14 +216,19 @@ public class Resynthesizer {
 				int overlap = 0;
 
 				PitchResyntheziser prs = new PitchResyntheziser(samplerate);
-				estimationGain = new GainProcessor(estimationGainSlider.getValue() / 100.0);
-				estimationDispatcher = AudioDispatcherFactory.fromFile(file, size, overlap);
-				estimationDispatcher.addAudioProcessor(new PitchProcessor(algo, samplerate, size, prs));
+				estimationGain = new GainProcessor(
+						estimationGainSlider.getValue() / 100.0);
+				estimationDispatcher = AudioDispatcherFactory.fromFile(file,
+						size, overlap);
+				estimationDispatcher.addAudioProcessor(
+						new PitchProcessor(algo, samplerate, size, prs));
 				estimationDispatcher.addAudioProcessor(estimationGain);
 				estimationDispatcher.addAudioProcessor(new AudioPlayer(format));
 
-				sourceGain = new GainProcessor(sourceGainSlider.getValue() / 100.0);
-				sourceDispatcher = AudioDispatcherFactory.fromFile(file, size, overlap);
+				sourceGain = new GainProcessor(
+						sourceGainSlider.getValue() / 100.0);
+				sourceDispatcher = AudioDispatcherFactory.fromFile(file, size,
+						overlap);
 				sourceDispatcher.addAudioProcessor(sourceGain);
 				sourceDispatcher.addAudioProcessor(new AudioPlayer(format));
 
@@ -257,7 +270,8 @@ public class Resynthesizer {
 					printError();
 					SharedCommandLineUtilities.printLine();
 					System.err.println("Current error:");
-					System.err.println("\tIO error, maybe the audio file is not found or not supported!");
+					System.err.println(
+							"\tIO error, maybe the audio file is not found or not supported!");
 				} catch (IllegalArgumentException e) {
 					printError();
 					SharedCommandLineUtilities.printLine();
@@ -270,9 +284,11 @@ public class Resynthesizer {
 			}
 		}
 
-		private void combineTwoMonoAudioFilesInTwoChannels(String first, String second, String outputFile)
-				throws IOException, UnsupportedAudioFileException, LineUnavailableException {
-			AudioInputStream stream = AudioSystem.getAudioInputStream(new File(first));
+		private void combineTwoMonoAudioFilesInTwoChannels(String first,
+				String second, String outputFile) throws IOException,
+				UnsupportedAudioFileException, LineUnavailableException {
+			AudioInputStream stream = AudioSystem
+					.getAudioInputStream(new File(first));
 			final float sampleRate = (int) stream.getFormat().getSampleRate();
 			final int numberOfSamples = (int) stream.getFrameLength();
 			// 2 bytes per sample, stereo (2 channels)
@@ -302,16 +318,20 @@ public class Resynthesizer {
 			/*
 			 * Write the data to a file.
 			 */
-			final AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 2, true, false);
-			final ByteArrayInputStream bais = new ByteArrayInputStream(byteBuffer);
-			final AudioInputStream audioInputStream = new AudioInputStream(bais, audioFormat, numberOfSamples);
+			final AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 2,
+					true, false);
+			final ByteArrayInputStream bais = new ByteArrayInputStream(
+					byteBuffer);
+			final AudioInputStream audioInputStream = new AudioInputStream(bais,
+					audioFormat, numberOfSamples);
 			final File out = new File(outputFile);
 			AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE, out);
 			audioInputStream.close();
 		}
 
 		private void run(String[] args)
-				throws UnsupportedAudioFileException, IOException, IllegalArgumentException, LineUnavailableException {
+				throws UnsupportedAudioFileException, IOException,
+				IllegalArgumentException, LineUnavailableException {
 			PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_YIN;
 			String inputFile = args[0];
 			String outputFile = null;
@@ -319,16 +339,20 @@ public class Resynthesizer {
 			if (args.length == 3 && args[0].equalsIgnoreCase("--detector")) {
 				algo = PitchEstimationAlgorithm.valueOf(args[1].toUpperCase());
 				inputFile = args[2];
-			} else if (args.length == 3 && args[0].equalsIgnoreCase("--output")) {
+			} else if (args.length == 3
+					&& args[0].equalsIgnoreCase("--output")) {
 				outputFile = args[1];
 				inputFile = args[2];
-			} else if (args.length == 5 && args[0].equalsIgnoreCase("--detector")
+			} else if (args.length == 5
+					&& args[0].equalsIgnoreCase("--detector")
 					&& args[2].equalsIgnoreCase("--output")) {
 				algo = PitchEstimationAlgorithm.valueOf(args[1].toUpperCase());
 				outputFile = args[3];
 				inputFile = args[4];
-			} else if (args.length == 7 && args[0].equalsIgnoreCase("--detector")
-					&& args[2].equalsIgnoreCase("--output") && args[4].equalsIgnoreCase("--combined")) {
+			} else if (args.length == 7
+					&& args[0].equalsIgnoreCase("--detector")
+					&& args[2].equalsIgnoreCase("--output")
+					&& args[4].equalsIgnoreCase("--combined")) {
 				algo = PitchEstimationAlgorithm.valueOf(args[1].toUpperCase());
 				outputFile = args[3];
 				combinedFile = args[5];
@@ -342,15 +366,19 @@ public class Resynthesizer {
 				return;
 			}
 			File audioFile = new File(inputFile);
-			AudioFormat format = AudioSystem.getAudioFileFormat(audioFile).getFormat();
+			AudioFormat format = AudioSystem.getAudioFileFormat(audioFile)
+					.getFormat();
 			float samplerate = format.getSampleRate();
 			int size = 1024;
 			int overlap = 0;
 			PitchResyntheziser prs = new PitchResyntheziser(samplerate);
-			AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile, size, overlap);
-			dispatcher.addAudioProcessor(new PitchProcessor(algo, samplerate, size, prs));
+			AudioDispatcher dispatcher = AudioDispatcherFactory
+					.fromFile(audioFile, size, overlap);
+			dispatcher.addAudioProcessor(
+					new PitchProcessor(algo, samplerate, size, prs));
 			if (outputFile != null) {
-				dispatcher.addAudioProcessor(new WaveformWriter(format, outputFile));
+				dispatcher.addAudioProcessor(
+						new WaveformWriter(format, outputFile));
 			} else {
 				dispatcher.addAudioProcessor(new AudioPlayer(format));
 			}
@@ -361,15 +389,18 @@ public class Resynthesizer {
 
 				@Override
 				public boolean process(AudioEvent audioEvent) {
-					System.err.print(String.format("%3.0f %%", audioEvent.getProgress() * 100));
-					System.err.print(String.format("\b\b\b\b\b", audioEvent.getProgress()));
+					System.err.print(String.format("%3.0f %%",
+							audioEvent.getProgress() * 100));
+					System.err.print(String.format("\b\b\b\b\b",
+							audioEvent.getProgress()));
 					return true;
 				}
 			});
 			dispatcher.run();
 
 			if (combinedFile != null) {
-				combineTwoMonoAudioFilesInTwoChannels(inputFile, outputFile, combinedFile);
+				combineTwoMonoAudioFilesInTwoChannels(inputFile, outputFile,
+						combinedFile);
 			}
 		}
 
@@ -393,7 +424,8 @@ public class Resynthesizer {
 			descr += "\n\n\t--output out.wav\t\ta writable file.";
 			descr += "\n\n\t--combined combined.wav\t\ta writable output file. One channel original, other synthesized.";
 			descr += "\n\t--detector DETECTOR\tdefaults to FFT_YIN or one of these:\n\t\t\t\t";
-			for (PitchEstimationAlgorithm algo : PitchEstimationAlgorithm.values()) {
+			for (PitchEstimationAlgorithm algo : PitchEstimationAlgorithm
+					.values()) {
 				descr += algo.name() + "\n\t\t\t\t";
 			}
 			System.err.println(descr);

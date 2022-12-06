@@ -8,13 +8,12 @@ import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class OnsetFeatures {
+public class BeatFeatures {
 
 	private TreeMap<Double, OnsetInfo[]> features;
-	private OnsetSource os;
+	private BeatSource bs;
 	private AudioFeatureFrame audioFeatureFrame;
 	private PitchSet pitchSet;
 	private TimeSet timeSet;
@@ -25,17 +24,17 @@ public class OnsetFeatures {
 		return features;
 	}
 
-	public OnsetSource getOs() {
-		return os;
+	public BeatSource getBs() {
+		return bs;
 	}
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.os = audioFeatureFrame.getAudioFeatureProcessor()
-				.getTarsosFeatures().getOnsetSource();
-		this.features = os.getFeatures();
+		this.bs = audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures().getBeatSource();
+		this.features = bs.getFeatures();
 		this.visor = Instrument.getInstance().getDruid().getVisor();
-		os.clear();
+		bs.clear();
 	}
 
 	public void buildToneMapFrame(ToneMap toneMap) {
@@ -56,30 +55,12 @@ public class OnsetFeatures {
 			}
 
 			timeSet = new TimeSet(timeStart, nextTime + binWidth,
-					os.getSampleRate(), nextTime + binWidth - timeStart);
+					bs.getSampleRate(), nextTime + binWidth - timeStart);
 
 			pitchSet = new PitchSet();
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
-
-			int amplitude = 0;
-
-			for (Entry<Double, OnsetInfo[]> entry : features.entrySet()) {
-
-				OnsetInfo[] onsetInfo = entry.getValue();// in cents
-				// draw the pixels
-				for (OnsetInfo element : onsetInfo) {
-					amplitude += element.salience;
-				}
-
-				ToneMapElement[] elements = ttf.getElements();
-				for (int i = 0; i < elements.length; i++) {
-					elements[i].amplitude = amplitude;
-				}
-
-			}
-
 			ttf.reset();
 		}
 	}

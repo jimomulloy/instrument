@@ -81,7 +81,8 @@ public class TimeStretch extends JFrame {
 	public TimeStretch() {
 		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Time Stretching: WSOLA TIME-SCALE MODIFICATION OF SOUND");
+		this.setTitle(
+				"Time Stretching: WSOLA TIME-SCALE MODIFICATION OF SOUND");
 		tempoSlider = new JSlider(20, 250);
 		tempoSlider.setValue(100);
 		tempoSlider.setPaintLabels(true);
@@ -101,7 +102,8 @@ public class TimeStretch extends JFrame {
 		});
 
 		JPanel fileChooserPanel = new JPanel(new BorderLayout());
-		fileChooserPanel.setBorder(new TitledBorder("1. Choose your audio (wav mono)"));
+		fileChooserPanel
+				.setBorder(new TitledBorder("1. Choose your audio (wav mono)"));
 
 		fileChooser = new JFileChooser();
 
@@ -124,7 +126,8 @@ public class TimeStretch extends JFrame {
 		params.setBorder(new TitledBorder("2. Set the algorithm parameters"));
 
 		JLabel label = new JLabel("Tempo");
-		label.setToolTipText("The time stretching factor in % (100 is no change).");
+		label.setToolTipText(
+				"The time stretching factor in % (100 is no change).");
 		params.add(label, BorderLayout.NORTH);
 		params.add(tempoSlider, BorderLayout.CENTER);
 
@@ -160,7 +163,8 @@ public class TimeStretch extends JFrame {
 		label.setToolTipText("Volume in % (100 is no change).");
 		gainPanel.add(label, BorderLayout.NORTH);
 		gainPanel.add(gainSlider, BorderLayout.CENTER);
-		gainPanel.setBorder(new TitledBorder("3. Optionally change the volume"));
+		gainPanel
+				.setBorder(new TitledBorder("3. Optionally change the volume"));
 
 		this.add(fileChooserPanel, BorderLayout.NORTH);
 		this.add(params, BorderLayout.CENTER);
@@ -173,8 +177,10 @@ public class TimeStretch extends JFrame {
 		public void stateChanged(ChangeEvent arg0) {
 			if (TimeStretch.this.dispatcher != null) {
 				wsola.setParameters(
-						new Parameters(tempoSlider.getValue() / 100.0, 44100, (Integer) sequenceModel.getValue(),
-								(Integer) windowModel.getValue(), (Integer) overlapModel.getValue()));
+						new Parameters(tempoSlider.getValue() / 100.0, 44100,
+								(Integer) sequenceModel.getValue(),
+								(Integer) windowModel.getValue(),
+								(Integer) overlapModel.getValue()));
 			}
 		}
 	};
@@ -191,8 +197,10 @@ public class TimeStretch extends JFrame {
 			audioPlayer = new AudioPlayer(format);
 
 			wsola = new WaveformSimilarityBasedOverlapAdd(
-					Parameters.slowdownDefaults(tempoSlider.getValue() / 100.0, format.getSampleRate()));
-			dispatcher = AudioDispatcherFactory.fromFile(inputFile, wsola.getInputBufferSize(), wsola.getOverlap());
+					Parameters.slowdownDefaults(tempoSlider.getValue() / 100.0,
+							format.getSampleRate()));
+			dispatcher = AudioDispatcherFactory.fromFile(inputFile,
+					wsola.getInputBufferSize(), wsola.getOverlap());
 			wsola.setDispatcher(dispatcher);
 			dispatcher.addAudioProcessor(wsola);
 			dispatcher.addAudioProcessor(gain);
@@ -217,11 +225,14 @@ public class TimeStretch extends JFrame {
 			try {
 				startCli(argv[0], argv[1], Double.parseDouble(argv[2]));
 			} catch (NumberFormatException e) {
-				printHelp("Please provide a well formatted number for the time stretching factor. See Synopsis.");
+				printHelp(
+						"Please provide a well formatted number for the time stretching factor. See Synopsis.");
 			} catch (UnsupportedAudioFileException e) {
-				printHelp("Unsupported audio file, please check if the input is 16bit 44.1kHz mono PCM wav.");
+				printHelp(
+						"Unsupported audio file, please check if the input is 16bit 44.1kHz mono PCM wav.");
 			} catch (IOException e) {
-				printHelp("IO error, could not read from or write to the audio file, does it exist?");
+				printHelp(
+						"IO error, could not read from or write to the audio file, does it exist?");
 			}
 		} else if (argv.length != 0) {
 			printHelp("Please provide exactly 3 arguments, see Synopsis.");
@@ -244,12 +255,15 @@ public class TimeStretch extends JFrame {
 		System.err.println("\tTarsosDSP Time stretch utility.");
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Synopsis:");
-		System.err.println("\tjava -jar TimeStretch.jar source.wav target.wav factor");
+		System.err.println(
+				"\tjava -jar TimeStretch.jar source.wav target.wav factor");
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Description:");
-		System.err.println("\tChange the play back speed of audio without changing the pitch.\n");
+		System.err.println(
+				"\tChange the play back speed of audio without changing the pitch.\n");
 		System.err.println("\t\tsource.wav\tA readable, mono wav file.");
-		System.err.println("\t\ttarget.wav\tTarget location for the time stretched file.");
+		System.err.println(
+				"\t\ttarget.wav\tTarget location for the time stretched file.");
 		System.err.println(
 				"\t\tfactor\t\tTime stretching factor: 2.0 means double the length, 0.5 half. 1.0 is no change.");
 		if (!error.isEmpty()) {
@@ -259,12 +273,14 @@ public class TimeStretch extends JFrame {
 		}
 	}
 
-	private static void startGui() throws InterruptedException, InvocationTargetException {
+	private static void startGui()
+			throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(
+							UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}
@@ -279,12 +295,13 @@ public class TimeStretch extends JFrame {
 	private static void startCli(String source, String target, double tempo)
 			throws UnsupportedAudioFileException, IOException {
 		File inputFile = new File(source);
-		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
+		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile)
+				.getFormat();
 		WaveformSimilarityBasedOverlapAdd wsola = new WaveformSimilarityBasedOverlapAdd(
 				Parameters.slowdownDefaults(tempo, format.getSampleRate()));
 		WaveformWriter writer = new WaveformWriter(format, target);
-		AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(inputFile, wsola.getInputBufferSize(),
-				wsola.getOverlap());
+		AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(inputFile,
+				wsola.getInputBufferSize(), wsola.getOverlap());
 		wsola.setDispatcher(dispatcher);
 		dispatcher.addAudioProcessor(wsola);
 		dispatcher.addAudioProcessor(writer);

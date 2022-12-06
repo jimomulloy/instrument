@@ -31,7 +31,8 @@ public class SpectrogramInfo {
 	FFT fft;
 	PitchDetectionResult pitchDetectionResult;
 
-	public SpectrogramInfo(PitchDetectionResult pitchDetectionResult, float[] amplitudes, FFT fft) {
+	public SpectrogramInfo(PitchDetectionResult pitchDetectionResult,
+			float[] amplitudes, FFT fft) {
 		super();
 		this.pitchDetectionResult = pitchDetectionResult;
 		this.amplitudes = amplitudes;
@@ -40,7 +41,8 @@ public class SpectrogramInfo {
 
 	@Override
 	public SpectrogramInfo clone() {
-		return new SpectrogramInfo(pitchDetectionResult.clone(), amplitudes.clone(), fft);
+		return new SpectrogramInfo(pitchDetectionResult.clone(),
+				amplitudes.clone(), fft);
 	}
 
 	public float[] getAmplitudes() {

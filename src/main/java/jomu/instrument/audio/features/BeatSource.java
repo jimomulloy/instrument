@@ -9,11 +9,11 @@ import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
-import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import be.tarsos.dsp.onsets.OnsetHandler;
+import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 import jomu.instrument.audio.DispatchJunctionProcessor;
 
-public class OnsetSource implements OnsetHandler {
+public class BeatSource implements OnsetHandler {
 
 	private Map<Double, OnsetInfo[]> features = new TreeMap<>();
 	private List<OnsetInfo> onsetInfos = new ArrayList<>();
@@ -24,7 +24,7 @@ public class OnsetSource implements OnsetHandler {
 	double threshold = 0.4;
 	private AudioDispatcher dispatcher;
 
-	public OnsetSource(AudioDispatcher dispatcher) {
+	public BeatSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
@@ -49,7 +49,6 @@ public class OnsetSource implements OnsetHandler {
 
 	@Override
 	public void handleOnset(double time, double salience) {
-		// System.out.println(">>Percussion at:" + time + ", " + salience);
 		onsetInfos.add(new OnsetInfo(time, salience));
 	}
 
@@ -59,9 +58,6 @@ public class OnsetSource implements OnsetHandler {
 
 	void initialise() {
 
-		int overlap = 0;
-		double threshold = 0.4;
-
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(
 				sampleRate, 16, 1, true, true);
 
@@ -70,11 +66,14 @@ public class OnsetSource implements OnsetHandler {
 		djp.setName("SC");
 		dispatcher.addAudioProcessor(djp);
 
-		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(increment,
-				threshold);
-		onsetDetector.setHandler(this);
-		// add a processor, handle percussion event.
-		djp.addAudioProcessor(onsetDetector);
+		// djp.setZeroPadFirstBuffer(true);
+
+		PercussionOnsetDetector beatDetector = new PercussionOnsetDetector(
+				sampleRate, increment, overlap, this);
+
+		beatDetector.setHandler(this);
+
+		djp.addAudioProcessor(beatDetector);
 
 		djp.addAudioProcessor(new AudioProcessor() {
 

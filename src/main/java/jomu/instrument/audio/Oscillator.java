@@ -34,7 +34,8 @@ public class Oscillator {
 		this(SINEWAVE, 1000, 22050, 1);
 	}
 
-	public Oscillator(int type, int frequency, int sampleRate, int numberOfChannels) {
+	public Oscillator(int type, int frequency, int sampleRate,
+			int numberOfChannels) {
 		// Save incoming
 		this.type = type;
 		this.frequency = frequency;
@@ -157,52 +158,54 @@ public class Oscillator {
 		waveTable = new double[sampleRate];
 
 		switch (type) {
-		case NOISE:
-			// Create a random number generator for returning gaussian
-			// distributed numbers. The result is white noise.
-			Random random = new Random();
+			case NOISE :
+				// Create a random number generator for returning gaussian
+				// distributed numbers. The result is white noise.
+				Random random = new Random();
 
-			for (int sample = 0; sample < sampleRate; sample++)
-				waveTable[sample] = (65535.0 * random.nextGaussian()) - 32768;
-			break;
+				for (int sample = 0; sample < sampleRate; sample++)
+					waveTable[sample] = (65535.0 * random.nextGaussian())
+							- 32768;
+				break;
 
-		case SINEWAVE:
-			double scale = (2.0 * Math.PI) / sampleRate;
+			case SINEWAVE :
+				double scale = (2.0 * Math.PI) / sampleRate;
 
-			for (int sample = 0; sample < sampleRate; sample++)
-				waveTable[sample] = 32767.0 * Math.sin(sample * scale);
+				for (int sample = 0; sample < sampleRate; sample++)
+					waveTable[sample] = 32767.0 * Math.sin(sample * scale);
 
-			break;
+				break;
 
-		case TRIANGLEWAVE:
-			double sign = 1.0;
-			double value = 0.0;
+			case TRIANGLEWAVE :
+				double sign = 1.0;
+				double value = 0.0;
 
-			int oneQuarterWave = sampleRate / 4;
-			int threeQuarterWave = (3 * sampleRate) / 4;
+				int oneQuarterWave = sampleRate / 4;
+				int threeQuarterWave = (3 * sampleRate) / 4;
 
-			scale = 32767.0 / oneQuarterWave;
+				scale = 32767.0 / oneQuarterWave;
 
-			for (int sample = 0; sample < sampleRate; sample++) {
+				for (int sample = 0; sample < sampleRate; sample++) {
 
-				if ((sample > oneQuarterWave) && (sample <= threeQuarterWave))
-					sign = -1.0;
-				else
-					sign = 1.0;
+					if ((sample > oneQuarterWave)
+							&& (sample <= threeQuarterWave))
+						sign = -1.0;
+					else
+						sign = 1.0;
 
-				value += sign * scale;
-				waveTable[sample] = value;
-			}
-			break;
+					value += sign * scale;
+					waveTable[sample] = value;
+				}
+				break;
 
-		case SQUAREWAVE:
-			for (int sample = 0; sample < sampleRate; sample++) {
-				if (sample < sampleRate / 2)
-					waveTable[sample] = 32767;
-				else
-					waveTable[sample] = -32768;
-			}
-			break;
+			case SQUAREWAVE :
+				for (int sample = 0; sample < sampleRate; sample++) {
+					if (sample < sampleRate / 2)
+						waveTable[sample] = 32767;
+					else
+						waveTable[sample] = -32768;
+				}
+				break;
 		}
 	}
 }

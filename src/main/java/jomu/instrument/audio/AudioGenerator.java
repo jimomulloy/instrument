@@ -40,7 +40,8 @@ public class AudioGenerator implements Runnable {
 	/**
 	 * Log messages.
 	 */
-	private static final Logger LOG = Logger.getLogger(AudioGenerator.class.getName());
+	private static final Logger LOG = Logger
+			.getLogger(AudioGenerator.class.getName());
 
 	/**
 	 * The audio event that is send through the processing chain.
@@ -56,17 +57,17 @@ public class AudioGenerator implements Runnable {
 	private SourceDataLine audioOutput;
 
 	/**
-	 * A list of registered audio processors. The audio processors are responsible
-	 * for actually doing the digital signal processing
+	 * A list of registered audio processors. The audio processors are
+	 * responsible for actually doing the digital signal processing
 	 */
 	private final List<AudioProcessor> audioProcessors;
 
 	private AudioSynthesizer audioSynthesizer;
 
 	/**
-	 * The floatOverlap: the number of elements that are copied in the buffer from
-	 * the previous buffer. Overlap should be smaller (strict) than the buffer size
-	 * and can be zero. Defined in number of samples.
+	 * The floatOverlap: the number of elements that are copied in the buffer
+	 * from the previous buffer. Overlap should be smaller (strict) than the
+	 * buffer size and can be zero. Defined in number of samples.
 	 */
 	private int floatOverlap, floatStepSize;
 
@@ -81,8 +82,8 @@ public class AudioGenerator implements Runnable {
 	 */
 	private boolean stopped;
 
-	public AudioGenerator(final int audioBufferSize, final int bufferOverlap, final int samplerate,
-			SourceDataLine audioOutput) {
+	public AudioGenerator(final int audioBufferSize, final int bufferOverlap,
+			final int samplerate, SourceDataLine audioOutput) {
 		oscillator = new Oscillator(Oscillator.NOISE, 200, 44100, 1);
 
 		this.audioOutput = audioOutput;
@@ -106,13 +107,15 @@ public class AudioGenerator implements Runnable {
 	/**
 	 * Create a new generator.
 	 *
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
+	 * @param audioBufferSize
+	 *            The size of the buffer defines how much samples are processed
+	 *            in one step. Common values are 1024,2048.
+	 * @param bufferOverlap
+	 *            How much consecutive buffers overlap (in samples). Half of the
+	 *            AudioBufferSize is common (512, 1024) for an FFT.
 	 */
-	public AudioGenerator(final int audioBufferSize, final int bufferOverlap, SourceDataLine audioOutput) {
+	public AudioGenerator(final int audioBufferSize, final int bufferOverlap,
+			SourceDataLine audioOutput) {
 
 		this(audioBufferSize, bufferOverlap, 44100, audioOutput);
 	}
@@ -120,11 +123,13 @@ public class AudioGenerator implements Runnable {
 	/**
 	 * Adds an AudioProcessor to the chain of processors.
 	 *
-	 * @param audioProcessor The AudioProcessor to add.
+	 * @param audioProcessor
+	 *            The AudioProcessor to add.
 	 */
 	public void addAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.add(audioProcessor);
-		LOG.fine("Added an audioprocessor to the list of processors: " + audioProcessor.toString());
+		LOG.fine("Added an audioprocessor to the list of processors: "
+				+ audioProcessor.toString());
 	}
 
 	public TarsosDSPAudioFormat getFormat() {
@@ -135,12 +140,14 @@ public class AudioGenerator implements Runnable {
 	 * Removes an AudioProcessor to the chain of processors and calls
 	 * processingFinished.
 	 *
-	 * @param audioProcessor The AudioProcessor to remove.
+	 * @param audioProcessor
+	 *            The AudioProcessor to remove.
 	 */
 	public void removeAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.remove(audioProcessor);
 		audioProcessor.processingFinished();
-		LOG.fine("Remove an audioprocessor to the list of processors: " + audioProcessor.toString());
+		LOG.fine("Remove an audioprocessor to the list of processors: "
+				+ audioProcessor.toString());
 	}
 
 	public void resetTime() {
@@ -150,7 +157,8 @@ public class AudioGenerator implements Runnable {
 	@Override
 	public void run() {
 
-		System.out.println(">>generateNextAudioBlock A: " + System.currentTimeMillis());
+		System.out.println(
+				">>generateNextAudioBlock A: " + System.currentTimeMillis());
 		// Read the first (and in some cases last) audio block.
 		generateNextAudioBlock();
 
@@ -167,7 +175,8 @@ public class AudioGenerator implements Runnable {
 			}
 
 			if (!stopped) {
-				audioEvent.setBytesProcessed(samplesProcessed * format.getFrameSize());
+				audioEvent.setBytesProcessed(
+						samplesProcessed * format.getFrameSize());
 
 				// Read, convert and process consecutive overlapping buffers.
 				// Slide the buffer.
@@ -195,7 +204,8 @@ public class AudioGenerator implements Runnable {
 
 	public void send(ToneMap notateToneMap, int sequence) {
 		generateNextAudioBlock();
-		System.out.println(">>????send: " + sequence + ", " + System.currentTimeMillis());
+		System.out.println(
+				">>????send: " + sequence + ", " + System.currentTimeMillis());
 		AudioSynthesizer audioModel = new AudioSynthesizer();
 		audioModel.writeStream(notateToneMap, audioFloatBuffer, audioOutput);
 
@@ -203,26 +213,29 @@ public class AudioGenerator implements Runnable {
 		 * oscillator.getSamples(audioFloatBuffer, audioFloatBuffer.length);
 		 *
 		 * for (final AudioProcessor processor : audioProcessors) { if
-		 * (!processor.process(audioEvent)) { // skip to the next audio processors if
-		 * false is returned. break; } } audioEvent.setBytesProcessed(samplesProcessed *
+		 * (!processor.process(audioEvent)) { // skip to the next audio
+		 * processors if false is returned. break; } }
+		 * audioEvent.setBytesProcessed(samplesProcessed *
 		 * format.getFrameSize());
 		 */
-		System.out
-				.println(">>!!!!!!!!!sent: " + samplesProcessed + ", " + sequence + ", " + System.currentTimeMillis());
+		System.out.println(">>!!!!!!!!!sent: " + samplesProcessed + ", "
+				+ sequence + ", " + System.currentTimeMillis());
 	}
 
 	/**
-	 * Set a new step size and overlap size. Both in number of samples. Watch out
-	 * with this method: it should be called after a batch of samples is processed,
-	 * not during.
+	 * Set a new step size and overlap size. Both in number of samples. Watch
+	 * out with this method: it should be called after a batch of samples is
+	 * processed, not during.
 	 *
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
+	 * @param audioBufferSize
+	 *            The size of the buffer defines how much samples are processed
+	 *            in one step. Common values are 1024,2048.
+	 * @param bufferOverlap
+	 *            How much consecutive buffers overlap (in samples). Half of the
+	 *            AudioBufferSize is common (512, 1024) for an FFT.
 	 */
-	public void setStepSizeAndOverlap(final int audioBufferSize, final int bufferOverlap) {
+	public void setStepSizeAndOverlap(final int audioBufferSize,
+			final int bufferOverlap) {
 		audioFloatBuffer = new float[audioBufferSize];
 		floatOverlap = bufferOverlap;
 		floatStepSize = audioFloatBuffer.length - floatOverlap;
@@ -239,14 +252,14 @@ public class AudioGenerator implements Runnable {
 	}
 
 	/**
-	 * Reads the next audio block. It tries to read the number of bytes defined by
-	 * the audio buffer size minus the overlap. If the expected number of bytes
-	 * could not be read either the end of the stream is reached or something went
-	 * wrong.
+	 * Reads the next audio block. It tries to read the number of bytes defined
+	 * by the audio buffer size minus the overlap. If the expected number of
+	 * bytes could not be read either the end of the stream is reached or
+	 * something went wrong.
 	 *
-	 * The behavior for the first and last buffer is defined by their corresponding
-	 * the zero pad settings. The method also handles the case if the first buffer
-	 * is also the last.
+	 * The behavior for the first and last buffer is defined by their
+	 * corresponding the zero pad settings. The method also handles the case if
+	 * the first buffer is also the last.
 	 *
 	 */
 	private void generateNextAudioBlock() {
@@ -256,21 +269,24 @@ public class AudioGenerator implements Runnable {
 		// faster than manually shifting it.
 		// No need to do this on the first buffer
 		if (audioFloatBuffer.length == floatOverlap + floatStepSize) {
-			System.arraycopy(audioFloatBuffer, floatStepSize, audioFloatBuffer, 0, floatOverlap);
+			System.arraycopy(audioFloatBuffer, floatStepSize, audioFloatBuffer,
+					0, floatOverlap);
 		}
 		samplesProcessed += floatStepSize;
 	}
 
 	/**
-	 * Constructs the target audio format. The audio format is one channel signed
-	 * PCM of a given sample rate.
+	 * Constructs the target audio format. The audio format is one channel
+	 * signed PCM of a given sample rate.
 	 *
-	 * @param targetSampleRate The sample rate to convert to.
+	 * @param targetSampleRate
+	 *            The sample rate to convert to.
 	 * @return The audio format after conversion.
 	 */
 	private TarsosDSPAudioFormat getTargetAudioFormat(int targetSampleRate) {
-		TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(TarsosDSPAudioFormat.Encoding.PCM_SIGNED,
-				targetSampleRate, 2 * 8, 1, 2 * 1, targetSampleRate,
+		TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(
+				TarsosDSPAudioFormat.Encoding.PCM_SIGNED, targetSampleRate,
+				2 * 8, 1, 2 * 1, targetSampleRate,
 				ByteOrder.BIG_ENDIAN.equals(ByteOrder.nativeOrder()));
 		return audioFormat;
 	}

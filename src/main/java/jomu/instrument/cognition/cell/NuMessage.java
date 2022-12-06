@@ -20,7 +20,8 @@ public class NuMessage {
 		if ((obj == null) || (getClass() != obj.getClass()))
 			return false;
 		NuMessage other = (NuMessage) obj;
-		return Objects.equals(streamId + sequence, other.streamId + other.sequence)
+		return Objects.equals(streamId + sequence,
+				other.streamId + other.sequence)
 				&& Objects.equals(source, other.source);
 	}
 
@@ -31,6 +32,7 @@ public class NuMessage {
 
 	@Override
 	public String toString() {
-		return "NuMessage [streamId=" + streamId + " source=" + source + ", sequence=" + sequence + "]";
+		return "NuMessage [streamId=" + streamId + " source=" + source
+				+ ", sequence=" + sequence + "]";
 	}
 }

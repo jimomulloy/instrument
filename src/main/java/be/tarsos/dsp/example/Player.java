@@ -64,7 +64,8 @@ public class Player implements AudioProcessor {
 	private double gain;
 	private double tempo;
 
-	public Player(AudioProcessor beforeWSOLAProcessor, AudioProcessor afterWSOLAProcessor) {
+	public Player(AudioProcessor beforeWSOLAProcessor,
+			AudioProcessor afterWSOLAProcessor) {
 		state = PlayerState.NO_FILE_LOADED;
 		gain = 1.0;
 		tempo = 1.0;
@@ -100,7 +101,8 @@ public class Player implements AudioProcessor {
 
 	public void play() {
 		if (state == PlayerState.NO_FILE_LOADED) {
-			throw new IllegalStateException("Can not play when no file is loaded");
+			throw new IllegalStateException(
+					"Can not play when no file is loaded");
 		} else if (state == PlayerState.PAUZED) {
 			play(pauzedAt);
 		} else {
@@ -110,19 +112,21 @@ public class Player implements AudioProcessor {
 
 	public void play(double startTime) {
 		if (state == PlayerState.NO_FILE_LOADED) {
-			throw new IllegalStateException("Can not play when no file is loaded");
+			throw new IllegalStateException(
+					"Can not play when no file is loaded");
 		} else {
 			try {
-				AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(loadedFile);
+				AudioFileFormat fileFormat = AudioSystem
+						.getAudioFileFormat(loadedFile);
 				AudioFormat format = fileFormat.getFormat();
 
 				gainProcessor = new GainProcessor(gain);
 				audioPlayer = new AudioPlayer(format);
-				wsola = new WaveformSimilarityBasedOverlapAdd(
-						Parameters.slowdownDefaults(tempo, format.getSampleRate()));
+				wsola = new WaveformSimilarityBasedOverlapAdd(Parameters
+						.slowdownDefaults(tempo, format.getSampleRate()));
 
-				dispatcher = AudioDispatcherFactory.fromFile(loadedFile, wsola.getInputBufferSize(),
-						wsola.getOverlap());
+				dispatcher = AudioDispatcherFactory.fromFile(loadedFile,
+						wsola.getInputBufferSize(), wsola.getOverlap());
 
 				wsola.setDispatcher(dispatcher);
 				dispatcher.skip(startTime);
@@ -158,7 +162,8 @@ public class Player implements AudioProcessor {
 			dispatcher.stop();
 			pauzedAt = pauzeAt;
 		} else {
-			throw new IllegalStateException("Can not pauze when nothing is playing");
+			throw new IllegalStateException(
+					"Can not pauze when nothing is playing");
 		}
 	}
 
@@ -167,7 +172,8 @@ public class Player implements AudioProcessor {
 			setState(PlayerState.STOPPED);
 			dispatcher.stop();
 		} else if (state != PlayerState.STOPPED) {
-			throw new IllegalStateException("Can not stop when nothing is playing");
+			throw new IllegalStateException(
+					"Can not stop when nothing is playing");
 		}
 
 	}
@@ -182,13 +188,15 @@ public class Player implements AudioProcessor {
 	public void setTempo(double newTempo) {
 		tempo = newTempo;
 		if (state == PlayerState.PLAYING) {
-			wsola.setParameters(Parameters.slowdownDefaults(tempo, dispatcher.getFormat().getSampleRate()));
+			wsola.setParameters(Parameters.slowdownDefaults(tempo,
+					dispatcher.getFormat().getSampleRate()));
 		}
 	}
 
 	public double getDurationInSeconds() {
 		if (state == PlayerState.NO_FILE_LOADED) {
-			throw new IllegalStateException("No file loaded, unable to determine the duration in seconds");
+			throw new IllegalStateException(
+					"No file loaded, unable to determine the duration in seconds");
 		}
 		return durationInSeconds;
 	}

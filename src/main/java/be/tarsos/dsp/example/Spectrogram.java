@@ -81,7 +81,8 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			String name = e.getActionCommand();
-			PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm.valueOf(name);
+			PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm
+					.valueOf(name);
 			algo = newAlgo;
 			try {
 				setNewMixer(currentMixer);
@@ -101,24 +102,26 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 		algo = PitchEstimationAlgorithm.DYNAMIC_WAVELET;
 		this.fileName = fileName;
 
-		JPanel pitchDetectionPanel = new PitchDetectionPanel(algoChangeListener);
+		JPanel pitchDetectionPanel = new PitchDetectionPanel(
+				algoChangeListener);
 
 		JPanel inputPanel = new InputPanel();
 
-		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent arg0) {
-				try {
-					setNewMixer((Mixer) arg0.getNewValue());
-				} catch (LineUnavailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (UnsupportedAudioFileException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+		inputPanel.addPropertyChangeListener("mixer",
+				new PropertyChangeListener() {
+					@Override
+					public void propertyChange(PropertyChangeEvent arg0) {
+						try {
+							setNewMixer((Mixer) arg0.getNewValue());
+						} catch (LineUnavailableException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedAudioFileException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
 
 		JPanel containerPanel = new JPanel(new GridLayout(1, 0));
 		containerPanel.add(inputPanel);
@@ -127,19 +130,23 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 
 		JPanel otherContainer = new JPanel(new BorderLayout());
 		otherContainer.add(panel, BorderLayout.CENTER);
-		otherContainer.setBorder(new TitledBorder("3. Utter a sound (whistling works best)"));
+		otherContainer.setBorder(
+				new TitledBorder("3. Utter a sound (whistling works best)"));
 
 		this.add(otherContainer, BorderLayout.CENTER);
 	}
 
-	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer)
+			throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
 		}
 		if (fileName == null) {
-			final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
-			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+			final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
+					false);
+			final DataLine.Info dataLineInfo = new DataLine.Info(
+					TargetDataLine.class, format);
 			TargetDataLine line;
 			line = (TargetDataLine) mixer.getLine(dataLineInfo);
 			final int numberOfSamples = bufferSize;
@@ -153,8 +160,10 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 		} else {
 			try {
 				File audioFile = new File(fileName);
-				dispatcher = AudioDispatcherFactory.fromFile(audioFile, bufferSize, overlap);
-				AudioFormat format = AudioSystem.getAudioFileFormat(audioFile).getFormat();
+				dispatcher = AudioDispatcherFactory.fromFile(audioFile,
+						bufferSize, overlap);
+				AudioFormat format = AudioSystem.getAudioFileFormat(audioFile)
+						.getFormat();
 				dispatcher.addAudioProcessor(new AudioPlayer(format));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -164,7 +173,8 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 		currentMixer = mixer;
 
 		// add a processor, handle pitch event.
-		dispatcher.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
+		dispatcher.addAudioProcessor(
+				new PitchProcessor(algo, sampleRate, bufferSize, this));
 		dispatcher.addAudioProcessor(fftProcessor);
 
 		// run the dispatcher (on a new thread).
@@ -185,7 +195,8 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 		public boolean process(AudioEvent audioEvent) {
 			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
 			float[] transformbuffer = new float[bufferSize * 2];
-			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0,
+					audioFloatBuffer.length);
 			fft.forwardTransform(transformbuffer);
 			fft.modulus(transformbuffer, amplitudes);
 			panel.drawFFT(pitch, amplitudes, fft);
@@ -196,7 +207,8 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 	};
 
 	@Override
-	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
+	public void handlePitch(PitchDetectionResult pitchDetectionResult,
+			AudioEvent audioEvent) {
 		if (pitchDetectionResult.isPitched()) {
 			pitch = pitchDetectionResult.getPitch();
 		} else {
@@ -205,16 +217,20 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 
 	}
 
-	public static void main(final String... strings) throws InterruptedException, InvocationTargetException {
+	public static void main(final String... strings)
+			throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(
+							UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}
-				JFrame frame = strings.length == 0 ? new Spectrogram(null) : new Spectrogram(strings[0]);
+				JFrame frame = strings.length == 0
+						? new Spectrogram(null)
+						: new Spectrogram(strings[0]);
 				frame.pack();
 				frame.setSize(640, 480);
 				frame.setVisible(true);

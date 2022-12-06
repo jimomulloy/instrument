@@ -28,7 +28,9 @@ import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.AudioPlayer;
 import be.tarsos.dsp.resample.Resampler;
 
-public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosDSPDemo {
+public class TimeStrechingBasedOnPitchShifting extends JFrame
+		implements
+			TarsosDSPDemo {
 	/**
 	 * 
 	 */
@@ -47,7 +49,8 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 		@Override
 		public void stateChanged(ChangeEvent arg0) {
 			currentFactor = factorSlider.getValue() / 100.0;
-			factorLabel.setText("Factor " + Math.round(currentFactor * 100) + "%");
+			factorLabel
+					.setText("Factor " + Math.round(currentFactor * 100) + "%");
 			if (TimeStrechingBasedOnPitchShifting.this.dispatcher != null) {
 				pitchShifter.setPitchShiftFactor((float) currentFactor);
 			}
@@ -60,7 +63,8 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 		this.setTitle("Pitch shifting: change the tempo of your audio.");
 		currentFactor = 1.;
 		JPanel fileChooserPanel = new JPanel(new BorderLayout());
-		fileChooserPanel.setBorder(new TitledBorder("1... Or choose your audio (wav mono)"));
+		fileChooserPanel.setBorder(
+				new TitledBorder("1... Or choose your audio (wav mono)"));
 
 		fileChooser = new JFileChooser();
 
@@ -68,7 +72,8 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 		chooseFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int returnVal = fileChooser.showOpenDialog(TimeStrechingBasedOnPitchShifting.this);
+				int returnVal = fileChooser
+						.showOpenDialog(TimeStrechingBasedOnPitchShifting.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
 					startFile(file);
@@ -92,7 +97,8 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 
 		JLabel label = new JLabel("Factor 100%");
 		label.setText("Factor " + Math.round(currentFactor * 100) + "%");
-		label.setToolTipText("The tempo factor in % (100 is no change, 50 is double tempo, 200 half).");
+		label.setToolTipText(
+				"The tempo factor in % (100 is no change, 50 is double tempo, 200 half).");
 		factorLabel = label;
 		params.add(label, BorderLayout.NORTH);
 		params.add(factorSlider, BorderLayout.CENTER);
@@ -103,8 +109,10 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 		final int size = 2048;
 		final int overlap = 2048 - 128;
 		int samplerate = 44100;
-		final AudioDispatcher d = AudioDispatcherFactory.fromPipe(file.getAbsolutePath(), samplerate, size, overlap);
-		pitchShifter = new PitchShifter(1.0 / currentFactor, samplerate, size, overlap);
+		final AudioDispatcher d = AudioDispatcherFactory
+				.fromPipe(file.getAbsolutePath(), samplerate, size, overlap);
+		pitchShifter = new PitchShifter(1.0 / currentFactor, samplerate, size,
+				overlap);
 
 		d.addAudioProcessor(new AudioProcessor() {
 			@Override
@@ -135,7 +143,8 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 				float factor = (float) (currentFactor);
 				float[] src = audioEvent.getFloatBuffer();
 				float[] out = new float[(int) ((size - overlap) * factor)];
-				r.process(factor, src, overlap, size - overlap, false, out, 0, out.length);
+				r.process(factor, src, overlap, size - overlap, false, out, 0,
+						out.length);
 				// The size of the output buffer changes (according to factor).
 				d.setStepSizeAndOverlap(out.length, 0);
 
@@ -192,7 +201,8 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 				@Override
 				public void run() {
 					try {
-						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						UIManager.setLookAndFeel(
+								UIManager.getSystemLookAndFeelClassName());
 					} catch (Exception e) {
 						// ignore failure to set default look en feel;
 					}

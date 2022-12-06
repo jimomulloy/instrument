@@ -23,6 +23,10 @@ public class Generator {
 				return createAudioSpectralPeaksTypeCell();
 			case AUDIO_CQ :
 				return createAudioCQTypeCell();
+			case AUDIO_ONSET :
+				return createAudioOnsetTypeCell();
+			case AUDIO_BEAT :
+				return createAudioBeatTypeCell();
 			case AUDIO_CHROMA :
 				return createAudioChromaTypeCell();
 			case AUDIO_INTEGRATE :
@@ -76,6 +80,18 @@ public class Generator {
 	private static NuCell createAudioChromaTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_CHROMA);
 		cell.setProcessor(getAudioChromaProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioOnsetTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_ONSET);
+		cell.setProcessor(getAudioOnsetProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioBeatTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_BEAT);
+		cell.setProcessor(getAudioBeatProcessor(cell));
 		return cell;
 	}
 
@@ -135,6 +151,16 @@ public class Generator {
 	private static Consumer<List<NuMessage>> getAudioChromaProcessor(
 			NuCell cell) {
 		return new AudioChromaProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioOnsetProcessor(
+			NuCell cell) {
+		return new AudioOnsetProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioBeatProcessor(
+			NuCell cell) {
+		return new AudioBeatProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getAudioSinkProcessor(

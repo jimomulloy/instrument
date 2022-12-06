@@ -4,22 +4,24 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.features.AudioFeatureFrame;
+import jomu.instrument.audio.features.AudioFeatureProcessor;
+import jomu.instrument.audio.features.OnsetFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.monitor.Visor;
+import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class AudioChromaProcessor implements Consumer<List<NuMessage>> {
+public class AudioBeatProcessor implements Consumer<List<NuMessage>> {
 
-	private static final int C4_NOTE = 36;
 	private NuCell cell;
 	private float tmMax = 0;
 
 	private WorldModel worldModel;
 	private Visor visor;
 
-	public AudioChromaProcessor(NuCell cell) {
+	public AudioBeatProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		worldModel = Instrument.getInstance().getWorldModel();
@@ -33,19 +35,22 @@ public class AudioChromaProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>AudioChromaProcessor accept: " + message
+			System.out.println(">>AudioBeatProcessor accept: " + message
 					+ ", streamId: " + streamId);
-			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
-				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(
-						buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-				ToneMap chromaToneMap = worldModel.getAtlas().getToneMap(
-						buildToneMapKey(this.cell.getCellType(), streamId));
-				ToneTimeFrame cqTimeFrame = cqToneMap.getTimeFrame(sequence);
-				chromaToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence)
-						.clone().chroma(C4_NOTE, cqTimeFrame.getPitchLow(),
-								cqTimeFrame.getPitchHigh()));
-				// visor.updateToneMap(chromaToneMap);
-				cell.send(streamId, sequence);
+			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+				Hearing hearing = Instrument.getInstance().getCoordinator()
+						.getHearing();
+				ToneMap toneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
+				AudioFeatureProcessor afp = hearing
+						.getAudioFeatureProcessor(streamId);
+				if (afp != null) {
+					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+					OnsetFeatures osf = aff.getOnsetFeatures();
+					osf.buildToneMapFrame(toneMap);
+					// visor.updateToneMap(toneMap);
+					cell.send(streamId, sequence);
+				}
 			}
 		}
 	}

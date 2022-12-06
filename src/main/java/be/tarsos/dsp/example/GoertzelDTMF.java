@@ -86,11 +86,13 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 
 	private final int stepSize = 256;
 
-	private final AudioProcessor goertzelAudioProcessor = new Goertzel(44100, stepSize, DTMF.DTMF_FREQUENCIES,
-			new FrequenciesDetectedHandler() {
+	private final AudioProcessor goertzelAudioProcessor = new Goertzel(44100,
+			stepSize, DTMF.DTMF_FREQUENCIES, new FrequenciesDetectedHandler() {
 				@Override
-				public void handleDetectedFrequencies(double time, final double[] frequencies, final double[] powers,
-						final double[] allFrequencies, final double allPowers[]) {
+				public void handleDetectedFrequencies(double time,
+						final double[] frequencies, final double[] powers,
+						final double[] allFrequencies,
+						final double allPowers[]) {
 					if (frequencies.length == 2) {
 						int rowIndex = -1;
 						int colIndex = -1;
@@ -105,7 +107,8 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 								colIndex = i - 4;
 						}
 						if (rowIndex >= 0 && colIndex >= 0) {
-							detectedChar.setText("" + DTMF.DTMF_CHARACTERS[rowIndex][colIndex]);
+							detectedChar.setText(""
+									+ DTMF.DTMF_CHARACTERS[rowIndex][colIndex]);
 							for (int i = 0; i < allPowers.length; i++) {
 								powerBars[i].setValue((int) allPowers[i]);
 							}
@@ -122,7 +125,8 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Goertzel");
 
-		JPanel detectionPanel = new JPanel(new GridLayout(DTMF.DTMF_FREQUENCIES.length, 2, 5, 3));
+		JPanel detectionPanel = new JPanel(
+				new GridLayout(DTMF.DTMF_FREQUENCIES.length, 2, 5, 3));
 		powerBars = new JProgressBar[DTMF.DTMF_FREQUENCIES.length];
 		for (int i = 0; i < DTMF.DTMF_FREQUENCIES.length; i++) {
 			detectionPanel.add(new JLabel(DTMF.DTMF_FREQUENCIES[i] + "Hz"));
@@ -147,7 +151,8 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 		dailPad.setBorder(new TitledBorder("DailPad"));
 		for (int row = 0; row < DTMF.DTMF_CHARACTERS.length; row++) {
 			for (int col = 0; col < DTMF.DTMF_CHARACTERS[row].length; col++) {
-				JButton numberButton = new JButton(DTMF.DTMF_CHARACTERS[row][col] + "");
+				JButton numberButton = new JButton(
+						DTMF.DTMF_CHARACTERS[row][col] + "");
 				numberButton.addActionListener(this);
 				numberButton.addKeyListener(keyAdapter);
 				dailPad.add(numberButton);
@@ -165,7 +170,8 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(
+							UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look & feel;
 				}
@@ -195,22 +201,28 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 	/**
 	 * Process a DTMF character: generate sound and decode the sound.
 	 * 
-	 * @param character The character.
+	 * @param character
+	 *            The character.
 	 * @throws UnsupportedAudioFileException
 	 * @throws LineUnavailableException
 	 */
-	public void process(char character) throws UnsupportedAudioFileException, LineUnavailableException {
+	public void process(char character)
+			throws UnsupportedAudioFileException, LineUnavailableException {
 		final float[] floatBuffer = DTMF.generateDTMFTone(character);
 		final AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
 		JVMAudioInputStream.toTarsosDSPFormat(format);
 		final TarsosDSPAudioFloatConverter converter = TarsosDSPAudioFloatConverter
 				.getConverter(JVMAudioInputStream.toTarsosDSPFormat(format));
-		final byte[] byteBuffer = new byte[floatBuffer.length * format.getFrameSize()];
+		final byte[] byteBuffer = new byte[floatBuffer.length
+				* format.getFrameSize()];
 		converter.toByteArray(floatBuffer, byteBuffer);
 		final ByteArrayInputStream bais = new ByteArrayInputStream(byteBuffer);
-		final AudioInputStream inputStream = new AudioInputStream(bais, format, floatBuffer.length);
-		final TarsosDSPAudioInputStream stream = new JVMAudioInputStream(inputStream);
-		final AudioDispatcher dispatcher = new AudioDispatcher(stream, stepSize, 0);
+		final AudioInputStream inputStream = new AudioInputStream(bais, format,
+				floatBuffer.length);
+		final TarsosDSPAudioInputStream stream = new JVMAudioInputStream(
+				inputStream);
+		final AudioDispatcher dispatcher = new AudioDispatcher(stream, stepSize,
+				0);
 		dispatcher.addAudioProcessor(goertzelAudioProcessor);
 		dispatcher.addAudioProcessor(new AudioPlayer(format));
 		new Thread(dispatcher).start();

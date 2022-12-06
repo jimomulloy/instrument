@@ -56,7 +56,8 @@ public class Hearing implements Organ {
 	}
 
 	public void startAudioFileStream(String fileName)
-			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+			throws UnsupportedAudioFileException, IOException,
+			LineUnavailableException {
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		System.out.println(">>!!hearing initialise: " + streamId);
@@ -65,7 +66,8 @@ public class Hearing implements Organ {
 		audioStream.initialiseAudioFileStream(fileName);
 
 		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.getAudioFeatureProcessor().addObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
 		audioStream.start();
 	}
 
@@ -78,7 +80,8 @@ public class Hearing implements Organ {
 		audioStream.initialiseMicrophoneStream();
 
 		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.getAudioFeatureProcessor().addObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
 		audioStream.start();
 	}
 
@@ -87,7 +90,8 @@ public class Hearing implements Organ {
 		audioStream.stop();
 
 		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().removeObserver(Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.getAudioFeatureProcessor().removeObserver(
+				Instrument.getInstance().getCoordinator().getCortex());
 
 		closeAudioStream(streamId);
 
@@ -139,16 +143,20 @@ public class Hearing implements Organ {
 		}
 
 		public void initialiseAudioFileStream(String fileName)
-				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+				throws UnsupportedAudioFileException, IOException,
+				LineUnavailableException {
 			Instrument.getInstance().getDruid().getVisor().clearView();
 			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
-			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);
-			AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
+			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize,
+					overlap);
+			AudioFormat format = AudioSystem.getAudioFileFormat(file)
+					.getFormat();
 
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
-			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
+			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
+					tarsosFeatureSource);
 			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
 
 			// dispatcher.addAudioProcessor(new HighPass(12000, sampleRate));
@@ -157,9 +165,11 @@ public class Hearing implements Organ {
 
 		}
 
-		public void initialiseMicrophoneStream() throws LineUnavailableException {
+		public void initialiseMicrophoneStream()
+				throws LineUnavailableException {
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
-			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+			final DataLine.Info dataLineInfo = new DataLine.Info(
+					TargetDataLine.class, format);
 			TargetDataLine line;
 			// line = (TargetDataLine) mixer.getLine(dataLineInfo);
 			line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
@@ -173,7 +183,8 @@ public class Hearing implements Organ {
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
-			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
+			audioFeatureProcessor = new AudioFeatureProcessor(streamId,
+					tarsosFeatureSource);
 			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
 
 			dispatcher.addAudioProcessor(new HighPass(12000, sampleRate));

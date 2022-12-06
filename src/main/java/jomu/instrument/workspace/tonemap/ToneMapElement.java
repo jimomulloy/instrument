@@ -30,7 +30,8 @@ public class ToneMapElement implements Serializable {
 
 	private int timeIndex;
 
-	public ToneMapElement(double amplitude, int index, int timeIndex, int pitchIndex) {
+	public ToneMapElement(double amplitude, int index, int timeIndex,
+			int pitchIndex) {
 
 		this.amplitude = amplitude;
 		this.index = index;
@@ -44,7 +45,8 @@ public class ToneMapElement implements Serializable {
 
 	@Override
 	public ToneMapElement clone() {
-		return new ToneMapElement(this.amplitude, this.index, this.timeIndex, this.pitchIndex);
+		return new ToneMapElement(this.amplitude, this.index, this.timeIndex,
+				this.pitchIndex);
 	}
 
 	public int getIndex() {
@@ -61,7 +63,8 @@ public class ToneMapElement implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ToneMapElement [amplitude=" + amplitude + ", noteState=" + noteState + ", index=" + index + "]";
+		return "ToneMapElement [amplitude=" + amplitude + ", noteState="
+				+ noteState + ", index=" + index + "]";
 	}
 
 } // End ToneMapElement

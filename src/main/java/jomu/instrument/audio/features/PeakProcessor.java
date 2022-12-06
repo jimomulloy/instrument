@@ -96,7 +96,8 @@ public class PeakProcessor {
 	/**
 	 * Calculates a frequency for a bin using phase info, if available.
 	 *
-	 * @param binIndex The FFT bin index.
+	 * @param binIndex
+	 *            The FFT bin index.
 	 * @return a frequency, in Hz, calculated using available phase info.
 	 */
 	private float getFrequencyForBin(int binIndex) {
@@ -112,22 +113,27 @@ public class PeakProcessor {
 		// log10 of the normalized value
 		// adding 75 makes sure the value is above zero, a bit ugly though...
 		for (int i = 1; i < magnitudes.length; i++) {
-			magnitudes[i] = (float) (10 * Math.log10(magnitudes[i] / maxMagnitude)) + 75;
+			magnitudes[i] = (float) (10
+					* Math.log10(magnitudes[i] / maxMagnitude)) + 75;
 		}
 	}
 
 	/**
 	 * Calculate a noise floor for an array of magnitudes.
 	 *
-	 * @param magnitudes         The magnitudes of the current frame.
-	 * @param medianFilterLength The length of the median filter used to determine
-	 *                           the noise floor.
-	 * @param noiseFloorFactor   The noise floor is multiplied with this factor to
-	 *                           determine if the information is either noise or an
-	 *                           interesting spectral peak.
+	 * @param magnitudes
+	 *            The magnitudes of the current frame.
+	 * @param medianFilterLength
+	 *            The length of the median filter used to determine the noise
+	 *            floor.
+	 * @param noiseFloorFactor
+	 *            The noise floor is multiplied with this factor to determine if
+	 *            the information is either noise or an interesting spectral
+	 *            peak.
 	 * @return a float array representing the noise floor.
 	 */
-	public static float[] calculateNoiseFloor(float[] magnitudes, int medianFilterLength, float noiseFloorFactor) {
+	public static float[] calculateNoiseFloor(float[] magnitudes,
+			int medianFilterLength, float noiseFloorFactor) {
 		double[] noiseFloorBuffer;
 		float[] noisefloor = new float[magnitudes.length];
 
@@ -140,7 +146,8 @@ public class PeakProcessor {
 		for (int i = 0; i < magnitudes.length; i++) {
 			noiseFloorBuffer = new double[medianFilterLength];
 			int index = 0;
-			for (int j = i - medianFilterLength / 2; j <= i + medianFilterLength / 2
+			for (int j = i - medianFilterLength / 2; j <= i
+					+ medianFilterLength / 2
 					&& index < noiseFloorBuffer.length; j++) {
 				if (j >= 0 && j < magnitudes.length) {
 					noiseFloorBuffer[index] = magnitudes[j];
@@ -167,11 +174,14 @@ public class PeakProcessor {
 	/**
 	 * Finds the local magintude maxima and stores them in the given list.
 	 *
-	 * @param magnitudes The magnitudes.
-	 * @param noisefloor The noise floor.
+	 * @param magnitudes
+	 *            The magnitudes.
+	 * @param noisefloor
+	 *            The noise floor.
 	 * @return a list of local maxima.
 	 */
-	public static List<Integer> findLocalMaxima(float[] magnitudes, float[] noisefloor) {
+	public static List<Integer> findLocalMaxima(float[] magnitudes,
+			float[] noisefloor) {
 		List<Integer> localMaximaIndexes = new ArrayList<>();
 		for (int i = 1; i < magnitudes.length - 1; i++) {
 			boolean largerThanPrevious = (magnitudes[i - 1] < magnitudes[i]);
@@ -186,15 +196,21 @@ public class PeakProcessor {
 
 	/**
 	 *
-	 * @param magnitudes         the magnitudes..
-	 * @param frequencyEstimates The frequency estimates for each bin.
-	 * @param localMaximaIndexes The indexes of the local maxima.
-	 * @param numberOfPeaks      The requested number of peaks.
-	 * @param minDistanceInCents The minimum distance in cents between the peaks
+	 * @param magnitudes
+	 *            the magnitudes..
+	 * @param frequencyEstimates
+	 *            The frequency estimates for each bin.
+	 * @param localMaximaIndexes
+	 *            The indexes of the local maxima.
+	 * @param numberOfPeaks
+	 *            The requested number of peaks.
+	 * @param minDistanceInCents
+	 *            The minimum distance in cents between the peaks
 	 * @return A list with spectral peaks.
 	 */
-	public static List<SpectralPeak> findPeaks(float[] magnitudes, float[] frequencyEstimates,
-			List<Integer> localMaximaIndexes, int numberOfPeaks, int minDistanceInCents) {
+	public static List<SpectralPeak> findPeaks(float[] magnitudes,
+			float[] frequencyEstimates, List<Integer> localMaximaIndexes,
+			int numberOfPeaks, int minDistanceInCents) {
 		int maxMagnitudeIndex = findMaxMagnitudeIndex(magnitudes);
 		List<SpectralPeak> spectralPeakList = new ArrayList<>();
 
@@ -218,11 +234,14 @@ public class PeakProcessor {
 		// each other
 		// assumes that localmaximaIndexes is sorted from lowest to higest index
 		for (int i = 1; i < localMaximaIndexes.size(); i++) {
-			double centCurrent = PitchConverter.hertzToAbsoluteCent(frequencyEstimates[localMaximaIndexes.get(i)]);
-			double centPrev = PitchConverter.hertzToAbsoluteCent(frequencyEstimates[localMaximaIndexes.get(i - 1)]);
+			double centCurrent = PitchConverter.hertzToAbsoluteCent(
+					frequencyEstimates[localMaximaIndexes.get(i)]);
+			double centPrev = PitchConverter.hertzToAbsoluteCent(
+					frequencyEstimates[localMaximaIndexes.get(i - 1)]);
 			double centDelta = centCurrent - centPrev;
 			if (centDelta < minDistanceInCents) {
-				if (magnitudes[localMaximaIndexes.get(i)] > magnitudes[localMaximaIndexes.get(i - 1)]) {
+				if (magnitudes[localMaximaIndexes
+						.get(i)] > magnitudes[localMaximaIndexes.get(i - 1)]) {
 					localMaximaIndexes.remove(i - 1);
 				} else {
 					localMaximaIndexes.remove(i);
@@ -251,7 +270,8 @@ public class PeakProcessor {
 				final float frequencyInHertz = frequencyEstimates[i];
 				// ignore frequencies lower than 30Hz
 				float binMagnitude = magnitudes[i];
-				SpectralPeak peak = new SpectralPeak(0, frequencyInHertz, binMagnitude, referenceFrequency, i);
+				SpectralPeak peak = new SpectralPeak(0, frequencyInHertz,
+						binMagnitude, referenceFrequency, i);
 				spectralPeakList.add(peak);
 			}
 		}
@@ -274,17 +294,19 @@ public class PeakProcessor {
 	}
 
 	/**
-	 * Returns the p-th percentile of values in an array. You can use this function
-	 * to establish a threshold of acceptance. For example, you can decide to
-	 * examine candidates who score above the 90th percentile (0.9). The elements of
-	 * the input array are modified (sorted) by this method.
+	 * Returns the p-th percentile of values in an array. You can use this
+	 * function to establish a threshold of acceptance. For example, you can
+	 * decide to examine candidates who score above the 90th percentile (0.9).
+	 * The elements of the input array are modified (sorted) by this method.
 	 *
-	 * @param arr An array of sample data values that define relative standing. The
-	 *            contents of the input array are sorted by this method.
-	 * @param p   The percentile value in the range 0..1, inclusive.
-	 * @return The p-th percentile of values in an array. If p is not a multiple of
-	 *         1/(n - 1), this method interpolates to determine the value at the
-	 *         p-th percentile.
+	 * @param arr
+	 *            An array of sample data values that define relative standing.
+	 *            The contents of the input array are sorted by this method.
+	 * @param p
+	 *            The percentile value in the range 0..1, inclusive.
+	 * @return The p-th percentile of values in an array. If p is not a multiple
+	 *         of 1/(n - 1), this method interpolates to determine the value at
+	 *         the p-th percentile.
 	 **/
 	public static final float percentile(double[] arr, double p) {
 
@@ -302,7 +324,8 @@ public class PeakProcessor {
 	}
 
 	/**
-	 * @param magnitudes the magnitudes.
+	 * @param magnitudes
+	 *            the magnitudes.
 	 * @return the index for the maximum magnitude.
 	 */
 	private static int findMaxMagnitudeIndex(float[] magnitudes) {
@@ -328,8 +351,8 @@ public class PeakProcessor {
 		 */
 		private final float timeStamp;
 
-		public SpectralPeak(float timeStamp, float frequencyInHertz, float magnitude, float referenceFrequency,
-				int bin) {
+		public SpectralPeak(float timeStamp, float frequencyInHertz,
+				float magnitude, float referenceFrequency, int bin) {
 			this.frequencyInHertz = frequencyInHertz;
 			this.magnitude = magnitude;
 			this.referenceFrequency = referenceFrequency;
@@ -355,8 +378,10 @@ public class PeakProcessor {
 
 		public float getRelativeFrequencyInCents() {
 			if (referenceFrequency > 0 && frequencyInHertz > 0) {
-				float refInCents = (float) PitchConverter.hertzToAbsoluteCent(referenceFrequency);
-				float valueInCents = (float) PitchConverter.hertzToAbsoluteCent(frequencyInHertz);
+				float refInCents = (float) PitchConverter
+						.hertzToAbsoluteCent(referenceFrequency);
+				float valueInCents = (float) PitchConverter
+						.hertzToAbsoluteCent(frequencyInHertz);
 				return valueInCents - refInCents;
 			} else {
 				return 0;
@@ -369,8 +394,10 @@ public class PeakProcessor {
 
 		@Override
 		public String toString() {
-			return "SpectralPeak [frequencyInHertz=" + frequencyInHertz + ", magnitude=" + magnitude
-					+ ", referenceFrequency=" + referenceFrequency + ", bin=" + bin + ", timeStamp=" + timeStamp + "]";
+			return "SpectralPeak [frequencyInHertz=" + frequencyInHertz
+					+ ", magnitude=" + magnitude + ", referenceFrequency="
+					+ referenceFrequency + ", bin=" + bin + ", timeStamp="
+					+ timeStamp + "]";
 		}
 	}
 

@@ -25,8 +25,9 @@ public class NoteListElement implements Serializable {
 	public int startTimeIndex; // Start Time Index in ToneMapMatrix
 	public boolean underTone; // Flag note as undertone
 
-	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
-			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin) {
+	public NoteListElement(int note, int pitchIndex, double startTime,
+			double endTime, int startTimeIndex, int endTimeIndex, double avgAmp,
+			double maxAmp, double minAmp, double percentMin) {
 		this.note = note;
 		this.pitchIndex = pitchIndex;
 		this.startTime = startTime;

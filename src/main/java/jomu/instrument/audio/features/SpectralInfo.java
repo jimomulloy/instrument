@@ -39,7 +39,8 @@ public class SpectralInfo {
 
 	@Override
 	public SpectralInfo clone() {
-		SpectralInfo sic = new SpectralInfo(magnitudes.clone(), frequencyEstimates.clone());
+		SpectralInfo sic = new SpectralInfo(magnitudes.clone(),
+				frequencyEstimates.clone());
 		return sic;
 	}
 
@@ -47,15 +48,20 @@ public class SpectralInfo {
 		return magnitudes;
 	}
 
-	public float[] getNoiseFloor(int medianFilterLength, float noiseFloorFactor) {
-		return SpectralPeakProcessor.calculateNoiseFloor(magnitudes, medianFilterLength, noiseFloorFactor);
+	public float[] getNoiseFloor(int medianFilterLength,
+			float noiseFloorFactor) {
+		return SpectralPeakProcessor.calculateNoiseFloor(magnitudes,
+				medianFilterLength, noiseFloorFactor);
 	}
 
-	public List<SpectralPeak> getPeakList(int medianFilterLength, float noiseFloorFactor, int numberOfPeaks,
+	public List<SpectralPeak> getPeakList(int medianFilterLength,
+			float noiseFloorFactor, int numberOfPeaks,
 			int minPeakDistanceInCents) {
-		float[] noiseFloor = getNoiseFloor(medianFilterLength, noiseFloorFactor);
-		List<Integer> localMaxima = SpectralPeakProcessor.findLocalMaxima(magnitudes, noiseFloor);
-		return SpectralPeakProcessor.findPeaks(magnitudes, frequencyEstimates, localMaxima, numberOfPeaks,
-				minPeakDistanceInCents);
+		float[] noiseFloor = getNoiseFloor(medianFilterLength,
+				noiseFloorFactor);
+		List<Integer> localMaxima = SpectralPeakProcessor
+				.findLocalMaxima(magnitudes, noiseFloor);
+		return SpectralPeakProcessor.findPeaks(magnitudes, frequencyEstimates,
+				localMaxima, numberOfPeaks, minPeakDistanceInCents);
 	}
 }

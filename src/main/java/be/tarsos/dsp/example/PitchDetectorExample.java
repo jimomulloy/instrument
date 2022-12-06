@@ -52,7 +52,9 @@ import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 
-public class PitchDetectorExample extends JFrame implements PitchDetectionHandler {
+public class PitchDetectorExample extends JFrame
+		implements
+			PitchDetectionHandler {
 
 	/**
 	 * 
@@ -69,7 +71,8 @@ public class PitchDetectorExample extends JFrame implements PitchDetectionHandle
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			String name = e.getActionCommand();
-			PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm.valueOf(name);
+			PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm
+					.valueOf(name);
 			algo = newAlgo;
 			try {
 				setNewMixer(currentMixer);
@@ -88,24 +91,26 @@ public class PitchDetectorExample extends JFrame implements PitchDetectionHandle
 
 		JPanel inputPanel = new InputPanel();
 		add(inputPanel);
-		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent arg0) {
-				try {
-					setNewMixer((Mixer) arg0.getNewValue());
-				} catch (LineUnavailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (UnsupportedAudioFileException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+		inputPanel.addPropertyChangeListener("mixer",
+				new PropertyChangeListener() {
+					@Override
+					public void propertyChange(PropertyChangeEvent arg0) {
+						try {
+							setNewMixer((Mixer) arg0.getNewValue());
+						} catch (LineUnavailableException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedAudioFileException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
 
 		algo = PitchEstimationAlgorithm.YIN;
 
-		JPanel pitchDetectionPanel = new PitchDetectionPanel(algoChangeListener);
+		JPanel pitchDetectionPanel = new PitchDetectionPanel(
+				algoChangeListener);
 
 		add(pitchDetectionPanel);
 
@@ -114,7 +119,8 @@ public class PitchDetectorExample extends JFrame implements PitchDetectionHandle
 		add(new JScrollPane(textArea));
 	}
 
-	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer)
+			throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -125,10 +131,13 @@ public class PitchDetectorExample extends JFrame implements PitchDetectionHandle
 		int bufferSize = 1024;
 		int overlap = 0;
 
-		textArea.append("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName()) + "\n");
+		textArea.append("Started listening with "
+				+ Shared.toLocalString(mixer.getMixerInfo().getName()) + "\n");
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
-		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
+				true);
+		final DataLine.Info dataLineInfo = new DataLine.Info(
+				TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -141,17 +150,20 @@ public class PitchDetectorExample extends JFrame implements PitchDetectionHandle
 		dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
 		// add a processor
-		dispatcher.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
+		dispatcher.addAudioProcessor(
+				new PitchProcessor(algo, sampleRate, bufferSize, this));
 
 		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings)
+			throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(
+							UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}
@@ -163,13 +175,15 @@ public class PitchDetectorExample extends JFrame implements PitchDetectionHandle
 	}
 
 	@Override
-	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
+	public void handlePitch(PitchDetectionResult pitchDetectionResult,
+			AudioEvent audioEvent) {
 		if (pitchDetectionResult.getPitch() != -1) {
 			double timeStamp = audioEvent.getTimeStamp();
 			float pitch = pitchDetectionResult.getPitch();
 			float probability = pitchDetectionResult.getProbability();
 			double rms = audioEvent.getRMS() * 100;
-			String message = String.format("Pitch detected at %.2fs: %.2fHz ( %.2f probability, RMS: %.5f )\n",
+			String message = String.format(
+					"Pitch detected at %.2fs: %.2fHz ( %.2f probability, RMS: %.5f )\n",
 					timeStamp, pitch, probability, rms);
 			textArea.append(message);
 			textArea.setCaretPosition(textArea.getDocument().getLength());

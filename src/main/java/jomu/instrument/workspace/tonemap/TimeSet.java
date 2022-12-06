@@ -31,7 +31,8 @@ public class TimeSet implements Serializable {
 
 	private double startTime;
 
-	public TimeSet(double startTime, double endTime, float sampleRate, double sampleTimeSize) {
+	public TimeSet(double startTime, double endTime, float sampleRate,
+			double sampleTimeSize) {
 
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -42,7 +43,8 @@ public class TimeSet implements Serializable {
 
 	@Override
 	public TimeSet clone() {
-		return new TimeSet(this.startTime, this.endTime, this.sampleRate, this.sampleTimeSize);
+		return new TimeSet(this.startTime, this.endTime, this.sampleRate,
+				this.sampleTimeSize);
 	}
 
 	public int getEndSample() {
@@ -99,8 +101,10 @@ public class TimeSet implements Serializable {
 
 	@Override
 	public String toString() {
-		return "TimeSet [startTime=" + startTime + ", endTime=" + endTime + ", currentTime=" + currentTime
-				+ ", startSample=" + startSample + ", endSample=" + endSample + ", sampleRate=" + sampleRate
-				+ ", sampleTimeSize=" + sampleTimeSize + ", sampleIndexSize=" + sampleIndexSize + "]";
+		return "TimeSet [startTime=" + startTime + ", endTime=" + endTime
+				+ ", currentTime=" + currentTime + ", startSample="
+				+ startSample + ", endSample=" + endSample + ", sampleRate="
+				+ sampleRate + ", sampleTimeSize=" + sampleTimeSize
+				+ ", sampleIndexSize=" + sampleIndexSize + "]";
 	}
 } // End TimeSet

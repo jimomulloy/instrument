@@ -95,29 +95,42 @@ public class ConstantQSource {
 	}
 
 	void initialise() {
-		float minimumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(minimumFrequencyInCents);
-		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(maximumFrequencyInCents);
-		System.out.println(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
-		System.out.println(">>CQS maximumFrequencyInHertz: " + maximumFrequencyInHertz);
-		
-		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
+		float minimumFrequencyInHertz = (float) PitchConverter
+				.absoluteCentToHertz(minimumFrequencyInCents);
+		float maximumFrequencyInHertz = (float) PitchConverter
+				.absoluteCentToHertz(maximumFrequencyInCents);
+		System.out.println(
+				">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
+		System.out.println(
+				">>CQS maximumFrequencyInHertz: " + maximumFrequencyInHertz);
+
+		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz,
+				maximumFrequencyInHertz, binsPerOctave);
 
 		binWidth = increment / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
 
 		startingPointsInHertz = constantQ.getFreqencies();
-		System.out.println(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
+		System.out.println(
+				">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
 		binStartingPointsInCents = new float[startingPointsInHertz.length];
 		for (int i = 0; i < binStartingPointsInCents.length; i++) {
-			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(startingPointsInHertz[i]);
+			binStartingPointsInCents[i] = (float) PitchConverter
+					.hertzToAbsoluteCent(startingPointsInHertz[i]);
 		}
-		System.out.println(">>CQS endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
-		System.out.println(">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
-		System.out.println(">>CQS endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
-		
+		System.out.println(">>CQS endPointsInHertz: "
+				+ startingPointsInHertz[startingPointsInHertz.length - 1]);
+		System.out.println(
+				">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
+		System.out.println(">>CQS endPointsInCents: "
+				+ binStartingPointsInCents[binStartingPointsInCents.length
+						- 1]);
+
 		size = constantQ.getFFTlength();
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - increment);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(
+				sampleRate, 16, 1, true, true);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
+				tarsosDSPFormat, size, size - increment);
 		djp.setName("CQ");
 		dispatcher.addAudioProcessor(djp);
 
@@ -132,7 +145,8 @@ public class ConstantQSource {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				float[] values = constantQ.getMagnitudes().clone();
-				features.put(audioEvent.getTimeStamp() - binWidth /* - constantQLag */, values);
+				features.put(audioEvent.getTimeStamp()
+						- binWidth /* - constantQLag */, values);
 				return true;
 			}
 

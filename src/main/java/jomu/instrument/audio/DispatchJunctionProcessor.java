@@ -13,7 +13,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	/**
 	 * Log messages.
 	 */
-	private static final Logger LOG = Logger.getLogger(DispatchJunctionProcessor.class.getName());
+	private static final Logger LOG = Logger
+			.getLogger(DispatchJunctionProcessor.class.getName());
 
 	/**
 	 * The audio event that is send through the processing chain.
@@ -27,15 +28,15 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	private float[] audioFloatBuffer;
 
 	/**
-	 * A list of registered audio processors. The audio processors are responsible
-	 * for actually doing the digital signal processing
+	 * A list of registered audio processors. The audio processors are
+	 * responsible for actually doing the digital signal processing
 	 */
 	private final List<AudioProcessor> audioProcessors;
 
 	/**
-	 * The overlap and stepsize defined not in samples but in bytes. So it depends
-	 * on the bit depth. Since the int datatype is used only 8,16,24,... bits or
-	 * 1,2,3,... bytes are supported.
+	 * The overlap and stepsize defined not in samples but in bytes. So it
+	 * depends on the bit depth. Since the int datatype is used only 8,16,24,...
+	 * bits or 1,2,3,... bytes are supported.
 	 */
 	private int byteOverlap, byteStepSize;
 
@@ -53,9 +54,9 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	private boolean firstProcessed = false;
 
 	/**
-	 * The floatOverlap: the number of elements that are copied in the buffer from
-	 * the previous buffer. Overlap should be smaller (strict) than the buffer size
-	 * and can be zero. Defined in number of samples.
+	 * The floatOverlap: the number of elements that are copied in the buffer
+	 * from the previous buffer. Overlap should be smaller (strict) than the
+	 * buffer size and can be zero. Defined in number of samples.
 	 */
 	private int floatOverlap, floatStepSize, floatPosition;
 
@@ -77,8 +78,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	/**
 	 * If true then the first buffer is only filled up to buffer size - hop size
 	 * E.g. if the buffer is 2048 and the hop size is 48 then you get 2000 times
-	 * zero 0 and 48 actual audio samples. During the next iteration you get mostly
-	 * zeros and 96 samples.
+	 * zero 0 and 48 actual audio samples. During the next iteration you get
+	 * mostly zeros and 96 samples.
 	 */
 	private boolean zeroPadFirstBuffer;
 
@@ -92,14 +93,15 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	/**
 	 * Create a new dispatcher junction processor
 	 *
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
+	 * @param audioBufferSize
+	 *            The size of the buffer defines how much samples are processed
+	 *            in one step. Common values are 1024,2048.
+	 * @param bufferOverlap
+	 *            How much consecutive buffers overlap (in samples). Half of the
+	 *            AudioBufferSize is common (512, 1024) for an FFT.
 	 */
-	public DispatchJunctionProcessor(final TarsosDSPAudioFormat format, final int audioBufferSize,
-			final int bufferOverlap) {
+	public DispatchJunctionProcessor(final TarsosDSPAudioFormat format,
+			final int audioBufferSize, final int bufferOverlap) {
 		// The copy on write list allows concurrent modification of the list
 		// while
 		// it is iterated. A nice feature to have when adding AudioProcessors
@@ -125,11 +127,13 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	/**
 	 * Adds an AudioProcessor to the chain of processors.
 	 *
-	 * @param audioProcessor The AudioProcessor to add.
+	 * @param audioProcessor
+	 *            The AudioProcessor to add.
 	 */
 	public void addAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.add(audioProcessor);
-		LOG.fine("Added an audioprocessor to the list of processors: " + audioProcessor.toString());
+		LOG.fine("Added an audioprocessor to the list of processors: "
+				+ audioProcessor.toString());
 	}
 
 	public TarsosDSPAudioFormat getFormat() {
@@ -167,8 +171,10 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 			return true;
 		}
 
-		boolean isFirstBuffer = (bytesProcessed == 0 || bytesProcessed == bytesToSkip);
-		boolean isExpanding = this.audioFloatBuffer.length >= incomingAudioEvent.getBufferSize();
+		boolean isFirstBuffer = (bytesProcessed == 0
+				|| bytesProcessed == bytesToSkip);
+		boolean isExpanding = this.audioFloatBuffer.length >= incomingAudioEvent
+				.getBufferSize();
 		boolean leftover = false;
 
 		int incomingBufferSize = incomingAudioEvent.getBufferSize();
@@ -183,21 +189,27 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 		if (isExpanding) {
 			if (lastBuffer == null) {
 				lastBuffer = new float[this.audioFloatBuffer.length];
-				transferAudioBuffer(incomingBufferSize, incomingPosition, incomingBuffer);
+				transferAudioBuffer(incomingBufferSize, incomingPosition,
+						incomingBuffer);
 			} else {
 				do {
 					leftover = false;
 					if (floatOverlap > 0 && processedLength == 0) {
-						System.arraycopy(lastBuffer, floatStepSize, audioFloatBuffer, 0, floatOverlap);
+						System.arraycopy(lastBuffer, floatStepSize,
+								audioFloatBuffer, 0, floatOverlap);
 						processedLength += floatOverlap;
 					}
-					if (processedLength + leftoverBuffer.length >= this.audioFloatBuffer.length) {
+					if (processedLength
+							+ leftoverBuffer.length >= this.audioFloatBuffer.length) {
 						leftover = true;
-						transferAudioBuffer(this.audioFloatBuffer.length - processedLength, 0, leftoverBuffer);
+						transferAudioBuffer(
+								this.audioFloatBuffer.length - processedLength,
+								0, leftoverBuffer);
 					} else {
 						if (leftoverBuffer.length > 0) {
 							try {
-								System.arraycopy(leftoverBuffer, 0, audioFloatBuffer, processedLength,
+								System.arraycopy(leftoverBuffer, 0,
+										audioFloatBuffer, processedLength,
 										leftoverBuffer.length);
 							} catch (Throwable t) {
 								System.out.println("..");
@@ -205,7 +217,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 							processedLength += leftoverBuffer.length;
 							leftoverBuffer = new float[0];
 						}
-						transferAudioBuffer(incomingBufferSize, incomingPosition, incomingBuffer);
+						transferAudioBuffer(incomingBufferSize,
+								incomingPosition, incomingBuffer);
 					}
 				} while (leftover);
 			}
@@ -214,14 +227,16 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 				do {
 					int copyLength = this.audioFloatBuffer.length;
 					if (isFirstBuffer) {
-						System.arraycopy(incomingBuffer, incomingPosition, audioFloatBuffer, 0, copyLength);
+						System.arraycopy(incomingBuffer, incomingPosition,
+								audioFloatBuffer, 0, copyLength);
 						// isFirstBuffer = false;
 					} else {
 
 					}
 					processedLength = copyLength;
 					audioEvent.setBytesProcessed(
-							(audioEvent.getSamplesProcessed() + processedLength) * format.getFrameSize());
+							(audioEvent.getSamplesProcessed() + processedLength)
+									* format.getFrameSize());
 					for (final AudioProcessor processor : audioProcessors) {
 						// System.out.println(
 						// ">>DJP 2 processor: " + name + ", " +
@@ -256,12 +271,14 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * Removes an AudioProcessor to the chain of processors and calls its
 	 * <code>processingFinished</code> method.
 	 *
-	 * @param audioProcessor The AudioProcessor to remove.
+	 * @param audioProcessor
+	 *            The AudioProcessor to remove.
 	 */
 	public void removeAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.remove(audioProcessor);
 		audioProcessor.processingFinished();
-		LOG.fine("Remove an audioprocessor to the list of processors: " + audioProcessor.toString());
+		LOG.fine("Remove an audioprocessor to the list of processors: "
+				+ audioProcessor.toString());
 	}
 
 	/**
@@ -269,7 +286,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * @return The currently processed number of seconds.
 	 */
 	public float secondsProcessed() {
-		return bytesProcessed / (format.getSampleSizeInBits() / 8) / format.getSampleRate() / format.getChannels();
+		return bytesProcessed / (format.getSampleSizeInBits() / 8)
+				/ format.getSampleRate() / format.getChannels();
 	}
 
 	public void setAudioFloatBuffer(float[] audioBuffer) {
@@ -281,17 +299,19 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	}
 
 	/**
-	 * Set a new step size and overlap size. Both in number of samples. Watch out
-	 * with this method: it should be called after a batch of samples is processed,
-	 * not during.
+	 * Set a new step size and overlap size. Both in number of samples. Watch
+	 * out with this method: it should be called after a batch of samples is
+	 * processed, not during.
 	 *
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
+	 * @param audioBufferSize
+	 *            The size of the buffer defines how much samples are processed
+	 *            in one step. Common values are 1024,2048.
+	 * @param bufferOverlap
+	 *            How much consecutive buffers overlap (in samples). Half of the
+	 *            AudioBufferSize is common (512, 1024) for an FFT.
 	 */
-	public void setStepSizeAndOverlap(final int audioBufferSize, final int bufferOverlap) {
+	public void setStepSizeAndOverlap(final int audioBufferSize,
+			final int bufferOverlap) {
 		audioFloatBuffer = new float[audioBufferSize];
 		processedLength = 0;
 		floatPosition = 0;
@@ -302,12 +322,13 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	}
 
 	/**
-	 * if zero pad is true then the first buffer is only filled up to buffer size -
-	 * hop size E.g. if the buffer is 2048 and the hop size is 48 then you get
-	 * 2000x0 and 48 filled audio samples
+	 * if zero pad is true then the first buffer is only filled up to buffer
+	 * size - hop size E.g. if the buffer is 2048 and the hop size is 48 then
+	 * you get 2000x0 and 48 filled audio samples
 	 *
-	 * @param zeroPadFirstBuffer true if the buffer should be zeroPadFirstBuffer,
-	 *                           false otherwise.
+	 * @param zeroPadFirstBuffer
+	 *            true if the buffer should be zeroPadFirstBuffer, false
+	 *            otherwise.
 	 */
 	public void setZeroPadFirstBuffer(boolean zeroPadFirstBuffer) {
 		this.zeroPadFirstBuffer = zeroPadFirstBuffer;
@@ -315,9 +336,9 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 	/**
 	 * If zero pad last buffer is true then the last buffer is filled with zeros
-	 * until the normal amount of elements are present in the buffer. Otherwise the
-	 * buffer only contains the last elements and no zeros. By default it is set to
-	 * true.
+	 * until the normal amount of elements are present in the buffer. Otherwise
+	 * the buffer only contains the last elements and no zeros. By default it is
+	 * set to true.
 	 *
 	 * @param zeroPadLastBuffer
 	 */
@@ -331,7 +352,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * @param seconds
 	 */
 	public void skip(double seconds) {
-		bytesToSkip = Math.round(seconds * format.getSampleRate()) * format.getFrameSize();
+		bytesToSkip = Math.round(seconds * format.getSampleRate())
+				* format.getFrameSize();
 	}
 
 	/**
@@ -345,18 +367,24 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 		}
 	}
 
-	private void transferAudioBuffer(int incomingBufferSize, int incomingPosition, float[] incomingBuffer) {
+	private void transferAudioBuffer(int incomingBufferSize,
+			int incomingPosition, float[] incomingBuffer) {
 		int lengthRemaining = this.audioFloatBuffer.length - processedLength;
-		int copyLength = incomingBufferSize <= lengthRemaining ? incomingBufferSize : lengthRemaining;
-		System.arraycopy(incomingBuffer, incomingPosition, audioFloatBuffer, processedLength, copyLength);
+		int copyLength = incomingBufferSize <= lengthRemaining
+				? incomingBufferSize
+				: lengthRemaining;
+		System.arraycopy(incomingBuffer, incomingPosition, audioFloatBuffer,
+				processedLength, copyLength);
 		processedLength += copyLength;
 		if (processedLength == this.audioFloatBuffer.length) {
 			if (firstProcessed) {
 				audioEvent.setBytesProcessed(
-						(audioEvent.getSamplesProcessed() + processedLength) * format.getFrameSize());
+						(audioEvent.getSamplesProcessed() + processedLength)
+								* format.getFrameSize());
 			} else {
 				audioEvent.setBytesProcessed(
-						(audioEvent.getSamplesProcessed() + this.floatStepSize) * format.getFrameSize());
+						(audioEvent.getSamplesProcessed() + this.floatStepSize)
+								* format.getFrameSize());
 			}
 			for (final AudioProcessor processor : audioProcessors) {
 				// System.out.println(
@@ -368,16 +396,19 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 					break;
 				}
 			}
-			System.arraycopy(audioFloatBuffer, 0, lastBuffer, 0, audioFloatBuffer.length);
+			System.arraycopy(audioFloatBuffer, 0, lastBuffer, 0,
+					audioFloatBuffer.length);
 			processedLength = 0;
 			leftoverBuffer = new float[incomingBufferSize - copyLength];
-			System.arraycopy(incomingBuffer, incomingPosition + copyLength, leftoverBuffer, 0,
-					incomingBufferSize - copyLength);
+			System.arraycopy(incomingBuffer, incomingPosition + copyLength,
+					leftoverBuffer, 0, incomingBufferSize - copyLength);
 			if (firstProcessed) {
-				bytesProcessed += this.audioFloatBuffer.length * audioEvent.getFrameLength();
+				bytesProcessed += this.audioFloatBuffer.length
+						* audioEvent.getFrameLength();
 				firstProcessed = false;
 			} else {
-				bytesProcessed += this.floatStepSize * audioEvent.getFrameLength();
+				bytesProcessed += this.floatStepSize
+						* audioEvent.getFrameLength();
 			}
 		}
 	}

@@ -47,7 +47,8 @@ public class SpectrogramPanel extends JComponent implements ComponentListener {
 	private int position;
 
 	public SpectrogramPanel() {
-		bufferedImage = new BufferedImage(640 * 4, 480 * 4, BufferedImage.TYPE_INT_RGB);
+		bufferedImage = new BufferedImage(640 * 4, 480 * 4,
+				BufferedImage.TYPE_INT_RGB);
 		bufferedGraphics = bufferedImage.createGraphics();
 		this.addComponentListener(this);
 	}
@@ -57,15 +58,20 @@ public class SpectrogramPanel extends JComponent implements ComponentListener {
 		final double maxFrequency = 11000; // Hz
 		int bin = 0;
 		final boolean logaritmic = true;
-		if (frequency != 0 && frequency > minFrequency && frequency < maxFrequency) {
+		if (frequency != 0 && frequency > minFrequency
+				&& frequency < maxFrequency) {
 			double binEstimate = 0;
 			if (logaritmic) {
-				final double minCent = PitchConverter.hertzToAbsoluteCent(minFrequency);
-				final double maxCent = PitchConverter.hertzToAbsoluteCent(maxFrequency);
-				final double absCent = PitchConverter.hertzToAbsoluteCent(frequency * 2);
+				final double minCent = PitchConverter
+						.hertzToAbsoluteCent(minFrequency);
+				final double maxCent = PitchConverter
+						.hertzToAbsoluteCent(maxFrequency);
+				final double absCent = PitchConverter
+						.hertzToAbsoluteCent(frequency * 2);
 				binEstimate = (absCent - minCent) / maxCent * getHeight();
 			} else {
-				binEstimate = (frequency - minFrequency) / maxFrequency * getHeight();
+				binEstimate = (frequency - minFrequency) / maxFrequency
+						* getHeight();
 			}
 			if (binEstimate > 700) {
 				System.out.println(binEstimate + "");
@@ -97,8 +103,9 @@ public class SpectrogramPanel extends JComponent implements ComponentListener {
 			Color color = Color.black;
 			if (maxAmplitude != 0) {
 
-				final int greyValue = (int) (Math.log1p(pixeledAmplitudes[i] / maxAmplitude) / Math.log1p(1.0000001)
-						* 255);
+				final int greyValue = (int) (Math
+						.log1p(pixeledAmplitudes[i] / maxAmplitude)
+						/ Math.log1p(1.0000001) * 255);
 				color = new Color(greyValue, greyValue, greyValue);
 			}
 			bufferedGraphics.setColor(color);
@@ -109,7 +116,8 @@ public class SpectrogramPanel extends JComponent implements ComponentListener {
 			int pitchIndex = frequencyToBin(pitch);
 			bufferedGraphics.setColor(Color.RED);
 			bufferedGraphics.fillRect(position, pitchIndex, 1, 1);
-			currentPitch = new StringBuilder("Current frequency: ").append((int) pitch).append("Hz").toString();
+			currentPitch = new StringBuilder("Current frequency: ")
+					.append((int) pitch).append("Hz").toString();
 		}
 
 		bufferedGraphics.clearRect(0, 0, 190, 30);
@@ -146,7 +154,8 @@ public class SpectrogramPanel extends JComponent implements ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		bufferedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+		bufferedImage = new BufferedImage(getWidth(), getHeight(),
+				BufferedImage.TYPE_INT_RGB);
 		bufferedGraphics = bufferedImage.createGraphics();
 		position = 0;
 	}

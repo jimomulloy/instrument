@@ -94,10 +94,12 @@ public class Druid implements Organ {
 
 		final int inset = 10;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		mainFrame.setBounds(inset, inset, screenSize.width - inset * 2, screenSize.height - inset * 2);
+		mainFrame.setBounds(inset, inset, screenSize.width - inset * 2,
+				screenSize.height - inset * 2);
 		mainFrame.pack();
 		mainFrame.setVisible(true);
-		mainFrame.setExtendedState(mainFrame.getExtendedState() | Frame.MAXIMIZED_BOTH);
+		mainFrame.setExtendedState(
+				mainFrame.getExtendedState() | Frame.MAXIMIZED_BOTH);
 	}
 
 	private void buildContent() {
@@ -113,7 +115,8 @@ public class Druid implements Organ {
 
 		final int inset1 = 45;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		contentPane.setPreferredSize(new Dimension(screenSize.width - inset1 * 2, screenSize.height - inset1 * 2));
+		contentPane.setPreferredSize(new Dimension(
+				screenSize.width - inset1 * 2, screenSize.height - inset1 * 2));
 
 		EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
 		BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);

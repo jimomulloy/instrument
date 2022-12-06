@@ -62,7 +62,8 @@ public class UtterAsterisk extends JFrame implements PitchDetectionHandler {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			String name = e.getActionCommand();
-			PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm.valueOf(name);
+			PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm
+					.valueOf(name);
 			algo = newAlgo;
 			try {
 				setNewMixer(currentMixer);
@@ -83,24 +84,26 @@ public class UtterAsterisk extends JFrame implements PitchDetectionHandler {
 
 		algo = PitchEstimationAlgorithm.YIN;
 
-		JPanel pitchDetectionPanel = new PitchDetectionPanel(algoChangeListener);
+		JPanel pitchDetectionPanel = new PitchDetectionPanel(
+				algoChangeListener);
 
 		JPanel inputPanel = new InputPanel();
 
-		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent arg0) {
-				try {
-					setNewMixer((Mixer) arg0.getNewValue());
-				} catch (LineUnavailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (UnsupportedAudioFileException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+		inputPanel.addPropertyChangeListener("mixer",
+				new PropertyChangeListener() {
+					@Override
+					public void propertyChange(PropertyChangeEvent arg0) {
+						try {
+							setNewMixer((Mixer) arg0.getNewValue());
+						} catch (LineUnavailableException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedAudioFileException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
 
 		JPanel containerPanel = new JPanel(new GridLayout(1, 0));
 		containerPanel.add(inputPanel);
@@ -109,12 +112,14 @@ public class UtterAsterisk extends JFrame implements PitchDetectionHandler {
 
 		JPanel otherContainer = new JPanel(new BorderLayout());
 		otherContainer.add(panel, BorderLayout.CENTER);
-		otherContainer.setBorder(new TitledBorder("3. Utter a sound (whistling works best)"));
+		otherContainer.setBorder(
+				new TitledBorder("3. Utter a sound (whistling works best)"));
 
 		this.add(otherContainer, BorderLayout.CENTER);
 	}
 
-	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer)
+			throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -126,11 +131,14 @@ public class UtterAsterisk extends JFrame implements PitchDetectionHandler {
 		int overlap = 0;
 
 		// textArea.append("Started listening with " +
-		// Shared.toLocalString(mixer.getMixerInfo().getName()) + "\n\tparams: " +
+		// Shared.toLocalString(mixer.getMixerInfo().getName()) + "\n\tparams: "
+		// +
 		// threshold + "dB\n");
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
-		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
+				false);
+		final DataLine.Info dataLineInfo = new DataLine.Info(
+				TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -143,7 +151,8 @@ public class UtterAsterisk extends JFrame implements PitchDetectionHandler {
 		dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
 		// add a processor, handle percussion event.
-		dispatcher.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
+		dispatcher.addAudioProcessor(
+				new PitchProcessor(algo, sampleRate, bufferSize, this));
 
 		// run the dispatcher (on a new thread).
 		new Thread(dispatcher, "Audio dispatching").start();
@@ -154,12 +163,14 @@ public class UtterAsterisk extends JFrame implements PitchDetectionHandler {
 	 */
 	private static final long serialVersionUID = 4787721035066991486L;
 
-	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings)
+			throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(
+							UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}
@@ -172,7 +183,8 @@ public class UtterAsterisk extends JFrame implements PitchDetectionHandler {
 	}
 
 	@Override
-	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
+	public void handlePitch(PitchDetectionResult pitchDetectionResult,
+			AudioEvent audioEvent) {
 		double timeStamp = audioEvent.getTimeStamp();
 		float pitch = pitchDetectionResult.getPitch();
 		panel.setMarker(timeStamp, pitch);
