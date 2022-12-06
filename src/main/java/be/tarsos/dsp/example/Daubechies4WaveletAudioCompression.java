@@ -67,16 +67,13 @@ public class Daubechies4WaveletAudioCompression extends JFrame {
 			@Override
 			public void run() {
 				try {
-					AudioDispatcher adp = AudioDispatcherFactory
-							.fromPipe(source, 44100, 32, 0);
-					AudioFormat format = JVMAudioInputStream
-							.toAudioFormat(adp.getFormat());
+					AudioDispatcher adp = AudioDispatcherFactory.fromPipe(source, 44100, 32, 0);
+					AudioFormat format = JVMAudioInputStream.toAudioFormat(adp.getFormat());
 					coder = new Daubechies4WaveletCoder(16);
 					Daubechies4WaveletDecoder decoder = new Daubechies4WaveletDecoder();
 					gain = new GainProcessor(1.0);
 					bithDeptProcessor = new BitDepthProcessor();
-					bithDeptProcessor
-							.setBitDepth(adp.getFormat().getSampleSizeInBits());
+					bithDeptProcessor.setBitDepth(adp.getFormat().getSampleSizeInBits());
 
 					adp.addAudioProcessor(coder);
 					adp.addAudioProcessor(decoder);
@@ -109,8 +106,7 @@ public class Daubechies4WaveletAudioCompression extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				double gainValue = gainSlider.getValue() / 100.0;
-				label.setText(String.format("Gain: %3d", gainSlider.getValue())
-						+ "%");
+				label.setText(String.format("Gain: %3d", gainSlider.getValue()) + "%");
 				if (gain != null)
 					gain.setGain(gainValue);
 			}
@@ -135,16 +131,14 @@ public class Daubechies4WaveletAudioCompression extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				int compressionValue = compressionSlider.getValue();
-				label.setText(
-						String.format("Compression: %3d", compressionValue));
+				label.setText(String.format("Compression: %3d", compressionValue));
 				if (coder != null)
 					coder.setCompression(compressionValue);
 			}
 		});
 
 		JPanel compressionPanel = new JPanel(new BorderLayout());
-		label.setToolTipText(
-				"Compression in steps (0 is no compression, 32 is no signal).");
+		label.setToolTipText("Compression in steps (0 is no compression, 32 is no signal).");
 		compressionPanel.add(label, BorderLayout.NORTH);
 		compressionPanel.add(compressionSlider, BorderLayout.CENTER);
 		compressionPanel.setBorder(new TitledBorder("Compression control"));
@@ -175,8 +169,7 @@ public class Daubechies4WaveletAudioCompression extends JFrame {
 		return compressionPanel;
 	}
 
-	public static void main(String[] args)
-			throws InvocationTargetException, InterruptedException {
+	public static void main(String[] args) throws InvocationTargetException, InterruptedException {
 		final String source;
 		if (args.length == 1) {
 			source = args[0];

@@ -47,8 +47,7 @@ public class PitchDetectionPanel extends JPanel {
 		setBorder(new TitledBorder("2. Choose a pitch detection algorithm"));
 		ButtonGroup group = new ButtonGroup();
 		algo = PitchEstimationAlgorithm.YIN;
-		for (PitchEstimationAlgorithm value : PitchEstimationAlgorithm
-				.values()) {
+		for (PitchEstimationAlgorithm value : PitchEstimationAlgorithm.values()) {
 			JRadioButton button = new JRadioButton();
 			button.setText(value.toString());
 			add(button);

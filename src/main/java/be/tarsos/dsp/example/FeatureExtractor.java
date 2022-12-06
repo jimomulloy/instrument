@@ -93,8 +93,7 @@ public class FeatureExtractor {
 					printHelp(appToExecute);
 					SharedCommandLineUtilities.printLine();
 					System.err.println("Current error:");
-					System.err.println(
-							"\tIO error, maybe the audio file is not found or not supported!");
+					System.err.println("\tIO error, maybe the audio file is not found or not supported!");
 				}
 			}
 		}
@@ -106,12 +105,10 @@ public class FeatureExtractor {
 		System.err.println("\tTarsosDSP feature extractor");
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Synopsis:");
-		System.err.println(
-				"\tjava -jar FeatureExtractor.jar SUB_COMMAND [options...]");
+		System.err.println("\tjava -jar FeatureExtractor.jar SUB_COMMAND [options...]");
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Description:");
-		System.err.println(
-				"\t Extracts features from an audio file, SUB_COMMAND needs\n\tto be one of the following:");
+		System.err.println("\t Extracts features from an audio file, SUB_COMMAND needs\n\tto be one of the following:");
 		for (FeatureExtractorApp app : featureExtractors) {
 			System.err.println("\t\t" + app.name());
 		}
@@ -120,12 +117,10 @@ public class FeatureExtractor {
 	private final void printHelp(FeatureExtractorApp appToExecute) {
 		SharedCommandLineUtilities.printPrefix();
 		System.err.println("Name:");
-		System.err.println(
-				"\tTarsosDSP " + appToExecute.name() + " feature extractor");
+		System.err.println("\tTarsosDSP " + appToExecute.name() + " feature extractor");
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Synopsis:");
-		System.err.println("\tjava -jar FeatureExtractor.jar "
-				+ appToExecute.name() + " " + appToExecute.synopsis());
+		System.err.println("\tjava -jar FeatureExtractor.jar " + appToExecute.name() + " " + appToExecute.synopsis());
 		SharedCommandLineUtilities.printLine();
 		System.err.println("Description:");
 		System.err.println(appToExecute.description());
@@ -145,8 +140,7 @@ public class FeatureExtractor {
 
 		String synopsis();
 
-		boolean run(String... args)
-				throws UnsupportedAudioFileException, IOException;
+		boolean run(String... args) throws UnsupportedAudioFileException, IOException;
 
 	}
 
@@ -168,8 +162,7 @@ public class FeatureExtractor {
 		}
 
 		@Override
-		public boolean run(String... args)
-				throws UnsupportedAudioFileException, IOException {
+		public boolean run(String... args) throws UnsupportedAudioFileException, IOException {
 			if (args.length != 2) {
 				return false;
 			}
@@ -178,8 +171,7 @@ public class FeatureExtractor {
 			File audioFile = new File(inputFile);
 			int size = 2048;
 			int overlap = 0;
-			AudioDispatcher dispatcher = AudioDispatcherFactory
-					.fromFile(audioFile, size, overlap);
+			AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile, size, overlap);
 
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 				@Override
@@ -188,8 +180,7 @@ public class FeatureExtractor {
 
 				@Override
 				public boolean process(AudioEvent audioEvent) {
-					System.out.println(audioEvent.getTimeStamp() + ","
-							+ audioEvent.getRMS());
+					System.out.println(audioEvent.getTimeStamp() + "," + audioEvent.getRMS());
 					return true;
 				}
 			});
@@ -216,8 +207,7 @@ public class FeatureExtractor {
 		}
 
 		@Override
-		public boolean run(String... args)
-				throws UnsupportedAudioFileException, IOException {
+		public boolean run(String... args) throws UnsupportedAudioFileException, IOException {
 			if (args.length != 2) {
 				return false;
 			}
@@ -227,8 +217,7 @@ public class FeatureExtractor {
 			int size = 2048;
 			int overlap = 0;
 			final SilenceDetector silenceDetecor = new SilenceDetector();
-			AudioDispatcher dispatcher = AudioDispatcherFactory
-					.fromFile(audioFile, size, overlap);
+			AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile, size, overlap);
 			dispatcher.addAudioProcessor(silenceDetecor);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 				@Override
@@ -237,8 +226,7 @@ public class FeatureExtractor {
 
 				@Override
 				public boolean process(AudioEvent audioEvent) {
-					System.out.println(audioEvent.getTimeStamp() + ","
-							+ silenceDetecor.currentSPL());
+					System.out.println(audioEvent.getTimeStamp() + "," + silenceDetecor.currentSPL());
 					return true;
 				}
 			});
@@ -247,10 +235,7 @@ public class FeatureExtractor {
 		}
 	}
 
-	private class PitchExtractor
-			implements
-				FeatureExtractorApp,
-				PitchDetectionHandler {
+	private class PitchExtractor implements FeatureExtractorApp, PitchDetectionHandler {
 
 		@Override
 		public String name() {
@@ -262,8 +247,7 @@ public class FeatureExtractor {
 			String descr = "\tCalculates pitch in Hz for each block of 2048 samples. \n\tThe output is a semicolon separated list of a timestamp, frequency in hertz and \n\ta probability which describes how pitched the sound is at the given time. ";
 			descr += "\n\n\tinput.wav\t\ta readable wav file.";
 			descr += "\n\t--detector DETECTOR\tdefaults to FFT_YIN or one of these:\n\t\t\t\t";
-			for (PitchEstimationAlgorithm algo : PitchEstimationAlgorithm
-					.values()) {
+			for (PitchEstimationAlgorithm algo : PitchEstimationAlgorithm.values()) {
 				descr += algo.name() + "\n\t\t\t\t";
 			}
 			return descr;
@@ -276,21 +260,17 @@ public class FeatureExtractor {
 		}
 
 		@Override
-		public boolean run(String... args)
-				throws UnsupportedAudioFileException, IOException {
+		public boolean run(String... args) throws UnsupportedAudioFileException, IOException {
 			PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_YIN;
 			String inputFile = args[1];
 
 			if (args.length == 1 || args.length == 3) {
 				return false;
-			} else if (args.length == 4
-					&& !args[1].equalsIgnoreCase("--detector")) {
+			} else if (args.length == 4 && !args[1].equalsIgnoreCase("--detector")) {
 				return false;
-			} else if (args.length == 4
-					&& args[1].equalsIgnoreCase("--detector")) {
+			} else if (args.length == 4 && args[1].equalsIgnoreCase("--detector")) {
 				try {
-					algo = PitchEstimationAlgorithm
-							.valueOf(args[2].toUpperCase());
+					algo = PitchEstimationAlgorithm.valueOf(args[2].toUpperCase());
 					inputFile = args[3];
 				} catch (IllegalArgumentException e) {
 					// if enum value string is not recognized
@@ -298,21 +278,17 @@ public class FeatureExtractor {
 				}
 			}
 			File audioFile = new File(inputFile);
-			float samplerate = AudioSystem.getAudioFileFormat(audioFile)
-					.getFormat().getSampleRate();
+			float samplerate = AudioSystem.getAudioFileFormat(audioFile).getFormat().getSampleRate();
 			int size = 1024;
 			int overlap = 0;
-			AudioDispatcher dispatcher = AudioDispatcherFactory
-					.fromFile(audioFile, size, overlap);
-			dispatcher.addAudioProcessor(
-					new PitchProcessor(algo, samplerate, size, this));
+			AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile, size, overlap);
+			dispatcher.addAudioProcessor(new PitchProcessor(algo, samplerate, size, this));
 			dispatcher.run();
 			return true;
 		}
 
 		@Override
-		public void handlePitch(PitchDetectionResult pitchDetectionResult,
-				AudioEvent audioEvent) {
+		public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
 			double timeStamp = audioEvent.getTimeStamp();
 			float pitch = pitchDetectionResult.getPitch();
 			float probability = pitchDetectionResult.getProbability();
@@ -343,16 +319,14 @@ public class FeatureExtractor {
 		}
 
 		@Override
-		public boolean run(String... args)
-				throws UnsupportedAudioFileException, IOException {
+		public boolean run(String... args) throws UnsupportedAudioFileException, IOException {
 			String inputFile = args[1];
 			File audioFile = new File(inputFile);
 			int size = 512;
 			int overlap = 256;
-			AudioDispatcher dispatcher = AudioDispatcherFactory.fromPipe(
-					audioFile.getAbsolutePath(), 44100, size, overlap);
-			ComplexOnsetDetector detector = new ComplexOnsetDetector(size, 0.7,
-					0.1);
+			AudioDispatcher dispatcher = AudioDispatcherFactory.fromPipe(audioFile.getAbsolutePath(), 44100, size,
+					overlap);
+			ComplexOnsetDetector detector = new ComplexOnsetDetector(size, 0.7, 0.1);
 			detector.setHandler(this);
 			dispatcher.addAudioProcessor(detector);
 
@@ -389,14 +363,12 @@ public class FeatureExtractor {
 		}
 
 		@Override
-		public boolean run(String... args)
-				throws UnsupportedAudioFileException, IOException {
+		public boolean run(String... args) throws UnsupportedAudioFileException, IOException {
 			String inputFile = args[1];
 			File audioFile = new File(inputFile);
 			int size = 512;
 			int overlap = 256;
-			AudioDispatcher dispatcher = AudioDispatcherFactory
-					.fromFile(audioFile, size, overlap);
+			AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile, size, overlap);
 
 			ComplexOnsetDetector detector = new ComplexOnsetDetector(size);
 			BeatRootOnsetEventHandler handler = new BeatRootOnsetEventHandler();

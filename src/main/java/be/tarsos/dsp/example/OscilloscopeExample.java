@@ -48,9 +48,7 @@ import be.tarsos.dsp.Oscilloscope;
 import be.tarsos.dsp.Oscilloscope.OscilloscopeEventHandler;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 
-public class OscilloscopeExample extends JFrame
-		implements
-			OscilloscopeEventHandler {
+public class OscilloscopeExample extends JFrame implements OscilloscopeEventHandler {
 
 	/**
 	 * 
@@ -69,21 +67,20 @@ public class OscilloscopeExample extends JFrame
 
 		JPanel inputPanel = new InputPanel();
 		// add(inputPanel);
-		inputPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						try {
-							setNewMixer((Mixer) arg0.getNewValue());
-						} catch (LineUnavailableException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedAudioFileException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
+		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				try {
+					setNewMixer((Mixer) arg0.getNewValue());
+				} catch (LineUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedAudioFileException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 
 		panel = new GaphPanel();
 		this.add(inputPanel, BorderLayout.NORTH);
@@ -113,10 +110,8 @@ public class OscilloscopeExample extends JFrame
 				float height = getHeight();
 				float halfHeight = height / 2;
 				for (int i = 0; i < data.length; i += 4) {
-					g.drawLine((int) (data[i] * width),
-							(int) (halfHeight - data[i + 1] * height),
-							(int) (data[i + 2] * width),
-							(int) (halfHeight - data[i + 3] * height));
+					g.drawLine((int) (data[i] * width), (int) (halfHeight - data[i + 1] * height),
+							(int) (data[i + 2] * width), (int) (halfHeight - data[i + 3] * height));
 				}
 			}
 		}
@@ -126,8 +121,7 @@ public class OscilloscopeExample extends JFrame
 		}
 	}
 
-	private void setNewMixer(Mixer mixer)
-			throws LineUnavailableException, UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -138,10 +132,8 @@ public class OscilloscopeExample extends JFrame
 		int bufferSize = 2048;
 		int overlap = 0;
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-				true);
-		final DataLine.Info dataLineInfo = new DataLine.Info(
-				TargetDataLine.class, format);
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -162,8 +154,7 @@ public class OscilloscopeExample extends JFrame
 		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings)
-			throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {

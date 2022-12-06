@@ -60,8 +60,7 @@ public class SynthesisExample {
 		generator.addAudioProcessor(new AmplitudeLFO(0.1, 0.7));
 		generator.addAudioProcessor(new DelayEffect(0.757, 0.4, 44100));
 		generator.addAudioProcessor(new FlangerEffect(0.1, 0.2, 44100, 4));
-		generator.addAudioProcessor(
-				new AudioPlayer(new AudioFormat(44100, 16, 1, true, false)));
+		generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, false)));
 		generator.run();
 	}
 }

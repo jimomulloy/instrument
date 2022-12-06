@@ -77,21 +77,20 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 		this.setTitle("Percussion Detector");
 
 		JPanel inputPanel = new InputPanel();
-		inputPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						try {
-							setNewMixer((Mixer) arg0.getNewValue());
-						} catch (LineUnavailableException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedAudioFileException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
+		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				try {
+					setNewMixer((Mixer) arg0.getNewValue());
+				} catch (LineUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedAudioFileException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 
 		JSlider thresholdSlider = initialzeThresholdSlider();
 		JPanel params = new JPanel(new GridLayout(0, 1));
@@ -141,21 +140,17 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 	}
 
 	private void addClips() {
-		String[] clips = {"50863__chipfork__Echopop.wav",
-				"50771__Digital_System__BOOM_reverb.wav",
-				"30667__HardPCM__HardBassDrum001.wav",
-				"30669__HardPCM__HardKick002.wav",
-				"33637__HerbertBoland__CinematicBoomNorm.wav"};
+		String[] clips = { "50863__chipfork__Echopop.wav", "50771__Digital_System__BOOM_reverb.wav",
+				"30667__HardPCM__HardBassDrum001.wav", "30669__HardPCM__HardKick002.wav",
+				"33637__HerbertBoland__CinematicBoomNorm.wav" };
 		for (String clipName : clips) {
 
 			try {
-				final InputStream inputStream = this.getClass()
-						.getResourceAsStream("resources/" + clipName);
+				final InputStream inputStream = this.getClass().getResourceAsStream("resources/" + clipName);
 				AudioInputStream sound;
 				sound = AudioSystem.getAudioInputStream(inputStream);
 				// load the sound into memory (a Clip)
-				DataLine.Info info = new DataLine.Info(Clip.class,
-						sound.getFormat());
+				DataLine.Info info = new DataLine.Info(Clip.class, sound.getFormat());
 				Clip clip = (Clip) AudioSystem.getLine(info);
 				clip.open(sound);
 				clipList.add(clip);
@@ -178,8 +173,7 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 	AudioDispatcher dispatcher;
 	Mixer currentMixer;
 
-	private void setNewMixer(Mixer mixer)
-			throws LineUnavailableException, UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -190,14 +184,11 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 		int bufferSize = 512;
 		int overlap = 0;
 
-		textArea.append("Started listening with "
-				+ Shared.toLocalString(mixer.getMixerInfo().getName())
+		textArea.append("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName())
 				+ "\n\tparams: " + threshold + "dB\n");
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-				true);
-		final DataLine.Info dataLineInfo = new DataLine.Info(
-				TargetDataLine.class, format);
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -208,8 +199,7 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 		// create a new dispatcher
 		dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
-		onsetDetector = new ComplexOnsetDetector(bufferSize, threshold, 0.07,
-				-60);
+		onsetDetector = new ComplexOnsetDetector(bufferSize, threshold, 0.07, -60);
 		onsetDetector.setHandler(this);
 		// add a processor, handle percussion event.
 		dispatcher.addAudioProcessor(onsetDetector);
@@ -218,14 +208,12 @@ public class OnsetDetector extends JFrame implements OnsetHandler {
 		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings)
-			throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(
-							UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}

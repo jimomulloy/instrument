@@ -26,8 +26,7 @@ public class ScalogramFrame {
 			dataPerScale[i] = new float[samples];
 			durationsOfBlockPerLevel[i] = (131072 / (float) samples) / 44100.0f;
 			stopFrequencyPerLevel[i] = (float) PitchConverter
-					.hertzToAbsoluteCent(44100
-							/ (float) HaarWaveletTransform.pow2(levels - i));
+					.hertzToAbsoluteCent(44100 / (float) HaarWaveletTransform.pow2(levels - i));
 			if (i > 0) {
 				startFrequencyPerLevel[i] = stopFrequencyPerLevel[i - 1];
 			}
@@ -38,8 +37,7 @@ public class ScalogramFrame {
 
 	@Override
 	public ScalogramFrame clone() {
-		ScalogramFrame cloned = new ScalogramFrame(this.transformedData,
-				this.currentMax);
+		ScalogramFrame cloned = new ScalogramFrame(this.transformedData, this.currentMax);
 		return cloned;
 	}
 
@@ -67,12 +65,9 @@ public class ScalogramFrame {
 		return transformedData;
 	}
 
-	private void mra(float[] transformedData, int level,
-			float[][] dataPerScale) {
-		int startIndex = transformedData.length
-				/ HaarWaveletTransform.pow2(dataPerScale.length - level);
-		int stopIndex = transformedData.length
-				/ HaarWaveletTransform.pow2(dataPerScale.length - level - 1);
+	private void mra(float[] transformedData, int level, float[][] dataPerScale) {
+		int startIndex = transformedData.length / HaarWaveletTransform.pow2(dataPerScale.length - level);
+		int stopIndex = transformedData.length / HaarWaveletTransform.pow2(dataPerScale.length - level - 1);
 
 		int j = 0;
 		for (int i = startIndex; i < stopIndex; i++) {

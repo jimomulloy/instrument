@@ -31,21 +31,17 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	private TarsosFeatureSource tarsosFeatures;
 	private AudioFeatureFrameState state = AudioFeatureFrameState.INITIALISED;
 
-	public AudioFeatureProcessor(String streamId,
-			TarsosFeatureSource tarsosFeatures) {
+	public AudioFeatureProcessor(String streamId, TarsosFeatureSource tarsosFeatures) {
 		this.streamId = streamId;
 		this.tarsosFeatures = tarsosFeatures;
 		addObserver(Instrument.getInstance().getDruid().getVisor());
-		Oscilloscope oscilloscope = new Oscilloscope(
-				Instrument.getInstance().getDruid().getVisor());
+		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getDruid().getVisor());
 		tarsosFeatures.getDispatcher().addAudioProcessor(oscilloscope);
 	}
 
-	public void addAudioFeatureFrame(double time,
-			AudioFeatureFrame audioFeatureFrame) {
+	public void addAudioFeatureFrame(double time, AudioFeatureFrame audioFeatureFrame) {
 		audioFeatureFrames.put(audioFeatureFrame.getStart(), audioFeatureFrame);
-		audioFeatureFrameSequence.put(audioFeatureFrame.getFrameSequence(),
-				audioFeatureFrame);
+		audioFeatureFrameSequence.put(audioFeatureFrame.getFrameSequence(), audioFeatureFrame);
 		for (AudioFeatureFrameObserver observer : this.observers) {
 			observer.audioFeatureFrameAdded(audioFeatureFrame);
 		}
@@ -112,11 +108,9 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
-		// System.out.println(">>process audioEvent startTimeMS: " + startTimeMS
-		// + ",
+		// System.out.println(">>process audioEvent startTimeMS: " + startTimeMS + ",
 		// firstTimeStamp: " + firstTimeStamp
-		// + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " +
-		// endTimeStamp +
+		// + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp +
 		// ", frameSequence: "
 		// + frameSequence);
 		if (lastTimeStamp < startTimeMS) {
@@ -124,19 +118,15 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				if (firstTimeStamp == -1) {
 					firstTimeStamp = lastTimeStamp;
 				}
-				if (endTimeStamp == -1
-						&& (startTimeMS - lastTimeStamp >= interval)) {
+				if (endTimeStamp == -1 && (startTimeMS - lastTimeStamp >= interval)) {
 					endTimeStamp = startTimeMS;
 				}
 				if (startTimeMS - lastTimeStamp >= (interval + lag)) {
 					frameSequence++;
-					System.out.println(">>process audioEvent startTimeMS: "
-							+ startTimeMS + ", firstTimeStamp: "
-							+ firstTimeStamp + ", lastTimeStamp: "
-							+ lastTimeStamp + ", endTimeStamp: " + endTimeStamp
+					System.out.println(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: "
+							+ firstTimeStamp + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
 							+ ", frameSequence: " + frameSequence);
-					createAudioFeatureFrame(frameSequence, firstTimeStamp,
-							endTimeStamp);
+					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
 					lastTimeStamp = startTimeMS;
 					firstTimeStamp = -1;
 					endTimeStamp = -1;
@@ -154,14 +144,12 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				if (firstTimeStamp == -1) {
 					firstTimeStamp = startTimeMS;
 				}
-				if (endTimeStamp == -1
-						&& (currentProcessTime - lastTimeStamp >= interval)) {
+				if (endTimeStamp == -1 && (currentProcessTime - lastTimeStamp >= interval)) {
 					endTimeStamp = currentProcessTime;
 				}
 				if (currentProcessTime - lastTimeStamp >= (interval + lag)) {
 					frameSequence++;
-					createAudioFeatureFrame(frameSequence, firstTimeStamp,
-							endTimeStamp);
+					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
 					lastTimeStamp = endTimeStamp;
 					firstTimeStamp = -1;
 					endTimeStamp = -1;
@@ -175,13 +163,11 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	@Override
 	public void processingFinished() {
 		frameSequence++;
-		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(
-				frameSequence, lastTimeStamp, currentProcessTime);
+		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
 		state = AudioFeatureFrameState.CLOSED;
 		lastSequence = frameSequence;
-		Instrument.getInstance().getCoordinator().getHearing()
-				.closeAudioStream(streamId);
+		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);
 	}
 
 	public void removeObserver(AudioFeatureFrameObserver observer) {
@@ -192,10 +178,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		this.maxFrames = maxFrames;
 	}
 
-	private AudioFeatureFrame createAudioFeatureFrame(int frameSequence,
-			double firstTimeStamp, double endTimeStamp) {
-		AudioFeatureFrame audioFeatureFrame = new AudioFeatureFrame(this,
-				frameSequence, firstTimeStamp, endTimeStamp);
+	private AudioFeatureFrame createAudioFeatureFrame(int frameSequence, double firstTimeStamp, double endTimeStamp) {
+		AudioFeatureFrame audioFeatureFrame = new AudioFeatureFrame(this, frameSequence, firstTimeStamp, endTimeStamp);
 		audioFeatureFrame.initialise();
 		addAudioFeatureFrame(firstTimeStamp, audioFeatureFrame);
 		return audioFeatureFrame;

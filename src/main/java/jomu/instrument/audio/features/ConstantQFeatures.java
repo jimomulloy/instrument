@@ -7,13 +7,13 @@ import java.util.TreeMap;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.Oscillator;
-import jomu.instrument.monitor.Visor;
-import jomu.instrument.workspace.tonemap.PitchSet;
-import jomu.instrument.workspace.tonemap.TimeSet;
-import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneMapConstants;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
-import jomu.instrument.workspace.tonemap.ToneTimeFrame;
+import jomu.instrument.ui.Visor;
+import jomu.instrument.world.tonemap.PitchSet;
+import jomu.instrument.world.tonemap.TimeSet;
+import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.world.tonemap.ToneMapConstants;
+import jomu.instrument.world.tonemap.ToneMapElement;
+import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class ConstantQFeatures implements ToneMapConstants {
 
@@ -46,16 +46,13 @@ public class ConstantQFeatures implements ToneMapConstants {
 		int frameSequence = audioFeatureFrame.getFrameSequence() - 1;
 		if (frameSequence > 0) {
 			previousFrame = audioFeatureFrame.getAudioFeatureProcessor()
-					.getAudioFeatureFrame(
-							audioFeatureFrame.getFrameSequence() - 1);
+					.getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
-		if ((time < audioFeatureFrame.getStart() / 1000.0)
-				&& previousFrame != null) {
+		if ((time < audioFeatureFrame.getStart() / 1000.0) && previousFrame != null) {
 			previousFrame.getConstantQFeatures().addFeature(time, values);
 		} else {
 			this.features.put(time, values);
-			if (previousFrame != null
-					&& !previousFrame.getConstantQFeatures().isCommitted()) {
+			if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
 				// previousFrame.getConstantQFeatures().buildToneMap();
 				previousFrame.getConstantQFeatures().commit();
 			}
@@ -68,8 +65,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 		if (features.size() > 0) {
 
-			float[] binStartingPointsInCents = cqs
-					.getBinStartingPointsInCents();
+			float[] binStartingPointsInCents = cqs.getBinStartingPointsInCents();
 			float binWidth = cqs.getBinWidth();
 			double timeStart = -1;
 			double nextTime = -1;
@@ -81,35 +77,37 @@ public class ConstantQFeatures implements ToneMapConstants {
 				}
 			}
 
-			System.out.println(">>CQ: " + timeStart + ", " + nextTime + binWidth
-					+ ", " + cqs.getSampleRate());
-			timeSet = new TimeSet(timeStart, nextTime + binWidth,
-					cqs.getSampleRate(), nextTime + binWidth - timeStart);
+			System.out.println(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + cqs.getSampleRate());
+			timeSet = new TimeSet(timeStart, nextTime + binWidth, cqs.getSampleRate(), nextTime + binWidth - timeStart);
 
 			int window = timeSet.getSampleWindow();
 
-			int lowPitch = PitchSet.freqToMidiNote(PitchConverter
-					.absoluteCentToHertz(binStartingPointsInCents[0]));
-			int highPitch = PitchSet
-					.freqToMidiNote(PitchConverter.absoluteCentToHertz(
-							binStartingPointsInCents[binStartingPointsInCents.length
-									- 1]));
+			int lowPitch = PitchSet.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[0]));
+			int highPitch = PitchSet.freqToMidiNote(
+					PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
 
 			pitchSet = new PitchSet(lowPitch, highPitch);
 			System.out.println(">>CQ lowPitch: " + lowPitch + ", " + highPitch);
 
+			// toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
+
+			int counter = 0;
 
 			for (Map.Entry<Double, float[]> entry : features.entrySet()) {
 				float[] spectralEnergy = entry.getValue();
 				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < spectralEnergy.length; i++) {
 					elements[i].amplitude += spectralEnergy[i];
+					if (i == 0) {
+						counter++;
+					}
 				}
 			}
 
 			ttf.reset();
+			// visor.updateToneMap(audioFeatureFrame);
 		}
 	}
 
@@ -118,11 +116,9 @@ public class ConstantQFeatures implements ToneMapConstants {
 		int frameSequence = audioFeatureFrame.getFrameSequence() - 1;
 		if (frameSequence > 0) {
 			previousFrame = audioFeatureFrame.getAudioFeatureProcessor()
-					.getAudioFeatureFrame(
-							audioFeatureFrame.getFrameSequence() - 1);
+					.getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
-		if (previousFrame != null
-				&& !previousFrame.getConstantQFeatures().isCommitted()) {
+		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
 			previousFrame.close();
 		}
 		// if (features.size() > 0) {
@@ -163,14 +159,12 @@ public class ConstantQFeatures implements ToneMapConstants {
 
 	private void commit() {
 		isCommitted = true;
-		audioFeatureFrame.getAudioFeatureProcessor()
-				.audioFeatureFrameChanged(audioFeatureFrame);
+		audioFeatureFrame.getAudioFeatureProcessor().audioFeatureFrameChanged(audioFeatureFrame);
 	}
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.cqs = audioFeatureFrame.getAudioFeatureProcessor()
-				.getTarsosFeatures().getConstantQSource();
+		this.cqs = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getConstantQSource();
 		this.visor = Instrument.getInstance().getDruid().getVisor();
 		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
 		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {

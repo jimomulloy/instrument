@@ -148,16 +148,14 @@ public class Delay extends JFrame {
 		label.setToolTipText("Volume in % (100 is no change).");
 		gainPanel.add(label, BorderLayout.NORTH);
 		gainPanel.add(gainSlider, BorderLayout.CENTER);
-		gainPanel.setBorder(
-				new TitledBorder("3. Optionally change the input volume"));
+		gainPanel.setBorder(new TitledBorder("3. Optionally change the input volume"));
 
 		add(inputPanel, BorderLayout.NORTH);
 		add(params, BorderLayout.CENTER);
 		add(gainPanel, BorderLayout.SOUTH);
 	}
 
-	private void setNewMixer(Mixer mixer)
-			throws LineUnavailableException, UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -167,24 +165,20 @@ public class Delay extends JFrame {
 		int bufferSize = 1024;
 		int overlap = 0;
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-				false);
-		final DataLine.Info dataLineInfo = new DataLine.Info(
-				TargetDataLine.class, format);
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
+		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
 		line.open(format, numberOfSamples);
 		line.start();
 		final AudioInputStream stream = new AudioInputStream(line);
-		final TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(
-				stream);
+		final TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 
 		// create a new dispatcher
 		dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
-		delayEffect = new DelayEffect(defaultDelay / 1000.0,
-				defaultDecay / 100.0, sampleRate);
+		delayEffect = new DelayEffect(defaultDelay / 1000.0, defaultDecay / 100.0, sampleRate);
 		inputGain = new GainProcessor(defaultInputGain / 100.0);
 
 		// add processors
@@ -196,14 +190,12 @@ public class Delay extends JFrame {
 		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings)
-			throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(
-							UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}

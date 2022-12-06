@@ -82,21 +82,20 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 
 		JPanel inputPanel = new InputPanel();
 		// add(inputPanel);
-		inputPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						try {
-							setNewMixer((Mixer) arg0.getNewValue());
-						} catch (LineUnavailableException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedAudioFileException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
+		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				try {
+					setNewMixer((Mixer) arg0.getNewValue());
+				} catch (LineUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedAudioFileException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 
 		JSlider thresholdSlider = initialzeThresholdSlider();
 		JPanel params = new JPanel(new BorderLayout());
@@ -173,8 +172,7 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 			}
 
 			for (int i = 0; i < levels.size(); i++) {
-				g.setColor(
-						levels.get(i) > threshold ? Color.GREEN : Color.ORANGE);
+				g.setColor(levels.get(i) > threshold ? Color.GREEN : Color.ORANGE);
 				int x = msToXCoordinate(startTimes.get(i));
 				int y = levelToYCoordinate(levels.get(i));
 				g.drawLine(x, y, x + 1, y);
@@ -182,16 +180,13 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 
 			int thresholdYCoordinate = levelToYCoordinate(threshold);
 			g.setColor(Color.ORANGE);
-			g.drawLine(0, thresholdYCoordinate, getWidth(),
-					thresholdYCoordinate);
-			g.drawString(String.valueOf((int) threshold), 0,
-					thresholdYCoordinate + 15);
+			g.drawLine(0, thresholdYCoordinate, getWidth(), thresholdYCoordinate);
+			g.drawString(String.valueOf((int) threshold), 0, thresholdYCoordinate + 15);
 
 			int maxYCoordinate = levelToYCoordinate(maxLevel);
 			g.setColor(Color.RED);
 			g.drawLine(0, maxYCoordinate, getWidth(), maxYCoordinate);
-			g.drawString(String.valueOf(((int) (maxLevel * 100)) / 100.0),
-					getWidth() - 40, maxYCoordinate + 15);
+			g.drawString(String.valueOf(((int) (maxLevel * 100)) / 100.0), getWidth() - 40, maxYCoordinate + 15);
 
 		}
 
@@ -236,8 +231,7 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 		return thresholdSlider;
 	}
 
-	private void setNewMixer(Mixer mixer)
-			throws LineUnavailableException, UnsupportedAudioFileException {
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
 
 		if (dispatcher != null) {
 			dispatcher.stop();
@@ -248,14 +242,11 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 		int bufferSize = 512;
 		int overlap = 0;
 
-		textArea.append("Started listening with "
-				+ Shared.toLocalString(mixer.getMixerInfo().getName())
+		textArea.append("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName())
 				+ "\n\tparams: " + threshold + "dB\n");
 
-		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-				true);
-		final DataLine.Info dataLineInfo = new DataLine.Info(
-				TargetDataLine.class, format);
+		final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+		final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 		TargetDataLine line;
 		line = (TargetDataLine) mixer.getLine(dataLineInfo);
 		final int numberOfSamples = bufferSize;
@@ -276,8 +267,7 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 		new Thread(dispatcher, "Audio dispatching").start();
 	}
 
-	public static void main(String... strings)
-			throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
@@ -297,12 +287,11 @@ public class SoundDetector extends JFrame implements AudioProcessor {
 
 	private void handleSound() {
 		if (silenceDetector.currentSPL() > threshold) {
-			textArea.append("Sound detected at:" + System.currentTimeMillis()
-					+ ", " + (int) (silenceDetector.currentSPL()) + "dB SPL\n");
+			textArea.append("Sound detected at:" + System.currentTimeMillis() + ", "
+					+ (int) (silenceDetector.currentSPL()) + "dB SPL\n");
 			textArea.setCaretPosition(textArea.getDocument().getLength());
 		}
-		graphPanel.addDataPoint(silenceDetector.currentSPL(),
-				System.currentTimeMillis());
+		graphPanel.addDataPoint(silenceDetector.currentSPL(), System.currentTimeMillis());
 	}
 
 	@Override

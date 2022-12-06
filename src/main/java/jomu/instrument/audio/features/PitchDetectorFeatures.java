@@ -4,13 +4,13 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.monitor.Visor;
-import jomu.instrument.workspace.tonemap.PitchSet;
-import jomu.instrument.workspace.tonemap.TimeSet;
-import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneMapConstants;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
-import jomu.instrument.workspace.tonemap.ToneTimeFrame;
+import jomu.instrument.ui.Visor;
+import jomu.instrument.world.tonemap.PitchSet;
+import jomu.instrument.world.tonemap.TimeSet;
+import jomu.instrument.world.tonemap.ToneMap;
+import jomu.instrument.world.tonemap.ToneMapConstants;
+import jomu.instrument.world.tonemap.ToneMapElement;
+import jomu.instrument.world.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
 
@@ -46,8 +46,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 				}
 			}
 
-			timeSet = new TimeSet(timeStart, nextTime + binWidth,
-					pds.getSampleRate(), nextTime + binWidth - timeStart);
+			timeSet = new TimeSet(timeStart, nextTime + binWidth, pds.getSampleRate(), nextTime + binWidth - timeStart);
 
 			double highFreq = pds.getSampleRate() / (2.0); // *
 															// pds.getBufferSize());
@@ -65,8 +64,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 				double binStartFreq = pitchSet.getFreq(elementIndex);
 				double binEndFreq = pitchSet.getFreq(elementIndex + 1);
 				for (int i = 0; i < spectralEnergy.length; i++) {
-					double currentFreq = highFreq
-							* (((double) i) / pds.getBufferSize());
+					double currentFreq = highFreq * (((double) i) / pds.getBufferSize());
 					if (currentFreq < binStartFreq) {
 						continue;
 					}
@@ -88,7 +86,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			// ??visor.updateToneMap(toneMap);
+			//??visor.updateToneMap(toneMap);
 		}
 	}
 
@@ -106,8 +104,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.pds = audioFeatureFrame.getAudioFeatureProcessor()
-				.getTarsosFeatures().getPitchDetectorSource();
+		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
 		this.features = pds.getFeatures();
 		this.visor = Instrument.getInstance().getDruid().getVisor();
 		pds.clear();

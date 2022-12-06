@@ -36,8 +36,7 @@ import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
  */
 public class AudioFormatDecoderExample {
 
-	public static void main(String... args)
-			throws UnsupportedAudioFileException {
+	public static void main(String... args) throws UnsupportedAudioFileException {
 		if (args.length != 1) {
 			System.err.println(
 					"Pleas provide only one argument: an audio resource to decode. \nThe method also supports streaming over http.");
@@ -45,13 +44,11 @@ public class AudioFormatDecoderExample {
 			SharedCommandLineUtilities.printPrefix();
 			SharedCommandLineUtilities.printLine();
 			String resource = args[0];
-			AudioDispatcher audioDispatcher = AudioDispatcherFactory
-					.fromPipe(resource, 44100, 2048, 0);
+			AudioDispatcher audioDispatcher = AudioDispatcherFactory.fromPipe(resource, 44100, 2048, 0);
 			DetermineDurationProcessor ddp = new DetermineDurationProcessor();
 			audioDispatcher.addAudioProcessor(ddp);
 			audioDispatcher.run();
-			System.out.println("Decoded resource '" + resource
-					+ "'. \n  It has a duration of "
+			System.out.println("Decoded resource '" + resource + "'. \n  It has a duration of "
 					+ ddp.getDurationInSeconds() + " seconds ");
 			System.exit(0);
 		}

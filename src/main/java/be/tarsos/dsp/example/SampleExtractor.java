@@ -81,7 +81,7 @@ public class SampleExtractor extends JFrame {
 	private final JButton playSelection;
 	private final JCheckBox[] saveSampleCheckboxes;
 	private File file;
-	private final char[] codes = {'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'};
+	private final char[] codes = { 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p' };
 
 	private double currentDuration = 0;
 	private ChangeListener selectionChangedListener = new ChangeListener() {
@@ -110,12 +110,10 @@ public class SampleExtractor extends JFrame {
 		this.setTitle("Sample Exctractor: Extract & Modify Samples");
 
 		fileChooser = new JFileChooser();
-		startSelectionSpinner = new JSpinner(
-				new SpinnerNumberModel(0, 0, 10000, 0.1));
+		startSelectionSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 0.1));
 		startSelectionSpinner.setEnabled(false);
 		startSelectionSpinner.addChangeListener(selectionChangedListener);
-		endSelectionSpinner = new JSpinner(
-				new SpinnerNumberModel(0, 0, 10000, 0.1));
+		endSelectionSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 0.1));
 		endSelectionSpinner.setEnabled(false);
 		endSelectionSpinner.addChangeListener(selectionChangedListener);
 		centsSpinner = new JSpinner[codes.length];
@@ -130,19 +128,13 @@ public class SampleExtractor extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (((Double) startSelectionSpinner
-						.getValue()) < ((Double) endSelectionSpinner
-								.getValue())) {
+				if (((Double) startSelectionSpinner.getValue()) < ((Double) endSelectionSpinner.getValue())) {
 					try {
-						dispatcher = AudioDispatcherFactory.fromFile(file, 1024,
-								0);
-						dispatcher.skip(
-								(Double) startSelectionSpinner.getValue());
-						dispatcher.addAudioProcessor(new StopAudioProcessor(
-								(Double) endSelectionSpinner.getValue()));
-						dispatcher.addAudioProcessor(new AudioPlayer(
-								JVMAudioInputStream.toAudioFormat(
-										dispatcher.getFormat())));
+						dispatcher = AudioDispatcherFactory.fromFile(file, 1024, 0);
+						dispatcher.skip((Double) startSelectionSpinner.getValue());
+						dispatcher.addAudioProcessor(new StopAudioProcessor((Double) endSelectionSpinner.getValue()));
+						dispatcher.addAudioProcessor(
+								new AudioPlayer(JVMAudioInputStream.toAudioFormat(dispatcher.getFormat())));
 					} catch (UnsupportedAudioFileException e1) {
 
 					} catch (IOException e1) {
@@ -155,14 +147,12 @@ public class SampleExtractor extends JFrame {
 		});
 
 		JPanel fileChooserPanel = new JPanel(new GridLayout(2, 4));
-		fileChooserPanel.setBorder(new TitledBorder(
-				"1. Choose your audio to extract samples from (wav mono)"));
+		fileChooserPanel.setBorder(new TitledBorder("1. Choose your audio to extract samples from (wav mono)"));
 		JButton chooseFileButton = new JButton("Load a file...");
 		chooseFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int returnVal = fileChooser
-						.showOpenDialog(SampleExtractor.this);
+				int returnVal = fileChooser.showOpenDialog(SampleExtractor.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
 					setFile(file);
@@ -190,15 +180,12 @@ public class SampleExtractor extends JFrame {
 		samplePanel.add(sampleSubPanel);
 		samplePanel.add(sampleSubPanel);
 
-		final KeyboardFocusManager manager = KeyboardFocusManager
-				.getCurrentKeyboardFocusManager();
+		final KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		for (int i = 0; i < centsSpinner.length; i++) {
 			sampleSubPanel = new JPanel(new GridLayout(1, 0));
-			centsSpinner[i] = new JSpinner(
-					new SpinnerNumberModel(i * 100, -1200, 1200, 1));
+			centsSpinner[i] = new JSpinner(new SpinnerNumberModel(i * 100, -1200, 1200, 1));
 			centsSpinner[i].setEnabled(false);
-			durationSpinner[i] = new JSpinner(
-					new SpinnerNumberModel(0, 0, 1200, 0.1));
+			durationSpinner[i] = new JSpinner(new SpinnerNumberModel(0, 0, 1200, 0.1));
 			durationSpinner[i].setEnabled(false);
 			sampleLabel[i] = new JLabel("Press " + codes[i] + " to play.");
 			saveSampleCheckboxes[i] = new JCheckBox("Save?");
@@ -214,52 +201,36 @@ public class SampleExtractor extends JFrame {
 				@Override
 				public boolean postProcessKeyEvent(KeyEvent e) {
 					boolean consumed = false;
-					if (e.getKeyChar() == codes[index]
-							&& e.getID() == KeyEvent.KEY_TYPED
-							&& file != null) {
+					if (e.getKeyChar() == codes[index] && e.getID() == KeyEvent.KEY_TYPED && file != null) {
 						try {
-							int cents = (Integer) centsSpinner[index]
-									.getValue();
-							double duration = (Double) durationSpinner[index]
-									.getValue();
+							int cents = (Integer) centsSpinner[index].getValue();
+							double duration = (Double) durationSpinner[index].getValue();
 							double originalDuration = selectionDuration();
-							double pitchFactor = PitchShiftingExample
-									.centToFactor(cents);
-							double durationFactor = originalDuration / duration
-									* pitchFactor;
-							boolean saveWav = saveSampleCheckboxes[index]
-									.isSelected();
-							AudioFormat format = AudioSystem
-									.getAudioFileFormat(file).getFormat();
+							double pitchFactor = PitchShiftingExample.centToFactor(cents);
+							double durationFactor = originalDuration / duration * pitchFactor;
+							boolean saveWav = saveSampleCheckboxes[index].isSelected();
+							AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
 							double sampleRate = format.getSampleRate();
-							double endValue = (Double) endSelectionSpinner
-									.getValue();
-							double startValue = (Double) startSelectionSpinner
-									.getValue();
+							double endValue = (Double) endSelectionSpinner.getValue();
+							double startValue = (Double) startSelectionSpinner.getValue();
 							WaveformSimilarityBasedOverlapAdd wsola;
 							AudioPlayer audioPlayer;
 							RateTransposer rateTransposer;
 							rateTransposer = new RateTransposer(pitchFactor);
 							wsola = new WaveformSimilarityBasedOverlapAdd(
-									Parameters.musicDefaults(durationFactor,
-											sampleRate));
-							AudioDispatcher dispatcher = AudioDispatcherFactory
-									.fromFile(file, wsola.getInputBufferSize(),
-											wsola.getOverlap());
+									Parameters.musicDefaults(durationFactor, sampleRate));
+							AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(file,
+									wsola.getInputBufferSize(), wsola.getOverlap());
 							audioPlayer = new AudioPlayer(format);
 							wsola.setDispatcher(dispatcher);
 							dispatcher.skip(startValue);
-							dispatcher.addAudioProcessor(
-									new StopAudioProcessor(endValue));
+							dispatcher.addAudioProcessor(new StopAudioProcessor(endValue));
 							dispatcher.addAudioProcessor(wsola);
 							dispatcher.addAudioProcessor(rateTransposer);
 							if (saveWav) {
-								String filename = String.format(
-										"%s_%.2fs-%.2fs_modified_%dcents_%.2fs.wav",
-										file.getName(), startValue, endValue,
-										cents, duration);
-								WaveformWriter wfw = new WaveformWriter(format,
-										filename);
+								String filename = String.format("%s_%.2fs-%.2fs_modified_%dcents_%.2fs.wav",
+										file.getName(), startValue, endValue, cents, duration);
+								WaveformWriter wfw = new WaveformWriter(format, filename);
 								dispatcher.addAudioProcessor(wfw);
 								System.out.println("Saving to " + filename);
 							} else {
@@ -278,15 +249,13 @@ public class SampleExtractor extends JFrame {
 			});
 
 		}
-		samplePanel
-				.setBorder(new TitledBorder("2. Adapt and play the samples."));
+		samplePanel.setBorder(new TitledBorder("2. Adapt and play the samples."));
 		samplePanel.setFocusable(true);
 		this.add(samplePanel, BorderLayout.CENTER);
 
 		try {
 			final String tempDir = System.getProperty("java.io.tmpdir");
-			String path = new File(tempDir, "flute_sample.wav")
-					.getAbsolutePath();
+			String path = new File(tempDir, "flute_sample.wav").getAbsolutePath();
 			String resource = "/be/tarsos/dsp/example/resources/flute_sample.wav";
 			copyFileFromJar(resource, path);
 			setFile(new File(path));
@@ -298,15 +267,12 @@ public class SampleExtractor extends JFrame {
 	/**
 	 * Copy a file from a jar.
 	 * 
-	 * @param source
-	 *            The path to read e.g. /package/name/here/help.html
-	 * @param target
-	 *            The target to save the file to.
+	 * @param source The path to read e.g. /package/name/here/help.html
+	 * @param target The target to save the file to.
 	 */
 	private void copyFileFromJar(final String source, final String target) {
 		try {
-			final InputStream inputStream = this.getClass()
-					.getResourceAsStream(source);
+			final InputStream inputStream = this.getClass().getResourceAsStream(source);
 			OutputStream out;
 			out = new FileOutputStream(target);
 			final byte[] buffer = new byte[4096];
@@ -325,8 +291,7 @@ public class SampleExtractor extends JFrame {
 	}
 
 	private double selectionDuration() {
-		return (Double) endSelectionSpinner.getValue()
-				- (Double) startSelectionSpinner.getValue();
+		return (Double) endSelectionSpinner.getValue() - (Double) startSelectionSpinner.getValue();
 	}
 
 	private void setFile(File file) {
@@ -341,26 +306,22 @@ public class SampleExtractor extends JFrame {
 		}
 
 		try {
-			AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(file,
-					1024, 0);
+			AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(file, 1024, 0);
 			dispatcher.run();
 
-			endSelectionSpinner
-					.setValue((double) dispatcher.secondsProcessed());
+			endSelectionSpinner.setValue((double) dispatcher.secondsProcessed());
 		} catch (UnsupportedAudioFileException e) {
 		} catch (IOException e) {
 		}
 
 	}
 
-	public static void main(String... strings)
-			throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(
-							UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look and feel;
 				}

@@ -104,8 +104,7 @@ public class Flanger extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				if (flangerEffect != null) {
-					double flangerLength = flangerLengthSlider.getValue()
-							/ 1000.0;
+					double flangerLength = flangerLengthSlider.getValue() / 1000.0;
 					flangerEffect.setFlangerLength(flangerLength);
 				}
 				defaultLength = flangerLengthSlider.getValue();
@@ -177,8 +176,7 @@ public class Flanger extends JFrame {
 		label.setToolTipText("Volume in % (100 is no change).");
 		gainPanel.add(label, BorderLayout.NORTH);
 		gainPanel.add(gainSlider, BorderLayout.CENTER);
-		gainPanel.setBorder(
-				new TitledBorder("3. Optionally change the input volume"));
+		gainPanel.setBorder(new TitledBorder("3. Optionally change the input volume"));
 
 		add(inputPanel, BorderLayout.NORTH);
 		add(params, BorderLayout.CENTER);
@@ -187,8 +185,7 @@ public class Flanger extends JFrame {
 
 	private JPanel buildInputPanel() {
 		JPanel fileChooserPanel = new JPanel(new BorderLayout());
-		fileChooserPanel.setBorder(
-				new TitledBorder("1... Or choose your audio (wav mono)"));
+		fileChooserPanel.setBorder(new TitledBorder("1... Or choose your audio (wav mono)"));
 
 		final JFileChooser fileChooser = new JFileChooser();
 
@@ -210,13 +207,12 @@ public class Flanger extends JFrame {
 
 		JPanel inputSubPanel = new JPanel(new BorderLayout());
 		JPanel inputPanel = new InputPanel();
-		inputPanel.addPropertyChangeListener("mixer",
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent arg0) {
-						startFile(null, (Mixer) arg0.getNewValue());
-					}
-				});
+		inputPanel.addPropertyChangeListener("mixer", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent arg0) {
+				startFile(null, (Mixer) arg0.getNewValue());
+			}
+		});
 		inputSubPanel.add(inputPanel, BorderLayout.NORTH);
 		inputSubPanel.add(fileChooserPanel, BorderLayout.SOUTH);
 		return inputSubPanel;
@@ -242,37 +238,30 @@ public class Flanger extends JFrame {
 			AudioPlayer audioPlayer = new AudioPlayer(format);
 
 			if (inputFile == null) {
-				DataLine.Info dataLineInfo = new DataLine.Info(
-						TargetDataLine.class, format);
+				DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 				TargetDataLine line;
 				line = (TargetDataLine) mixer.getLine(dataLineInfo);
 				line.open(format, bufferSize);
 				line.start();
 				final AudioInputStream stream = new AudioInputStream(line);
-				final TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(
-						stream);
-				dispatcher = new AudioDispatcher(audioStream, bufferSize,
-						overlap);
+				final TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
+				dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			} else {
 				if (format.getChannels() != 1) {
-					dispatcher = AudioDispatcherFactory.fromFile(inputFile,
-							bufferSize * format.getChannels(),
+					dispatcher = AudioDispatcherFactory.fromFile(inputFile, bufferSize * format.getChannels(),
 							overlap * format.getChannels());
-					dispatcher.addAudioProcessor(
-							new MultichannelToMono(format.getChannels(), true));
+					dispatcher.addAudioProcessor(new MultichannelToMono(format.getChannels(), true));
 				} else {
-					dispatcher = AudioDispatcherFactory.fromFile(inputFile,
-							bufferSize, overlap);
+					dispatcher = AudioDispatcherFactory.fromFile(inputFile, bufferSize, overlap);
 				}
 			}
 
-			flangerEffect = new FlangerEffect(defaultLength / 1000.0,
-					defaultImpact / 100.0, sampleRate, defaultFrequency / 10.0);
+			flangerEffect = new FlangerEffect(defaultLength / 1000.0, defaultImpact / 100.0, sampleRate,
+					defaultFrequency / 10.0);
 
 			dispatcher.addAudioProcessor(flangerEffect);
 			dispatcher.addAudioProcessor(inputGain);
-			dispatcher.addAudioProcessor(
-					new WaveformWriter(format, "flanger.wav"));
+			dispatcher.addAudioProcessor(new WaveformWriter(format, "flanger.wav"));
 			dispatcher.addAudioProcessor(audioPlayer);
 
 			Thread t = new Thread(dispatcher);
@@ -289,14 +278,12 @@ public class Flanger extends JFrame {
 		}
 	}
 
-	public static void main(String... strings)
-			throws InterruptedException, InvocationTargetException {
+	public static void main(String... strings) throws InterruptedException, InvocationTargetException {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(
-							UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					// ignore failure to set default look en feel;
 				}

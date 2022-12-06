@@ -46,13 +46,11 @@ public class SpectrogramSource implements PitchDetectionHandler {
 			FFT fft = new FFT(bufferSize);
 			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
 			float[] transformbuffer = new float[bufferSize * 2];
-			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0,
-					audioFloatBuffer.length);
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
 			fft.forwardTransform(transformbuffer);
 			float[] amplitudes = new float[bufferSize / 2];
 			fft.modulus(transformbuffer, amplitudes);
-			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult,
-					amplitudes, fft);
+			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
 			spectrogramInfos.add(si);
 			features.put(audioEvent.getTimeStamp(), si);
 			return true;
@@ -91,8 +89,7 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 	public TreeMap<Double, SpectrogramInfo> getFeatures() {
 		TreeMap<Double, SpectrogramInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features
-				.entrySet()) {
+		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -103,8 +100,7 @@ public class SpectrogramSource implements PitchDetectionHandler {
 	}
 
 	@Override
-	public void handlePitch(PitchDetectionResult pitchDetectionResult,
-			AudioEvent audioEvent) {
+	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
 		this.pitchDetectionResult = pitchDetectionResult;
 	}
 
@@ -127,10 +123,8 @@ public class SpectrogramSource implements PitchDetectionHandler {
 		binHeightsInCents = new float[frameSize];
 		FFT fft = new FFT(bufferSize);
 		for (int i = 1; i < frameSize; i++) {
-			binStartingPointsInCents[i] = (float) PitchConverter
-					.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
-			binHeightsInCents[i] = binStartingPointsInCents[i]
-					- binStartingPointsInCents[i - 1];
+			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
+			binHeightsInCents[i] = binStartingPointsInCents[i] - binStartingPointsInCents[i - 1];
 			if (i < 100) {
 				// System.out.println(">>SP Bin: " + i + ", " +
 				// binStartingPointsInCents[i] + ",
@@ -143,15 +137,12 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 		final double lag = frameSize / sampleRate - binWidth / 2.0;// in seconds
 
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100,
-				16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(
-				tarsosDSPFormat, fftsize, overlap);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, true);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, fftsize, overlap);
 		djp.setName("SP");
 		dispatcher.addAudioProcessor(djp);
 
-		djp.addAudioProcessor(
-				new PitchProcessor(algo, sampleRate, bufferSize, this));
+		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
 		djp.addAudioProcessor(fftProcessor);
 
 		spectrogramInfos.clear();
