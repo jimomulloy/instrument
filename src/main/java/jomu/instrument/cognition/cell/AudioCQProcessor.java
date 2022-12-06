@@ -12,6 +12,7 @@ import jomu.instrument.audio.features.PeakInfo;
 import jomu.instrument.audio.features.PeakProcessor;
 import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.monitor.Visor;
 import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -22,11 +23,13 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 	private float tmMax = 0;
 
 	private WorldModel worldModel;
+	private Visor visor;
 
 	public AudioCQProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		worldModel = Instrument.getInstance().getWorldModel();
+		visor = Instrument.getInstance().getDruid().getVisor();
 	}
 
 	@Override
@@ -117,7 +120,8 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					 * toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 					 * toneMap.getTimeFrame().deNoise(0.05);
 					 */
-					cqf.displayToneMap();
+					// cqf.displayToneMap();
+					// visor.updateToneMap(toneMap);
 					cell.send(streamId, sequence);
 				}
 			}

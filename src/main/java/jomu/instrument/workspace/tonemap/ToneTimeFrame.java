@@ -1,5 +1,8 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ToneTimeFrame {
 
 	public final static int INIT_PITCH_HIGH = 72;
@@ -9,10 +12,6 @@ public class ToneTimeFrame {
 	public static final boolean LOGAMP = true;
 
 	public static final boolean POWERAMP = false;
-
-	public int pitchHigh = INIT_PITCH_HIGH;
-
-	public int pitchLow = INIT_PITCH_LOW;
 
 	private boolean ampType = LOGAMP;
 
@@ -43,11 +42,13 @@ public class ToneTimeFrame {
 
 	@Override
 	public ToneTimeFrame clone() {
-		ToneTimeFrame copy = new ToneTimeFrame(this.timeSet, this.pitchSet);
+		ToneTimeFrame copy = new ToneTimeFrame(this.timeSet.clone(),
+				this.pitchSet.clone());
 		ToneMapElement[] copyElements = copy.getElements();
 		for (int i = 0; i < elements.length; i++) {
 			copyElements[i] = elements[i].clone();
 		}
+		copy.reset();
 		return copy;
 	}
 
@@ -178,6 +179,40 @@ public class ToneTimeFrame {
 		return noteStatus;
 	}
 
+	public ToneTimeFrame cens() {
+		return this;
+	}
+
+	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch) {
+		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.timeSet.clone(),
+				new PitchSet(basePitch, basePitch + 12));
+		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
+		for (int i = 0; i < elements.length; i++) {
+			int note = pitchSet.getNote(i);
+			if (note < lowPitch) {
+				continue;
+			}
+			if (note > highPitch) {
+				break;
+			}
+			int chromaClass = note % 12;
+			ToneMapElement chromaElement = null;
+			if (!chromaClassMap.containsKey(chromaClass)) {
+				chromaElement = new ToneMapElement(chromaClass);
+				chromaClassMap.put(chromaClass, chromaElement);
+			} else {
+				chromaElement = chromaClassMap.get(chromaClass);
+			}
+			chromaElement.amplitude += elements[i].amplitude;
+		}
+		ToneMapElement[] chromaElements = chromaTimeFrame.getElements();
+		for (int i = 0; i < chromaElements.length; i++) {
+			chromaElements[i] = chromaClassMap.get(i);
+		}
+		chromaTimeFrame.reset();
+		return chromaTimeFrame;
+	}
+
 	public double[] getPitches() {
 		double[] result = new double[elements.length];
 		for (int i = 0; i < elements.length - 1; i++) {
@@ -187,11 +222,11 @@ public class ToneTimeFrame {
 	}
 
 	public int getPitchHigh() {
-		return pitchHigh;
+		return pitchSet.getHighNote();
 	}
 
 	public int getPitchLow() {
-		return pitchLow;
+		return pitchSet.getLowNote();
 	}
 
 	public PitchSet getPitchSet() {

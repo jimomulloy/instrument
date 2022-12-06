@@ -12,7 +12,7 @@ import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.PitchAnalyser;
-import jomu.instrument.workspace.tonemap.PitchDetect;
+import jomu.instrument.workspace.tonemap.PitchDetect2;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioSpectrumProcessor implements Consumer<List<NuMessage>> {
@@ -69,12 +69,12 @@ public class AudioSpectrumProcessor implements Consumer<List<NuMessage>> {
 					// FFTSpectrum(spf.getSps().getSampleRate(),
 					// 1024, f0Spectrum);
 
-					PitchDetect pd = new PitchDetect(1024,
+					PitchDetect2 pd = new PitchDetect2(1024,
 							(float) toneMap.getTimeFrame().getTimeSet()
 									.getSampleRate(),
 							convertDoublesToFloats(toneMap.getTimeFrame()
 									.getPitchSet().getFreqSet()));
-					pd.detect(fftSpectrum.getSpectrum());
+					// pd.detect(fftSpectrum.getSpectrum());
 
 					// f0Spectrum = pd.getF0Spectrum();
 

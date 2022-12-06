@@ -1,4 +1,4 @@
-package jomu.instrument.workspace;
+package jomu.instrument.workspace.tonemap;
 
 /**
  * This is a robust polyphonic multi-pitch detector. The algorithm is described
@@ -22,7 +22,7 @@ public class PitchDetect2 {
 	private float[] spec;
 
 	/** spectrum "whitener" for pre-processing */
-	private SpecWhitener sw;
+	private SpecWhitener2 sw;
 
 	/** size of the buffer */
 	private int timeSize;
@@ -31,21 +31,19 @@ public class PitchDetect2 {
 		this.timeSize = timeSize;
 		this.sampleRate = sampleRate;
 		this.pitches = pitches;
-		sw = new SpecWhitener(timeSize, sampleRate);
+		sw = new SpecWhitener2(timeSize, sampleRate);
 		spec = new float[timeSize / 2 + 1];
 		fzeros = new float[pitches.length];
 	}
 
 	/**
-	 * This method takes an AudioBuffer object as argument. It detects all notes in
-	 * presence in buffer.
+	 * This method takes an AudioBuffer object as argument. It detects all notes
+	 * in presence in buffer.
 	 */
 	public void detect(float[] spec) {
-		for (int i = 0; i < spec.length; i++)
-			spec[i] *= 1000;
-		// spectrum pre-processing
-		sw.whiten(spec);
-		// spec = sw.wSpec;
+		// for (int i = 0; i < spec.length; i++)
+		// spec[i] *= 1000;
+		// sw.whiten(spec);
 
 		System.out.println(">>fzeros detecting");
 		// iteratively find all presented pitches
@@ -78,20 +76,25 @@ public class PitchDetect2 {
 			// subtract the information of the found pitch from the current
 			// spectrum
 			float fpitch = fzeroInfo[0];
-			int highInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
+			int highInd = (int) Math
+					.floor(fzeroInfo[0] * timeSize / sampleRate);
 			int lowInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
 			for (int i = 1; i * fzeroInfo[0] < sampleRate / 2; ++i) {
 				for (int j = 0; j < pitches.length; j++) {
 					if (pitches[j] >= fpitch) {
 						if (j > 0) {
-							lowInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(
+									pitches[j - 1] * timeSize / sampleRate);
 						} else {
-							lowInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
+							lowInd = (int) Math
+									.floor(pitches[j] * timeSize / sampleRate);
 						}
 						if (j < pitches.length - 1) {
-							highInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
+							highInd = (int) Math
+									.floor(pitches[j] * timeSize / sampleRate);
 						} else {
-							highInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
+							highInd = (int) Math.floor(
+									pitches[j - 1] * timeSize / sampleRate);
 						}
 						break;
 					}
@@ -112,7 +115,8 @@ public class PitchDetect2 {
 			float pitch = i * sampleRate / timeSize;
 			spec[i] = 0F;
 			for (int j = 0; j < pitches.length; j++) {
-				if (fzeros[j] > 0 && pitches[j] <= pitch && pitches[j + 1] > pitch) {
+				if (fzeros[j] > 0 && pitches[j] <= pitch
+						&& pitches[j + 1] > pitch) {
 					spec[i] = fzeros[j];
 				}
 			}
@@ -149,25 +153,32 @@ public class PitchDetect2 {
 				for (int k = 0; k < pitches.length; k++) {
 					if (pitches[k] >= fpitch) {
 						if (k > 0) {
-							lowInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
+							lowInd = (int) Math.floor(
+									pitches[k - 1] * timeSize / sampleRate);
 						} else {
-							lowInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
+							lowInd = (int) Math
+									.floor(pitches[k] * timeSize / sampleRate);
 						}
 						if (k < pitches.length - 1) {
-							highInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
+							highInd = (int) Math
+									.floor(pitches[k] * timeSize / sampleRate);
 						} else {
-							highInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
+							highInd = (int) Math.floor(
+									pitches[k - 1] * timeSize / sampleRate);
 						}
 						break;
 					}
+				}
+				if (bin >= spec.length - 1) {
+					break;
 				}
 				// use the largest value of bins in vicinity
 				val = spec[bin];
 				// calculate the salience of the current candidate
 				float weighting = (pitches[j] + 52) / (i * pitches[j] + 320);
-				for (int k = lowInd; k <= highInd; k++) {
+				for (int k = lowInd; k <= highInd && k < spec.length; k++) {
 					if (val < spec[k]) {
-						// val = spec[k];
+						val = spec[k];
 					}
 				}
 				cSalience += val * weighting;
@@ -177,19 +188,17 @@ public class PitchDetect2 {
 				fzeroInfo[0] = pitches[j];
 				fzeroInfo[1] = cSalience;
 				fzeroInfo[2] = j;
-				// System.out.println(">>fzeros max: " + fzeroInfo[0] + ", "+
-				// fzeroInfo[1] + ",
-				// " + fzeroInfo[2]);
+				System.out.println(">>fzeros max: " + fzeroInfo[0] + ", "
+						+ fzeroInfo[1] + ", " + fzeroInfo[2]);
 			} else {
-				// System.out.println(">>fzeros min: " + pitches[j] + ", "+
-				// cSalience + ", " +
-				// j);
+				System.out.println(">>fzeros min: " + pitches[j] + ", "
+						+ cSalience + ", " + j);
 			}
 		}
 	}
 }
 
-final class SpecWhitener {
+final class SpecWhitener2 {
 	private int[][] banksRanTable; // each row is a filter; cols are lower band
 									// index and upper band index this
 	// filter covers
@@ -200,7 +209,7 @@ final class SpecWhitener {
 
 	// public float[] wSpec; // the whitened specturm
 
-	public SpecWhitener(int bufferSize, float sr) {
+	public SpecWhitener2(int bufferSize, float sr) {
 		this.bufferSize = bufferSize;
 		this.sr = sr;
 
@@ -240,13 +249,16 @@ final class SpecWhitener {
 			for (int i = banksRanTable[j][0]; i <= banksRanTable[j][1]; ++i) {
 				float bandFreq = i * sr / bufferSize;
 				if (bandFreq < cenFreqs[j]) {
-					sum += Math.pow(spec[i], 2) * (bandFreq - cenFreqs[j - 1]) / cenFreqsSteps[j];
+					sum += Math.pow(spec[i], 2) * (bandFreq - cenFreqs[j - 1])
+							/ cenFreqsSteps[j];
 				} else {//
-					sum += Math.pow(spec[i], 2) * (cenFreqs[j + 1] - bandFreq) / cenFreqsSteps[j + 1];
+					sum += Math.pow(spec[i], 2) * (cenFreqs[j + 1] - bandFreq)
+							/ cenFreqsSteps[j + 1];
 				}
 			}
 			if (sum > 0) {
-				bwCompCoef[j] = (float) Math.pow(Math.pow(sum / bufferSize, .5f), .33f - 1);
+				bwCompCoef[j] = (float) Math
+						.pow(Math.pow(sum / bufferSize, .5f), .33f - 1);
 			}
 		}
 
@@ -264,11 +276,13 @@ final class SpecWhitener {
 			if (bandFreq > cenFreqs[bankCount])
 				bankCount++;
 			if (bwCompCoefSteps[bankCount] > 0) {
-				compCoef = (bwCompCoefSteps[bankCount] * (bandFreq - cenFreqs[bankCount - 1])
+				compCoef = (bwCompCoefSteps[bankCount]
+						* (bandFreq - cenFreqs[bankCount - 1])
 						/ cenFreqsSteps[bankCount]) + bwCompCoef[bankCount - 1];
 			} else {
-				compCoef = (-bwCompCoefSteps[bankCount] * (cenFreqs[bankCount] - bandFreq) / cenFreqsSteps[bankCount])
-						+ bwCompCoef[bankCount];
+				compCoef = (-bwCompCoefSteps[bankCount]
+						* (cenFreqs[bankCount] - bandFreq)
+						/ cenFreqsSteps[bankCount]) + bwCompCoef[bankCount];
 			}
 			// wSpec[i] = spec[i] * compCoef;
 			spec[i] = spec[i] * compCoef;

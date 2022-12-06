@@ -144,9 +144,7 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getJunctionProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			// System.out.println(">>getJunctionProcessor");
 			for (NuMessage message : messages) {
-				// System.out.println("send message: " + message);
 				cell.send(message);
 			}
 		};
@@ -154,8 +152,6 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getSinkProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			// System.out.println(">>getSinkProcessor");
-			// System.out.println(cell.toString());
 			for (NuMessage message : messages) {
 				System.out
 						.println(">>SinkProcessor process message: " + message);
@@ -165,10 +161,7 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getSourceProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
-			// System.out.println(">>getSourceProcessor");
-			// System.out.println(cell.toString());
 			for (NuMessage message : messages) {
-				// System.out.println("send message: " + message);
 				cell.send(message.streamId, message.sequence);
 			}
 		};

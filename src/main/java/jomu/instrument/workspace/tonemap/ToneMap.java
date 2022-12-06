@@ -32,14 +32,6 @@ public class ToneMap {
 		toneMapStore.put(toneTimeFrame.getStartTime(), toneTimeFrame);
 	}
 
-	public ToneMap cens() {
-		return this;
-	}
-
-	public ToneMap chroma() {
-		return this;
-	}
-
 	/**
 	 * Clear current ToneMap objects after Reset
 	 */
@@ -90,7 +82,8 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getPreviousTimeFrame() {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(toneMapStore.lastKey());
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore
+				.lowerEntry(toneMapStore.lastKey());
 		if (previousEntry != null) {
 			return previousEntry.getValue();
 		} else {
@@ -99,7 +92,8 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getPreviousTimeFrame(Double key) {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(key);
+		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore
+				.lowerEntry(key);
 		if (previousEntry != null) {
 			return previousEntry.getValue();
 		} else {

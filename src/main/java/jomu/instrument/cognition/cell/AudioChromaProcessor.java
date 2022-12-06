@@ -5,21 +5,25 @@ import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
-import jomu.instrument.perception.Hearing;
+import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.WorldModel;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioChromaProcessor implements Consumer<List<NuMessage>> {
 
+	private static final int C4_NOTE = 36;
 	private NuCell cell;
 	private float tmMax = 0;
 
 	private WorldModel worldModel;
+	private Visor visor;
 
 	public AudioChromaProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		worldModel = Instrument.getInstance().getWorldModel();
+		visor = Instrument.getInstance().getDruid().getVisor();
 	}
 
 	@Override
@@ -32,10 +36,15 @@ public class AudioChromaProcessor implements Consumer<List<NuMessage>> {
 			System.out.println(">>AudioChromaProcessor accept: " + message
 					+ ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator()
-						.getHearing();
-				ToneMap toneMap = worldModel.getAtlas().getToneMap(
-						buildToneMapKey(CellTypes.AUDIO_CHROMA, streamId));
+				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+				ToneMap chromaToneMap = worldModel.getAtlas().getToneMap(
+						buildToneMapKey(this.cell.getCellType(), streamId));
+				ToneTimeFrame cqTimeFrame = cqToneMap.getTimeFrame(sequence);
+				chromaToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence)
+						.clone().chroma(C4_NOTE, cqTimeFrame.getPitchLow(),
+								cqTimeFrame.getPitchHigh()));
+				visor.updateToneMap(chromaToneMap);
 				cell.send(streamId, sequence);
 			}
 		}
