@@ -25,7 +25,7 @@ package jomu.instrument.audio.features;
 
 import java.util.List;
 
-import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
+import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 
 public class PeakInfo {
 	private float[] frequencyEstimates;
@@ -47,14 +47,14 @@ public class PeakInfo {
 	}
 
 	public float[] getNoiseFloor(int medianFilterLength, float noiseFloorFactor) {
-		return PeakProcessor.calculateNoiseFloor(magnitudes, medianFilterLength, noiseFloorFactor);
+		return SpectralPeakDetector.calculateNoiseFloor(magnitudes, medianFilterLength, noiseFloorFactor);
 	}
 
 	public List<SpectralPeak> getPeakList(int medianFilterLength, float noiseFloorFactor, int numberOfPeaks,
 			int minPeakDistanceInCents) {
 		float[] noiseFloor = getNoiseFloor(medianFilterLength, noiseFloorFactor);
-		List<Integer> localMaxima = PeakProcessor.findLocalMaxima(magnitudes, noiseFloor);
-		return PeakProcessor.findPeaks(magnitudes, frequencyEstimates, localMaxima, numberOfPeaks,
+		List<Integer> localMaxima = SpectralPeakDetector.findLocalMaxima(magnitudes, noiseFloor);
+		return SpectralPeakDetector.findPeaks(magnitudes, frequencyEstimates, localMaxima, numberOfPeaks,
 				minPeakDistanceInCents);
 	}
 }

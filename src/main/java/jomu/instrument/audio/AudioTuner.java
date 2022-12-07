@@ -3,7 +3,7 @@ package jomu.instrument.audio;
 
 import java.util.List;
 
-import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
+import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.workspace.tonemap.NoteList;
 import jomu.instrument.workspace.tonemap.NoteListElement;
 import jomu.instrument.workspace.tonemap.NoteSequence;

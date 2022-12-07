@@ -9,8 +9,8 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.audio.features.PeakInfo;
-import jomu.instrument.audio.features.PeakProcessor;
-import jomu.instrument.audio.features.PeakProcessor.SpectralPeak;
+import jomu.instrument.audio.features.SpectralPeakDetector;
+import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
@@ -71,10 +71,10 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					float threshold = (0.5F * (maxAmplitude - minAmplitude)) + minAmplitude;
 					toneMap.getTimeFrame().lowThreshold(threshold, 0.0000001);
 
-					PeakProcessor peakProcessor = new PeakProcessor(toneMap.getTimeFrame());
+					SpectralPeakDetector spectralPeakDetector = new SpectralPeakDetector(toneMap.getTimeFrame());
 
-					PeakInfo peakInfo = new PeakInfo(peakProcessor.getMagnitudes(),
-							peakProcessor.getFrequencyEstimates());
+					PeakInfo peakInfo = new PeakInfo(spectralPeakDetector.getMagnitudes(),
+							spectralPeakDetector.getFrequencyEstimates());
 
 					int noiseFloorMedianFilterLenth = 12;
 					float noiseFloorFactor = 100F; // 1.8F; // 2.9F;

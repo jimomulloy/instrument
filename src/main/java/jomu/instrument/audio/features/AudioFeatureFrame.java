@@ -7,10 +7,12 @@ public class AudioFeatureFrame {
 	// private List<FeatureFrame> beadsBeatsFeatures;
 	// private List<FeatureFrame> beadsFeatures;
 	private ConstantQFeatures constantQFeatures;
+	private SpectrumFeatures spectrumFeatures;
 	private double end;
 	private int frameSequence;
 	private GoertzelFeatures goertzelFeatures;
 	private OnsetFeatures onsetFeatures;
+	private BeatFeatures beatFeatures;
 	private PitchDetectorFeatures pitchDetectorFeatures;
 
 	private ScalogramFeatures scalogramFeatures;
@@ -45,8 +47,16 @@ public class AudioFeatureFrame {
 	// return beadsFeatures;
 	// }
 
+	public SpectrumFeatures getSpectrumFeatures() {
+		return spectrumFeatures;
+	}
+
 	public ConstantQFeatures getConstantQFeatures() {
 		return constantQFeatures;
+	}
+
+	public BeatFeatures getBeatFeatures() {
+		return beatFeatures;
 	}
 
 	public double getEnd() {
@@ -96,23 +106,27 @@ public class AudioFeatureFrame {
 		// audioEventFeatures = new AudioEventFeatures();
 		constantQFeatures = new ConstantQFeatures();
 		onsetFeatures = new OnsetFeatures();
+		beatFeatures = new BeatFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
 		bandedPitchDetectorFeatures = new BandedPitchDetectorFeatures();
 		spectrogramFeatures = new SpectrogramFeatures();
 		goertzelFeatures = new GoertzelFeatures();
 		scalogramFeatures = new ScalogramFeatures();
+		spectrumFeatures = new SpectrumFeatures();
 		// audioEventFeatures.initialise(this.audioFeatureProcessor
 		// .getTarsosFeatures().getAudioEventSource());
 		constantQFeatures.initialise(this);
-		onsetFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getOnsetSource());
-		spectralPeaksFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getSpectralPeaksSource());
+		onsetFeatures.initialise(this);
+		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);
 		bandedPitchDetectorFeatures
 				.initialise(this.audioFeatureProcessor.getTarsosFeatures().getBandedPitchDetectorSource());
 		spectrogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getSpectrogramSource());
 		goertzelFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getGoertzelSource());
 		scalogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getScalogramSource());
+		spectrumFeatures.initialise(this);
+		beatFeatures.initialise(this);
 
 	}
 

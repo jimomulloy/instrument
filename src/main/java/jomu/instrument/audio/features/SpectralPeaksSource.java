@@ -7,10 +7,11 @@ import java.util.TreeMap;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
-import be.tarsos.dsp.SpectralPeakProcessor;
-import be.tarsos.dsp.SpectralPeakProcessor.SpectralPeak;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
+import be.tarsos.dsp.util.PitchConverter;
+import be.tarsos.dsp.util.fft.FFT;
 import jomu.instrument.audio.DispatchJunctionProcessor;
+import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 
 public class SpectralPeaksSource {
 
@@ -22,7 +23,12 @@ public class SpectralPeaksSource {
 	int noiseFloorMedianFilterLenth = 10;
 	int numberOfSpectralPeaks = 3;
 	int sampleRate = 44100;
-	int bufferSize = 44100;
+	int bufferSize = 1024;
+	private float[] binHeightsInCents;
+	private int binsPerOctave = 12;
+	private float binHeight;
+	private float[] binStartingPointsInCents;
+	private float binWidth;
 	List<SpectralInfo> spectralInfos = new ArrayList<>();
 	SpectralPeakProcessor spectralPeakProcesser;
 	private AudioDispatcher dispatcher;
@@ -40,6 +46,18 @@ public class SpectralPeaksSource {
 
 	public int getCurrentFrame() {
 		return currentFrame;
+	}
+	
+	public float getBinHeight() {
+		return binHeight;
+	}
+
+	public float[] getBinStartingPointsInCents() {
+		return binStartingPointsInCents;
+	}
+
+	public float getBinWidth() {
+		return binWidth;
 	}
 
 	public TreeMap<Double, SpectralInfo> getFeatures() {
@@ -92,7 +110,18 @@ public class SpectralPeaksSource {
 	}
 
 	void initialise() {
+		
+		binStartingPointsInCents = new float[bufferSize];
+		binHeightsInCents = new float[bufferSize];
+		FFT fft = new FFT(bufferSize);
+		for (int i = 1; i < bufferSize; i++) {
+			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
+			binHeightsInCents[i] = binStartingPointsInCents[i] - binStartingPointsInCents[i - 1];
+		}
 
+		binWidth = bufferSize / sampleRate;
+		binHeight = 1200 / (float) binsPerOctave;
+		
 		bufferSize = 1024;
 		int stepsize = 512;
 		int overlap = bufferSize - stepsize;

@@ -32,22 +32,24 @@ import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class PeakProcessor {
+public class SpectralPeakDetector {
 
 	/**
 	 * The magnitudes in the current frame.
 	 */
-	private final float[] magnitudes;
+	private float[] magnitudes = null;
 
 	/**
 	 * Detailed frequency estimates for each bin, using phase info
 	 */
-	private final float[] frequencyEstimates;
+	private float[] frequencyEstimates = null;
 
-	private PitchSet pitchSet;
+	private PitchSet pitchSet = null;
 
-	public PeakProcessor(float[] magnitudes, PitchSet pitchSet) {
+	public SpectralPeakDetector() {
+	}
 
+	public SpectralPeakDetector(float[] magnitudes, PitchSet pitchSet) {
 		this.magnitudes = magnitudes;
 		this.pitchSet = pitchSet;
 		frequencyEstimates = new float[magnitudes.length];
@@ -56,7 +58,7 @@ public class PeakProcessor {
 
 	}
 
-	public PeakProcessor(ToneTimeFrame timeFrame) {
+	public SpectralPeakDetector(ToneTimeFrame timeFrame) {
 		timeFrame.getElements();
 		this.magnitudes = new float[timeFrame.getElements().length];
 		int i = 0;

@@ -25,8 +25,7 @@ package jomu.instrument.audio.features;
 
 import java.util.List;
 
-import be.tarsos.dsp.SpectralPeakProcessor;
-import be.tarsos.dsp.SpectralPeakProcessor.SpectralPeak;
+import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 
 public class SpectralInfo {
 	private float[] frequencyEstimates;
