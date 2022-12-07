@@ -42,6 +42,17 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 			fft.modulus(transformbuffer, amplitudes);
 			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
 			features.put(audioEvent.getTimeStamp(), si);
+			float[] spectrum = si.getAmplitudes();
+			double max = 0;
+			int maxi = 0;
+			for (int i = 0; i < spectrum.length; i++) {
+				double value = spectrum[i];
+				if (max < value) {
+					maxi = i;
+					max = value;
+				}
+			}
+			System.out.println(">>PitchDetectorSource maxes: " + max + ", " + maxi);
 			return true;
 		}
 

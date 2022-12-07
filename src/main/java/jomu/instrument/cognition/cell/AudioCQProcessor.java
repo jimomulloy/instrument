@@ -99,7 +99,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					 * toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 					 * toneMap.getTimeFrame().deNoise(0.05);
 					 */
-					cqf.displayToneMap();
+					// cqf.displayToneMap();
 					cell.send(streamId, sequence);
 				}
 			}

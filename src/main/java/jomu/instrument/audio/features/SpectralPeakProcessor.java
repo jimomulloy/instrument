@@ -37,16 +37,6 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	private final float[] currentPhaseOffsets;
 
 	/**
-	 * The magnitudes in the current frame.
-	 */
-	private final float[] magnitudes;
-
-	/**
-	 * Detailed frequency estimates for each bin, using phase info
-	 */
-	private final float[] frequencyEstimates;
-
-	/**
 	 * The phase information of the previous frame, or null.
 	 */
 	private float[] previousPhaseOffsets;
@@ -100,7 +90,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 		calculateFrequencyEstimates();
 
 		// 3. Normalize the each magnitude.
-		normalizeMagintudes();
+		// normalizeMagintudes();
 
 		// 4. Store the current phase so it can be used for the next frequency estimates
 		// block.

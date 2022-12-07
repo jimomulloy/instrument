@@ -11,7 +11,6 @@ import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
 import jomu.instrument.audio.DispatchJunctionProcessor;
-import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 
 public class SpectralPeaksSource {
 
@@ -47,7 +46,7 @@ public class SpectralPeaksSource {
 	public int getCurrentFrame() {
 		return currentFrame;
 	}
-	
+
 	public float getBinHeight() {
 		return binHeight;
 	}
@@ -110,7 +109,7 @@ public class SpectralPeaksSource {
 	}
 
 	void initialise() {
-		
+
 		binStartingPointsInCents = new float[bufferSize];
 		binHeightsInCents = new float[bufferSize];
 		FFT fft = new FFT(bufferSize);
@@ -121,7 +120,7 @@ public class SpectralPeaksSource {
 
 		binWidth = bufferSize / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
-		
+
 		bufferSize = 1024;
 		int stepsize = 512;
 		int overlap = bufferSize - stepsize;
@@ -146,18 +145,6 @@ public class SpectralPeaksSource {
 						spectralPeakProcesser.getFrequencyEstimates());
 				spectralInfos.add(si);
 				features.put(audioEvent.getTimeStamp(), si);
-				SpectralInfo info = spectralInfos.get(currentFrame);
-
-				List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
-						numberOfSpectralPeaks, minPeakSize);
-
-				StringBuilder sb = new StringBuilder("Frequency(Hz);Step(cents);Magnitude\n");
-				for (SpectralPeak peak : peaks) {
-
-					String message = String.format("%.2f;%.2f;%.2f\n", peak.getFrequencyInHertz(),
-							peak.getRelativeFrequencyInCents(), peak.getMagnitude());
-					sb.append(message);
-				}
 				return true;
 			}
 

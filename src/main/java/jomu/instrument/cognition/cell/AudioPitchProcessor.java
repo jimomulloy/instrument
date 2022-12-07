@@ -10,14 +10,15 @@ import jomu.instrument.audio.features.PitchDetectorFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
-public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
+public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
 	private WorldModel worldModel;
 
-	public PitchDetectorProcessor(NuCell cell) {
+	public AudioPitchProcessor(NuCell cell) {
 		super();
 		System.out.println(">>PitchDetectorProcessor create");
 		this.cell = cell;
@@ -32,26 +33,25 @@ public class PitchDetectorProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			int sequence = message.sequence;
 			String streamId = message.streamId;
-			// TODO ONLY Process one message?
 			System.out.println(">>PitchDetectorProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				ToneMap toneMap = worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
-				pdf.buildToneMap();
-				ToneMap toneMap = pdf.getToneMap();
+				pdf.buildToneMapFrame(toneMap);
+				float[] spectrum = pdf.getSpectrum();
+				FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getPds().getSampleRate(), 1024, spectrum);
+				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 				System.out.println(">PitchDetectorProcessor process tonemap");
-				// worldModel.getAtlas().putToneMap(this.cell.getCellType(),
-				// toneMap);
-				// if (toneMap != null && toneMap.getTunerModel().tune()) {
-				// cqf.displayToneMap();
-				// System.out.println(">>ConstantQMessageProcessor send");
-				// cell.send(sequence, output);
-				// }
-
+				// pdf.displayToneMap();
+				cell.send(streamId, sequence);
 			}
 		}
 	}
 
+	private String buildToneMapKey(CellTypes cellType, String streamId) {
+		return cellType + ":" + streamId;
+	}
 }

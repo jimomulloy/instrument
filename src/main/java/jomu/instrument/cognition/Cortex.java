@@ -35,9 +35,8 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		NuCell audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
 		NuCell audioOnsetCell = Generator.createNuCell(CellTypes.AUDIO_ONSET);
 		NuCell audioBeatCell = Generator.createNuCell(CellTypes.AUDIO_BEAT);
-		NuCell audioSpectrumCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRUM);
-		// NuCell audioSpectralPeaksCell = Generator
-		// .createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
+		NuCell audioPitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
+		NuCell audioSpectralPeaksCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
 		NuCell audioChromaCell = Generator.createNuCell(CellTypes.AUDIO_CHROMA);
 		NuCell audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
 		NuCell audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
@@ -45,15 +44,15 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioCQCell, audioChromaCell);
 		Weaver.connect(audioCQCell, audioIntegrateCell);
 		// Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
-		Weaver.connect(audioSpectrumCell, audioIntegrateCell);
+		// Weaver.connect(audioSpectrumCell, audioIntegrateCell);
 		Weaver.connect(audioChromaCell, audioIntegrateCell);
 		Weaver.connect(audioIntegrateCell, audioNotateCell);
 		Weaver.connect(audioNotateCell, audioSinkCell);
 		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Weaver.connect(sourceUpdateCell, audioOnsetCell);
 		Weaver.connect(sourceUpdateCell, audioBeatCell);
-		Weaver.connect(sourceUpdateCell, audioSpectrumCell);
-		// Weaver.connect(sourceUpdateCell, audioSpectralPeaksCell);
+		Weaver.connect(sourceUpdateCell, audioPitchCell);
+		Weaver.connect(sourceUpdateCell, audioSpectralPeaksCell);
 	}
 
 	@Override

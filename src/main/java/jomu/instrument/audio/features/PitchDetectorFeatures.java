@@ -9,7 +9,6 @@ import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
@@ -28,18 +27,31 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 	TreeMap<Double, SpectrogramInfo> features;
 	PitchDetectorSource pds;
 
-	public void buildToneMap() {
+	public float[] getSpectrum() {
+		float[] spectrum = null;
+		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
+			float[] spectralEnergy = entry.getValue().getAmplitudes();
+			if (spectrum == null) {
+				spectrum = new float[spectralEnergy.length];
+			}
+			for (int i = 0; i < spectralEnergy.length; i++) {
+				spectrum[i] += spectralEnergy[i];
+			}
+		}
+		return spectrum;
+	}
+
+	public void buildToneMapFrame(ToneMap toneMap) {
+
+		this.toneMap = toneMap;
 
 		if (features.size() > 0) {
-
-			toneMap = new ToneMap();
 
 			float binWidth = pds.getBinWidth();
 			double timeStart = -1;
 			double nextTime = -1;
 
 			for (Entry<Double, SpectrogramInfo> column : features.entrySet()) {
-
 				nextTime = column.getKey();
 				if (timeStart == -1) {
 					timeStart = nextTime;
@@ -48,45 +60,17 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 			timeSet = new TimeSet(timeStart, nextTime + binWidth, pds.getSampleRate(), nextTime + binWidth - timeStart);
 
-			double highFreq = pds.getSampleRate() / (2.0); // *
-															// pds.getBufferSize());
-
 			pitchSet = new PitchSet();
 
-			toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
-
-			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-				ToneMapElement[] elements = ttf.getElements();
-				float[] spectralEnergy = entry.getValue().getAmplitudes();
-				int elementIndex = 0;
-				double binStartFreq = pitchSet.getFreq(elementIndex);
-				double binEndFreq = pitchSet.getFreq(elementIndex + 1);
-				for (int i = 0; i < spectralEnergy.length; i++) {
-					double currentFreq = highFreq * (((double) i) / pds.getBufferSize());
-					if (currentFreq < binStartFreq) {
-						continue;
-					}
-					if (currentFreq >= binEndFreq) {
-						elementIndex++;
-						if (elementIndex == elements.length) {
-							break;
-						}
-						binStartFreq = binEndFreq;
-						binEndFreq = pitchSet.getFreq(elementIndex + 1);
-					}
-					elements[elementIndex].amplitude += spectralEnergy[i];
-				}
-			}
 			ttf.reset();
-			// visor.updateToneMap(pitchFrame);
 		}
 	}
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			//??visor.updateToneMap(toneMap);
+			visor.updateToneMap(toneMap);
 		}
 	}
 

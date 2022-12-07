@@ -3,11 +3,10 @@ package jomu.instrument.audio.features;
 public class AudioFeatureFrame {
 	// private AudioEventFeatures audioEventFeatures;
 	private AudioFeatureProcessor audioFeatureProcessor;
-	private BandedPitchDetectorFeatures bandedPitchDetectorFeatures;
+	// private BandedPitchDetectorFeatures bandedPitchDetectorFeatures;
 	// private List<FeatureFrame> beadsBeatsFeatures;
 	// private List<FeatureFrame> beadsFeatures;
 	private ConstantQFeatures constantQFeatures;
-	private SpectrumFeatures spectrumFeatures;
 	private double end;
 	private int frameSequence;
 	private GoertzelFeatures goertzelFeatures;
@@ -35,9 +34,9 @@ public class AudioFeatureFrame {
 		return audioFeatureProcessor;
 	}
 
-	public BandedPitchDetectorFeatures getBandedPitchDetectorFeatures() {
-		return bandedPitchDetectorFeatures;
-	}
+	// public BandedPitchDetectorFeatures getBandedPitchDetectorFeatures() {
+	//// return bandedPitchDetectorFeatures;
+	// }
 
 	// public List<FeatureFrame> getBeadsBeatsFeatures() {
 	// return beadsBeatsFeatures;
@@ -46,10 +45,6 @@ public class AudioFeatureFrame {
 	// public List<FeatureFrame> getBeadsFeatures() {
 	// return beadsFeatures;
 	// }
-
-	public SpectrumFeatures getSpectrumFeatures() {
-		return spectrumFeatures;
-	}
 
 	public ConstantQFeatures getConstantQFeatures() {
 		return constantQFeatures;
@@ -109,23 +104,21 @@ public class AudioFeatureFrame {
 		beatFeatures = new BeatFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
-		bandedPitchDetectorFeatures = new BandedPitchDetectorFeatures();
+		// bandedPitchDetectorFeatures = new BandedPitchDetectorFeatures();
 		spectrogramFeatures = new SpectrogramFeatures();
 		goertzelFeatures = new GoertzelFeatures();
 		scalogramFeatures = new ScalogramFeatures();
-		spectrumFeatures = new SpectrumFeatures();
 		// audioEventFeatures.initialise(this.audioFeatureProcessor
 		// .getTarsosFeatures().getAudioEventSource());
 		constantQFeatures.initialise(this);
 		onsetFeatures.initialise(this);
 		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);
-		bandedPitchDetectorFeatures
-				.initialise(this.audioFeatureProcessor.getTarsosFeatures().getBandedPitchDetectorSource());
+		// bandedPitchDetectorFeatures
+		// .initialise(this.audioFeatureProcessor.getTarsosFeatures().getBandedPitchDetectorSource());
 		spectrogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getSpectrogramSource());
 		goertzelFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getGoertzelSource());
 		scalogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getScalogramSource());
-		spectrumFeatures.initialise(this);
 		beatFeatures.initialise(this);
 
 	}

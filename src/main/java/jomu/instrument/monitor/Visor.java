@@ -87,7 +87,6 @@ import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
-import jomu.instrument.audio.features.BandedPitchDetectorSource;
 import jomu.instrument.audio.features.ConstantQSource;
 import jomu.instrument.audio.features.OnsetInfo;
 import jomu.instrument.audio.features.PitchDetectorSource;
@@ -789,7 +788,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		onsetLayer.update(audioFeatureFrame);
 		spectralPeaksLayer.update(audioFeatureFrame);
 		pdLayer.update(audioFeatureFrame);
-		bpdLayer.update(audioFeatureFrame);
+		// bpdLayer.update(audioFeatureFrame);
 		sLayer.update(audioFeatureFrame);
 		// if (count % 10 == 0) {
 		// this.toneMapPanel.repaint();
@@ -799,7 +798,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		this.onsetPanel.repaint();
 		this.spectralPeaksPanel.repaint();
 		this.pitchDetectPanel.repaint();
-		this.bandedPitchDetectPanel.repaint();
+		// this.bandedPitchDetectPanel.repaint();
 		// this.beadsPanel.repaint();
 		// }
 		// count++;
@@ -893,21 +892,21 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					BandedPitchDetectorSource bpds = audioFeatureFrame.getBandedPitchDetectorFeatures().getBpds();
-					binStartingPointsInCents = bpds.getBinStartingPointsInCents(2048);
-					binWidth = bpds.getBinWidth(2048);
-					binHeight = bpds.getBinHeight(2048);
-					Map<Integer, TreeMap<Double, SpectrogramInfo>> bfs = audioFeatureFrame
-							.getBandedPitchDetectorFeatures().getFeatures();
-					if (features == null) {
-						features = new TreeMap<>();
-					}
-					TreeMap<Double, SpectrogramInfo> fs = bfs.get(2048);
-					if (fs != null) {
-						for (Entry<Double, SpectrogramInfo> entry : fs.entrySet()) {
-							features.put(entry.getKey(), entry.getValue());
-						}
-					}
+//					BandedPitchDetectorSource bpds = audioFeatureFrame.getBandedPitchDetectorFeatures().getBpds();
+//					binStartingPointsInCents = bpds.getBinStartingPointsInCents(2048);
+//					binWidth = bpds.getBinWidth(2048);
+//					binHeight = bpds.getBinHeight(2048);
+//					Map<Integer, TreeMap<Double, SpectrogramInfo>> bfs = audioFeatureFrame
+//							.getBandedPitchDetectorFeatures().getFeatures();
+//					if (features == null) {
+//						features = new TreeMap<>();
+//					}
+//					TreeMap<Double, SpectrogramInfo> fs = bfs.get(2048);
+//					if (fs != null) {
+//						for (Entry<Double, SpectrogramInfo> entry : fs.entrySet()) {
+//							features.put(entry.getKey(), entry.getValue());
+//						}
+//					}
 				}
 			});
 		}

@@ -49,7 +49,7 @@ public class AudioSpectralPeaksProcessor implements Consumer<List<NuMessage>> {
 					toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 
 					toneMap.getTimeFrame().deNoise(0.05);
-					// spf.displayToneMap();
+					spf.displayToneMap();
 					cell.send(streamId, sequence);
 				}
 			}

@@ -37,12 +37,12 @@ public class SpectralPeakDetector {
 	/**
 	 * The magnitudes in the current frame.
 	 */
-	private float[] magnitudes = null;
+	protected float[] magnitudes = null;
 
 	/**
 	 * Detailed frequency estimates for each bin, using phase info
 	 */
-	private float[] frequencyEstimates = null;
+	protected float[] frequencyEstimates = null;
 
 	private PitchSet pitchSet = null;
 

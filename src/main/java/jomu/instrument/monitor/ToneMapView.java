@@ -32,7 +32,6 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
-import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -108,7 +107,6 @@ public class ToneMapView extends JComponent implements ComponentListener {
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 		if (ttf != null) {
 			TimeSet timeSet = ttf.getTimeSet();
-			System.out.println(">>!!draw tm: " + timeSet.getStartTime() + ", " + timeSet.getEndTime());
 			PitchSet pitchSet = ttf.getPitchSet();
 			updateAxis(timeSet, pitchSet);
 			double timeStart = timeSet.getStartTime() * 1000;
@@ -135,7 +133,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
 				bufferedGraphics = bufferedImage.createGraphics();
 			}
-		
+
 			bufferedGraphics.setColor(Color.black);
 
 			ToneMapElement[] elements = ttf.getElements();
@@ -147,8 +145,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				Color color = Color.black;
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
-					int width = (int)Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
-					int height = (int) ((100.0/(double)(maxCents - minCents)) * getHeight());
+					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
+					int height = (int) ((100.0 / (double) (maxCents - minCents)) * getHeight());
 					if (toneMapElement.amplitude > 1.0) {
 						amplitude = 100.0 * toneMapElement.amplitude / ttf.getMaxAmplitude();
 					}
@@ -164,9 +162,6 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					} else {
 						greyValue = Math.max(0, greyValue);
 						color = new Color(greyValue, greyValue, greyValue);
-						System.out.println(">>WIDTH: " + width + ", "+ elementIndex + ", " + pitchSet.getNote(elementIndex)+ ", " + pitchSet.getFreq(elementIndex));
-						System.out.println(">>WIDTH minCents: " + minCents + ", "+ maxCents + ", " + getHeight() + ", "+ pitchSet.getNote(elementIndex) * 100);
-						System.out.println(">>WIDTH coord: " + getCentsCoordinate(pitchSet.getNote(elementIndex) * 100));
 					}
 
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
@@ -174,18 +169,17 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 					bufferedGraphics.setColor(color);
 					bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
-					
+
 				}
 			}
 		}
-		drawGrid();	
+		drawGrid();
 		repaint();
 	}
 
-		
 	private void drawGrid() {
 		Color gridColor = new Color(50, 50, 50);
-	
+
 		for (int i = 0; i < maxCents; i += 100) {
 			int centsCoordinate = getCentsCoordinate(i);
 			bufferedGraphics.setColor(Color.WHITE);
@@ -194,22 +188,22 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				bufferedGraphics.drawString(String.valueOf(i), 10, centsCoordinate);
 				bufferedGraphics.setColor(gridColor);
 				bufferedGraphics.drawLine(0, centsCoordinate, getWidth() - 1, centsCoordinate);
-				System.out.println(">>drawGrid: " + centsCoordinate + ", " + String.valueOf(i));
 			}
 		}
-	    
-	    for(int i = 0 ; i <= 20000; i+=1000){
-	    	bufferedGraphics.setColor(Color.WHITE);
+
+		for (int i = 0; i <= 20000; i += 1000) {
+			bufferedGraphics.setColor(Color.WHITE);
 			int timeCoordinate = getTimeCoordinate(i);
 			bufferedGraphics.drawLine(timeCoordinate, getHeight(), timeCoordinate, getHeight() - 5);
-			bufferedGraphics.drawString(String.valueOf((int)((timeAxisStart + i) / 1000)), timeCoordinate, getHeight() - 10);
+			bufferedGraphics.drawString(String.valueOf((int) ((timeAxisStart + i) / 1000)), timeCoordinate,
+					getHeight() - 10);
 			bufferedGraphics.setColor(gridColor);
 			bufferedGraphics.drawLine(timeCoordinate, getHeight(), timeCoordinate, 0);
 		}
 	}
-	
+
 	private int getCentsCoordinate(int cents) {
-		return getHeight() - 1 - (int)(((double)(cents - minCents) / (double)maxCents) * getHeight());
+		return getHeight() - 1 - (int) (((double) (cents - minCents) / (double) maxCents) * getHeight());
 	}
 
 	private int getTimeCoordinate(double timeStart) {

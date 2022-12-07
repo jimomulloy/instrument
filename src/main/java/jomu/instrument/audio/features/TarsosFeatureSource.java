@@ -5,7 +5,7 @@ import be.tarsos.dsp.AudioDispatcher;
 public class TarsosFeatureSource {
 
 	// private AudioEventSource audioEventSource;
-	private BandedPitchDetectorSource bandedPitchDetectorSource;
+	// private BandedPitchDetectorSource bandedPitchDetectorSource;
 	private ConstantQSource constantQSource;
 	private GoertzelSource goertzelSource;
 	private OnsetSource onsetSource;
@@ -13,7 +13,6 @@ public class TarsosFeatureSource {
 	private ScalogramSource scalogramSource;
 	private SpectralPeaksSource spectralPeaksSource;
 	private SpectrogramSource spectrogramSource;
-	private SpectrumSource spectrumSource;
 	private BeatSource beatSource;
 	private AudioDispatcher dispatcher;
 
@@ -25,9 +24,9 @@ public class TarsosFeatureSource {
 	// return audioEventSource;
 	// }
 
-	public BandedPitchDetectorSource getBandedPitchDetectorSource() {
-		return bandedPitchDetectorSource;
-	}
+	// public BandedPitchDetectorSource getBandedPitchDetectorSource() {
+	// return bandedPitchDetectorSource;
+	// }
 
 	public ConstantQSource getConstantQSource() {
 		return constantQSource;
@@ -35,10 +34,6 @@ public class TarsosFeatureSource {
 
 	public AudioDispatcher getDispatcher() {
 		return dispatcher;
-	}
-
-	public SpectrumSource getSpectrumSource() {
-		return spectrumSource;
 	}
 
 	public BeatSource getBeatSource() {
@@ -74,20 +69,18 @@ public class TarsosFeatureSource {
 		onsetSource = new OnsetSource(dispatcher);
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
-		bandedPitchDetectorSource = new BandedPitchDetectorSource(dispatcher);
+		// bandedPitchDetectorSource = new BandedPitchDetectorSource(dispatcher);
 		spectrogramSource = new SpectrogramSource(dispatcher);
 		beatSource = new BeatSource(dispatcher);
-		spectrumSource = new SpectrumSource(dispatcher);
 		goertzelSource = new GoertzelSource(dispatcher);
 		scalogramSource = new ScalogramSource(dispatcher);
 		constantQSource.initialise();
 		onsetSource.initialise();
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();
-		bandedPitchDetectorSource.initialise();
+		// bandedPitchDetectorSource.initialise();
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
 		beatSource.initialise();
-		spectrumSource.initialise();
 	}
 }
