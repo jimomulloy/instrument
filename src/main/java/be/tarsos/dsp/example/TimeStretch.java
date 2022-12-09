@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -46,6 +46,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -61,7 +62,7 @@ import be.tarsos.dsp.io.jvm.WaveformWriter;
 public class TimeStretch extends JFrame {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 6072837777935275806L;
 
@@ -80,7 +81,7 @@ public class TimeStretch extends JFrame {
 
 	public TimeStretch() {
 		this.setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Time Stretching: WSOLA TIME-SCALE MODIFICATION OF SOUND");
 		tempoSlider = new JSlider(20, 250);
 		tempoSlider.setValue(100);

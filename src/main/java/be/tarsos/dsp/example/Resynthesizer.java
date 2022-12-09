@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -66,9 +67,9 @@ import be.tarsos.dsp.synthesis.PitchResyntheziser;
  * an application that extracts pitch from an audio file and resynthesizes it
  * using the envelope of the original signal and the pitch information. It can
  * be used to check pitch detection results.
- * 
+ *
  * @author Joren Six
- * 
+ *
  */
 
 public class Resynthesizer {
@@ -102,7 +103,7 @@ public class Resynthesizer {
 	private static class GraphicalResynthesizer extends JFrame {
 
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = 401554060116566946L;
 		private final JSlider estimationGainSlider;
@@ -132,7 +133,7 @@ public class Resynthesizer {
 
 		public GraphicalResynthesizer() {
 			this.setLayout(new BorderLayout());
-			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 			this.setTitle("Pitch Estimation Synthesizer");
 
 			estimationGainSlider = new JSlider(0, 200);

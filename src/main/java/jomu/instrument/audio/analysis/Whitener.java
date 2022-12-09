@@ -1,7 +1,9 @@
-package jomu.instrument.workspace.tonemap;
+package jomu.instrument.audio.analysis;
 
 import java.util.ArrayList;
 import java.util.Vector;
+
+import jomu.instrument.workspace.tonemap.FFTSpectrum;
 
 public class Whitener {
 	private double[] cb; /* Klapuri whitening ranges */

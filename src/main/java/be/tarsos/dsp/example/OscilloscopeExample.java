@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -41,6 +41,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -51,7 +52,7 @@ import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 public class OscilloscopeExample extends JFrame implements OscilloscopeEventHandler {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3501426880288136245L;
 	int counter;
@@ -62,7 +63,7 @@ public class OscilloscopeExample extends JFrame implements OscilloscopeEventHand
 
 	public OscilloscopeExample() {
 		this.setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Osciloscope Example");
 
 		JPanel inputPanel = new InputPanel();
@@ -90,7 +91,7 @@ public class OscilloscopeExample extends JFrame implements OscilloscopeEventHand
 	private static class GaphPanel extends JPanel {
 
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = 4969781241442094359L;
 
@@ -100,6 +101,7 @@ public class OscilloscopeExample extends JFrame implements OscilloscopeEventHand
 			setMinimumSize(new Dimension(80, 60));
 		}
 
+		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g); // paint background
 			g.setColor(Color.BLACK);

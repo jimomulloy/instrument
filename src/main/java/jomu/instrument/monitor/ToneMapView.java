@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package jomu.instrument.monitor;
@@ -40,7 +40,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class ToneMapView extends JComponent implements ComponentListener {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3729805747119272534L;
 
@@ -146,7 +146,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
 					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
-					int height = (int) ((100.0 / (double) (maxCents - minCents)) * getHeight());
+					int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
 					if (toneMapElement.amplitude > 1.0) {
 						amplitude = 100.0 * toneMapElement.amplitude / ttf.getMaxAmplitude();
 					}
@@ -207,9 +207,10 @@ public class ToneMapView extends JComponent implements ComponentListener {
 	}
 
 	private int getTimeCoordinate(double timeStart) {
-		return (int) Math.floor((double) getWidth() * (timeStart / (timeAxisEnd - timeAxisStart)));
+		return (int) Math.floor(getWidth() * (timeStart / (timeAxisEnd - timeAxisStart)));
 	}
 
+	@Override
 	public void paintComponent(final Graphics g) {
 		g.drawImage(bufferedImage, 0, 0, null);
 	}

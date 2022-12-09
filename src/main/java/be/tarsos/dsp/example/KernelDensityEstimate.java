@@ -1,50 +1,50 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 /*
-*              _______                      
-*             |__   __|                     
+*              _______
+*             |__   __|
 *                | | __ _ _ __ ___  ___  ___
-*                | |/ _` | '__/ __|/ _ \/ __| 
-*                | | (_| | |  \__ \ (_) \__ \    
-*                |_|\__,_|_|  |___/\___/|___/    
-*                                                         
+*                | |/ _` | '__/ __|/ _ \/ __|
+*                | | (_| | |  \__ \ (_) \__ \
+*                |_|\__,_|_|  |___/\___/|___/
+*
 * -----------------------------------------------------------
 *
-*  Tarsos is developed by Joren Six at 
+*  Tarsos is developed by Joren Six at
 *  The School of Arts,
 *  University College Ghent,
 *  Hoogpoort 64, 9000 Ghent - Belgium
-*  
+*
 * -----------------------------------------------------------
 *
 *  Info: http://tarsos.0110.be
 *  Github: https://github.com/JorenSix/Tarsos
 *  Releases: http://tarsos.0110.be/releases/Tarsos/
-*  
+*
 *  Tarsos includes some source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -74,14 +74,14 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Add the kernel to an accumulator for each value.
-	 * 
+	 *
 	 * When a kernel with a width of 7 is added at 1 cents it has influence on the
 	 * bins from 1200 - 7 * 10 + 1 to 1 + 7 * 10 so from 1131 to 71. To make the
 	 * modulo calculation easy 1200 is added to each value: -69 % 1200 is -69, (-69
 	 * + 1200) % 1200 is the expected 1131. If you know what I mean. This algorithm
 	 * computes O(width * n) sums with n the number of annotations and width the
 	 * number of bins affected, rather efficient.
-	 * 
+	 *
 	 * @param value The value to add.
 	 */
 	public void add(double value) {
@@ -100,7 +100,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Remove a value from the kde, removes a kernel at the specified position.
-	 * 
+	 *
 	 * @param value The value to remove.
 	 */
 	public void remove(double value) {
@@ -120,7 +120,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Shift the accumulator x positions.
-	 * 
+	 *
 	 * @param shift The number of positions the accumulator should be shifted.
 	 */
 	public void shift(int shift) {
@@ -135,7 +135,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Returns the current estimate.
-	 * 
+	 *
 	 * @return The current estimate. To prevent unauthorized modification a clone of
 	 *         the array is returned. Please cache appropriately.
 	 */
@@ -147,11 +147,11 @@ public class KernelDensityEstimate {
 	 * Map the kernel density estimate to another size. E.g. a KDE with 4 values
 	 * mapped to two is done by iterating the 4 elements and adding them on modulo 2
 	 * places. Here 1 + 4 = 5, 2 + 9 = 11
-	 * 
+	 *
 	 * <pre>
 	 * (1 2 4 9).map(2) = (5 11)
 	 * </pre>
-	 * 
+	 *
 	 * @param size The new size for the KDE.
 	 * @return A new KDE with the contents of the original mapped to the new size.
 	 */
@@ -166,7 +166,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Return the value for the accumulator at a certain index.
-	 * 
+	 *
 	 * @param index The index.
 	 * @return The value for the accumulator at a certain index.
 	 */
@@ -183,7 +183,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Returns the sum of all estimates in the accumulator.
-	 * 
+	 *
 	 * @return The total sum of all estimates.
 	 */
 	public double getSumFreq() {
@@ -196,8 +196,8 @@ public class KernelDensityEstimate {
 	 */
 	private void calculateSumFreq() {
 		sum = 0;
-		for (int i = 0; i < accumulator.length; i++) {
-			sum += accumulator[i];
+		for (double element : accumulator) {
+			sum += element;
 		}
 	}
 
@@ -210,7 +210,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Sets a new maximum bin value.
-	 * 
+	 *
 	 * @param newMaxvalue The new maximum bin value.
 	 */
 	public void normalize(double newMaxvalue) {
@@ -265,7 +265,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Takes the maximum of the value in the accumulator for two kde's.
-	 * 
+	 *
 	 * @param other The other kde of the same size.
 	 */
 	public void max(KernelDensityEstimate other) {
@@ -278,7 +278,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Adds a KDE to this accumulator
-	 * 
+	 *
 	 * @param other The other KDE of the same size.
 	 */
 	public void add(KernelDensityEstimate other) {
@@ -298,7 +298,7 @@ public class KernelDensityEstimate {
 	 * <p>
 	 * This and the other KernelDensityEstimate should have the same size.
 	 * </p>
-	 * 
+	 *
 	 * @param other                 The other estimate.
 	 * @param positionsToShiftOther The number of positions to shift the estimate.
 	 * @return A value between 0 and 1 representing how similar both estimates are.
@@ -331,7 +331,7 @@ public class KernelDensityEstimate {
 	/**
 	 * Calculates how much the other KernelDensityEstimate needs to be shifted for
 	 * optimal correlation.
-	 * 
+	 *
 	 * @param other The other KernelDensityEstimate.
 	 * @return A number between 0 (inclusive) and the size of the
 	 *         KernelDensityEstimate (exclusive) which represents how much the other
@@ -354,7 +354,7 @@ public class KernelDensityEstimate {
 	/**
 	 * Calculates the optimal correlation between two Kernel Density Estimates by
 	 * shifting and searching for optimal correlation.
-	 * 
+	 *
 	 * @param other The other KernelDensityEstimate.
 	 * @return A value between 0 and 1 representing how similar both estimates are.
 	 *         1 means total correlation, 0 no correlation.
@@ -366,13 +366,13 @@ public class KernelDensityEstimate {
 
 	/**
 	 * Defines a kernel. It has a size and cached values for each index.
-	 * 
+	 *
 	 * @author Joren Six
 	 */
 	public static interface Kernel {
 		/**
 		 * Fetch the value for the kernel at a certain index.
-		 * 
+		 *
 		 * @param kernelIndex The index of the previously computed value.
 		 * @return The cached value for a certain index.
 		 */
@@ -380,7 +380,7 @@ public class KernelDensityEstimate {
 
 		/**
 		 * The size of the kernel.
-		 * 
+		 *
 		 * @return The size of the kernel.
 		 */
 		int size();
@@ -388,7 +388,7 @@ public class KernelDensityEstimate {
 
 	/**
 	 * A Gaussian kernel function.
-	 * 
+	 *
 	 * @author Joren Six
 	 */
 	public static class GaussianKernel implements Kernel {
@@ -397,7 +397,7 @@ public class KernelDensityEstimate {
 
 		/**
 		 * Construct a kernel with a defined width.
-		 * 
+		 *
 		 * @param kernelWidth The width of the kernel.
 		 */
 		public GaussianKernel(final double kernelWidth) {
@@ -414,10 +414,12 @@ public class KernelDensityEstimate {
 			}
 		}
 
+		@Override
 		public double value(int index) {
 			return kernel[index];
 		}
 
+		@Override
 		public int size() {
 			return kernel.length;
 		}
@@ -438,10 +440,12 @@ public class KernelDensityEstimate {
 			}
 		}
 
+		@Override
 		public double value(int index) {
 			return kernel[index];
 		}
 
+		@Override
 		public int size() {
 			return kernel.length;
 		}
@@ -450,9 +454,9 @@ public class KernelDensityEstimate {
 	/**
 	 * Calculates the optimal correlation between two Kernel Density Estimates by
 	 * shifting and searching for optimal correlation.
-	 * 
+	 *
 	 * @param correlationMeasure
-	 * 
+	 *
 	 * @param other              The other KernelDensityEstimate.
 	 * @return A value between 0 and 1 representing how similar both estimates are.
 	 *         1 means total correlation, 0 no correlation.
@@ -465,9 +469,9 @@ public class KernelDensityEstimate {
 	/**
 	 * Calculates how much the other KernelDensityEstimate needs to be shifted for
 	 * optimal correlation.
-	 * 
+	 *
 	 * @param correlationMeasure
-	 * 
+	 *
 	 * @param other              The other KernelDensityEstimate.
 	 * @return A number between 0 (inclusive) and the size of the
 	 *         KernelDensityEstimate (exclusive) which represents how much the other
@@ -492,6 +496,7 @@ public class KernelDensityEstimate {
 	}
 
 	public static class Overlap implements KDECorrelation {
+		@Override
 		public double correlation(KernelDensityEstimate first, KernelDensityEstimate other, int shift) {
 			double correlation;
 			int matchingArea = 0;
@@ -506,6 +511,7 @@ public class KernelDensityEstimate {
 	}
 
 	public static class Cosine implements KDECorrelation {
+		@Override
 		public double correlation(KernelDensityEstimate first, KernelDensityEstimate other, int shift) {
 			double correlation;
 			double innerProduct = 0;

@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -30,7 +31,7 @@ import be.tarsos.dsp.resample.Resampler;
 
 public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosDSPDemo {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -7188163235158960778L;
 	private final JFileChooser fileChooser;
@@ -56,7 +57,7 @@ public class TimeStrechingBasedOnPitchShifting extends JFrame implements TarsosD
 
 	public TimeStrechingBasedOnPitchShifting() {
 		this.setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Pitch shifting: change the tempo of your audio.");
 		currentFactor = 1.;
 		JPanel fileChooserPanel = new JPanel(new BorderLayout());

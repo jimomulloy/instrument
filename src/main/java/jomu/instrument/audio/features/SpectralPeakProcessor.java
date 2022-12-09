@@ -49,11 +49,11 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 		frequencyEstimates = new float[bufferSize / 2];
 
 		dt = (bufferSize - overlap) / (double) sampleRate;
-		cbin = (double) (dt * sampleRate / (double) bufferSize);
+		cbin = dt * sampleRate / bufferSize;
 
-		inv_2pi = (double) (1.0 / (2.0 * Math.PI));
-		inv_deltat = (double) (1.0 / dt);
-		inv_2pideltat = (double) (inv_deltat * inv_2pi);
+		inv_2pi = 1.0 / (2.0 * Math.PI);
+		inv_deltat = 1.0 / dt;
+		inv_2pideltat = inv_deltat * inv_2pi;
 
 		this.sampleRate = sampleRate;
 
@@ -68,8 +68,8 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 
 	private void normalizeMagintudes() {
 		float maxMagnitude = (float) -1e6;
-		for (int i = 0; i < magnitudes.length; i++) {
-			maxMagnitude = Math.max(maxMagnitude, magnitudes[i]);
+		for (float magnitude : magnitudes) {
+			maxMagnitude = Math.max(maxMagnitude, magnitude);
 		}
 
 		// log10 of the normalized value
@@ -115,6 +115,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	/**
 	 * @return the magnitudes.
 	 */
+	@Override
 	public float[] getMagnitudes() {
 		return magnitudes.clone();
 	}
@@ -122,13 +123,14 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	/**
 	 * @return the precise frequency for each bin.
 	 */
+	@Override
 	public float[] getFrequencyEstimates() {
 		return frequencyEstimates.clone();
 	}
 
 	/**
 	 * Calculates a frequency for a bin using phase info, if available.
-	 * 
+	 *
 	 * @param binIndex The FFT bin index.
 	 * @return a frequency, in Hz, calculated using available phase info.
 	 */
@@ -155,7 +157,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 
 	/**
 	 * Calculate a noise floor for an array of magnitudes.
-	 * 
+	 *
 	 * @param magnitudes         The magnitudes of the current frame.
 	 * @param medianFilterLength The length of the median filter used to determine
 	 *                           the noise floor.
@@ -186,7 +188,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 				index++;
 			}
 			// calculate the noise floor value.
-			noisefloor[i] = (float) (median(noiseFloorBuffer) * (noiseFloorFactor));
+			noisefloor[i] = median(noiseFloorBuffer) * (noiseFloorFactor);
 		}
 
 		float rampLength = 12.0f;
@@ -202,13 +204,13 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 
 	/**
 	 * Finds the local magintude maxima and stores them in the given list.
-	 * 
+	 *
 	 * @param magnitudes The magnitudes.
 	 * @param noisefloor The noise floor.
 	 * @return a list of local maxima.
 	 */
 	public static List<Integer> findLocalMaxima(float[] magnitudes, float[] noisefloor) {
-		List<Integer> localMaximaIndexes = new ArrayList<Integer>();
+		List<Integer> localMaximaIndexes = new ArrayList<>();
 		for (int i = 1; i < magnitudes.length - 1; i++) {
 			boolean largerThanPrevious = (magnitudes[i - 1] < magnitudes[i]);
 			boolean largerThanNext = (magnitudes[i] > magnitudes[i + 1]);
@@ -237,7 +239,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	}
 
 	/**
-	 * 
+	 *
 	 * @param magnitudes         the magnitudes..
 	 * @param frequencyEstimates The frequency estimates for each bin.
 	 * @param localMaximaIndexes The indexes of the local maxima.
@@ -248,7 +250,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	public static List<SpectralPeak> findPeaks(float[] magnitudes, float[] frequencyEstimates,
 			List<Integer> localMaximaIndexes, int numberOfPeaks, int minDistanceInCents) {
 		int maxMagnitudeIndex = findMaxMagnitudeIndex(magnitudes);
-		List<SpectralPeak> spectralPeakList = new ArrayList<SpectralPeak>();
+		List<SpectralPeak> spectralPeakList = new ArrayList<>();
 
 		if (localMaximaIndexes.size() == 0)
 			return spectralPeakList;

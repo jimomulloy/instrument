@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -36,7 +36,7 @@ import be.tarsos.dsp.util.PitchConverter;
 public class UtterAsteriskPanel extends JPanel {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5330666476785715988L;
 	private double patternLength;// in seconds
@@ -59,8 +59,8 @@ public class UtterAsteriskPanel extends JPanel {
 		}
 		patternLength = 12;
 		currentMarker = 0;
-		startTimeStamps = new ArrayList<Double>();
-		pitches = new ArrayList<Double>();
+		startTimeStamps = new ArrayList<>();
+		pitches = new ArrayList<>();
 	}
 
 	@Override
@@ -89,9 +89,9 @@ public class UtterAsteriskPanel extends JPanel {
 		double currentXPosition = 0.5; // seconds of pause before start
 		for (int i = 0; i < pattern.length; i++) {
 			double lengthInSeconds = timing[i] * lengthPerQuarterNote;// seconds
-			int patternWidth = (int) (lengthInSeconds / (double) patternLength * getWidth());// pixels
+			int patternWidth = (int) (lengthInSeconds / patternLength * getWidth());// pixels
 			int patternHeight = (int) (CENTS_DEVIATION / 1200.0 * getHeight());
-			int patternX = (int) ((currentXPosition) / (double) patternLength * getWidth());
+			int patternX = (int) ((currentXPosition) / patternLength * getWidth());
 			int patternY = getHeight() - (int) (pattern[i] / 1200.0 * getHeight()) - patternHeight / 2;
 			graphics.drawRect(patternX, patternY, patternWidth, patternHeight);
 			currentXPosition += lengthInSeconds; // in seconds
@@ -101,7 +101,7 @@ public class UtterAsteriskPanel extends JPanel {
 		for (int i = 0; i < pitches.size(); i++) {
 			double pitchInCents = pitches.get(i);
 			double startTimeStamp = startTimeStamps.get(i) % patternLength;
-			int patternX = (int) (startTimeStamp / (double) patternLength * getWidth());
+			int patternX = (int) (startTimeStamp / patternLength * getWidth());
 			int patternY = getHeight() - (int) (pitchInCents / 1200.0 * getHeight());
 			graphics.drawRect(patternX, patternY, 2, 2);
 		}

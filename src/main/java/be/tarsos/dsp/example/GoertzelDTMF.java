@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -41,8 +41,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import be.tarsos.dsp.AudioDispatcher;
@@ -58,12 +60,12 @@ import be.tarsos.dsp.pitch.Goertzel.FrequenciesDetectedHandler;
 /**
  * An example of DTMF ( Dual-tone multi-frequency signaling ) decoding with the
  * Goertzel algorithm.
- * 
+ *
  * @author Joren Six
  */
 public class GoertzelDTMF extends JFrame implements ActionListener {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1143769091770146361L;
 
@@ -119,7 +121,7 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 
 	public GoertzelDTMF() {
 		this.getContentPane().setLayout(new BorderLayout(5, 3));
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Goertzel");
 
 		JPanel detectionPanel = new JPanel(new GridLayout(DTMF.DTMF_FREQUENCIES.length, 2, 5, 3));
@@ -136,7 +138,7 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 		labelPanel.add(detectionPanel, BorderLayout.NORTH);
 
 		detectedChar.setBorder(new TitledBorder("Detected character"));
-		detectedChar.setHorizontalAlignment(JLabel.CENTER);
+		detectedChar.setHorizontalAlignment(SwingConstants.CENTER);
 
 		Font f = new Font("Police", Font.PLAIN, 20);
 		detectedChar.setFont(f);
@@ -145,9 +147,9 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 
 		JPanel dailPad = new JPanel(new GridLayout(4, 4));
 		dailPad.setBorder(new TitledBorder("DailPad"));
-		for (int row = 0; row < DTMF.DTMF_CHARACTERS.length; row++) {
-			for (int col = 0; col < DTMF.DTMF_CHARACTERS[row].length; col++) {
-				JButton numberButton = new JButton(DTMF.DTMF_CHARACTERS[row][col] + "");
+		for (char[] element : DTMF.DTMF_CHARACTERS) {
+			for (int col = 0; col < element.length; col++) {
+				JButton numberButton = new JButton(element[col] + "");
 				numberButton.addActionListener(this);
 				numberButton.addKeyListener(keyAdapter);
 				dailPad.add(numberButton);
@@ -194,7 +196,7 @@ public class GoertzelDTMF extends JFrame implements ActionListener {
 
 	/**
 	 * Process a DTMF character: generate sound and decode the sound.
-	 * 
+	 *
 	 * @param character The character.
 	 * @throws UnsupportedAudioFileException
 	 * @throws LineUnavailableException

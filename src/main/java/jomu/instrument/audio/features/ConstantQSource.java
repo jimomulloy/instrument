@@ -99,7 +99,7 @@ public class ConstantQSource {
 		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(maximumFrequencyInCents);
 		System.out.println(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
 		System.out.println(">>CQS maximumFrequencyInHertz: " + maximumFrequencyInHertz);
-		
+
 		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
 
 		binWidth = increment / sampleRate;
@@ -114,7 +114,7 @@ public class ConstantQSource {
 		System.out.println(">>CQS endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
 		System.out.println(">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
 		System.out.println(">>CQS endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
-		
+
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - increment);

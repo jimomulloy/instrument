@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -52,6 +52,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -69,7 +70,7 @@ import be.tarsos.dsp.resample.RateTransposer;
 public class SampleExtractor extends JFrame {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -8749523013657700525L;
 	private final JFileChooser fileChooser;
@@ -94,10 +95,10 @@ public class SampleExtractor extends JFrame {
 				startSelectionSpinner.setValue(endValue);
 				startSelectionSpinner.addChangeListener(this);
 			}
-			for (int i = 0; i < durationSpinner.length; i++) {
-				double duration = (Double) durationSpinner[i].getValue();
+			for (JSpinner element : durationSpinner) {
+				double duration = (Double) element.getValue();
 				if (duration == 0 || duration == currentDuration) {
-					durationSpinner[i].setValue(selectionDuration());
+					element.setValue(selectionDuration());
 				}
 			}
 			currentDuration = selectionDuration();
@@ -106,7 +107,7 @@ public class SampleExtractor extends JFrame {
 
 	public SampleExtractor() {
 		this.setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Sample Exctractor: Extract & Modify Samples");
 
 		fileChooser = new JFileChooser();
@@ -266,7 +267,7 @@ public class SampleExtractor extends JFrame {
 
 	/**
 	 * Copy a file from a jar.
-	 * 
+	 *
 	 * @param source The path to read e.g. /package/name/here/help.html
 	 * @param target The target to save the file to.
 	 */

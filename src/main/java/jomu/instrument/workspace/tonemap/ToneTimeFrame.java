@@ -246,7 +246,7 @@ public class ToneTimeFrame {
 				if (elementIndex == elements.length) {
 					break;
 				}
-				// elements[elementIndex].amplitude = 0;
+				elements[elementIndex].amplitude = 0;
 				binEndFreq = pitchSet.getFreq(elementIndex + 1);
 			}
 			if (elementIndex == elements.length) {

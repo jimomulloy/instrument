@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 package be.tarsos.dsp.example;
@@ -50,6 +50,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -62,7 +63,7 @@ import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 public class PercussionDetector extends JFrame implements OnsetHandler {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3501426880288136245L;
 
@@ -74,7 +75,7 @@ public class PercussionDetector extends JFrame implements OnsetHandler {
 
 	public PercussionDetector() {
 		this.setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Percussion Detector");
 
 		JPanel inputPanel = new InputPanel();
@@ -117,7 +118,7 @@ public class PercussionDetector extends JFrame implements OnsetHandler {
 		this.add(paramsAndInputPanel, BorderLayout.NORTH);
 		this.add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-		clipList = new ArrayList<Clip>();
+		clipList = new ArrayList<>();
 
 		addClips();
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.analysis.Whitener;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.PitchDetectorFeatures;
@@ -43,9 +44,26 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 				pdf.buildToneMapFrame(toneMap);
 				float[] spectrum = pdf.getSpectrum();
 				FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getPds().getSampleRate(), 1024, spectrum);
-				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+
+				// PolyphonicPitchDetection ppp = new PolyphonicPitchDetection();
+				// Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
+				Whitener whitener = new Whitener(fftSpectrum);
+				whitener.whiten();
+				FFTSpectrum whitenedSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
+						whitener.getWhitenedSpectrum());
+
+				// PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(),
+				// fftSpectrum.getSampleRate());
+				// pd.detect(whitenedSpectrum.getSpectrum());
+
+				toneMap.getTimeFrame().loadFFTSpectrum(whitenedSpectrum);
+				toneMap.getTimeFrame().square();
+				toneMap.getTimeFrame().lowThreshold(0.01, 0.0000001);
+				toneMap.getTimeFrame().normaliseThreshold(20, 0.0000001);
+				// toneMap.getTimeFrame().deNoise(0.05);
+
 				System.out.println(">PitchDetectorProcessor process tonemap");
-				// pdf.displayToneMap();
+				pdf.displayToneMap();
 				cell.send(streamId, sequence);
 			}
 		}
@@ -53,5 +71,16 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 
 	private String buildToneMapKey(CellTypes cellType, String streamId) {
 		return cellType + ":" + streamId;
+	}
+
+	private double[] convertFloatsToDoubles(float[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		double[] output = new double[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = input[i];
+		}
+		return output;
 	}
 }

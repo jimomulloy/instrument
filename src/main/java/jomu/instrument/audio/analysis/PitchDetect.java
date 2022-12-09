@@ -1,4 +1,7 @@
-package jomu.instrument.workspace.tonemap;
+package jomu.instrument.audio.analysis;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is a robust polyphonic multi-pitch detector. The algorithm is described
@@ -6,9 +9,10 @@ package jomu.instrument.workspace.tonemap;
  * Harmonic Amplitudes. Yuan Gao, 2011
  */
 
-public class PitchDetect2 {
+public class PitchDetect {
 	/** array to hold fzeros info, 1 := positive, 0 := negative */
 	public float[] fzeros;
+	public Map<Integer, Float> fzeroBins;
 
 	private float[] pitches;
 
@@ -19,20 +23,31 @@ public class PitchDetect2 {
 	private float sampleRate;
 
 	/** spectrum to be analyzed */
-	private float[] spec;
+	// private float[] spec;
 
 	/** spectrum "whitener" for pre-processing */
-	private SpecWhitener2 sw;
+	private SpecWhitener sw;
 
 	/** size of the buffer */
 	private int timeSize;
 
-	public PitchDetect2(int timeSize, float sampleRate, float[] pitches) {
+	public PitchDetect(int timeSize, float sampleRate) {
 		this.timeSize = timeSize;
 		this.sampleRate = sampleRate;
-		this.pitches = pitches;
-		sw = new SpecWhitener2(timeSize, sampleRate);
-		spec = new float[timeSize / 2 + 1];
+		/*
+		 * Create candidate frequencies here
+		 * (http://www.phy.mtu.edu/~suits/NoteFreqCalcs.html) Five octaves of candidate
+		 * notes. Use quarter a half-step to get out of tune freqs Lowest freq (f0) =
+		 * 55.0 Hz, A three octaves below A above the middle C
+		 */
+		float f0Init = 55; // Hz
+		float a = (float) Math.pow(2.0, (1.0 / 12.0));
+		this.pitches = new float[5 * 12]; // 5 octaves, 12 half-steps per octave
+		for (int kk = 0; kk < this.pitches.length; ++kk) {
+			this.pitches[kk] = (float) (f0Init * Math.pow(a, (kk)));
+		}
+
+		sw = new SpecWhitener(timeSize, sampleRate);
 		fzeros = new float[pitches.length];
 	}
 
@@ -49,87 +64,47 @@ public class PitchDetect2 {
 		// iteratively find all presented pitches
 		float test = 0, lasttest = 0;
 		int loopcount = 1;
-		float[] fzeroInfo = new float[3]; // ind 0 is the pitch, ind 1 its
+		float[] fzeroInfo = new float[4]; // ind 0 is the pitch, ind 1 its
 											// salience, ind 2 its ind in
 											// pitches
+											// ind 3 is bin
+
+		fzeroBins = new HashMap<>();
+
 		while (true) {
 			detectfzero(spec, fzeroInfo);
+			System.out.println(">>detectfzero: " + fzeroInfo[2] + ", " + fzeroInfo[3]);
 			lasttest = test;
-			// System.out.println(">>fzeros BEFORE test: " + test + ", "+
-			// fzeroInfo[1]+ ",
-			// "+ Math.pow(loopcount, .1f));
 			test = (float) ((test + fzeroInfo[1]) / Math.pow(loopcount, .2f));
-			// System.out.println(">>fzeros test: " + test + ", "+ lasttest);
-			// System.out.println(">>fzeros fzeroInfo[2] A: " + loopcount + ",
-			// "+
-			// fzeroInfo[2]);
 			if (test <= lasttest)
 				break;
 			loopcount++;
-			System.out.println(">>loop: " + loopcount);
-			// System.out.println(">>fzeros fzeroInfo[2] B: " + loopcount + ",
-			// "+
-			// fzeroInfo[2]+ ", "+ fzeroInfo[0]);
-			// System.out.println(">>fzeros fzeroInfo[2] C: " + (fzeroInfo[0] *
-			// timeSize /
-			// sampleRate));
+			fzeroBins.put((int) fzeroInfo[3], fzeroInfo[1]);
 			// subtract the information of the found pitch from the current
 			// spectrum
-			float fpitch = fzeroInfo[0];
-			int highInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
-			int lowInd = (int) Math.floor(fzeroInfo[0] * timeSize / sampleRate);
-			for (int i = 1; i * fzeroInfo[0] < sampleRate / 2; ++i) {
-				for (int j = 0; j < pitches.length; j++) {
-					if (pitches[j] >= fpitch) {
-						if (j > 0) {
-							lowInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
-						} else {
-							lowInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
-						}
-						if (j < pitches.length - 1) {
-							highInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
-						} else {
-							highInd = (int) Math.floor(pitches[j - 1] * timeSize / sampleRate);
-						}
-						break;
-					}
-				}
-				fpitch *= i;
-				float weighting = (fzeroInfo[0] + 52) / (fpitch + 320);
-				for (int j = lowInd; j <= highInd; j++) {
-					spec[j] *= (1 - 0.89f * weighting);
-				}
+			for (int i = 1; i * fzeroInfo[0] < sampleRate / 2; i++) {
+				int partialInd = (int) Math.floor(i * fzeroInfo[0] * timeSize / sampleRate);
+				float weighting = i == 1 ? (1.0f / 0.89f) : (fzeroInfo[0] + 52) / (i * fzeroInfo[0] + 320);
+				spec[partialInd] *= (1 - 0.89f * weighting);
+				spec[partialInd - 1] *= (1 - 0.89f * weighting);
 			}
 
 			// update fzeros
 			if (fzeros[(int) fzeroInfo[2]] == 0) {
 				fzeros[(int) fzeroInfo[2]] = fzeroInfo[1];
+				System.out.println(">>SET PITCH: " + fzeroInfo[2] + ", " + fzeroInfo[1] + ", " + fzeroInfo[0]);
 			}
 		}
-		for (int i = 0; i < spec.length; i++) {
-			float pitch = i * sampleRate / timeSize;
-			spec[i] = 0F;
-			for (int j = 0; j < pitches.length; j++) {
-				if (fzeros[j] > 0 && pitches[j] <= pitch && pitches[j + 1] > pitch) {
-					spec[i] = fzeros[j];
-				}
-			}
-		}
-	}
+		System.out.println(">>done detectes");
 
-	public void whiten(float[] spec) {
-		float max = 0;
 		for (int i = 0; i < spec.length; i++) {
-			if (spec[i] > max) {
-				max = spec[i];
+			if (fzeroBins.containsKey(i)) {
+				spec[i] = fzeroBins.get(i);
+			} else {
+				spec[i] = 0;
 			}
-			spec[i] *= 1000;
 		}
-		System.out.println(">>SPECMAX: " + max);
-		// for (int i = 0; i < spec.length; i++) spec[i] *= 1000;
-		// spectrum pre-processing
-		sw.whiten(spec);
-		// for (int i = 0; i < spec.length; i++) spec[i] /= 1000;
+
 	}
 
 	// utility function for detecting a single pitch
@@ -138,39 +113,28 @@ public class PitchDetect2 {
 		for (int j = 0; j < pitches.length; ++j) {
 			float cSalience = 0; // salience of the candidate pitch
 			float val = 0;
-			float fpitch = 0;
-			int highInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
-			int lowInd = (int) Math.floor(pitches[j] * timeSize / sampleRate);
-			for (int i = 1; i * pitches[j] < sampleRate / 2; ++i) {
-				fpitch = i * pitches[j];
-				int bin = Math.round(i * pitches[j] * timeSize / sampleRate);
-				for (int k = 0; k < pitches.length; k++) {
-					if (pitches[k] >= fpitch) {
-						if (k > 0) {
-							lowInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
-						} else {
-							lowInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
-						}
-						if (k < pitches.length - 1) {
-							highInd = (int) Math.floor(pitches[k] * timeSize / sampleRate);
-						} else {
-							highInd = (int) Math.floor(pitches[k - 1] * timeSize / sampleRate);
-						}
-						break;
-					}
-				}
-				if (bin >= spec.length - 1) {
-					break;
+			int f0bin = 0;
+			for (int i = 1; i * pitches[j] < sampleRate / 2; i++) {
+				int bin = (int) Math.floor(i * pitches[j] * timeSize / sampleRate);
+				if (i == 1) {
+					f0bin = bin;
 				}
 				// use the largest value of bins in vicinity
-				val = spec[bin];
+				// System.out.println(">> Bin: " + bin + ", " + pitches[j] + ", " + j + " ," +
+				// i);
+				if (bin == timeSize / 2)
+					val = Math.max(Math.max(spec[bin - 3], spec[bin - 2]), spec[bin - 1]);
+				else if (bin == timeSize / 2 - 1)
+					val = Math.max(Math.max(spec[bin - 3], spec[bin - 2]), Math.max(spec[bin - 1], spec[bin]));
+				else if (bin > 2)
+					val = Math.max(Math.max(Math.max(spec[bin - 3], spec[bin - 2]), Math.max(spec[bin - 1], spec[bin])),
+							spec[bin + 1]);
+				else if (bin > 1)
+					val = Math.max(Math.max(spec[bin - 2], Math.max(spec[bin - 1], spec[bin])), spec[bin + 1]);
+				else if (bin < 1)
+					val = Math.max(Math.max(spec[bin - 1], spec[bin]), spec[bin + 1]);
 				// calculate the salience of the current candidate
-				float weighting = (pitches[j] + 52) / (i * pitches[j] + 320);
-				for (int k = lowInd; k <= highInd && k < spec.length; k++) {
-					if (val < spec[k]) {
-						val = spec[k];
-					}
-				}
+				float weighting = i == 1 ? 1.0F : (pitches[j] + 52) / (i * pitches[j] + 320);
 				cSalience += val * weighting;
 			}
 			if (cSalience > maxSalience) {
@@ -178,15 +142,15 @@ public class PitchDetect2 {
 				fzeroInfo[0] = pitches[j];
 				fzeroInfo[1] = cSalience;
 				fzeroInfo[2] = j;
-				System.out.println(">>fzeros max: " + fzeroInfo[0] + ", " + fzeroInfo[1] + ", " + fzeroInfo[2]);
-			} else {
-				System.out.println(">>fzeros min: " + pitches[j] + ", " + cSalience + ", " + j);
+				fzeroInfo[3] = f0bin;
+				System.out.println(">> Detected: " + j + ", " + pitches[j] + ", " + cSalience + ", " + f0bin);
 			}
 		}
+		System.out.println(">> Detecting: " + fzeroInfo[2]);
 	}
 }
 
-final class SpecWhitener2 {
+final class SpecWhitener {
 	private int[][] banksRanTable; // each row is a filter; cols are lower band
 									// index and upper band index this
 	// filter covers
@@ -197,7 +161,7 @@ final class SpecWhitener2 {
 
 	// public float[] wSpec; // the whitened specturm
 
-	public SpecWhitener2(int bufferSize, float sr) {
+	public SpecWhitener(int bufferSize, float sr) {
 		this.bufferSize = bufferSize;
 		this.sr = sr;
 
