@@ -10,7 +10,10 @@ import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.DispatchJunctionProcessor;
+import jomu.instrument.control.ParameterManager;
 
 public class SpectralPeaksSource {
 
@@ -22,7 +25,7 @@ public class SpectralPeaksSource {
 	int noiseFloorMedianFilterLenth = 10;
 	int numberOfSpectralPeaks = 3;
 	int sampleRate = 44100;
-	int bufferSize = 1024;
+	int windowSize = 1024;
 	private float[] binHeightsInCents;
 	private int binsPerOctave = 12;
 	private float binHeight;
@@ -31,16 +34,18 @@ public class SpectralPeaksSource {
 	List<SpectralInfo> spectralInfos = new ArrayList<>();
 	SpectralPeakProcessor spectralPeakProcesser;
 	private AudioDispatcher dispatcher;
+	private ParameterManager parameterManager;
 
 	public SpectralPeaksSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
-		this.bufferSize = (int) dispatcher.getFormat().getSampleRate();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
 	public int getBufferSize() {
-		return bufferSize;
+		return windowSize;
 	}
 
 	public int getCurrentFrame() {
@@ -110,27 +115,26 @@ public class SpectralPeaksSource {
 
 	void initialise() {
 
-		binStartingPointsInCents = new float[bufferSize];
-		binHeightsInCents = new float[bufferSize];
-		FFT fft = new FFT(bufferSize);
-		for (int i = 1; i < bufferSize; i++) {
+		binStartingPointsInCents = new float[windowSize];
+		binHeightsInCents = new float[windowSize];
+		FFT fft = new FFT(windowSize);
+		for (int i = 1; i < windowSize; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
 			binHeightsInCents[i] = binStartingPointsInCents[i] - binStartingPointsInCents[i - 1];
 		}
 
-		binWidth = bufferSize / sampleRate;
+		binWidth = windowSize / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
 
-		bufferSize = 1024;
 		int stepsize = 512;
-		int overlap = bufferSize - stepsize;
+		int overlap = windowSize - stepsize;
 		if (overlap < 1) {
 			overlap = 128;
 		}
 
-		spectralPeakProcesser = new SpectralPeakProcessor(bufferSize, overlap, sampleRate);
+		spectralPeakProcesser = new SpectralPeakProcessor(windowSize, overlap, sampleRate);
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, bufferSize, overlap);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
 		djp.setName("SP");
 		dispatcher.addAudioProcessor(djp);
 		djp.addAudioProcessor(spectralPeakProcesser);

@@ -11,23 +11,27 @@ import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import be.tarsos.dsp.onsets.OnsetHandler;
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.DispatchJunctionProcessor;
+import jomu.instrument.control.ParameterManager;
 
 public class OnsetSource implements OnsetHandler {
 
 	private Map<Double, OnsetInfo[]> features = new TreeMap<>();
 	private List<OnsetInfo> onsetInfos = new ArrayList<>();
-	int increment = 1024;
-	int overlap = 0;
-	float sampleRate = 44100;
+	private int windowSize = 1024;
+	private float sampleRate = 44100;
 
-	double threshold = 0.4;
 	private AudioDispatcher dispatcher;
+	private ParameterManager parameterManager;
 
 	public OnsetSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
 	public TreeMap<Double, OnsetInfo[]> getFeatures() {
@@ -39,7 +43,7 @@ public class OnsetSource implements OnsetHandler {
 	}
 
 	public int getIncrement() {
-		return increment;
+		return windowSize;
 	}
 
 	public float getSampleRate() {
@@ -63,11 +67,11 @@ public class OnsetSource implements OnsetHandler {
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, increment, overlap);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
 		djp.setName("SC");
 		dispatcher.addAudioProcessor(djp);
 
-		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(increment, threshold);
+		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(windowSize, threshold);
 		onsetDetector.setHandler(this);
 		// add a processor, handle percussion event.
 		djp.addAudioProcessor(onsetDetector);

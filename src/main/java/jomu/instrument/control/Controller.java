@@ -1,23 +1,25 @@
 package jomu.instrument.control;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.IOException;
 
 import jomu.instrument.Organ;
 
 public class Controller implements Organ {
 
-	private ConcurrentHashMap<String, String> parameters = new ConcurrentHashMap<>();
+	private ParameterManager parameterManager = new ParameterManager();
 
-	public String getParameter(String key) {
-		return parameters.get(key);
+	public ParameterManager getParameterManager() {
+		return parameterManager;
 	}
 
 	@Override
 	public void initialise() {
-	}
-
-	public String putParameter(String key, String parameter) {
-		return parameters.get(key);
+		try {
+			parameterManager.initialise();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -27,6 +29,5 @@ public class Controller implements Organ {
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
-
 	}
 }

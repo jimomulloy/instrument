@@ -12,7 +12,10 @@ import be.tarsos.dsp.pitch.PitchProcessor;
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.DispatchJunctionProcessor;
+import jomu.instrument.control.ParameterManager;
 
 public class PitchDetectorSource implements PitchDetectionHandler {
 
@@ -22,7 +25,7 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	private int binsPerOctave = 12;
 	private float[] binStartingPointsInCents;
 	private float binWidth;
-	private int bufferSize = 1024;
+	private int windowSize = 1024;
 	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
 
 	private int overlap = 0;
@@ -33,12 +36,12 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 		@Override
 		public boolean process(AudioEvent audioEvent) {
-			FFT fft = new FFT(bufferSize);
+			FFT fft = new FFT(windowSize);
 			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
-			float[] transformbuffer = new float[bufferSize * 2];
+			float[] transformbuffer = new float[windowSize * 2];
 			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
 			fft.forwardTransform(transformbuffer);
-			float[] amplitudes = new float[bufferSize / 2];
+			float[] amplitudes = new float[windowSize / 2];
 			fft.modulus(transformbuffer, amplitudes);
 			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
 			features.put(audioEvent.getTimeStamp(), si);
@@ -54,15 +57,19 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	private AudioDispatcher dispatcher;
 
+	private ParameterManager parameterManager;
+
 	public PitchDetectorSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
 	public PitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {
 		this(dispatcher);
-		this.bufferSize = bufferSize;
+		this.windowSize = bufferSize;
 	}
 
 	public float getBinHeight() {
@@ -78,7 +85,7 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	}
 
 	public int getBufferSize() {
-		return bufferSize;
+		return windowSize;
 	}
 
 	public TreeMap<Double, SpectrogramInfo> getFeatures() {
@@ -105,22 +112,22 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	void initialise() {
 		PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_YIN;
 
-		binStartingPointsInCents = new float[bufferSize];
-		binHeightsInCents = new float[bufferSize];
-		FFT fft = new FFT(bufferSize);
-		for (int i = 1; i < bufferSize; i++) {
+		binStartingPointsInCents = new float[windowSize];
+		binHeightsInCents = new float[windowSize];
+		FFT fft = new FFT(windowSize);
+		for (int i = 1; i < windowSize; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(fft.binToHz(i, sampleRate));
 			binHeightsInCents[i] = binStartingPointsInCents[i] - binStartingPointsInCents[i - 1];
 		}
 
-		binWidth = bufferSize / sampleRate;
+		binWidth = windowSize / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, bufferSize, overlap);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
 		djp.setName("PD");
 		dispatcher.addAudioProcessor(djp);
-		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
+		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, windowSize, this));
 		djp.addAudioProcessor(fftProcessor);
 		features.clear();
 	}

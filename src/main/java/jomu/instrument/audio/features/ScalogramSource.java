@@ -7,23 +7,29 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.wavelet.lift.Daubechies4Wavelet;
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.DispatchJunctionProcessor;
+import jomu.instrument.control.ParameterManager;
 
 public class ScalogramSource {
 
-	TreeMap<Double, ScalogramFrame> features = new TreeMap<>();
-	int increment = 1024;
-	ScalogramFrame prevFrame;
+	private TreeMap<Double, ScalogramFrame> features = new TreeMap<>();
+	private int windowSize = 1024;
+	private ScalogramFrame prevFrame;
 
-	float sampleRate = 44100;
-	Daubechies4Wavelet wt = new Daubechies4Wavelet();
+	private float sampleRate = 44100;
+	private Daubechies4Wavelet wt = new Daubechies4Wavelet();
 
 	private AudioDispatcher dispatcher;
+	private ParameterManager parameterManager;
 
 	public ScalogramSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
 	public TreeMap<Double, ScalogramFrame> getFeatures() {
@@ -35,7 +41,7 @@ public class ScalogramSource {
 	}
 
 	public int getIncrement() {
-		return increment;
+		return windowSize;
 	}
 
 	public float getSampleRate() {

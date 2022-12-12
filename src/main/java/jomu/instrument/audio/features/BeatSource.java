@@ -11,23 +11,28 @@ import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.onsets.OnsetHandler;
 import be.tarsos.dsp.onsets.PercussionOnsetDetector;
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.DispatchJunctionProcessor;
+import jomu.instrument.control.ParameterManager;
 
 public class BeatSource implements OnsetHandler {
 
 	private Map<Double, OnsetInfo[]> features = new TreeMap<>();
 	private List<OnsetInfo> onsetInfos = new ArrayList<>();
-	int increment = 1024;
-	int overlap = 0;
-	float sampleRate = 44100;
+	private int windowSize = 1024;
+	private int overlap = 0;
+	private float sampleRate = 44100;
 
-	double threshold = 0.4;
 	private AudioDispatcher dispatcher;
+	private ParameterManager parameterManager;
 
 	public BeatSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
 	public TreeMap<Double, OnsetInfo[]> getFeatures() {
@@ -39,7 +44,7 @@ public class BeatSource implements OnsetHandler {
 	}
 
 	public int getIncrement() {
-		return increment;
+		return windowSize;
 	}
 
 	public float getSampleRate() {
@@ -59,13 +64,13 @@ public class BeatSource implements OnsetHandler {
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, increment, overlap);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
 		djp.setName("SC");
 		dispatcher.addAudioProcessor(djp);
 
 		// djp.setZeroPadFirstBuffer(true);
 
-		PercussionOnsetDetector beatDetector = new PercussionOnsetDetector(sampleRate, increment, overlap, this);
+		PercussionOnsetDetector beatDetector = new PercussionOnsetDetector(sampleRate, windowSize, overlap, this);
 
 		beatDetector.setHandler(this);
 

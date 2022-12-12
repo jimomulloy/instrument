@@ -6,7 +6,6 @@ import java.util.TreeMap;
 
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
-import jomu.instrument.audio.Oscillator;
 import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
@@ -16,20 +15,6 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class ConstantQFeatures implements ToneMapConstants {
-
-	public int gainSetting = INIT_VOLUME_SETTING;
-	public boolean logSwitch = true;
-	public int oscType = Oscillator.SINEWAVE;
-	public int pFactor = 100;
-	public int pitchHigh = INIT_PITCH_HIGH;
-	public int pitchLow = INIT_PITCH_LOW;
-	public int pOffset = 0;
-	public int powerHigh = 100;
-	public int powerLow = 0;
-	public int resolution = 1;
-	public int tFactor = 50;
-
-	public int transformMode = TRANSFORM_MODE_JAVA;
 
 	private AudioFeatureFrame audioFeatureFrame;
 	private boolean isCommitted;
@@ -93,16 +78,11 @@ public class ConstantQFeatures implements ToneMapConstants {
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
-			int counter = 0;
-
 			for (Map.Entry<Double, float[]> entry : features.entrySet()) {
 				float[] spectralEnergy = entry.getValue();
 				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < spectralEnergy.length; i++) {
 					elements[i].amplitude += spectralEnergy[i];
-					if (i == 0) {
-						counter++;
-					}
 				}
 			}
 

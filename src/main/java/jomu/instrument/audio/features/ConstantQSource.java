@@ -9,7 +9,10 @@ import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.ConstantQ;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.util.PitchConverter;
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.DispatchJunctionProcessor;
+import jomu.instrument.control.ParameterManager;
 
 public class ConstantQSource {
 
@@ -19,19 +22,26 @@ public class ConstantQSource {
 	private Map<Double, float[]> features = new TreeMap<>();
 	private int size;
 	private float[] startingPointsInHertz;
-	int binsPerOctave = 12;
-	ConstantQ constantQ;
-	double constantQLag;
-	int increment = 1024;
-	int maximumFrequencyInCents = 10800;
-	int minimumFrequencyInCents = 3600;
-	float sampleRate = 44100;
+	private int binsPerOctave = 12;
+	private ConstantQ constantQ;
+	private double constantQLag;
+	private int windowSize = 1024;
+	private int maximumFrequencyInCents = 10800;
+	private int minimumFrequencyInCents = 3600;
+	private float sampleRate = 44100;
 	private AudioDispatcher dispatcher;
+	private ParameterManager parameterManager;
 
 	public ConstantQSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
+		this.minimumFrequencyInCents = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
+		this.maximumFrequencyInCents = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS);
 	}
 
 	public float getBinHeight() {
@@ -67,7 +77,7 @@ public class ConstantQSource {
 	}
 
 	public int getIncrement() {
-		return increment;
+		return windowSize;
 	}
 
 	public int getMaximumFrequencyInCents() {
@@ -98,11 +108,11 @@ public class ConstantQSource {
 		float minimumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(minimumFrequencyInCents);
 		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(maximumFrequencyInCents);
 		System.out.println(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
-		System.out.println(">>CQS maximumFrequencyInHertz: " + maximumFrequencyInHertz);
+		System.out.println(">>CQS window increment: " + windowSize);
 
 		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
 
-		binWidth = increment / sampleRate;
+		binWidth = windowSize / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
 
 		startingPointsInHertz = constantQ.getFreqencies();
@@ -117,7 +127,7 @@ public class ConstantQSource {
 
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
-		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - increment);
+		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - windowSize);
 		djp.setName("CQ");
 		dispatcher.addAudioProcessor(djp);
 

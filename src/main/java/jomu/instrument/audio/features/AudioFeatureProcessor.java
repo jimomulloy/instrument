@@ -9,6 +9,8 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.Oscilloscope;
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
+import jomu.instrument.control.ParameterManager;
 
 public class AudioFeatureProcessor implements AudioProcessor {
 
@@ -18,8 +20,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	private double endTimeStamp = -1;
 	private double firstTimeStamp = -1;
 	private int frameSequence = 0;
-	private double interval = 100;
-	private double lag = 0;
+	private int interval = 100;
+	private int lag = 0;
 	private double lastTimeStamp = 0;
 	private int lastSequence = -1;
 
@@ -30,10 +32,14 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	private String streamId;
 	private TarsosFeatureSource tarsosFeatures;
 	private AudioFeatureFrameState state = AudioFeatureFrameState.INITIALISED;
+	private ParameterManager parameterManager;
 
 	public AudioFeatureProcessor(String streamId, TarsosFeatureSource tarsosFeatures) {
 		this.streamId = streamId;
 		this.tarsosFeatures = tarsosFeatures;
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.interval = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 		addObserver(Instrument.getInstance().getDruid().getVisor());
 		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getDruid().getVisor());
 		tarsosFeatures.getDispatcher().addAudioProcessor(oscilloscope);
@@ -73,10 +79,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		return frameSequence;
 	}
 
-	public double getInterval() {
-		return interval;
-	}
-
 	public int getLastSequence() {
 		return lastSequence;
 	}
@@ -108,20 +110,15 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
-		// System.out.println(">>process audioEvent startTimeMS: " + startTimeMS + ",
-		// firstTimeStamp: " + firstTimeStamp
-		// + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp +
-		// ", frameSequence: "
-		// + frameSequence);
 		if (lastTimeStamp < startTimeMS) {
 			if (maxFrames > 0 && maxFrames > frameSequence) {
 				if (firstTimeStamp == -1) {
 					firstTimeStamp = lastTimeStamp;
 				}
-				if (endTimeStamp == -1 && (startTimeMS - lastTimeStamp >= interval)) {
+				if (endTimeStamp == -1 && (startTimeMS - lastTimeStamp >= (double) interval)) {
 					endTimeStamp = startTimeMS;
 				}
-				if (startTimeMS - lastTimeStamp >= (interval + lag)) {
+				if (startTimeMS - lastTimeStamp >= (double) (interval + lag)) {
 					frameSequence++;
 					System.out.println(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: "
 							+ firstTimeStamp + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
@@ -134,29 +131,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 			}
 		}
 		currentProcessTime = startTimeMS;
-		return true;
-	}
-
-	public boolean process2(AudioEvent audioEvent) {
-		double startTimeMS = audioEvent.getTimeStamp() * 1000;
-		if (currentProcessTime < startTimeMS) {
-			if (maxFrames > 0 && maxFrames > frameSequence) {
-				if (firstTimeStamp == -1) {
-					firstTimeStamp = startTimeMS;
-				}
-				if (endTimeStamp == -1 && (currentProcessTime - lastTimeStamp >= interval)) {
-					endTimeStamp = currentProcessTime;
-				}
-				if (currentProcessTime - lastTimeStamp >= (interval + lag)) {
-					frameSequence++;
-					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
-					lastTimeStamp = endTimeStamp;
-					firstTimeStamp = -1;
-					endTimeStamp = -1;
-				}
-			}
-		}
-		currentProcessTime = audioEvent.getTimeStamp() * 1000;
 		return true;
 	}
 
