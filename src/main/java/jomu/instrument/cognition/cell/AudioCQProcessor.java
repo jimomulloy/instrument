@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -12,8 +13,9 @@ import jomu.instrument.audio.features.PeakInfo;
 import jomu.instrument.audio.features.SpectralPeakDetector;
 import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.perception.Hearing;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioCQProcessor implements Consumer<List<NuMessage>> {
@@ -21,12 +23,14 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 	private NuCell cell;
 	private float tmMax = 0;
 
-	private WorldModel worldModel;
+	private Workspace workspace;
+	private ParameterManager parameterManager;
 
 	public AudioCQProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		worldModel = Instrument.getInstance().getWorldModel();
+		workspace = Instrument.getInstance().getWorkspace();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
@@ -35,23 +39,47 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
+
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
 			System.out.println(">>ConstantQMessageProcessor accept: " + message + ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				ToneMap toneMap = worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				if (afp != null) {
+					double lowThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD); // 0.01
+					double thresholdFactor = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR); // 0.5F
+					double signalMinimum = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM); // 0.0000001
+					double normaliseThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD); // 20.o
+
+					int noiseFloorMedianFilterLenth = parameterManager
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH); // 12;
+					float noiseFloorFactor = parameterManager
+							.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR); // =
+																												// 100F;
+																												// //
+																												// 1.8F;
+																												// //
+																												// 2.9F;
+					int numberOfSpectralPeaks = parameterManager
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS); // 4;
+					int minPeakSize = parameterManager
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE); // = 1;
+
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					ConstantQFeatures cqf = aff.getConstantQFeatures();
 					cqf.buildToneMapFrame(toneMap);
 					cqf.displayToneMap();
 					// toneMap.getTimeFrame().compress(10F);
 					toneMap.getTimeFrame().square();
-					toneMap.getTimeFrame().lowThreshold(0.01, 0.0000001);
-					toneMap.getTimeFrame().normaliseThreshold(20, 0.0000001);
+					toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
+					toneMap.getTimeFrame().normaliseThreshold(normaliseThreshold, signalMinimum);
 
 					float maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
 					float minAmplitude = (float) toneMap.getTimeFrame().getMinAmplitude();
@@ -68,18 +96,13 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 					AudioTuner tuner = new AudioTuner();
 					tuner.normalize(toneMap);
-					float threshold = (0.5F * (maxAmplitude - minAmplitude)) + minAmplitude;
-					toneMap.getTimeFrame().lowThreshold(threshold, 0.0000001);
+					double rethreshold = (thresholdFactor * (maxAmplitude - minAmplitude)) + minAmplitude;
+					toneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
 
 					SpectralPeakDetector spectralPeakDetector = new SpectralPeakDetector(toneMap.getTimeFrame());
 
 					PeakInfo peakInfo = new PeakInfo(spectralPeakDetector.getMagnitudes(),
 							spectralPeakDetector.getFrequencyEstimates());
-
-					int noiseFloorMedianFilterLenth = 12;
-					float noiseFloorFactor = 100F; // 1.8F; // 2.9F;
-					int numberOfSpectralPeaks = 4;
-					int minPeakSize = 1;
 
 					List<SpectralPeak> peaks = peakInfo.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
 							numberOfSpectralPeaks, minPeakSize);

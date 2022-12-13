@@ -42,14 +42,6 @@ import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-/**
- * This class defines the MIDI Sub System data Model processing functions for
- * the ToneMap including MIDI sequence and file generation, Playback
- * implementation and Control settings management through the MidiPanel class.
- *
- * @version 1.0 01/01/01
- * @author Jim O'Mulloy
- */
 public class MidiSynthesizer implements ToneMapConstants {
 
 	public int bpmSetting = INIT_BPM_SETTING;

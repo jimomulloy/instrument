@@ -1,6 +1,6 @@
 package jomu.instrument.workspace;
 
-public class WorldModel {
+public class Workspace {
 
 	Atlas atlas = new Atlas();
 

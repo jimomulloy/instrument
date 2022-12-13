@@ -54,15 +54,8 @@ package jomu.instrument.audio.analysis;
 import java.util.ArrayList;
 
 public class PolyphonicPitchDetection {
-	public int fftWindow = 1024; /* FFT window width ~0.1 s -> Max ~600 bpm */
-	public float samplingRate = 44100;
-	public static int imWidth = 800;
-	public static int imHeight = 250;
-	public static int harmonics = 20;
-	public boolean continueCapturing;
-	public static int w;
-	public static int h;
-	static int traces = 2; /* how many traces are we plotting... */
+	public double samplingRate = 41000;
+	public int fftWindow = 1024;
 	public double[] cb; /* Klapuri whitening ranges */
 	public ArrayList<Double>[] Hb; /* filter bank for whitening */
 	public ArrayList<Integer>[] hbIndices; /* filter bank indices for whitening */
@@ -71,7 +64,9 @@ public class PolyphonicPitchDetection {
 	public ArrayList<Integer>[] f0index; /* Klapuri F0 candidate indices */
 	public ArrayList<Integer>[] f0indHarm; /* Klapuri F0 candidate indices harmonics */
 
-	public PolyphonicPitchDetection() { /* Constructor */
+	public PolyphonicPitchDetection(float samplingRate, int fftWindow, int harmonics) {
+		this.samplingRate = samplingRate;
+		this.fftWindow = fftWindow;
 		/* Create constant arrays for Klapuri */
 		cb = new double[32];
 		/* CB filterbank always the same values, could be included from somewhere... */

@@ -3,9 +3,10 @@ package jomu.instrument;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.Coordinator;
 import jomu.instrument.monitor.Druid;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 
-public class Instrument {
+public class Instrument implements InstrumentFactory {
+
 	private static Instrument instrument;
 
 	private Coordinator coordinator;
@@ -14,7 +15,7 @@ public class Instrument {
 
 	private Druid druid;
 
-	private WorldModel worldModel;
+	private Workspace workspace;
 
 	public Controller getController() {
 		return controller;
@@ -28,17 +29,17 @@ public class Instrument {
 		return druid;
 	}
 
-	public WorldModel getWorldModel() {
-		return worldModel;
+	public Workspace getWorkspace() {
+		return workspace;
 	}
 
 	public void initialise() {
 		controller = new Controller();
 		controller.initialise();
 		controller.start();
-		worldModel = new WorldModel();
-		worldModel.initialise();
-		worldModel.start();
+		workspace = new Workspace();
+		workspace.initialise();
+		workspace.start();
 		druid = new Druid();
 		druid.initialise();
 		druid.start();
@@ -52,6 +53,10 @@ public class Instrument {
 			instrument = new Instrument();
 		}
 		return instrument;
+	}
+
+	public static void setInstance(Instrument injectedInstrument) {
+		instrument = injectedInstrument;
 	}
 
 }

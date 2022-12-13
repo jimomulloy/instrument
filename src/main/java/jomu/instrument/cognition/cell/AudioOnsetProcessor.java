@@ -10,7 +10,7 @@ import jomu.instrument.audio.features.OnsetFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.monitor.Visor;
 import jomu.instrument.perception.Hearing;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioOnsetProcessor implements Consumer<List<NuMessage>> {
@@ -18,13 +18,13 @@ public class AudioOnsetProcessor implements Consumer<List<NuMessage>> {
 	private NuCell cell;
 	private float tmMax = 0;
 
-	private WorldModel worldModel;
+	private Workspace workspace;
 	private Visor visor;
 
 	public AudioOnsetProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		worldModel = Instrument.getInstance().getWorldModel();
+		workspace = Instrument.getInstance().getWorkspace();
 		visor = Instrument.getInstance().getDruid().getVisor();
 	}
 
@@ -38,7 +38,7 @@ public class AudioOnsetProcessor implements Consumer<List<NuMessage>> {
 			System.out.println(">>AudioOnsetProcessor accept: " + message + ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				ToneMap toneMap = worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId));
+				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				if (afp != null) {
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);

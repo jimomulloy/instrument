@@ -10,20 +10,20 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.PitchDetectorFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.perception.Hearing;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
-	private WorldModel worldModel;
+	private Workspace workspace;
 
 	public AudioPitchProcessor(NuCell cell) {
 		super();
 		System.out.println(">>PitchDetectorProcessor create");
 		this.cell = cell;
-		worldModel = Instrument.getInstance().getWorldModel();
+		workspace = Instrument.getInstance().getWorkspace();
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 			System.out.println(">>PitchDetectorProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				ToneMap toneMap = worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
+				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 				PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
@@ -45,7 +45,9 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 				float[] spectrum = pdf.getSpectrum();
 				FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getPds().getSampleRate(), 1024, spectrum);
 
-				// PolyphonicPitchDetection ppp = new PolyphonicPitchDetection();
+				// PolyphonicPitchDetection ppp = new
+				// PolyphonicPitchDetection(pdf.getPds().getSampleRate(),
+				// fftSpectrum.getWindowSize(), harmonics);
 				// Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
 				Whitener whitener = new Whitener(fftSpectrum);
 				whitener.whiten();

@@ -8,7 +8,7 @@ import jomu.instrument.actuation.Voice;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.perception.Hearing;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
@@ -17,12 +17,12 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 
 	private float tmMax = 0;
 
-	private WorldModel worldModel;
+	private Workspace workspace;
 
 	public AudioSinkProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		worldModel = Instrument.getInstance().getWorldModel();
+		workspace = Instrument.getInstance().getWorkspace();
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 			streamId = message.streamId;
 			if (message.source.getCellType().equals(CellTypes.AUDIO_NOTATE)) {
 				Voice voice = Instrument.getInstance().getCoordinator().getVoice();
-				ToneMap notateToneMap = worldModel.getAtlas()
+				ToneMap notateToneMap = workspace.getAtlas()
 						.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
 				voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
 				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();

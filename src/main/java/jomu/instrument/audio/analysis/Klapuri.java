@@ -28,8 +28,6 @@ public class Klapuri {
 	public double[] gammaCoeff;
 	public Vector<Double> f0s;
 	PolyphonicPitchDetection pppContext;
-	int harmonics = 20;
-	int surroundingBins = 1;
 	double alpha = 52.0; // Hz
 	double beta = 320.0; // Hz
 	double dee = 0.89;
@@ -195,8 +193,8 @@ public class Klapuri {
 			int init = ind(pppContext.freq, pppContext.cb[i + 1]);
 			int end = ind(pppContext.freq, pppContext.cb[i + 2]);
 			while (kk < end) {
-				gammaCoeff[kk] = gammab.get(i) + (gammab.get(i + 1) - gammab.get(i)) * Math.abs((double) (kk - init))
-						/ (end - init);
+				gammaCoeff[kk] = gammab.get(i)
+						+ (gammab.get(i + 1) - gammab.get(i)) * Math.abs((double) (kk - init)) / (end - init);
 				++kk;
 			}
 		}

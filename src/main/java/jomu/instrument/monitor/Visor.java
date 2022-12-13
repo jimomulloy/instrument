@@ -85,6 +85,7 @@ import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.ConstantQSource;
@@ -97,6 +98,7 @@ import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.audio.features.SpectralPeaksSource;
 import jomu.instrument.audio.features.SpectrogramInfo;
 import jomu.instrument.audio.features.SpectrogramSource;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -159,7 +161,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private int stepsize;// 50% overlap
 
-	private int noiseFloorMedianFilterLenth;// 35
+	private int noiseFloorMedianFilterLength;// 35
 
 	private float noiseFloorFactor;
 
@@ -184,7 +186,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private OscilloscopePanel oscilloscopePanel;
 
+	private ParameterManager parameterManager;
+
 	public Visor() {
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.setLayout(new BorderLayout());
 		JPanel topPanel = buildTopPanel();
 		graphPanel = buildGraphPanel();
@@ -335,9 +340,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				@SuppressWarnings("unchecked")
 				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
 				fftsize = value;
-				noiseFloorMedianFilterLenth = fftsize / 117;
-				System.out
-						.println("FFT Changed to " + value + " median filter length to " + noiseFloorMedianFilterLenth);
+				noiseFloorMedianFilterLength = fftsize / 117;
+				System.out.println(
+						"FFT Changed to " + value + " median filter length to " + noiseFloorMedianFilterLength);
 				// startProcessing();
 			}
 		});
@@ -359,10 +364,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				Integer value = (Integer) ((JSpinner) e.getSource()).getValue();
 				stepsize = value;
 				System.out.println("Step size Changed to " + value + ", overlap is " + (fftsize - stepsize));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW,
+						Integer.toString(stepsize));
 				// TODO startProcessing();
 			}
 		});
-		stepSizeSpinner.setValue(512);
+		int defaultWindow = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
+		stepSizeSpinner.setValue(defaultWindow);
 		parameterPanel.add(new JLabel("Step size:"));
 		parameterPanel.add(stepSizeSpinner);
 
@@ -392,11 +401,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 				System.out.println("New noise floor factor: " + actualValue);
 				noiseFloorFactor = (float) actualValue;
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR,
+						Float.toString(noiseFloorFactor));
 				// TODO repaintSpectalInfo();
 
 			}
 		});
-		noiseFloorSlider.setValue(150);
+		noiseFloorFactor = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR);
+		noiseFloorSlider.setValue((int) noiseFloorFactor);
 		parameterPanel.add(noiseFloorFactorLabel);
 		parameterPanel.add(noiseFloorSlider);
 
@@ -409,12 +422,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				int newValue = source.getValue();
 				medianFilterSizeLabel.setText(String.format("Median Filter Size (%d):", newValue));
 				System.out.println("New Median filter size: " + newValue);
-				noiseFloorMedianFilterLenth = newValue;
+				noiseFloorMedianFilterLength = newValue;
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH,
+						Integer.toString(noiseFloorMedianFilterLength));
 				// TODO repaintSpectalInfo();
-
 			}
 		});
-		medianFilterSizeSlider.setValue(17);
+		noiseFloorMedianFilterLength = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
+		medianFilterSizeSlider.setValue(noiseFloorMedianFilterLength);
 		parameterPanel.add(medianFilterSizeLabel);
 		parameterPanel.add(medianFilterSizeSlider);
 
@@ -428,10 +444,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				minPeakSizeLabel.setText(String.format("Min Peak Size    (%d):", newValue));
 				System.out.println("Min Peak Sizee: " + newValue);
 				minPeakSize = newValue;
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE,
+						Integer.toString(minPeakSize));
 				// TODO repaintSpectalInfo();
 			}
 		});
-		minPeakSizeSlider.setValue(5);
+		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
+		minPeakSizeSlider.setValue(minPeakSize);
 		parameterPanel.add(minPeakSizeLabel);
 		parameterPanel.add(minPeakSizeSlider);
 
@@ -445,12 +464,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 				numberOfPeaksLabel.setText("Number of peaks (" + newValue + "):");
 
-				System.out.println("New amount of peaks: " + newValue);
 				numberOfSpectralPeaks = newValue;
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS,
+						Integer.toString(numberOfSpectralPeaks));
 				// TODO repaintSpectalInfo();
 
 			}
 		});
+		numberOfSpectralPeaks = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
 		numberOfPeaksSlider.setValue(7);
 		parameterPanel.add(numberOfPeaksLabel);
 		parameterPanel.add(numberOfPeaksSlider);
@@ -485,9 +507,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		spectrumLayer.clearPeaks();
 		spectrumLayer.setSpectrum(info.getMagnitudes());
-		noiseFloorLayer.setSpectrum(info.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
+		noiseFloorLayer.setSpectrum(info.getNoiseFloor(noiseFloorMedianFilterLength, noiseFloorFactor));
 
-		List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
+		List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLength, noiseFloorFactor,
 				numberOfSpectralPeaks, minPeakSize);
 
 		StringBuilder sb = new StringBuilder("Frequency(Hz);Step(cents);Magnitude\n");

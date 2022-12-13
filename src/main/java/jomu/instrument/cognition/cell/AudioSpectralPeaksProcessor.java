@@ -9,7 +9,7 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.SpectralPeaksFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.perception.Hearing;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -18,12 +18,12 @@ public class AudioSpectralPeaksProcessor implements Consumer<List<NuMessage>> {
 	private NuCell cell;
 	private float tmMax = 0;
 
-	private WorldModel worldModel;
+	private Workspace workspace;
 
 	public AudioSpectralPeaksProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		worldModel = Instrument.getInstance().getWorldModel();
+		workspace = Instrument.getInstance().getWorkspace();
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class AudioSpectralPeaksProcessor implements Consumer<List<NuMessage>> {
 			System.out.println(">>AudioSpectralPeaksProcessor accept: " + message + ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
 				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
-				ToneMap toneMap = worldModel.getAtlas()
+				ToneMap toneMap = workspace.getAtlas()
 						.getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				if (afp != null) {

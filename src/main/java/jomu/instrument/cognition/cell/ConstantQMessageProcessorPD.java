@@ -9,18 +9,18 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.perception.Hearing;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class ConstantQMessageProcessorPD implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
-	private WorldModel worldModel;
+	private Workspace workspace;
 
 	public ConstantQMessageProcessorPD(NuCell cell) {
 		super();
 		this.cell = cell;
-		worldModel = Instrument.getInstance().getWorldModel();
+		workspace = Instrument.getInstance().getWorkspace();
 	}
 
 	@Override

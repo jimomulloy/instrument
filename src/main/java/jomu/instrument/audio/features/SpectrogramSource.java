@@ -33,7 +33,7 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 	private int windowSize = 1024 * 4;
 	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
-	
+
 	private PitchDetectionResult pitchDetectionResult;
 	private float sampleRate = 44100;
 

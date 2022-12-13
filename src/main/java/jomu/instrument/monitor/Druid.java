@@ -2,11 +2,11 @@ package jomu.instrument.monitor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -15,7 +15,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
@@ -44,19 +43,23 @@ public class Druid implements Organ {
 
 	@Override
 	public void initialise() {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				/**
-				 *
-				 */
-				@Override
-				public void run() {
-					buildMainFrame();
-				}
-			});
-		} catch (InvocationTargetException | InterruptedException e) {
-			e.printStackTrace();
-		}
+		// try {
+		EventQueue.invokeLater(() -> {
+
+			buildMainFrame();
+		});
+//			SwingUtilities.invokeAndWait(new Runnable() {
+//				/**
+//				 *
+//				 */
+//				@Override
+//				public void run() {
+//					buildMainFrame();
+//				}
+//			});
+		// } catch (InvocationTargetException | InterruptedException e) {
+		// e.printStackTrace();
+		// }
 	}
 
 	@Override

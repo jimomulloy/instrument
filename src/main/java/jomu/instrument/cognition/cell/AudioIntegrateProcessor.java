@@ -5,19 +5,19 @@ import java.util.function.Consumer;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
-import jomu.instrument.workspace.WorldModel;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
 
-	private WorldModel worldModel;
+	private Workspace workspace;
 
 	public AudioIntegrateProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		worldModel = Instrument.getInstance().getWorldModel();
+		workspace = Instrument.getInstance().getWorkspace();
 	}
 
 	@Override
@@ -30,8 +30,8 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 			sequence = message.sequence;
 			streamId = message.streamId;
 			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
-				ToneMap cqToneMap = worldModel.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-				ToneMap integrateToneMap = worldModel.getAtlas()
+				ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+				ToneMap integrateToneMap = workspace.getAtlas()
 						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 				integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 				cell.send(streamId, sequence);
