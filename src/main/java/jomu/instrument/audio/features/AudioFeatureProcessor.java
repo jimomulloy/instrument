@@ -111,7 +111,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	public boolean process(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
 		if (lastTimeStamp < startTimeMS) {
-			if (maxFrames > 0 && maxFrames > frameSequence) {
+			if (maxFrames < 0 || maxFrames > frameSequence) {
 				if (firstTimeStamp == -1) {
 					firstTimeStamp = lastTimeStamp;
 				}

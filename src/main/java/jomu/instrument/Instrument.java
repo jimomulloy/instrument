@@ -35,16 +35,18 @@ public class Instrument implements InstrumentFactory {
 
 	public void initialise() {
 		controller = new Controller();
-		controller.initialise();
-		controller.start();
 		workspace = new Workspace();
-		workspace.initialise();
-		workspace.start();
 		druid = new Druid();
-		druid.initialise();
-		druid.start();
 		coordinator = new Coordinator();
+
+		controller.initialise();
+		workspace.initialise();
+		druid.initialise();
 		coordinator.initialise();
+
+		controller.start();
+		workspace.start();
+		druid.start();
 		coordinator.start();
 	}
 

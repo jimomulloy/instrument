@@ -16,16 +16,16 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 public class AudioOnsetProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
-	private float tmMax = 0;
-
 	private Workspace workspace;
 	private Visor visor;
+	private Hearing hearing;
 
 	public AudioOnsetProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		workspace = Instrument.getInstance().getWorkspace();
-		visor = Instrument.getInstance().getDruid().getVisor();
+		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
+		this.workspace = Instrument.getInstance().getWorkspace();
+		this.visor = Instrument.getInstance().getDruid().getVisor();
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class AudioOnsetProcessor implements Consumer<List<NuMessage>> {
 			streamId = message.streamId;
 			System.out.println(">>AudioOnsetProcessor accept: " + message + ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
+				hearing = Instrument.getInstance().getCoordinator().getHearing();
 				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				if (afp != null) {

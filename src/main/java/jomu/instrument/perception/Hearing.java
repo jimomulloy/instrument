@@ -19,16 +19,22 @@ import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
+import jomu.instrument.control.ParameterManager;
 import net.beadsproject.beads.core.AudioContext;
 
 public class Hearing implements Organ {
 
+	public static final float AUDIO_HIGHPASS_MAX = 20000.0F;
+
 	private String streamId;
 
 	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
+
+	private ParameterManager parameterManager;
 
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
@@ -36,6 +42,13 @@ public class Hearing implements Organ {
 			return;
 		}
 		audioStream.close();
+	}
+
+	public void removeAudioStream(String streamId) {
+		AudioStream audioStream = audioStreams.get(streamId);
+		if (audioStream == null) {
+			return;
+		}
 		audioStreams.remove(streamId);
 	}
 
@@ -49,6 +62,7 @@ public class Hearing implements Organ {
 
 	@Override
 	public void initialise() {
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
@@ -99,13 +113,16 @@ public class Hearing implements Organ {
 		private AudioFeatureProcessor audioFeatureProcessor;
 		private String streamId;
 		private TarsosFeatureSource tarsosFeatureSource;
-		private int sampleRate = 44100;
-		private int bufferSize = 1024; // TODO * 4;
-		private int overlap = 0; // TODO 768 * 4;
+		private float sampleRate = 44100F;
+		private int bufferSize = 1024;
+		private int overlap = 0;
 		private AudioDispatcher dispatcher;
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
+			sampleRate = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
+			bufferSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		}
 
 		public void close() {
@@ -126,7 +143,7 @@ public class Hearing implements Organ {
 			return audioFeatureProcessor;
 		}
 
-		public int getSampleRate() {
+		public float getSampleRate() {
 			return sampleRate;
 		}
 
@@ -149,10 +166,17 @@ public class Hearing implements Organ {
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
-			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
-
-			// dispatcher.addAudioProcessor(new HighPass(12000, sampleRate));
-			// dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
+			// audioFeatureProcessor.setMaxFrames(10000); // TODO!!
+			float audioHighPass = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
+			float audioLowPass = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
+			if (audioHighPass < AUDIO_HIGHPASS_MAX) {
+				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+			}
+			if (audioLowPass < 0) {
+				dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
+			}
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
 		}
@@ -174,10 +198,18 @@ public class Hearing implements Organ {
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
-			audioFeatureProcessor.setMaxFrames(10000); // TODO!!
+			// audioFeatureProcessor.setMaxFrames(10000); // TODO!!
 
-			dispatcher.addAudioProcessor(new HighPass(12000, sampleRate));
-			dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
+			float audioHighPass = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
+			float audioLowPass = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
+			if (audioHighPass < AUDIO_HIGHPASS_MAX) {
+				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+			}
+			if (audioLowPass < 0) {
+				dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
+			}
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
 		}

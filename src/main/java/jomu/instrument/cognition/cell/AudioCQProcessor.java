@@ -25,18 +25,18 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 	private Workspace workspace;
 	private ParameterManager parameterManager;
+	private Hearing hearing;
 
 	public AudioCQProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		workspace = Instrument.getInstance().getWorkspace();
+		this.workspace = Instrument.getInstance().getWorkspace();
+		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
 	public void accept(List<NuMessage> messages) {
-		// System.out.println(">>getAudioCQProcessor");
-		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
 
@@ -45,39 +45,57 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 			streamId = message.streamId;
 			System.out.println(">>ConstantQMessageProcessor accept: " + message + ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
-				Hearing hearing = Instrument.getInstance().getCoordinator().getHearing();
 				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				if (afp != null) {
 					double lowThreshold = parameterManager
-							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD); // 0.01
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 					double thresholdFactor = parameterManager
-							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR); // 0.5F
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR);
 					double signalMinimum = parameterManager
-							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM); // 0.0000001
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM);
 					double normaliseThreshold = parameterManager
-							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD); // 20.o
-
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD);
 					int noiseFloorMedianFilterLenth = parameterManager
-							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH); // 12;
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 					float noiseFloorFactor = parameterManager
-							.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR); // =
-																												// 100F;
-																												// //
-																												// 1.8F;
-																												// //
-																												// 2.9F;
+							.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR);
 					int numberOfSpectralPeaks = parameterManager
-							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS); // 4;
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
 					int minPeakSize = parameterManager
-							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE); // = 1;
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
+					double decibelLevel = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL);
+					float compression = parameterManager
+							.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION);
+					boolean cqSwitchCompress = parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS);
+					boolean cqSwitchSquare = parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE);
+					boolean cqSwitchLowThreshold = parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD);
+					boolean cqSwitchDecibel = parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL);
+					boolean cqSwitchNormalise = parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+					boolean cqSwitchTuner = parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_TUNER);
+					boolean cqSwitchPeaks = parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PEAKS);
 
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					ConstantQFeatures cqf = aff.getConstantQFeatures();
 					cqf.buildToneMapFrame(toneMap);
 					cqf.displayToneMap();
-					// toneMap.getTimeFrame().compress(10F);
-					toneMap.getTimeFrame().square();
+					if (cqSwitchCompress) {
+						toneMap.getTimeFrame().compress(compression);
+					}
+					if (cqSwitchSquare) {
+						toneMap.getTimeFrame().square();
+					}
+					if (cqSwitchLowThreshold) {
+						toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
+					}
 					toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
 					toneMap.getTimeFrame().normaliseThreshold(normaliseThreshold, signalMinimum);
 
@@ -85,44 +103,42 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					float minAmplitude = (float) toneMap.getTimeFrame().getMinAmplitude();
 					System.out.println(">>MAX AMP PRE DB: " + maxAmplitude + ", " + tmMax);
 					System.out.println(">>MIN AMP PRE DB: " + minAmplitude);
-					toneMap.getTimeFrame().decibel(0.01);
-					maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
-					minAmplitude = (float) toneMap.getTimeFrame().getMinAmplitude();
-					System.out.println(">>MAX AMP: " + maxAmplitude + ", " + tmMax);
-					System.out.println(">>MIN AMP: " + minAmplitude);
-					if (tmMax < maxAmplitude) {
-						tmMax = maxAmplitude;
+
+					if (cqSwitchDecibel) {
+						toneMap.getTimeFrame().decibel(decibelLevel);
+					}
+
+					if (cqSwitchNormalise) {
+						maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
+						minAmplitude = (float) toneMap.getTimeFrame().getMinAmplitude();
+						System.out.println(">>MAX AMP: " + maxAmplitude + ", " + tmMax);
+						System.out.println(">>MIN AMP: " + minAmplitude);
+						if (tmMax < maxAmplitude) {
+							tmMax = maxAmplitude;
+						}
 					}
 
 					AudioTuner tuner = new AudioTuner();
-					tuner.normalize(toneMap);
-					double rethreshold = (thresholdFactor * (maxAmplitude - minAmplitude)) + minAmplitude;
-					toneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
+					if (cqSwitchTuner) {
+						tuner.normalize(toneMap);
+						double rethreshold = (thresholdFactor * (maxAmplitude - minAmplitude)) + minAmplitude;
+						toneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
+					}
 
-					SpectralPeakDetector spectralPeakDetector = new SpectralPeakDetector(toneMap.getTimeFrame());
+					if (cqSwitchPeaks) {
+						SpectralPeakDetector spectralPeakDetector = new SpectralPeakDetector(toneMap.getTimeFrame());
 
-					PeakInfo peakInfo = new PeakInfo(spectralPeakDetector.getMagnitudes(),
-							spectralPeakDetector.getFrequencyEstimates());
+						PeakInfo peakInfo = new PeakInfo(spectralPeakDetector.getMagnitudes(),
+								spectralPeakDetector.getFrequencyEstimates());
 
-					List<SpectralPeak> peaks = peakInfo.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
-							numberOfSpectralPeaks, minPeakSize);
+						List<SpectralPeak> peaks = peakInfo.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
+								numberOfSpectralPeaks, minPeakSize);
 
-					tuner.processPeaks(toneMap, peaks);
+						if (cqSwitchTuner) {
+							tuner.processPeaks(toneMap, peaks);
+						}
+					}
 
-					/*
-					 * FFTSpectrum fftSpectrum = toneMap.getTimeFrame() .extractFFTSpectrum(4096);
-					 * // PitchDetect pd = new PitchDetect(4096, (float) //
-					 * toneMap.getTimeFrame().getTimeSet().getSampleRate(), //
-					 * convertDoublesToFloats(toneMap.getTimeFrame().getPitchSet (). getFreqSet()));
-					 * // pd.whiten(fftSpectrum.getSpectrum()); Whitener whitener = new
-					 * Whitener(fftSpectrum); whitener.whiten(); FFTSpectrum whitenedSpectrum = new
-					 * FFTSpectrum( fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
-					 * whitener.getWhitenedSpectrum()); PitchAnalyser pitchAnalyser = new
-					 * PitchAnalyser(fftSpectrum, toneMap.getTimeFrame().getPitches(), 20);
-					 * toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-					 * toneMap.getTimeFrame().deNoise(0.05);
-					 */
-					// cqf.displayToneMap();
 					cell.send(streamId, sequence);
 				}
 			}
@@ -133,25 +149,4 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		return cellType + ":" + streamId;
 	}
 
-	private float[] convertDoublesToFloats(double[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		float[] output = new float[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = (float) input[i];
-		}
-		return output;
-	}
-
-	private double[] convertFloatsToDoubles(float[] input) {
-		if (input == null) {
-			return null; // Or throw an exception - your choice
-		}
-		double[] output = new double[input.length];
-		for (int i = 0; i < input.length; i++) {
-			output[i] = input[i];
-		}
-		return output;
-	}
 }

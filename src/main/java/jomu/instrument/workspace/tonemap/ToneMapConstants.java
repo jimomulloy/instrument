@@ -66,8 +66,8 @@ public interface ToneMapConstants {
 	public static final int INIT_LOW_THRESHHOLD = 50;
 	public static final int INIT_NOISE_HIGH = 100;
 	public static final int INIT_NOISE_LOW = 0;
-	public static final int INIT_NOTE_HIGH = 50;
-	public static final int INIT_NOTE_LOW = 50;
+	public static final int INIT_NOTE_HIGH = 99;
+	public static final int INIT_NOTE_LOW = 90;
 	public static final int INIT_NOTE_MAX_DURATION = 10000;
 	public static final int INIT_NOTE_MIN_DURATION = 0;
 

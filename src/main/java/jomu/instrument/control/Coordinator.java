@@ -25,19 +25,19 @@ public class Coordinator implements Organ {
 	@Override
 	public void initialise() {
 		cortex = new Cortex();
-		cortex.initialise();
 		hearing = new Hearing();
-		hearing.initialise();
 		voice = new Voice();
+
+		cortex.initialise();
+		hearing.initialise();
 		voice.initialise();
-		cortex.start();
-		hearing.start();
-		voice.start();
 	}
 
 	@Override
 	public void start() {
+		cortex.start();
 		hearing.start();
+		voice.start();
 	}
 
 	@Override

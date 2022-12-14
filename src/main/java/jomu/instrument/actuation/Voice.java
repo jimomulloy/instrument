@@ -3,17 +3,18 @@ package jomu.instrument.actuation;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
+import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
-import jomu.instrument.audio.AudioGenerator;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class Voice implements Organ {
 
 	private AudioSynthesizer audioSynthesizer;
-	private AudioGenerator generator;
 	private MidiSynthesizer midiSynthesizer;
+	private ParameterManager parameterManager;
 
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new AudioSynthesizer();
@@ -31,10 +32,6 @@ public class Voice implements Organ {
 		midiSynthesizer.close(streamId);
 	}
 
-	public AudioGenerator getAudioGenerator() {
-		return this.generator;
-	}
-
 	public MidiSynthesizer getAudioSequencer() {
 		return this.midiSynthesizer;
 	}
@@ -45,6 +42,7 @@ public class Voice implements Organ {
 
 	@Override
 	public void initialise() {
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
 	}

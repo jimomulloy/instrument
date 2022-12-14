@@ -43,23 +43,9 @@ public class Druid implements Organ {
 
 	@Override
 	public void initialise() {
-		// try {
 		EventQueue.invokeLater(() -> {
-
 			buildMainFrame();
 		});
-//			SwingUtilities.invokeAndWait(new Runnable() {
-//				/**
-//				 *
-//				 */
-//				@Override
-//				public void run() {
-//					buildMainFrame();
-//				}
-//			});
-		// } catch (InvocationTargetException | InterruptedException e) {
-		// e.printStackTrace();
-		// }
 	}
 
 	@Override

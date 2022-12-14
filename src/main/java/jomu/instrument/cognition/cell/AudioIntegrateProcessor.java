@@ -17,13 +17,11 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 	public AudioIntegrateProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
-		workspace = Instrument.getInstance().getWorkspace();
+		this.workspace = Instrument.getInstance().getWorkspace();
 	}
 
 	@Override
 	public void accept(List<NuMessage> messages) {
-		// System.out.println(">>getAudioCQProcessor");
-		// System.out.println(cell.toString());
 		int sequence;
 		String streamId;
 		for (NuMessage message : messages) {

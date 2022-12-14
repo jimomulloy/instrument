@@ -8,15 +8,52 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS = "perception.hearing.minimumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS = "perception.hearing.maximumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL = "perception.hearing.auditFeatureInterval";
+	public static final String PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE = "perception.hearing.defaultSampleRate";
 	public static final String PERCEPTION_HEARING_DEFAULT_WINDOW = "perception.hearing.defaultWindow";
-	public static final String PERCEPTION_HEARING_CQ_LOW_THRESHOLD = "perception.hearing.cq.lowThreshold";
-	public static final String PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR = "perception.hearing.cq.thresholdFactor";
-	public static final String PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM = "perception.hearing.cq.signalMinimum";
-	public static final String PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD = "perception.hearing.cq.normaliseThreshold";
 	public static final String PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH = "perception.hearing.noiseFloorMedianFilterLenth";
 	public static final String PERCEPTION_HEARING_NOISE_FLOOR_FACTOR = "perception.hearing.noiseFloorFactor";
 	public static final String PERCEPTION_HEARING_NUMBER_PEAKS = "perception.hearing.numberOfSpectralPeaks";
 	public static final String PERCEPTION_HEARING_MINIMUM_PEAK_SIZE = "perception.hearing.minPeakSize";
+	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
+	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
+
+	public static final String PERCEPTION_HEARING_CQ_LOW_THRESHOLD = "perception.hearing.cq.lowThreshold";
+	public static final String PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR = "perception.hearing.cq.thresholdFactor";
+	public static final String PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM = "perception.hearing.cq.signalMinimum";
+	public static final String PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD = "perception.hearing.cq.normaliseThreshold";
+	public static final String PERCEPTION_HEARING_CQ_DECIBEL_LEVEL = "perception.hearing.cq.decibelLevel";
+	public static final String PERCEPTION_HEARING_CQ_COMPRESSION = "perception.hearing.cq.compression";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_COMPRESS = "perception.hearing.cq.compressionSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_SQUARE = "perception.hearing.cq.squareSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD = "perception.hearing.cq.lowThresholdSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_DECIBEL = "perception.hearing.cq.decibelSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE = "perception.hearing.cq.normaliseSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_TUNER = "perception.hearing.cq.tunerSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_PEAKS = "perception.hearing.cq.peaksSwitch";
+
+	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
+	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";
+	public static final String AUDIO_TUNER_FORMANT_LOW = "audio.tuner.formantLowSetting";
+	public static final String AUDIO_TUNER_FORMANT_MIDDLE = "audio.tuner.formantMiddleSetting";
+	public static final String AUDIO_TUNER_N1_SETTING = "audio.tuner.n1Setting";
+	public static final String AUDIO_TUNER_N2_SETTING = "audio.tuner.n2Setting";
+	public static final String AUDIO_TUNER_N3_SETTING = "audio.tuner.n3Setting";
+	public static final String AUDIO_TUNER_N4_SETTING = "audio.tuner.n4Setting";
+	public static final String AUDIO_TUNER_N5_SETTING = "audio.tuner.n5Setting";
+	public static final String AUDIO_TUNER_N1_SWITCH = "audio.tuner.n1Switch";
+	public static final String AUDIO_TUNER_N2_SWITCH = "audio.tuner.n2Switch";
+	public static final String AUDIO_TUNER_NORMALISE_SETTING = "audio.tuner.normalizeSetting";
+	public static final String AUDIO_TUNER_NOTE_HIGH = "audio.tuner.noteHigh";
+	public static final String AUDIO_TUNER_NOTE_LOW = "audio.tuner.noteLow";
+	public static final String AUDIO_TUNER_NOTE_MAX_DURATION = "audio.tuner.noteMaxDuration";
+	public static final String AUDIO_TUNER_NOTE_MIN_DURATION = "audio.tuner.noteMinDuration";
+	public static final String AUDIO_TUNER_NOTE_SUSTAIN = "audio.tuner.noteSustain";
+	public static final String AUDIO_TUNER_PEAK_SWITCH = "audio.tuner.peakSwitch";
+	public static final String AUDIO_TUNER_PITCH_HIGH = "audio.tuner.pitchHigh";
+	public static final String AUDIO_TUNER_PITCH_LOW = "audio.tuner.pitchLow";
+	public static final String AUDIO_TUNER_FORMANT_HIGH_FREQUENCY = "audio.tuner.formantHighFreq";
+	public static final String AUDIO_TUNER_FORMANT_LOW_FREQUENCY = "audio.tuner.formantLowFreq";
+	public static final String AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY = "audio.tuner.formantMidFreq";
 
 	private static final Map<String, String> displayNames = prepareMap();
 

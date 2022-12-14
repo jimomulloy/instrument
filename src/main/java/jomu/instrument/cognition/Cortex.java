@@ -1,5 +1,6 @@
 package jomu.instrument.cognition;
 
+import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
@@ -7,11 +8,13 @@ import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.cognition.cell.Generator;
 import jomu.instrument.cognition.cell.NuCell;
 import jomu.instrument.cognition.cell.Weaver;
+import jomu.instrument.control.ParameterManager;
 
 public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
+	private ParameterManager parameterManager;
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
@@ -29,7 +32,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	@Override
 	public void initialise() {
-
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
 		NuCell audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
@@ -48,6 +51,10 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioChromaCell, audioIntegrateCell);
 		Weaver.connect(audioIntegrateCell, audioNotateCell);
 		Weaver.connect(audioNotateCell, audioSinkCell);
+		Weaver.connect(audioOnsetCell, audioSinkCell);
+		Weaver.connect(audioBeatCell, audioSinkCell);
+		Weaver.connect(audioPitchCell, audioSinkCell);
+		Weaver.connect(audioSpectralPeaksCell, audioSinkCell);
 		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Weaver.connect(sourceUpdateCell, audioOnsetCell);
 		Weaver.connect(sourceUpdateCell, audioBeatCell);

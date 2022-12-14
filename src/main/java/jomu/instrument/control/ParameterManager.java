@@ -33,6 +33,15 @@ public class ParameterManager {
 		}
 	}
 
+	public boolean getBooleanParameter(String key) {
+		String value = getParameter(key).trim();
+		try {
+			return Boolean.parseBoolean(value);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	public float getFloatParameter(String key) {
 		String value = getParameter(key);
 		try {
