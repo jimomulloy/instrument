@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -12,6 +13,8 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.springframework.stereotype.Component;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.filters.HighPass;
@@ -26,6 +29,8 @@ import jomu.instrument.audio.features.TarsosFeatureSource;
 import jomu.instrument.control.ParameterManager;
 import net.beadsproject.beads.core.AudioContext;
 
+@ApplicationScoped
+@Component
 public class Hearing implements Organ {
 
 	public static final float AUDIO_HIGHPASS_MAX = 20000.0F;

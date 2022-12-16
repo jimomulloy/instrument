@@ -15,6 +15,7 @@ import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.perception.Hearing;
+import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -27,11 +28,14 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 	private ParameterManager parameterManager;
 	private Hearing hearing;
 
+	private InstrumentStoreService iss;
+
 	public AudioCQProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		this.workspace = Instrument.getInstance().getWorkspace();
 		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
+		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
@@ -138,7 +142,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 							tuner.processPeaks(toneMap, peaks);
 						}
 					}
-
+					iss.addToneMap(toneMap);
 					cell.send(streamId, sequence);
 				}
 			}

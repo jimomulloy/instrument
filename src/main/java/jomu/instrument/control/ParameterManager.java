@@ -5,9 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.enterprise.context.ApplicationScoped;
+
+import org.springframework.stereotype.Component;
+
+@ApplicationScoped
+@Component
 public class ParameterManager {
 
-	private static String PARAMETER_CONFIG_FILE = "app.properties";
+	private static String PARAMETER_CONFIG_FILE = "instrument.properties";
 
 	private Properties parameters = new Properties();
 

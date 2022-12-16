@@ -2,8 +2,14 @@ package jomu.instrument.control;
 
 import java.io.IOException;
 
+import javax.enterprise.context.ApplicationScoped;
+
+import org.springframework.stereotype.Component;
+
 import jomu.instrument.Organ;
 
+@ApplicationScoped
+@Component
 public class Controller implements Organ {
 
 	private ParameterManager parameterManager = new ParameterManager();

@@ -1,5 +1,9 @@
 package jomu.instrument.cognition;
 
+import javax.enterprise.context.ApplicationScoped;
+
+import org.springframework.stereotype.Component;
+
 import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureFrame;
@@ -10,6 +14,8 @@ import jomu.instrument.cognition.cell.NuCell;
 import jomu.instrument.cognition.cell.Weaver;
 import jomu.instrument.control.ParameterManager;
 
+@ApplicationScoped
+@Component
 public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	private NuCell sourceAddCell;

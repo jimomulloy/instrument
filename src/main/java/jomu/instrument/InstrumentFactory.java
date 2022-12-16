@@ -3,6 +3,7 @@ package jomu.instrument;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.Coordinator;
 import jomu.instrument.monitor.Druid;
+import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 
 public interface InstrumentFactory {
@@ -14,5 +15,7 @@ public interface InstrumentFactory {
 	public Druid getDruid();
 
 	public Workspace getWorkspace();
+
+	public Storage getStorage();
 
 }
