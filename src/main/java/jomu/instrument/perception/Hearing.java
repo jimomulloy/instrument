@@ -27,6 +27,7 @@ import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.workspace.Workspace;
 import net.beadsproject.beads.core.AudioContext;
 
 @ApplicationScoped
@@ -40,6 +41,8 @@ public class Hearing implements Organ {
 	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 
 	private ParameterManager parameterManager;
+
+	private Workspace workspace;
 
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
@@ -67,6 +70,7 @@ public class Hearing implements Organ {
 
 	@Override
 	public void initialise() {
+		this.workspace = Instrument.getInstance().getWorkspace();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 

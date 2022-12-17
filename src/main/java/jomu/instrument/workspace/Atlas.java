@@ -27,4 +27,8 @@ public class Atlas {
 	public void setToneMaps(Map<String, ToneMap> toneMaps) {
 		this.toneMaps = toneMaps;
 	}
+
+	public void removeToneMap(String key) {
+		this.toneMaps.remove(key);
+	}
 }
