@@ -45,7 +45,12 @@
 	    <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-datadog</artifactId>
-        </dependency>        	
+        </dependency>     
+        <dependency>
+		    <groupId>org.openjdk.jmc</groupId>
+		    <artifactId>common</artifactId>
+		    <version>8.3.0</version>
+		</dependency>   	
 		<!--dependency>
 		    <groupId>io.micrometer</groupId>
 		    <artifactId>micrometer-spring-legacy</artifactId>
