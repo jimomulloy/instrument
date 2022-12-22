@@ -67,7 +67,7 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 				}
 
 				System.out.println(">PitchDetectorProcessor process tonemap");
-				pdf.displayToneMap();
+				// pdf.displayToneMap();
 				cell.send(streamId, sequence);
 			}
 		}

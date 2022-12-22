@@ -84,7 +84,7 @@ public class OnsetFeatures {
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			visor.updateToneMap(toneMap);
+			visor.updateToneMapView(toneMap);
 		}
 	}
 }

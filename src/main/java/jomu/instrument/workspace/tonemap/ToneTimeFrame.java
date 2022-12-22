@@ -1,6 +1,9 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ToneTimeFrame {
@@ -8,6 +11,8 @@ public class ToneTimeFrame {
 	public final static int INIT_PITCH_HIGH = 72;
 
 	public final static int INIT_PITCH_LOW = 36;
+
+	public final static double AMPLITUDE_FLOOR = 0.0000001;
 
 	public static final boolean LOGAMP = true;
 
@@ -20,7 +25,6 @@ public class ToneTimeFrame {
 	private ToneMapElement[] elements;
 
 	private double highThres = 100;
-
 	private double lowThres = 0;
 	private double maxAmplitude;
 	private double minAmplitude;
@@ -150,6 +154,14 @@ public class ToneTimeFrame {
 		return highThres;
 	}
 
+	public void setHighThres(double highThres) {
+		this.highThres = highThres;
+	}
+
+	public void setLowThres(double lowThres) {
+		this.lowThres = lowThres;
+	}
+
 	public double getLowThres() {
 		return lowThres;
 	}
@@ -172,7 +184,7 @@ public class ToneTimeFrame {
 
 	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch) {
 		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.timeSet.clone(),
-				new PitchSet(basePitch, basePitch + 12));
+				new PitchSet(basePitch, basePitch + 11));
 		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
 		for (int i = 0; i < elements.length; i++) {
 			int note = pitchSet.getNote(i);
@@ -228,7 +240,7 @@ public class ToneTimeFrame {
 		return timeSet;
 	}
 
-	public void loadFFTSpectrum(FFTSpectrum fftSpectrum) {
+	public ToneTimeFrame loadFFTSpectrum(FFTSpectrum fftSpectrum) {
 		int elementIndex = 0;
 		double binStartFreq = pitchSet.getFreq(elementIndex);
 		double binEndFreq = pitchSet.getFreq(elementIndex + 1);
@@ -265,18 +277,10 @@ public class ToneTimeFrame {
 		System.out.println(">>>currentFreq: " + maxfft + ", " + maxampl + ", " + maxffti + ", " + maxampli + ", "
 				+ pitchSet.getFreq(maxampli + 1));
 		reset();
+		return this;
 	}
 
-	public void normalise(float threshold) {
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] != null) {
-				elements[i].amplitude = elements[i].amplitude / threshold;
-			}
-		}
-		reset();
-	}
-
-	public void reset() {
+	public ToneTimeFrame reset() {
 		maxAmplitude = 0;
 		minAmplitude = 0;
 		avgAmplitude = 0;
@@ -292,24 +296,31 @@ public class ToneTimeFrame {
 					count++;
 					if (maxAmplitude < elements[i].amplitude)
 						maxAmplitude = elements[i].amplitude;
-					if ((minAmplitude == 0) || (minAmplitude > elements[i].amplitude))
+					if (minAmplitude > elements[i].amplitude)
 						minAmplitude = elements[i].amplitude;
 				}
 			}
 		}
+		if (maxAmplitude < AMPLITUDE_FLOOR) {
+			maxAmplitude = AMPLITUDE_FLOOR;
+		}
 		avgAmplitude = avgAmplitude / count;
+		setLowThres(minAmplitude);
+		setHighThres(maxAmplitude);
+		return this;
 	}
 
-	public void square() {
+	public ToneTimeFrame square() {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				elements[i].amplitude = Math.pow(elements[i].amplitude, 2);
 			}
 		}
 		reset();
+		return this;
 	}
 
-	public void lowThreshold(double threshold, double value) {
+	public ToneTimeFrame lowThreshold(double threshold, double value) {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				if (elements[i].amplitude < threshold) {
@@ -318,13 +329,14 @@ public class ToneTimeFrame {
 			}
 		}
 		reset();
+		return this;
 	}
 
 	static double log(double x, int base) {
 		return (Math.log(x) / Math.log(base));
 	}
 
-	public void normaliseThreshold(double threshold, double value) {
+	public ToneTimeFrame normaliseThreshold(double threshold, double value) {
 		reset();
 		System.out.println(">>maxAmplitude: " + maxAmplitude);
 		float maxdbRatio = 0;
@@ -341,9 +353,10 @@ public class ToneTimeFrame {
 		}
 		System.out.println(">>maxdb: " + maxdbRatio);
 		reset();
+		return this;
 	}
 
-	public void decibel(double base) {
+	public ToneTimeFrame decibel(double base) {
 		reset();
 		System.out.println(">>maxAmplitude decibel before: " + maxAmplitude);
 		for (int i = 0; i < elements.length; i++) {
@@ -356,6 +369,125 @@ public class ToneTimeFrame {
 			}
 		}
 		reset();
-		System.out.println(">>maxAmplitude decibel after: " + maxAmplitude);
+		return this;
+	}
+
+	public ToneTimeFrame normaliseEuclidian(double threshold) {
+		double scale = 0;
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] != null) {
+				double value = elements[i].amplitude;
+				scale += value * value;
+			}
+		}
+		if (scale > threshold) {
+			scale = 1 / Math.sqrt(scale);
+			for (int i = 0; i < elements.length; i++) {
+				elements[i].amplitude *= scale;
+			}
+		} else {
+			for (int i = 0; i < elements.length; i++) {
+				elements[i].amplitude = 0.1 / (double) elements.length;
+			}
+		}
+		return this;
+	}
+
+	public ToneTimeFrame chromaQuantize() {
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] != null) {
+				double value = elements[i].amplitude;
+				if (value > 0.4) {
+					value = 4.0;
+				} else if (value > 0.2) {
+					value = 3.0;
+				} else if (value > 0.1) {
+					value = 2.0;
+				} else if (value > 0.05) {
+					value = 1.0;
+				} else {
+					value = 0;
+				}
+				elements[i].amplitude = value;
+			}
+		}
+		reset();
+		setHighThres(4.0);
+		setLowThres(0.5);
+		return this;
+	}
+
+	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, int sequence) {
+		// collect previous frames
+		List<ToneTimeFrame> frames = new ArrayList<>();
+		ToneTimeFrame tf = sourceToneMap.getTimeFrame(sequence);
+		int i = 10;
+		while (tf != null && i > 0) {
+			frames.add(tf);
+			tf = sourceToneMap.getPreviousTimeFrame(tf.getStartTime());
+			i--;
+		}
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			if (elements[elementIndex] != null) {
+				elements[elementIndex].amplitude = smoothMedian(frames, elementIndex);
+			}
+		}
+		reset();
+		return this;
+	}
+
+	private double smoothMedian(List<ToneTimeFrame> frames, int elementIndex) {
+		List<Double> amplitudes = new ArrayList<>();
+		for (ToneTimeFrame frame : frames) {
+			amplitudes.add(frame.elements[elementIndex].amplitude);
+		}
+		Collections.sort(amplitudes);
+		int size = amplitudes.size();
+		if (size % 2 != 0) {
+			return amplitudes.get(size / 2);
+		} else {
+			return (amplitudes.get((size - 1) / 2) + amplitudes.get(size / 2)) / 2.0;
+		}
+	}
+
+	public ToneTimeFrame downSample(ToneMap toneMap, int factor, int sequence) {
+		List<ToneTimeFrame> frames = new ArrayList<>();
+		ToneTimeFrame tf = toneMap.getTimeFrame(sequence);
+		ToneTimeFrame tfEnd = tf;
+		ToneTimeFrame tfStart = tf;
+		int i = factor;
+		while (tf != null && i > 0) {
+			frames.add(tf);
+			tf = toneMap.getPreviousTimeFrame(tf.getStartTime());
+			if (tf != null) {
+				tfStart = tf;
+			}
+			i--;
+		}
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			if (elements[elementIndex] != null) {
+				elements[elementIndex].amplitude = downSample(frames, elementIndex);
+			}
+		}
+
+		timeSet = new TimeSet(tfStart.getTimeSet().getStartTime(), tfEnd.getTimeSet().getEndTime(),
+				timeSet.getSampleRate(), timeSet.getSampleTimeSize());
+		boolean isFirst = true;
+		for (ToneTimeFrame frame : frames) {
+			if (!isFirst) {
+				toneMap.deleteTimeFrame(frame.getStartTime());
+			}
+			isFirst = false;
+		}
+		reset();
+		return this;
+	}
+
+	private double downSample(List<ToneTimeFrame> frames, int elementIndex) {
+		double amplitude = 0;
+		for (ToneTimeFrame frame : frames) {
+			amplitude += frame.elements[elementIndex].amplitude;
+		}
+		return amplitude;
 	}
 }

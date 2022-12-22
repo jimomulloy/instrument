@@ -28,8 +28,13 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD = "perception.hearing.cq.lowThresholdSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_DECIBEL = "perception.hearing.cq.decibelSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE = "perception.hearing.cq.normaliseSwitch";
-	public static final String PERCEPTION_HEARING_CQ_SWITCH_TUNER = "perception.hearing.cq.tunerSwitch";
-	public static final String PERCEPTION_HEARING_CQ_SWITCH_PEAKS = "perception.hearing.cq.peaksSwitch";
+
+	public static final String PERCEPTION_HEARING_TUNER_THRESHOLD_FACTOR = "perception.hearing.tuner.thresholdFactor";
+	public static final String PERCEPTION_HEARING_TUNER_THRESHOLD_MINIMUM = "perception.hearing.tuner.signalMinimum";
+	public static final String PERCEPTION_HEARING_SWITCH_TUNER = "perception.hearing.tunerSwitch";
+	public static final String PERCEPTION_HEARING_SWITCH_PEAKS = "perception.hearing.peaksSwitch";
+
+	public static final String PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD = "perception.hearing.chroma.normaliseThreshold";
 
 	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
 	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";

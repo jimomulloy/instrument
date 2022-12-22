@@ -175,7 +175,7 @@ public class AudioTuner implements ToneMapConstants {
 		}
 
 		troughAmp = 1.0;
-		System.out.println("!!!trough: " + troughAmp);
+		// System.out.println("!!!trough: " + troughAmp);
 		startPeak = 0;
 		endPeak = 0;
 		lastAmp = 0;
@@ -231,7 +231,7 @@ public class AudioTuner implements ToneMapConstants {
 			}
 			if (amplitude < troughAmp) {
 				troughAmp = amplitude;
-				System.out.println("!!!trough2: " + troughAmp);
+				// System.out.println("!!!trough2: " + troughAmp);
 			}
 			lastAmp = amplitude;
 

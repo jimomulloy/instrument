@@ -44,7 +44,7 @@ public class AudioSinkProcessor implements Consumer<List<NuMessage>> {
 					workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId));
 					workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
 					workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
-					workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_CHROMA, streamId));
+					workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
 					workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
 					workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
 				}

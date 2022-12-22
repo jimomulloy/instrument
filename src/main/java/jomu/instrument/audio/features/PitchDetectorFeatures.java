@@ -70,7 +70,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			visor.updateToneMap(toneMap);
+			visor.updateToneMapView(toneMap);
 		}
 	}
 

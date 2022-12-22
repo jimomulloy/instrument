@@ -25,15 +25,13 @@ package jomu.instrument.monitor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -42,29 +40,23 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
-import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.Oscilloscope.OscilloscopeEventHandler;
 import be.tarsos.dsp.ui.Axis;
@@ -101,25 +93,13 @@ import jomu.instrument.audio.features.SpectralPeaksSource;
 import jomu.instrument.audio.features.SpectrogramInfo;
 import jomu.instrument.audio.features.SpectrogramSource;
 import jomu.instrument.control.ParameterManager;
-import jomu.instrument.workspace.tonemap.PitchSet;
-import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
-import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 3501426880288136245L;
 
-	private List<Double> amplitudes;
-
 	private LinkedPanel bandedPitchDetectPanel;
-
-	// private BeadsLayer beadsLayer;
-	// private LinkedPanel beadsPanel;
 	private BandedPitchDetectLayer bpdLayer;
 
 	private LinkedPanel constantQPanel;
@@ -128,15 +108,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private LinkedPanel cqPanel;
 
-	// current frequencies and amplitudes of peak list, for sensory dissonance
-	// curve
-	private List<Double> frequencies;
 	private LegendLayer legend;
 	private SpectrumLayer noiseFloorLayer;
 	private OnsetLayer onsetLayer;
 	private LinkedPanel onsetPanel;
-
-	private OscilloscopePanel doscilloscopePanel;
 
 	private PitchDetectLayer pdLayer;
 	private LinkedPanel pitchDetectPanel;
@@ -148,39 +123,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private LinkedPanel spectrogramPanel;
 	private SpectrumLayer spectrumLayer;
 	private LinkedPanel spectrumPanel;
-	// private ToneMapLayer toneMapLayer;
-	private JPanel toneMapPanel;
 	private ToneMapView toneMapView;
-	int counter;
-	Mixer currentMixer;
-	AudioDispatcher dispatcher;
-
-	double threshold;
 
 	private int sampleRate;
 
-	private int fftsize;
-
-	private int noiseFloorMedianFilterLength;// 35
-
-	private float noiseFloorFactor;
-
 	private String fileName;
-
-	private int numberOfSpectralPeaks;
-
-	private int currentFrame;
-
-	private int minPeakSize;
 
 	private final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final Integer[] inputSampleRate = { 8000, 22050, 44100, 192000 };
 	private File inputFile;
-	private final List<SpectralInfo> spectalInfo = null;
-
-	private JPanel controlPanel;
-
-	private JPanel graphPanel;
 
 	private JPanel diagnosticsPanel;
 
@@ -188,62 +139,130 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private ParameterManager parameterManager;
 
-	public Visor() {
+	private ChromaView chromaPreView;
+
+	private ChromaView chromaPostView;
+
+	private JFrame mainframe;
+
+	private JPanel beatsPanel;
+
+	public Visor(JFrame mainframe) {
+		this.mainframe = mainframe;
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.setLayout(new BorderLayout());
 		JPanel topPanel = buildTopPanel();
-		graphPanel = buildGraphPanel();
-		JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(topPanel),
-				new JScrollPane(graphPanel));
-		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(150);
-		this.add(splitPane, BorderLayout.CENTER);
+		JScrollPane graphPanel = buildGraphPanel();
+		this.add(topPanel, BorderLayout.NORTH);
+		this.add(graphPanel, BorderLayout.CENTER);
 	}
 
 	private JPanel buildTopPanel() {
 
-		JPanel panel = new JPanel(new GridLayout(1, 2));
+		JPanel panel = new JPanel(new GridLayout(1, 1));
 
-		controlPanel = buildControlPanel();
+		JPanel controlPanel = buildControlPanel();
 		panel.add(controlPanel);
-		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
-		diagnosticsPanel = buildDiagnosticsPanel();
-		panel.add(diagnosticsPanel);
-		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-
-		Dimension minimumSize = new Dimension(100, 50);
-		panel.setMinimumSize(minimumSize);
 		return panel;
 	}
 
-	private JPanel buildGraphPanel() {
+	private JScrollPane buildGraphPanel() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(1, 1));
 
-		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		JPanel leftGraphPanel = new JPanel();
+		leftGraphPanel.setLayout(new BorderLayout());
 
-		toneMapPanel = createToneMapPanel();
-		tabbedPane.addTab("ToneMap", toneMapPanel);
+		JPanel rightGraphPanel = new JPanel();
+		rightGraphPanel.setLayout(new BorderLayout());
+
+		JSplitPane splitPane = new JSplitPane(SwingConstants.VERTICAL, new JScrollPane(leftGraphPanel),
+				new JScrollPane(rightGraphPanel));
+
+		Toolkit myScreen = Toolkit.getDefaultToolkit();
+		Dimension screenSize = myScreen.getScreenSize();
+		int screenHeight = screenSize.height;
+		int screenWidth = screenSize.width;
+
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation((int) ((double) screenWidth * 0.7));
+
+		JPanel chromaPanel = buildChromaPanel();
+		JPanel spectrumsPanel = buildSpectrumsPanel();
+		JPanel beatsPanel = buildBeatsPanel();
+		JSplitPane leftTopPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(chromaPanel),
+				new JScrollPane(beatsPanel));
+		JSplitPane leftBottomPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(leftTopPane),
+				new JScrollPane(spectrumsPanel));
+		leftTopPane.setOneTouchExpandable(true);
+		leftTopPane.setDividerLocation(230);
+		leftBottomPane.setOneTouchExpandable(true);
+		leftBottomPane.setDividerLocation(370);
+
+		leftGraphPanel.add(leftBottomPane, BorderLayout.CENTER);
+
+		diagnosticsPanel = buildDiagnosticsPanel();
+		rightGraphPanel.add(diagnosticsPanel, BorderLayout.CENTER);
+		Dimension minimumSize = new Dimension(100, 1000);
+		panel.setMinimumSize(minimumSize);
+		panel.add(splitPane);
+		return new JScrollPane(panel);
+	}
+
+	private JPanel buildSpectrumsPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+		JTabbedPane toneMapTabbedPane = new JTabbedPane();
+		toneMapTabbedPane
+				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		JPanel toneMapPanel = createToneMapPanel();
+		toneMapTabbedPane.addTab("ToneMap", toneMapPanel);
 		cqPanel = createCQPanel();
-		tabbedPane.addTab("CQ", cqPanel);
+		toneMapTabbedPane.addTab("CQ", cqPanel);
 		bandedPitchDetectPanel = createBandedPitchDetectPanel();
-		tabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
+		toneMapTabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
 		pitchDetectPanel = createPitchDetectPanel();
-		tabbedPane.addTab("Pitch", pitchDetectPanel);
+		toneMapTabbedPane.addTab("Pitch", pitchDetectPanel);
 		spectrogramPanel = createSpectogramPanel();
-		tabbedPane.addTab("Spectogram", spectrogramPanel);
+		toneMapTabbedPane.addTab("Spectogram", spectrogramPanel);
 		scalogramPanel = createScalogramPanel();
-		tabbedPane.addTab("Scalogram", scalogramPanel);
+		toneMapTabbedPane.addTab("Scalogram", scalogramPanel);
 		onsetPanel = createOnsetPanel();
-		tabbedPane.addTab("Onset", onsetPanel);
+		toneMapTabbedPane.addTab("Onset", onsetPanel);
 		spectralPeaksPanel = createSpectralPeaksPanel();
-		tabbedPane.addTab("SP", spectralPeaksPanel);
+		toneMapTabbedPane.addTab("SP", spectralPeaksPanel);
+		panel.add(toneMapTabbedPane, BorderLayout.CENTER);
+		return panel;
+	}
 
-		Dimension minimumSize = new Dimension(100, 50);
-		tabbedPane.setMinimumSize(minimumSize);
+	private JPanel buildChromaPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+		JTabbedPane chromaTabbedPane = new JTabbedPane();
+		chromaTabbedPane
+				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		chromaPreView = new ChromaView();
+		JPanel chromaPrePanel = new JPanel(new BorderLayout());
+		chromaPrePanel.add(chromaPreView, BorderLayout.CENTER);
+		chromaPrePanel.setBackground(Color.BLACK);
+		chromaTabbedPane.addTab("Chroma Pre", chromaPrePanel);
+		chromaPostView = new ChromaView();
+		JPanel chromaPostPanel = new JPanel(new BorderLayout());
+		chromaPostPanel.add(chromaPostView, BorderLayout.CENTER);
+		chromaPostPanel.setBackground(Color.BLACK);
+		chromaTabbedPane.addTab("Chroma Post", chromaPostPanel);
+		panel.add(chromaTabbedPane, BorderLayout.CENTER);
+		return panel;
+	}
 
-		JPanel panel = new JPanel(new GridLayout(1, 1));
-		panel.add(tabbedPane);
+	private JPanel buildBeatsPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+		JTabbedPane beatsTabbedPane = new JTabbedPane();
+		beatsTabbedPane
+				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		beatsPanel = new JPanel(new BorderLayout());
+		beatsPanel.setBackground(Color.BLACK);
+		beatsTabbedPane.addTab("Onsets", beatsPanel);
+		panel.add(beatsTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
 
@@ -257,13 +276,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JPanel buildControlPanel() {
 
 		JPanel panel = new JPanel(new BorderLayout());
-		// panel = new JPanel(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
 		JPanel actionPanel = new JPanel();
-		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
-		actionPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-		actionPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
+		// actionPanel.setLayout(new GridBagLayout(actionPanel, BoxLayout.X_AXIS));
+		// actionPanel.setAlignmentY(Component.TOP_ALIGNMENT);
 
 		final JFileChooser fileChooser = new JFileChooser(new File("D:/audio"));
 		final JButton chooseFileButton = new JButton("Open a file");
@@ -335,7 +352,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				@SuppressWarnings("unchecked")
 				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
 				fftsize = value;
-				noiseFloorMedianFilterLength = fftsize / 117;
+				int noiseFloorMedianFilterLength = fftsize / 117;
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW,
 						Integer.toString(fftsize));
 				// startProcessing();
@@ -361,768 +378,43 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		actionPanel.add(new JLabel("Input sample rate:  "));
 		actionPanel.add(inputSampleRateCombobox);
 
-		panel.add(actionPanel, BorderLayout.NORTH);
+		final JButton parametersButton = new JButton("Parameters");
 
-		JPanel parameterPanel = new JPanel();
-		parameterPanel.setLayout(new BoxLayout(parameterPanel, BoxLayout.Y_AXIS));
-		parameterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		parametersButton.addActionListener(new ActionListener() {
 
-		JSlider audioLowPassSlider = new JSlider(0, 20000);
-		final JLabel audioLowPassLabel = new JLabel("Audio Low Pass :");
-		audioLowPassSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				audioLowPassLabel.setText(String.format("Audio Low Pass   (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS,
-						Integer.toString(newValue));
-			}
-		});
-		audioLowPassSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS));
-		parameterPanel.add(audioLowPassLabel);
-		parameterPanel.add(audioLowPassSlider);
-
-		JSlider audioHighPassSlider = new JSlider(0, 20000);
-		final JLabel audioHighPassLabel = new JLabel("Audio High Pass :");
-		audioHighPassSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				audioHighPassLabel.setText(String.format("Audio High Pass   (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS,
-						Integer.toString(newValue));
-			}
-		});
-		audioHighPassSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS));
-		parameterPanel.add(audioHighPassLabel);
-		parameterPanel.add(audioHighPassSlider);
-
-		JPanel tunerSwitchPanel = new JPanel();
-		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
-		tunerSwitchPanel.setLayout(new GridLayout(1, 4));
-		// switchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		tunerSwitchPanel
-				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
-
-		JCheckBox n1SwitchCB = new JCheckBox("n1SwitchCB");
-		n1SwitchCB.setText("Audio Tuner N1 Switch");
-		n1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		n1SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SWITCH));
-		tunerSwitchPanel.add(n1SwitchCB);
-
-		JCheckBox n2SwitchCB = new JCheckBox("n2SwitchCB");
-		n2SwitchCB.setText("Audio Tuner N2 Switch");
-		n2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		n2SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SWITCH));
-		tunerSwitchPanel.add(n2SwitchCB);
-
-		JCheckBox peakSwitchCB = new JCheckBox("peakSwitchCB");
-		peakSwitchCB.setText("Audio Tuner Peak Switch");
-		peakSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		peakSwitchCB
-				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH));
-		tunerSwitchPanel.add(peakSwitchCB);
-
-		parameterPanel.add(tunerSwitchPanel);
-
-		JSlider noiseFloorSlider = new JSlider(100, 250);
-		final JLabel noiseFloorFactorLabel = new JLabel("Noise floor factor    :");
-		noiseFloorSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-				double actualValue = newValue / 100.0;
-				noiseFloorFactorLabel.setText(String.format("Noise floor factor (%.2f):", actualValue));
-
-				System.out.println("New noise floor factor: " + actualValue);
-				noiseFloorFactor = (float) actualValue;
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR,
-						Float.toString(noiseFloorFactor));
-				// TODO repaintSpectalInfo();
-
-			}
-		});
-		noiseFloorFactor = parameterManager
-				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR);
-		noiseFloorSlider.setValue((int) noiseFloorFactor);
-		parameterPanel.add(noiseFloorFactorLabel);
-		parameterPanel.add(noiseFloorSlider);
-
-		JSlider medianFilterSizeSlider = new JSlider(3, 255);
-		final JLabel medianFilterSizeLabel = new JLabel("Median Filter Size   :");
-		medianFilterSizeSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-				medianFilterSizeLabel.setText(String.format("Median Filter Size (%d):", newValue));
-				System.out.println("New Median filter size: " + newValue);
-				noiseFloorMedianFilterLength = newValue;
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH,
-						Integer.toString(noiseFloorMedianFilterLength));
-				// TODO repaintSpectalInfo();
-			}
-		});
-		noiseFloorMedianFilterLength = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
-		medianFilterSizeSlider.setValue(noiseFloorMedianFilterLength);
-		parameterPanel.add(medianFilterSizeLabel);
-		parameterPanel.add(medianFilterSizeSlider);
-
-		JSlider minPeakSizeSlider = new JSlider(5, 255);
-		final JLabel minPeakSizeLabel = new JLabel("Min Peak Size   :");
-		minPeakSizeSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-				minPeakSizeLabel.setText(String.format("Min Peak Size    (%d):", newValue));
-				System.out.println("Min Peak Sizee: " + newValue);
-				minPeakSize = newValue;
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE,
-						Integer.toString(minPeakSize));
-				// TODO repaintSpectalInfo();
-			}
-		});
-		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
-		minPeakSizeSlider.setValue(minPeakSize);
-		parameterPanel.add(minPeakSizeLabel);
-		parameterPanel.add(minPeakSizeSlider);
-
-		JSlider numberOfPeaksSlider = new JSlider(1, 40);
-		final JLabel numberOfPeaksLabel = new JLabel("Number of peaks  :");
-		numberOfPeaksSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				numberOfPeaksLabel.setText("Number of peaks (" + newValue + "):");
-
-				numberOfSpectralPeaks = newValue;
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS,
-						Integer.toString(numberOfSpectralPeaks));
-				// TODO repaintSpectalInfo();
-
-			}
-		});
-		numberOfSpectralPeaks = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
-		numberOfPeaksSlider.setValue(7);
-		parameterPanel.add(numberOfPeaksLabel);
-		parameterPanel.add(numberOfPeaksSlider);
-
-		JSlider formantFactorSlider = new JSlider(0, 100);
-		final JLabel formantFactorLabel = new JLabel("Audio Tuner Formant Factor :");
-		formantFactorSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				formantFactorLabel.setText(String.format("Audio Tuner Formant Factor   (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR,
-						Integer.toString(newValue));
-			}
-		});
-		formantFactorSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR));
-		parameterPanel.add(formantFactorLabel);
-		parameterPanel.add(formantFactorSlider);
-
-		JSlider formantHighSettingSlider = new JSlider(0, 100);
-		final JLabel formantHighSettingLabel = new JLabel("Audio Tuner Formant High :");
-		formantHighSettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				formantHighSettingLabel.setText(String.format("Audio Tuner Formant High   (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH,
-						Integer.toString(newValue));
-			}
-		});
-		formantHighSettingSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH));
-		parameterPanel.add(formantHighSettingLabel);
-		parameterPanel.add(formantHighSettingSlider);
-
-		JSlider formantLowSettingSlider = new JSlider(0, 100);
-		final JLabel formantLowSettingLabel = new JLabel("Audio Tuner Formant Low :");
-		formantLowSettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				formantLowSettingLabel.setText(String.format("Audio Tuner Formant Low   (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW,
-						Integer.toString(newValue));
-			}
-		});
-		formantLowSettingSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW));
-		parameterPanel.add(formantLowSettingLabel);
-		parameterPanel.add(formantLowSettingSlider);
-
-		JSlider formantMiddleSettingSlider = new JSlider(0, 100);
-		final JLabel formantMiddleSettingLabel = new JLabel("Audio Tuner Formant Middle :");
-		formantMiddleSettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				formantMiddleSettingLabel.setText(String.format("Audio Tuner Formant Middle   (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE,
-						Integer.toString(newValue));
-			}
-		});
-		formantMiddleSettingSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE));
-		parameterPanel.add(formantMiddleSettingLabel);
-		parameterPanel.add(formantMiddleSettingSlider);
-
-		JSlider n1SettingSlider = new JSlider(0, 100);
-		final JLabel n1SettingLabel = new JLabel("Audio Tuner N1 Setting :");
-		n1SettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				n1SettingLabel.setText(String.format("Audio Tuner N1 Setting  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SETTING,
-						Integer.toString(newValue));
-			}
-		});
-		n1SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SETTING));
-		parameterPanel.add(n1SettingLabel);
-		parameterPanel.add(n1SettingSlider);
-
-		JSlider n2SettingSlider = new JSlider(0, 100);
-		final JLabel n2SettingLabel = new JLabel("Audio Tuner N2 Setting :");
-		n2SettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				n2SettingLabel.setText(String.format("Audio Tuner N2 Setting  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SETTING,
-						Integer.toString(newValue));
-			}
-		});
-		n2SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SETTING));
-		parameterPanel.add(n2SettingLabel);
-		parameterPanel.add(n2SettingSlider);
-
-		JSlider n3SettingSlider = new JSlider(0, 100);
-		final JLabel n3SettingLabel = new JLabel("Audio Tuner N3 Setting :");
-		n3SettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				n3SettingLabel.setText(String.format("Audio Tuner N3 Setting  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SETTING,
-						Integer.toString(newValue));
-			}
-		});
-		n3SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SETTING));
-		parameterPanel.add(n3SettingLabel);
-		parameterPanel.add(n3SettingSlider);
-
-		JSlider n4SettingSlider = new JSlider(0, 100);
-		final JLabel n4SettingLabel = new JLabel("Audio Tuner N4 Setting :");
-		n4SettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				n4SettingLabel.setText(String.format("Audio Tuner N4 Setting  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SETTING,
-						Integer.toString(newValue));
-			}
-		});
-		n4SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SETTING));
-		parameterPanel.add(n4SettingLabel);
-		parameterPanel.add(n4SettingSlider);
-
-		JSlider n5SettingSlider = new JSlider(0, 100);
-		final JLabel n5SettingLabel = new JLabel("Audio Tuner N5 Setting :");
-		n5SettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				n5SettingLabel.setText(String.format("Audio Tuner N5 Setting  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SETTING,
-						Integer.toString(newValue));
-			}
-		});
-		n5SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SETTING));
-		parameterPanel.add(n5SettingLabel);
-		parameterPanel.add(n5SettingSlider);
-
-		JSlider normalizeSettingSlider = new JSlider(0, 100);
-		final JLabel normalizeSettingLabel = new JLabel("Audio Tuner Normalise Setting :");
-		normalizeSettingSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				normalizeSettingLabel.setText(String.format("Audio Tuner Normalise Setting  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_SETTING,
-						Integer.toString(newValue));
-			}
-		});
-		normalizeSettingSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_SETTING));
-		parameterPanel.add(normalizeSettingLabel);
-		parameterPanel.add(normalizeSettingSlider);
-
-		JSlider noteHighSlider = new JSlider(0, 100);
-		final JLabel noteHighLabel = new JLabel("Audio Tuner High Note :");
-		noteHighSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				noteHighLabel.setText(String.format("Audio Tuner High Note  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_HIGH,
-						Integer.toString(newValue));
-			}
-		});
-		noteHighSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_HIGH));
-		parameterPanel.add(noteHighLabel);
-		parameterPanel.add(noteHighSlider);
-
-		JSlider noteLowSlider = new JSlider(0, 100);
-		final JLabel noteLowLabel = new JLabel("Audio Tuner Low Note :");
-		noteLowSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				noteLowLabel.setText(String.format("Audio Tuner Low Note  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_LOW,
-						Integer.toString(newValue));
-			}
-		});
-		noteLowSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_LOW));
-		parameterPanel.add(noteLowLabel);
-		parameterPanel.add(noteLowSlider);
-
-		JSlider noteMaxDurationSlider = new JSlider(0, 10000);
-		final JLabel noteMaxDurationLabel = new JLabel("Audio Tuner Max Note Duration :");
-		noteMaxDurationSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				noteMaxDurationLabel.setText(String.format("Audio Tuner Max Note Duration  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION,
-						Integer.toString(newValue));
-			}
-		});
-		noteMaxDurationSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION));
-		parameterPanel.add(noteMaxDurationLabel);
-		parameterPanel.add(noteMaxDurationSlider);
-
-		JSlider noteMinDurationSlider = new JSlider(0, 1000);
-		final JLabel noteMinDurationLabel = new JLabel("Audio Tuner Min Note Duration :");
-		noteMinDurationSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				noteMinDurationLabel.setText(String.format("Audio Tuner Min Note Duration  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MIN_DURATION,
-						Integer.toString(newValue));
-			}
-		});
-		noteMinDurationSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MIN_DURATION));
-		parameterPanel.add(noteMinDurationLabel);
-		parameterPanel.add(noteMinDurationSlider);
-
-		JSlider noteSustainSlider = new JSlider(0, 1000);
-		final JLabel noteSustainLabel = new JLabel("Audio Tuner Min Note Sustain :");
-		noteSustainSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				noteSustainLabel.setText(String.format("Audio Tuner Min Note Sustain  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SUSTAIN,
-						Integer.toString(newValue));
-			}
-		});
-		noteSustainSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SUSTAIN));
-		parameterPanel.add(noteSustainLabel);
-		parameterPanel.add(noteSustainSlider);
-
-		JSlider pitchHighSlider = new JSlider(36, 72);
-		final JLabel pitchHighLabel = new JLabel("Audio Tuner High Pitch :");
-		pitchHighSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				pitchHighLabel.setText(String.format("Audio Tuner High Pitch  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_HIGH,
-						Integer.toString(newValue));
-			}
-		});
-		pitchHighSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_HIGH));
-		parameterPanel.add(pitchHighLabel);
-		parameterPanel.add(pitchHighSlider);
-
-		JSlider pitchLowSlider = new JSlider(36, 72);
-		final JLabel pitchLowLabel = new JLabel("Audio Tuner Low Pitch :");
-		pitchLowSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				pitchLowLabel.setText(String.format("Audio Tuner Low Pitch  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_LOW,
-						Integer.toString(newValue));
-			}
-		});
-		pitchLowSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_LOW));
-		parameterPanel.add(pitchLowLabel);
-		parameterPanel.add(pitchLowSlider);
-
-		JSlider formantHighFreqSlider = new JSlider(0, 20000);
-		final JLabel formantHighFreqLabel = new JLabel("Audio Tuner Formant High Frequency :");
-		formantHighFreqSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				formantHighFreqLabel.setText(String.format("Audio Tuner Formant High Frequency  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH_FREQUENCY,
-						Integer.toString(newValue));
-			}
-		});
-		formantHighFreqSlider.setValue(
-				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH_FREQUENCY));
-		parameterPanel.add(formantHighFreqLabel);
-		parameterPanel.add(formantHighFreqSlider);
-
-		JSlider formantLowFreqSlider = new JSlider(0, 20000);
-		final JLabel formantLowFreqLabel = new JLabel("Audio Tuner Formant Low Frequency :");
-		formantLowFreqSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				formantLowFreqLabel.setText(String.format("Audio Tuner Formant Low Frequency  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW_FREQUENCY,
-						Integer.toString(newValue));
-			}
-		});
-		formantLowFreqSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW_FREQUENCY));
-		parameterPanel.add(formantLowFreqLabel);
-		parameterPanel.add(formantLowFreqSlider);
-
-		JSlider formantMidFreqSlider = new JSlider(0, 20000);
-		final JLabel formantMidFreqLabel = new JLabel("Audio Tuner Formant Middle Frequency :");
-		formantMidFreqSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				JSlider source = (JSlider) e.getSource();
-				int newValue = source.getValue();
-
-				formantMidFreqLabel.setText(String.format("Audio Tuner Formant Middle Frequency  (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY,
-						Integer.toString(newValue));
-			}
-		});
-		formantMidFreqSlider.setValue(
-				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY));
-		parameterPanel.add(formantMidFreqLabel);
-		parameterPanel.add(formantMidFreqSlider);
-
-		JPanel cqSwitchPanel = new JPanel();
-		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
-		cqSwitchPanel.setLayout(new GridLayout(1, 4));
-		// switchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		cqSwitchPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
-
-		JCheckBox compressionSwitchCB = new JCheckBox("compressionSwitchCB");
-		compressionSwitchCB.setText("CQ Compression");
-		compressionSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS,
-						Boolean.toString(newValue));
-			}
-		});
-
-		compressionSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
-		cqSwitchPanel.add(compressionSwitchCB);
-
-		JCheckBox squareSwitchCB = new JCheckBox("squareSwitchCB");
-		squareSwitchCB.setText("CQ Square");
-		squareSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE,
-						Boolean.toString(newValue));
-			}
-		});
-
-		squareSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE));
-		cqSwitchPanel.add(squareSwitchCB);
-
-		JCheckBox lowThresholdSwitchCB = new JCheckBox("squareSwitchCB");
-		lowThresholdSwitchCB.setText("CQ Low Threshold");
-		lowThresholdSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD,
-						Boolean.toString(newValue));
-			}
-		});
-
-		lowThresholdSwitchCB.setSelected(parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD));
-		cqSwitchPanel.add(lowThresholdSwitchCB);
-
-		JCheckBox decibelSwitchCB = new JCheckBox("decibelSwitchCB");
-		decibelSwitchCB.setText("CQ Decibel");
-		decibelSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL,
-						Boolean.toString(newValue));
-			}
-		});
-
-		decibelSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
-		cqSwitchPanel.add(decibelSwitchCB);
-
-		JCheckBox normaliseSwitchCB = new JCheckBox("normaliseSwitchCB");
-		normaliseSwitchCB.setText("CQ Normalise");
-		normaliseSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE,
-						Boolean.toString(newValue));
-			}
-		});
-
-		normaliseSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
-		cqSwitchPanel.add(normaliseSwitchCB);
-
-		JCheckBox tunerSwitchCB = new JCheckBox("tunerSwitchCB");
-		tunerSwitchCB.setText("CQ Tuner");
-		tunerSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_TUNER,
-						Boolean.toString(newValue));
-			}
-		});
-
-		tunerSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_TUNER));
-		cqSwitchPanel.add(tunerSwitchCB);
-
-		JCheckBox peaksSwitchCB = new JCheckBox("peaksSwitchCB");
-		peaksSwitchCB.setText("CQ Tuner");
-		peaksSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PEAKS,
-						Boolean.toString(newValue));
-			}
-		});
-
-		peaksSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PEAKS));
-		cqSwitchPanel.add(peaksSwitchCB);
-
-		parameterPanel.add(cqSwitchPanel);
-
-		JPanel cqParamsPanel = new JPanel();
-		// cqParamsPanel.setLayout(new BoxLayout(cqParamsPanel, BoxLayout.X_AXIS));
-		cqParamsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-		cqParamsPanel.setLayout(new GridLayout(0, 2));
-		cqParamsPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
-
-		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
-		JTextField cqLowThresholdInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = cqLowThresholdInput.getText();
-				cqLowThresholdLabel.setText(String.format("CQ Low Threshold  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD, newValue);
+				String s = e.getActionCommand();
+				if (s.equals("Parameters")) {
+					// create a dialog Box
+					JDialog d = new JDialog(mainframe, "Parameters");
 
+					JPanel dialogPanel = new JPanel(new BorderLayout());
+
+					JPanel parameterPanel = new ParametersPanel(Visor.this.parameterManager);
+					dialogPanel.setBorder(
+							BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20), new EtchedBorder()));
+
+					dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
+
+					d.add(dialogPanel);
+
+					Toolkit myScreen = Toolkit.getDefaultToolkit();
+					Dimension screenSize = myScreen.getScreenSize();
+					int screenHeight = screenSize.height;
+					int screenWidth = screenSize.width;
+
+					// setsize of dialog
+					d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+
+					// set visibility of dialog
+					d.setVisible(true);
+				}
 			}
 		});
-		cqLowThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
-		cqParamsPanel.add(cqLowThresholdLabel);
-		cqParamsPanel.add(cqLowThresholdInput);
+		actionPanel.add(parametersButton);
 
-		JLabel cqThresholdFactorLabel = new JLabel("CQ Threshold Factor: ");
-		JTextField cqThresholdFactorInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
-				cqThresholdFactorLabel.setText(String.format("CQ Threshold Factor  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR,
-						newValue);
-
-			}
-		});
-		cqThresholdFactorInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR));
-		cqParamsPanel.add(cqThresholdFactorLabel);
-		cqParamsPanel.add(cqThresholdFactorInput);
-
-		JLabel cqSignalMinimumLabel = new JLabel("CQ Signal Minimum: ");
-		JTextField cqSignalMinimumInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
-				cqSignalMinimumLabel.setText(String.format("CQ Signal Minimum  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM, newValue);
-
-			}
-		});
-		cqSignalMinimumInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM));
-		cqParamsPanel.add(cqSignalMinimumLabel);
-		cqParamsPanel.add(cqSignalMinimumInput);
-
-		JLabel cqNormaliseThresholdLabel = new JLabel("CQ Normalise Threshold: ");
-		JTextField cqNormaliseThresholdInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
-				cqNormaliseThresholdLabel.setText(String.format("CQ Normalise Threshold  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD,
-						newValue);
-
-			}
-		});
-		cqNormaliseThresholdInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD));
-		cqParamsPanel.add(cqNormaliseThresholdLabel);
-		cqParamsPanel.add(cqNormaliseThresholdInput);
-
-		JLabel cqDecibelLevelLabel = new JLabel("CQ Decibel Level: ");
-		JTextField cqDecibelLevelInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
-				cqDecibelLevelLabel.setText(String.format("CQ Decibel Level  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL, newValue);
-
-			}
-		});
-		cqDecibelLevelInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL));
-		cqParamsPanel.add(cqDecibelLevelLabel);
-		cqParamsPanel.add(cqDecibelLevelInput);
-
-		JLabel cqCompressionLevelLabel = new JLabel("CQ Compression Level: ");
-		JTextField cqCompressionLevelInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
-				cqCompressionLevelLabel.setText(String.format("CQ Compression Level  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION, newValue);
-
-			}
-		});
-		cqCompressionLevelInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION));
-		cqParamsPanel.add(cqCompressionLevelLabel);
-		cqParamsPanel.add(cqCompressionLevelInput);
-
-		parameterPanel.add(cqParamsPanel);
-
-		panel.add(parameterPanel, BorderLayout.SOUTH);
+		panel.add(actionPanel, BorderLayout.CENTER);
 
 		return panel;
 	}
@@ -1148,36 +440,16 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		oscilloscopePanel.repaint();
 	}
 
-	public void repaintSpectalInfo(SpectralInfo info) {
-
-		spectrumLayer.clearPeaks();
-		spectrumLayer.setSpectrum(info.getMagnitudes());
-		noiseFloorLayer.setSpectrum(info.getNoiseFloor(noiseFloorMedianFilterLength, noiseFloorFactor));
-
-		List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLength, noiseFloorFactor,
-				numberOfSpectralPeaks, minPeakSize);
-
-		StringBuilder sb = new StringBuilder("Frequency(Hz);Step(cents);Magnitude\n");
-		frequencies.clear();
-		amplitudes.clear();
-		for (SpectralPeak peak : peaks) {
-
-			String message = String.format("%.2f;%.2f;%.2f\n", peak.getFrequencyInHertz(),
-					peak.getRelativeFrequencyInCents(), peak.getMagnitude());
-			sb.append(message);
-			// float peakFrequencyInCents =(float)
-			// PitchConverter.hertzToAbsoluteCent(peak.getFrequencyInHertz());
-			spectrumLayer.setPeak(peak.getBin());
-			frequencies.add((double) peak.getFrequencyInHertz());
-			amplitudes.add((double) peak.getMagnitude());
-
-		}
-		// textArea.setText(sb.toString());
-		this.spectrumPanel.repaint();
+	public void updateToneMapView(ToneMap toneMap) {
+		toneMapView.updateToneMap(toneMap);
 	}
 
-	public void updateToneMap(ToneMap toneMap) {
-		toneMapView.drawToneMap(toneMap);
+	public void updateChromaPreView(ToneMap toneMap) {
+		chromaPreView.updateToneMap(toneMap);
+	}
+
+	public void updateChromaPostView(ToneMap toneMap) {
+		chromaPostView.updateToneMap(toneMap);
 	}
 
 	private LinkedPanel createBandedPitchDetectPanel() {
@@ -1427,10 +699,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	private void updateView(AudioFeatureFrame audioFeatureFrame) {
-		// toneMapLayer.update(audioFeatureFrame);
 		scalogramLayer.update(audioFeatureFrame);
-		// toneMapLayer.update(audioFeatureFrame);
-		// beadsLayer.update(audioFeatureFrame);
 		cqLayer.update(audioFeatureFrame);
 		onsetLayer.update(audioFeatureFrame);
 		spectralPeaksLayer.update(audioFeatureFrame);
@@ -1449,9 +718,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		// this.beadsPanel.repaint();
 		// }
 		// count++;
-		// SpectralPeaksFeatures specFeatures = audioFeatureFrame
-		// .getSpectralPeaksFeatures();
-		// repaintSpectalInfo(specFeatures.getSpectralInfo().get(0));
 	}
 
 	private static class BandedPitchDetectLayer implements Layer {
@@ -2169,123 +1435,4 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		}
 	}
 
-	private static class ToneMapLayer implements Layer {
-
-		private final CoordinateSystem cs;
-		private TreeMap<Double, ToneMap> toneMaps;
-
-		public ToneMapLayer(CoordinateSystem cs) {
-			this.cs = cs;
-		}
-
-		public void clear() {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					toneMaps = new TreeMap<>();
-				}
-			});
-
-		}
-
-		@Override
-		public void draw(Graphics2D g) {
-
-			if (toneMaps != null) {
-
-				Map<Double, ToneMap> toneMapsSubMap = toneMaps.subMap(cs.getMin(Axis.X) / 1000.0,
-						cs.getMax(Axis.X) / 1000.0);
-				double timeStart = 0.0F;
-				for (Map.Entry<Double, ToneMap> column : toneMapsSubMap.entrySet()) {
-					timeStart = column.getKey();
-					ToneMap toneMap = column.getValue();
-					ToneTimeFrame[] ttfs = toneMap.getTimeFramesFrom(0.0);
-					for (ToneTimeFrame ttf : ttfs) {
-						TimeSet timeSet = ttf.getTimeSet();
-						PitchSet pitchSet = ttf.getPitchSet();
-						timeStart = timeSet.getStartTime();
-
-						ToneMapElement[] elements = ttf.getElements();
-
-						double ampT;
-						double lowThreshhold = 0.0;
-						double highThreshhold = 100.0;
-						double maxAmplitude = -1;
-						for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-
-							ToneMapElement toneMapElement = elements[elementIndex];
-							if (toneMapElement != null) {
-								double amplitude = 0.0;
-								if (toneMapElement.amplitude > 1.0) {
-									amplitude = 100.0 * toneMapElement.amplitude / ttf.getMaxAmplitude();
-								}
-								int greyValue = (int) (Math.log1p(toneMapElement.amplitude / ttf.getMaxAmplitude())
-										/ Math.log1p(1.0000001) * 255);
-
-								if (amplitude > maxAmplitude) {
-									maxAmplitude = amplitude;
-								}
-								if (amplitude <= lowThreshhold) {
-									g.setColor(Color.white);
-								} else if (amplitude >= highThreshhold) {
-									g.setColor(Color.black);
-								} else {
-									ampT = (amplitude - lowThreshhold) / (highThreshhold - lowThreshhold);
-									// greyValue = 255 - (int) (ampT * 255);
-									greyValue = 255 - greyValue;
-									greyValue = Math.max(0, greyValue);
-									Color color = new Color(greyValue, greyValue, greyValue);
-									g.setColor(color);
-									// g.setColor(new Color(255, 0, 0));
-									// g.setColor(new Color((int) (255 * ampT),
-									// (int) (255 * ampT),
-									// (int) (255 * ampT)));
-								}
-								double cents = PitchConverter.hertzToAbsoluteCent(pitchSet.getFreq(elementIndex));
-
-								double width = timeSet.getEndTime() - timeSet.getStartTime();
-
-								g.fillRect((int) Math.floor(timeStart * 1000), (int) Math.floor(cents),
-										(int) Math.round(width * 1000), 100);
-							}
-						}
-					}
-				}
-				// cs.setWrappingOrigin((float) timeStart);
-			}
-		}
-
-		@Override
-		public String getName() {
-			return "ToneMap Layer";
-		}
-
-		public void update(AudioFeatureFrame audioFeatureFrame) {
-
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					ToneMap toneMap = audioFeatureFrame.getConstantQFeatures().getToneMap();
-					if (toneMap != null) {
-						if (toneMaps == null) {
-							toneMaps = new TreeMap<>();
-						}
-						toneMaps.put(audioFeatureFrame.getStart() / 1000.0, toneMap);
-					}
-					float timeEnd = 0.0F;
-					for (Map.Entry<Double, ToneMap> column : toneMaps.entrySet()) {
-						timeEnd = (float) (column.getKey() * 1000);
-					}
-					float csX = cs.getMax(Axis.X) - cs.getMin(Axis.X);
-					if (timeEnd > cs.getMax(Axis.X)) {
-						cs.setMax(Axis.X, timeEnd);
-						cs.setMin(Axis.X, timeEnd - csX);
-					} else {
-						cs.setMax(Axis.X, csX);
-						cs.setMin(Axis.X, 0);
-					}
-				}
-			});
-		}
-	}
 }

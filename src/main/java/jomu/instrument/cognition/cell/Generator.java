@@ -17,6 +17,8 @@ public class Generator {
 			return createAudioSinkTypeCell();
 		case AUDIO_PITCH:
 			return createAudioPitchTypeCell();
+		case AUDIO_TUNER_PEAKS:
+			return createAudioTunerPeaksTypeCell();
 		case AUDIO_SPECTRAL_PEAKS:
 			return createAudioSpectralPeaksTypeCell();
 		case AUDIO_CQ:
@@ -25,8 +27,10 @@ public class Generator {
 			return createAudioOnsetTypeCell();
 		case AUDIO_BEAT:
 			return createAudioBeatTypeCell();
-		case AUDIO_CHROMA:
-			return createAudioChromaTypeCell();
+		case AUDIO_PRE_CHROMA:
+			return createAudioPreChromaTypeCell();
+		case AUDIO_POST_CHROMA:
+			return createAudioPostChromaTypeCell();
 		case AUDIO_INTEGRATE:
 			return createAudioIntegrateTypeCell();
 		case AUDIO_NOTATE:
@@ -69,9 +73,21 @@ public class Generator {
 		return cell;
 	}
 
-	private static NuCell createAudioChromaTypeCell() {
-		NuCell cell = new NuCell(CellTypes.AUDIO_CHROMA);
-		cell.setProcessor(getAudioChromaProcessor(cell));
+	private static NuCell createAudioTunerPeaksTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_TUNER_PEAKS);
+		cell.setProcessor(getAudioTunerPeaksProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioPreChromaTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_PRE_CHROMA);
+		cell.setProcessor(getAudioChromaPreProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioPostChromaTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_POST_CHROMA);
+		cell.setProcessor(getAudioChromaPostProcessor(cell));
 		return cell;
 	}
 
@@ -131,8 +147,16 @@ public class Generator {
 		return new AudioSpectralPeaksProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioChromaProcessor(NuCell cell) {
-		return new AudioChromaProcessor(cell);
+	private static Consumer<List<NuMessage>> getAudioTunerPeaksProcessor(NuCell cell) {
+		return new AudioTunerPeaksProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioChromaPreProcessor(NuCell cell) {
+		return new AudioChromaPreProcessor(cell);
+	}
+
+	private static Consumer<List<NuMessage>> getAudioChromaPostProcessor(NuCell cell) {
+		return new AudioChromaPostProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getAudioOnsetProcessor(NuCell cell) {

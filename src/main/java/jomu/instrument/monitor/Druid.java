@@ -55,7 +55,7 @@ public class Druid implements Organ {
 
 	@Override
 	public void start() {
-
+		System.out.println(">> start druid");
 	}
 
 	@Override
@@ -121,7 +121,8 @@ public class Druid implements Organ {
 		statusPane.setBorder(cb1);
 
 		upperPane.setLayout(new BorderLayout());
-		visor = new Visor();
+		visor = new Visor(mainFrame);
+		System.out.println(">> druid build visor: ");
 		upperPane.add(visor, BorderLayout.CENTER);
 
 		lowerPane.setLayout(new BorderLayout());

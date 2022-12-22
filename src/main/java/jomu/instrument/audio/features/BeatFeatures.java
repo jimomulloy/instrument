@@ -65,7 +65,7 @@ public class BeatFeatures {
 
 	public void displayToneMap() {
 		if (toneMap != null) {
-			visor.updateToneMap(toneMap);
+			visor.updateToneMapView(toneMap);
 		}
 	}
 }

@@ -430,13 +430,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 						running = false;
 						break;
 					}
-					System.out.println(">>!!! midi QueueConsumer ENTER THREAD: " + Thread.currentThread());
+					// System.out.println(">>!!! midi QueueConsumer ENTER THREAD: " +
+					// Thread.currentThread());
 
 					if (sampleTime != 0) {
-						System.out.println(">>>midi sleep: " + sampleTime + ", " + System.currentTimeMillis());
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
-						System.out.println(">>>midi sleep after: " + toneTimeFrame.getStartTime() + ", "
-								+ System.currentTimeMillis());
 					}
 
 					TimeSet timeSet = toneTimeFrame.getTimeSet();

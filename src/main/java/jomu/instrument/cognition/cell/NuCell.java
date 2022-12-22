@@ -13,7 +13,9 @@ public class NuCell extends Cell implements Serializable {
 
 	private BlockingQueue<Object> bq;
 
-	private HashMap<String, List<NuMessage>> sequenceMap = new HashMap<>();
+	private HashMap<String, List<NuMessage>> messageMap = new HashMap<>();
+
+	private HashMap<String, List<Integer>> messageReceivedMap = new HashMap<>();
 
 	// Create ActivationFunction object
 	protected ActivationFunction activationFunction = new ActivationFunction();
@@ -486,15 +488,27 @@ public class NuCell extends Cell implements Serializable {
 				while (true) {
 					NuMessage qe = (NuMessage) bq.take();
 					List<NuMessage> entries;
-					if (sequenceMap.containsKey(qe.streamId + qe.sequence)) {
-						entries = sequenceMap.get(qe.streamId + qe.sequence);
+					List<Integer> received;
+					if (messageMap.containsKey(qe.streamId + qe.sequence)) {
+						entries = messageMap.get(qe.streamId + qe.sequence);
 					} else {
 						entries = new ArrayList<>();
-						sequenceMap.put(qe.streamId + qe.sequence, entries);
+						messageMap.put(qe.streamId + qe.sequence, entries);
 					}
 					entries.add(qe);
+					if (messageReceivedMap.containsKey(qe.streamId)) {
+						received = messageReceivedMap.get(qe.streamId);
+					} else {
+						received = new ArrayList<>();
+						messageReceivedMap.put(qe.streamId, received);
+					}
+					received.add(qe.sequence);
 					if (entries.size() >= dendrites.getCount()) {
 						processor.accept(entries);
+						for (int sequence : messageReceivedMap.get(qe.streamId)) {
+							messageMap.remove(qe.streamId + sequence);
+						}
+						messageReceivedMap.remove(qe.streamId);
 					}
 				}
 			} catch (InterruptedException e) {
