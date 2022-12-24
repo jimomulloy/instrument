@@ -145,7 +145,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.cqs = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getConstantQSource();
-		this.visor = Instrument.getInstance().getDruid().getVisor();
+		this.visor = Instrument.getInstance().getConsole().getVisor();
 		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
 		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
 			addFeature(entry.getKey(), entry.getValue());

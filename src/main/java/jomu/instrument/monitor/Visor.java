@@ -83,7 +83,6 @@ import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.ConstantQSource;
-import jomu.instrument.audio.features.OnsetInfo;
 import jomu.instrument.audio.features.PitchDetectorSource;
 import jomu.instrument.audio.features.ScalogramFeatures;
 import jomu.instrument.audio.features.ScalogramFrame;
@@ -110,8 +109,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private LegendLayer legend;
 	private SpectrumLayer noiseFloorLayer;
-	private OnsetLayer onsetLayer;
-	private LinkedPanel onsetPanel;
 
 	private PitchDetectLayer pdLayer;
 	private LinkedPanel pitchDetectPanel;
@@ -142,6 +139,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private ChromaView chromaPreView;
 
 	private ChromaView chromaPostView;
+
+	private BeatsView beatsView;
 
 	private JFrame mainframe;
 
@@ -227,8 +226,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		toneMapTabbedPane.addTab("Spectogram", spectrogramPanel);
 		scalogramPanel = createScalogramPanel();
 		toneMapTabbedPane.addTab("Scalogram", scalogramPanel);
-		onsetPanel = createOnsetPanel();
-		toneMapTabbedPane.addTab("Onset", onsetPanel);
 		spectralPeaksPanel = createSpectralPeaksPanel();
 		toneMapTabbedPane.addTab("SP", spectralPeaksPanel);
 		panel.add(toneMapTabbedPane, BorderLayout.CENTER);
@@ -259,9 +256,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JTabbedPane beatsTabbedPane = new JTabbedPane();
 		beatsTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		beatsPanel = new JPanel(new BorderLayout());
+		beatsView = new BeatsView();
+		JPanel beatsPanel = new JPanel(new BorderLayout());
+		beatsPanel.add(beatsView, BorderLayout.CENTER);
 		beatsPanel.setBackground(Color.BLACK);
-		beatsTabbedPane.addTab("Onsets", beatsPanel);
+		beatsTabbedPane.addTab("Beats", beatsPanel);
 		panel.add(beatsTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -444,6 +443,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		toneMapView.updateToneMap(toneMap);
 	}
 
+	public void updateBeatsView(ToneMap toneMap) {
+		beatsView.updateToneMap(toneMap);
+	}
+
 	public void updateChromaPreView(ToneMap toneMap) {
 		chromaPreView.updateToneMap(toneMap);
 	}
@@ -499,34 +502,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		constantQPanel.addLayer(legend);
 		legend.addEntry("ConstantQ", Color.BLACK);
 		legend.addEntry("Pitch estimations", Color.RED);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				constantQPanel.repaint();
-			}
-		};
-		constantQPanel.getViewPort().addViewPortChangedListener(listener);
-		return constantQPanel;
-	}
-
-	private LinkedPanel createOnsetPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		LinkedPanel constantQPanel = new LinkedPanel(cs);
-		onsetLayer = new OnsetLayer(cs);
-		constantQPanel.addLayer(new BackgroundLayer(cs));
-		constantQPanel.addLayer(onsetLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		constantQPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		constantQPanel.addLayer(new ZoomMouseListenerLayer());
-		constantQPanel.addLayer(new DragMouseListenerLayer(cs));
-		constantQPanel.addLayer(new SelectionLayer(cs));
-		constantQPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		constantQPanel.addLayer(legend);
-		legend.addEntry("Onset", Color.BLACK);
 		ViewPortChangedListener listener = new ViewPortChangedListener() {
 			@Override
 			public void viewPortChanged(ViewPort newViewPort) {
@@ -701,7 +676,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private void updateView(AudioFeatureFrame audioFeatureFrame) {
 		scalogramLayer.update(audioFeatureFrame);
 		cqLayer.update(audioFeatureFrame);
-		onsetLayer.update(audioFeatureFrame);
 		spectralPeaksLayer.update(audioFeatureFrame);
 		pdLayer.update(audioFeatureFrame);
 		// bpdLayer.update(audioFeatureFrame);
@@ -711,7 +685,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		this.scalogramPanel.repaint();
 		this.spectrogramPanel.repaint();
 		this.cqPanel.repaint();
-		this.onsetPanel.repaint();
 		this.spectralPeaksPanel.repaint();
 		this.pitchDetectPanel.repaint();
 		// this.bandedPitchDetectPanel.repaint();
@@ -981,59 +954,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					}
 					for (java.util.Map.Entry<Double, float[]> entry : fs.entrySet()) {
 						cqFeatures.put(entry.getKey(), entry.getValue());
-					}
-				}
-			});
-		}
-	}
-
-	private static class OnsetLayer implements Layer {
-
-		private final CoordinateSystem cs;
-		private TreeMap<Double, OnsetInfo[]> features;
-
-		public OnsetLayer(CoordinateSystem cs) {
-			this.cs = cs;
-		}
-
-		@Override
-		public void draw(Graphics2D graphics) {
-
-			if (features != null) {
-				Map<Double, OnsetInfo[]> onsetInfoSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
-						cs.getMax(Axis.X) / 1000.0);
-
-				for (Map.Entry<Double, OnsetInfo[]> column : onsetInfoSubMap.entrySet()) {
-					double timeStart = column.getKey();// in seconds
-					OnsetInfo[] onsetInfo = column.getValue();// in cents
-					// draw the pixels
-					for (OnsetInfo element : onsetInfo) {
-						float centsStartingPoint = (float) (((cs.getMax(Axis.Y) - cs.getMin(Axis.Y)) / 2.0)
-								+ cs.getMin(Axis.Y));
-						Color color = Color.red;
-						graphics.setColor(color);
-						graphics.fillRect((int) Math.round(element.getTime() * 1000), Math.round(centsStartingPoint),
-								Math.round(100), (int) Math.ceil(100));
-					}
-				}
-			}
-		}
-
-		@Override
-		public String getName() {
-			return "Onset Layer";
-		}
-
-		public void update(AudioFeatureFrame audioFeatureFrame) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					Map<Double, OnsetInfo[]> fs = audioFeatureFrame.getOnsetFeatures().getFeatures();
-					if (features == null) {
-						features = new TreeMap<>();
-					}
-					for (Entry<Double, OnsetInfo[]> entry : fs.entrySet()) {
-						features.put(entry.getKey(), entry.getValue());
 					}
 				}
 			});

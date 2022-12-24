@@ -7,7 +7,7 @@ import jomu.instrument.Instrument;
 import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.ParameterManager;
-import jomu.instrument.monitor.Druid;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
@@ -18,13 +18,13 @@ public class AudioChromaPreProcessor implements Consumer<List<NuMessage>> {
 	private NuCell cell;
 	private Workspace workspace;
 	private ParameterManager parameterManager;
-	private Druid druid;
+	private Console console;
 
 	public AudioChromaPreProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		this.workspace = Instrument.getInstance().getWorkspace();
-		this.druid = Instrument.getInstance().getDruid();
+		this.console = Instrument.getInstance().getConsole();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
@@ -49,7 +49,7 @@ public class AudioChromaPreProcessor implements Consumer<List<NuMessage>> {
 				chromaTimeFrame.normaliseEuclidian(normaliseThreshold);
 				chromaTimeFrame.chromaQuantize();
 				chromaToneMap.addTimeFrame(chromaTimeFrame);
-				druid.getVisor().updateChromaPreView(chromaToneMap);
+				console.getVisor().updateChromaPreView(chromaToneMap);
 				cell.send(streamId, sequence);
 			}
 		}

@@ -7,7 +7,7 @@ import jomu.instrument.Instrument;
 import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.ParameterManager;
-import jomu.instrument.monitor.Druid;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
@@ -18,13 +18,13 @@ public class AudioChromaPostProcessor implements Consumer<List<NuMessage>> {
 	private NuCell cell;
 	private Workspace workspace;
 	private ParameterManager parameterManager;
-	private Druid druid;
+	private Console console;
 
 	public AudioChromaPostProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		this.workspace = Instrument.getInstance().getWorkspace();
-		this.druid = Instrument.getInstance().getDruid();
+		this.console = Instrument.getInstance().getConsole();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
@@ -55,7 +55,7 @@ public class AudioChromaPostProcessor implements Consumer<List<NuMessage>> {
 				if (sequence >= chromaDownsampleFactor && (sequence % chromaDownsampleFactor == 0)) {
 					System.out.println(">>!!!AudioChromaPostProcessor down: " + sequence);
 					postTimeFrame.downSample(postChromaToneMap, chromaDownsampleFactor, sequence);
-					druid.getVisor().updateChromaPostView(postChromaToneMap);
+					console.getVisor().updateChromaPostView(postChromaToneMap);
 					cell.send(streamId, sequence);
 				}
 			}

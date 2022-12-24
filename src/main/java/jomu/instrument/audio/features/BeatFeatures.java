@@ -32,7 +32,7 @@ public class BeatFeatures {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.bs = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getBeatSource();
 		this.features = bs.getFeatures();
-		this.visor = Instrument.getInstance().getDruid().getVisor();
+		this.visor = Instrument.getInstance().getConsole().getVisor();
 		bs.clear();
 	}
 

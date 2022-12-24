@@ -31,7 +31,7 @@ import jomu.instrument.Organ;
 
 @ApplicationScoped
 @Component
-public class Druid implements Organ {
+public class Console implements Organ {
 
 	private Visor visor;
 	private JFrame mainFrame;
@@ -55,7 +55,6 @@ public class Druid implements Organ {
 
 	@Override
 	public void start() {
-		System.out.println(">> start druid");
 	}
 
 	@Override
@@ -122,7 +121,6 @@ public class Druid implements Organ {
 
 		upperPane.setLayout(new BorderLayout());
 		visor = new Visor(mainFrame);
-		System.out.println(">> druid build visor: ");
 		upperPane.add(visor, BorderLayout.CENTER);
 
 		lowerPane.setLayout(new BorderLayout());

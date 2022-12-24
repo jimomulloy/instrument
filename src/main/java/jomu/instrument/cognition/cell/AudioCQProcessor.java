@@ -10,7 +10,7 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.ParameterManager;
-import jomu.instrument.monitor.Druid;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.perception.Hearing;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.Workspace;
@@ -26,7 +26,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 	private Hearing hearing;
 
 	private InstrumentStoreService iss;
-	private Druid druid;
+	private Console console;
 
 	public AudioCQProcessor(NuCell cell) {
 		super();
@@ -34,7 +34,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		this.workspace = Instrument.getInstance().getWorkspace();
 		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
 		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
-		this.druid = Instrument.getInstance().getDruid();
+		this.console = Instrument.getInstance().getConsole();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
@@ -108,7 +108,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 						}
 					}
 					iss.addToneMap(toneMap);
-					druid.getVisor().updateToneMapView(toneMap);
+					console.getVisor().updateToneMapView(toneMap);
 					cell.send(streamId, sequence);
 				}
 			}

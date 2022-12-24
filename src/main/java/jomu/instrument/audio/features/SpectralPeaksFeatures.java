@@ -37,7 +37,7 @@ public class SpectralPeaksFeatures {
 		this.sps = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSpectralPeaksSource();
 		spectralInfo = sps.getSpectralInfo();
 		features = sps.getFeatures();
-		visor = Instrument.getInstance().getDruid().getVisor();
+		visor = Instrument.getInstance().getConsole().getVisor();
 		sps.clear();
 	}
 

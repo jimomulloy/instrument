@@ -23,8 +23,6 @@ public class Generator {
 			return createAudioSpectralPeaksTypeCell();
 		case AUDIO_CQ:
 			return createAudioCQTypeCell();
-		case AUDIO_ONSET:
-			return createAudioOnsetTypeCell();
 		case AUDIO_BEAT:
 			return createAudioBeatTypeCell();
 		case AUDIO_PRE_CHROMA:
@@ -91,12 +89,6 @@ public class Generator {
 		return cell;
 	}
 
-	private static NuCell createAudioOnsetTypeCell() {
-		NuCell cell = new NuCell(CellTypes.AUDIO_ONSET);
-		cell.setProcessor(getAudioOnsetProcessor(cell));
-		return cell;
-	}
-
 	private static NuCell createAudioBeatTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_BEAT);
 		cell.setProcessor(getAudioBeatProcessor(cell));
@@ -157,10 +149,6 @@ public class Generator {
 
 	private static Consumer<List<NuMessage>> getAudioChromaPostProcessor(NuCell cell) {
 		return new AudioChromaPostProcessor(cell);
-	}
-
-	private static Consumer<List<NuMessage>> getAudioOnsetProcessor(NuCell cell) {
-		return new AudioOnsetProcessor(cell);
 	}
 
 	private static Consumer<List<NuMessage>> getAudioBeatProcessor(NuCell cell) {

@@ -166,7 +166,7 @@ public class Hearing implements Organ {
 
 		public void initialiseAudioFileStream(String fileName)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-			Instrument.getInstance().getDruid().getVisor().clearView();
+			Instrument.getInstance().getConsole().getVisor().clearView();
 			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
 			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);

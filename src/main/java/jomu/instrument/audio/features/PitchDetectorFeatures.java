@@ -90,7 +90,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
 		this.features = pds.getFeatures();
-		this.visor = Instrument.getInstance().getDruid().getVisor();
+		this.visor = Instrument.getInstance().getConsole().getVisor();
 		pds.clear();
 	}
 

@@ -33,7 +33,7 @@ public class OnsetFeatures {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.os = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getOnsetSource();
 		this.features = os.getFeatures();
-		this.visor = Instrument.getInstance().getDruid().getVisor();
+		this.visor = Instrument.getInstance().getConsole().getVisor();
 		os.clear();
 	}
 
@@ -79,6 +79,7 @@ public class OnsetFeatures {
 			}
 
 			ttf.reset();
+			ttf.setLowThres(0.1);
 		}
 	}
 

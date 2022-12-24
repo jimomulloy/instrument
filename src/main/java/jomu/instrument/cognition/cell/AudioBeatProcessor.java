@@ -8,6 +8,8 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.OnsetFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.control.ParameterManager;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -17,12 +19,16 @@ public class AudioBeatProcessor implements Consumer<List<NuMessage>> {
 	private NuCell cell;
 	private Workspace workspace;
 	private Hearing hearing;
+	private ParameterManager parameterManager;
+	private Console console;
 
 	public AudioBeatProcessor(NuCell cell) {
 		super();
 		this.cell = cell;
 		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
 		this.workspace = Instrument.getInstance().getWorkspace();
+		this.console = Instrument.getInstance().getConsole();
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
@@ -40,7 +46,7 @@ public class AudioBeatProcessor implements Consumer<List<NuMessage>> {
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					OnsetFeatures osf = aff.getOnsetFeatures();
 					osf.buildToneMapFrame(toneMap);
-					// visor.updateToneMap(toneMap);
+					console.getVisor().updateBeatsView(toneMap);
 					cell.send(streamId, sequence);
 				}
 			}

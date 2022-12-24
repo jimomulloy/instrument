@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.Coordinator;
-import jomu.instrument.monitor.Druid;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 
@@ -24,7 +24,7 @@ public class Instrument implements Organ, InstrumentFactory {
 	private Controller controller;
 
 	@Autowired
-	private Druid druid;
+	private Console console;
 
 	@Autowired
 	private Storage storage;
@@ -40,8 +40,8 @@ public class Instrument implements Organ, InstrumentFactory {
 		return coordinator;
 	}
 
-	public Druid getDruid() {
-		return druid;
+	public Console getConsole() {
+		return console;
 	}
 
 	public Workspace getWorkspace() {
@@ -56,7 +56,7 @@ public class Instrument implements Organ, InstrumentFactory {
 		controller.initialise();
 		storage.initialise();
 		workspace.initialise();
-		druid.initialise();
+		console.initialise();
 		coordinator.initialise();
 	}
 
@@ -64,7 +64,7 @@ public class Instrument implements Organ, InstrumentFactory {
 		controller.start();
 		storage.start();
 		workspace.start();
-		druid.start();
+		console.start();
 		coordinator.start();
 	}
 

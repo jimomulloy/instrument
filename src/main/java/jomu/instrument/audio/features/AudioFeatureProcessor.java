@@ -40,8 +40,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.interval = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
-		addObserver(Instrument.getInstance().getDruid().getVisor());
-		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getDruid().getVisor());
+		addObserver(Instrument.getInstance().getConsole().getVisor());
+		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getConsole().getVisor());
 		tarsosFeatures.getDispatcher().addAudioProcessor(oscilloscope);
 	}
 
