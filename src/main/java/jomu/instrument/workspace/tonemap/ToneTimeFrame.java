@@ -282,27 +282,27 @@ public class ToneTimeFrame {
 
 	public ToneTimeFrame reset() {
 		maxAmplitude = 0;
-		minAmplitude = 0;
+		minAmplitude = 1000000;
 		avgAmplitude = 0;
 		long count = 0;
 
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
+				if (elements[i].amplitude == -1) {
+					elements[i].amplitude = AMPLITUDE_FLOOR;
+				}
+				if (elements[i].amplitude < AMPLITUDE_FLOOR) {
+					elements[i].amplitude = AMPLITUDE_FLOOR;
+				}
 				elements[i].noteState = 0;
 				// elements[i].noteListElement = null;
 				avgAmplitude += elements[i].amplitude;
-				if (elements[i].amplitude != -1) {
-					avgAmplitude += elements[i].amplitude;
-					count++;
-					if (maxAmplitude < elements[i].amplitude)
-						maxAmplitude = elements[i].amplitude;
-					if (minAmplitude > elements[i].amplitude)
-						minAmplitude = elements[i].amplitude;
-				}
+				count++;
+				if (maxAmplitude < elements[i].amplitude)
+					maxAmplitude = elements[i].amplitude;
+				if (minAmplitude > elements[i].amplitude)
+					minAmplitude = elements[i].amplitude;
 			}
-		}
-		if (maxAmplitude < AMPLITUDE_FLOOR) {
-			maxAmplitude = AMPLITUDE_FLOOR;
 		}
 		avgAmplitude = avgAmplitude / count;
 		setLowThres(minAmplitude);
@@ -417,22 +417,24 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, int sequence) {
+	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, int factor, int sequence) {
 		// collect previous frames
 		List<ToneTimeFrame> frames = new ArrayList<>();
 		ToneTimeFrame tf = sourceToneMap.getTimeFrame(sequence);
-		int i = 10;
-		while (tf != null && i > 0) {
+		int i = factor;
+		while (tf != null && i > 1) {
 			frames.add(tf);
 			tf = sourceToneMap.getPreviousTimeFrame(tf.getStartTime());
 			i--;
 		}
-		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			if (elements[elementIndex] != null) {
-				elements[elementIndex].amplitude = smoothMedian(frames, elementIndex);
+		if (frames.size() > 1) {
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				if (elements[elementIndex] != null) {
+					elements[elementIndex].amplitude = smoothMedian(frames, elementIndex);
+				}
 			}
+			reset();
 		}
-		reset();
 		return this;
 	}
 
@@ -456,7 +458,7 @@ public class ToneTimeFrame {
 		ToneTimeFrame tfEnd = tf;
 		ToneTimeFrame tfStart = tf;
 		int i = factor;
-		while (tf != null && i > 0) {
+		while (tf != null && i > 1) {
 			frames.add(tf);
 			tf = toneMap.getPreviousTimeFrame(tf.getStartTime());
 			if (tf != null) {
@@ -464,22 +466,21 @@ public class ToneTimeFrame {
 			}
 			i--;
 		}
-		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			if (elements[elementIndex] != null) {
-				elements[elementIndex].amplitude = downSample(frames, elementIndex);
+		if (frames.size() > 1) {
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				if (elements[elementIndex] != null) {
+					elements[elementIndex].amplitude = downSample(frames, elementIndex);
+				}
 			}
-		}
 
-		timeSet = new TimeSet(tfStart.getTimeSet().getStartTime(), tfEnd.getTimeSet().getEndTime(),
-				timeSet.getSampleRate(), timeSet.getSampleTimeSize());
-		boolean isFirst = true;
-		for (ToneTimeFrame frame : frames) {
-			if (!isFirst) {
+			for (ToneTimeFrame frame : frames) {
 				toneMap.deleteTimeFrame(frame.getStartTime());
 			}
-			isFirst = false;
+			timeSet = new TimeSet(tfStart.getTimeSet().getStartTime(), tfEnd.getTimeSet().getEndTime(),
+					timeSet.getSampleRate(), timeSet.getSampleTimeSize());
+			toneMap.addTimeFrame(this);
+			reset();
 		}
-		reset();
 		return this;
 	}
 

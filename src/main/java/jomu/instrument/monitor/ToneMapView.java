@@ -66,10 +66,13 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 	private ToneMap toneMap;
 
+	private Color[] rainbow;
+
 	public ToneMapView() {
 		this.timeAxisStart = 0;
 		this.timeAxisEnd = 20000;
 		this.addComponentListener(this);
+		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
 	}
 
 	@Override
@@ -150,8 +153,6 @@ public class ToneMapView extends JComponent implements ComponentListener {
 			bufferedGraphics.setColor(Color.black);
 
 			ToneMapElement[] elements = ttf.getElements();
-			double lowThreshhold = 0.0;
-			double maxAmplitude = -1;
 
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 
@@ -162,20 +163,21 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
 					int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
 					amplitude = toneMapElement.amplitude;
+					int greyValue = 0;
 					if (amplitude > ttf.getHighThres()) {
-						maxAmplitude = amplitude;
 						color = Color.white;
+						greyValue = 255;
 					}
 					if (amplitude <= ttf.getLowThres()) {
 						color = Color.black;
+						greyValue = 0;
 					} else {
-						int greyValue = (int) (Math.log1p(amplitude / ttf.getHighThres()) / Math.log1p(1.0000001)
-								* 255);
+						greyValue = (int) (Math.log1p(amplitude / ttf.getHighThres()) / Math.log1p(1.0000001) * 255);
 						// int greyValue = (int) (255 * amplitude);
 						greyValue = Math.max(0, greyValue);
-						color = new Color(greyValue, greyValue, greyValue);
+						// color = new Color(greyValue, greyValue, greyValue);
+						color = rainbow[255 - greyValue];
 					}
-
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
 					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 

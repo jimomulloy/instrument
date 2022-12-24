@@ -62,10 +62,13 @@ public class ChromaView extends JComponent implements ComponentListener {
 
 	private ToneMap toneMap;
 
+	private Color[] rainbow;
+
 	public ChromaView() {
 		this.timeAxisStart = 0;
 		this.timeAxisEnd = 20000;
 		this.addComponentListener(this);
+		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
 	}
 
 	@Override
@@ -162,8 +165,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 			bufferedGraphics.setColor(Color.black);
 
 			ToneMapElement[] elements = ttf.getElements();
-			double lowThreshhold = 0.0;
-			double maxAmplitude = -1;
 
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 
@@ -175,7 +176,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 					int height = (int) ((double) getHeight() / 12.0);
 					amplitude = toneMapElement.amplitude;
 					if (amplitude > ttf.getHighThres()) {
-						maxAmplitude = amplitude;
 						color = Color.white;
 					}
 					if (amplitude <= ttf.getLowThres()) {
@@ -183,9 +183,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 					} else {
 						int greyValue = (int) (Math.log1p(amplitude / ttf.getHighThres()) / Math.log1p(1.0000001)
 								* 255);
-						// int greyValue = (int) (255 * amplitude);
 						greyValue = Math.max(0, greyValue);
-						color = new Color(greyValue, greyValue, greyValue);
+						color = rainbow[255 - greyValue];
 					}
 
 					int centsCoordinate = getCentsCoordinate(elementIndex);
