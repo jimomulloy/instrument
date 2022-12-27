@@ -42,9 +42,13 @@
 	      <artifactId>microstream-integrations-spring-boot</artifactId>
 	      <version>${microstream.version}</version>
 	    </dependency>
-	    <dependency>
+	    <!--dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-datadog</artifactId>
+        </dependency-->     
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>     
         <dependency>
 		    <groupId>org.openjdk.jmc</groupId>
