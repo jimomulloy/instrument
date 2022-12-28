@@ -11,6 +11,7 @@ import jomu.instrument.audio.features.SpectralPeakDetector;
 import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.perception.Hearing;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.Workspace;
@@ -27,6 +28,7 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 	private Hearing hearing;
 
 	private InstrumentStoreService iss;
+	private Console console;
 
 	public AudioTunerPeaksProcessor(NuCell cell) {
 		super();
@@ -34,6 +36,7 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 		this.workspace = Instrument.getInstance().getWorkspace();
 		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
 		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
+		this.console = Instrument.getInstance().getConsole();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
@@ -69,14 +72,15 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 				tpToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 				ToneTimeFrame tpTimeFrame = tpToneMap.getTimeFrame(sequence);
 
-				float maxAmplitude = (float) tpTimeFrame.getMaxAmplitude();
-				float minAmplitude = (float) tpTimeFrame.getMinAmplitude();
-
 				AudioTuner tuner = new AudioTuner();
+				tpTimeFrame.reset();
+
 				if (tpSwitchTuner) {
 					tuner.normalize(tpToneMap);
+					float maxAmplitude = (float) tpTimeFrame.getMaxAmplitude();
+					float minAmplitude = (float) tpTimeFrame.getMinAmplitude();
 					double rethreshold = (thresholdFactor * (maxAmplitude - minAmplitude)) + minAmplitude;
-					tpToneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
+					// tpToneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
 				}
 
 				if (tpSwitchPeaks) {
@@ -93,6 +97,7 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 					}
 				}
 				iss.addToneMap(tpToneMap);
+				console.getVisor().updateToneMapView(tpToneMap);
 				cell.send(streamId, sequence);
 
 			}

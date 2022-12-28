@@ -38,6 +38,12 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR = "perception.hearing.chroma.smoothFactor";
 	public static final String PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR = "perception.hearing.chroma.downSampleFactor";
 
+	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";
+	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";
+
+	public static final String PERCEPTION_HEARING_ONSET_THRESHOLD = "perception.hearing.onset.threshold";
+	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = " perception.hearing.onset.interval";
+
 	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
 	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";
 	public static final String AUDIO_TUNER_FORMANT_LOW = "audio.tuner.formantLowSetting";
@@ -49,6 +55,9 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_N5_SETTING = "audio.tuner.n5Setting";
 	public static final String AUDIO_TUNER_N1_SWITCH = "audio.tuner.n1Switch";
 	public static final String AUDIO_TUNER_N2_SWITCH = "audio.tuner.n2Switch";
+	public static final String AUDIO_TUNER_N3_SWITCH = "audio.tuner.n3Switch";
+	public static final String AUDIO_TUNER_NORMALISE_THRESHOLD = "audio.tuner.normalizeThreshold";
+	public static final String AUDIO_TUNER_NORMALISE_TROUGH = "audio.tuner.normalizeTrough";
 	public static final String AUDIO_TUNER_NORMALISE_SETTING = "audio.tuner.normalizeSetting";
 	public static final String AUDIO_TUNER_NOTE_HIGH = "audio.tuner.noteHigh";
 	public static final String AUDIO_TUNER_NOTE_LOW = "audio.tuner.noteLow";

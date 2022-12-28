@@ -8,6 +8,7 @@ import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class BeatFeatures {
@@ -59,7 +60,26 @@ public class BeatFeatures {
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
+
+			int amplitude = 0;
+
+			for (Entry<Double, OnsetInfo[]> entry : features.entrySet()) {
+
+				OnsetInfo[] onsetInfo = entry.getValue();// in cents
+				// draw the pixels
+				for (OnsetInfo element : onsetInfo) {
+					amplitude += element.salience;
+				}
+
+				ToneMapElement[] elements = ttf.getElements();
+				for (int i = 0; i < elements.length; i++) {
+					elements[i].amplitude = amplitude;
+				}
+
+			}
+
 			ttf.reset();
+			ttf.setLowThres(0.1);
 		}
 	}
 

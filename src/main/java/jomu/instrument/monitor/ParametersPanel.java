@@ -110,6 +110,21 @@ public class ParametersPanel extends JPanel {
 		n2SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SWITCH));
 		tunerSwitchPanel.add(n2SwitchCB);
 
+		JCheckBox n3SwitchCB = new JCheckBox("n3SwitchCB");
+		n3SwitchCB.setText("Audio Tuner N3 Switch");
+		n3SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		n3SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SWITCH));
+		tunerSwitchPanel.add(n3SwitchCB);
+
 		JCheckBox peakSwitchCB = new JCheckBox("peakSwitchCB");
 		peakSwitchCB.setText("Audio Tuner Peak Switch");
 		peakSwitchCB.addItemListener(new ItemListener() {

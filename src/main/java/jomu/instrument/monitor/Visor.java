@@ -34,6 +34,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -121,8 +123,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private SpectrumLayer spectrumLayer;
 	private LinkedPanel spectrumPanel;
 	private ToneMapView toneMapView;
-
-	private int sampleRate;
 
 	private String fileName;
 
@@ -266,10 +266,20 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	private JPanel buildDiagnosticsPanel() {
-		JPanel panel = new JPanel(new GridLayout(1, 1));
+		JPanel panel = new JPanel(new BorderLayout());
+		JTabbedPane diagnosticsTabbedPane = new JTabbedPane();
+		diagnosticsTabbedPane
+				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		spectrumPanel = createSpectrumPanel();
+		diagnosticsTabbedPane.addTab("Spectrum", spectrumPanel);
 		oscilloscopePanel = new OscilloscopePanel();
-		panel.add(oscilloscopePanel);
+		diagnosticsTabbedPane.addTab("Oscilloscope", oscilloscopePanel);
+		panel.add(diagnosticsTabbedPane, BorderLayout.CENTER);
 		return panel;
+	}
+
+	public String getCurrentLocalDateTimeStamp() {
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss.SSS"));
 	}
 
 	private JPanel buildControlPanel() {
@@ -312,11 +322,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream();
+					// String fileName = "D:/audio/record/instrument_recording_" +
+					// getCurrentLocalDateTimeStamp();
+					String fileName = "instrument_recording.wav";
+					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
 					startListeningButton.setEnabled(false);
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
-				} catch (LineUnavailableException e) {
+				} catch (LineUnavailableException | IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -368,7 +381,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			public void actionPerformed(ActionEvent e) {
 				@SuppressWarnings("unchecked")
 				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
-				sampleRate = value;
+				Integer sampleRate = value;
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE,
 						Integer.toString(sampleRate));
 			}
@@ -623,11 +636,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	private LinkedPanel createSpectrumPanel() {
-		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY, AxisUnit.AMPLITUDE, 0, 10000, false);
+		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY, AxisUnit.AMPLITUDE, 0, 1000, false);
 		cs.setMax(Axis.X, 4800);
 		cs.setMax(Axis.X, 13200);
-		spectrumLayer = new SpectrumLayer(cs, 1024, 44100, Color.red);
-		noiseFloorLayer = new SpectrumLayer(cs, 1024, 44100, Color.gray);
+		spectrumLayer = new SpectrumLayer(cs, 1024, 44000, Color.red);
+		noiseFloorLayer = new SpectrumLayer(cs, 1024, 44000, Color.gray);
 
 		spectrumPanel = new LinkedPanel(cs);
 		spectrumPanel.addLayer(new ZoomMouseListenerLayer());
@@ -678,19 +691,46 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		cqLayer.update(audioFeatureFrame);
 		spectralPeaksLayer.update(audioFeatureFrame);
 		pdLayer.update(audioFeatureFrame);
-		// bpdLayer.update(audioFeatureFrame);
 		sLayer.update(audioFeatureFrame);
-		// if (count % 10 == 0) {
-		// this.toneMapPanel.repaint();
+		repaintSpectrum(audioFeatureFrame);
 		this.scalogramPanel.repaint();
 		this.spectrogramPanel.repaint();
 		this.cqPanel.repaint();
 		this.spectralPeaksPanel.repaint();
 		this.pitchDetectPanel.repaint();
-		// this.bandedPitchDetectPanel.repaint();
-		// this.beadsPanel.repaint();
-		// }
-		// count++;
+		this.spectrumPanel.repaint();
+	}
+
+	private void repaintSpectrum(AudioFeatureFrame audioFeatureFrame) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				SpectralPeaksSource sps = audioFeatureFrame.getSpectralPeaksFeatures().getSps();
+				int noiseFloorMedianFilterLenth = sps.getNoiseFloorMedianFilterLenth();
+				float noiseFloorFactor = sps.getNoiseFloorFactor();
+				int numberOfSpectralPeaks = sps.getNumberOfSpectralPeaks();
+				int minPeakSize = sps.getMinPeakSize();
+				int sr = sps.getSampleRate();
+				int bufferSize = sps.getBufferSize();
+				TreeMap<Double, SpectralInfo> fs = audioFeatureFrame.getSpectralPeaksFeatures().getFeatures();
+				if (!fs.isEmpty()) {
+					SpectralInfo info = fs.lastEntry().getValue();
+					spectrumLayer.setFFTSize(bufferSize);
+					spectrumLayer.setSampleRate(sr);
+					noiseFloorLayer.setFFTSize(bufferSize);
+					noiseFloorLayer.setSampleRate(sr);
+					spectrumLayer.clearPeaks();
+					spectrumLayer.setSpectrum(info.getMagnitudes());
+					noiseFloorLayer.setSpectrum(info.getNoiseFloor(noiseFloorMedianFilterLenth, noiseFloorFactor));
+					List<SpectralPeak> peaks = info.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
+							numberOfSpectralPeaks, minPeakSize);
+					for (SpectralPeak peak : peaks) {
+						spectrumLayer.setPeak(peak.getBin());
+					}
+				}
+			}
+		});
+
 	}
 
 	private static class BandedPitchDetectLayer implements Layer {

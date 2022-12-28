@@ -62,6 +62,12 @@ public class BeatSource implements OnsetHandler {
 
 	void initialise() {
 
+		double threshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD);
+
+		double sensitivity = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_SENSITIVITY);
+
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
@@ -70,7 +76,8 @@ public class BeatSource implements OnsetHandler {
 
 		// djp.setZeroPadFirstBuffer(true);
 
-		PercussionOnsetDetector beatDetector = new PercussionOnsetDetector(sampleRate, windowSize, overlap, this);
+		PercussionOnsetDetector beatDetector = new PercussionOnsetDetector(sampleRate, windowSize, this, threshold,
+				sensitivity);
 
 		beatDetector.setHandler(this);
 

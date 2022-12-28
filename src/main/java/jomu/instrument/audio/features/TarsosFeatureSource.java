@@ -20,14 +20,6 @@ public class TarsosFeatureSource {
 		this.dispatcher = dispatcher;
 	}
 
-	// public AudioEventSource getAudioEventSource() {
-	// return audioEventSource;
-	// }
-
-	// public BandedPitchDetectorSource getBandedPitchDetectorSource() {
-	// return bandedPitchDetectorSource;
-	// }
-
 	public ConstantQSource getConstantQSource() {
 		return constantQSource;
 	}
@@ -69,7 +61,6 @@ public class TarsosFeatureSource {
 		onsetSource = new OnsetSource(dispatcher);
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
-		// bandedPitchDetectorSource = new BandedPitchDetectorSource(dispatcher);
 		spectrogramSource = new SpectrogramSource(dispatcher);
 		beatSource = new BeatSource(dispatcher);
 		goertzelSource = new GoertzelSource(dispatcher);
@@ -78,7 +69,6 @@ public class TarsosFeatureSource {
 		onsetSource.initialise();
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();
-		// bandedPitchDetectorSource.initialise();
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
 		beatSource.initialise();

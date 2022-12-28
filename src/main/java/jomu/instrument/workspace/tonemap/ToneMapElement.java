@@ -1,7 +1,5 @@
 package jomu.instrument.workspace.tonemap;
 
-import java.io.Serializable;
-
 /**
  * This class defines the fields of the data elements contained within the
  * ToneMapMatrix object associated with a ToneMap object.
@@ -9,26 +7,16 @@ import java.io.Serializable;
  * @version 1.0 01/01/01
  * @author Jim O'Mulloy
  */
-public class ToneMapElement implements Serializable {
-
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+public class ToneMapElement {
 
 	public double amplitude;
-	public NoteListElement noteListElement; // Element used to define MIDI note
-											// derived from processing
+	public NoteListElement noteListElement;
+	public int noteState;
+	public boolean isPeak;
 
-	public int noteState; // Status of associated MIDI note derived by
-							// processing
-	// public NoteListElement noteListElement; // Element used to define MIDI
-	// note
-	// derived from processing
-	private int index;
-	private int pitchIndex;
-
-	private int timeIndex;
+	int index;
+	int pitchIndex;
+	int timeIndex;
 
 	public ToneMapElement(double amplitude, int index, int timeIndex, int pitchIndex) {
 

@@ -2,6 +2,7 @@ package jomu.instrument.perception;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,8 +20,10 @@ import org.springframework.stereotype.Component;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.filters.HighPass;
 import be.tarsos.dsp.filters.LowPassFS;
+import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
+import be.tarsos.dsp.writer.WriterProcessor;
 import jomu.instrument.Instrument;
 import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.Organ;
@@ -92,13 +95,13 @@ public class Hearing implements Organ {
 		audioStream.start();
 	}
 
-	public void startAudioLineStream() throws LineUnavailableException {
+	public void startAudioLineStream(String fileName) throws LineUnavailableException, IOException {
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		System.out.println(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
-		audioStream.initialiseMicrophoneStream();
+		audioStream.initialiseMicrophoneStream(fileName);
 
 		Instrument.getInstance().getCoordinator().getCortex();
 		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
@@ -190,7 +193,7 @@ public class Hearing implements Organ {
 
 		}
 
-		public void initialiseMicrophoneStream() throws LineUnavailableException {
+		public void initialiseMicrophoneStream(String fileName) throws LineUnavailableException, IOException {
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 			TargetDataLine line;
@@ -221,6 +224,15 @@ public class Hearing implements Organ {
 			}
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
+			// Output
+			if (fileName != null) {
+				File file = new File(fileName);
+				file.createNewFile();
+				RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw");
+				final TarsosDSPAudioFormat outputFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, false);
+				WriterProcessor writer = new WriterProcessor(outputFormat, outputFile);
+				dispatcher.addAudioProcessor(writer);
+			}
 		}
 
 		public void start() {

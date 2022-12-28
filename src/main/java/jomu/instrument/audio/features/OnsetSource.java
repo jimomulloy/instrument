@@ -62,8 +62,13 @@ public class OnsetSource implements OnsetHandler {
 
 	void initialise() {
 
+		double threshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_THRESHOLD);
+
+		double onsetInterval = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL);
+
 		int overlap = 0;
-		double threshold = 0.4;
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 
@@ -71,7 +76,7 @@ public class OnsetSource implements OnsetHandler {
 		djp.setName("SC");
 		dispatcher.addAudioProcessor(djp);
 
-		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(windowSize, threshold);
+		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(windowSize, threshold, onsetInterval);
 		onsetDetector.setHandler(this);
 		// add a processor, handle percussion event.
 		djp.addAudioProcessor(onsetDetector);

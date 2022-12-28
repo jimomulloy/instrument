@@ -21,6 +21,16 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
 	private ParameterManager parameterManager;
+	private NuCell audioCQCell;
+	private NuCell audioBeatCell;
+	private NuCell audioPitchCell;
+	private NuCell audioSpectralPeaksCell;
+	private NuCell audioPreChromaCell;
+	private NuCell audioPostChromaCell;
+	private NuCell audioIntegrateCell;
+	private NuCell audioNotateCell;
+	private NuCell audioSinkCell;
+	private NuCell audioTunerPeaksCell;
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
@@ -41,22 +51,20 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
-		NuCell audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
-		NuCell audioBeatCell = Generator.createNuCell(CellTypes.AUDIO_BEAT);
-		NuCell audioPitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
-		NuCell audioSpectralPeaksCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
-		NuCell audioPreChromaCell = Generator.createNuCell(CellTypes.AUDIO_PRE_CHROMA);
-		NuCell audioPostChromaCell = Generator.createNuCell(CellTypes.AUDIO_POST_CHROMA);
-		NuCell audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
-		NuCell audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
-		NuCell audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
-		NuCell audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
+		audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
+		audioBeatCell = Generator.createNuCell(CellTypes.AUDIO_BEAT);
+		audioPitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
+		audioSpectralPeaksCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
+		audioPreChromaCell = Generator.createNuCell(CellTypes.AUDIO_PRE_CHROMA);
+		audioPostChromaCell = Generator.createNuCell(CellTypes.AUDIO_POST_CHROMA);
+		audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
+		audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
+		audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
+		audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
 		Weaver.connect(audioCQCell, audioTunerPeaksCell);
 		Weaver.connect(audioCQCell, audioPreChromaCell);
 		Weaver.connect(audioCQCell, audioIntegrateCell);
 		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
-		// Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
-		// Weaver.connect(audioSpectrumCell, audioIntegrateCell);
 		Weaver.connect(audioTunerPeaksCell, audioIntegrateCell);
 		Weaver.connect(audioPostChromaCell, audioIntegrateCell);
 		Weaver.connect(audioIntegrateCell, audioNotateCell);

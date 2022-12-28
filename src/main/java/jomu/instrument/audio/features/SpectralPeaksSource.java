@@ -115,6 +115,14 @@ public class SpectralPeaksSource {
 
 	void initialise() {
 
+		noiseFloorMedianFilterLenth = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
+		noiseFloorFactor = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR);
+		numberOfSpectralPeaks = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
+		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
+
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];
 		FFT fft = new FFT(windowSize);

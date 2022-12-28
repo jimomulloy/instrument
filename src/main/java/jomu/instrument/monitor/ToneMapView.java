@@ -165,12 +165,12 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					amplitude = toneMapElement.amplitude;
 					int greyValue = 0;
 					if (amplitude > ttf.getHighThres()) {
-						color = Color.white;
 						greyValue = 255;
+						color = new Color(greyValue, greyValue, greyValue);
 					}
 					if (amplitude <= ttf.getLowThres()) {
-						color = Color.black;
 						greyValue = 0;
+						color = new Color(greyValue, greyValue, greyValue);
 					} else {
 						greyValue = (int) (Math.log1p(amplitude / ttf.getHighThres()) / Math.log1p(1.0000001) * 255);
 						// int greyValue = (int) (255 * amplitude);
