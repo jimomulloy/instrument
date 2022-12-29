@@ -125,6 +125,21 @@ public class ParametersPanel extends JPanel {
 		n3SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SWITCH));
 		tunerSwitchPanel.add(n3SwitchCB);
 
+		JCheckBox n4SwitchCB = new JCheckBox("n4SwitchCB");
+		n4SwitchCB.setText("Audio Tuner N4 Switch");
+		n4SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		n4SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH));
+		tunerSwitchPanel.add(n4SwitchCB);
+
 		JCheckBox peakSwitchCB = new JCheckBox("peakSwitchCB");
 		peakSwitchCB.setText("Audio Tuner Peak Switch");
 		peakSwitchCB.addItemListener(new ItemListener() {
@@ -805,6 +820,64 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqCompressionLevelInput);
 
 		parameterPanel.add(cqParamsPanel);
+
+		JPanel tunerParamsPanel = new JPanel();
+		// cqParamsPanel.setLayout(new BoxLayout(cqParamsPanel, BoxLayout.X_AXIS));
+		tunerParamsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+		tunerParamsPanel.setLayout(new GridLayout(0, 2));
+		tunerParamsPanel
+				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
+
+		JLabel tunerNormaliseThresholdLabel = new JLabel("Audio Tuner Normalise Threshold: ");
+		JTextField tunerNormaliseThresholdInput = new JTextField(10);
+		tunerNormaliseThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerNormaliseThresholdInput.getText();
+				tunerNormaliseThresholdLabel.setText(String.format("CQ Low Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD, newValue);
+
+			}
+		});
+		tunerNormaliseThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD));
+		tunerParamsPanel.add(tunerNormaliseThresholdLabel);
+		tunerParamsPanel.add(tunerNormaliseThresholdInput);
+
+		JLabel tunerNormaliseTroughLabel = new JLabel("Audio Tuner Normalise Trough: ");
+		JTextField tunerNormaliseTroughInput = new JTextField(10);
+		tunerNormaliseTroughInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerNormaliseThresholdInput.getText();
+				tunerNormaliseTroughLabel.setText(String.format("CQ Low Trough  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_TROUGH, newValue);
+
+			}
+		});
+		tunerNormaliseTroughInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_TROUGH));
+		tunerParamsPanel.add(tunerNormaliseTroughLabel);
+		tunerParamsPanel.add(tunerNormaliseTroughInput);
+
+		JLabel tunerNormalisePeakLabel = new JLabel("Audio Tuner Normalise Peak: ");
+		JTextField tunerNormalisePeakInput = new JTextField(10);
+		tunerNormalisePeakInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerNormaliseThresholdInput.getText();
+				tunerNormalisePeakLabel.setText(String.format("CQ Low Peak  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_PEAK, newValue);
+
+			}
+		});
+		tunerNormalisePeakInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_PEAK));
+		tunerParamsPanel.add(tunerNormalisePeakLabel);
+		tunerParamsPanel.add(tunerNormalisePeakInput);
+
+		parameterPanel.add(tunerParamsPanel);
+
 		Dimension minimumSize = new Dimension(1000, 1000);
 		parameterPanel.setMinimumSize(minimumSize);
 		this.add(parameterPanel, BorderLayout.CENTER);

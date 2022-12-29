@@ -1,26 +1,3 @@
-/*
-*      _______                       _____   _____ _____
-*     |__   __|                     |  __ \ / ____|  __ \
-*        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
-*
-* -------------------------------------------------------------
-*
-* TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*
-* -------------------------------------------------------------
-*
-*  Info: http://0110.be/tag/TarsosDSP
-*  Github: https://github.com/JorenSix/TarsosDSP
-*  Releases: http://0110.be/releases/TarsosDSP/
-*
-*  TarsosDSP includes modified source code by various authors,
-*  for credits and info, see README.
-*
-*/
-
 package jomu.instrument.monitor;
 
 import java.awt.BorderLayout;
@@ -114,8 +91,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private PitchDetectLayer pdLayer;
 	private LinkedPanel pitchDetectPanel;
-	private ScalogramLayer scalogramLayer;
-	private LinkedPanel scalogramPanel;
 	private SpectrogramLayer sLayer;
 	private SpectrumPeaksLayer spectralPeaksLayer;
 	private LinkedPanel spectralPeaksPanel;
@@ -123,6 +98,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private SpectrumLayer spectrumLayer;
 	private LinkedPanel spectrumPanel;
 	private ToneMapView toneMapView;
+	private ToneMapView toneMapLayer2View;
 
 	private String fileName;
 
@@ -214,8 +190,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JTabbedPane toneMapTabbedPane = new JTabbedPane();
 		toneMapTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		JPanel toneMapPanel = createToneMapPanel();
-		toneMapTabbedPane.addTab("ToneMap", toneMapPanel);
+		JPanel toneMapLayer1Panel = createToneMapLayer1Panel();
+		toneMapTabbedPane.addTab("ToneMap1", toneMapLayer1Panel);
+		JPanel toneMapLayer2Panel = createToneMapLayer2Panel();
+		toneMapTabbedPane.addTab("ToneMap2", toneMapLayer2Panel);
 		cqPanel = createCQPanel();
 		toneMapTabbedPane.addTab("CQ", cqPanel);
 		bandedPitchDetectPanel = createBandedPitchDetectPanel();
@@ -224,8 +202,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		toneMapTabbedPane.addTab("Pitch", pitchDetectPanel);
 		spectrogramPanel = createSpectogramPanel();
 		toneMapTabbedPane.addTab("Spectogram", spectrogramPanel);
-		scalogramPanel = createScalogramPanel();
-		toneMapTabbedPane.addTab("Scalogram", scalogramPanel);
 		spectralPeaksPanel = createSpectralPeaksPanel();
 		toneMapTabbedPane.addTab("SP", spectralPeaksPanel);
 		panel.add(toneMapTabbedPane, BorderLayout.CENTER);
@@ -456,6 +432,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		toneMapView.updateToneMap(toneMap);
 	}
 
+	public void updateToneMapLayer2View(ToneMap toneMap) {
+		toneMapLayer2View.updateToneMap(toneMap);
+	}
+
 	public void updateBeatsView(ToneMap toneMap) {
 		beatsView.updateToneMap(toneMap);
 	}
@@ -553,34 +533,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		return pitchDetectPanel;
 	}
 
-	private LinkedPanel createScalogramPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		scalogramPanel = new LinkedPanel(cs);
-		scalogramLayer = new ScalogramLayer(cs);
-		scalogramPanel.addLayer(new BackgroundLayer(cs));
-		scalogramPanel.addLayer(scalogramLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		scalogramPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		scalogramPanel.addLayer(new ZoomMouseListenerLayer());
-		scalogramPanel.addLayer(new DragMouseListenerLayer(cs));
-		scalogramPanel.addLayer(new SelectionLayer(cs));
-		scalogramPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		scalogramPanel.addLayer(legend);
-		legend.addEntry("Scalogram", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				scalogramPanel.repaint();
-			}
-		};
-		scalogramPanel.getViewPort().addViewPortChangedListener(listener);
-		return scalogramPanel;
-	}
-
 	private LinkedPanel createSpectogramPanel() {
 		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
 		cs.setMax(Axis.X, 20000);
@@ -668,10 +620,18 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		return spectrumPanel;
 	}
 
-	private JPanel createToneMapPanel() {
+	private JPanel createToneMapLayer1Panel() {
 		toneMapView = new ToneMapView();
 		JPanel tmContainer = new JPanel(new BorderLayout());
 		tmContainer.add(toneMapView, BorderLayout.CENTER);
+		tmContainer.setBackground(Color.BLACK);
+		return tmContainer;
+	}
+
+	private JPanel createToneMapLayer2Panel() {
+		toneMapLayer2View = new ToneMapView();
+		JPanel tmContainer = new JPanel(new BorderLayout());
+		tmContainer.add(toneMapLayer2View, BorderLayout.CENTER);
 		tmContainer.setBackground(Color.BLACK);
 		return tmContainer;
 	}
@@ -687,13 +647,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	private void updateView(AudioFeatureFrame audioFeatureFrame) {
-		scalogramLayer.update(audioFeatureFrame);
 		cqLayer.update(audioFeatureFrame);
 		spectralPeaksLayer.update(audioFeatureFrame);
 		pdLayer.update(audioFeatureFrame);
 		sLayer.update(audioFeatureFrame);
 		repaintSpectrum(audioFeatureFrame);
-		this.scalogramPanel.repaint();
 		this.spectrogramPanel.repaint();
 		this.cqPanel.repaint();
 		this.spectralPeaksPanel.repaint();

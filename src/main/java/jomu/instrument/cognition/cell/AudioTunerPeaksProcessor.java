@@ -80,7 +80,9 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 					float maxAmplitude = (float) tpTimeFrame.getMaxAmplitude();
 					float minAmplitude = (float) tpTimeFrame.getMinAmplitude();
 					double rethreshold = (thresholdFactor * (maxAmplitude - minAmplitude)) + minAmplitude;
-					// tpToneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
+					tpToneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
+					tpToneMap.getTimeFrame().setHighThres(100);
+					tpToneMap.getTimeFrame().setLowThres(10);
 				}
 
 				if (tpSwitchPeaks) {
@@ -97,7 +99,7 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 					}
 				}
 				iss.addToneMap(tpToneMap);
-				console.getVisor().updateToneMapView(tpToneMap);
+				console.getVisor().updateToneMapLayer2View(tpToneMap);
 				cell.send(streamId, sequence);
 
 			}

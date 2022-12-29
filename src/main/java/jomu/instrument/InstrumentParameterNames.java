@@ -56,8 +56,10 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_N1_SWITCH = "audio.tuner.n1Switch";
 	public static final String AUDIO_TUNER_N2_SWITCH = "audio.tuner.n2Switch";
 	public static final String AUDIO_TUNER_N3_SWITCH = "audio.tuner.n3Switch";
+	public static final String AUDIO_TUNER_N4_SWITCH = "audio.tuner.n4Switch";
 	public static final String AUDIO_TUNER_NORMALISE_THRESHOLD = "audio.tuner.normalizeThreshold";
 	public static final String AUDIO_TUNER_NORMALISE_TROUGH = "audio.tuner.normalizeTrough";
+	public static final String AUDIO_TUNER_NORMALISE_PEAK = "audio.tuner.normalizePeak";
 	public static final String AUDIO_TUNER_NORMALISE_SETTING = "audio.tuner.normalizeSetting";
 	public static final String AUDIO_TUNER_NOTE_HIGH = "audio.tuner.noteHigh";
 	public static final String AUDIO_TUNER_NOTE_LOW = "audio.tuner.noteLow";

@@ -108,7 +108,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 						}
 					}
 					iss.addToneMap(toneMap);
-					// console.getVisor().updateToneMapView(toneMap);
+					console.getVisor().updateToneMapView(toneMap);
 					cell.send(streamId, sequence);
 				}
 			}

@@ -43,11 +43,12 @@ public class AudioTuner implements ToneMapConstants {
 	private int n3Setting = 100;
 	private boolean n3Switch;
 	private int n4Setting = 100;
+	private boolean n4Switch;
 	private int n5Setting = 100;
-
 	private int normalizeSetting = 100;
-
 	private double normalizeThreshold = 0.01;
+	private double normalizeTrough = 0.1;
+	private double normalizePeak = 0.4;
 
 	private int noteHigh = INIT_NOTE_HIGH;
 	private int noteLow = INIT_NOTE_LOW;
@@ -68,7 +69,6 @@ public class AudioTuner implements ToneMapConstants {
 	private double[] harmonics;
 	private OvertoneSet overtoneSet;
 	private ParameterManager parameterManager;
-	private double normalizeTrough;
 
 	/**
 	 * TunerModel constructor. Instantiate TunerPanel
@@ -95,9 +95,11 @@ public class AudioTuner implements ToneMapConstants {
 		n1Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SWITCH);
 		n2Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SWITCH);
 		n3Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SWITCH);
+		n4Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH);
 		normalizeThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD);
 		normalizeTrough = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_TROUGH);
+		normalizePeak = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_PEAK);
 		normalizeSetting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_SETTING);
 		noteHigh = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_HIGH);
 		noteLow = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_LOW);
@@ -158,7 +160,7 @@ public class AudioTuner implements ToneMapConstants {
 	public boolean normalize(ToneMap toneMap) {
 
 		double amplitude, maxAmp = 0;
-		int startPeak, endPeak, lastStartPeak, lastEndPeak;
+		int startPeak, endPeak;
 		int index = 0;
 		ToneMapElement thresholdElement = null;
 		int note;
@@ -183,15 +185,13 @@ public class AudioTuner implements ToneMapConstants {
 			return true;
 		}
 
-		troughAmp = 1.0;
+		troughAmp = MIN_AMPLITUDE;
 		startPeak = 0;
 		endPeak = 0;
 		lastAmp = 0;
 		if (!n1Switch) {
 			thresholdElement = null;
 		}
-		lastStartPeak = 0;
-		lastEndPeak = 0;
 		lastPeakAmp = 0;
 		int peakcount = n1Setting;
 		double peakFactor = (double) n2Setting / 100.0;
@@ -206,49 +206,34 @@ public class AudioTuner implements ToneMapConstants {
 
 			amplitude = toneMapElement.amplitude / maxAmp;
 
-			if (lastStartPeak != 0) {
-				if (troughAmp <= normalizeTrough || (lastPeakAmp / troughAmp) > peakFactor) {
-					if (peakcount > 0) {
-						peakcount = peakcount - 1;
-						processPeak(toneTimeFrame, lastStartPeak, lastEndPeak, troughAmp, thresholdElement, maxAmp);
-					}
-					lastPeakAmp = 0;
-					startPeak = 0;
-					endPeak = 0;
-					lastStartPeak = startPeak;
-					lastEndPeak = endPeak;
-					// troughAmp = 1.0;
-				}
-			}
-
-			if (amplitude >= lastAmp) {
+			if (amplitude >= lastAmp && amplitude > normalizePeak) {
 				if (troughAmp <= normalizeTrough || (amplitude / troughAmp) > peakFactor) {
 					if (amplitude > lastAmp) {
 						startPeak = index;
 						endPeak = index;
 						lastPeakAmp = amplitude;
 					}
-					if (amplitude == lastAmp) {
+					if (amplitude == lastAmp && startPeak != 0) {
 						endPeak = index;
 					}
 				} else {
 					lastPeakAmp = 0;
 					startPeak = 0;
 					endPeak = 0;
-					lastStartPeak = startPeak;
-					lastEndPeak = endPeak;
 				}
 			}
 
 			if (amplitude < lastAmp) {
 				if (startPeak != 0) {
-					if (troughAmp <= normalizeTrough || (lastPeakAmp / troughAmp) > peakFactor) {
-						lastStartPeak = startPeak;
-						lastEndPeak = endPeak;
-						startPeak = 0;
-						endPeak = 0;
-						troughAmp = 1.0;
+					// if (amplitude <= normalizeTrough || (lastPeakAmp / amplitude) > peakFactor) {
+					if (peakcount > 0) {
+						peakcount = peakcount - 1;
+						processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 					}
+					lastPeakAmp = 0;
+					startPeak = 0;
+					endPeak = 0;
+					// }
 				}
 			}
 			if (amplitude < troughAmp) {
@@ -258,11 +243,11 @@ public class AudioTuner implements ToneMapConstants {
 
 		}
 
-		if (lastStartPeak != 0) {
-			if (troughAmp <= normalizeTrough || (lastPeakAmp / troughAmp) > peakFactor) {
+		if (startPeak != 0) {
+			if (lastAmp <= normalizeTrough || (lastPeakAmp / lastAmp) > peakFactor) {
 				if (peakcount > 0) {
 					peakcount = peakcount - 1;
-					processPeak(toneTimeFrame, lastStartPeak, lastEndPeak, troughAmp, thresholdElement, maxAmp);
+					processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 				}
 			}
 		}
@@ -271,13 +256,14 @@ public class AudioTuner implements ToneMapConstants {
 			toneTimeFrame.reset();
 			for (ToneMapElement toneMapElement : ttfElements) {
 				if (toneMapElement.isPeak) {
-					toneMapElement.amplitude = toneTimeFrame.getMaxAmplitude();
+					// toneMapElement.amplitude = toneTimeFrame.getMaxAmplitude();
+					System.out.println(">>high: " + toneMapElement.amplitude);
 				} else {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
 				}
-				System.out.println(">>high: " + toneMapElement.amplitude);
 			}
 			toneTimeFrame.reset();
+			System.out.println(">>thresholds: " + toneTimeFrame.getHighThres() + ", " + toneTimeFrame.getLowThres());
 		}
 
 		return true;
@@ -682,17 +668,21 @@ public class AudioTuner implements ToneMapConstants {
 				break;
 			} else {
 				toneMapElement.isPeak = true;
-			}
-			double amplitude = toneMapElement.amplitude / maxAmp;
+				System.out.println(">>!! GOODD processPeak: " + toneMapElement.amplitude + ", " + index + ", "
+						+ toneTimeFrame.getStartTime() + ", " + maxAmp);
+				double amplitude = toneMapElement.amplitude / maxAmp;
 
-			double nt = normalThreshold(toneTimeFrame, toneMapElement, thresholdElement);
-			System.out.println(">>!!processPeak normalThreshold: " + nt);
-			if (amplitude >= nt && amplitude >= ampThres) {
-				System.out.println(">>!! BADDD processPeak normalThreshold: " + nt);
-				toneMapElement.amplitude = maxAmp;
+				double nt = normalThreshold(toneTimeFrame, toneMapElement, thresholdElement);
+				System.out.println(">>!!processPeak normalThreshold: " + nt);
+				if (amplitude > nt && amplitude > ampThres) {
+					System.out.println(">>!! BADDD processPeak normalThreshold: " + amplitude + ", "
+							+ toneMapElement.amplitude + ", " + nt + ", " + maxAmp + ", " + ampThres);
+					toneMapElement.amplitude = maxAmp;
+				}
+				if (n4Switch) {
+					processOvertones(toneTimeFrame, index);
+				}
 			}
-			processOvertones(toneTimeFrame, index);
 		}
-
 	}
 }
