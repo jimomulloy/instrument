@@ -46,8 +46,8 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>ConstantQMessageProcessor accept: " + message + ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+				System.out.println(">>AudioIntegrateProcessor accept: " + message + ", streamId: " + streamId);
 				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);

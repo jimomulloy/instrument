@@ -487,13 +487,18 @@ public class NuCell extends Cell implements Serializable {
 			try {
 				while (true) {
 					NuMessage qe = (NuMessage) bq.take();
+					System.out.println(">>QueueConsumer take: " + NuCell.this.getCellType() + ", " + qe.sequence + ", "
+							+ qe.source.getCellType());
 					List<NuMessage> entries;
 					List<Integer> received;
 					if (messageMap.containsKey(qe.streamId + qe.sequence)) {
 						entries = messageMap.get(qe.streamId + qe.sequence);
+						System.out.println(">>QueueConsumer existing entries: " + entries.size() + ", cell: "
+								+ NuCell.this.getCellType());
 					} else {
 						entries = new ArrayList<>();
 						messageMap.put(qe.streamId + qe.sequence, entries);
+						System.out.println(">>QueueConsumer reset entries: " + NuCell.this.getCellType());
 					}
 					entries.add(qe);
 					if (messageReceivedMap.containsKey(qe.streamId)) {
@@ -502,13 +507,26 @@ public class NuCell extends Cell implements Serializable {
 						received = new ArrayList<>();
 						messageReceivedMap.put(qe.streamId, received);
 					}
-					received.add(qe.sequence);
+					received.add(Integer.valueOf(qe.sequence));
+					System.out.println(">>QueueConsumer entries.size(): " + entries.size() + ", dendrites.getCount(): "
+							+ dendrites.getCount() + ", " + NuCell.this.getCellType());
 					if (entries.size() >= dendrites.getCount()) {
 						processor.accept(entries);
+						List<Integer> processed = new ArrayList<>();
 						for (int sequence : messageReceivedMap.get(qe.streamId)) {
-							messageMap.remove(qe.streamId + sequence);
+							if (sequence <= qe.sequence) {
+								messageMap.remove(qe.streamId + sequence);
+								processed.add(Integer.valueOf(sequence));
+								System.out.println(">>QueueConsumer remove entries: " + sequence + ", "
+										+ NuCell.this.getCellType());
+							}
 						}
-						messageReceivedMap.remove(qe.streamId);
+						for (int sequence : processed) {
+							received.remove(Integer.valueOf(sequence));
+						}
+						if (received.isEmpty()) {
+							messageReceivedMap.remove(qe.streamId);
+						}
 					}
 				}
 			} catch (InterruptedException e) {

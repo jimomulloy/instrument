@@ -38,8 +38,8 @@ public class AudioBeatProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			System.out.println(">>AudioBeatProcessor accept: " + message + ", streamId: " + streamId);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+				System.out.println(">>AudioBeatProcessor accept: " + message + ", streamId: " + streamId);
 				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				if (afp != null) {

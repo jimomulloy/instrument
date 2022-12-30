@@ -75,7 +75,7 @@ public class ParametersPanel extends JPanel {
 
 		JPanel tunerSwitchPanel = new JPanel();
 		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
-		tunerSwitchPanel.setLayout(new GridLayout(1, 4));
+		tunerSwitchPanel.setLayout(new GridLayout(2, 0));
 		// switchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		tunerSwitchPanel
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
@@ -140,6 +140,84 @@ public class ParametersPanel extends JPanel {
 		n4SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH));
 		tunerSwitchPanel.add(n4SwitchCB);
 
+		JCheckBox n5SwitchCB = new JCheckBox("n5SwitchCB");
+		n5SwitchCB.setText("Audio Tuner N5 Switch");
+		n5SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		n5SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH));
+		tunerSwitchPanel.add(n5SwitchCB);
+
+		JCheckBox n6SwitchCB = new JCheckBox("n6SwitchCB");
+		n6SwitchCB.setText("Audio Tuner N6 Switch");
+		n6SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		n6SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH));
+		tunerSwitchPanel.add(n6SwitchCB);
+
+		JCheckBox harmonicOperatorSwitchCB = new JCheckBox("harmonicOperatorSwitchCB");
+		harmonicOperatorSwitchCB.setText("Audio Tuner Harmonic Operator Switch");
+		harmonicOperatorSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_OPERATOR_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		harmonicOperatorSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_OPERATOR_SWITCH));
+		tunerSwitchPanel.add(harmonicOperatorSwitchCB);
+
+		JCheckBox harmonicWeightingSwitchCB = new JCheckBox("harmonicWeightingSwitchCB");
+		harmonicWeightingSwitchCB.setText("Audio Tuner Harmonic Weighting Switch");
+		harmonicWeightingSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		harmonicWeightingSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH));
+		tunerSwitchPanel.add(harmonicWeightingSwitchCB);
+
+		JCheckBox harmonicGuitarSwitchCB = new JCheckBox("harmonicGuitarSwitchCB");
+		harmonicGuitarSwitchCB.setText("Audio Tuner Harmonic Guitar Switch");
+		harmonicGuitarSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_GUITAR_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		harmonicGuitarSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_GUITAR_SWITCH));
+		tunerSwitchPanel.add(harmonicGuitarSwitchCB);
+
 		JCheckBox peakSwitchCB = new JCheckBox("peakSwitchCB");
 		peakSwitchCB.setText("Audio Tuner Peak Switch");
 		peakSwitchCB.addItemListener(new ItemListener() {
@@ -157,6 +235,126 @@ public class ParametersPanel extends JPanel {
 		tunerSwitchPanel.add(peakSwitchCB);
 
 		parameterPanel.add(tunerSwitchPanel);
+
+		JPanel cqSwitchPanel = new JPanel();
+		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
+		cqSwitchPanel.setLayout(new GridLayout(2, 0));
+		// switchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		cqSwitchPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
+
+		JCheckBox compressionSwitchCB = new JCheckBox("compressionSwitchCB");
+		compressionSwitchCB.setText("CQ Compression");
+		compressionSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		compressionSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
+		cqSwitchPanel.add(compressionSwitchCB);
+
+		JCheckBox squareSwitchCB = new JCheckBox("squareSwitchCB");
+		squareSwitchCB.setText("CQ Square");
+		squareSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		squareSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE));
+		cqSwitchPanel.add(squareSwitchCB);
+
+		JCheckBox lowThresholdSwitchCB = new JCheckBox("squareSwitchCB");
+		lowThresholdSwitchCB.setText("CQ Low Threshold");
+		lowThresholdSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD,
+						Boolean.toString(newValue));
+			}
+		});
+
+		lowThresholdSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD));
+		cqSwitchPanel.add(lowThresholdSwitchCB);
+
+		JCheckBox decibelSwitchCB = new JCheckBox("decibelSwitchCB");
+		decibelSwitchCB.setText("CQ Decibel");
+		decibelSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL,
+						Boolean.toString(newValue));
+			}
+		});
+
+		decibelSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
+		cqSwitchPanel.add(decibelSwitchCB);
+
+		JCheckBox normaliseSwitchCB = new JCheckBox("normaliseSwitchCB");
+		normaliseSwitchCB.setText("CQ Normalise");
+		normaliseSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		normaliseSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
+		cqSwitchPanel.add(normaliseSwitchCB);
+
+		JCheckBox tunerSwitchCB = new JCheckBox("tunerSwitchCB");
+		tunerSwitchCB.setText("Tuner");
+		tunerSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER,
+						Boolean.toString(newValue));
+			}
+		});
+
+		tunerSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER));
+		cqSwitchPanel.add(tunerSwitchCB);
+
+		JCheckBox peaksSwitchCB = new JCheckBox("peaksSwitchCB");
+		peaksSwitchCB.setText("Peaks");
+		peaksSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		peaksSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS));
+		cqSwitchPanel.add(peaksSwitchCB);
+
+		parameterPanel.add(cqSwitchPanel);
 
 		JSlider noiseFloorSlider = new JSlider(100, 250);
 		final JLabel noiseFloorFactorLabel = new JLabel("Noise floor factor    :");
@@ -402,6 +600,131 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(n5SettingLabel);
 		parameterPanel.add(n5SettingSlider);
 
+		JSlider n6SettingSlider = new JSlider(0, 100);
+		final JLabel n6SettingLabel = new JLabel("Audio Tuner N6 Setting :");
+		n6SettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				n6SettingLabel.setText(String.format("Audio Tuner N6 Setting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SETTING,
+						Integer.toString(newValue));
+			}
+		});
+		n6SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SETTING));
+		parameterPanel.add(n6SettingLabel);
+		parameterPanel.add(n6SettingSlider);
+
+		JSlider harmonic1SettingSlider = new JSlider(0, 100);
+		final JLabel harmonic1SettingLabel = new JLabel("Audio Tuner Harmonic 1 Setting :");
+		harmonic1SettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				harmonic1SettingLabel.setText(String.format("Audio Tuner Harmonic 1 Setting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC1_SETTING,
+						Integer.toString(newValue));
+			}
+		});
+		harmonic1SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC1_SETTING));
+		parameterPanel.add(harmonic1SettingLabel);
+		parameterPanel.add(harmonic1SettingSlider);
+
+		JSlider harmonic2SettingSlider = new JSlider(0, 100);
+		final JLabel harmonic2SettingLabel = new JLabel("Audio Tuner Harmonic 2 Setting :");
+		harmonic2SettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				harmonic2SettingLabel.setText(String.format("Audio Tuner Harmonic 2 Setting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC2_SETTING,
+						Integer.toString(newValue));
+			}
+		});
+		harmonic2SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC2_SETTING));
+		parameterPanel.add(harmonic2SettingLabel);
+		parameterPanel.add(harmonic2SettingSlider);
+
+		JSlider harmonic3SettingSlider = new JSlider(0, 100);
+		final JLabel harmonic3SettingLabel = new JLabel("Audio Tuner Harmonic 3 Setting :");
+		harmonic3SettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				harmonic3SettingLabel.setText(String.format("Audio Tuner Harmonic 3 Setting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC3_SETTING,
+						Integer.toString(newValue));
+			}
+		});
+		harmonic3SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC3_SETTING));
+		parameterPanel.add(harmonic3SettingLabel);
+		parameterPanel.add(harmonic3SettingSlider);
+
+		JSlider harmonic4SettingSlider = new JSlider(0, 100);
+		final JLabel harmonic4SettingLabel = new JLabel("Audio Tuner Harmonic 4 Setting :");
+		harmonic4SettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				harmonic4SettingLabel.setText(String.format("Audio Tuner Harmonic 4 Setting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC4_SETTING,
+						Integer.toString(newValue));
+			}
+		});
+		harmonic4SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC4_SETTING));
+		parameterPanel.add(harmonic4SettingLabel);
+		parameterPanel.add(harmonic4SettingSlider);
+
+		JSlider harmonic5SettingSlider = new JSlider(0, 100);
+		final JLabel harmonic5SettingLabel = new JLabel("Audio Tuner Harmonic 5 Setting :");
+		harmonic5SettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				harmonic5SettingLabel.setText(String.format("Audio Tuner Harmonic 5 Setting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC5_SETTING,
+						Integer.toString(newValue));
+			}
+		});
+		harmonic5SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC5_SETTING));
+		parameterPanel.add(harmonic5SettingLabel);
+		parameterPanel.add(harmonic5SettingSlider);
+
+		JSlider harmonic6SettingSlider = new JSlider(0, 100);
+		final JLabel harmonic6SettingLabel = new JLabel("Audio Tuner Harmonic 6 Setting :");
+		harmonic6SettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				harmonic6SettingLabel.setText(String.format("Audio Tuner Harmonic 6 Setting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC6_SETTING,
+						Integer.toString(newValue));
+			}
+		});
+		harmonic6SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC6_SETTING));
+		parameterPanel.add(harmonic6SettingLabel);
+		parameterPanel.add(harmonic6SettingSlider);
+
 		JSlider normalizeSettingSlider = new JSlider(0, 100);
 		final JLabel normalizeSettingLabel = new JLabel("Audio Tuner Normalise Setting :");
 		normalizeSettingSlider.addChangeListener(new ChangeListener() {
@@ -595,126 +918,6 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantMidFreqLabel);
 		parameterPanel.add(formantMidFreqSlider);
 
-		JPanel cqSwitchPanel = new JPanel();
-		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
-		cqSwitchPanel.setLayout(new GridLayout(1, 4));
-		// switchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		cqSwitchPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
-
-		JCheckBox compressionSwitchCB = new JCheckBox("compressionSwitchCB");
-		compressionSwitchCB.setText("CQ Compression");
-		compressionSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS,
-						Boolean.toString(newValue));
-			}
-		});
-
-		compressionSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
-		cqSwitchPanel.add(compressionSwitchCB);
-
-		JCheckBox squareSwitchCB = new JCheckBox("squareSwitchCB");
-		squareSwitchCB.setText("CQ Square");
-		squareSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE,
-						Boolean.toString(newValue));
-			}
-		});
-
-		squareSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE));
-		cqSwitchPanel.add(squareSwitchCB);
-
-		JCheckBox lowThresholdSwitchCB = new JCheckBox("squareSwitchCB");
-		lowThresholdSwitchCB.setText("CQ Low Threshold");
-		lowThresholdSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD,
-						Boolean.toString(newValue));
-			}
-		});
-
-		lowThresholdSwitchCB.setSelected(parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD));
-		cqSwitchPanel.add(lowThresholdSwitchCB);
-
-		JCheckBox decibelSwitchCB = new JCheckBox("decibelSwitchCB");
-		decibelSwitchCB.setText("CQ Decibel");
-		decibelSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL,
-						Boolean.toString(newValue));
-			}
-		});
-
-		decibelSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
-		cqSwitchPanel.add(decibelSwitchCB);
-
-		JCheckBox normaliseSwitchCB = new JCheckBox("normaliseSwitchCB");
-		normaliseSwitchCB.setText("CQ Normalise");
-		normaliseSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE,
-						Boolean.toString(newValue));
-			}
-		});
-
-		normaliseSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
-		cqSwitchPanel.add(normaliseSwitchCB);
-
-		JCheckBox tunerSwitchCB = new JCheckBox("tunerSwitchCB");
-		tunerSwitchCB.setText("Tuner");
-		tunerSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER,
-						Boolean.toString(newValue));
-			}
-		});
-
-		tunerSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER));
-		cqSwitchPanel.add(tunerSwitchCB);
-
-		JCheckBox peaksSwitchCB = new JCheckBox("peaksSwitchCB");
-		peaksSwitchCB.setText("Peaks");
-		peaksSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS,
-						Boolean.toString(newValue));
-			}
-		});
-
-		peaksSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS));
-		cqSwitchPanel.add(peaksSwitchCB);
-
-		parameterPanel.add(cqSwitchPanel);
-
 		JPanel cqParamsPanel = new JPanel();
 		// cqParamsPanel.setLayout(new BoxLayout(cqParamsPanel, BoxLayout.X_AXIS));
 		cqParamsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
@@ -834,7 +1037,7 @@ public class ParametersPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = tunerNormaliseThresholdInput.getText();
-				tunerNormaliseThresholdLabel.setText(String.format("CQ Low Threshold  (%s):", newValue));
+				tunerNormaliseThresholdLabel.setText(String.format("Audio Tuner Normalise Threshold  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD, newValue);
 
 			}
@@ -850,7 +1053,7 @@ public class ParametersPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = tunerNormaliseThresholdInput.getText();
-				tunerNormaliseTroughLabel.setText(String.format("CQ Low Trough  (%s):", newValue));
+				tunerNormaliseTroughLabel.setText(String.format("Audio Tuner Normalise Trough  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_TROUGH, newValue);
 
 			}
@@ -866,7 +1069,7 @@ public class ParametersPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = tunerNormaliseThresholdInput.getText();
-				tunerNormalisePeakLabel.setText(String.format("CQ Low Peak  (%s):", newValue));
+				tunerNormalisePeakLabel.setText(String.format("Audio Tuner Normalise Peak  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_PEAK, newValue);
 
 			}
@@ -875,6 +1078,23 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_PEAK));
 		tunerParamsPanel.add(tunerNormalisePeakLabel);
 		tunerParamsPanel.add(tunerNormalisePeakInput);
+
+		JLabel tunerHarmonicDriftFactorLabel = new JLabel("Audio Tuner Harmonic Drift Factor: ");
+		JTextField tunerHarmonicDriftFactorInput = new JTextField(10);
+		tunerHarmonicDriftFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerNormaliseThresholdInput.getText();
+				tunerHarmonicDriftFactorLabel
+						.setText(String.format("Audio Tuner Harmonic Drift Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_DRIFT_FACTOR, newValue);
+
+			}
+		});
+		tunerHarmonicDriftFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_DRIFT_FACTOR));
+		tunerParamsPanel.add(tunerHarmonicDriftFactorLabel);
+		tunerParamsPanel.add(tunerHarmonicDriftFactorInput);
 
 		parameterPanel.add(tunerParamsPanel);
 

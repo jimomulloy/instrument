@@ -8,6 +8,7 @@ import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 
@@ -28,12 +29,14 @@ public class AudioNotateProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			if (message.source.getCellType().equals(CellTypes.AUDIO_INTEGRATE)) {
-				ToneMap integrateToneMap = workspace.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
+			if (message.source.getCellType().equals(CellTypes.AUDIO_TUNER_PEAKS)) {
+				System.out.println(">>AudioNotateProcessor accept: " + message + ", streamId: " + streamId);
+				ToneMap tunerPeaksToneMap = workspace.getAtlas()
+						.getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
 				ToneMap notateToneMap = workspace.getAtlas()
 						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-				notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
+				ToneTimeFrame timeFrame = tunerPeaksToneMap.getTimeFrame(sequence).clone();
+				notateToneMap.addTimeFrame(timeFrame);
 				AudioTuner tuner = new AudioTuner();
 
 				tuner.noteScan(notateToneMap, sequence);

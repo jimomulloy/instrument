@@ -47,11 +47,14 @@ public class ToneTimeFrame {
 	@Override
 	public ToneTimeFrame clone() {
 		ToneTimeFrame copy = new ToneTimeFrame(this.timeSet.clone(), this.pitchSet.clone());
+		copy.noteStatus = this.noteStatus.clone();
 		ToneMapElement[] copyElements = copy.getElements();
 		for (int i = 0; i < elements.length; i++) {
 			copyElements[i] = elements[i].clone();
 		}
 		copy.reset();
+		copy.setLowThres(this.getLowThres());
+		copy.setHighThres(this.getHighThres());
 		return copy;
 	}
 

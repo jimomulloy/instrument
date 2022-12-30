@@ -9,8 +9,6 @@ package jomu.instrument.workspace.tonemap;
  */
 public class NoteStatus {
 
-	private NoteStatusElement element;
-
 	private int highNote;
 
 	private int index;
@@ -21,7 +19,11 @@ public class NoteStatus {
 
 	private NoteStatusElement[] noteStatus;
 
+	private PitchSet pitchSet;
+
 	public NoteStatus(PitchSet pitchSet) {
+
+		this.pitchSet = pitchSet;
 
 		noteStatus = new NoteStatusElement[pitchSet.getRange()];
 
@@ -64,4 +66,13 @@ public class NoteStatus {
 
 	}
 
-} // End NoteStatus
+	@Override
+	public NoteStatus clone() {
+		NoteStatus copy = new NoteStatus(this.pitchSet);
+		for (note = lowNote, index = 0; note <= highNote; note++, index++) {
+			noteStatus[note - lowNote] = copy.getNote(note);
+		}
+		return copy;
+	}
+
+}

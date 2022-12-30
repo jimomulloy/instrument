@@ -27,7 +27,8 @@ public class AudioIntegrateProcessor implements Consumer<List<NuMessage>> {
 		for (NuMessage message : messages) {
 			sequence = message.sequence;
 			streamId = message.streamId;
-			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
+			if (message.source.getCellType().equals(CellTypes.AUDIO_POST_CHROMA)) {
+				System.out.println(">>AudioIntegrateProcessor accept: " + message + ", streamId: " + streamId);
 				ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 				ToneMap integrateToneMap = workspace.getAtlas()
 						.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));

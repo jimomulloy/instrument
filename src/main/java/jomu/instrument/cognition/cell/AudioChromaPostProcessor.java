@@ -56,8 +56,8 @@ public class AudioChromaPostProcessor implements Consumer<List<NuMessage>> {
 					System.out.println(">>!!!AudioChromaPostProcessor down: " + sequence);
 					postTimeFrame.downSample(postChromaToneMap, chromaDownsampleFactor, sequence);
 					console.getVisor().updateChromaPostView(postChromaToneMap);
-					cell.send(streamId, sequence);
 				}
+				cell.send(streamId, sequence);
 			}
 		}
 	}

@@ -29,14 +29,11 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 
 	@Override
 	public void accept(List<NuMessage> messages) {
-		// System.out.println(">>getAudioCQProcessor");
-		// System.out.println(cell.toString());
-		System.out.println(">>PitchDetectorProcessor accepting");
 		for (NuMessage message : messages) {
 			int sequence = message.sequence;
 			String streamId = message.streamId;
-			System.out.println(">>PitchDetectorProcessor accept: " + message);
 			if (message.source.getCellType().equals(CellTypes.SOURCE)) {
+				System.out.println(">>AudioPitchProcessor accept: " + message + ", streamId: " + streamId);
 				ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
 				AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 				AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);

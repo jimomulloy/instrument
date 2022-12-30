@@ -4,7 +4,6 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.springframework.stereotype.Component;
 
-import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
@@ -12,7 +11,6 @@ import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.cognition.cell.Generator;
 import jomu.instrument.cognition.cell.NuCell;
 import jomu.instrument.cognition.cell.Weaver;
-import jomu.instrument.control.ParameterManager;
 
 @ApplicationScoped
 @Component
@@ -20,7 +18,6 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	private NuCell sourceAddCell;
 	private NuCell sourceUpdateCell;
-	private ParameterManager parameterManager;
 	private NuCell audioCQCell;
 	private NuCell audioBeatCell;
 	private NuCell audioPitchCell;
@@ -48,7 +45,6 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 
 	@Override
 	public void initialise() {
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
 		audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
@@ -63,12 +59,11 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
 		Weaver.connect(audioCQCell, audioTunerPeaksCell);
 		Weaver.connect(audioCQCell, audioPreChromaCell);
-		Weaver.connect(audioCQCell, audioIntegrateCell);
 		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
-		Weaver.connect(audioTunerPeaksCell, audioIntegrateCell);
+		Weaver.connect(audioTunerPeaksCell, audioNotateCell);
 		Weaver.connect(audioPostChromaCell, audioIntegrateCell);
-		Weaver.connect(audioIntegrateCell, audioNotateCell);
-		Weaver.connect(audioNotateCell, audioSinkCell);
+		Weaver.connect(audioNotateCell, audioIntegrateCell);
+		Weaver.connect(audioIntegrateCell, audioSinkCell);
 		Weaver.connect(audioBeatCell, audioSinkCell);
 		Weaver.connect(audioPitchCell, audioSinkCell);
 		Weaver.connect(audioSpectralPeaksCell, audioSinkCell);
