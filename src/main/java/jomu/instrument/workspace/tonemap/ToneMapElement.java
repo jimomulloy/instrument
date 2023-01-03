@@ -1,5 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.Objects;
+
 /**
  * This class defines the fields of the data elements contained within the
  * ToneMapMatrix object associated with a ToneMap object.
@@ -24,6 +26,23 @@ public class ToneMapElement {
 		this.index = index;
 		this.timeIndex = timeIndex;
 		this.pitchIndex = pitchIndex;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(index);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ToneMapElement other = (ToneMapElement) obj;
+		return index == other.index;
 	}
 
 	public ToneMapElement(int index) {

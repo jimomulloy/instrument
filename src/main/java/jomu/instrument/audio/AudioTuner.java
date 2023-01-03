@@ -1,7 +1,11 @@
 
 package jomu.instrument.audio;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.InstrumentParameterNames;
@@ -221,7 +225,6 @@ public class AudioTuner implements ToneMapConstants {
 			thresholdElement = null;
 		}
 		lastPeakAmp = 0;
-		int peakcount = n1Setting;
 		double peakFactor = (double) n2Setting / 100.0;
 		double peakStepFactor = (double) n6Setting / 100.0;
 
@@ -237,8 +240,7 @@ public class AudioTuner implements ToneMapConstants {
 			if (amplitude >= lastAmp && amplitude > normalizePeak) {
 				if (troughAmp <= normalizeTrough || (amplitude / troughAmp) > peakFactor) {
 					if (amplitude > lastAmp) {
-						if (startPeak != 0 && ((lastAmp / amplitude) < peakStepFactor) && peakcount > 0) {
-							peakcount = peakcount - 1;
+						if (startPeak != 0 && ((lastAmp / amplitude) < peakStepFactor)) {
 							processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 						}
 						startPeak = index;
@@ -256,10 +258,7 @@ public class AudioTuner implements ToneMapConstants {
 
 			if (amplitude < lastAmp) {
 				if (startPeak != 0) {
-					if (peakcount > 0) {
-						peakcount = peakcount - 1;
-						processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
-					}
+					processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 					if ((amplitude / lastAmp) < peakStepFactor) {
 						startPeak = index;
 						endPeak = index;
@@ -280,10 +279,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		if (startPeak != 0) {
 			if (lastAmp <= normalizeTrough || (lastPeakAmp / lastAmp) > peakFactor) {
-				if (peakcount > 0) {
-					peakcount = peakcount - 1;
-					processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
-				}
+				processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 			}
 		}
 
@@ -291,13 +287,18 @@ public class AudioTuner implements ToneMapConstants {
 			processOvertones(toneTimeFrame, true);
 		}
 
+		Stream<ToneMapElement> ttfStream = Arrays.stream(ttfElements);
+
+		List<ToneMapElement> topPeaks = ttfStream.filter(t1 -> t1.isPeak).sorted(new Comparator<ToneMapElement>() {
+			public int compare(ToneMapElement t1, ToneMapElement t2) {
+				return Double.valueOf(t2.amplitude).compareTo(Double.valueOf(t1.amplitude));
+			}
+		}).limit(n1Setting).map(t1 -> t1).collect(Collectors.toList());
+
 		if (n3Switch) {
 			toneTimeFrame.reset();
 			for (ToneMapElement toneMapElement : ttfElements) {
-				if (toneMapElement.isPeak) {
-					// toneMapElement.amplitude = toneTimeFrame.getMaxAmplitude();
-					System.out.println(">>high: " + toneMapElement.amplitude);
-				} else {
+				if (!topPeaks.contains(toneMapElement)) {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
 				}
 			}

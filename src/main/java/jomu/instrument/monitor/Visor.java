@@ -77,6 +77,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private static final long serialVersionUID = 3501426880288136245L;
 
+	private static String defaultAudioFileFolder = "D:/audio";
+	private static String defaultAudioFile = "3notescale.wav";
+
 	private LinkedPanel bandedPitchDetectPanel;
 	private BandedPitchDetectLayer bpdLayer;
 
@@ -267,8 +270,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		// actionPanel.setLayout(new GridBagLayout(actionPanel, BoxLayout.X_AXIS));
 		// actionPanel.setAlignmentY(Component.TOP_ALIGNMENT);
 
-		final JFileChooser fileChooser = new JFileChooser(new File("D:/audio"));
+		final JFileChooser fileChooser = new JFileChooser(new File(defaultAudioFileFolder));
 		final JButton chooseFileButton = new JButton("Open a file");
+		final JButton startFileProcessingButton = new JButton("Start File Processing");
+		final JButton startListeningButton = new JButton("Start Listening");
+		final JButton stopListeningButton = new JButton("Stop Listening");
+
+		fileChooser.setSelectedFile(new File(defaultAudioFileFolder, defaultAudioFile));
 		chooseFileButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -290,8 +298,21 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		actionPanel.add(chooseFileButton);
 
-		final JButton startListeningButton = new JButton("Start Listening");
-		final JButton stopListeningButton = new JButton("Stop Listening");
+		startFileProcessingButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					inputFile = fileChooser.getSelectedFile();
+					System.out.println(inputFile.toString());
+					fileName = inputFile.getAbsolutePath();
+					Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
+				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 
 		startListeningButton.addActionListener(new ActionListener() {
 
@@ -303,6 +324,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					String fileName = "instrument_recording.wav";
 					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
 					startListeningButton.setEnabled(false);
+					startFileProcessingButton.setEnabled(false);
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
 				} catch (LineUnavailableException | IOException e) {
@@ -318,6 +340,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					Instrument.getInstance().getCoordinator().getHearing().stopAudioLineStream();
+					startFileProcessingButton.setEnabled(true);
 					startListeningButton.setEnabled(true);
 					stopListeningButton.setEnabled(false);
 					chooseFileButton.setEnabled(true);
@@ -328,6 +351,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			}
 		});
 
+		actionPanel.add(startFileProcessingButton);
 		actionPanel.add(startListeningButton);
 		actionPanel.add(stopListeningButton);
 
