@@ -71,6 +71,7 @@ import jomu.instrument.audio.features.SpectralPeaksSource;
 import jomu.instrument.audio.features.SpectrogramInfo;
 import jomu.instrument.audio.features.SpectrogramSource;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
@@ -125,9 +126,12 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private JPanel beatsPanel;
 
+	private InstrumentStoreService iss;
+
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
 		this.setLayout(new BorderLayout());
 		JPanel topPanel = buildTopPanel();
 		JScrollPane graphPanel = buildGraphPanel();
@@ -403,7 +407,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 					JPanel dialogPanel = new JPanel(new BorderLayout());
 
-					JPanel parameterPanel = new ParametersPanel(Visor.this.parameterManager);
+					JPanel parameterPanel = new ParametersPanel(Visor.this.parameterManager, Visor.this.iss);
 					dialogPanel.setBorder(
 							BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20), new EtchedBorder()));
 
@@ -1376,5 +1380,4 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			});
 		}
 	}
-
 }

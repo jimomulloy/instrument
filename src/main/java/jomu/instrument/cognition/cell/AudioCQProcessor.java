@@ -107,7 +107,7 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 							tmMax = maxAmplitude;
 						}
 					}
-					iss.addToneMap(toneMap);
+					// iss.addToneMap(toneMap);
 					console.getVisor().updateToneMapView(toneMap);
 					cell.send(streamId, sequence);
 				}

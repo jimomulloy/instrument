@@ -17,7 +17,16 @@ public class ParameterManager {
 
 	private Properties parameters = new Properties();
 
-	public void initialise() throws FileNotFoundException, IOException {
+	public void initialise() {
+		try {
+			reset();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void reset() throws FileNotFoundException, IOException {
 		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
 		parameters.load(new FileInputStream(rootPath + PARAMETER_CONFIG_FILE));
 	}
@@ -28,6 +37,14 @@ public class ParameterManager {
 
 	public void setParameter(String key, String value) {
 		parameters.setProperty(key, value);
+	}
+
+	public void setParameters(Properties parameters) {
+		this.parameters = parameters;
+	}
+
+	public Properties getParameters() {
+		return parameters;
 	}
 
 	public int getIntParameter(String key) {

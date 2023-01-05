@@ -1,7 +1,5 @@
 package jomu.instrument.control;
 
-import java.io.IOException;
-
 import javax.enterprise.context.ApplicationScoped;
 
 import org.springframework.stereotype.Component;
@@ -20,12 +18,7 @@ public class Controller implements Organ {
 
 	@Override
 	public void initialise() {
-		try {
-			parameterManager.initialise();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		parameterManager.initialise();
 	}
 
 	@Override

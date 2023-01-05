@@ -85,7 +85,6 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_FORMANT_HIGH_FREQUENCY = "audio.tuner.formantHighFreq";
 	public static final String AUDIO_TUNER_FORMANT_LOW_FREQUENCY = "audio.tuner.formantLowFreq";
 	public static final String AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY = "audio.tuner.formantMidFreq";
-	public static final String STORAGE_DIRECTORY = "storage.directory";
 
 	private static final Map<String, String> displayNames = prepareMap();
 

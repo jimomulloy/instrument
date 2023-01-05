@@ -98,7 +98,7 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 						tuner.processPeaks(tpToneMap, peaks);
 					}
 				}
-				iss.addToneMap(tpToneMap);
+				// iss.addToneMap(tpToneMap);
 				console.getVisor().updateToneMapLayer2View(tpToneMap);
 				cell.send(streamId, sequence);
 

@@ -8,9 +8,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
+import java.util.Properties;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,20 +28,129 @@ import javax.swing.event.ChangeListener;
 
 import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.store.InstrumentStoreService;
 
 public class ParametersPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+	private JTextField tunerHarmonicDriftFactorInput;
+	private ParameterManager parameterManager;
+	private JTextField tunerNormalisePeakInput;
+	private JTextField tunerNormaliseTroughInput;
+	private JSlider audioLowPassSlider;
+	private JSlider audioHighPassSlider;
+	private JCheckBox n1SwitchCB;
+	private JCheckBox n2SwitchCB;
+	private JCheckBox n3SwitchCB;
+	private AbstractButton n6SwitchCB;
+	private AbstractButton n5SwitchCB;
+	private AbstractButton n4SwitchCB;
+	private AbstractButton harmonicWeightingSwitchCB;
+	private JCheckBox harmonicGuitarSwitchCB;
+	private AbstractButton peakSwitchCB;
+	private JCheckBox compressionSwitchCB;
+	private JCheckBox squareSwitchCB;
+	private JCheckBox lowThresholdSwitchCB;
+	private JCheckBox decibelSwitchCB;
+	private JCheckBox normaliseSwitchCB;
+	private AbstractButton tunerSwitchCB;
+	private AbstractButton peaksSwitchCB;
+	private JSlider noiseFloorSlider;
+	private JSlider medianFilterSizeSlider;
+	private JSlider minPeakSizeSlider;
+	private JSlider numberOfPeaksSlider;
+	private JSlider formantFactorSlider;
+	private JSlider formantHighSettingSlider;
+	private JSlider formantLowSettingSlider;
+	private JSlider formantMiddleSettingSlider;
+	private JSlider n2SettingSlider;
+	private JSlider n1SettingSlider;
+	private JSlider n3SettingSlider;
+	private JSlider n4SettingSlider;
+	private JSlider n5SettingSlider;
+	private JSlider n6SettingSlider;
+	private JSlider harmonic6SettingSlider;
+	private JSlider harmonic5SettingSlider;
+	private JSlider harmonic4SettingSlider;
+	private JSlider harmonic3SettingSlider;
+	private JSlider harmonic2SettingSlider;
+	private JSlider harmonic1SettingSlider;
+	private JSlider normalizeSettingSlider;
+	private JSlider noteHighSlider;
+	private JSlider noteLowSlider;
+	private JSlider noteMaxDurationSlider;
+	private JSlider noteMinDurationSlider;
+	private JSlider noteSustainSlider;
+	private JSlider pitchHighSlider;
+	private JSlider pitchLowSlider;
+	private JSlider formantLowFreqSlider;
+	private JSlider formantMidFreqSlider;
+	private JSlider formantHighFreqSlider;
+	private JTextField cqLowThresholdInput;
+	private JTextField cqThresholdFactorInput;
+	private JTextField cqSignalMinimumInput;
+	private JTextField cqNormaliseThresholdInput;
+	private JTextField cqDecibelLevelInput;
+	private JTextField cqCompressionLevelInput;
+	private JTextField tunerNormaliseThresholdInput;
+	private JTextField tunerThresholdFactorInput;
+	private JTextField tunerSignalMinimumInput;
 
-	public ParametersPanel(ParameterManager parameterManager) {
+	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
+		this.parameterManager = parameterManager;
+
 		this.setBorder(new TitledBorder("Input Parameters"));
+
+		JPanel actionPanel = new JPanel();
+
+		final JButton resetButton = new JButton("Reset");
+		resetButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					parameterManager.reset();
+					updateParameters();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		actionPanel.add(resetButton);
+
+		final JButton loadButton = new JButton("Load");
+		loadButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Properties params = iss.getParameters();
+				if (params != null && !params.isEmpty()) {
+					parameterManager.setParameters(iss.getParameters());
+					updateParameters();
+				}
+			}
+		});
+		actionPanel.add(loadButton);
+
+		final JButton saveButton = new JButton("Save");
+		saveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				iss.setParameters(parameterManager.getParameters());
+			}
+		});
+		actionPanel.add(saveButton);
+
+		this.add(actionPanel, BorderLayout.NORTH);
 
 		JPanel parameterPanel = new JPanel();
 		parameterPanel.setLayout(new BoxLayout(parameterPanel, BoxLayout.Y_AXIS));
 		parameterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		JSlider audioLowPassSlider = new JSlider(0, 20000);
+		audioLowPassSlider = new JSlider(0, 20000);
 		final JLabel audioLowPassLabel = new JLabel("Audio Low Pass :");
 		audioLowPassSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -55,7 +168,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(audioLowPassLabel);
 		parameterPanel.add(audioLowPassSlider);
 
-		JSlider audioHighPassSlider = new JSlider(0, 20000);
+		audioHighPassSlider = new JSlider(0, 20000);
 		final JLabel audioHighPassLabel = new JLabel("Audio High Pass :");
 		audioHighPassSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -80,7 +193,7 @@ public class ParametersPanel extends JPanel {
 		tunerSwitchPanel
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
-		JCheckBox n1SwitchCB = new JCheckBox("n1SwitchCB");
+		n1SwitchCB = new JCheckBox("n1SwitchCB");
 		n1SwitchCB.setText("Audio Tuner N1 Switch");
 		n1SwitchCB.addItemListener(new ItemListener() {
 
@@ -95,7 +208,7 @@ public class ParametersPanel extends JPanel {
 		n1SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SWITCH));
 		tunerSwitchPanel.add(n1SwitchCB);
 
-		JCheckBox n2SwitchCB = new JCheckBox("n2SwitchCB");
+		n2SwitchCB = new JCheckBox("n2SwitchCB");
 		n2SwitchCB.setText("Audio Tuner N2 Switch");
 		n2SwitchCB.addItemListener(new ItemListener() {
 
@@ -110,7 +223,7 @@ public class ParametersPanel extends JPanel {
 		n2SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SWITCH));
 		tunerSwitchPanel.add(n2SwitchCB);
 
-		JCheckBox n3SwitchCB = new JCheckBox("n3SwitchCB");
+		n3SwitchCB = new JCheckBox("n3SwitchCB");
 		n3SwitchCB.setText("Audio Tuner N3 Switch");
 		n3SwitchCB.addItemListener(new ItemListener() {
 
@@ -125,7 +238,7 @@ public class ParametersPanel extends JPanel {
 		n3SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SWITCH));
 		tunerSwitchPanel.add(n3SwitchCB);
 
-		JCheckBox n4SwitchCB = new JCheckBox("n4SwitchCB");
+		n4SwitchCB = new JCheckBox("n4SwitchCB");
 		n4SwitchCB.setText("Audio Tuner N4 Switch");
 		n4SwitchCB.addItemListener(new ItemListener() {
 
@@ -140,7 +253,7 @@ public class ParametersPanel extends JPanel {
 		n4SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH));
 		tunerSwitchPanel.add(n4SwitchCB);
 
-		JCheckBox n5SwitchCB = new JCheckBox("n5SwitchCB");
+		n5SwitchCB = new JCheckBox("n5SwitchCB");
 		n5SwitchCB.setText("Audio Tuner N5 Switch");
 		n5SwitchCB.addItemListener(new ItemListener() {
 
@@ -155,7 +268,7 @@ public class ParametersPanel extends JPanel {
 		n5SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH));
 		tunerSwitchPanel.add(n5SwitchCB);
 
-		JCheckBox n6SwitchCB = new JCheckBox("n6SwitchCB");
+		n6SwitchCB = new JCheckBox("n6SwitchCB");
 		n6SwitchCB.setText("Audio Tuner N6 Switch");
 		n6SwitchCB.addItemListener(new ItemListener() {
 
@@ -186,7 +299,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_OPERATOR_SWITCH));
 		tunerSwitchPanel.add(harmonicOperatorSwitchCB);
 
-		JCheckBox harmonicWeightingSwitchCB = new JCheckBox("harmonicWeightingSwitchCB");
+		harmonicWeightingSwitchCB = new JCheckBox("harmonicWeightingSwitchCB");
 		harmonicWeightingSwitchCB.setText("Audio Tuner Harmonic Weighting Switch");
 		harmonicWeightingSwitchCB.addItemListener(new ItemListener() {
 
@@ -202,7 +315,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH));
 		tunerSwitchPanel.add(harmonicWeightingSwitchCB);
 
-		JCheckBox harmonicGuitarSwitchCB = new JCheckBox("harmonicGuitarSwitchCB");
+		harmonicGuitarSwitchCB = new JCheckBox("harmonicGuitarSwitchCB");
 		harmonicGuitarSwitchCB.setText("Audio Tuner Harmonic Guitar Switch");
 		harmonicGuitarSwitchCB.addItemListener(new ItemListener() {
 
@@ -218,7 +331,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_GUITAR_SWITCH));
 		tunerSwitchPanel.add(harmonicGuitarSwitchCB);
 
-		JCheckBox peakSwitchCB = new JCheckBox("peakSwitchCB");
+		peakSwitchCB = new JCheckBox("peakSwitchCB");
 		peakSwitchCB.setText("Audio Tuner Peak Switch");
 		peakSwitchCB.addItemListener(new ItemListener() {
 
@@ -237,12 +350,10 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(tunerSwitchPanel);
 
 		JPanel cqSwitchPanel = new JPanel();
-		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
 		cqSwitchPanel.setLayout(new GridLayout(2, 0));
-		// switchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		cqSwitchPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
-		JCheckBox compressionSwitchCB = new JCheckBox("compressionSwitchCB");
+		compressionSwitchCB = new JCheckBox("compressionSwitchCB");
 		compressionSwitchCB.setText("CQ Compression");
 		compressionSwitchCB.addItemListener(new ItemListener() {
 
@@ -258,7 +369,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
 		cqSwitchPanel.add(compressionSwitchCB);
 
-		JCheckBox squareSwitchCB = new JCheckBox("squareSwitchCB");
+		squareSwitchCB = new JCheckBox("squareSwitchCB");
 		squareSwitchCB.setText("CQ Square");
 		squareSwitchCB.addItemListener(new ItemListener() {
 
@@ -274,7 +385,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE));
 		cqSwitchPanel.add(squareSwitchCB);
 
-		JCheckBox lowThresholdSwitchCB = new JCheckBox("squareSwitchCB");
+		lowThresholdSwitchCB = new JCheckBox("squareSwitchCB");
 		lowThresholdSwitchCB.setText("CQ Low Threshold");
 		lowThresholdSwitchCB.addItemListener(new ItemListener() {
 
@@ -290,7 +401,7 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD));
 		cqSwitchPanel.add(lowThresholdSwitchCB);
 
-		JCheckBox decibelSwitchCB = new JCheckBox("decibelSwitchCB");
+		decibelSwitchCB = new JCheckBox("decibelSwitchCB");
 		decibelSwitchCB.setText("CQ Decibel");
 		decibelSwitchCB.addItemListener(new ItemListener() {
 
@@ -306,7 +417,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
 		cqSwitchPanel.add(decibelSwitchCB);
 
-		JCheckBox normaliseSwitchCB = new JCheckBox("normaliseSwitchCB");
+		normaliseSwitchCB = new JCheckBox("normaliseSwitchCB");
 		normaliseSwitchCB.setText("CQ Normalise");
 		normaliseSwitchCB.addItemListener(new ItemListener() {
 
@@ -322,7 +433,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
 		cqSwitchPanel.add(normaliseSwitchCB);
 
-		JCheckBox tunerSwitchCB = new JCheckBox("tunerSwitchCB");
+		tunerSwitchCB = new JCheckBox("tunerSwitchCB");
 		tunerSwitchCB.setText("Tuner");
 		tunerSwitchCB.addItemListener(new ItemListener() {
 
@@ -338,7 +449,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER));
 		cqSwitchPanel.add(tunerSwitchCB);
 
-		JCheckBox peaksSwitchCB = new JCheckBox("peaksSwitchCB");
+		peaksSwitchCB = new JCheckBox("peaksSwitchCB");
 		peaksSwitchCB.setText("Peaks");
 		peaksSwitchCB.addItemListener(new ItemListener() {
 
@@ -356,7 +467,7 @@ public class ParametersPanel extends JPanel {
 
 		parameterPanel.add(cqSwitchPanel);
 
-		JSlider noiseFloorSlider = new JSlider(100, 250);
+		noiseFloorSlider = new JSlider(100, 250);
 		final JLabel noiseFloorFactorLabel = new JLabel("Noise floor factor    :");
 		noiseFloorSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -380,7 +491,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noiseFloorFactorLabel);
 		parameterPanel.add(noiseFloorSlider);
 
-		JSlider medianFilterSizeSlider = new JSlider(3, 255);
+		medianFilterSizeSlider = new JSlider(3, 255);
 		final JLabel medianFilterSizeLabel = new JLabel("Median Filter Size   :");
 		medianFilterSizeSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -391,7 +502,6 @@ public class ParametersPanel extends JPanel {
 				System.out.println("New Median filter size: " + newValue);
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH,
 						Integer.toString(newValue));
-				// TODO repaintSpectalInfo();
 			}
 		});
 		int noiseFloorMedianFilterLength = parameterManager
@@ -400,9 +510,8 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(medianFilterSizeLabel);
 		parameterPanel.add(medianFilterSizeSlider);
 
-		JSlider minPeakSizeSlider = new JSlider(5, 255);
+		minPeakSizeSlider = new JSlider(5, 255);
 		final JLabel minPeakSizeLabel = new JLabel("Min Peak Size   :");
-		int minPeakSize;
 		minPeakSizeSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -415,14 +524,14 @@ public class ParametersPanel extends JPanel {
 				// TODO repaintSpectalInfo();
 			}
 		});
-		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
+		int minPeakSize = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
 		minPeakSizeSlider.setValue(minPeakSize);
 		parameterPanel.add(minPeakSizeLabel);
 		parameterPanel.add(minPeakSizeSlider);
 
-		JSlider numberOfPeaksSlider = new JSlider(1, 40);
+		numberOfPeaksSlider = new JSlider(1, 40);
 		final JLabel numberOfPeaksLabel = new JLabel("Number of peaks  :");
-		int numberOfSpectralPeaks;
 		numberOfPeaksSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -437,13 +546,13 @@ public class ParametersPanel extends JPanel {
 
 			}
 		});
-		numberOfSpectralPeaks = parameterManager
+		int numberOfSpectralPeaks = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
-		numberOfPeaksSlider.setValue(7);
+		numberOfPeaksSlider.setValue(numberOfSpectralPeaks);
 		parameterPanel.add(numberOfPeaksLabel);
 		parameterPanel.add(numberOfPeaksSlider);
 
-		JSlider formantFactorSlider = new JSlider(0, 100);
+		formantFactorSlider = new JSlider(0, 100);
 		final JLabel formantFactorLabel = new JLabel("Audio Tuner Formant Factor :");
 		formantFactorSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -461,7 +570,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantFactorLabel);
 		parameterPanel.add(formantFactorSlider);
 
-		JSlider formantHighSettingSlider = new JSlider(0, 100);
+		formantHighSettingSlider = new JSlider(0, 100);
 		final JLabel formantHighSettingLabel = new JLabel("Audio Tuner Formant High :");
 		formantHighSettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -479,7 +588,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantHighSettingLabel);
 		parameterPanel.add(formantHighSettingSlider);
 
-		JSlider formantLowSettingSlider = new JSlider(0, 100);
+		formantLowSettingSlider = new JSlider(0, 100);
 		final JLabel formantLowSettingLabel = new JLabel("Audio Tuner Formant Low :");
 		formantLowSettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -497,7 +606,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantLowSettingLabel);
 		parameterPanel.add(formantLowSettingSlider);
 
-		JSlider formantMiddleSettingSlider = new JSlider(0, 100);
+		formantMiddleSettingSlider = new JSlider(0, 100);
 		final JLabel formantMiddleSettingLabel = new JLabel("Audio Tuner Formant Middle :");
 		formantMiddleSettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -515,7 +624,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantMiddleSettingLabel);
 		parameterPanel.add(formantMiddleSettingSlider);
 
-		JSlider n1SettingSlider = new JSlider(0, 100);
+		n1SettingSlider = new JSlider(0, 100);
 		final JLabel n1SettingLabel = new JLabel("Audio Tuner N1 Setting :");
 		n1SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -532,7 +641,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(n1SettingLabel);
 		parameterPanel.add(n1SettingSlider);
 
-		JSlider n2SettingSlider = new JSlider(0, 100);
+		n2SettingSlider = new JSlider(0, 100);
 		final JLabel n2SettingLabel = new JLabel("Audio Tuner N2 Setting :");
 		n2SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -549,7 +658,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(n2SettingLabel);
 		parameterPanel.add(n2SettingSlider);
 
-		JSlider n3SettingSlider = new JSlider(0, 100);
+		n3SettingSlider = new JSlider(0, 100);
 		final JLabel n3SettingLabel = new JLabel("Audio Tuner N3 Setting :");
 		n3SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -566,7 +675,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(n3SettingLabel);
 		parameterPanel.add(n3SettingSlider);
 
-		JSlider n4SettingSlider = new JSlider(0, 100);
+		n4SettingSlider = new JSlider(0, 100);
 		final JLabel n4SettingLabel = new JLabel("Audio Tuner N4 Setting :");
 		n4SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -583,7 +692,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(n4SettingLabel);
 		parameterPanel.add(n4SettingSlider);
 
-		JSlider n5SettingSlider = new JSlider(0, 100);
+		n5SettingSlider = new JSlider(0, 100);
 		final JLabel n5SettingLabel = new JLabel("Audio Tuner N5 Setting :");
 		n5SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -600,7 +709,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(n5SettingLabel);
 		parameterPanel.add(n5SettingSlider);
 
-		JSlider n6SettingSlider = new JSlider(0, 100);
+		n6SettingSlider = new JSlider(0, 100);
 		final JLabel n6SettingLabel = new JLabel("Audio Tuner N6 Setting :");
 		n6SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -617,7 +726,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(n6SettingLabel);
 		parameterPanel.add(n6SettingSlider);
 
-		JSlider harmonic1SettingSlider = new JSlider(0, 100);
+		harmonic1SettingSlider = new JSlider(0, 100);
 		final JLabel harmonic1SettingLabel = new JLabel("Audio Tuner Harmonic 1 Setting :");
 		harmonic1SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -635,7 +744,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(harmonic1SettingLabel);
 		parameterPanel.add(harmonic1SettingSlider);
 
-		JSlider harmonic2SettingSlider = new JSlider(0, 100);
+		harmonic2SettingSlider = new JSlider(0, 100);
 		final JLabel harmonic2SettingLabel = new JLabel("Audio Tuner Harmonic 2 Setting :");
 		harmonic2SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -653,7 +762,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(harmonic2SettingLabel);
 		parameterPanel.add(harmonic2SettingSlider);
 
-		JSlider harmonic3SettingSlider = new JSlider(0, 100);
+		harmonic3SettingSlider = new JSlider(0, 100);
 		final JLabel harmonic3SettingLabel = new JLabel("Audio Tuner Harmonic 3 Setting :");
 		harmonic3SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -671,7 +780,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(harmonic3SettingLabel);
 		parameterPanel.add(harmonic3SettingSlider);
 
-		JSlider harmonic4SettingSlider = new JSlider(0, 100);
+		harmonic4SettingSlider = new JSlider(0, 100);
 		final JLabel harmonic4SettingLabel = new JLabel("Audio Tuner Harmonic 4 Setting :");
 		harmonic4SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -689,7 +798,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(harmonic4SettingLabel);
 		parameterPanel.add(harmonic4SettingSlider);
 
-		JSlider harmonic5SettingSlider = new JSlider(0, 100);
+		harmonic5SettingSlider = new JSlider(0, 100);
 		final JLabel harmonic5SettingLabel = new JLabel("Audio Tuner Harmonic 5 Setting :");
 		harmonic5SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -707,7 +816,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(harmonic5SettingLabel);
 		parameterPanel.add(harmonic5SettingSlider);
 
-		JSlider harmonic6SettingSlider = new JSlider(0, 100);
+		harmonic6SettingSlider = new JSlider(0, 100);
 		final JLabel harmonic6SettingLabel = new JLabel("Audio Tuner Harmonic 6 Setting :");
 		harmonic6SettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -725,7 +834,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(harmonic6SettingLabel);
 		parameterPanel.add(harmonic6SettingSlider);
 
-		JSlider normalizeSettingSlider = new JSlider(0, 100);
+		normalizeSettingSlider = new JSlider(0, 100);
 		final JLabel normalizeSettingLabel = new JLabel("Audio Tuner Normalise Setting :");
 		normalizeSettingSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -743,7 +852,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(normalizeSettingLabel);
 		parameterPanel.add(normalizeSettingSlider);
 
-		JSlider noteHighSlider = new JSlider(0, 100);
+		noteHighSlider = new JSlider(0, 100);
 		final JLabel noteHighLabel = new JLabel("Audio Tuner High Note :");
 		noteHighSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -760,7 +869,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteHighLabel);
 		parameterPanel.add(noteHighSlider);
 
-		JSlider noteLowSlider = new JSlider(0, 100);
+		noteLowSlider = new JSlider(0, 100);
 		final JLabel noteLowLabel = new JLabel("Audio Tuner Low Note :");
 		noteLowSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -777,7 +886,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteLowLabel);
 		parameterPanel.add(noteLowSlider);
 
-		JSlider noteMaxDurationSlider = new JSlider(0, 10000);
+		noteMaxDurationSlider = new JSlider(0, 10000);
 		final JLabel noteMaxDurationLabel = new JLabel("Audio Tuner Max Note Duration :");
 		noteMaxDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -795,7 +904,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteMaxDurationLabel);
 		parameterPanel.add(noteMaxDurationSlider);
 
-		JSlider noteMinDurationSlider = new JSlider(0, 1000);
+		noteMinDurationSlider = new JSlider(0, 1000);
 		final JLabel noteMinDurationLabel = new JLabel("Audio Tuner Min Note Duration :");
 		noteMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -813,7 +922,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteMinDurationLabel);
 		parameterPanel.add(noteMinDurationSlider);
 
-		JSlider noteSustainSlider = new JSlider(0, 1000);
+		noteSustainSlider = new JSlider(0, 1000);
 		final JLabel noteSustainLabel = new JLabel("Audio Tuner Min Note Sustain :");
 		noteSustainSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -830,7 +939,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteSustainLabel);
 		parameterPanel.add(noteSustainSlider);
 
-		JSlider pitchHighSlider = new JSlider(36, 72);
+		pitchHighSlider = new JSlider(36, 72);
 		final JLabel pitchHighLabel = new JLabel("Audio Tuner High Pitch :");
 		pitchHighSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -847,7 +956,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(pitchHighLabel);
 		parameterPanel.add(pitchHighSlider);
 
-		JSlider pitchLowSlider = new JSlider(36, 72);
+		pitchLowSlider = new JSlider(36, 72);
 		final JLabel pitchLowLabel = new JLabel("Audio Tuner Low Pitch :");
 		pitchLowSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -864,7 +973,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(pitchLowLabel);
 		parameterPanel.add(pitchLowSlider);
 
-		JSlider formantHighFreqSlider = new JSlider(0, 20000);
+		formantHighFreqSlider = new JSlider(0, 20000);
 		final JLabel formantHighFreqLabel = new JLabel("Audio Tuner Formant High Frequency :");
 		formantHighFreqSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -882,7 +991,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantHighFreqLabel);
 		parameterPanel.add(formantHighFreqSlider);
 
-		JSlider formantLowFreqSlider = new JSlider(0, 20000);
+		formantLowFreqSlider = new JSlider(0, 20000);
 		final JLabel formantLowFreqLabel = new JLabel("Audio Tuner Formant Low Frequency :");
 		formantLowFreqSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -900,7 +1009,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantLowFreqLabel);
 		parameterPanel.add(formantLowFreqSlider);
 
-		JSlider formantMidFreqSlider = new JSlider(0, 20000);
+		formantMidFreqSlider = new JSlider(0, 20000);
 		final JLabel formantMidFreqLabel = new JLabel("Audio Tuner Formant Middle Frequency :");
 		formantMidFreqSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -919,13 +1028,12 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantMidFreqSlider);
 
 		JPanel cqParamsPanel = new JPanel();
-		// cqParamsPanel.setLayout(new BoxLayout(cqParamsPanel, BoxLayout.X_AXIS));
 		cqParamsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
 		cqParamsPanel.setLayout(new GridLayout(0, 2));
 		cqParamsPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
 		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
-		JTextField cqLowThresholdInput = new JTextField(10);
+		cqLowThresholdInput = new JTextField(10);
 		cqLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -941,8 +1049,8 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqLowThresholdInput);
 
 		JLabel cqThresholdFactorLabel = new JLabel("CQ Threshold Factor: ");
-		JTextField cqThresholdFactorInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
+		cqThresholdFactorInput = new JTextField(10);
+		cqThresholdFactorInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = cqThresholdFactorInput.getText();
@@ -958,11 +1066,11 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqThresholdFactorInput);
 
 		JLabel cqSignalMinimumLabel = new JLabel("CQ Signal Minimum: ");
-		JTextField cqSignalMinimumInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
+		cqSignalMinimumInput = new JTextField(10);
+		cqSignalMinimumInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
+				String newValue = cqSignalMinimumInput.getText();
 				cqSignalMinimumLabel.setText(String.format("CQ Signal Minimum  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM, newValue);
 
@@ -974,11 +1082,11 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqSignalMinimumInput);
 
 		JLabel cqNormaliseThresholdLabel = new JLabel("CQ Normalise Threshold: ");
-		JTextField cqNormaliseThresholdInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
+		cqNormaliseThresholdInput = new JTextField(10);
+		cqNormaliseThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
+				String newValue = cqNormaliseThresholdInput.getText();
 				cqNormaliseThresholdLabel.setText(String.format("CQ Normalise Threshold  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD,
 						newValue);
@@ -991,11 +1099,11 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqNormaliseThresholdInput);
 
 		JLabel cqDecibelLevelLabel = new JLabel("CQ Decibel Level: ");
-		JTextField cqDecibelLevelInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
+		cqDecibelLevelInput = new JTextField(10);
+		cqDecibelLevelInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
+				String newValue = cqDecibelLevelInput.getText();
 				cqDecibelLevelLabel.setText(String.format("CQ Decibel Level  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL, newValue);
 
@@ -1007,11 +1115,11 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqDecibelLevelInput);
 
 		JLabel cqCompressionLevelLabel = new JLabel("CQ Compression Level: ");
-		JTextField cqCompressionLevelInput = new JTextField(10);
-		cqLowThresholdInput.addActionListener(new ActionListener() {
+		cqCompressionLevelInput = new JTextField(10);
+		cqCompressionLevelInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = cqThresholdFactorInput.getText();
+				String newValue = cqCompressionLevelInput.getText();
 				cqCompressionLevelLabel.setText(String.format("CQ Compression Level  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION, newValue);
 
@@ -1022,17 +1130,50 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqCompressionLevelLabel);
 		cqParamsPanel.add(cqCompressionLevelInput);
 
+		JLabel tunerThresholdFactorLabel = new JLabel("Tuner Threshold Factor: ");
+		tunerThresholdFactorInput = new JTextField(10);
+		tunerThresholdFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerThresholdFactorInput.getText();
+				tunerThresholdFactorLabel.setText(String.format("Tuner Threshold Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_FACTOR,
+						newValue);
+
+			}
+		});
+		tunerThresholdFactorInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_FACTOR));
+		cqParamsPanel.add(tunerThresholdFactorLabel);
+		cqParamsPanel.add(tunerThresholdFactorInput);
+
+		JLabel tunerSignalMinimumLabel = new JLabel("Tuner Signal Minimum: ");
+		tunerSignalMinimumInput = new JTextField(10);
+		tunerSignalMinimumInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerSignalMinimumInput.getText();
+				tunerSignalMinimumLabel.setText(String.format("Tuner Signal Minimum  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_MINIMUM,
+						newValue);
+
+			}
+		});
+		tunerSignalMinimumInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_MINIMUM));
+		cqParamsPanel.add(tunerSignalMinimumLabel);
+		cqParamsPanel.add(tunerSignalMinimumInput);
+
 		parameterPanel.add(cqParamsPanel);
 
 		JPanel tunerParamsPanel = new JPanel();
-		// cqParamsPanel.setLayout(new BoxLayout(cqParamsPanel, BoxLayout.X_AXIS));
 		tunerParamsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
 		tunerParamsPanel.setLayout(new GridLayout(0, 2));
 		tunerParamsPanel
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
 		JLabel tunerNormaliseThresholdLabel = new JLabel("Audio Tuner Normalise Threshold: ");
-		JTextField tunerNormaliseThresholdInput = new JTextField(10);
+		tunerNormaliseThresholdInput = new JTextField(10);
 		tunerNormaliseThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1048,11 +1189,11 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerNormaliseThresholdInput);
 
 		JLabel tunerNormaliseTroughLabel = new JLabel("Audio Tuner Normalise Trough: ");
-		JTextField tunerNormaliseTroughInput = new JTextField(10);
+		tunerNormaliseTroughInput = new JTextField(10);
 		tunerNormaliseTroughInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = tunerNormaliseThresholdInput.getText();
+				String newValue = tunerNormaliseTroughInput.getText();
 				tunerNormaliseTroughLabel.setText(String.format("Audio Tuner Normalise Trough  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_TROUGH, newValue);
 
@@ -1064,11 +1205,11 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerNormaliseTroughInput);
 
 		JLabel tunerNormalisePeakLabel = new JLabel("Audio Tuner Normalise Peak: ");
-		JTextField tunerNormalisePeakInput = new JTextField(10);
+		tunerNormalisePeakInput = new JTextField(10);
 		tunerNormalisePeakInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = tunerNormaliseThresholdInput.getText();
+				String newValue = tunerNormalisePeakInput.getText();
 				tunerNormalisePeakLabel.setText(String.format("Audio Tuner Normalise Peak  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_PEAK, newValue);
 
@@ -1080,11 +1221,11 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerNormalisePeakInput);
 
 		JLabel tunerHarmonicDriftFactorLabel = new JLabel("Audio Tuner Harmonic Drift Factor: ");
-		JTextField tunerHarmonicDriftFactorInput = new JTextField(10);
+		tunerHarmonicDriftFactorInput = new JTextField(10);
 		tunerHarmonicDriftFactorInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = tunerNormaliseThresholdInput.getText();
+				String newValue = tunerHarmonicDriftFactorInput.getText();
 				tunerHarmonicDriftFactorLabel
 						.setText(String.format("Audio Tuner Harmonic Drift Factor  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_DRIFT_FACTOR, newValue);
@@ -1096,10 +1237,123 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerHarmonicDriftFactorLabel);
 		tunerParamsPanel.add(tunerHarmonicDriftFactorInput);
 
-		parameterPanel.add(tunerParamsPanel);
-
 		Dimension minimumSize = new Dimension(1000, 1000);
 		parameterPanel.setMinimumSize(minimumSize);
 		this.add(parameterPanel, BorderLayout.CENTER);
+	}
+
+	public void updateParameters() {
+		audioLowPassSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS));
+		audioHighPassSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS));
+		n1SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SWITCH));
+		n2SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SWITCH));
+		n3SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SWITCH));
+		n4SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH));
+		n5SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH));
+		n6SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH));
+		harmonicWeightingSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH));
+		harmonicGuitarSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_GUITAR_SWITCH));
+		peakSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH));
+		compressionSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
+		squareSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE));
+		lowThresholdSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD));
+		decibelSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
+
+		normaliseSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
+		tunerSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER));
+		peaksSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS));
+
+		float noiseFloorFactor = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR);
+		noiseFloorSlider.setValue((int) noiseFloorFactor);
+		int noiseFloorMedianFilterLength = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
+		medianFilterSizeSlider.setValue(noiseFloorMedianFilterLength);
+		int minPeakSize = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
+		minPeakSizeSlider.setValue(minPeakSize);
+		int numberOfSpectralPeaks = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
+		numberOfPeaksSlider.setValue(numberOfSpectralPeaks);
+		formantFactorSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR));
+		formantHighSettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH));
+		formantLowSettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW));
+		formantMiddleSettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE));
+		n1SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SETTING));
+		n2SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SETTING));
+		n3SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SETTING));
+		n4SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SETTING));
+		n5SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SETTING));
+		n6SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SETTING));
+		harmonic1SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC1_SETTING));
+		harmonic2SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC2_SETTING));
+		harmonic3SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC3_SETTING));
+		harmonic4SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC4_SETTING));
+		harmonic5SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC5_SETTING));
+		harmonic6SettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC6_SETTING));
+		normalizeSettingSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_SETTING));
+		noteHighSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_HIGH));
+		noteLowSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_LOW));
+		noteMaxDurationSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION));
+		noteMinDurationSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MIN_DURATION));
+		noteSustainSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SUSTAIN));
+		pitchHighSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_HIGH));
+		pitchLowSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_LOW));
+		formantLowFreqSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW_FREQUENCY));
+		formantMidFreqSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY));
+		formantHighFreqSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH_FREQUENCY));
+		cqLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
+		cqThresholdFactorInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR));
+		cqSignalMinimumInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM));
+		cqNormaliseThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD));
+		cqDecibelLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL));
+		cqCompressionLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION));
+		tunerNormaliseThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD));
+		tunerNormaliseTroughInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_TROUGH));
+		tunerHarmonicDriftFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_DRIFT_FACTOR));
+		tunerNormalisePeakInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_PEAK));
+		tunerThresholdFactorInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_FACTOR));
+		tunerSignalMinimumInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_MINIMUM));
+
 	}
 }
