@@ -36,8 +36,8 @@ public class Klapuri {
 		// whitened = (double[]) data.clone();
 		this.pppContext = pppContext;
 		/* Whiten the data */
-		whitened = whiten(data, pppContext);
-		f0s = detectF0s(whitened, pppContext);
+		// whitened = whiten(data, pppContext);
+		f0s = detectF0s(data, pppContext);
 	}
 
 	Vector<Double> detectF0s(double[] whitened, PolyphonicPitchDetection pppContext) {
@@ -83,6 +83,8 @@ public class Klapuri {
 			// Salience calculated
 			++detectedF0s;
 			F0s.add(pppContext.f0cands[index]); // First F0
+			System.out.println("!!>KLAPURI ADD F0: " + index + ", " + pppContext.f0index[index] + ", "
+					+ pppContext.f0cands[index]);
 			F0BinIndexes.add(pppContext.f0index[index]);
 
 			/* Replace this with using f0cands indices at some point! */
@@ -132,12 +134,15 @@ public class Klapuri {
 				smax = S.lastElement();
 			}
 			// Polyphony estimated
+			if (detectedF0s > 50) {
+				break;
+			}
 		}
 		// The last F0 is extra...
 		// System.out.println("Remove extra");
-		if (F0s.size() > 1) {
-			F0s.remove(F0s.size() - 1);
-		}
+		// if (F0s.size() > 1) {
+		// F0s.remove(F0s.size() - 1);
+		// }
 
 		// The last F0 is extra...
 		// System.out.println("Remove extra");
@@ -152,6 +157,7 @@ public class Klapuri {
 		for (ArrayList<Integer> f0Bins : F0BinIndexes) {
 			for (Integer f0Bin : f0Bins) {
 				whitened[f0Bin] = 1.0F;
+				System.out.println("!!>KLAPURI WHITEN F0: " + f0Bin);
 			}
 		}
 

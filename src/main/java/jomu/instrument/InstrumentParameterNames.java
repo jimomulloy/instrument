@@ -17,6 +17,9 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 
+	public static final String MONITOR_TONEMAP_VIEW_LOW_THRESHOLD = "monitor.tonemap.view.lowThreshold";
+	public static final String MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD = "monitor.tonemap.view.highThreshold";
+
 	public static final String PERCEPTION_HEARING_CQ_LOW_THRESHOLD = "perception.hearing.cq.lowThreshold";
 	public static final String PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR = "perception.hearing.cq.thresholdFactor";
 	public static final String PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM = "perception.hearing.cq.signalMinimum";
@@ -43,6 +46,14 @@ public class InstrumentParameterNames {
 
 	public static final String PERCEPTION_HEARING_ONSET_THRESHOLD = "perception.hearing.onset.threshold";
 	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = " perception.hearing.onset.interval";
+
+	public static final String PERCEPTION_HEARING_PITCH_DETECT_HARMONICS = "perception.hearing.pitch.detect.harmonics";
+	public static final String PERCEPTION_HEARING_PITCH_DETECT_COMPRESSION = "perception.hearing.pitch.detect.compresssion";
+	public static final String PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD = "perception.hearing.pitch.detect.lowThreshold";
+	public static final String PERCEPTION_HEARING_PITCH_DETECT_SWITCH_COMPRESS = "perception.hearing.pitch.detect.compressionSwitch";
+	public static final String PERCEPTION_HEARING_PITCH_DETECT_SWITCH_WHITENER = "perception.hearing.pitch.detect.whitenerSwitch";
+	public static final String PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI = "perception.hearing.pitch.detect.klapuriSwitch";
+	public static final String PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS = "perception.hearing.pitch.detect.tarsosSwitch";
 
 	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
 	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";

@@ -18,15 +18,15 @@ public class InstrumentStorage {
 	final List<ToneMap> toneMapList = new ArrayList<>();
 	Properties parameters = new Properties();
 
-	public List<ToneMap> findAll() {
+	public List<ToneMap> findAllToneMaps() {
 		return this.toneMapList;
 	}
 
-	public void removeAll() {
+	public void removeAllToneMaps() {
 		this.toneMapList.clear();
 	}
 
-	public void add(final ToneMap toneMap) {
+	public void addToneMap(final ToneMap toneMap) {
 		this.toneMapList.add(toneMap);
 	}
 

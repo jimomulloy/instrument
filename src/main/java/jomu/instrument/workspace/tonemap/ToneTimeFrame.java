@@ -12,7 +12,7 @@ public class ToneTimeFrame {
 
 	public final static int INIT_PITCH_LOW = 36;
 
-	public final static double AMPLITUDE_FLOOR = 0.0000001;
+	public final static double AMPLITUDE_FLOOR = 1E-7;
 
 	public static final boolean LOGAMP = true;
 
@@ -245,6 +245,9 @@ public class ToneTimeFrame {
 
 	public ToneTimeFrame loadFFTSpectrum(FFTSpectrum fftSpectrum) {
 		int elementIndex = 0;
+		for (int i = 0; i < elements.length; i++) {
+			elements[i].amplitude = AMPLITUDE_FLOOR;
+		}
 		double binStartFreq = pitchSet.getFreq(elementIndex);
 		double binEndFreq = pitchSet.getFreq(elementIndex + 1);
 		elements[elementIndex].amplitude = 0;
@@ -261,7 +264,7 @@ public class ToneTimeFrame {
 				if (elementIndex == elements.length) {
 					break;
 				}
-				elements[elementIndex].amplitude = 0;
+				elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
 				binEndFreq = pitchSet.getFreq(elementIndex + 1);
 			}
 			if (elementIndex == elements.length) {
@@ -308,8 +311,6 @@ public class ToneTimeFrame {
 			}
 		}
 		avgAmplitude = avgAmplitude / count;
-		setLowThres(minAmplitude);
-		setHighThres(maxAmplitude);
 		return this;
 	}
 
@@ -341,7 +342,6 @@ public class ToneTimeFrame {
 
 	public ToneTimeFrame normaliseThreshold(double threshold, double value) {
 		reset();
-		System.out.println(">>maxAmplitude: " + maxAmplitude);
 		float maxdbRatio = 0;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
@@ -354,7 +354,6 @@ public class ToneTimeFrame {
 				}
 			}
 		}
-		System.out.println(">>maxdb: " + maxdbRatio);
 		reset();
 		return this;
 	}

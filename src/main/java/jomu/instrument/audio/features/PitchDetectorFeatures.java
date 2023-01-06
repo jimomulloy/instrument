@@ -14,8 +14,6 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 public class PitchDetectorFeatures implements ToneMapConstants {
 
 	public boolean logSwitch = true;
-	public int pitchHigh = INIT_PITCH_HIGH;
-	public int pitchLow = INIT_PITCH_LOW;
 	public int powerHigh = 100;
 	public int powerLow = 0;
 	private AudioFeatureFrame audioFeatureFrame;

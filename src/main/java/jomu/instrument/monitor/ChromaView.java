@@ -32,6 +32,9 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -64,11 +67,14 @@ public class ChromaView extends JComponent implements ComponentListener {
 
 	private Color[] rainbow;
 
+	private ParameterManager parameterManager;
+
 	public ChromaView() {
 		this.timeAxisStart = 0;
 		this.timeAxisEnd = 20000;
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
@@ -164,6 +170,11 @@ public class ChromaView extends JComponent implements ComponentListener {
 
 			bufferedGraphics.setColor(Color.black);
 
+			double lowViewThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
+			double highViewThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
+
 			ToneMapElement[] elements = ttf.getElements();
 
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
@@ -175,14 +186,15 @@ public class ChromaView extends JComponent implements ComponentListener {
 					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
 					int height = (int) ((double) getHeight() / 12.0);
 					amplitude = toneMapElement.amplitude;
-					if (amplitude > ttf.getHighThres()) {
-						color = Color.white;
-					}
-					if (amplitude <= ttf.getLowThres()) {
-						color = Color.black;
+					int greyValue = 0;
+					if (amplitude > highViewThreshold) {
+						greyValue = 255;
+						color = rainbow[0];
+					} else if (amplitude <= lowViewThreshold) {
+						greyValue = 0;
+						color = new Color(greyValue, greyValue, greyValue);
 					} else {
-						int greyValue = (int) (Math.log1p(amplitude / ttf.getHighThres()) / Math.log1p(1.0000001)
-								* 255);
+						greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001) * 255);
 						greyValue = Math.max(0, greyValue);
 						color = rainbow[255 - greyValue];
 					}

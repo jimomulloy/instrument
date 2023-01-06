@@ -24,8 +24,8 @@ public class InstrumentStoreService {
 
 	// @Store(root = true)
 	public void addToneMap(ToneMap toneMap) {
-		instrumentStorage.add(toneMap);
-		embeddedStorageManager.store(instrumentStorage);
+		instrumentStorage.addToneMap(toneMap);
+		embeddedStorageManager.store(instrumentStorage.findAllToneMaps());
 	}
 
 	// @Store(root = true)
@@ -33,18 +33,18 @@ public class InstrumentStoreService {
 		Properties copyParams = new Properties();
 		copyParams.putAll(parameters);
 		instrumentStorage.setParameters(copyParams);
-		embeddedStorageManager.storeRoot();
+		embeddedStorageManager.store(instrumentStorage.getParameters());
 		System.out.println(">>MS stored params!!");
 	}
 
 	// @Store(root = true)
 	public void deleteToneMaps() {
-		instrumentStorage.removeAll();
-		embeddedStorageManager.storeRoot();
+		instrumentStorage.removeAllToneMaps();
+		embeddedStorageManager.store(instrumentStorage.findAllToneMaps());
 	}
 
 	public List<ToneMap> findToneMaps() {
-		return instrumentStorage.findAll();
+		return instrumentStorage.findAllToneMaps();
 	}
 
 	public Properties getParameters() {

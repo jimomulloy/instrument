@@ -95,6 +95,15 @@ public class ParametersPanel extends JPanel {
 	private JTextField tunerNormaliseThresholdInput;
 	private JTextField tunerThresholdFactorInput;
 	private JTextField tunerSignalMinimumInput;
+	private JTextField toneMapViewLowThresholdInput;
+	private JTextField toneMapViewHighThresholdInput;
+	private JSlider pitchHarmonicsSlider;
+	private JTextField pdCompressionLevelInput;
+	private JCheckBox pdCompressionSwitchCB;
+	private JCheckBox pdWhitenerSwitchCB;
+	private JCheckBox pdKlapuriSwitchCB;
+	private JCheckBox pdTarsosSwitchCB;
+	private JTextField pdLowThresholdInput;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -465,6 +474,70 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS));
 		cqSwitchPanel.add(peaksSwitchCB);
 
+		pdCompressionSwitchCB = new JCheckBox("pdCompressionSwitchCB");
+		pdCompressionSwitchCB.setText("Pitch Detect Compression");
+		pdCompressionSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_COMPRESS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		pdCompressionSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_COMPRESS));
+		cqSwitchPanel.add(pdCompressionSwitchCB);
+
+		pdWhitenerSwitchCB = new JCheckBox("pdWhitenerSwitchCB");
+		pdWhitenerSwitchCB.setText("Pitch Detect Whitener");
+		pdWhitenerSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_WHITENER,
+						Boolean.toString(newValue));
+			}
+		});
+
+		pdWhitenerSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_WHITENER));
+		cqSwitchPanel.add(pdWhitenerSwitchCB);
+
+		pdKlapuriSwitchCB = new JCheckBox("pdKlapuriSwitchCB");
+		pdKlapuriSwitchCB.setText("Pitch Detect Klapuri");
+		pdKlapuriSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI,
+						Boolean.toString(newValue));
+			}
+		});
+
+		pdKlapuriSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI));
+		cqSwitchPanel.add(pdKlapuriSwitchCB);
+
+		pdTarsosSwitchCB = new JCheckBox("pdTarsosSwitchCB");
+		pdTarsosSwitchCB.setText("Pitch Detect Tarsos");
+		pdTarsosSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		pdTarsosSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS));
+		cqSwitchPanel.add(pdTarsosSwitchCB);
+
 		parameterPanel.add(cqSwitchPanel);
 
 		noiseFloorSlider = new JSlider(100, 250);
@@ -551,6 +624,27 @@ public class ParametersPanel extends JPanel {
 		numberOfPeaksSlider.setValue(numberOfSpectralPeaks);
 		parameterPanel.add(numberOfPeaksLabel);
 		parameterPanel.add(numberOfPeaksSlider);
+
+		pitchHarmonicsSlider = new JSlider(1, 10);
+		final JLabel pitchHarmonicsLabel = new JLabel("Pitch Harmonics :");
+		pitchHarmonicsSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				pitchHarmonicsLabel.setText("Pitch Harmonics  (" + newValue + "):");
+
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS,
+						Integer.toString(newValue));
+				// TODO repaintSpectalInfo();
+
+			}
+		});
+		pitchHarmonicsSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS));
+		parameterPanel.add(pitchHarmonicsLabel);
+		parameterPanel.add(pitchHarmonicsSlider);
 
 		formantFactorSlider = new JSlider(0, 100);
 		final JLabel formantFactorLabel = new JLabel("Audio Tuner Formant Factor :");
@@ -1032,6 +1126,38 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.setLayout(new GridLayout(0, 2));
 		cqParamsPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
+		JLabel toneMapViewLowThresholdLabel = new JLabel("ToneMap View Low Threshold: ");
+		toneMapViewLowThresholdInput = new JTextField(10);
+		toneMapViewLowThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = toneMapViewLowThresholdInput.getText();
+				toneMapViewLowThresholdLabel.setText(String.format("ToneMap View Low Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
+
+			}
+		});
+		toneMapViewLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD));
+		cqParamsPanel.add(toneMapViewLowThresholdLabel);
+		cqParamsPanel.add(toneMapViewLowThresholdInput);
+
+		JLabel toneMapViewHighThresholdLabel = new JLabel("ToneMap View High Threshold: ");
+		toneMapViewHighThresholdInput = new JTextField(10);
+		toneMapViewHighThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = toneMapViewHighThresholdInput.getText();
+				toneMapViewHighThresholdLabel.setText(String.format("ToneMap View High Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
+
+			}
+		});
+		toneMapViewHighThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
+		cqParamsPanel.add(toneMapViewHighThresholdLabel);
+		cqParamsPanel.add(toneMapViewHighThresholdInput);
+
 		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
 		cqLowThresholdInput = new JTextField(10);
 		cqLowThresholdInput.addActionListener(new ActionListener() {
@@ -1129,6 +1255,40 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION));
 		cqParamsPanel.add(cqCompressionLevelLabel);
 		cqParamsPanel.add(cqCompressionLevelInput);
+
+		JLabel pdCompressionLevelLabel = new JLabel("Pitch Detect Compression Level: ");
+		pdCompressionLevelInput = new JTextField(10);
+		pdCompressionLevelInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = pdCompressionLevelInput.getText();
+				pdCompressionLevelLabel.setText(String.format("Pitch Detect Compression Level  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_COMPRESSION,
+						newValue);
+
+			}
+		});
+		pdCompressionLevelInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_COMPRESSION));
+		cqParamsPanel.add(pdCompressionLevelLabel);
+		cqParamsPanel.add(pdCompressionLevelInput);
+
+		JLabel pdLowThresholdLabel = new JLabel("Pitch Detect Low Threshold Factor: ");
+		pdLowThresholdInput = new JTextField(10);
+		pdLowThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = pdLowThresholdInput.getText();
+				pdLowThresholdLabel.setText(String.format("Pitch Detect Low Threshold Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD,
+						newValue);
+
+			}
+		});
+		pdLowThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD));
+		cqParamsPanel.add(pdLowThresholdLabel);
+		cqParamsPanel.add(pdLowThresholdInput);
 
 		JLabel tunerThresholdFactorLabel = new JLabel("Tuner Threshold Factor: ");
 		tunerThresholdFactorInput = new JTextField(10);
@@ -1330,8 +1490,12 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY));
 		formantHighFreqSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH_FREQUENCY));
+		toneMapViewLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD));
+		toneMapViewHighThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 		cqLowThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 		cqThresholdFactorInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR));
 		cqSignalMinimumInput
@@ -1354,6 +1518,20 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_FACTOR));
 		tunerSignalMinimumInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_MINIMUM));
+		pitchHarmonicsSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS));
+		pdCompressionLevelInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_COMPRESSION));
+		pdLowThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD));
+		pdCompressionSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_COMPRESS));
+		pdWhitenerSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_WHITENER));
+		pdKlapuriSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI));
+		pdTarsosSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS));
 
 	}
 }

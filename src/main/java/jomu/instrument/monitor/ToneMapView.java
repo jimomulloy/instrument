@@ -32,6 +32,9 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
+import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentParameterNames;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -68,11 +71,14 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 	private Color[] rainbow;
 
+	private ParameterManager parameterManager;
+
 	public ToneMapView() {
 		this.timeAxisStart = 0;
 		this.timeAxisEnd = 20000;
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
@@ -152,6 +158,11 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 			bufferedGraphics.setColor(Color.black);
 
+			double lowViewThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
+			double highViewThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
+
 			ToneMapElement[] elements = ttf.getElements();
 
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
@@ -164,17 +175,15 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
 					amplitude = toneMapElement.amplitude;
 					int greyValue = 0;
-					if (amplitude > ttf.getHighThres()) {
+					if (amplitude > highViewThreshold) {
 						greyValue = 255;
-						color = new Color(greyValue, greyValue, greyValue);
-					} else if (amplitude <= ttf.getLowThres()) {
+						color = Color.WHITE;
+					} else if (amplitude <= lowViewThreshold) {
 						greyValue = 0;
-						color = new Color(greyValue, greyValue, greyValue);
+						color = Color.BLACK;
 					} else {
-						greyValue = (int) (Math.log1p(amplitude / ttf.getHighThres()) / Math.log1p(1.0000001) * 255);
-						// int greyValue = (int) (255 * amplitude);
+						greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001) * 255);
 						greyValue = Math.max(0, greyValue);
-						// color = new Color(greyValue, greyValue, greyValue);
 						color = rainbow[255 - greyValue];
 					}
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);

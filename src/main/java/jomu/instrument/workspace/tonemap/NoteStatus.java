@@ -70,7 +70,13 @@ public class NoteStatus {
 	public NoteStatus clone() {
 		NoteStatus copy = new NoteStatus(this.pitchSet);
 		for (note = lowNote, index = 0; note <= highNote; note++, index++) {
-			noteStatus[note - lowNote] = copy.getNote(note);
+			if (noteStatus.length > (note - lowNote)) {
+				noteStatus[note - lowNote] = copy.getNote(note);
+			} else {
+				// TODO !!
+				System.err.println(">>!! NoteStatus clone error: " + lowNote + ", " + highNote + ", " + copy.lowNote
+						+ ", " + copy.highNote + ", " + note + ", " + noteStatus.length + ", " + (note - lowNote));
+			}
 		}
 		return copy;
 	}

@@ -50,10 +50,6 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 			streamId = message.streamId;
 			if (message.source.getCellType().equals(CellTypes.AUDIO_CQ)) {
 				System.out.println(">>AudioTunerPeaksProcessor accept: " + message + ", streamId: " + streamId);
-				double thresholdFactor = parameterManager
-						.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_FACTOR);
-				double signalMinimum = parameterManager
-						.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TUNER_THRESHOLD_MINIMUM);
 				int noiseFloorMedianFilterLenth = parameterManager
 						.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 				float noiseFloorFactor = parameterManager
@@ -77,12 +73,6 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 
 				if (tpSwitchTuner) {
 					tuner.normalize(tpToneMap);
-					float maxAmplitude = (float) tpTimeFrame.getMaxAmplitude();
-					float minAmplitude = (float) tpTimeFrame.getMinAmplitude();
-					double rethreshold = (thresholdFactor * (maxAmplitude - minAmplitude)) + minAmplitude;
-					tpToneMap.getTimeFrame().lowThreshold(rethreshold, signalMinimum);
-					tpToneMap.getTimeFrame().setHighThres(100);
-					tpToneMap.getTimeFrame().setLowThres(10);
 				}
 
 				if (tpSwitchPeaks) {
@@ -99,7 +89,7 @@ public class AudioTunerPeaksProcessor implements Consumer<List<NuMessage>> {
 					}
 				}
 				// iss.addToneMap(tpToneMap);
-				console.getVisor().updateToneMapLayer2View(tpToneMap);
+				// console.getVisor().updateToneMapLayer2View(tpToneMap);
 				cell.send(streamId, sequence);
 
 			}

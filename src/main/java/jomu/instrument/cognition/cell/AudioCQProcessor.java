@@ -19,7 +19,6 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 
 	private NuCell cell;
-	private float tmMax = 0;
 
 	private Workspace workspace;
 	private ParameterManager parameterManager;
@@ -76,37 +75,26 @@ public class AudioCQProcessor implements Consumer<List<NuMessage>> {
 					AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 					ConstantQFeatures cqf = aff.getConstantQFeatures();
 					cqf.buildToneMapFrame(toneMap);
-					// cqf.displayToneMap();
+
 					if (cqSwitchCompress) {
 						toneMap.getTimeFrame().compress(compression);
 					}
 					if (cqSwitchSquare) {
 						toneMap.getTimeFrame().square();
 					}
+
 					if (cqSwitchLowThreshold) {
 						toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
 					}
-					toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
-					toneMap.getTimeFrame().normaliseThreshold(normaliseThreshold, signalMinimum);
 
-					float maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
-					float minAmplitude = (float) toneMap.getTimeFrame().getMinAmplitude();
-					System.out.println(">>MAX AMP PRE DB: " + maxAmplitude + ", " + tmMax);
-					System.out.println(">>MIN AMP PRE DB: " + minAmplitude);
+					if (cqSwitchNormalise) {
+						toneMap.getTimeFrame().normaliseThreshold(normaliseThreshold, signalMinimum);
+					}
 
 					if (cqSwitchDecibel) {
 						toneMap.getTimeFrame().decibel(decibelLevel);
 					}
 
-					if (cqSwitchNormalise) {
-						maxAmplitude = (float) toneMap.getTimeFrame().getMaxAmplitude();
-						minAmplitude = (float) toneMap.getTimeFrame().getMinAmplitude();
-						System.out.println(">>MAX AMP: " + maxAmplitude + ", " + tmMax);
-						System.out.println(">>MIN AMP: " + minAmplitude);
-						if (tmMax < maxAmplitude) {
-							tmMax = maxAmplitude;
-						}
-					}
 					// iss.addToneMap(toneMap);
 					console.getVisor().updateToneMapView(toneMap);
 					cell.send(streamId, sequence);
