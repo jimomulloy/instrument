@@ -1,5 +1,6 @@
 package jomu.instrument.cognition.cell;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -18,7 +19,10 @@ import jomu.instrument.monitor.Console;
 import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
+import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMapElement;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 
@@ -104,24 +108,26 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 
 					if (pdSwitchKlapuri) {
 						PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getPds().getSampleRate(),
-								fftSpectrum.getWindowSize(), harmonics);
+								fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
 						System.out.println(">>PP MAX ENTER KLAPURI!!");
 						Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
-						System.out.println(">>!!KLAPURI PEAKS : " + klapuri.f0s.size());
+						for (int i = 0; i < klapuri.processedSpectrumData.length; i++) {
+							spectrum[i] = (float) klapuri.processedSpectrumData[i];
+						}
 						toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-						System.out.println(">>PP MAX AMP 4: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-								+ toneMap.getTimeFrame().getMinAmplitude());
-					}
-
-					if (pdSwitchTarsos) {
+						processKlapuriPeaks(fftSpectrum.getSpectrum(), new ArrayList<Double>(klapuri.f0s),
+								new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame().getElements());
+						System.out.println(">>!!KLAPURI PEAKS : " + klapuri.f0s.size());
+					} else if (pdSwitchTarsos) {
 						PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), fftSpectrum.getSampleRate());
+						// pd.whiten(fftSpectrum.getSpectrum());
 						pd.detect(fftSpectrum.getSpectrum());
 						toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 						System.out.println(">>PP MAX AMP 5: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 								+ toneMap.getTimeFrame().getMinAmplitude());
+					} else {
+						toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 					}
-
-					toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 
 					System.out.println(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 							+ toneMap.getTimeFrame().getMinAmplitude());
@@ -142,6 +148,24 @@ public class AudioPitchProcessor implements Consumer<List<NuMessage>> {
 
 	private String buildToneMapKey(CellTypes cellType, String streamId) {
 		return cellType + ":" + streamId;
+	}
+
+	private void processKlapuriPeaks(float[] spectrumData, ArrayList<Double> f0s, ArrayList<Double> f0saliences,
+			ToneMapElement[] elements) {
+		for (ToneMapElement element : elements) {
+			element.amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
+		}
+		for (int i = 0; i < f0s.size(); i++) {
+			double f0 = f0s.get(i);
+			double f0salience = f0saliences.get(i);
+			int note = PitchSet.freqToMidiNote(f0);
+			elements[note].amplitude = f0salience;
+			System.out.println(">>KLAP map: " + note + ", " + elements[note].amplitude);
+		}
+		// Arrays.stream(elements).map(element -> element.amplitude =
+		// ToneTimeFrame.AMPLITUDE_FLOOR);
+		// f0s.stream().map(f0 -> PitchSet.freqToMidiNote(f0)).forEach(note ->
+		// elements[note].amplitude = 1);
 	}
 
 	public static double[] convertFloatsToDoubles(float[] input) {

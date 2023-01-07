@@ -63,10 +63,12 @@ public class PolyphonicPitchDetection {
 	public double[] f0cands; /* Klapuri F0 candidates */
 	public ArrayList<Integer>[] f0index; /* Klapuri F0 candidate indices */
 	public ArrayList<Integer>[] f0indHarm; /* Klapuri F0 candidate indices harmonics */
+	public float lowThreshold;
 
-	public PolyphonicPitchDetection(float samplingRate, int fftWindow, int harmonics) {
+	public PolyphonicPitchDetection(float samplingRate, int fftWindow, int harmonics, float lowThreshold) {
 		this.samplingRate = samplingRate;
 		this.fftWindow = fftWindow;
+		this.lowThreshold = lowThreshold;
 		/* Create constant arrays for Klapuri */
 		cb = new double[32];
 		/* CB filterbank always the same values, could be included from somewhere... */
@@ -121,8 +123,8 @@ public class PolyphonicPitchDetection {
 		f0indHarm = new ArrayList[f0cands.length];
 		double halfBinWidth = ((double) samplingRate / (double) fftWindow) / 2.0;
 		for (int k = 0; k < f0index.length; ++k) {
-			f0index[k] = new ArrayList();
-			f0indHarm[k] = new ArrayList();
+			f0index[k] = new ArrayList<Integer>();
+			f0indHarm[k] = new ArrayList<Integer>();
 			for (int h = 0; h < harmonics; ++h) {
 				ArrayList<Integer> tempInd = find(freq, f0cands[k] * (h + 1.0) - halfBinWidth,
 						f0cands[k] * (h + 1.0) + halfBinWidth);

@@ -24,24 +24,26 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class Klapuri {
-	public double[] whitened;
+	public double[] processedSpectrumData;
 	public double[] gammaCoeff;
-	public Vector<Double> f0s;
+	public Vector<Double> f0s = new Vector<>();
+	public Vector<Double> f0saliences = new Vector<>();
 	PolyphonicPitchDetection pppContext;
 	double alpha = 52.0; // Hz
 	double beta = 320.0; // Hz
 	double dee = 0.89;
 
-	public Klapuri(double[] data, PolyphonicPitchDetection pppContext) {
+	public Klapuri(double[] spectrumData, PolyphonicPitchDetection pppContext) {
 		// whitened = (double[]) data.clone();
 		this.pppContext = pppContext;
 		/* Whiten the data */
-		// whitened = whiten(data, pppContext);
-		f0s = detectF0s(data, pppContext);
+		// processedSpectrumData = whiten(spectrumData, pppContext);
+		processedSpectrumData = spectrumData.clone();
+		detectF0s(processedSpectrumData, pppContext);
 	}
 
-	Vector<Double> detectF0s(double[] whitened, PolyphonicPitchDetection pppContext) {
-		Vector<Double> F0s = new Vector<>();
+	void detectF0s(double[] spectrumData, PolyphonicPitchDetection pppContext) {
+		Vector<Double> F0salmaxes = new Vector<>();
 		Vector<ArrayList> F0BinIndexes = new Vector<>();
 		Vector<Double> S = new Vector<>();
 		S.add(0.0);
@@ -53,6 +55,8 @@ public class Klapuri {
 		double[] resultsk = new double[pppContext.freq.length];
 		double[] salience;
 		double summa;
+		double lastIndex = -1;
+		double salMaxCeiling = 0;
 		while (S.lastElement() >= smax) {
 			// Calculating the salience function (the hard way...)
 			salience = new double[pppContext.f0cands.length];
@@ -61,16 +65,16 @@ public class Klapuri {
 			for (int i = 0; i < pppContext.f0index.length; ++i) {
 				summa = 0;
 				for (int j = 0; j < pppContext.f0index[i].size(); ++j) {
-					if (pppContext.f0index[i].get(j) >= whitened.length) {
+					if (pppContext.f0index[i].get(j) >= spectrumData.length) {
 						System.out.println(">> WW: " + pppContext.freq.length + ", " + pppContext.f0index[i].get(j)
-								+ ", " + whitened.length);
+								+ ", " + spectrumData.length);
 					} else if (pppContext.f0index[i].get(j) >= pppContext.freq.length) {
 						System.out.println(">> DD: " + pppContext.f0index[i].get(j) + ", " + pppContext.freq.length);
 					} else {
 						summa += (pppContext.samplingRate * pppContext.freq[pppContext.f0index[i].get(j)] + alpha)
 								/ ((j + 1) * pppContext.samplingRate * pppContext.freq[pppContext.f0index[i].get(j)]
 										+ beta)
-								* whitened[pppContext.f0index[i].get(j)];
+								* spectrumData[pppContext.f0index[i].get(j)];
 					}
 				}
 				salience[i] = summa;
@@ -80,48 +84,53 @@ public class Klapuri {
 				}
 			}
 
+			if (salmax <= pppContext.lowThreshold || lastIndex == index) {
+				break;
+			}
+
 			// Salience calculated
 			++detectedF0s;
-			F0s.add(pppContext.f0cands[index]); // First F0
+			lastIndex = index;
+			f0s.add(pppContext.f0cands[index]);
+			F0salmaxes.add(salmax);
 			System.out.println("!!>KLAPURI ADD F0: " + index + ", " + pppContext.f0index[index] + ", "
-					+ pppContext.f0cands[index]);
+					+ pppContext.f0cands[index] + ", " + salmax);
 			F0BinIndexes.add(pppContext.f0index[index]);
+
+			if (salMaxCeiling < salmax) {
+				salMaxCeiling = salmax;
+			}
 
 			/* Replace this with using f0cands indices at some point! */
 			// Frequency cancellation
-			// System.out.println("To cancellation "+mainProgram.f0index[index].size()+"
-			// "+mainProgram.f0indHarm[index].size());
 			int[] tempCancelled = new int[resultsk.length];
 			for (int j = 0; j < pppContext.f0index[index].size(); ++j) {
 				/* Suppress the surrounding bins as well */
 				for (int i = -1; i <= 1; ++i) {
 					if (tempCancelled[pppContext.f0index[index].get(j) + i] == 0
 							&& pppContext.f0index[index].get(j) + i < resultsk.length) {
-						// System.out.println(mainProgram.f0index[index].get(j)+"
-						// "+mainProgram.freq[mainProgram.f0index[index].get(j)]);
 						resultsk[pppContext.f0index[index].get(j) + i] = resultsk[pppContext.f0index[index].get(j) + i]
 								+ (pppContext.samplingRate * pppContext.freq[pppContext.f0index[index].get(j) + i]
 										+ alpha)
 										/ (((double) pppContext.f0indHarm[index].get(j)) * pppContext.samplingRate
 												* pppContext.freq[pppContext.f0index[index].get(j) + i] + beta)
-										* whitened[pppContext.f0index[index].get(j) + i];
-						if (whitened[pppContext.f0index[index].get(j) + i]
+										* spectrumData[pppContext.f0index[index].get(j) + i];
+						if (spectrumData[pppContext.f0index[index].get(j) + i]
 								- resultsk[pppContext.f0index[index].get(j) + i] > 0) {
-							whitened[pppContext.f0index[index].get(j)
-									+ i] = whitened[pppContext.f0index[index].get(j) + i]
+							spectrumData[pppContext.f0index[index].get(j)
+									+ i] = spectrumData[pppContext.f0index[index].get(j) + i]
 											- resultsk[pppContext.f0index[index].get(j) + i] * dee;
 						} else {
-							whitened[pppContext.f0index[index].get(j) + i] = 0;
+							spectrumData[pppContext.f0index[index].get(j) + i] = 0;
 						}
 						tempCancelled[pppContext.f0index[index].get(j) + i] = 1;
 					}
 
 				}
+				break; // !!TODO only do first
 
 			}
-			// System.out.println("Cancellation done");
-			// requency cancellation done
-			// Polyphony estimation
+
 			if (S.size() < detectedF0s) {
 				S.add(0.0);
 			}
@@ -137,31 +146,20 @@ public class Klapuri {
 			if (detectedF0s > 50) {
 				break;
 			}
+
 		}
 		// The last F0 is extra...
-		// System.out.println("Remove extra");
-		// if (F0s.size() > 1) {
-		// F0s.remove(F0s.size() - 1);
-		// }
-
-		// The last F0 is extra...
-		// System.out.println("Remove extra");
-		if (F0s.size() > 1) {
-			F0s.remove(F0s.size() - 1);
-			F0BinIndexes.remove(F0BinIndexes.size() - 1);
+		System.out.println("Remove extra");
+		if (f0s.size() > 1) {
+			f0s.remove(f0s.size() - 1);
 		}
 
-		for (int i = 0; i < whitened.length; i++) {
-			whitened[i] = 0F;
+		// Normalise saliences
+		for (Double f0salmax : F0salmaxes) {
+			double f0sNormal = f0salmax / salMaxCeiling;
+			System.out.println(">>KLAP F0s norm: " + f0sNormal);
+			f0saliences.add(f0sNormal);
 		}
-		for (ArrayList<Integer> f0Bins : F0BinIndexes) {
-			for (Integer f0Bin : f0Bins) {
-				whitened[f0Bin] = 1.0F;
-				System.out.println("!!>KLAPURI WHITEN F0: " + f0Bin);
-			}
-		}
-
-		return F0s;
 	}
 
 	double[] whiten(double[] dataIn, PolyphonicPitchDetection pppContext) {

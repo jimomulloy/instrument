@@ -122,9 +122,6 @@ public class PitchSet implements Serializable {
 				+ Arrays.toString(freqSet) + ", freqRange=" + freqRange + "]";
 	}
 
-	/**
-	 * See craig tuner.java
-	 */
 	public static int freqToMidiNote(double freq) {
 
 		if (PITCH_FREQ[0] >= freq) {

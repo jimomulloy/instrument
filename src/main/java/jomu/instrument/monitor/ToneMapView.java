@@ -182,7 +182,9 @@ public class ToneMapView extends JComponent implements ComponentListener {
 						greyValue = 0;
 						color = Color.BLACK;
 					} else {
-						greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001) * 255);
+						greyValue = (int) (Math
+								.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+								/ Math.log1p(1.0000001) * 255);
 						greyValue = Math.max(0, greyValue);
 						color = rainbow[255 - greyValue];
 					}

@@ -26,7 +26,7 @@ public class PitchDetect {
 	// private float[] spec;
 
 	/** spectrum "whitener" for pre-processing */
-	private SpecWhitener sw;
+	public SpecWhitener sw;
 
 	/** size of the buffer */
 	private int timeSize;
@@ -49,6 +49,10 @@ public class PitchDetect {
 
 		sw = new SpecWhitener(timeSize, sampleRate);
 		fzeros = new float[pitches.length];
+	}
+
+	public void whiten(float[] spec) {
+		sw.whiten(spec);
 	}
 
 	/**
@@ -85,8 +89,23 @@ public class PitchDetect {
 			for (int i = 1; i * fzeroInfo[0] < sampleRate / 2; i++) {
 				int partialInd = (int) Math.floor(i * fzeroInfo[0] * timeSize / sampleRate);
 				float weighting = i == 1 ? (1.0f / 0.89f) : (fzeroInfo[0] + 52) / (i * fzeroInfo[0] + 320);
+				System.out.println(">>MUTE PITCH BEFORE: " + partialInd + ", " + spec[partialInd] + ", " + i + ", "
+						+ fzeroInfo[0]);
 				spec[partialInd] *= (1 - 0.89f * weighting);
+				if (spec.length < partialInd + 1) {
+					spec[partialInd + 1] *= (1 - 0.89f * weighting);
+				}
 				spec[partialInd - 1] *= (1 - 0.89f * weighting);
+				if (partialInd > 1) {
+					spec[partialInd - 1] *= (1 - 0.89f * weighting);
+					if (partialInd > 2) {
+						spec[partialInd - 2] *= (1 - 0.89f * weighting);
+						if (partialInd > 3) {
+							spec[partialInd - 3] *= (1 - 0.89f * weighting);
+						}
+					}
+				}
+				System.out.println(">>MUTE PITCH AFTER: " + partialInd + ", " + spec[partialInd]);
 			}
 
 			// update fzeros
@@ -133,6 +152,9 @@ public class PitchDetect {
 					val = Math.max(Math.max(spec[bin - 2], Math.max(spec[bin - 1], spec[bin])), spec[bin + 1]);
 				else if (bin < 1)
 					val = Math.max(Math.max(spec[bin - 1], spec[bin]), spec[bin + 1]);
+
+				//
+				val = spec[bin];
 				// calculate the salience of the current candidate
 				float weighting = i == 1 ? 1.0F : (pitches[j] + 52) / (i * pitches[j] + 320);
 				cSalience += val * weighting;
