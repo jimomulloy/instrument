@@ -1,7 +1,6 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 
@@ -119,47 +118,47 @@ public class Generator {
 		return cell;
 	}
 
-	private static Consumer<List<NuMessage>> getAudioCQProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioCQProcessor(NuCell cell) {
 		return new AudioCQProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioIntegrateProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioIntegrateProcessor(NuCell cell) {
 		return new AudioIntegrateProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioNotateProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioNotateProcessor(NuCell cell) {
 		return new AudioNotateProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioPitchProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioPitchProcessor(NuCell cell) {
 		return new AudioPitchProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioSpectralPeaksProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSpectralPeaksProcessor(NuCell cell) {
 		return new AudioSpectralPeaksProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioTunerPeaksProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioTunerPeaksProcessor(NuCell cell) {
 		return new AudioTunerPeaksProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioChromaPreProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioChromaPreProcessor(NuCell cell) {
 		return new AudioChromaPreProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioChromaPostProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioChromaPostProcessor(NuCell cell) {
 		return new AudioChromaPostProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioBeatProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioBeatProcessor(NuCell cell) {
 		return new AudioBeatProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getAudioSinkProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSinkProcessor(NuCell cell) {
 		return new AudioSinkProcessor(cell);
 	}
 
-	private static Consumer<List<NuMessage>> getJunctionProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getJunctionProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
 				cell.send(message);
@@ -167,7 +166,7 @@ public class Generator {
 		};
 	}
 
-	private static Consumer<List<NuMessage>> getSinkProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getSinkProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
 				System.out.println(">>SinkProcessor process message: " + message);
@@ -175,7 +174,7 @@ public class Generator {
 		};
 	}
 
-	private static Consumer<List<NuMessage>> getSourceProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, Exception> getSourceProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
 				cell.send(message.streamId, message.sequence);

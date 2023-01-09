@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
 
 public class NuCell extends Cell implements Serializable {
 	private static final long serialVersionUID = 1002;
@@ -48,7 +47,7 @@ public class NuCell extends Cell implements Serializable {
 	protected MorphologyEnum morphology;
 
 	// Processor
-	protected Consumer<List<NuMessage>> processor;
+	protected ThrowingConsumer<List<NuMessage>, Exception> processor;
 
 	// Most NuCells receive many input signals throughout their dendritic trees.
 	// A single NuCell may have more than one set of dendrites, and may receive
@@ -278,7 +277,7 @@ public class NuCell extends Cell implements Serializable {
 		return axon.getConnections();
 	}
 
-	public Consumer<List<NuMessage>> getProcessor() {
+	public ThrowingConsumer<List<NuMessage>, Exception> getProcessor() {
 		return processor;
 	}
 
@@ -442,7 +441,7 @@ public class NuCell extends Cell implements Serializable {
 		this.morphology = morphology;
 	}
 
-	public void setProcessor(Consumer<List<NuMessage>> processor) {
+	public void setProcessor(ThrowingConsumer<List<NuMessage>, Exception> processor) {
 		this.processor = processor;
 	}
 
@@ -504,7 +503,12 @@ public class NuCell extends Cell implements Serializable {
 					}
 					received.add(Integer.valueOf(qe.sequence));
 					if (entries.size() >= dendrites.getCount()) {
-						processor.accept(entries);
+						try {
+							processor.accept(entries);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						List<Integer> processed = new ArrayList<>();
 						for (int sequence : messageReceivedMap.get(qe.streamId)) {
 							if (sequence <= qe.sequence) {

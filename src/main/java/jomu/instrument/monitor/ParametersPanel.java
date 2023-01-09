@@ -16,6 +16,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -26,7 +27,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import jomu.instrument.InstrumentParameterNames;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.InstrumentStoreService;
 
@@ -104,6 +105,11 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox pdKlapuriSwitchCB;
 	private JCheckBox pdTarsosSwitchCB;
 	private JTextField pdLowThresholdInput;
+
+	private final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
+	private JComboBox cqWindowComboBox;
+	private JComboBox pdWindowComboBox;
+	private JComboBox spWindowComboBox;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -194,6 +200,62 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS));
 		parameterPanel.add(audioHighPassLabel);
 		parameterPanel.add(audioHighPassSlider);
+
+		JPanel audioComboPanel = new JPanel();
+		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
+		audioComboPanel.setLayout(new GridLayout(1, 0));
+		audioComboPanel
+				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
+
+		pdWindowComboBox = new JComboBox<>(fftSizes);
+		pdWindowComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW,
+						Integer.toString(value));
+			}
+		});
+
+		pdWindowComboBox.setSelectedIndex(getFFTWindowIndex(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW)));
+		audioComboPanel.add(new JLabel("Pitch Detector Window Size:  "));
+		audioComboPanel.add(pdWindowComboBox);
+
+		cqWindowComboBox = new JComboBox<>(fftSizes);
+		cqWindowComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW,
+						Integer.toString(value));
+			}
+		});
+
+		cqWindowComboBox.setSelectedIndex(getFFTWindowIndex(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW)));
+		audioComboPanel.add(new JLabel("CQ Window Size:  "));
+		audioComboPanel.add(cqWindowComboBox);
+
+		spWindowComboBox = new JComboBox<>(fftSizes);
+		spWindowComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW,
+						Integer.toString(value));
+			}
+		});
+
+		spWindowComboBox.setSelectedIndex(getFFTWindowIndex(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW)));
+		audioComboPanel.add(new JLabel("Spectral Peaks Window Size:  "));
+		audioComboPanel.add(spWindowComboBox);
+
+		parameterPanel.add(audioComboPanel);
 
 		JPanel tunerSwitchPanel = new JPanel();
 		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
@@ -1127,7 +1189,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
 		JLabel toneMapViewLowThresholdLabel = new JLabel("ToneMap View Low Threshold: ");
-		toneMapViewLowThresholdInput = new JTextField(10);
+		toneMapViewLowThresholdInput = new JTextField(4);
 		toneMapViewLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1143,7 +1205,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(toneMapViewLowThresholdInput);
 
 		JLabel toneMapViewHighThresholdLabel = new JLabel("ToneMap View High Threshold: ");
-		toneMapViewHighThresholdInput = new JTextField(10);
+		toneMapViewHighThresholdInput = new JTextField(4);
 		toneMapViewHighThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1159,7 +1221,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(toneMapViewHighThresholdInput);
 
 		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
-		cqLowThresholdInput = new JTextField(10);
+		cqLowThresholdInput = new JTextField(4);
 		cqLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1175,7 +1237,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqLowThresholdInput);
 
 		JLabel cqThresholdFactorLabel = new JLabel("CQ Threshold Factor: ");
-		cqThresholdFactorInput = new JTextField(10);
+		cqThresholdFactorInput = new JTextField(4);
 		cqThresholdFactorInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1192,7 +1254,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqThresholdFactorInput);
 
 		JLabel cqSignalMinimumLabel = new JLabel("CQ Signal Minimum: ");
-		cqSignalMinimumInput = new JTextField(10);
+		cqSignalMinimumInput = new JTextField(4);
 		cqSignalMinimumInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1208,7 +1270,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqSignalMinimumInput);
 
 		JLabel cqNormaliseThresholdLabel = new JLabel("CQ Normalise Threshold: ");
-		cqNormaliseThresholdInput = new JTextField(10);
+		cqNormaliseThresholdInput = new JTextField(4);
 		cqNormaliseThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1225,7 +1287,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqNormaliseThresholdInput);
 
 		JLabel cqDecibelLevelLabel = new JLabel("CQ Decibel Level: ");
-		cqDecibelLevelInput = new JTextField(10);
+		cqDecibelLevelInput = new JTextField(4);
 		cqDecibelLevelInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1241,7 +1303,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqDecibelLevelInput);
 
 		JLabel cqCompressionLevelLabel = new JLabel("CQ Compression Level: ");
-		cqCompressionLevelInput = new JTextField(10);
+		cqCompressionLevelInput = new JTextField(4);
 		cqCompressionLevelInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1257,7 +1319,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqCompressionLevelInput);
 
 		JLabel pdCompressionLevelLabel = new JLabel("Pitch Detect Compression Level: ");
-		pdCompressionLevelInput = new JTextField(10);
+		pdCompressionLevelInput = new JTextField(4);
 		pdCompressionLevelInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1274,7 +1336,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(pdCompressionLevelInput);
 
 		JLabel pdLowThresholdLabel = new JLabel("Pitch Detect Low Threshold Factor: ");
-		pdLowThresholdInput = new JTextField(10);
+		pdLowThresholdInput = new JTextField(4);
 		pdLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1291,7 +1353,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(pdLowThresholdInput);
 
 		JLabel tunerThresholdFactorLabel = new JLabel("Tuner Threshold Factor: ");
-		tunerThresholdFactorInput = new JTextField(10);
+		tunerThresholdFactorInput = new JTextField(4);
 		tunerThresholdFactorInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1308,7 +1370,7 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(tunerThresholdFactorInput);
 
 		JLabel tunerSignalMinimumLabel = new JLabel("Tuner Signal Minimum: ");
-		tunerSignalMinimumInput = new JTextField(10);
+		tunerSignalMinimumInput = new JTextField(4);
 		tunerSignalMinimumInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1333,7 +1395,7 @@ public class ParametersPanel extends JPanel {
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
 		JLabel tunerNormaliseThresholdLabel = new JLabel("Audio Tuner Normalise Threshold: ");
-		tunerNormaliseThresholdInput = new JTextField(10);
+		tunerNormaliseThresholdInput = new JTextField(4);
 		tunerNormaliseThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1349,7 +1411,7 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerNormaliseThresholdInput);
 
 		JLabel tunerNormaliseTroughLabel = new JLabel("Audio Tuner Normalise Trough: ");
-		tunerNormaliseTroughInput = new JTextField(10);
+		tunerNormaliseTroughInput = new JTextField(4);
 		tunerNormaliseTroughInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1365,7 +1427,7 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerNormaliseTroughInput);
 
 		JLabel tunerNormalisePeakLabel = new JLabel("Audio Tuner Normalise Peak: ");
-		tunerNormalisePeakInput = new JTextField(10);
+		tunerNormalisePeakInput = new JTextField(4);
 		tunerNormalisePeakInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1381,7 +1443,7 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerNormalisePeakInput);
 
 		JLabel tunerHarmonicDriftFactorLabel = new JLabel("Audio Tuner Harmonic Drift Factor: ");
-		tunerHarmonicDriftFactorInput = new JTextField(10);
+		tunerHarmonicDriftFactorInput = new JTextField(4);
 		tunerHarmonicDriftFactorInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1400,6 +1462,15 @@ public class ParametersPanel extends JPanel {
 		Dimension minimumSize = new Dimension(1000, 1000);
 		parameterPanel.setMinimumSize(minimumSize);
 		this.add(parameterPanel, BorderLayout.CENTER);
+	}
+
+	private int getFFTWindowIndex(String parameter) {
+		for (int i = 0; i < fftSizes.length; i++) {
+			if (fftSizes[i].toString().equals(parameter)) {
+				return i;
+			}
+		}
+		return 2;
 	}
 
 	public void updateParameters() {
@@ -1532,6 +1603,12 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI));
 		pdTarsosSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS));
+		pdWindowComboBox.setSelectedIndex(getFFTWindowIndex(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW)));
+		cqWindowComboBox.setSelectedIndex(getFFTWindowIndex(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW)));
+		spWindowComboBox.setSelectedIndex(getFFTWindowIndex(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW)));
 
 	}
 }

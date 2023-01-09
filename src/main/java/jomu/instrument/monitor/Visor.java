@@ -58,7 +58,6 @@ import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
-import jomu.instrument.InstrumentParameterNames;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.ConstantQSource;
@@ -70,13 +69,12 @@ import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.audio.features.SpectralPeaksSource;
 import jomu.instrument.audio.features.SpectrogramInfo;
 import jomu.instrument.audio.features.SpectrogramSource;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
-
-	private static final long serialVersionUID = 3501426880288136245L;
 
 	private static String defaultAudioFileFolder = "D:/audio";
 	private static String defaultAudioFile = "3notescale.wav";
@@ -1341,6 +1339,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 							// (Math.log1p(magnitude)
 							// / Math.log1p(100) * 255);
 							// greyValue = Math.max(0, greyValue);
+							if (greyValue < 0 || greyValue > 255)
+								greyValue = 0;
 							color = new Color(greyValue, greyValue, greyValue);
 							graphics.setColor(color);
 							graphics.fillRect((int) Math.round(timeStart * 1000), frequencyInCents, markerWidth,

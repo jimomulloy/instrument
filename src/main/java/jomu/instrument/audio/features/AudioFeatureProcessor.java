@@ -9,7 +9,7 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.Oscilloscope;
 import jomu.instrument.Instrument;
-import jomu.instrument.InstrumentParameterNames;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class AudioFeatureProcessor implements AudioProcessor {

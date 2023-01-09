@@ -66,6 +66,9 @@ public class PitchSet implements Serializable {
 
 	public double getFreq(int index) {
 		currentPitchIndex = index;
+		if (lowPitchIndex + index >= PITCH_FREQ.length) {
+			return -1;
+		}
 		return PITCH_FREQ[lowPitchIndex + index];
 	}
 

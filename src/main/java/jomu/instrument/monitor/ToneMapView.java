@@ -33,7 +33,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.InstrumentParameterNames;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;

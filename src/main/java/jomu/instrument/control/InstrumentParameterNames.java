@@ -1,4 +1,4 @@
-package jomu.instrument;
+package jomu.instrument.control;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,6 +10,9 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL = "perception.hearing.auditFeatureInterval";
 	public static final String PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE = "perception.hearing.defaultSampleRate";
 	public static final String PERCEPTION_HEARING_DEFAULT_WINDOW = "perception.hearing.defaultWindow";
+	public static final String PERCEPTION_HEARING_AUDIO_PD_WINDOW = "perception.hearing.audio.pd.window";
+	public static final String PERCEPTION_HEARING_AUDIO_CQ_WINDOW = "perception.hearing.audio.cq.window";
+	public static final String PERCEPTION_HEARING_AUDIO_SP_WINDOW = "perception.hearing.audio.sp.window";
 	public static final String PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH = "perception.hearing.noiseFloorMedianFilterLenth";
 	public static final String PERCEPTION_HEARING_NOISE_FLOOR_FACTOR = "perception.hearing.noiseFloorFactor";
 	public static final String PERCEPTION_HEARING_NUMBER_PEAKS = "perception.hearing.numberOfSpectralPeaks";
