@@ -13,6 +13,7 @@ public class AudioFeatureFrame {
 	private OnsetFeatures onsetFeatures;
 	private BeatFeatures beatFeatures;
 	private PitchDetectorFeatures pitchDetectorFeatures;
+	private PitchDetectorFeatures lowPitchDetectorFeatures;
 
 	private ScalogramFeatures scalogramFeatures;
 	private SpectralPeaksFeatures spectralPeaksFeatures;
@@ -74,6 +75,10 @@ public class AudioFeatureFrame {
 		return pitchDetectorFeatures;
 	}
 
+	public PitchDetectorFeatures getLowPitchDetectorFeatures() {
+		return lowPitchDetectorFeatures;
+	}
+
 	public ScalogramFeatures getScalogramFeatures() {
 		return scalogramFeatures;
 	}
@@ -104,6 +109,7 @@ public class AudioFeatureFrame {
 		beatFeatures = new BeatFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
+		lowPitchDetectorFeatures = new PitchDetectorFeatures();
 		// bandedPitchDetectorFeatures = new BandedPitchDetectorFeatures();
 		spectrogramFeatures = new SpectrogramFeatures();
 		goertzelFeatures = new GoertzelFeatures();
@@ -114,6 +120,7 @@ public class AudioFeatureFrame {
 		onsetFeatures.initialise(this);
 		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);
+		lowPitchDetectorFeatures.initialise(this, true);
 		// bandedPitchDetectorFeatures
 		// .initialise(this.audioFeatureProcessor.getTarsosFeatures().getBandedPitchDetectorSource());
 		spectrogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getSpectrogramSource());

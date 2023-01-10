@@ -39,7 +39,6 @@ public class ConstantQSource {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW);
 		System.out.println(">>CQ window: " + this.windowSize);
-
 		this.minimumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
 		this.maximumFrequencyInCents = parameterManager
@@ -114,8 +113,8 @@ public class ConstantQSource {
 
 		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
 
-		binWidth = windowSize / sampleRate;
-		binHeight = 1200 / (float) binsPerOctave;
+		binWidth = (float) windowSize / sampleRate;
+		binHeight = 1200F / (float) binsPerOctave;
 
 		startingPointsInHertz = constantQ.getFreqencies();
 		System.out.println(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);

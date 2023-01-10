@@ -73,6 +73,13 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		this.windowSize = bufferSize;
 	}
 
+	public PitchDetectorSource(AudioDispatcher dispatcher, boolean isLow) {
+		this(dispatcher);
+		this.windowSize = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW);
+		System.out.println(">>PD LOW window: " + this.windowSize);
+	}
+
 	public float getBinHeight() {
 		return binHeight;
 	}

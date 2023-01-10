@@ -16,6 +16,8 @@ public class Generator {
 			return createAudioSinkTypeCell();
 		case AUDIO_PITCH:
 			return createAudioPitchTypeCell();
+		case AUDIO_LOW_PITCH:
+			return createAudioLowPitchTypeCell();
 		case AUDIO_TUNER_PEAKS:
 			return createAudioTunerPeaksTypeCell();
 		case AUDIO_SPECTRAL_PEAKS:
@@ -24,6 +26,10 @@ public class Generator {
 			return createAudioCQTypeCell();
 		case AUDIO_BEAT:
 			return createAudioBeatTypeCell();
+		case AUDIO_ONSET:
+			return createAudioOnsetTypeCell();
+		case AUDIO_HPS:
+			return createAudioHpsTypeCell();
 		case AUDIO_PRE_CHROMA:
 			return createAudioPreChromaTypeCell();
 		case AUDIO_POST_CHROMA:
@@ -94,6 +100,24 @@ public class Generator {
 		return cell;
 	}
 
+	private static NuCell createAudioOnsetTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_ONSET);
+		cell.setProcessor(getAudioOnsetProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioHpsTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_HPS);
+		cell.setProcessor(getAudioHpsProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioLowPitchTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_LOW_PITCH);
+		cell.setProcessor(getAudioLowPitchProcessor(cell));
+		return cell;
+	}
+
 	private static NuCell createAudioSinkTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_SINK);
 		cell.setProcessor(getAudioSinkProcessor(cell));
@@ -152,6 +176,18 @@ public class Generator {
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioBeatProcessor(NuCell cell) {
 		return new AudioBeatProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioOnsetProcessor(NuCell cell) {
+		return new AudioOnsetProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioHpsProcessor(NuCell cell) {
+		return new AudioHpsProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioLowPitchProcessor(NuCell cell) {
+		return new AudioLowPitchProcessor(cell);
 	}
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSinkProcessor(NuCell cell) {

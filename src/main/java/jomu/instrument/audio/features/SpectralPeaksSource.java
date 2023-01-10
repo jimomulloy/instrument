@@ -24,7 +24,7 @@ public class SpectralPeaksSource {
 	float noiseFloorFactor = 1.0F;
 	int noiseFloorMedianFilterLenth = 10;
 	int numberOfSpectralPeaks = 3;
-	int sampleRate = 44100;
+	float sampleRate = 44100F;
 	int windowSize = 1024;
 	private float[] binHeightsInCents;
 	private int binsPerOctave = 12;
@@ -39,7 +39,7 @@ public class SpectralPeaksSource {
 	public SpectralPeaksSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
-		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
+		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
 		System.out.println(">>SP window: " + this.windowSize);
@@ -93,7 +93,7 @@ public class SpectralPeaksSource {
 		return numberOfSpectralPeaks;
 	}
 
-	public int getSampleRate() {
+	public float getSampleRate() {
 		return sampleRate;
 	}
 
@@ -115,7 +115,7 @@ public class SpectralPeaksSource {
 	}
 
 	void initialise() {
-
+		System.out.println(">>SP init: " + this.windowSize);
 		noiseFloorMedianFilterLenth = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 		noiseFloorFactor = parameterManager
@@ -123,6 +123,11 @@ public class SpectralPeaksSource {
 		numberOfSpectralPeaks = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
 		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
+
+		System.out.println(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLenth);
+		System.out.println(">>SP noiseFloorFactor: " + noiseFloorFactor);
+		System.out.println(">>SP numberOfSpectralPeaks: " + numberOfSpectralPeaks);
+		System.out.println(">>SP minPeakSize: " + minPeakSize);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];
@@ -132,8 +137,10 @@ public class SpectralPeaksSource {
 			binHeightsInCents[i] = binStartingPointsInCents[i] - binStartingPointsInCents[i - 1];
 		}
 
-		binWidth = windowSize / sampleRate;
-		binHeight = 1200 / (float) binsPerOctave;
+		binWidth = (float) windowSize / sampleRate;
+		binHeight = 1200F / (float) binsPerOctave;
+
+		System.out.println(">>SP binWidth: " + binWidth);
 
 		int stepsize = 512;
 		int overlap = windowSize - stepsize;
@@ -141,7 +148,7 @@ public class SpectralPeaksSource {
 			overlap = 128;
 		}
 
-		spectralPeakProcesser = new SpectralPeakProcessor(windowSize, overlap, sampleRate);
+		spectralPeakProcesser = new SpectralPeakProcessor(windowSize, overlap, (int) sampleRate);
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
 		djp.setName("SP");

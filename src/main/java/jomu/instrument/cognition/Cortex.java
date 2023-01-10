@@ -20,7 +20,10 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 	private NuCell sourceUpdateCell;
 	private NuCell audioCQCell;
 	private NuCell audioBeatCell;
+	private NuCell audioOnsetCell;
+	private NuCell audioHpsCell;
 	private NuCell audioPitchCell;
+	private NuCell audioLowPitchCell;
 	private NuCell audioSpectralPeaksCell;
 	private NuCell audioPreChromaCell;
 	private NuCell audioPostChromaCell;
@@ -49,7 +52,10 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
 		audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
 		audioBeatCell = Generator.createNuCell(CellTypes.AUDIO_BEAT);
+		audioOnsetCell = Generator.createNuCell(CellTypes.AUDIO_ONSET);
+		audioHpsCell = Generator.createNuCell(CellTypes.AUDIO_HPS);
 		audioPitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
+		audioLowPitchCell = Generator.createNuCell(CellTypes.AUDIO_LOW_PITCH);
 		audioSpectralPeaksCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
 		audioPreChromaCell = Generator.createNuCell(CellTypes.AUDIO_PRE_CHROMA);
 		audioPostChromaCell = Generator.createNuCell(CellTypes.AUDIO_POST_CHROMA);
@@ -64,12 +70,17 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioPostChromaCell, audioIntegrateCell);
 		Weaver.connect(audioNotateCell, audioIntegrateCell);
 		Weaver.connect(audioIntegrateCell, audioSinkCell);
+		Weaver.connect(audioOnsetCell, audioSinkCell);
 		Weaver.connect(audioBeatCell, audioSinkCell);
 		Weaver.connect(audioPitchCell, audioSinkCell);
+		Weaver.connect(audioLowPitchCell, audioSinkCell);
+		Weaver.connect(audioHpsCell, audioSinkCell);
 		Weaver.connect(audioSpectralPeaksCell, audioSinkCell);
-		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Weaver.connect(sourceUpdateCell, audioBeatCell);
+		Weaver.connect(sourceUpdateCell, audioOnsetCell);
 		Weaver.connect(sourceUpdateCell, audioPitchCell);
+		Weaver.connect(sourceUpdateCell, audioLowPitchCell);
+		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Weaver.connect(sourceUpdateCell, audioSpectralPeaksCell);
 	}
 

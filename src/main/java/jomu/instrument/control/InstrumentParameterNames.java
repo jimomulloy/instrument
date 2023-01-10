@@ -1,9 +1,5 @@
 package jomu.instrument.control;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS = "perception.hearing.minimumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS = "perception.hearing.maximumFrequencyInCents";
@@ -11,6 +7,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE = "perception.hearing.defaultSampleRate";
 	public static final String PERCEPTION_HEARING_DEFAULT_WINDOW = "perception.hearing.defaultWindow";
 	public static final String PERCEPTION_HEARING_AUDIO_PD_WINDOW = "perception.hearing.audio.pd.window";
+	public static final String PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW = "perception.hearing.audio.pd.low.window";
 	public static final String PERCEPTION_HEARING_AUDIO_CQ_WINDOW = "perception.hearing.audio.cq.window";
 	public static final String PERCEPTION_HEARING_AUDIO_SP_WINDOW = "perception.hearing.audio.sp.window";
 	public static final String PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH = "perception.hearing.noiseFloorMedianFilterLenth";
@@ -100,25 +97,9 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_FORMANT_LOW_FREQUENCY = "audio.tuner.formantLowFreq";
 	public static final String AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY = "audio.tuner.formantMidFreq";
 
-	private static final Map<String, String> displayNames = prepareMap();
+	public static final String MONITOR_VIEW_TIME_AXIS_OFFSET = "monitor.view.timeAxisOffset";
+	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";
+	public static final String MONITOR_VIEW_TIME_AXIS_RANGE = "monitor.view.timeAxisRange";
+	public static final String MONITOR_VIEW_PITCH_AXIS_RANGE = "monitor.view.pitchAxisRange";
 
-	private static Map<String, String> prepareMap() {
-		Map<String, String> hashMap = new HashMap<>();
-		hashMap.put(PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS, "PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS");
-		hashMap.put(PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS, "PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS");
-		hashMap.put(PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL, "PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL");
-		hashMap.put(PERCEPTION_HEARING_DEFAULT_WINDOW, "PERCEPTION_HEARING_DEFAULT_WINDOW");
-		hashMap.put(PERCEPTION_HEARING_CQ_LOW_THRESHOLD, "PERCEPTION_HEARING_CQ_LOW_THRESHOLD");
-		hashMap.put(PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR, "PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR");
-		hashMap.put(PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM, "PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM");
-		hashMap.put(PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD, "PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD");
-		hashMap.put(PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH, "PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH");
-		hashMap.put(PERCEPTION_HEARING_NUMBER_PEAKS, "PERCEPTION_HEARING_NUMBER_PEAKS");
-		hashMap.put(PERCEPTION_HEARING_MINIMUM_PEAK_SIZE, "PERCEPTION_HEARING_MINIMUM_PEAK_SIZE");
-		return hashMap;
-	}
-
-	public static Map<String, String> getDisplayNames() {
-		return Collections.unmodifiableMap(displayNames);
-	}
 }

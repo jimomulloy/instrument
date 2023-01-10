@@ -74,11 +74,23 @@ public class ToneMapView extends JComponent implements ComponentListener {
 	private ParameterManager parameterManager;
 
 	public ToneMapView() {
-		this.timeAxisStart = 0;
-		this.timeAxisEnd = 20000;
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.timeAxisStart = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
+		this.timeAxisEnd = this.timeAxisStart
+				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+	}
+
+	public void updateAxis() {
+		this.timeAxisStart = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
+		this.timeAxisEnd = this.timeAxisStart
+				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
+		if (toneMap != null) {
+			renderToneMap(toneMap);
+		}
 	}
 
 	@Override
@@ -105,6 +117,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 		for (ToneTimeFrame frame : toneMap.getTimeFramesFrom(0.0)) {
 			renderToneMap(frame);
 		}
+		repaint();
 	}
 
 	@Override
@@ -128,6 +141,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 			this.currentHeight = getHeight();
 		}
 		if (ttf != null) {
+			double timeAxisRange = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 			TimeSet timeSet = ttf.getTimeSet();
 			PitchSet pitchSet = ttf.getPitchSet();
 			updateAxis(timeSet, pitchSet);
@@ -135,21 +150,21 @@ public class ToneMapView extends JComponent implements ComponentListener {
 			double timeEnd = timeSet.getEndTime() * 1000;
 			if (timeStart > timeAxisEnd) {
 				timeAxisStart = timeStart;
-				timeAxisEnd = timeStart + 20000.0;
+				timeAxisEnd = timeStart + timeAxisRange;
 				this.currentWidth = getWidth();
 				this.currentHeight = getHeight();
 				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
 				bufferedGraphics = bufferedImage.createGraphics();
 			} else if (timeStart == 0) {
 				timeAxisStart = timeStart;
-				timeAxisEnd = timeStart + 20000.0;
+				timeAxisEnd = timeStart + timeAxisRange;
 				this.currentWidth = getWidth();
 				this.currentHeight = getHeight();
 				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
 				bufferedGraphics = bufferedImage.createGraphics();
 			} else if (timeStart < timeAxisStart) {
-				timeAxisStart -= 20000.0;
-				timeAxisEnd -= 20000.0;
+				timeAxisStart -= timeAxisRange;
+				timeAxisEnd -= timeAxisRange;
 				this.currentWidth = getWidth();
 				this.currentHeight = getHeight();
 				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
@@ -164,14 +179,13 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 
 			ToneMapElement[] elements = ttf.getElements();
-
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 
 				ToneMapElement toneMapElement = elements[elementIndex];
 				Color color = Color.black;
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
-					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
+					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
 					int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
 					amplitude = toneMapElement.amplitude;
 					int greyValue = 0;
@@ -201,6 +215,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 	private void drawGrid() {
 		Color gridColor = new Color(50, 50, 50);
+		double timeAxisRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 
 		for (int i = 0; i < maxCents; i += 100) {
 			int centsCoordinate = getCentsCoordinate(i);
@@ -213,7 +229,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 			}
 		}
 
-		for (int i = 0; i <= 20000; i += 1000) {
+		for (int i = 0; i <= timeAxisRange; i += 1000) {
 			bufferedGraphics.setColor(Color.WHITE);
 			int timeCoordinate = getTimeCoordinate(i);
 			bufferedGraphics.drawLine(timeCoordinate, getHeight(), timeCoordinate, getHeight() - 5);
