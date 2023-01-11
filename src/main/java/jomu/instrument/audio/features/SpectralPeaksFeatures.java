@@ -82,9 +82,4 @@ public class SpectralPeaksFeatures {
 		}
 	}
 
-	public void displayToneMap() {
-		if (toneMap != null) {
-			visor.updateToneMapView(toneMap);
-		}
-	}
 }

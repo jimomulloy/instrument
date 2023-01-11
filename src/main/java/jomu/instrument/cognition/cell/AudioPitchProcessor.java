@@ -127,7 +127,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			// }
 
 		}
-		console.getVisor().updateToneMapLayer2View(toneMap);
+		console.getVisor().updateToneMapView(toneMap, CellTypes.AUDIO_PITCH.toString());
 		cell.send(streamId, sequence);
 	}
 

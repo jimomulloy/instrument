@@ -71,6 +71,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 	private Color[] rainbow;
 
+	private String currentToneMap;
+
 	private ParameterManager parameterManager;
 
 	public ToneMapView() {
@@ -81,6 +83,10 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
+	}
+
+	public ToneMap getToneMap() {
+		return toneMap;
 	}
 
 	public void updateAxis() {
@@ -113,7 +119,8 @@ public class ToneMapView extends JComponent implements ComponentListener {
 		}
 	}
 
-	private void renderToneMap(ToneMap toneMap) {
+	public void renderToneMap(ToneMap toneMap) {
+		this.toneMap = toneMap;
 		for (ToneTimeFrame frame : toneMap.getTimeFramesFrom(0.0)) {
 			renderToneMap(frame);
 		}

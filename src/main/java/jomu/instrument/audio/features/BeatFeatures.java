@@ -82,10 +82,4 @@ public class BeatFeatures {
 			ttf.setLowThres(0.1);
 		}
 	}
-
-	public void displayToneMap() {
-		if (toneMap != null) {
-			visor.updateToneMapView(toneMap);
-		}
-	}
 }

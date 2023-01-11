@@ -9,7 +9,7 @@ import jomu.instrument.audio.analysis.PolyphonicPitchDetection;
 import jomu.instrument.audio.analysis.Whitener;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
-import jomu.instrument.audio.features.PitchDetectorFeatures;
+import jomu.instrument.audio.features.LowPitchDetectorFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
@@ -47,7 +47,7 @@ public class AudioLowPitchProcessor extends ProcessorCommon {
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-		PitchDetectorFeatures pdf = aff.getLowPitchDetectorFeatures();
+		LowPitchDetectorFeatures pdf = aff.getLowPitchDetectorFeatures();
 		pdf.buildToneMapFrame(toneMap);
 		float[] spectrum = pdf.getSpectrum();
 		if (spectrum != null) {

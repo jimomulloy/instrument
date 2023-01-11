@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,6 +62,7 @@ import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.ConstantQSource;
+import jomu.instrument.audio.features.LowPitchDetectorSource;
 import jomu.instrument.audio.features.PitchDetectorSource;
 import jomu.instrument.audio.features.ScalogramFeatures;
 import jomu.instrument.audio.features.ScalogramFrame;
@@ -79,16 +81,12 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private static String defaultAudioFileFolder = "D:/audio";
 	private static String defaultAudioFile = "3notescale.wav";
 
-	private LinkedPanel bandedPitchDetectPanel;
-	private BandedPitchDetectLayer bpdLayer;
-
 	private LinkedPanel constantQPanel;
 
 	private CQLayer cqLayer;
 
 	private LinkedPanel cqPanel;
 
-	private LegendLayer legend;
 	private SpectrumLayer noiseFloorLayer;
 
 	private PitchDetectLayer pdLayer;
@@ -100,13 +98,17 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private LinkedPanel spectrogramPanel;
 	private SpectrumLayer spectrumLayer;
 	private LinkedPanel spectrumPanel;
-	ToneMapView toneMapView;
-	ToneMapView toneMapLayer2View;
+
+	private ToneMapView toneMapView;
+	private String currentToneMapViewType;
+
+	private Map<String, ToneMap> toneMapViews = new HashMap<>();
 
 	private String fileName;
 
-	private final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private final Integer[] inputSampleRate = { 8000, 22050, 44100, 192000 };
+	private static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
+	private static final Integer[] inputSampleRate = { 8000, 22050, 44100, 192000 };
+
 	private File inputFile;
 
 	private JPanel diagnosticsPanel;
@@ -132,6 +134,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JTextField timeAxisRangeInput;
 	private JTextField pitchAxisRangeInput;
 	private LinkedPanel lowPitchDetectPanel;
+	private JComboBox toneMapViewComboBox;
+	private boolean toneMapViewComboFlag;
 
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
@@ -214,17 +218,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JTabbedPane toneMapTabbedPane = new JTabbedPane();
 		toneMapTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		JPanel toneMapLayer1Panel = createToneMapLayer1Panel();
-		toneMapTabbedPane.addTab("ToneMap1", toneMapLayer1Panel);
-		JPanel toneMapLayer2Panel = createToneMapLayer2Panel();
-		toneMapTabbedPane.addTab("ToneMap2", toneMapLayer2Panel);
+		JPanel toneMapLayerPanel = createToneMapLayerPanel();
+		toneMapTabbedPane.addTab("ToneMap1", toneMapLayerPanel);
 		cqPanel = createCQPanel();
 		toneMapTabbedPane.addTab("CQ", cqPanel);
-		bandedPitchDetectPanel = createBandedPitchDetectPanel();
-		toneMapTabbedPane.addTab("Banded Pitch", bandedPitchDetectPanel);
-		pitchDetectPanel = createPitchDetectPanel(false);
+		pitchDetectPanel = createPitchDetectPanel();
 		toneMapTabbedPane.addTab("Pitch", pitchDetectPanel);
-		lowPitchDetectPanel = createPitchDetectPanel(true);
+		lowPitchDetectPanel = createLowPitchDetectPanel();
 		toneMapTabbedPane.addTab("Low Pitch", lowPitchDetectPanel);
 		spectrogramPanel = createSpectogramPanel();
 		toneMapTabbedPane.addTab("Spectogram", spectrogramPanel);
@@ -290,6 +290,23 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
 		JPanel graphControlPanel = new JPanel();
+
+		toneMapViewComboBox = new JComboBox<>();
+		toneMapViewComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String value = String.valueOf(toneMapViewComboBox.getSelectedItem());
+				currentToneMapViewType = value;
+				System.out.println(">>TCACT 1");
+				if (toneMapViewComboFlag) {
+					System.out.println(">>TCACT 2");
+					// Visor.this.resetToneMapView();
+				}
+			}
+		});
+
+		graphControlPanel.add(new JLabel("ToneMap View:  "));
+		graphControlPanel.add(toneMapViewComboBox);
 
 		JLabel timeAxisOffsetLabel = new JLabel("Time Axis Offset ms: ");
 		timeAxisOffsetInput = new JTextField(4);
@@ -572,12 +589,41 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		oscilloscopePanel.repaint();
 	}
 
-	public void updateToneMapView(ToneMap toneMap) {
-		toneMapView.updateToneMap(toneMap);
+	@SuppressWarnings("unchecked")
+	public void updateToneMapView(ToneMap toneMap, String toneMapViewType) {
+		if (!toneMapViews.containsKey(toneMapViewType)) {
+			toneMapViews.put(toneMapViewType, toneMap);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					toneMapViewComboFlag = false;
+					System.out.println(">>TCACT 0");
+					toneMapViewComboBox.addItem(toneMapViewType);
+					System.out.println(">>TCACT 0A");
+					toneMapViewComboFlag = true;
+				}
+			});
+			if (currentToneMapViewType == null) {
+				toneMapView.renderToneMap(toneMap);
+				currentToneMapViewType = toneMapViewType;
+			}
+		} else if (!toneMapViews.get(toneMapViewType).getKey().equals(toneMapView.getToneMap().getKey())) {
+			toneMapViews.put(toneMapViewType, toneMap);
+			if (currentToneMapViewType == null) {
+				toneMapView.renderToneMap(toneMap);
+				currentToneMapViewType = toneMapViewType;
+			} else if (toneMapViewType.equals(currentToneMapViewType)) {
+				toneMapView.updateToneMap(toneMap);
+			}
+		} else if (toneMapViewType.equals(currentToneMapViewType)) {
+			toneMapView.updateToneMap(toneMap);
+		}
 	}
 
-	public void updateToneMapLayer2View(ToneMap toneMap) {
-		toneMapLayer2View.updateToneMap(toneMap);
+	public void resetToneMapView() {
+		if (toneMapViews.containsKey(currentToneMapViewType)) {
+			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+		}
 	}
 
 	public void updateBeatsView(ToneMap toneMap) {
@@ -592,34 +638,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		chromaPostView.updateToneMap(toneMap);
 	}
 
-	private LinkedPanel createBandedPitchDetectPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		bandedPitchDetectPanel = new LinkedPanel(cs);
-		bpdLayer = new BandedPitchDetectLayer(cs);
-		bandedPitchDetectPanel.addLayer(new BackgroundLayer(cs));
-		bandedPitchDetectPanel.addLayer(bpdLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
-		bandedPitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		bandedPitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
-		bandedPitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
-		bandedPitchDetectPanel.addLayer(new SelectionLayer(cs));
-		bandedPitchDetectPanel.addLayer(new TimeAxisLayer(cs));
-
-		legend = new LegendLayer(cs, 110);
-		bandedPitchDetectPanel.addLayer(legend);
-		legend.addEntry("Pitch", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				bandedPitchDetectPanel.repaint();
-			}
-		};
-		bandedPitchDetectPanel.getViewPort().addViewPortChangedListener(listener);
-		return bandedPitchDetectPanel;
-	}
-
 	private LinkedPanel createCQPanel() {
 		CoordinateSystem constantQCS = getCoordinateSystem(AxisUnit.FREQUENCY);
 		constantQCS.setMax(Axis.X, 20000);
@@ -627,15 +645,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		cqLayer = new CQLayer(constantQCS);
 		constantQPanel.addLayer(new BackgroundLayer(constantQCS));
 		constantQPanel.addLayer(cqLayer);
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
 		constantQPanel.addLayer(new VerticalFrequencyAxisLayer(constantQCS));
 		constantQPanel.addLayer(new ZoomMouseListenerLayer());
 		constantQPanel.addLayer(new DragMouseListenerLayer(constantQCS));
 		constantQPanel.addLayer(new SelectionLayer(constantQCS));
 		constantQPanel.addLayer(new TimeAxisLayer(constantQCS));
 
-		legend = new LegendLayer(constantQCS, 110);
+		LegendLayer legend = new LegendLayer(constantQCS, 110);
 		constantQPanel.addLayer(legend);
 		legend.addEntry("ConstantQ", Color.BLACK);
 		legend.addEntry("Pitch estimations", Color.RED);
@@ -649,27 +665,20 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		return constantQPanel;
 	}
 
-	private LinkedPanel createPitchDetectPanel(boolean isLow) {
+	private LinkedPanel createPitchDetectPanel() {
 		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
 		cs.setMax(Axis.X, 20000);
 		pitchDetectPanel = new LinkedPanel(cs);
 		pitchDetectPanel.addLayer(new BackgroundLayer(cs));
-		if (isLow) {
-			lowPdLayer = new PitchDetectLayer(cs, true);
-			pitchDetectPanel.addLayer(lowPdLayer);
-		} else {
-			pdLayer = new PitchDetectLayer(cs, false);
-			pitchDetectPanel.addLayer(pdLayer);
-		}
-		// constantQ.addLayer(new PitchContourLayer(constantQCS,
-		// player.getLoadedFile(),Color.red,1024,0));
+		pdLayer = new PitchDetectLayer(cs, false);
+		pitchDetectPanel.addLayer(pdLayer);
 		pitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
 		pitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
 		pitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
 		pitchDetectPanel.addLayer(new SelectionLayer(cs));
 		pitchDetectPanel.addLayer(new TimeAxisLayer(cs));
 
-		legend = new LegendLayer(cs, 110);
+		LegendLayer legend = new LegendLayer(cs, 110);
 		pitchDetectPanel.addLayer(legend);
 		legend.addEntry("Pitch", Color.BLACK);
 		ViewPortChangedListener listener = new ViewPortChangedListener() {
@@ -680,6 +689,32 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		};
 		pitchDetectPanel.getViewPort().addViewPortChangedListener(listener);
 		return pitchDetectPanel;
+	}
+
+	private LinkedPanel createLowPitchDetectPanel() {
+		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
+		cs.setMax(Axis.X, 20000);
+		lowPitchDetectPanel = new LinkedPanel(cs);
+		lowPitchDetectPanel.addLayer(new BackgroundLayer(cs));
+		lowPdLayer = new PitchDetectLayer(cs, true);
+		lowPitchDetectPanel.addLayer(lowPdLayer);
+		lowPitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
+		lowPitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
+		lowPitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
+		lowPitchDetectPanel.addLayer(new SelectionLayer(cs));
+		lowPitchDetectPanel.addLayer(new TimeAxisLayer(cs));
+
+		LegendLayer legend = new LegendLayer(cs, 110);
+		lowPitchDetectPanel.addLayer(legend);
+		legend.addEntry("Pitch", Color.BLACK);
+		ViewPortChangedListener listener = new ViewPortChangedListener() {
+			@Override
+			public void viewPortChanged(ViewPort newViewPort) {
+				lowPitchDetectPanel.repaint();
+			}
+		};
+		lowPitchDetectPanel.getViewPort().addViewPortChangedListener(listener);
+		return lowPitchDetectPanel;
 	}
 
 	private LinkedPanel createSpectogramPanel() {
@@ -697,7 +732,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		spectrogramPanel.addLayer(new SelectionLayer(cs));
 		spectrogramPanel.addLayer(new TimeAxisLayer(cs));
 
-		legend = new LegendLayer(cs, 110);
+		LegendLayer legend = new LegendLayer(cs, 110);
 		spectrogramPanel.addLayer(legend);
 		legend.addEntry("Pitch", Color.BLACK);
 		ViewPortChangedListener listener = new ViewPortChangedListener() {
@@ -723,7 +758,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		spectralPeaksPanel.addLayer(new SelectionLayer(cs));
 		spectralPeaksPanel.addLayer(new TimeAxisLayer(cs));
 
-		legend = new LegendLayer(cs, 110);
+		LegendLayer legend = new LegendLayer(cs, 110);
 		spectralPeaksPanel.addLayer(legend);
 		legend.addEntry("SpectralPeaks", Color.BLACK);
 		ViewPortChangedListener listener = new ViewPortChangedListener() {
@@ -769,18 +804,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		return spectrumPanel;
 	}
 
-	private JPanel createToneMapLayer1Panel() {
+	private JPanel createToneMapLayerPanel() {
 		toneMapView = new ToneMapView();
 		JPanel tmContainer = new JPanel(new BorderLayout());
 		tmContainer.add(toneMapView, BorderLayout.CENTER);
-		tmContainer.setBackground(Color.BLACK);
-		return tmContainer;
-	}
-
-	private JPanel createToneMapLayer2Panel() {
-		toneMapLayer2View = new ToneMapView();
-		JPanel tmContainer = new JPanel(new BorderLayout());
-		tmContainer.add(toneMapLayer2View, BorderLayout.CENTER);
 		tmContainer.setBackground(Color.BLACK);
 		return tmContainer;
 	}
@@ -801,7 +828,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		pdLayer.update(audioFeatureFrame);
 		lowPdLayer.update(audioFeatureFrame);
 		sLayer.update(audioFeatureFrame);
-		// repaintSpectrum(audioFeatureFrame);
 		this.spectrogramPanel.repaint();
 		this.cqPanel.repaint();
 		this.spectralPeaksPanel.repaint();
@@ -809,193 +835,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		this.lowPitchDetectPanel.repaint();
 		this.spectrumPanel.repaint();
 	}
-
-	private static class BandedPitchDetectLayer implements Layer {
-
-		private float binHeight;
-		private float[] binStartingPointsInCents;
-		private float binWidth;
-		private final CoordinateSystem cs;
-		TreeMap<Double, SpectrogramInfo> features;
-
-		public BandedPitchDetectLayer(CoordinateSystem cs) {
-			this.cs = cs;
-		}
-
-		@Override
-		public void draw(Graphics2D graphics) {
-
-			if (features != null) {
-				System.out.println(">>PD max amp: " + binWidth + ", " + binHeight);
-
-				Map<Double, SpectrogramInfo> spSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
-						cs.getMax(Axis.X) / 1000.0);
-				double maxAmp = 0.00001;
-				for (Entry<Double, SpectrogramInfo> column : spSubMap.entrySet()) {
-
-					double timeStart = column.getKey();// in seconds
-					SpectrogramInfo spectrogramInfo = column.getValue();// in
-																		// cents
-					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
-					float[] amplitudes = spectrogramInfo.getAmplitudes();
-					// draw the pixels
-					for (int i = 0; i < amplitudes.length; i++) {
-						Color color = Color.black;
-						float centsStartingPoint = binStartingPointsInCents[i];
-						// only draw the visible frequency range
-						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
-							// int greyValue = 255 - (int)
-							// (Math.log1p(spectralEnergy[i])
-							// / Math.log1p(currentMaxSpectralEnergy) * 255);
-							if (amplitudes[i] > maxAmp) {
-								maxAmp = amplitudes[i];
-							}
-							int greyValue = 255 - (int) (amplitudes[i] / (maxAmp) * 255);
-							greyValue = Math.max(0, greyValue);
-							color = new Color(greyValue, greyValue, greyValue);
-							graphics.setColor(color);
-							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
-									Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
-							// graphics.fillRect((int) Math.round(timeStart *
-							// 1000),
-							// Math.round(centsStartingPoint),
-							// (int) Math.round(100), (int) Math.ceil(100));
-
-						}
-					}
-					// System.out.println(">>PD max amp: " + maxAmp + ", " +
-					// timeStart);
-
-					if (pitch > -1) {
-						double cents = PitchConverter.hertzToAbsoluteCent(pitch);
-						Color color = Color.red;
-						// only draw the visible frequency range
-						if (cents >= cs.getMin(Axis.Y) && cents <= cs.getMax(Axis.Y)) {
-							// int greyValue = (int) (255F * probability);
-							// greyValue = Math.max(0, greyValue);
-							// color = new Color(greyValue, greyValue,
-							// greyValue);
-							graphics.setColor(color);
-							graphics.fillRect((int) Math.round(timeStart * 1000), (int) cents, Math.round(40),
-									(int) Math.ceil(100));
-						}
-					}
-
-				}
-
-			}
-		}
-
-		@Override
-		public String getName() {
-			return "Pitch Detect Layer";
-		}
-
-		public void update(AudioFeatureFrame audioFeatureFrame) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-//					BandedPitchDetectorSource bpds = audioFeatureFrame.getBandedPitchDetectorFeatures().getBpds();
-//					binStartingPointsInCents = bpds.getBinStartingPointsInCents(2048);
-//					binWidth = bpds.getBinWidth(2048);
-//					binHeight = bpds.getBinHeight(2048);
-//					Map<Integer, TreeMap<Double, SpectrogramInfo>> bfs = audioFeatureFrame
-//							.getBandedPitchDetectorFeatures().getFeatures();
-//					if (features == null) {
-//						features = new TreeMap<>();
-//					}
-//					TreeMap<Double, SpectrogramInfo> fs = bfs.get(2048);
-//					if (fs != null) {
-//						for (Entry<Double, SpectrogramInfo> entry : fs.entrySet()) {
-//							features.put(entry.getKey(), entry.getValue());
-//						}
-//					}
-				}
-			});
-		}
-	}
-	//
-	// private static class BeadsLayer implements Layer {
-	//
-	// private float binHeight;
-	// private float[] binStartingPointsInCents;
-	//
-	// private float binWidth;
-	// private final CoordinateSystem cs;
-	// private TreeMap<Double, float[][]> features;
-	//
-	// public BeadsLayer(CoordinateSystem cs) {
-	// this.cs = cs;
-	// }
-	//
-	// @Override
-	// public void draw(Graphics2D graphics) {
-	//
-	// if (features != null) {
-	// Map<Double, float[][]> spectralInfoSubMap = features.subMap(
-	// cs.getMin(Axis.X) / 1000.0, cs.getMax(Axis.X) / 1000.0);
-	//
-	// double currentMaxSpectralEnergy = 0;
-	// // for (Map.Entry<Double, float[][]> column :
-	// // spectralInfoSubMap.entrySet()) {
-	// // float[][] spectralEnergy = column.getValue();
-	// // for (int i = 0; i < spectralEnergy.length; i++) {
-	// // currentMaxSpectralEnergy = Math.max(currentMaxSpectralEnergy,
-	// // spectralEnergy[i]);
-	// // }
-	// // }
-	// for (Map.Entry<Double, float[][]> column : spectralInfoSubMap
-	// .entrySet()) {
-	// double timeStart = column.getKey();// in seconds
-	// float[][] spectralEnergy = column.getValue();// in cents
-	// // draw the pixels
-	// for (float[] element : spectralEnergy) {
-	// Color color = Color.black;
-	// float centsStartingPoint = (float) PitchConverter
-	// .hertzToAbsoluteCent(element[0]);
-	// // only draw the visible frequency range
-	// if (centsStartingPoint >= cs.getMin(Axis.Y)
-	// && centsStartingPoint <= cs.getMax(Axis.Y)) {
-	// int greyValue = 255 - (int) (Math.log1p(element[1])
-	// / Math.log1p(currentMaxSpectralEnergy)
-	// * 255);
-	// greyValue = Math.max(0, greyValue);
-	// color = new Color(greyValue, greyValue, greyValue);
-	// graphics.setColor(color);
-	// graphics.fillRect(
-	// (int) Math.round(timeStart * 1000),
-	// Math.round(centsStartingPoint),
-	// Math.round(binWidth * 1000),
-	// (int) Math.ceil(binHeight));
-	// }
-	// }
-	// }
-	// }
-	// }
-	//
-	// @Override
-	// public String getName() {
-	// return "Beads Layer";
-	// }
-	//
-	// public void update(AudioFeatureFrame audioFeatureFrame) {
-	// SwingUtilities.invokeLater(new Runnable() {
-	// @Override
-	// public void run() {
-	// if (features == null) {
-	// features = new TreeMap<>();
-	// }
-	// List<FeatureFrame> ffs = audioFeatureFrame
-	// .getBeadsFeatures();
-	// for (FeatureFrame ff : ffs) {
-	// float[][] fs = (float[][]) ff
-	// .get(SpectralPeaks.class.getSimpleName());
-	// features.put(ff.getStartTimeMS(), fs);
-	// }
-	// }
-	// });
-	// }
-	// }
 
 	private static class CQLayer implements Layer {
 
@@ -1199,16 +1038,24 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					PitchDetectorSource pds;
+					TreeMap<Double, SpectrogramInfo> fs;
 					if (isLow) {
+						LowPitchDetectorSource pds;
 						pds = audioFeatureFrame.getLowPitchDetectorFeatures().getPds();
+						System.out.println(">>get PDS features low: " + pds.getBufferSize());
+						binStartingPointsInCents = pds.getBinStartingPointsInCents();
+						binWidth = pds.getBinWidth();
+						binHeight = pds.getBinHeight();
+						fs = pds.getFeatures();
 					} else {
+						PitchDetectorSource pds;
 						pds = audioFeatureFrame.getPitchDetectorFeatures().getPds();
+						System.out.println(">>get PDS features high: " + pds.getBufferSize());
+						binStartingPointsInCents = pds.getBinStartingPointsInCents();
+						binWidth = pds.getBinWidth();
+						binHeight = pds.getBinHeight();
+						fs = pds.getFeatures();
 					}
-					binStartingPointsInCents = pds.getBinStartingPointsInCents();
-					binWidth = pds.getBinWidth();
-					binHeight = pds.getBinHeight();
-					TreeMap<Double, SpectrogramInfo> fs = pds.getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}

@@ -17,7 +17,7 @@ import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class PitchDetectorSource implements PitchDetectionHandler {
+public class LowPitchDetectorSource implements PitchDetectionHandler {
 
 	private float binHeight;
 
@@ -59,16 +59,17 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	private ParameterManager parameterManager;
 
-	public PitchDetectorSource(AudioDispatcher dispatcher) {
+	public LowPitchDetectorSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW);
-		System.out.println(">>PD window: " + this.windowSize);
+		this.windowSize = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW);
+		System.out.println(">>PD LOW window: " + this.windowSize);
 	}
 
-	public PitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {
+	public LowPitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {
 		this(dispatcher);
 		this.windowSize = bufferSize;
 	}

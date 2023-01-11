@@ -107,12 +107,6 @@ public class ConstantQFeatures implements ToneMapConstants {
 		// }
 	}
 
-	public void displayToneMap() {
-		if (toneMap != null) {
-			visor.updateToneMapView(toneMap);
-		}
-	}
-
 	public ConstantQSource getCqs() {
 		return cqs;
 	}

@@ -10,7 +10,7 @@ public class TarsosFeatureSource {
 	private GoertzelSource goertzelSource;
 	private OnsetSource onsetSource;
 	private PitchDetectorSource pitchDetectorSource;
-	private PitchDetectorSource lowPitchDetectorSource;
+	private LowPitchDetectorSource lowPitchDetectorSource;
 	private ScalogramSource scalogramSource;
 	private SpectralPeaksSource spectralPeaksSource;
 	private SpectrogramSource spectrogramSource;
@@ -45,7 +45,7 @@ public class TarsosFeatureSource {
 		return pitchDetectorSource;
 	}
 
-	public PitchDetectorSource getLowPitchDetectorSource() {
+	public LowPitchDetectorSource getLowPitchDetectorSource() {
 		return lowPitchDetectorSource;
 	}
 
@@ -66,7 +66,7 @@ public class TarsosFeatureSource {
 		onsetSource = new OnsetSource(dispatcher);
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
-		lowPitchDetectorSource = new PitchDetectorSource(dispatcher, true);
+		lowPitchDetectorSource = new LowPitchDetectorSource(dispatcher);
 		spectrogramSource = new SpectrogramSource(dispatcher);
 		beatSource = new BeatSource(dispatcher);
 		goertzelSource = new GoertzelSource(dispatcher);

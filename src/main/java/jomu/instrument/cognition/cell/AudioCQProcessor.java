@@ -69,7 +69,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 			}
 
 			// iss.addToneMap(toneMap);
-			console.getVisor().updateToneMapView(toneMap);
+			console.getVisor().updateToneMapView(toneMap, CellTypes.AUDIO_CQ.toString());
 			cell.send(streamId, sequence);
 		}
 	}

@@ -11,7 +11,7 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class PitchDetectorFeatures implements ToneMapConstants {
+public class LowPitchDetectorFeatures implements ToneMapConstants {
 
 	public boolean logSwitch = true;
 	public int powerHigh = 100;
@@ -23,7 +23,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 	private Visor visor;
 
 	TreeMap<Double, SpectrogramInfo> features;
-	PitchDetectorSource pds;
+	LowPitchDetectorSource pds;
 
 	public float[] getSpectrum() {
 		float[] spectrum = null;
@@ -70,7 +70,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		return features;
 	}
 
-	public PitchDetectorSource getPds() {
+	public LowPitchDetectorSource getPds() {
 		return pds;
 	}
 
@@ -80,7 +80,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
+		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getLowPitchDetectorSource();
 		this.features = pds.getFeatures();
 		this.visor = Instrument.getInstance().getConsole().getVisor();
 		pds.clear();

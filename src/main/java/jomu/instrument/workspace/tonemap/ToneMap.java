@@ -24,12 +24,19 @@ public class ToneMap {
 	public boolean midiSwitch = false;
 	private ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
 
-	public ToneMap() {
+	private String key;
+
+	public ToneMap(String key) {
+		this.key = key;
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
 
 	public void addTimeFrame(ToneTimeFrame toneTimeFrame) {
 		toneMapStore.put(toneTimeFrame.getStartTime(), toneTimeFrame);
+	}
+
+	public String getKey() {
+		return key;
 	}
 
 	public ToneMap cens() {
@@ -49,7 +56,7 @@ public class ToneMap {
 
 	@Override
 	public ToneMap clone() {
-		ToneMap copy = new ToneMap();
+		ToneMap copy = new ToneMap(key);
 		for (Entry<Double, ToneTimeFrame> tmf : toneMapStore.entrySet()) {
 			copy.addTimeFrame(tmf.getValue().clone());
 		}
