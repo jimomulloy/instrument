@@ -22,7 +22,7 @@ public class SpectralPeaksSource {
 	int increment = 1024;
 	int minPeakSize = 100;
 	float noiseFloorFactor = 1.0F;
-	int noiseFloorMedianFilterLenth = 10;
+	int noiseFloorMedianFilterLength = 10;
 	int numberOfSpectralPeaks = 3;
 	float sampleRate = 44100F;
 	int windowSize = 1024;
@@ -86,7 +86,7 @@ public class SpectralPeaksSource {
 	}
 
 	public int getNoiseFloorMedianFilterLenth() {
-		return noiseFloorMedianFilterLenth;
+		return noiseFloorMedianFilterLength;
 	}
 
 	public int getNumberOfSpectralPeaks() {
@@ -116,7 +116,7 @@ public class SpectralPeaksSource {
 
 	void initialise() {
 		System.out.println(">>SP init: " + this.windowSize);
-		noiseFloorMedianFilterLenth = parameterManager
+		noiseFloorMedianFilterLength = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 		noiseFloorFactor = parameterManager
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR);
@@ -124,7 +124,7 @@ public class SpectralPeaksSource {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
 		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
 
-		System.out.println(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLenth);
+		System.out.println(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLength);
 		System.out.println(">>SP noiseFloorFactor: " + noiseFloorFactor);
 		System.out.println(">>SP numberOfSpectralPeaks: " + numberOfSpectralPeaks);
 		System.out.println(">>SP minPeakSize: " + minPeakSize);

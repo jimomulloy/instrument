@@ -206,7 +206,7 @@ public class ParametersPanel extends JPanel {
 
 		JPanel audioComboPanel = new JPanel();
 		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
-		audioComboPanel.setLayout(new GridLayout(1, 0));
+		audioComboPanel.setLayout(new GridLayout(0, 4));
 		audioComboPanel
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
@@ -278,7 +278,7 @@ public class ParametersPanel extends JPanel {
 
 		JPanel tunerSwitchPanel = new JPanel();
 		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
-		tunerSwitchPanel.setLayout(new GridLayout(2, 0));
+		tunerSwitchPanel.setLayout(new GridLayout(0, 4));
 		// switchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		tunerSwitchPanel
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
@@ -440,7 +440,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(tunerSwitchPanel);
 
 		JPanel cqSwitchPanel = new JPanel();
-		cqSwitchPanel.setLayout(new GridLayout(2, 0));
+		cqSwitchPanel.setLayout(new GridLayout(0, 4));
 		cqSwitchPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
 		compressionSwitchCB = new JCheckBox("compressionSwitchCB");

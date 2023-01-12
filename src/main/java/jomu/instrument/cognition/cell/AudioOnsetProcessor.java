@@ -18,14 +18,13 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		System.out.println(">>AudioOnsetProcessor accept seq: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
+		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
-		if (afp != null) {
-			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-			// OnsetFeatures osf = aff.getOnsetFeatures();
-			// osf.buildToneMapFrame(toneMap);
-			// console.getVisor().updateBeatsView(toneMap);
-			cell.send(streamId, sequence);
-		}
+		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+		// OnsetFeatures osf = aff.getOnsetFeatures();
+		// osf.buildToneMapFrame(toneMap);
+		// console.getVisor().updateBeatsView(toneMap);
+		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+		cell.send(streamId, sequence);
 	}
 }

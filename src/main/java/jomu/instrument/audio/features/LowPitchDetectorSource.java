@@ -127,7 +127,7 @@ public class LowPitchDetectorSource implements PitchDetectionHandler {
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
-		djp.setName("PD");
+		djp.setName("LPD");
 		dispatcher.addAudioProcessor(djp);
 		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, windowSize, this));
 		djp.addAudioProcessor(fftProcessor);

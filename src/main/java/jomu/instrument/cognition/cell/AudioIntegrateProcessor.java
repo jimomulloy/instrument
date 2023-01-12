@@ -19,6 +19,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		ToneMap integrateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+		console.getVisor().updateToneMapView(integrateToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}
 }

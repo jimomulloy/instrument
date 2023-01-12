@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
@@ -80,6 +81,27 @@ public class SpectralPeaksFeatures {
 			toneMap.addTimeFrame(ttf);
 			ttf.reset();
 		}
+	}
+
+	public float[] processPeaks(float[] spectrum) {
+		float[] peakSpectrum = new float[spectrum.length];
+
+		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
+			List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(sps.getNoiseFloorMedianFilterLenth(),
+					sps.getNoiseFloorFactor(), sps.getNumberOfSpectralPeaks(), sps.getMinPeakSize());
+			for (SpectralPeak sp : spectralPeaks) {
+				for (int i = 0; i < peakSpectrum.length; i++) {
+					if (sp.getBin() == i) {
+						if (peakSpectrum[i] < sp.getMagnitude()) {
+							peakSpectrum[i] += sp.getMagnitude();
+						}
+						;
+					}
+				}
+			}
+		}
+		return peakSpectrum;
+
 	}
 
 }

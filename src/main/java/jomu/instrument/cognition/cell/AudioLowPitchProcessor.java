@@ -44,7 +44,7 @@ public class AudioLowPitchProcessor extends ProcessorCommon {
 		boolean pdSwitchTarsos = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS);
 
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
+		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_LOW_PITCH, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		LowPitchDetectorFeatures pdf = aff.getLowPitchDetectorFeatures();
@@ -127,7 +127,7 @@ public class AudioLowPitchProcessor extends ProcessorCommon {
 			// }
 
 		}
-		// console.getVisor().updateToneMapLayer2View(toneMap);
+		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}
 

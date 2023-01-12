@@ -27,6 +27,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 		tuner.noteScan(notateToneMap, sequence);
 
+		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}
 }
