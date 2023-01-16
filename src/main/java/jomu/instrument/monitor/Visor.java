@@ -13,11 +13,11 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -273,17 +273,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		toneMapViewComboBox = new JComboBox<>();
 
-		Stream.of(Cell.CellTypes.values()).filter(value -> {
-			switch (value) {
-			case AUDIO_CQ:
-			case AUDIO_TUNER_PEAKS:
-			case AUDIO_SPECTRAL_PEAKS:
-			case AUDIO_PITCH:
-				return true;
-			default:
-				return false;
-			}
-		}).map(Enum::name).forEach(entry -> toneMapViewComboBox.addItem(entry));
+		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
+				Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(), Cell.CellTypes.AUDIO_PITCH.name(),
+				Cell.CellTypes.AUDIO_HPS.name(), Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC",
+				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION" }).stream()
+				.forEach(entry -> toneMapViewComboBox.addItem(entry));
 
 		toneMapViewComboBox.setEnabled(false);
 		toneMapViewComboBox.setSelectedItem(Cell.CellTypes.AUDIO_CQ.name());
@@ -314,6 +308,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				timeAxisOffsetLabel.setText(String.format("Time Axis Offset ms (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, newValue);
 				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
 
 			}
 		});
@@ -600,7 +597,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 						toneMapView.renderToneMap(toneMap);
 					}
 				} else if (toneMapViewType.equals(currentToneMapViewType)) {
-					toneMapView.updateToneMap(toneMap);
+					toneMapView.renderToneMap(toneMap);
 				}
 			}
 		});

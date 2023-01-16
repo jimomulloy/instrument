@@ -63,6 +63,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
 		Weaver.connect(audioCQCell, audioTunerPeaksCell);
 		Weaver.connect(audioCQCell, audioPreChromaCell);
+		Weaver.connect(audioCQCell, audioHpsCell);
 		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
 		Weaver.connect(audioTunerPeaksCell, audioNotateCell);
 		Weaver.connect(audioPostChromaCell, audioIntegrateCell);

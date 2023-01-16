@@ -70,8 +70,11 @@ public class ChromaView extends JComponent implements ComponentListener {
 	private ParameterManager parameterManager;
 
 	public ChromaView() {
-		this.timeAxisStart = 0;
-		this.timeAxisEnd = 20000;
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.timeAxisStart = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
+		this.timeAxisEnd = this.timeAxisStart
+				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -89,7 +92,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (toneMap != null) {
-			renderToneMap(toneMap);
+			renderToneMap();
 		}
 	}
 
@@ -101,7 +104,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (toneMap != null) {
-			renderToneMap(toneMap);
+			renderToneMap();
 		}
 	}
 
@@ -113,7 +116,18 @@ public class ChromaView extends JComponent implements ComponentListener {
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (toneMap != null) {
-			renderToneMap(toneMap);
+			renderToneMap();
+		}
+	}
+
+	public void updateAxis() {
+		this.timeAxisStart = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
+		this.timeAxisEnd = this.timeAxisStart
+				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
+		System.out.println("!!udpate tm time axis: " + toneMap + " ," + this.timeAxisStart + ", " + this.timeAxisEnd);
+		if (toneMap != null) {
+			renderToneMap();
 		}
 	}
 
@@ -123,10 +137,20 @@ public class ChromaView extends JComponent implements ComponentListener {
 		repaint();
 	}
 
-	private void renderToneMap(ToneMap toneMap) {
-		for (ToneTimeFrame frame : toneMap.getTimeFramesFrom(0.0)) {
+	public void renderToneMap() {
+		double timeStart = timeAxisStart / 1000;
+		double timeEnd = timeAxisEnd / 1000;
+		this.currentWidth = getWidth();
+		this.currentHeight = getHeight();
+		bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+		bufferedGraphics = bufferedImage.createGraphics();
+		for (ToneTimeFrame frame : toneMap.getTimeFramesFrom(timeStart)) {
+			if (frame.getStartTime() > timeEnd) {
+				break;
+			}
 			renderToneMap(frame);
 		}
+		repaint();
 	}
 
 	private void renderToneMap(ToneTimeFrame ttf) {
@@ -145,28 +169,31 @@ public class ChromaView extends JComponent implements ComponentListener {
 			updateAxis(timeSet, pitchSet);
 			double timeStart = timeSet.getStartTime() * 1000;
 			double timeEnd = timeSet.getEndTime() * 1000;
-			if (timeStart > timeAxisEnd) {
-				timeAxisStart = timeStart;
-				timeAxisEnd = timeStart + 20000.0;
-				this.currentWidth = getWidth();
-				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-				bufferedGraphics = bufferedImage.createGraphics();
-			} else if (timeStart == 0) {
-				timeAxisStart = timeStart;
-				timeAxisEnd = timeStart + 20000.0;
-				this.currentWidth = getWidth();
-				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-				bufferedGraphics = bufferedImage.createGraphics();
-			} else if (timeStart < timeAxisStart) {
-				timeAxisStart -= 20000.0;
-				timeAxisEnd -= 20000.0;
-				this.currentWidth = getWidth();
-				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-				bufferedGraphics = bufferedImage.createGraphics();
+			if (timeStart >= timeAxisEnd) {
+				return;
 			}
+//			if (timeStart > timeAxisEnd) {
+//				timeAxisStart = timeStart;
+//				timeAxisEnd = timeStart + 20000.0;
+//				this.currentWidth = getWidth();
+//				this.currentHeight = getHeight();
+//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+//				bufferedGraphics = bufferedImage.createGraphics();
+//			} else if (timeStart == 0) {
+//				timeAxisStart = timeStart;
+//				timeAxisEnd = timeStart + 20000.0;
+//				this.currentWidth = getWidth();
+//				this.currentHeight = getHeight();
+//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+//				bufferedGraphics = bufferedImage.createGraphics();
+//			} else if (timeStart < timeAxisStart) {
+//				timeAxisStart -= 20000.0;
+//				timeAxisEnd -= 20000.0;
+//				this.currentWidth = getWidth();
+//				this.currentHeight = getHeight();
+//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+//				bufferedGraphics = bufferedImage.createGraphics();
+//			}
 
 			bufferedGraphics.setColor(Color.black);
 

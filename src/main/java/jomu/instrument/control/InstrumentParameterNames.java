@@ -55,6 +55,12 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI = "perception.hearing.pitch.detect.klapuriSwitch";
 	public static final String PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS = "perception.hearing.pitch.detect.tarsosSwitch";
 
+	public static final String PERCEPTION_HEARING_HPS_HARMONIC_MEDIAN = "perception.hearing.hps.harmonicMedian";
+	public static final String PERCEPTION_HEARING_HPS_PERCUSSION_MEDIAN = "perception.hearing.hps.percussionMedian";
+	public static final String PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING = "perception.hearing.hps.harmonicWeighting";
+	public static final String PERCEPTION_HEARING_HPS_PERCUSSION_WEIGHTING = "perception.hearing.hps.percussionWeighting";
+	public static final String PERCEPTION_HEARING_HPS_SWITCH_MEDIAN = "perception.hearing.hps.medianSwitch";
+
 	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
 	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";
 	public static final String AUDIO_TUNER_FORMANT_LOW = "audio.tuner.formantLowSetting";

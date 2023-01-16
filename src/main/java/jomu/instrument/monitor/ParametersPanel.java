@@ -113,6 +113,11 @@ public class ParametersPanel extends JPanel {
 	private JTextField hearingMinFreqCentsInput;
 	private JTextField hearingMaxFreqCentsInput;
 	private JComboBox pdLowWindowComboBox;
+	private JSlider hpsHarmonicWeightingSlider;
+	private JSlider hpsPercussionWeightingSlider;
+	private JSlider hpsHarmonicMedianSlider;
+	private JSlider hpsPercussionMedianSlider;
+	private JCheckBox hpsMedianSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -437,6 +442,22 @@ public class ParametersPanel extends JPanel {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH));
 		tunerSwitchPanel.add(peakSwitchCB);
 
+		hpsMedianSwitchCB = new JCheckBox("hpsMedianSwitchCB");
+		hpsMedianSwitchCB.setText("HPS Median Switch");
+		hpsMedianSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN,
+						Boolean.toString(newValue));
+			}
+		});
+
+		hpsMedianSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN));
+		tunerSwitchPanel.add(hpsMedianSwitchCB);
+
 		parameterPanel.add(tunerSwitchPanel);
 
 		JPanel cqSwitchPanel = new JPanel();
@@ -723,7 +744,79 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(pitchHarmonicsLabel);
 		parameterPanel.add(pitchHarmonicsSlider);
 
-		formantFactorSlider = new JSlider(0, 100);
+		hpsHarmonicWeightingSlider = new JSlider(0, 100);
+		final JLabel hpsHarmonicWeightingLabel = new JLabel("HPS Harmonic Weighting :");
+		hpsHarmonicWeightingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				hpsHarmonicWeightingLabel.setText(String.format("HPS Harmonic Weighting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING,
+						Integer.toString(newValue));
+			}
+		});
+		hpsHarmonicWeightingSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING));
+		parameterPanel.add(hpsHarmonicWeightingLabel);
+		parameterPanel.add(hpsHarmonicWeightingSlider);
+
+		hpsPercussionWeightingSlider = new JSlider(0, 100);
+		final JLabel hpsPercussionWeightingLabel = new JLabel("HPS PercussionWWeighting :");
+		hpsPercussionWeightingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				hpsPercussionWeightingLabel.setText(String.format("HPS PercussionW Weighting  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_PERCUSSION_WEIGHTING,
+						Integer.toString(newValue));
+			}
+		});
+		hpsPercussionWeightingSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_PERCUSSION_WEIGHTING));
+		parameterPanel.add(hpsPercussionWeightingLabel);
+		parameterPanel.add(hpsPercussionWeightingSlider);
+
+		hpsHarmonicMedianSlider = new JSlider(1, 10);
+		final JLabel hpsHarmonicMedianLabel = new JLabel("HPS Harmonic Median :");
+		hpsHarmonicMedianSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				hpsHarmonicMedianLabel.setText(String.format("HPS Harmonic Median  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_MEDIAN,
+						Integer.toString(newValue));
+			}
+		});
+		hpsHarmonicMedianSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_MEDIAN));
+		parameterPanel.add(hpsHarmonicMedianLabel);
+		parameterPanel.add(hpsHarmonicMedianSlider);
+
+		hpsPercussionMedianSlider = new JSlider(1, 50);
+		final JLabel hpsPercussionMedianLabel = new JLabel("HPS Percussion Median :");
+		hpsPercussionMedianSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				hpsPercussionMedianLabel.setText(String.format("HPS Percussion Median  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_PERCUSSION_MEDIAN,
+						Integer.toString(newValue));
+			}
+		});
+		hpsPercussionMedianSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_PERCUSSION_MEDIAN));
+		parameterPanel.add(hpsPercussionMedianLabel);
+		parameterPanel.add(hpsPercussionMedianSlider);
+
+		formantFactorSlider = new JSlider(1, 20);
 		final JLabel formantFactorLabel = new JLabel("Audio Tuner Formant Factor :");
 		formantFactorSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -1662,5 +1755,16 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
 		cqLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
+		hpsHarmonicWeightingSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING));
+		hpsHarmonicMedianSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_MEDIAN));
+		hpsPercussionWeightingSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_PERCUSSION_WEIGHTING));
+		hpsPercussionMedianSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_PERCUSSION_MEDIAN));
+		hpsMedianSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN));
+
 	}
 }

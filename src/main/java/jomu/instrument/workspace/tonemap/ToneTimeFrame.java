@@ -2,9 +2,11 @@ package jomu.instrument.workspace.tonemap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ToneTimeFrame {
 
@@ -456,7 +458,7 @@ public class ToneTimeFrame {
 		ToneTimeFrame tfEnd = tf;
 		ToneTimeFrame tfStart = tf;
 		int i = factor;
-		while (tf != null && i > 1) {
+		while (tf != null && i > 0) {
 			frames.add(tf);
 			tf = toneMap.getPreviousTimeFrame(tf.getStartTime());
 			if (tf != null) {
@@ -489,4 +491,118 @@ public class ToneTimeFrame {
 		}
 		return amplitude;
 	}
+
+	public void hpsPercussionMedian(int hpsPercussionMedianFactor, boolean hpsMedianSwitch) {
+
+		ToneMapElement[] hpsElements = getElements();
+		for (int i = 0; i < elements.length; i++) {
+			hpsElements[i] = elements[i].clone();
+		}
+
+		int startIndex = 0, endIndex = 0;
+
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			startIndex = elementIndex >= hpsPercussionMedianFactor / 2 ? elementIndex - hpsPercussionMedianFactor / 2
+					: 0;
+			endIndex = elementIndex + hpsPercussionMedianFactor / 2 < elements.length
+					? elementIndex + hpsPercussionMedianFactor / 2
+					: elements.length - 1;
+			List<ToneMapElement> subElements = new ArrayList<>();
+
+			double sum = 0;
+			for (int i = 0, subElementIndex = startIndex; subElementIndex <= endIndex; i++, subElementIndex++) {
+				subElements.add(elements[subElementIndex]);
+				sum += elements[subElementIndex].amplitude;
+			}
+
+			if (hpsMedianSwitch) {
+				List<ToneMapElement> sortedElements = subElements.stream()
+						.sorted(Comparator.comparingDouble(tm -> tm.amplitude)).collect(Collectors.toList());
+
+				ToneMapElement median = sortedElements.size() % 2 == 0
+						? sortedElements.get(sortedElements.size() / 2 - 1)
+						: sortedElements.get(sortedElements.size() / 2);
+
+				hpsElements[elementIndex].amplitude = median.amplitude;
+			} else {
+				hpsElements[elementIndex].amplitude = sum / subElements.size();
+			}
+		}
+
+		for (int i = 0; i < elements.length; i++) {
+			elements[i] = hpsElements[i];
+		}
+
+		reset();
+
+	}
+
+	public void hpsHarmonicMedian(ToneMap sourceToneMap, ToneMap hpsToneMap, int hpsHarmonicMedianFactor,
+			boolean hpsMedianSwitch) {
+
+		System.out.println(">>hpsHarmonicMedianFactor: " + hpsHarmonicMedianFactor + ", " + getStartTime());
+
+		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
+		ToneTimeFrame stf = sourceToneMap.getTimeFrame();
+		int i = hpsHarmonicMedianFactor;
+		while (stf != null && i > 0) {
+			sourceFrames.add(stf);
+			stf = sourceToneMap.getPreviousTimeFrame(stf.getStartTime());
+			i--;
+		}
+
+		List<ToneTimeFrame> hpsFrames = new ArrayList<>();
+		ToneTimeFrame htf = this;
+		i = hpsHarmonicMedianFactor;
+		while (htf != null && i > hpsHarmonicMedianFactor / 2) {
+			hpsFrames.add(htf);
+			htf = hpsToneMap.getPreviousTimeFrame(htf.getStartTime());
+			i--;
+		}
+
+		if (sourceFrames.size() > 1) {
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				if (elements[elementIndex] != null) {
+					List<ToneMapElement> subElements = new ArrayList<>();
+					double sum = 0;
+					for (ToneTimeFrame subFrame : sourceFrames) {
+						subElements.add(subFrame.elements[elementIndex]);
+						sum += subFrame.elements[elementIndex].amplitude;
+					}
+
+					if (hpsMedianSwitch) {
+						List<ToneMapElement> sortedElements = subElements.stream()
+								.sorted(Comparator.comparingDouble(tm -> tm.amplitude)).collect(Collectors.toList());
+						ToneMapElement median = sortedElements.size() % 2 == 0
+								? sortedElements.get(sortedElements.size() / 2 - 1)
+								: sortedElements.get(sortedElements.size() / 2);
+						for (ToneTimeFrame subFrame : hpsFrames) {
+							hpsFrames.get(0).elements[elementIndex].amplitude = median.amplitude;
+						}
+					} else {
+						hpsFrames.get(0).elements[elementIndex].amplitude = sum / sourceFrames.size(); // median.amplitude;
+					}
+				}
+			}
+			hpsFrames.get(0).reset();
+
+		}
+
+	}
+
+	public void hpsMask(ToneTimeFrame hpsHarmonicTimeFrame, ToneTimeFrame hpsPercussionTimeFrame,
+			double hpsHarmonicWeighting, double hpsPercussionWeighting) {
+
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			ToneMapElement hpsHarmonicElement = hpsHarmonicTimeFrame.elements[elementIndex];
+			ToneMapElement hpsPercussionElement = hpsPercussionTimeFrame.elements[elementIndex];
+			elements[elementIndex].amplitude = (hpsHarmonicWeighting * hpsHarmonicElement.amplitude)
+					/ (hpsHarmonicWeighting + hpsPercussionWeighting)
+					+ (hpsPercussionWeighting * hpsPercussionElement.amplitude)
+							/ (hpsHarmonicWeighting + hpsPercussionWeighting);
+
+		}
+		reset();
+	}
+
 }

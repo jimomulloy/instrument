@@ -38,6 +38,10 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 		return cellType + ":" + streamId;
 	}
 
+	static String buildToneMapKey(String tmType, String streamId) {
+		return tmType + ":" + streamId;
+	}
+
 	String getMessagesStreamId(List<NuMessage> messages) throws Exception {
 		Optional<String> streamId = messages.stream().findAny().map(message -> message.streamId);
 		if (!streamId.isPresent()) {

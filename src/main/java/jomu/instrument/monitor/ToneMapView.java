@@ -94,6 +94,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
 		this.timeAxisEnd = this.timeAxisStart
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
+		System.out.println("!!udpate tm time axis: " + toneMap + " ," + this.timeAxisStart + ", " + this.timeAxisEnd);
 		if (toneMap != null) {
 			renderToneMap(toneMap);
 		}
@@ -121,7 +122,16 @@ public class ToneMapView extends JComponent implements ComponentListener {
 
 	public void renderToneMap(ToneMap toneMap) {
 		this.toneMap = toneMap;
-		for (ToneTimeFrame frame : toneMap.getTimeFramesFrom(0.0)) {
+		double timeStart = timeAxisStart / 1000;
+		double timeEnd = timeAxisEnd / 1000;
+		this.currentWidth = getWidth();
+		this.currentHeight = getHeight();
+		bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+		bufferedGraphics = bufferedImage.createGraphics();
+		for (ToneTimeFrame frame : toneMap.getTimeFramesFrom(timeStart)) {
+			if (frame.getStartTime() > timeEnd) {
+				break;
+			}
 			renderToneMap(frame);
 		}
 		repaint();
@@ -148,6 +158,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 			this.currentHeight = getHeight();
 		}
 		if (ttf != null) {
+
 			double timeAxisRange = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 			TimeSet timeSet = ttf.getTimeSet();
@@ -155,28 +166,31 @@ public class ToneMapView extends JComponent implements ComponentListener {
 			updateAxis(timeSet, pitchSet);
 			double timeStart = timeSet.getStartTime() * 1000;
 			double timeEnd = timeSet.getEndTime() * 1000;
-			if (timeStart > timeAxisEnd) {
-				timeAxisStart = timeStart;
-				timeAxisEnd = timeStart + timeAxisRange;
-				this.currentWidth = getWidth();
-				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-				bufferedGraphics = bufferedImage.createGraphics();
-			} else if (timeStart == 0) {
-				timeAxisStart = timeStart;
-				timeAxisEnd = timeStart + timeAxisRange;
-				this.currentWidth = getWidth();
-				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-				bufferedGraphics = bufferedImage.createGraphics();
-			} else if (timeStart < timeAxisStart) {
-				timeAxisStart -= timeAxisRange;
-				timeAxisEnd -= timeAxisRange;
-				this.currentWidth = getWidth();
-				this.currentHeight = getHeight();
-				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-				bufferedGraphics = bufferedImage.createGraphics();
+			if (timeStart >= timeAxisEnd) {
+				return;
 			}
+//			if (timeStart > timeAxisEnd) {
+//				timeAxisStart = timeStart;
+//				timeAxisEnd = timeStart + timeAxisRange;
+//				this.currentWidth = getWidth();
+//				this.currentHeight = getHeight();
+//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+//				bufferedGraphics = bufferedImage.createGraphics();
+//			} else if (timeStart == 0) {
+//				timeAxisStart = timeStart;
+//				timeAxisEnd = timeStart + timeAxisRange;
+//				this.currentWidth = getWidth();
+//				this.currentHeight = getHeight();
+//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+//				bufferedGraphics = bufferedImage.createGraphics();
+//			} else if (timeStart < timeAxisStart) {
+//				timeAxisStart -= timeAxisRange;
+//				timeAxisEnd -= timeAxisRange;
+//				this.currentWidth = getWidth();
+//				this.currentHeight = getHeight();
+//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+//				bufferedGraphics = bufferedImage.createGraphics();
+//			}
 
 			bufferedGraphics.setColor(Color.black);
 
