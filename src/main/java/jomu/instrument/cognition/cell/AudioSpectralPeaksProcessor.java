@@ -7,7 +7,6 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.SpectralPeaksFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
-import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioSpectralPeaksProcessor extends ProcessorCommon {
@@ -49,16 +48,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		SpectralPeaksFeatures spf = aff.getSpectralPeaksFeatures();
 		float[] spectrum = spf.getSpectrum();
-		spf.buildToneMapFrame(toneMap);
-		FFTSpectrum fftSpectrum = new FFTSpectrum(spf.getSps().getSampleRate(), spf.getSps().getBufferSize(),
-				spf.getSpectrum());
-
-		if (tpSwitchPeaks) {
-			float[] peakSpectrum = spf.processPeaks(spectrum);
-			fftSpectrum = new FFTSpectrum(spf.getSps().getSampleRate(), spf.getSps().getBufferSize(), peakSpectrum);
-		}
-
-		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+		spf.buildToneMapFrame(toneMap, tpSwitchPeaks);
 
 		if (cqSwitchCompress) {
 			toneMap.getTimeFrame().compress(compression);
@@ -69,10 +59,6 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 
 		if (cqSwitchLowThreshold) {
 			toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
-		}
-
-		if (cqSwitchNormalise) {
-			toneMap.getTimeFrame().normaliseThreshold(normaliseThreshold, signalMinimum);
 		}
 
 		if (cqSwitchDecibel) {

@@ -3,12 +3,11 @@ package jomu.instrument.audio.features;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import jomu.instrument.Instrument;
-import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
+import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
@@ -20,7 +19,6 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 	private PitchSet pitchSet;
 	private TimeSet timeSet;
 	private ToneMap toneMap;
-	private Visor visor;
 
 	TreeMap<Double, SpectrogramInfo> features;
 	PitchDetectorSource pds;
@@ -62,7 +60,6 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
-			ttf.reset();
 		}
 	}
 
@@ -82,8 +79,26 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
 		this.features = pds.getFeatures();
-		this.visor = Instrument.getInstance().getConsole().getVisor();
 		pds.clear();
 	}
 
+	public void normaliseToneMapFrame(ToneMap toneMap) {
+		ToneTimeFrame ttf = toneMap.getTimeFrame();
+		ToneMapElement[] elements = ttf.getElements();
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i].amplitude > getPds().getMaxMagnitudeThreshold()) {
+				getPds().setMaxMagnitudeThreshold(elements[i].amplitude);
+				System.out.println(">>PD MAX VALUE: " + getPds().getMaxMagnitudeThreshold());
+			}
+		}
+		for (int i = 0; i < elements.length; i++) {
+			elements[i].amplitude = elements[i].amplitude / getPds().getMaxMagnitudeThreshold();
+			if (elements[i].amplitude < getPds().getMinMagnitudeThreshold()) {
+				elements[i].amplitude = getPds().getMinMagnitudeThreshold();
+			}
+		}
+		ttf.setHighThreshold(1.0);
+		ttf.setLowThreshold(getPds().getMinMagnitudeThreshold());
+		ttf.reset();
+	}
 }

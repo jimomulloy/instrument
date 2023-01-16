@@ -303,7 +303,7 @@ public class AudioTuner implements ToneMapConstants {
 				}
 			}
 			toneTimeFrame.reset();
-			System.out.println(">>thresholds: " + toneTimeFrame.getHighThres() + ", " + toneTimeFrame.getLowThres());
+			System.out.println(">>thresholds: " + toneTimeFrame.getHighThreshold() + ", " + toneTimeFrame.getLowThres());
 		}
 
 		return true;
@@ -351,7 +351,7 @@ public class AudioTuner implements ToneMapConstants {
 
 			double amplitude = 0;
 			if (toneMapElement.amplitude >= toneTimeFrame.getLowThres()) {
-				amplitude = toneMapElement.amplitude / toneTimeFrame.getHighThres();
+				amplitude = toneMapElement.amplitude / toneTimeFrame.getHighThreshold();
 			}
 
 			time = timeSet.getStartTime() * 1000.0;

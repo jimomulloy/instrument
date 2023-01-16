@@ -16,6 +16,11 @@ import jomu.instrument.control.ParameterManager;
 
 public class ConstantQSource {
 
+	private static double MAX_MAGNITUDE_THRESHOLD = 0.5F;
+	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
+	private double maxMagnitudeThreshold = MAX_MAGNITUDE_THRESHOLD;
+	private double minMagnitudeThreshold = MIN_MAGNITUDE_THRESHOLD;
+
 	private float binHeight;
 	private float[] binStartingPointsInCents;
 	private float binWidth;
@@ -31,6 +36,7 @@ public class ConstantQSource {
 	private float sampleRate = 44100;
 	private AudioDispatcher dispatcher;
 	private ParameterManager parameterManager;
+	float max = 0;
 
 	public ConstantQSource(AudioDispatcher dispatcher) {
 		super();
@@ -43,6 +49,22 @@ public class ConstantQSource {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
 		this.maximumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS);
+	}
+
+	public double getMaxMagnitudeThreshold() {
+		return maxMagnitudeThreshold;
+	}
+
+	public void setMaxMagnitudeThreshold(double maxMagnitudeThreshold) {
+		this.maxMagnitudeThreshold = maxMagnitudeThreshold;
+	}
+
+	public double getMinMagnitudeThreshold() {
+		return minMagnitudeThreshold;
+	}
+
+	public void setMinMagnitudeThreshold(double minMagnitudeThreshold) {
+		this.minMagnitudeThreshold = minMagnitudeThreshold;
 	}
 
 	public float getBinHeight() {

@@ -5,8 +5,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import be.tarsos.dsp.util.PitchConverter;
-import jomu.instrument.Instrument;
-import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -22,7 +20,7 @@ public class ConstantQFeatures implements ToneMapConstants {
 	private PitchSet pitchSet;
 	private TimeSet timeSet;
 	private ToneMap toneMap;
-	private Visor visor;
+
 	ConstantQSource cqs;
 	Map<Double, float[]> features = new TreeMap<>();
 
@@ -78,16 +76,31 @@ public class ConstantQFeatures implements ToneMapConstants {
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
-			for (Map.Entry<Double, float[]> entry : features.entrySet()) {
-				float[] spectralEnergy = entry.getValue();
-				ToneMapElement[] elements = ttf.getElements();
-				for (int i = 0; i < spectralEnergy.length; i++) {
-					elements[i].amplitude += spectralEnergy[i];
+			if (features.size() > 0) {
+				for (Map.Entry<Double, float[]> entry : features.entrySet()) {
+					float[] spectralEnergy = entry.getValue();
+					ToneMapElement[] elements = ttf.getElements();
+					for (int i = 0; i < spectralEnergy.length; i++) {
+						elements[i].amplitude += spectralEnergy[i];
+					}
 				}
+				ToneMapElement[] elements = ttf.getElements();
+				for (int i = 0; i < elements.length; i++) {
+					if (elements[i].amplitude > getCqs().getMaxMagnitudeThreshold()) {
+						getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
+						System.out.println(">>CQ MAX VALUE: " + getCqs().getMaxMagnitudeThreshold());
+					}
+				}
+				for (int i = 0; i < elements.length; i++) {
+					elements[i].amplitude = elements[i].amplitude / getCqs().getMaxMagnitudeThreshold();
+					if (elements[i].amplitude < getCqs().getMinMagnitudeThreshold()) {
+						elements[i].amplitude = getCqs().getMinMagnitudeThreshold();
+					}
+				}
+				ttf.setHighThreshold(1.0);
+				ttf.setLowThreshold(getCqs().getMinMagnitudeThreshold());
+				ttf.reset();
 			}
-
-			ttf.reset();
-			// visor.updateToneMap(audioFeatureFrame);
 		}
 	}
 
@@ -139,7 +152,6 @@ public class ConstantQFeatures implements ToneMapConstants {
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.cqs = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getConstantQSource();
-		this.visor = Instrument.getInstance().getConsole().getVisor();
 		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
 		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
 			addFeature(entry.getKey(), entry.getValue());

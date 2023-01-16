@@ -24,8 +24,8 @@ public class ToneTimeFrame {
 
 	private ToneMapElement[] elements;
 
-	private double highThres = 100;
-	private double lowThres = 0;
+	private double highThreshold = 100;
+	private double lowThreshold = 0;
 	private double maxAmplitude;
 	private double minAmplitude;
 	private NoteStatus noteStatus;
@@ -53,17 +53,30 @@ public class ToneTimeFrame {
 			copyElements[i] = elements[i].clone();
 		}
 		copy.reset();
-		copy.setLowThres(this.getLowThres());
-		copy.setHighThres(this.getHighThres());
+		copy.setLowThreshold(this.getLowThres());
+		copy.setHighThreshold(this.getHighThreshold());
 		return copy;
 	}
 
 	public void compress(float factor) {
+		System.out.println(">>COMPRESS BEFORE: " + getHighThreshold());
+		double highThreshold = (float) Math.log10(1 + (factor * getHighThreshold()));
+		System.out.println(">>COMPRESS AFTER: " + getHighThreshold());
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				elements[i].amplitude = (float) Math.log10(1 + (factor * elements[i].amplitude));
 			}
 		}
+		normalise(highThreshold);
+	}
+
+	public void normalise(double highThreshold) {
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] != null) {
+				elements[i].amplitude = elements[i].amplitude / highThreshold;
+			}
+		}
+		setHighThreshold(1.0);
 		reset();
 	}
 
@@ -153,20 +166,20 @@ public class ToneTimeFrame {
 		return elements;
 	}
 
-	public double getHighThres() {
-		return highThres;
+	public double getHighThreshold() {
+		return highThreshold;
 	}
 
-	public void setHighThres(double highThres) {
-		this.highThres = highThres;
+	public void setHighThreshold(double highThreshold) {
+		this.highThreshold = highThreshold;
 	}
 
-	public void setLowThres(double lowThres) {
-		this.lowThres = lowThres;
+	public void setLowThreshold(double lowThreshold) {
+		this.lowThreshold = lowThreshold;
 	}
 
 	public double getLowThres() {
-		return lowThres;
+		return lowThreshold;
 	}
 
 	public double getMaxAmplitude() {
@@ -342,27 +355,8 @@ public class ToneTimeFrame {
 		return (Math.log(x) / Math.log(base));
 	}
 
-	public ToneTimeFrame normaliseThreshold(double threshold, double value) {
-		reset();
-		float maxdbRatio = 0;
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] != null) {
-				float dbRatio = (float) (20.0 * Math.log(maxAmplitude / elements[i].amplitude));
-				if (dbRatio > threshold) {
-					elements[i].amplitude = value;
-				}
-				if (maxdbRatio < dbRatio) {
-					maxdbRatio = dbRatio;
-				}
-			}
-		}
-		reset();
-		return this;
-	}
-
 	public ToneTimeFrame decibel(double base) {
-		reset();
-		System.out.println(">>maxAmplitude decibel before: " + maxAmplitude);
+		double highThreshold = (float) (20.0 * Math.log(getHighThreshold() / base));
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				double value = elements[i].amplitude > base ? elements[i].amplitude : base;
@@ -372,7 +366,7 @@ public class ToneTimeFrame {
 				}
 			}
 		}
-		reset();
+		normalise(highThreshold);
 		return this;
 	}
 
@@ -416,8 +410,8 @@ public class ToneTimeFrame {
 			}
 		}
 		reset();
-		setHighThres(4.0);
-		setLowThres(0.5);
+		setHighThreshold(4.0);
+		setLowThreshold(0.5);
 		return this;
 	}
 

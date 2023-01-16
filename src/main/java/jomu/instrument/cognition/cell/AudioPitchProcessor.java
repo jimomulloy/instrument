@@ -50,83 +50,70 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
 		pdf.buildToneMapFrame(toneMap);
 		float[] spectrum = pdf.getSpectrum();
-		if (spectrum != null) {
-			System.out.println(">>PP TIME: " + toneMap.getTimeFrame().getStartTime());
+		System.out.println(">>PP TIME: " + toneMap.getTimeFrame().getStartTime());
 
-			FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getPds().getSampleRate(), pdf.getPds().getBufferSize(),
-					spectrum);
+		FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getPds().getSampleRate(), pdf.getPds().getBufferSize(), spectrum);
 
+		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+
+		System.out.println(">>PP MAX AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+				+ toneMap.getTimeFrame().getMinAmplitude());
+
+		// toneMap.getTimeFrame().square();
+		// toneMap.getTimeFrame().lowThreshold((toneMap.getTimeFrame().getMaxAmplitude()
+		// * pdLowThreshold),
+		// ToneTimeFrame.AMPLITUDE_FLOOR);
+
+		if (pdSwitchWhitener) {
+			Whitener whitener = new Whitener(fftSpectrum);
+			whitener.whiten();
+			fftSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
+					whitener.getWhitenedSpectrum());
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-
-			System.out.println(">>PP MAX AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			System.out.println(">>PP MAX AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
-
-			for (int i = 0; i < spectrum.length; i++) {
-				if (spectrum[i] < pdLowThreshold) {
-					spectrum[i] = 0;
-				}
-			}
-			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-
-			System.out.println(">>PP MAX AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-					+ toneMap.getTimeFrame().getMinAmplitude());
-
-			// toneMap.getTimeFrame().square();
-			// toneMap.getTimeFrame().lowThreshold((toneMap.getTimeFrame().getMaxAmplitude()
-			// * pdLowThreshold),
-			// ToneTimeFrame.AMPLITUDE_FLOOR);
-
-			if (pdSwitchWhitener) {
-				Whitener whitener = new Whitener(fftSpectrum);
-				whitener.whiten();
-				fftSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
-						whitener.getWhitenedSpectrum());
-				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-				System.out.println(">>PP MAX AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-						+ toneMap.getTimeFrame().getMinAmplitude());
-			}
-
-			if (pdSwitchKlapuri) {
-				PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getPds().getSampleRate(),
-						fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
-				System.out.println(">>PP MAX ENTER KLAPURI!!");
-				Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
-				for (int i = 0; i < klapuri.processedSpectrumData.length; i++) {
-					spectrum[i] = (float) klapuri.processedSpectrumData[i];
-				}
-				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-				processKlapuriPeaks(fftSpectrum.getSpectrum(), new ArrayList<Double>(klapuri.f0s),
-						new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame().getElements());
-				toneMap.reset();
-				System.out.println(">>!!KLAPURI PEAKS : " + klapuri.f0s.size());
-			} else if (pdSwitchTarsos) {
-				PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), fftSpectrum.getSampleRate(),
-						toneMap.getTimeFrame().getPitches());
-				// pd.whiten(fftSpectrum.getSpectrum());
-				System.out.println(">>PP MAX ENTER TARSOS!!");
-				pd.detect(fftSpectrum.getSpectrum());
-				// Arrays.stream(convertFloatsToDoubles(pd.fzeros)).boxed().collect(Collectors.toList()),
-				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-				processTarsosPeaks(fftSpectrum.getSpectrum(), pd.fzeros, pd.fzeroSaliences,
-						toneMap.getTimeFrame().getElements());
-				toneMap.reset();
-				System.out.println(">>PP MAX AMP 5: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-						+ toneMap.getTimeFrame().getMinAmplitude());
-			} else {
-				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-			}
-
-			System.out.println(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-					+ toneMap.getTimeFrame().getMinAmplitude());
-
-			// if (pdSwitchCompress) {
-			// toneMap.getTimeFrame().compress(compression);
-			// System.out.println(">>PP MAX AMP 2: " +
-			// toneMap.getTimeFrame().getMaxAmplitude() + ", "
-			// + toneMap.getTimeFrame().getMinAmplitude());
-			// }
-
 		}
+
+		if (pdSwitchKlapuri) {
+			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getPds().getSampleRate(),
+					fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
+			System.out.println(">>PP MAX ENTER KLAPURI!!");
+			Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
+			for (int i = 0; i < klapuri.processedSpectrumData.length; i++) {
+				spectrum[i] = (float) klapuri.processedSpectrumData[i];
+			}
+			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+			processKlapuriPeaks(fftSpectrum.getSpectrum(), new ArrayList<Double>(klapuri.f0s),
+					new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame().getElements());
+			toneMap.reset();
+			System.out.println(">>!!KLAPURI PEAKS : " + klapuri.f0s.size());
+		} else if (pdSwitchTarsos) {
+			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), fftSpectrum.getSampleRate(),
+					toneMap.getTimeFrame().getPitches());
+			// pd.whiten(fftSpectrum.getSpectrum());
+			System.out.println(">>PP MAX ENTER TARSOS!!");
+			pd.detect(fftSpectrum.getSpectrum());
+			// Arrays.stream(convertFloatsToDoubles(pd.fzeros)).boxed().collect(Collectors.toList()),
+			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+			processTarsosPeaks(fftSpectrum.getSpectrum(), pd.fzeros, pd.fzeroSaliences,
+					toneMap.getTimeFrame().getElements());
+			toneMap.reset();
+			System.out.println(">>PP MAX AMP 5: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+					+ toneMap.getTimeFrame().getMinAmplitude());
+		}
+
+		pdf.normaliseToneMapFrame(toneMap);
+
+		System.out.println(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+				+ toneMap.getTimeFrame().getMinAmplitude());
+
+		// if (pdSwitchCompress) {
+		// toneMap.getTimeFrame().compress(compression);
+		// System.out.println(">>PP MAX AMP 2: " +
+		// toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		// + toneMap.getTimeFrame().getMinAmplitude());
+		// }
+
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}

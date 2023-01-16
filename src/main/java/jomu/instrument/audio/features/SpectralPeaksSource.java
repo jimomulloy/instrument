@@ -17,6 +17,12 @@ import jomu.instrument.control.ParameterManager;
 
 public class SpectralPeaksSource {
 
+	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
+	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
+
+	private double maxMagnitudeThreshold = MAX_MAGNITUDE_THRESHOLD;
+	private double minMagnitudeThreshold = MIN_MAGNITUDE_THRESHOLD;
+
 	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
 	int currentFrame;
 	int increment = 1024;
@@ -43,6 +49,22 @@ public class SpectralPeaksSource {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
 		System.out.println(">>SP window: " + this.windowSize);
+	}
+
+	public double getMaxMagnitudeThreshold() {
+		return maxMagnitudeThreshold;
+	}
+
+	public void setMaxMagnitudeThreshold(double maxMagnitudeThreshold) {
+		this.maxMagnitudeThreshold = maxMagnitudeThreshold;
+	}
+
+	public double getMinMagnitudeThreshold() {
+		return minMagnitudeThreshold;
+	}
+
+	public void setMinMagnitudeThreshold(double minMagnitudeThreshold) {
+		this.minMagnitudeThreshold = minMagnitudeThreshold;
 	}
 
 	public int getBufferSize() {

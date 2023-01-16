@@ -62,7 +62,6 @@ import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.ConstantQSource;
-import jomu.instrument.audio.features.LowPitchDetectorSource;
 import jomu.instrument.audio.features.PitchDetectorSource;
 import jomu.instrument.audio.features.SpectrogramInfo;
 import jomu.instrument.cognition.cell.Cell;
@@ -85,7 +84,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private SpectrumLayer noiseFloorLayer;
 
 	private PitchDetectLayer pdLayer;
-	private LowPitchDetectLayer lowPdLayer;
 	private LinkedPanel pitchDetectPanel;
 	private SpectrumLayer spectrumLayer;
 	private LinkedPanel spectrumPanel;
@@ -123,7 +121,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JTextField pitchAxisOffsetInput;
 	private JTextField timeAxisRangeInput;
 	private JTextField pitchAxisRangeInput;
-	private LinkedPanel lowPitchDetectPanel;
 	private JComboBox toneMapViewComboBox;
 
 	public Visor(JFrame mainframe) {
@@ -213,8 +210,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		toneMapTabbedPane.addTab("CQ", cqPanel);
 		pitchDetectPanel = createPitchDetectPanel();
 		toneMapTabbedPane.addTab("Pitch", pitchDetectPanel);
-		lowPitchDetectPanel = createLowPitchDetectPanel();
-		toneMapTabbedPane.addTab("Low Pitch", lowPitchDetectPanel);
 		panel.add(toneMapTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -284,7 +279,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			case AUDIO_TUNER_PEAKS:
 			case AUDIO_SPECTRAL_PEAKS:
 			case AUDIO_PITCH:
-			case AUDIO_LOW_PITCH:
 				return true;
 			default:
 				return false;
@@ -683,32 +677,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		return pitchDetectPanel;
 	}
 
-	private LinkedPanel createLowPitchDetectPanel() {
-		CoordinateSystem cs = getCoordinateSystem(AxisUnit.FREQUENCY);
-		cs.setMax(Axis.X, 20000);
-		lowPitchDetectPanel = new LinkedPanel(cs);
-		lowPitchDetectPanel.addLayer(new BackgroundLayer(cs));
-		lowPdLayer = new LowPitchDetectLayer(cs);
-		lowPitchDetectPanel.addLayer(lowPdLayer);
-		lowPitchDetectPanel.addLayer(new VerticalFrequencyAxisLayer(cs));
-		lowPitchDetectPanel.addLayer(new ZoomMouseListenerLayer());
-		lowPitchDetectPanel.addLayer(new DragMouseListenerLayer(cs));
-		lowPitchDetectPanel.addLayer(new SelectionLayer(cs));
-		lowPitchDetectPanel.addLayer(new TimeAxisLayer(cs));
-
-		LegendLayer legend = new LegendLayer(cs, 110);
-		lowPitchDetectPanel.addLayer(legend);
-		legend.addEntry("Pitch", Color.BLACK);
-		ViewPortChangedListener listener = new ViewPortChangedListener() {
-			@Override
-			public void viewPortChanged(ViewPort newViewPort) {
-				lowPitchDetectPanel.repaint();
-			}
-		};
-		lowPitchDetectPanel.getViewPort().addViewPortChangedListener(listener);
-		return lowPitchDetectPanel;
-	}
-
 	private LinkedPanel createSpectrumPanel() {
 		CoordinateSystem cs = new CoordinateSystem(AxisUnit.FREQUENCY, AxisUnit.AMPLITUDE, 0, 1000, false);
 		cs.setMax(Axis.X, 4800);
@@ -763,10 +731,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private void updateView(AudioFeatureFrame audioFeatureFrame) {
 		cqLayer.update(audioFeatureFrame);
 		pdLayer.update(audioFeatureFrame);
-		lowPdLayer.update(audioFeatureFrame);
 		this.cqPanel.repaint();
 		this.pitchDetectPanel.repaint();
-		this.lowPitchDetectPanel.repaint();
 	}
 
 	private static class CQLayer implements Layer {
@@ -969,106 +935,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					PitchDetectorSource pds;
 					pds = audioFeatureFrame.getPitchDetectorFeatures().getPds();
 					System.out.println(">>get PDS features high: " + pds.getBufferSize());
-					binStartingPointsInCents = pds.getBinStartingPointsInCents();
-					binWidth = pds.getBinWidth();
-					binHeight = pds.getBinHeight();
-					fs = pds.getFeatures();
-					if (features == null) {
-						features = new TreeMap<>();
-					}
-					for (Entry<Double, SpectrogramInfo> entry : fs.entrySet()) {
-						features.put(entry.getKey(), entry.getValue());
-					}
-				}
-			});
-		}
-	}
-
-	private static class LowPitchDetectLayer implements Layer {
-
-		private float binHeight;
-		private float[] binStartingPointsInCents;
-		private float binWidth;
-		private final CoordinateSystem cs;
-		TreeMap<Double, SpectrogramInfo> features;
-
-		public LowPitchDetectLayer(CoordinateSystem cs) {
-			this.cs = cs;
-		}
-
-		@Override
-		public void draw(Graphics2D graphics) {
-
-			if (features != null) {
-				System.out.println(">>PD max amp: " + binWidth + ", " + binHeight);
-
-				Map<Double, SpectrogramInfo> spSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
-						cs.getMax(Axis.X) / 1000.0);
-				double maxAmp = 0.00001;
-				for (Entry<Double, SpectrogramInfo> column : spSubMap.entrySet()) {
-
-					double timeStart = column.getKey();// in seconds
-					SpectrogramInfo spectrogramInfo = column.getValue();// in
-																		// cents
-					float pitch = spectrogramInfo.getPitchDetectionResult().getPitch(); // -1?
-					float[] amplitudes = spectrogramInfo.getAmplitudes();
-					// draw the pixels
-					for (int i = 0; i < amplitudes.length; i++) {
-						Color color = Color.black;
-						float centsStartingPoint = binStartingPointsInCents[i];
-						// only draw the visible frequency range
-						if (centsStartingPoint >= cs.getMin(Axis.Y) && centsStartingPoint <= cs.getMax(Axis.Y)) {
-							// int greyValue = 255 - (int)
-							// (Math.log1p(spectralEnergy[i])
-							// / Math.log1p(currentMaxSpectralEnergy) * 255);
-							if (amplitudes[i] > maxAmp) {
-								maxAmp = amplitudes[i];
-							}
-							int greyValue = 255 - (int) (amplitudes[i] / (maxAmp) * 255);
-							greyValue = Math.max(0, greyValue);
-							color = new Color(greyValue, greyValue, greyValue);
-							graphics.setColor(color);
-							graphics.fillRect((int) Math.round(timeStart * 1000), Math.round(centsStartingPoint),
-									Math.round(binWidth * 1000), (int) Math.ceil(binHeight));
-
-						}
-					}
-					// System.out.println(">>PD max amp: " + maxAmp + ", " +
-					// timeStart);
-
-					if (pitch > -1) {
-						double cents = PitchConverter.hertzToAbsoluteCent(pitch);
-						Color color = Color.red;
-						// only draw the visible frequency range
-						if (cents >= cs.getMin(Axis.Y) && cents <= cs.getMax(Axis.Y)) {
-							// int greyValue = (int) (255F * probability);
-							// greyValue = Math.max(0, greyValue);
-							// color = new Color(greyValue, greyValue,
-							// greyValue);
-							graphics.setColor(color);
-							graphics.fillRect((int) Math.round(timeStart * 1000), (int) cents, Math.round(40),
-									(int) Math.ceil(100));
-						}
-					}
-
-				}
-
-			}
-		}
-
-		@Override
-		public String getName() {
-			return "Low Pitch Detect Layer";
-		}
-
-		public void update(AudioFeatureFrame audioFeatureFrame) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					TreeMap<Double, SpectrogramInfo> fs;
-					LowPitchDetectorSource pds;
-					pds = audioFeatureFrame.getLowPitchDetectorFeatures().getPds();
-					System.out.println(">>get PDS features low: " + pds.getBufferSize());
 					binStartingPointsInCents = pds.getBinStartingPointsInCents();
 					binWidth = pds.getBinWidth();
 					binHeight = pds.getBinHeight();

@@ -79,7 +79,7 @@ public class OnsetFeatures {
 			}
 
 			ttf.reset();
-			ttf.setLowThres(0.1);
+			ttf.setLowThreshold(0.1);
 		}
 	}
 }

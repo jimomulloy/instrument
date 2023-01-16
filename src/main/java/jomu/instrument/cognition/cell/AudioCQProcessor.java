@@ -48,9 +48,14 @@ public class AudioCQProcessor extends ProcessorCommon {
 			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 			ConstantQFeatures cqf = aff.getConstantQFeatures();
 			cqf.buildToneMapFrame(toneMap);
+			System.out.println(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime());
 
+			System.out.println(">>CQ MAX/MIN AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+					+ toneMap.getTimeFrame().getMinAmplitude());
 			if (cqSwitchCompress) {
 				toneMap.getTimeFrame().compress(compression);
+				System.out.println(">>CQ MAX/MIN AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+						+ toneMap.getTimeFrame().getMinAmplitude());
 			}
 			if (cqSwitchSquare) {
 				toneMap.getTimeFrame().square();
@@ -60,13 +65,14 @@ public class AudioCQProcessor extends ProcessorCommon {
 				toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
 			}
 
-			if (cqSwitchNormalise) {
-				toneMap.getTimeFrame().normaliseThreshold(normaliseThreshold, signalMinimum);
-			}
-
 			if (cqSwitchDecibel) {
 				toneMap.getTimeFrame().decibel(decibelLevel);
+				System.out.println(">>CQ MAX/MIN AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+						+ toneMap.getTimeFrame().getMinAmplitude());
 			}
+
+			System.out.println(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+					+ toneMap.getTimeFrame().getMinAmplitude());
 
 			// iss.addToneMap(toneMap);
 			console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

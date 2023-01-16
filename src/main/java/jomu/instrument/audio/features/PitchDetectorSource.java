@@ -19,6 +19,11 @@ import jomu.instrument.control.ParameterManager;
 
 public class PitchDetectorSource implements PitchDetectionHandler {
 
+	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
+	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
+	private double maxMagnitudeThreshold = MAX_MAGNITUDE_THRESHOLD;
+	private double minMagnitudeThreshold = MIN_MAGNITUDE_THRESHOLD;
+
 	private float binHeight;
 
 	private float[] binHeightsInCents;
@@ -71,6 +76,22 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	public PitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {
 		this(dispatcher);
 		this.windowSize = bufferSize;
+	}
+
+	public double getMaxMagnitudeThreshold() {
+		return maxMagnitudeThreshold;
+	}
+
+	public void setMaxMagnitudeThreshold(double maxMagnitudeThreshold) {
+		this.maxMagnitudeThreshold = maxMagnitudeThreshold;
+	}
+
+	public double getMinMagnitudeThreshold() {
+		return minMagnitudeThreshold;
+	}
+
+	public void setMinMagnitudeThreshold(double minMagnitudeThreshold) {
+		this.minMagnitudeThreshold = minMagnitudeThreshold;
 	}
 
 	public float getBinHeight() {
