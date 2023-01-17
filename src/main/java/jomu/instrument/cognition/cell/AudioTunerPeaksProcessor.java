@@ -44,7 +44,7 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 		tpTimeFrame.reset();
 
 		if (tpSwitchTuner) {
-			// tuner.normalize(tpToneMap);
+			tuner.normalize(tpToneMap);
 		}
 
 		if (tpSwitchPeaks) {
@@ -60,7 +60,6 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 				tuner.processPeaks(tpToneMap, peaks);
 			}
 		}
-		// iss.addToneMap(tpToneMap);
 		console.getVisor().updateToneMapView(tpToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}

@@ -40,6 +40,11 @@ public class NoteListElement implements Serializable {
 		this.percentMin = percentMin;
 	}
 
+	public NoteListElement clone() {
+		return new NoteListElement(this.note, this.pitchIndex, this.startTime, this.endTime, this.startTimeIndex,
+				this.endTimeIndex, this.avgAmp, this.maxAmp, this.minAmp, this.percentMin);
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(avgAmp, endTime, endTimeIndex, maxAmp, minAmp, note, overTone, percentMin, pitchIndex,

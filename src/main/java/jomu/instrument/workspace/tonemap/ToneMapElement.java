@@ -51,7 +51,13 @@ public class ToneMapElement {
 
 	@Override
 	public ToneMapElement clone() {
-		return new ToneMapElement(this.amplitude, this.index, this.timeIndex, this.pitchIndex);
+		ToneMapElement clone = new ToneMapElement(this.amplitude, this.index, this.timeIndex, this.pitchIndex);
+		clone.noteState = this.noteState;
+		clone.isPeak = this.isPeak;
+		if (this.noteListElement != null) {
+			clone.noteListElement = this.noteListElement.clone();
+		}
+		return clone;
 	}
 
 	public int getIndex() {
