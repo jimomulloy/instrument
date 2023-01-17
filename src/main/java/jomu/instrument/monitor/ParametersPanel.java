@@ -118,6 +118,13 @@ public class ParametersPanel extends JPanel {
 	private JSlider hpsHarmonicMedianSlider;
 	private JSlider hpsPercussionMedianSlider;
 	private JCheckBox hpsMedianSwitchCB;
+	private JTextField hpsMaskFactorInput;
+	private JSlider onsetSmoothingFactorSlider;
+	private JSlider onsetEdgeFactorSlider;
+	private JTextField chromaNormaliseThresholdInput;
+	private JSlider chromaSmoothingFactorSlider;
+	private JSlider chromaRootNoteSlider;
+	private JSlider chromaDownSamplingFactorSlider;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -816,6 +823,96 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(hpsPercussionMedianLabel);
 		parameterPanel.add(hpsPercussionMedianSlider);
 
+		onsetSmoothingFactorSlider = new JSlider(0, 100);
+		final JLabel onsetSmoothingFactorLabel = new JLabel("ONSET Smoothing Factor :");
+		onsetSmoothingFactorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				onsetSmoothingFactorLabel.setText(String.format("ONSET Smoothing Factor  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR,
+						Integer.toString(newValue));
+			}
+		});
+		onsetSmoothingFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR));
+		parameterPanel.add(onsetSmoothingFactorLabel);
+		parameterPanel.add(onsetSmoothingFactorSlider);
+
+		onsetEdgeFactorSlider = new JSlider(0, 100);
+		final JLabel onsetEdgeFactorLabel = new JLabel("ONSET Edge Factor :");
+		onsetEdgeFactorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				onsetEdgeFactorLabel.setText(String.format("ONSET Edge Factor  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR,
+						Integer.toString(newValue));
+			}
+		});
+		onsetEdgeFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR));
+		parameterPanel.add(onsetEdgeFactorLabel);
+		parameterPanel.add(onsetEdgeFactorSlider);
+
+		chromaSmoothingFactorSlider = new JSlider(1, 20);
+		final JLabel chromaSmoothingFactorLabel = new JLabel("CHROMA Smoothing Factor :");
+		chromaSmoothingFactorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				chromaSmoothingFactorLabel.setText(String.format("CHROMA Smoothing Factor  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR,
+						Integer.toString(newValue));
+			}
+		});
+		chromaSmoothingFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR));
+		parameterPanel.add(chromaSmoothingFactorLabel);
+		parameterPanel.add(chromaSmoothingFactorSlider);
+
+		chromaDownSamplingFactorSlider = new JSlider(1, 20);
+		final JLabel chromaDownSamplingFactorLabel = new JLabel("CHROMA DownS ampling Factor :");
+		chromaDownSamplingFactorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				chromaDownSamplingFactorLabel.setText(String.format("CHROMA Down Sampling Factor  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR,
+						Integer.toString(newValue));
+			}
+		});
+		chromaDownSamplingFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR));
+		parameterPanel.add(chromaDownSamplingFactorLabel);
+		parameterPanel.add(chromaDownSamplingFactorSlider);
+
+		chromaRootNoteSlider = new JSlider(12, 156);
+		final JLabel chromaRootNoteLabel = new JLabel("CHROMA Root Note :");
+		chromaRootNoteSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				chromaRootNoteLabel.setText(String.format("CHROMA Root Note  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE,
+						Integer.toString(newValue));
+			}
+		});
+		chromaRootNoteSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE));
+		parameterPanel.add(chromaRootNoteLabel);
+		parameterPanel.add(chromaRootNoteSlider);
+
 		formantFactorSlider = new JSlider(1, 20);
 		final JLabel formantFactorLabel = new JLabel("Audio Tuner Formant Factor :");
 		formantFactorSlider.addChangeListener(new ChangeListener() {
@@ -1328,6 +1425,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(toneMapViewHighThresholdLabel);
 		cqParamsPanel.add(toneMapViewHighThresholdInput);
 
+		JLabel chromaNormaliseThresholdLabel = new JLabel("CHROMA Normalise Threshold: ");
+		chromaNormaliseThresholdInput = new JTextField(4);
+		chromaNormaliseThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqNormaliseThresholdInput.getText();
+				chromaNormaliseThresholdLabel.setText(String.format("CHROMA Normalise Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD,
+						newValue);
+
+			}
+		});
+		chromaNormaliseThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD));
+		cqParamsPanel.add(chromaNormaliseThresholdLabel);
+		cqParamsPanel.add(chromaNormaliseThresholdInput);
+
 		JLabel hearingMinFreqCentsLabel = new JLabel("Hearing Min Frequency cents: ");
 		hearingMinFreqCentsInput = new JTextField(4);
 		hearingMinFreqCentsInput.addActionListener(new ActionListener() {
@@ -1601,6 +1715,22 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerHarmonicDriftFactorLabel);
 		tunerParamsPanel.add(tunerHarmonicDriftFactorInput);
 
+		JLabel hpsMaskFactorLabel = new JLabel("HPS Mask Factor: ");
+		hpsMaskFactorInput = new JTextField(4);
+		hpsMaskFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = hpsMaskFactorInput.getText();
+				hpsMaskFactorLabel.setText(String.format("HPS Mask Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_MASK_FACTOR, newValue);
+
+			}
+		});
+		hpsMaskFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_MASK_FACTOR));
+		cqParamsPanel.add(hpsMaskFactorLabel);
+		cqParamsPanel.add(hpsMaskFactorInput);
+
 		Dimension minimumSize = new Dimension(1000, 1000);
 		parameterPanel.setMinimumSize(minimumSize);
 		this.add(parameterPanel, BorderLayout.CENTER);
@@ -1765,6 +1895,20 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_PERCUSSION_MEDIAN));
 		hpsMedianSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN));
+		hpsMaskFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_MASK_FACTOR));
+		onsetSmoothingFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR));
+		onsetEdgeFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR));
+		chromaNormaliseThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD));
+		chromaSmoothingFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR));
+		chromaRootNoteSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE));
+		chromaDownSamplingFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR));
 
 	}
 }

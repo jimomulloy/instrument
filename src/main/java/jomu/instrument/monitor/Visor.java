@@ -109,6 +109,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private ChromaView chromaPostView;
 
+	private ChromaView chromaDownSampledView;
+
 	private BeatsView beatsView;
 
 	private JFrame mainframe;
@@ -229,6 +231,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		chromaPostPanel.add(chromaPostView, BorderLayout.CENTER);
 		chromaPostPanel.setBackground(Color.BLACK);
 		chromaTabbedPane.addTab("Chroma Post", chromaPostPanel);
+		chromaDownSampledView = new ChromaView();
+		JPanel chromaDownSampledPanel = new JPanel(new BorderLayout());
+		chromaDownSampledPanel.add(chromaDownSampledView, BorderLayout.CENTER);
+		chromaDownSampledPanel.setBackground(Color.BLACK);
+		chromaTabbedPane.addTab("Chroma DownSampled", chromaDownSampledPanel);
 		panel.add(chromaTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -275,7 +282,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
 				Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(), Cell.CellTypes.AUDIO_PITCH.name(),
-				Cell.CellTypes.AUDIO_HPS.name(), Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC",
+				Cell.CellTypes.AUDIO_ONSET.name(), Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
+				Cell.CellTypes.AUDIO_HPS.name(), Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
+				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC",
 				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION" }).stream()
 				.forEach(entry -> toneMapViewComboBox.addItem(entry));
 
@@ -310,6 +319,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				Visor.this.toneMapView.updateAxis();
 				Visor.this.chromaPreView.updateAxis();
 				Visor.this.chromaPostView.updateAxis();
+				Visor.this.chromaDownSampledView.updateAxis();
 				Visor.this.beatsView.updateAxis();
 
 			}
@@ -619,6 +629,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	public void updateChromaPostView(ToneMap toneMap) {
 		chromaPostView.updateToneMap(toneMap);
+	}
+
+	public void updateChromaDownSampledView(ToneMap toneMap) {
+		chromaDownSampledView.updateToneMap(toneMap);
 	}
 
 	private LinkedPanel createCQPanel() {
@@ -931,7 +945,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					TreeMap<Double, SpectrogramInfo> fs;
 					PitchDetectorSource pds;
 					pds = audioFeatureFrame.getPitchDetectorFeatures().getPds();
-					System.out.println(">>get PDS features high: " + pds.getBufferSize());
 					binStartingPointsInCents = pds.getBinStartingPointsInCents();
 					binWidth = pds.getBinWidth();
 					binHeight = pds.getBinHeight();

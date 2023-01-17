@@ -47,8 +47,14 @@ public class NoteStatus {
 			index = note - lowNote;
 		}
 
-		return noteStatus[index];
-
+		if (noteStatus.length > index) {
+			return noteStatus[index];
+		} else {
+			// TODO !!
+			System.err.println(">>!! NoteStatus getNote error: " + lowNote + ", " + highNote + ", " + note + ", "
+					+ noteStatus.length + ", " + (note - lowNote));
+			return noteStatus[index];
+		}
 	}
 
 	public NoteStatusElement next() {
@@ -69,13 +75,13 @@ public class NoteStatus {
 	@Override
 	public NoteStatus clone() {
 		NoteStatus copy = new NoteStatus(this.pitchSet);
-		for (note = lowNote, index = 0; note <= highNote; note++, index++) {
+		for (note = lowNote, index = 0; index < noteStatus.length && note <= highNote; note++, index++) {
 			if (noteStatus.length > (note - lowNote)) {
 				noteStatus[note - lowNote] = copy.getNote(note);
 			} else {
-				// TODO !!
-				System.err.println(">>!! NoteStatus clone error: " + lowNote + ", " + highNote + ", " + copy.lowNote
-						+ ", " + copy.highNote + ", " + note + ", " + noteStatus.length + ", " + (note - lowNote));
+				System.err.println(">>!! NoteStatus clone error: " + index + ", " + lowNote + ", " + highNote + ", "
+						+ copy.lowNote + ", " + copy.highNote + ", " + note + ", " + noteStatus.length + ", "
+						+ (note - lowNote));
 			}
 		}
 		return copy;

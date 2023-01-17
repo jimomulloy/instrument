@@ -27,6 +27,8 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		ToneMap preChromaToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
 		ToneMap postChromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap downSampledChromaToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_DOWNSAMPLED", streamId));
 		ToneTimeFrame preTimeFrame = preChromaToneMap.getTimeFrame(sequence);
 		ToneTimeFrame postTimeFrame = preTimeFrame.clone();
 		postTimeFrame.smoothMedian(preChromaToneMap, chromaSmoothFactor, sequence);
@@ -34,9 +36,10 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 
 		if (sequence >= chromaDownsampleFactor && (sequence % chromaDownsampleFactor == 0)) {
 			System.out.println(">>!!!AudioChromaPostProcessor down: " + sequence);
-			postTimeFrame.downSample(postChromaToneMap, chromaDownsampleFactor, sequence);
-			console.getVisor().updateChromaPostView(postChromaToneMap);
+			postTimeFrame.downSample(postChromaToneMap, downSampledChromaToneMap, chromaDownsampleFactor, sequence);
 		}
+		console.getVisor().updateChromaPostView(postChromaToneMap);
+		console.getVisor().updateChromaDownSampledView(downSampledChromaToneMap);
 		cell.send(streamId, sequence);
 	}
 }

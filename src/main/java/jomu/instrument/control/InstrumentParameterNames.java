@@ -40,6 +40,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD = "perception.hearing.chroma.normaliseThreshold";
 	public static final String PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR = "perception.hearing.chroma.smoothFactor";
 	public static final String PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR = "perception.hearing.chroma.downSampleFactor";
+	public static final String PERCEPTION_HEARING_CHROMA_ROOT_NOTE = "perception.hearing.chroma.rootNote";
+	public static final String PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH = "perception.hearing.chroma.harmonicsSwitch";
 
 	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";
 	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";
@@ -60,6 +62,10 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING = "perception.hearing.hps.harmonicWeighting";
 	public static final String PERCEPTION_HEARING_HPS_PERCUSSION_WEIGHTING = "perception.hearing.hps.percussionWeighting";
 	public static final String PERCEPTION_HEARING_HPS_SWITCH_MEDIAN = "perception.hearing.hps.medianSwitch";
+	public static final String PERCEPTION_HEARING_HPS_MASK_FACTOR = "perception.hearing.hps.maskFactor";
+
+	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
+	public static final String PERCEPTION_HEARING_ONSET_EDGE_FACTOR = "perception.hearing.onset.edgeFactor";
 
 	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
 	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";

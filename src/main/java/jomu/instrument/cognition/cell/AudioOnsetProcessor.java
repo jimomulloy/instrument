@@ -2,10 +2,10 @@ package jomu.instrument.cognition.cell;
 
 import java.util.List;
 
-import jomu.instrument.audio.features.AudioFeatureFrame;
-import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioOnsetProcessor extends ProcessorCommon {
 
@@ -18,13 +18,33 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		System.out.println(">>AudioOnsetProcessor accept seq: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId));
-		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
-		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-		// OnsetFeatures osf = aff.getOnsetFeatures();
-		// osf.buildToneMapFrame(toneMap);
-		// console.getVisor().updateBeatsView(toneMap);
-		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+		int onsetSmoothingFactor = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR);
+		int onsetEdgeFactor = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR);
+
+		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap onsetToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap onsetSmoothedToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SMOOTHED", streamId));
+		onsetToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+		onsetSmoothedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+
+		if (sequence > 1) {
+			ToneTimeFrame currentFrame = onsetSmoothedToneMap.getTimeFrame(sequence);
+			ToneTimeFrame previousFrame = onsetSmoothedToneMap.getTimeFrame(sequence - 1);
+			currentFrame.onsetWhiten(previousFrame, (double) onsetSmoothingFactor / 100.0);
+		}
+
+		if (sequence > 1) {
+			ToneTimeFrame currentFrame = onsetToneMap.getTimeFrame(sequence);
+			ToneTimeFrame previousFrame = cqToneMap.getTimeFrame(sequence - 1);
+			currentFrame.onsetEdge(previousFrame, (double) onsetEdgeFactor / 100.0);
+		}
+
+		console.getVisor().updateToneMapView(onsetToneMap, this.cell.getCellType().toString());
+		console.getVisor().updateToneMapView(onsetSmoothedToneMap, this.cell.getCellType().toString() + "_SMOOTHED");
+
 		cell.send(streamId, sequence);
 	}
 }

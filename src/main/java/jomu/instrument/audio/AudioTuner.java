@@ -303,7 +303,8 @@ public class AudioTuner implements ToneMapConstants {
 				}
 			}
 			toneTimeFrame.reset();
-			System.out.println(">>thresholds: " + toneTimeFrame.getHighThreshold() + ", " + toneTimeFrame.getLowThres());
+			System.out
+					.println(">>thresholds: " + toneTimeFrame.getHighThreshold() + ", " + toneTimeFrame.getLowThres());
 		}
 
 		return true;

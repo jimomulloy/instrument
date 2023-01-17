@@ -398,22 +398,20 @@ public class ToneTimeFrame {
 			if (elements[i] != null) {
 				double value = elements[i].amplitude;
 				if (value > 0.4) {
-					value = 4.0;
-				} else if (value > 0.2) {
-					value = 3.0;
-				} else if (value > 0.1) {
-					value = 2.0;
-				} else if (value > 0.05) {
 					value = 1.0;
+				} else if (value > 0.2) {
+					value = 0.75;
+				} else if (value > 0.1) {
+					value = 0.5;
+				} else if (value > 0.05) {
+					value = 0.25;
 				} else {
-					value = 0;
+					value = AMPLITUDE_FLOOR;
 				}
 				elements[i].amplitude = value;
 			}
 		}
 		reset();
-		setHighThreshold(4.0);
-		setLowThreshold(0.5);
 		return this;
 	}
 
@@ -452,34 +450,38 @@ public class ToneTimeFrame {
 		}
 	}
 
-	public ToneTimeFrame downSample(ToneMap toneMap, int factor, int sequence) {
+	public ToneTimeFrame downSample(ToneMap sourceToneMap, ToneMap targetToneMap, int factor, int sequence) {
 		List<ToneTimeFrame> frames = new ArrayList<>();
-		ToneTimeFrame tf = toneMap.getTimeFrame(sequence);
+		ToneTimeFrame tf = sourceToneMap.getTimeFrame(sequence);
 		ToneTimeFrame tfEnd = tf;
 		ToneTimeFrame tfStart = tf;
 		int i = factor;
-		while (tf != null && i > 0) {
+		while (tf != null && i > 1) {
 			frames.add(tf);
-			tf = toneMap.getPreviousTimeFrame(tf.getStartTime());
+			tf = sourceToneMap.getPreviousTimeFrame(tf.getStartTime());
 			if (tf != null) {
 				tfStart = tf;
 			}
 			i--;
 		}
-		if (frames.size() > 1) {
-			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-				if (elements[elementIndex] != null) {
-					elements[elementIndex].amplitude = downSample(frames, elementIndex);
-				}
-			}
-
-			for (ToneTimeFrame frame : frames) {
-				toneMap.deleteTimeFrame(frame.getStartTime());
-			}
+		if (frames.size() > 2) {
 			timeSet = new TimeSet(tfStart.getTimeSet().getStartTime(), tfEnd.getTimeSet().getEndTime(),
 					timeSet.getSampleRate(), timeSet.getSampleTimeSize());
-			toneMap.addTimeFrame(this);
-			reset();
+
+			pitchSet = new PitchSet();
+
+			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+
+			targetToneMap.addTimeFrame(ttf);
+
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				ttf.elements[elementIndex].amplitude = downSample(frames, elementIndex);
+			}
+			System.out.println(">>add TF: " + ttf.getStartTime());
+			ttf.noteStatus = tfStart.noteStatus.clone();
+			ttf.reset();
+			ttf.setLowThreshold(tfStart.getLowThres());
+			ttf.setHighThreshold(tfStart.getHighThreshold());
 		}
 		return this;
 	}
@@ -489,7 +491,7 @@ public class ToneTimeFrame {
 		for (ToneTimeFrame frame : frames) {
 			amplitude += frame.elements[elementIndex].amplitude;
 		}
-		return amplitude;
+		return amplitude / frames.size();
 	}
 
 	public void hpsPercussionMedian(int hpsPercussionMedianFactor, boolean hpsMedianSwitch) {
@@ -537,26 +539,17 @@ public class ToneTimeFrame {
 
 	}
 
-	public void hpsHarmonicMedian(ToneMap sourceToneMap, ToneMap hpsToneMap, int hpsHarmonicMedianFactor,
+	public void hpsHarmonicMedian(ToneMap sourceToneMap, int sequence, int hpsHarmonicMedianFactor,
 			boolean hpsMedianSwitch) {
 
 		System.out.println(">>hpsHarmonicMedianFactor: " + hpsHarmonicMedianFactor + ", " + getStartTime());
 
 		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
-		ToneTimeFrame stf = sourceToneMap.getTimeFrame();
+		ToneTimeFrame stf = sourceToneMap.getTimeFrame(sequence);
 		int i = hpsHarmonicMedianFactor;
 		while (stf != null && i > 0) {
 			sourceFrames.add(stf);
 			stf = sourceToneMap.getPreviousTimeFrame(stf.getStartTime());
-			i--;
-		}
-
-		List<ToneTimeFrame> hpsFrames = new ArrayList<>();
-		ToneTimeFrame htf = this;
-		i = hpsHarmonicMedianFactor;
-		while (htf != null && i > hpsHarmonicMedianFactor / 2) {
-			hpsFrames.add(htf);
-			htf = hpsToneMap.getPreviousTimeFrame(htf.getStartTime());
 			i--;
 		}
 
@@ -576,16 +569,13 @@ public class ToneTimeFrame {
 						ToneMapElement median = sortedElements.size() % 2 == 0
 								? sortedElements.get(sortedElements.size() / 2 - 1)
 								: sortedElements.get(sortedElements.size() / 2);
-						for (ToneTimeFrame subFrame : hpsFrames) {
-							hpsFrames.get(0).elements[elementIndex].amplitude = median.amplitude;
-						}
+						elements[elementIndex].amplitude = median.amplitude;
 					} else {
-						hpsFrames.get(0).elements[elementIndex].amplitude = sum / sourceFrames.size(); // median.amplitude;
+						elements[elementIndex].amplitude = sum / sourceFrames.size();
 					}
 				}
 			}
-			hpsFrames.get(0).reset();
-
+			reset();
 		}
 
 	}
@@ -605,4 +595,46 @@ public class ToneTimeFrame {
 		reset();
 	}
 
+	public void hpsHarmonicMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
+			double hpsMaskFactor) {
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			if (((harmonicTimeFrame.elements[elementIndex].amplitude)
+					/ (percussionTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)) < hpsMaskFactor) {
+				elements[elementIndex].amplitude = 0;
+			}
+		}
+		reset();
+	}
+
+	public void hpsPercussionMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
+			double hpsMaskFactor) {
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			if (((percussionTimeFrame.elements[elementIndex].amplitude)
+					/ (harmonicTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)) < hpsMaskFactor) {
+				elements[elementIndex].amplitude = 0;
+			}
+		}
+		reset();
+	}
+
+	public void onsetWhiten(ToneTimeFrame previousFrame, double onsetFactor) {
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			elements[elementIndex].amplitude = Math.max(
+					((previousFrame.elements[elementIndex].amplitude * onsetFactor)
+							+ (elements[elementIndex].amplitude * (1 - onsetFactor))),
+					elements[elementIndex].amplitude);
+		}
+		reset();
+	}
+
+	public void onsetEdge(ToneTimeFrame previousFrame, double onsetEdgeFactor) {
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			if (elements[elementIndex].amplitude <= AMPLITUDE_FLOOR
+					|| ((elements[elementIndex].amplitude - previousFrame.elements[elementIndex].amplitude)
+							/ elements[elementIndex].amplitude) < onsetEdgeFactor) {
+				elements[elementIndex].amplitude = 0;
+			}
+		}
+		reset();
+	}
 }
