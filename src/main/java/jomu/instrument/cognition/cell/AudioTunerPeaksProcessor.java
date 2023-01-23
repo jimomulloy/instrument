@@ -41,10 +41,9 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 		ToneTimeFrame tpTimeFrame = tpToneMap.getTimeFrame(sequence);
 
 		AudioTuner tuner = new AudioTuner();
-		tpTimeFrame.reset();
 
 		if (tpSwitchTuner) {
-			tuner.normalize(tpToneMap);
+			tuner.processPeaks(tpToneMap);
 		}
 
 		if (tpSwitchPeaks) {

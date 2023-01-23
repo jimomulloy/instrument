@@ -109,8 +109,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	private ChromaView chromaPostView;
 
-	private ChromaView chromaDownSampledView;
-
 	private BeatsView beatsView;
 
 	private JFrame mainframe;
@@ -231,11 +229,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		chromaPostPanel.add(chromaPostView, BorderLayout.CENTER);
 		chromaPostPanel.setBackground(Color.BLACK);
 		chromaTabbedPane.addTab("Chroma Post", chromaPostPanel);
-		chromaDownSampledView = new ChromaView();
-		JPanel chromaDownSampledPanel = new JPanel(new BorderLayout());
-		chromaDownSampledPanel.add(chromaDownSampledView, BorderLayout.CENTER);
-		chromaDownSampledPanel.setBackground(Color.BLACK);
-		chromaTabbedPane.addTab("Chroma DownSampled", chromaDownSampledPanel);
 		panel.add(chromaTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -320,9 +313,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				Visor.this.toneMapView.updateAxis();
 				Visor.this.chromaPreView.updateAxis();
 				Visor.this.chromaPostView.updateAxis();
-				Visor.this.chromaDownSampledView.updateAxis();
 				Visor.this.beatsView.updateAxis();
-
+				Visor.this.resetToneMapView();
 			}
 		});
 		timeAxisOffsetInput
@@ -339,6 +331,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				pitchAxisOffsetLabel.setText(String.format("Pitch Axis Offset ms (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET, newValue);
 				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
 
 			}
 		});
@@ -356,6 +351,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				timeAxisRangeLabel.setText(String.format("Time Axis Range ms (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, newValue);
 				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
 
 			}
 		});
@@ -373,7 +371,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				pitchAxisRangeLabel.setText(String.format("Pitch Axis Range ms (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, newValue);
 				Visor.this.toneMapView.updateAxis();
-
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
 			}
 		});
 		pitchAxisRangeInput
@@ -608,7 +608,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 						toneMapView.renderToneMap(toneMap);
 					}
 				} else if (toneMapViewType.equals(currentToneMapViewType)) {
-					toneMapView.renderToneMap(toneMap);
+					toneMapView.updateToneMap(toneMap);
 				}
 			}
 		});
@@ -617,6 +617,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	public void resetToneMapView() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
 			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 		}
 	}
 
@@ -630,10 +633,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	public void updateChromaPostView(ToneMap toneMap) {
 		chromaPostView.updateToneMap(toneMap);
-	}
-
-	public void updateChromaDownSampledView(ToneMap toneMap) {
-		chromaDownSampledView.updateToneMap(toneMap);
 	}
 
 	private LinkedPanel createCQPanel() {
@@ -949,7 +948,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					binStartingPointsInCents = pds.getBinStartingPointsInCents();
 					binWidth = pds.getBinWidth();
 					binHeight = pds.getBinHeight();
-					fs = pds.getFeatures();
+					fs = audioFeatureFrame.getPitchDetectorFeatures().getFeatures();
 					if (features == null) {
 						features = new TreeMap<>();
 					}

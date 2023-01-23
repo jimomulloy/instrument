@@ -11,17 +11,12 @@ import java.util.stream.Collectors;
 public class ToneTimeFrame {
 
 	public final static int INIT_PITCH_HIGH = 72;
-
 	public final static int INIT_PITCH_LOW = 36;
-
 	public final static double AMPLITUDE_FLOOR = 1E-7;
-
 	public static final boolean LOGAMP = true;
-
 	public static final boolean POWERAMP = false;
 
 	private boolean ampType = LOGAMP;
-
 	private double avgAmplitude;
 
 	private ToneMapElement[] elements;
@@ -32,6 +27,8 @@ public class ToneTimeFrame {
 	private double minAmplitude;
 	private NoteStatus noteStatus;
 	private PitchSet pitchSet;
+
+	private boolean processed = true;
 
 	private TimeSet timeSet;
 
@@ -58,6 +55,14 @@ public class ToneTimeFrame {
 		copy.setLowThreshold(this.getLowThres());
 		copy.setHighThreshold(this.getHighThreshold());
 		return copy;
+	}
+
+	public boolean isProcessed() {
+		return processed;
+	}
+
+	public void setProcessed(boolean processed) {
+		this.processed = processed;
 	}
 
 	public void compress(float factor) {
@@ -126,36 +131,6 @@ public class ToneTimeFrame {
 		return fftSpectrum;
 	}
 
-	public double FTPowerToAmp(double power) {
-		double amplitude = 0.0F;
-		if (power <= 0.0)
-			return 0.0F;
-		if (ampType == LOGAMP) {
-			amplitude = (float) Math.log10(1 + (100.0 * power));
-			// amplitude = (20 * Math.log(1 + Math.abs(power)) / Math.log(10));
-			// double logMinFTPower = Math.abs(Math.log(minFTPower /
-			// maxFTPower));
-			// amplitude = (logMinFTPower - Math.abs(Math.log(FTPower /
-			// maxFTPower))) /
-			// logMinFTPower;
-			// amplitude = (20 * Math.log(1 + Math.abs(FTPower)) /
-			// Math.log(10));
-			if (amplitude < 0)
-				amplitude = 0.0;
-		} else {
-			/*
-			 * if ((maxPower - minPower) <= 0) { amplitude = 0.0; } else { double minpow =
-			 * minPower + (maxPower - minPower) * ((double) lowThres / 100.0); double maxpow
-			 * = maxPower - (maxPower - minPower) * ((double) (100 - highThres) / 100.0); if
-			 * (power > maxpow) { amplitude = 1.0; } else if (power < minpow) { amplitude =
-			 * 0.0; } else { amplitude = (Math.sqrt(power - minpow) / Math.sqrt(maxpow -
-			 * minpow)); } }
-			 */
-		}
-
-		return amplitude;
-	}
-
 	public double getAvgAmplitude() {
 		return avgAmplitude;
 	}
@@ -200,7 +175,7 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch) {
+	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch, boolean harmonics) {
 		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.timeSet.clone(),
 				new PitchSet(basePitch, basePitch + 11));
 		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
@@ -372,7 +347,7 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame normaliseEuclidian(double threshold) {
+	public ToneTimeFrame normaliseEuclidian(double threshold, boolean ceiling) {
 		double scale = 0;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
@@ -382,8 +357,17 @@ public class ToneTimeFrame {
 		}
 		if (scale > threshold) {
 			scale = 1 / Math.sqrt(scale);
+			double max = AMPLITUDE_FLOOR;
 			for (int i = 0; i < elements.length; i++) {
 				elements[i].amplitude *= scale;
+				if (max < elements[i].amplitude) {
+					max = elements[i].amplitude;
+				}
+			}
+			if (ceiling) {
+				for (int i = 0; i < elements.length; i++) {
+					elements[i].amplitude = elements[i].amplitude / max;
+				}
 			}
 		} else {
 			for (int i = 0; i < elements.length; i++) {
@@ -494,7 +478,7 @@ public class ToneTimeFrame {
 		return amplitude / frames.size();
 	}
 
-	public void hpsPercussionMedian(int hpsPercussionMedianFactor, boolean hpsMedianSwitch) {
+	public ToneTimeFrame hpsPercussionMedian(int hpsPercussionMedianFactor, boolean hpsMedianSwitch) {
 
 		ToneMapElement[] hpsElements = getElements();
 		for (int i = 0; i < elements.length; i++) {
@@ -536,10 +520,10 @@ public class ToneTimeFrame {
 		}
 
 		reset();
-
+		return this;
 	}
 
-	public void hpsHarmonicMedian(ToneMap sourceToneMap, int sequence, int hpsHarmonicMedianFactor,
+	public ToneTimeFrame hpsHarmonicMedian(ToneMap sourceToneMap, int sequence, int hpsHarmonicMedianFactor,
 			boolean hpsMedianSwitch) {
 
 		System.out.println(">>hpsHarmonicMedianFactor: " + hpsHarmonicMedianFactor + ", " + getStartTime());
@@ -577,10 +561,10 @@ public class ToneTimeFrame {
 			}
 			reset();
 		}
-
+		return this;
 	}
 
-	public void hpsMask(ToneTimeFrame hpsHarmonicTimeFrame, ToneTimeFrame hpsPercussionTimeFrame,
+	public ToneTimeFrame hpsMask(ToneTimeFrame hpsHarmonicTimeFrame, ToneTimeFrame hpsPercussionTimeFrame,
 			double hpsHarmonicWeighting, double hpsPercussionWeighting) {
 
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
@@ -593,9 +577,10 @@ public class ToneTimeFrame {
 
 		}
 		reset();
+		return this;
 	}
 
-	public void hpsHarmonicMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
+	public ToneTimeFrame hpsHarmonicMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
 			double hpsMaskFactor) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			if (((harmonicTimeFrame.elements[elementIndex].amplitude)
@@ -604,9 +589,10 @@ public class ToneTimeFrame {
 			}
 		}
 		reset();
+		return this;
 	}
 
-	public void hpsPercussionMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
+	public ToneTimeFrame hpsPercussionMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
 			double hpsMaskFactor) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			if (((percussionTimeFrame.elements[elementIndex].amplitude)
@@ -615,9 +601,10 @@ public class ToneTimeFrame {
 			}
 		}
 		reset();
+		return this;
 	}
 
-	public void onsetWhiten(ToneTimeFrame previousFrame, double onsetFactor) {
+	public ToneTimeFrame onsetWhiten(ToneTimeFrame previousFrame, double onsetFactor) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			elements[elementIndex].amplitude = Math.max(
 					((previousFrame.elements[elementIndex].amplitude * onsetFactor)
@@ -625,9 +612,10 @@ public class ToneTimeFrame {
 					elements[elementIndex].amplitude);
 		}
 		reset();
+		return this;
 	}
 
-	public void onsetEdge(ToneTimeFrame previousFrame, double onsetEdgeFactor) {
+	public ToneTimeFrame onsetEdge(ToneTimeFrame previousFrame, double onsetEdgeFactor) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			if (elements[elementIndex].amplitude <= AMPLITUDE_FLOOR
 					|| ((elements[elementIndex].amplitude - previousFrame.elements[elementIndex].amplitude)
@@ -636,5 +624,6 @@ public class ToneTimeFrame {
 			}
 		}
 		reset();
+		return this;
 	}
 }

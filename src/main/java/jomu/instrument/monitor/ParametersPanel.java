@@ -125,6 +125,8 @@ public class ParametersPanel extends JPanel {
 	private JSlider chromaSmoothingFactorSlider;
 	private JSlider chromaRootNoteSlider;
 	private JSlider chromaDownSamplingFactorSlider;
+	private JCheckBox chromaHarmonicsSwitchCB;
+	private JCheckBox chromaCeilingSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -646,6 +648,38 @@ public class ParametersPanel extends JPanel {
 		pdTarsosSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS));
 		cqSwitchPanel.add(pdTarsosSwitchCB);
+
+		chromaHarmonicsSwitchCB = new JCheckBox("chromaHarmonicsSwitchCB");
+		chromaHarmonicsSwitchCB.setText("Chroma Harmonics Switch");
+		chromaHarmonicsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		chromaHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH));
+		cqSwitchPanel.add(chromaHarmonicsSwitchCB);
+
+		chromaCeilingSwitchCB = new JCheckBox("chromaCeilingSwitchCB");
+		chromaCeilingSwitchCB.setText("Chroma Ceiling Switch");
+		chromaCeilingSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		chromaCeilingSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH));
+		cqSwitchPanel.add(chromaCeilingSwitchCB);
 
 		parameterPanel.add(cqSwitchPanel);
 
@@ -1909,6 +1943,10 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE));
 		chromaDownSamplingFactorSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR));
+		chromaHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH));
+		chromaCeilingSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH));
 
 	}
 }

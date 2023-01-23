@@ -106,9 +106,11 @@ public interface ToneMapConstants {
 	public final int NOTEON = 144;
 	public final int OFF = 0;
 	public final int ON = 1;
+	public final int START = 2;
+	public final int CONTINUING = 3;
+	public final int PENDING = 4;
 	public static final int ONE_SECOND = 1000;
 	public static final int PAUSED = 2;
-	public final int PENDING = 4;
 	public final static int PITCH_RANGE_MAX = 60;
 	public static final int PLAY_MODE_AUDIO = 1;
 	public static final int PLAY_MODE_AUDIO_OUT = 4;
@@ -125,7 +127,6 @@ public interface ToneMapConstants {
 	public static final int SC_TONEMAP_READY = 36;
 	public static final int ST_ERROR = 2;
 	public static final int ST_INFO = 1;
-	public final int START = 2;
 	public static final int STOPPED = 0;
 	public final int SUSTAIN = 64;
 	public static final int TRANSFORM_MODE_JAVA = 0;

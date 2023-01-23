@@ -21,21 +21,30 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		System.out.println(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
-		voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
+		// voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		if (afp == null || (afp.isClosed() && afp.isLastSequence(sequence))) {
 			System.out.println(">>AudioSinkProcessor CLOSE!!");
 			voice.close(streamId);
 			hearing.removeAudioStream(streamId);
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
-//			workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH,
+			// streamId));
+			// workspace.getAtlas().removeToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS,
+			// streamId));
 		}
 	}
 }

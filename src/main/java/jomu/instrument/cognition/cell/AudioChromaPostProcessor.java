@@ -21,25 +21,15 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 				">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId + ", " + sequence);
 		int chromaSmoothFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR);
-		int chromaDownsampleFactor = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR);
 
 		ToneMap preChromaToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
 		ToneMap postChromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		ToneMap downSampledChromaToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_DOWNSAMPLED", streamId));
 		ToneTimeFrame preTimeFrame = preChromaToneMap.getTimeFrame(sequence);
 		ToneTimeFrame postTimeFrame = preTimeFrame.clone();
 		postTimeFrame.smoothMedian(preChromaToneMap, chromaSmoothFactor, sequence);
 		postChromaToneMap.addTimeFrame(postTimeFrame);
-
-		if (sequence >= chromaDownsampleFactor && (sequence % chromaDownsampleFactor == 0)) {
-			System.out.println(">>!!!AudioChromaPostProcessor down: " + sequence);
-			postTimeFrame.downSample(postChromaToneMap, downSampledChromaToneMap, chromaDownsampleFactor, sequence);
-		}
 		console.getVisor().updateChromaPostView(postChromaToneMap);
-		console.getVisor().updateChromaDownSampledView(downSampledChromaToneMap);
 		cell.send(streamId, sequence);
 	}
 }

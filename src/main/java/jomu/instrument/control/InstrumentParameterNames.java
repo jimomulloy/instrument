@@ -42,6 +42,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CHROMA_DOWNSAMPLE_FACTOR = "perception.hearing.chroma.downSampleFactor";
 	public static final String PERCEPTION_HEARING_CHROMA_ROOT_NOTE = "perception.hearing.chroma.rootNote";
 	public static final String PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH = "perception.hearing.chroma.harmonicsSwitch";
+	public static final String PERCEPTION_HEARING_CHROMA_CEILING_SWITCH = "perception.hearing.chroma.ceilingSwitch";
 
 	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";
 	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";

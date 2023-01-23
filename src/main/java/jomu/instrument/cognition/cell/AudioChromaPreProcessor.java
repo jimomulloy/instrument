@@ -24,15 +24,15 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE);
 		boolean chromaHarmonicsSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH);
+		boolean chromaCeilingSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH);
 
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneTimeFrame cqTimeFrame = cqToneMap.getTimeFrame(sequence);
-		ToneTimeFrame chromaTimeFrame = cqTimeFrame.clone().chroma(chromaRootNote, cqTimeFrame.getPitchLow(),
-				cqTimeFrame.getPitchHigh());
-		chromaTimeFrame.normaliseEuclidian(normaliseThreshold);
-		chromaTimeFrame.chromaQuantize();
-		chromaToneMap.addTimeFrame(chromaTimeFrame);
+		chromaToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()
+				.chroma(chromaRootNote, cqTimeFrame.getPitchLow(), cqTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
+				.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize());
 		console.getVisor().updateChromaPreView(chromaToneMap);
 		cell.send(streamId, sequence);
 	}

@@ -31,8 +31,9 @@ public class ToneMap {
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
 
-	public void addTimeFrame(ToneTimeFrame toneTimeFrame) {
+	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
 		toneMapStore.put(toneTimeFrame.getStartTime(), toneTimeFrame);
+		return toneTimeFrame;
 	}
 
 	public String getKey() {

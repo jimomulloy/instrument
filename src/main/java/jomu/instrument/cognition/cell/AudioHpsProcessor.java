@@ -43,10 +43,10 @@ public class AudioHpsProcessor extends ProcessorCommon {
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 
 		hpsToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-		hpsHarmonicToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+		hpsHarmonicToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()).setProcessed(false);
 		hpsPercussionToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-		hpsHarmonicMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-		hpsPercussionMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+		hpsHarmonicMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()).setProcessed(false);
+		hpsPercussionMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()).setProcessed(false);
 		System.out.println(">>mHPS MAKE TM: " + sequence);
 
 		hpsPercussionToneMap.getTimeFrame().hpsPercussionMedian(hpsPercussionMedian, hpsMedianSwitch);
@@ -59,12 +59,14 @@ public class AudioHpsProcessor extends ProcessorCommon {
 			hpsHarmonicToneMap.getTimeFrame(tmIndex).hpsHarmonicMedian(cqToneMap, sequence, hpsHarmonicMedian,
 					hpsMedianSwitch);
 			System.out.println(">>mHPS GOT TM: " + (tmIndex));
-			hpsToneMap.getTimeFrame(tmIndex).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
-					(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0);
-			hpsHarmonicMaskedToneMap.getTimeFrame(tmIndex).hpsHarmonicMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
-					hpsMaskFactor);
-			hpsPercussionMaskedToneMap.getTimeFrame(tmIndex).hpsPercussionMask(hpsHarmonicTimeFrame,
-					hpsPercussionTimeFrame, hpsMaskFactor);
+			hpsToneMap
+					.getTimeFrame(tmIndex).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
+							(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0)
+					.setProcessed(true);
+			hpsHarmonicMaskedToneMap.getTimeFrame(tmIndex)
+					.hpsHarmonicMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame, hpsMaskFactor).setProcessed(true);
+			hpsPercussionMaskedToneMap.getTimeFrame(tmIndex)
+					.hpsPercussionMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame, hpsMaskFactor).setProcessed(true);
 		}
 		console.getVisor().updateToneMapView(hpsHarmonicToneMap, this.cell.getCellType().toString() + "_HARMONIC");
 		console.getVisor().updateToneMapView(hpsPercussionToneMap, this.cell.getCellType().toString() + "_PERCUSSION");

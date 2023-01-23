@@ -27,19 +27,21 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		ToneMap onsetToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap onsetSmoothedToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SMOOTHED", streamId));
-		onsetToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-		onsetSmoothedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+		onsetToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()).setProcessed(false);
+		onsetSmoothedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()).reset().setProcessed(false);
 
 		if (sequence > 1) {
 			ToneTimeFrame currentFrame = onsetSmoothedToneMap.getTimeFrame(sequence);
 			ToneTimeFrame previousFrame = onsetSmoothedToneMap.getTimeFrame(sequence - 1);
 			currentFrame.onsetWhiten(previousFrame, (double) onsetSmoothingFactor / 100.0);
+			currentFrame.setProcessed(true);
 		}
 
 		if (sequence > 1) {
 			ToneTimeFrame currentFrame = onsetToneMap.getTimeFrame(sequence);
 			ToneTimeFrame previousFrame = cqToneMap.getTimeFrame(sequence - 1);
 			currentFrame.onsetEdge(previousFrame, (double) onsetEdgeFactor / 100.0);
+			currentFrame.setProcessed(true);
 		}
 
 		console.getVisor().updateToneMapView(onsetToneMap, this.cell.getCellType().toString());

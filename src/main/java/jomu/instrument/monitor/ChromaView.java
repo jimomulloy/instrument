@@ -77,7 +77,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(0.9F, 0.9F, 512, false, false, false);
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
@@ -92,7 +91,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (toneMap != null) {
-			renderToneMap();
+			renderToneMap(toneMap);
 		}
 	}
 
@@ -104,7 +103,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (toneMap != null) {
-			renderToneMap();
+			renderToneMap(toneMap);
 		}
 	}
 
@@ -116,7 +115,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (toneMap != null) {
-			renderToneMap();
+			renderToneMap(toneMap);
 		}
 	}
 
@@ -127,7 +126,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		System.out.println("!!udpate tm time axis: " + toneMap + " ," + this.timeAxisStart + ", " + this.timeAxisEnd);
 		if (toneMap != null) {
-			renderToneMap();
+			renderToneMap(toneMap);
 		}
 	}
 
@@ -137,7 +136,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 		repaint();
 	}
 
-	public void renderToneMap() {
+	public void renderToneMap(ToneMap toneMap) {
+		this.toneMap = toneMap;
 		double timeStart = timeAxisStart / 1000;
 		double timeEnd = timeAxisEnd / 1000;
 		this.currentWidth = getWidth();
@@ -164,6 +164,9 @@ public class ChromaView extends JComponent implements ComponentListener {
 			this.currentHeight = getHeight();
 		}
 		if (ttf != null) {
+
+			double timeAxisRange = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 			TimeSet timeSet = ttf.getTimeSet();
 			PitchSet pitchSet = ttf.getPitchSet();
 			updateAxis(timeSet, pitchSet);
@@ -210,7 +213,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 				Color color = Color.black;
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
-					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (20000.0)) * (getWidth() - 1)));
+					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
 					int height = (int) ((double) getHeight() / 12.0);
 					amplitude = toneMapElement.amplitude;
 					int greyValue = 0;
@@ -241,6 +244,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 
 	private void drawGrid() {
 		Color gridColor = new Color(50, 50, 50);
+		double timeAxisRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 
 		for (int i = 0; i < 12; i++) {
 			int centsCoordinate = getCentsCoordinate(i);
@@ -252,7 +257,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 			bufferedGraphics.drawLine(0, centsCoordinate, getWidth() - 1, centsCoordinate);
 		}
 
-		for (int i = 0; i <= 20000; i += 1000) {
+		for (int i = 0; i <= timeAxisRange; i += 1000) {
 			bufferedGraphics.setColor(Color.WHITE);
 			int timeCoordinate = getTimeCoordinate(i);
 			bufferedGraphics.drawLine(timeCoordinate, getHeight(), timeCoordinate, getHeight() - 5);

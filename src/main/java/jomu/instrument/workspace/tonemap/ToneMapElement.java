@@ -1,5 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -15,6 +17,7 @@ public class ToneMapElement {
 	public NoteListElement noteListElement;
 	public int noteState;
 	public boolean isPeak;
+	public Map<Integer, Double> harmonicWeights = new HashMap();
 
 	int index;
 	int pitchIndex;
@@ -70,6 +73,18 @@ public class ToneMapElement {
 
 	public int getTimeIndex() {
 		return timeIndex;
+	}
+
+	public void addHarmonicWieght(int harmonic, double rootAmplitude) {
+		harmonicWeights.put(harmonic, rootAmplitude);
+	}
+
+	public double getHarmonicWeights(int harmonic) {
+		return harmonicWeights.get(harmonic);
+	}
+
+	public int[] getHarmonics() {
+		return harmonicWeights.keySet().stream().mapToInt(num -> Integer.valueOf(num)).toArray();
 	}
 
 	@Override

@@ -23,12 +23,13 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneTimeFrame timeFrame = tunerPeaksToneMap.getTimeFrame(sequence).clone();
-		notateToneMap.addTimeFrame(timeFrame);
+		notateToneMap.addTimeFrame(timeFrame).setProcessed(false);
+
 		AudioTuner tuner = new AudioTuner();
 
-		tuner.noteScan(notateToneMap, sequence);
+		// tuner.noteScan(notateToneMap, sequence);
 
-		processNotes(notateToneMap.getTimeFrame().getElements());
+		// processNotes(notateToneMap.getTimeFrame().getElements());
 
 		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

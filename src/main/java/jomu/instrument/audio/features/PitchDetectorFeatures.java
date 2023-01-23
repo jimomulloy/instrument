@@ -34,6 +34,9 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 				spectrum[i] += spectralEnergy[i];
 			}
 		}
+		if (spectrum == null) {
+			spectrum = new float[0];
+		}
 		return spectrum;
 	}
 
@@ -79,6 +82,10 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
 		this.features = pds.getFeatures();
+		TreeMap<Double, SpectrogramInfo> newFeatures = this.pds.getFeatures();
+		for (Entry<Double, SpectrogramInfo> entry : newFeatures.entrySet()) {
+			this.features.put(entry.getKey(), entry.getValue());
+		}
 		pds.clear();
 	}
 
