@@ -136,6 +136,9 @@ public class ToneTimeFrame {
 	}
 
 	public ToneMapElement getElement(int index) {
+		if (index >= elements.length) {
+			System.out.println("!!erro");
+		}
 		return elements[index];
 	}
 

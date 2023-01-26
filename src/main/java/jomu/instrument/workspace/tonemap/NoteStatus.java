@@ -15,8 +15,6 @@ public class NoteStatus {
 
 	private int lowNote;
 
-	private int note;
-
 	private NoteStatusElement[] noteStatus;
 
 	private PitchSet pitchSet;
@@ -30,7 +28,7 @@ public class NoteStatus {
 		lowNote = pitchSet.getLowNote();
 		highNote = pitchSet.getHighNote();
 
-		for (note = lowNote, index = 0; note <= highNote; note++, index++) {
+		for (int note = lowNote, index = 0; note <= highNote; note++, index++) {
 			noteStatus[note - lowNote] = new NoteStatusElement(note, index);
 		}
 
@@ -42,18 +40,23 @@ public class NoteStatus {
 
 	}
 
-	public NoteStatusElement getNote(int note) {
+	public NoteStatusElement getNoteStatusElement(int note) {
 		if (note <= highNote && note >= lowNote) {
 			index = note - lowNote;
+		} else {
+			// TODO !!
+			System.err.println(">>!! NoteStatus getNote error 1: " + lowNote + ", " + highNote + ", " + note + ", "
+					+ noteStatus.length + ", " + (note - lowNote));
+			return noteStatus[0];
 		}
 
 		if (noteStatus.length > index) {
 			return noteStatus[index];
 		} else {
 			// TODO !!
-			System.err.println(">>!! NoteStatus getNote error: " + lowNote + ", " + highNote + ", " + note + ", "
+			System.err.println(">>!! NoteStatus getNote error 2: " + lowNote + ", " + highNote + ", " + note + ", "
 					+ noteStatus.length + ", " + (note - lowNote));
-			return noteStatus[index];
+			return noteStatus[0];
 		}
 	}
 
@@ -75,13 +78,12 @@ public class NoteStatus {
 	@Override
 	public NoteStatus clone() {
 		NoteStatus copy = new NoteStatus(this.pitchSet);
-		for (note = lowNote, index = 0; index < noteStatus.length && note <= highNote; note++, index++) {
+		for (int note = lowNote, index = 0; index < noteStatus.length && note <= highNote; note++, index++) {
 			if (noteStatus.length > (note - lowNote)) {
-				noteStatus[note - lowNote] = copy.getNote(note);
+				noteStatus[note - lowNote] = copy.getNoteStatusElement(note);
 			} else {
 				System.err.println(">>!! NoteStatus clone error: " + index + ", " + lowNote + ", " + highNote + ", "
-						+ copy.lowNote + ", " + copy.highNote + ", " + note + ", " + noteStatus.length + ", "
-						+ (note - lowNote));
+						+ copy.lowNote + ", " + copy.highNote + ", " + noteStatus.length + ", " + (note - lowNote));
 			}
 		}
 		return copy;

@@ -450,7 +450,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					}
 					for (ToneMapElement toneMapElement : ttfElements) {
 						note = pitchSet.getNote(toneMapElement.getPitchIndex());
-						noteStatusElement = noteStatus.getNote(note);
+						noteStatusElement = noteStatus.getNoteStatusElement(note);
 
 						switch (noteStatusElement.state) {
 						case ON:

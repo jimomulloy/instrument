@@ -127,6 +127,9 @@ public class ParametersPanel extends JPanel {
 	private JSlider chromaDownSamplingFactorSlider;
 	private JCheckBox chromaHarmonicsSwitchCB;
 	private JCheckBox chromaCeilingSwitchCB;
+	private JCheckBox noteScanAttenuateHarmonicsSwitchCB;
+	private JCheckBox noteScanAttenuateUndertonesSwitchCB;
+	private JCheckBox noteScanAttenuateSemitonesSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -386,6 +389,54 @@ public class ParametersPanel extends JPanel {
 
 		n6SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH));
 		tunerSwitchPanel.add(n6SwitchCB);
+
+		noteScanAttenuateHarmonicsSwitchCB = new JCheckBox("noteScanAttenuateHarmonicsCB");
+		noteScanAttenuateHarmonicsSwitchCB.setText("Audio Tuner Note Scan Attenuate Harmonics Switch");
+		noteScanAttenuateHarmonicsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		noteScanAttenuateHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES));
+		tunerSwitchPanel.add(noteScanAttenuateHarmonicsSwitchCB);
+
+		noteScanAttenuateUndertonesSwitchCB = new JCheckBox("noteScanAttenuateUndertonesCB");
+		noteScanAttenuateUndertonesSwitchCB.setText("Audio Tuner Note Scan Attenuate Undertones Switch");
+		noteScanAttenuateUndertonesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		noteScanAttenuateUndertonesSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES));
+		tunerSwitchPanel.add(noteScanAttenuateUndertonesSwitchCB);
+
+		noteScanAttenuateSemitonesSwitchCB = new JCheckBox("noteScanAttenuateSemitonesCB");
+		noteScanAttenuateSemitonesSwitchCB.setText("Audio Tuner Note Scan Attenuate Semitones Switch");
+		noteScanAttenuateSemitonesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES,
+						Boolean.toString(newValue));
+			}
+		});
+
+		noteScanAttenuateSemitonesSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES));
+		tunerSwitchPanel.add(noteScanAttenuateSemitonesSwitchCB);
 
 		JCheckBox harmonicOperatorSwitchCB = new JCheckBox("harmonicOperatorSwitchCB");
 		harmonicOperatorSwitchCB.setText("Audio Tuner Harmonic Operator Switch");
@@ -1804,6 +1855,13 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD));
 		decibelSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
+
+		noteScanAttenuateHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS));
+		noteScanAttenuateUndertonesSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES));
+		noteScanAttenuateSemitonesSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES));
 
 		normaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));

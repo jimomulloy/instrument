@@ -69,6 +69,7 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
 
@@ -609,6 +610,28 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					}
 				} else if (toneMapViewType.equals(currentToneMapViewType)) {
 					toneMapView.updateToneMap(toneMap);
+				}
+			}
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	public void updateToneMapView(ToneMap toneMap, ToneTimeFrame ttf, String toneMapViewType) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				if (!toneMapViews.containsKey(toneMapViewType)) {
+					toneMapViews.put(toneMapViewType, toneMap);
+					if (toneMapViewType.equals(currentToneMapViewType)) {
+						toneMapView.renderToneMap(toneMap);
+					}
+				} else if (!toneMapViews.get(toneMapViewType).getKey().equals(toneMapView.getToneMap().getKey())) {
+					toneMapViews.put(toneMapViewType, toneMap);
+					if (toneMapViewType.equals(currentToneMapViewType)) {
+						toneMapView.renderToneMap(toneMap);
+					}
+				} else if (toneMapViewType.equals(currentToneMapViewType)) {
+					toneMapView.updateToneMap(ttf);
 				}
 			}
 		});

@@ -147,6 +147,11 @@ public class ToneMapView extends JComponent implements ComponentListener {
 		repaint();
 	}
 
+	public void updateToneMap(ToneTimeFrame ttf) {
+		renderToneMap(ttf);
+		repaint();
+	}
+
 	private void renderToneMap(ToneTimeFrame ttf) {
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();

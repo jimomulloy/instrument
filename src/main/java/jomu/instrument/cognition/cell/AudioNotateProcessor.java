@@ -27,11 +27,17 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 		AudioTuner tuner = new AudioTuner();
 
-		// tuner.noteScan(notateToneMap, sequence);
+		tuner.noteScan(notateToneMap, sequence);
 
-		// processNotes(notateToneMap.getTimeFrame().getElements());
+		processNotes(notateToneMap.getTimeFrame().getElements());
 
-		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
+		ToneTimeFrame ttf = timeFrame;
+		while (ttf != null && !ttf.isProcessed()) {
+			ttf = notateToneMap.getPreviousTimeFrame(ttf.getStartTime());
+		}
+		if (ttf != null) {
+			console.getVisor().updateToneMapView(notateToneMap, ttf, this.cell.getCellType().toString());
+		}
 		cell.send(streamId, sequence);
 	}
 
@@ -42,6 +48,10 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			if (elements[elementIndex].noteState > 0) {
 				System.out.println(">>PN: " + elementIndex);
 				elements[elementIndex].amplitude = 1.0;
+			}
+			if (elements[elementIndex].isPeak) {
+				System.out.println(">>PN: " + elementIndex);
+				elements[elementIndex].amplitude = 0.5;
 			}
 		}
 	}

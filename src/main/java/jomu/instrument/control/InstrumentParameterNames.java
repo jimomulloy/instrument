@@ -109,6 +109,9 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_FORMANT_HIGH_FREQUENCY = "audio.tuner.formantHighFreq";
 	public static final String AUDIO_TUNER_FORMANT_LOW_FREQUENCY = "audio.tuner.formantLowFreq";
 	public static final String AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY = "audio.tuner.formantMidFreq";
+	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS = "audio.tuner.noteScan.attenuateHarmonicsSwitch";
+	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES = "audio.tuner.noteScan.attenuateUndertonesSwitch";
+	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES = "audio.tuner.noteScan.attenuateSemitonesSwitch";
 
 	public static final String MONITOR_VIEW_TIME_AXIS_OFFSET = "monitor.view.timeAxisOffset";
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";
