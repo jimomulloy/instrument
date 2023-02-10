@@ -28,8 +28,6 @@ public class ToneTimeFrame {
 	private NoteStatus noteStatus;
 	private PitchSet pitchSet;
 
-	private boolean processed = true;
-
 	private TimeSet timeSet;
 
 	public ToneTimeFrame(TimeSet timeSet, PitchSet pitchSet) {
@@ -55,14 +53,6 @@ public class ToneTimeFrame {
 		copy.setLowThreshold(this.getLowThres());
 		copy.setHighThreshold(this.getHighThreshold());
 		return copy;
-	}
-
-	public boolean isProcessed() {
-		return processed;
-	}
-
-	public void setProcessed(boolean processed) {
-		this.processed = processed;
 	}
 
 	public void compress(float factor) {

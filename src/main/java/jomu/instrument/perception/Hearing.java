@@ -194,6 +194,7 @@ public class Hearing implements Organ {
 		}
 
 		public void initialiseMicrophoneStream(String fileName) throws LineUnavailableException, IOException {
+			Instrument.getInstance().getConsole().getVisor().clearView();
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 			TargetDataLine line;

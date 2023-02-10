@@ -1,5 +1,6 @@
 package jomu.instrument.cognition.cell;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jomu.instrument.audio.AudioTuner;
@@ -23,20 +24,26 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneTimeFrame timeFrame = tunerPeaksToneMap.getTimeFrame(sequence).clone();
-		notateToneMap.addTimeFrame(timeFrame).setProcessed(false);
+		notateToneMap.addTimeFrame(timeFrame);
 
 		AudioTuner tuner = new AudioTuner();
 
 		tuner.noteScan(notateToneMap, sequence);
 
-		processNotes(notateToneMap.getTimeFrame().getElements());
-
+		List<ToneTimeFrame> timeFrames = new ArrayList<>();
 		ToneTimeFrame ttf = timeFrame;
-		while (ttf != null && !ttf.isProcessed()) {
+		double fromTime = (ttf.getStartTime() - 1.0) >= 0 ? ttf.getStartTime() - 1.0 : 0;
+
+		System.out.println(">>TTF time: " + ttf.getStartTime());
+		while (ttf != null && ttf.getStartTime() >= fromTime) {
+			timeFrames.add(ttf);
 			ttf = notateToneMap.getPreviousTimeFrame(ttf.getStartTime());
 		}
-		if (ttf != null) {
-			console.getVisor().updateToneMapView(notateToneMap, ttf, this.cell.getCellType().toString());
+
+		for (ToneTimeFrame ttfv : timeFrames) {
+			processNotes(ttfv.getElements());
+			System.out.println(">>TTF PAINT time: " + ttfv.getStartTime());
+			console.getVisor().updateToneMapView(notateToneMap, ttfv, this.cell.getCellType().toString());
 		}
 		cell.send(streamId, sequence);
 	}
@@ -51,7 +58,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			}
 			if (elements[elementIndex].isPeak) {
 				System.out.println(">>PN: " + elementIndex);
-				elements[elementIndex].amplitude = 0.5;
+				// elements[elementIndex].amplitude = 0.5;
 			}
 		}
 	}

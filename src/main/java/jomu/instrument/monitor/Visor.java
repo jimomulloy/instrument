@@ -583,8 +583,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	public void clearView() {
-		// ??toneMapLayer.clear();
-		// ??this.toneMapPanel.repaint();
+		// currentToneMapViewType = null;
+		toneMapViews.clear();
 	}
 
 	@Override

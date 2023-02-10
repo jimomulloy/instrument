@@ -380,7 +380,6 @@ public class AudioTuner implements ToneMapConstants {
 					}
 					toneMapElement.noteState = START;
 					System.out.println(">>NOTE START: " + toneMapElement + ", " + timeSet.getStartTime());
-					toneTimeFrame.setProcessed(false);
 				}
 				break;
 
@@ -549,7 +548,6 @@ public class AudioTuner implements ToneMapConstants {
 				noteStatusElement.onTime = 0.0;
 				noteStatusElement.offTime = 0.0;
 				noteStatusElement.highFlag = false;
-				toneTimeFrame.setProcessed(true);
 			}
 			tf = toneMap.getNextTimeFrame(tf.getStartTime());
 		}
@@ -704,12 +702,10 @@ public class AudioTuner implements ToneMapConstants {
 			if (toneTimeFrame.getStartTime() > noteStatusElement.offTime / 1000.0) {
 				break;
 			}
-			toneTimeFrame.setProcessed(true);
 			System.out.println(">>!!PROCESS NOTE: " + noteStatusElement.note + ", " + toneTimeFrame.getStartTime());
 			ToneMapElement element = toneTimeFrame.getElement(noteStatusElement.index);
 			if (startElement == null) {
 				startElement = element;
-				toneTimeFrame.setProcessed(true);
 				System.out.println(">>!!PROCESS NOTE START: " + toneTimeFrame.getStartTime() + element.getIndex());
 
 			}
@@ -794,21 +790,26 @@ public class AudioTuner implements ToneMapConstants {
 		Set<NoteListElement> semiTones = new HashSet<NoteListElement>();
 		Set<NoteListElement> underTones = new HashSet<NoteListElement>();
 		Set<NoteListElement> harmonicTones = new HashSet<NoteListElement>();
-		Set<NoteListElement> noteListElements = new HashSet<NoteListElement>();
+		// Set<NoteListElement> noteListElements = new HashSet<NoteListElement>();
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
 			if (toneTimeFrame.getStartTime() > noteStatusElement.offTime / 1000.0) {
 				break;
 			}
+			System.out.println(">>commit note: " + noteStatusElement);
 			for (ToneMapElement toneMapElement : toneTimeFrame.getElements()) {
 				NoteListElement nle = toneMapElement.noteListElement;
-				noteListElements.add(nle);
+				// noteListElements.add(nle);
 				if (nle != null && nle.startTime > noteStatusElement.onTime
 						&& nle.endTime < noteStatusElement.offTime) {
+					System.out.println(">>nle found: " + nle);
 					if (Math.abs(noteStatusElement.note - nle.note) == 1) {
+						System.out.println(">>is semitone: " + nle);
 						semiTones.add(nle);
 					} else if ((noteStatusElement.note - nle.note) == 12) {
+						System.out.println(">>is undertone: " + nle);
 						underTones.add(nle);
 					} else if (isHarmonic(noteStatusElement.note, nle.note)) {
+						System.out.println(">>is harmonic: " + nle);
 						harmonicTones.add(nle);
 					}
 				}
