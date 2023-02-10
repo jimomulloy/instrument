@@ -13,8 +13,10 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -595,24 +597,18 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	@SuppressWarnings("unchecked")
 	public void updateToneMapView(ToneMap toneMap, String toneMapViewType) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				if (!toneMapViews.containsKey(toneMapViewType)) {
-					toneMapViews.put(toneMapViewType, toneMap);
-					if (toneMapViewType.equals(currentToneMapViewType)) {
-						toneMapView.renderToneMap(toneMap);
-					}
-				} else if (!toneMapViews.get(toneMapViewType).getKey().equals(toneMapView.getToneMap().getKey())) {
-					toneMapViews.put(toneMapViewType, toneMap);
-					if (toneMapViewType.equals(currentToneMapViewType)) {
-						toneMapView.renderToneMap(toneMap);
-					}
-				} else if (toneMapViewType.equals(currentToneMapViewType)) {
-					toneMapView.updateToneMap(toneMap);
-				}
-			}
-		});
+
+		List<ToneTimeFrame> timeFrames = new ArrayList<>();
+		ToneTimeFrame ttf = toneMap.getTimeFrame();
+		double fromTime = (ttf.getStartTime() - 1.0) >= 0 ? ttf.getStartTime() - 1.0 : 0;
+
+		while (ttf != null && ttf.getStartTime() >= fromTime) {
+			timeFrames.add(ttf);
+			ttf = toneMap.getPreviousTimeFrame(ttf.getStartTime());
+		}
+		for (ToneTimeFrame ttfv : timeFrames) {
+			updateToneMapView(toneMap, ttfv, toneMapViewType);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -640,9 +636,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	public void resetToneMapView() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
 			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
-			chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
-			chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
-			beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			// chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			// chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			// beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 		}
 	}
 

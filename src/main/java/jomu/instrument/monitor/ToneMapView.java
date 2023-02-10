@@ -149,9 +149,13 @@ public class ToneMapView extends JComponent implements ComponentListener {
 	}
 
 	public void updateToneMap(ToneMap toneMap) {
-		this.toneMap = toneMap;
-		renderToneMap(toneMap.getTimeFrame());
-		repaint();
+		if (this.toneMap != null && this.toneMap.getKey().equals(toneMap.getKey())) {
+			this.toneMap = toneMap;
+			renderToneMap(toneMap.getTimeFrame());
+			repaint();
+		} else {
+			renderToneMap(toneMap);
+		}
 	}
 
 	public void updateToneMap(ToneTimeFrame ttf) {

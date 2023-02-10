@@ -131,9 +131,13 @@ public class ChromaView extends JComponent implements ComponentListener {
 	}
 
 	public void updateToneMap(ToneMap toneMap) {
-		this.toneMap = toneMap;
-		renderToneMap(toneMap.getTimeFrame());
-		repaint();
+		if (this.toneMap != null && this.toneMap.getKey().equals(toneMap.getKey())) {
+			this.toneMap = toneMap;
+			renderToneMap(toneMap.getTimeFrame());
+			repaint();
+		} else {
+			renderToneMap(toneMap);
+		}
 	}
 
 	public void renderToneMap(ToneMap toneMap) {
