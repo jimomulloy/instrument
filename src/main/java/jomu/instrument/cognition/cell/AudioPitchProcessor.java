@@ -102,7 +102,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
 
-		pdf.normaliseToneMapFrame(toneMap);
+		// !! pdf.normaliseToneMapFrame(toneMap);
 
 		System.out.println(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
@@ -139,7 +139,9 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		}
 		for (int i = 0; i < fzeros.length; i++) {
 			if (fzeros[i] > 0) {
-				elements[i].amplitude = fzeroSaliences[i];
+				int note = PitchSet.freqToMidiNote(fzeros[i]);
+				// elements[i].amplitude = fzeroSaliences[i];
+				elements[note].amplitude = 1.0; // fzeroSaliences[i];
 				System.out.println(">>TARSOS map: " + i + ", " + elements[i].amplitude);
 			}
 		}

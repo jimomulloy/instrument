@@ -78,6 +78,8 @@ public class SpectralPeaksFeatures {
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
+			System.out.println(">>AA usePeaks: " + usePeaks);
+
 			float[] spectrum = usePeaks ? processPeaks(getSpectrum()) : getSpectrum();
 
 			FFTSpectrum fftSpectrum = new FFTSpectrum(getSps().getSampleRate(), getSps().getBufferSize(), spectrum);
@@ -105,7 +107,7 @@ public class SpectralPeaksFeatures {
 
 	private float[] processPeaks(float[] spectrum) {
 		float[] peakSpectrum = new float[spectrum.length];
-
+		System.out.println(">>AA processPeaks");
 		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
 			List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(sps.getNoiseFloorMedianFilterLenth(),
 					sps.getNoiseFloorFactor(), sps.getNumberOfSpectralPeaks(), sps.getMinPeakSize());
@@ -115,7 +117,6 @@ public class SpectralPeaksFeatures {
 						if (peakSpectrum[i] < sp.getMagnitude()) {
 							peakSpectrum[i] += sp.getMagnitude();
 						}
-						;
 					}
 				}
 			}

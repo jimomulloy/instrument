@@ -23,6 +23,7 @@
 
 package jomu.instrument.audio.features;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
@@ -54,7 +55,12 @@ public class SpectralInfo {
 			int minPeakDistanceInCents) {
 		float[] noiseFloor = getNoiseFloor(medianFilterLength, noiseFloorFactor);
 		List<Integer> localMaxima = SpectralPeakProcessor.findLocalMaxima(magnitudes, noiseFloor);
-		return SpectralPeakProcessor.findPeaks(magnitudes, frequencyEstimates, localMaxima, numberOfPeaks,
-				minPeakDistanceInCents);
+		if (localMaxima.size() > 0) {
+			System.out.println(">>AA got local max: " + localMaxima.size());
+			return SpectralPeakProcessor.findPeaks(magnitudes, frequencyEstimates, localMaxima, numberOfPeaks,
+					minPeakDistanceInCents);
+		} else {
+			return new ArrayList<>();
+		}
 	}
 }

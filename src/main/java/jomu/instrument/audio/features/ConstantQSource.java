@@ -31,7 +31,7 @@ public class ConstantQSource {
 	private ConstantQ constantQ;
 	private double constantQLag;
 	private int windowSize = 1024;
-	private int maximumFrequencyInCents = 10800;
+	private int maximumFrequencyInCents = 12000;
 	private int minimumFrequencyInCents = 3600;
 	private float sampleRate = 44100;
 	private AudioDispatcher dispatcher;

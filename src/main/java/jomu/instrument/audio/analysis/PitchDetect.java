@@ -82,9 +82,9 @@ public class PitchDetect {
 
 			// update fzeros
 			if (fzeros[(int) fzeroInfo[2]] == 0) {
-				fzeros[(int) fzeroInfo[2]] = 1;
+				fzeros[(int) fzeroInfo[2]] = fzeroInfo[0];
 				fzeroSaliences[(int) fzeroInfo[2]] = fzeroInfo[1];
-				System.out.println(">>detected: " + fzeroInfo[2] + ", " + fzeroInfo[1]);
+				System.out.println(">>detected: " + fzeroInfo[2] + ", " + fzeroInfo[1] + ", " + fzeroInfo[0]);
 			}
 		}
 		System.out.println(">>done detectes");

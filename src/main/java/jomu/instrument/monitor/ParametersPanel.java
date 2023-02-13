@@ -130,6 +130,17 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox noteScanAttenuateHarmonicsSwitchCB;
 	private JCheckBox noteScanAttenuateUndertonesSwitchCB;
 	private JCheckBox noteScanAttenuateSemitonesSwitchCB;
+	private JTextField spLowThresholdInput;
+	private JTextField spThresholdFactorInput;
+	private JTextField spSignalMinimumInput;
+	private JTextField spNormaliseThresholdInput;
+	private JTextField spDecibelLevelInput;
+	private JTextField spCompressionLevelInput;
+	private JCheckBox spCompressionSwitchCB;
+	private JCheckBox spSquareSwitchCB;
+	private JCheckBox spLowThresholdSwitchCB;
+	private JCheckBox spDecibelSwitchCB;
+	private JCheckBox spNormaliseSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -556,7 +567,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE));
 		cqSwitchPanel.add(squareSwitchCB);
 
-		lowThresholdSwitchCB = new JCheckBox("squareSwitchCB");
+		lowThresholdSwitchCB = new JCheckBox("lowTSwitchCB");
 		lowThresholdSwitchCB.setText("CQ Low Threshold");
 		lowThresholdSwitchCB.addItemListener(new ItemListener() {
 
@@ -603,6 +614,86 @@ public class ParametersPanel extends JPanel {
 		normaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
 		cqSwitchPanel.add(normaliseSwitchCB);
+
+		spCompressionSwitchCB = new JCheckBox("spCompressionSwitchCB");
+		spCompressionSwitchCB.setText("SP Compression");
+		spCompressionSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_COMPRESS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		spCompressionSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_COMPRESS));
+		cqSwitchPanel.add(spCompressionSwitchCB);
+
+		spSquareSwitchCB = new JCheckBox("spSquareSwitchCB");
+		spSquareSwitchCB.setText("SP Square");
+		spSquareSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_SQUARE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		spSquareSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_SQUARE));
+		cqSwitchPanel.add(spSquareSwitchCB);
+
+		spLowThresholdSwitchCB = new JCheckBox("spLowSwitchCB");
+		spLowThresholdSwitchCB.setText("SP Low Threshold");
+		spLowThresholdSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_LOW_THRESHOLD,
+						Boolean.toString(newValue));
+			}
+		});
+
+		spLowThresholdSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_LOW_THRESHOLD));
+		cqSwitchPanel.add(spLowThresholdSwitchCB);
+
+		spDecibelSwitchCB = new JCheckBox("spDecibelSwitchCB");
+		spDecibelSwitchCB.setText("SP Decibel");
+		spDecibelSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_DECIBEL,
+						Boolean.toString(newValue));
+			}
+		});
+
+		spDecibelSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_DECIBEL));
+		cqSwitchPanel.add(spDecibelSwitchCB);
+
+		spNormaliseSwitchCB = new JCheckBox("spNormaliseSwitchCB");
+		spNormaliseSwitchCB.setText("SP Normalise");
+		spNormaliseSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_NORMALISE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		spNormaliseSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_NORMALISE));
+		cqSwitchPanel.add(spNormaliseSwitchCB);
 
 		tunerSwitchCB = new JCheckBox("tunerSwitchCB");
 		tunerSwitchCB.setText("Tuner");
@@ -734,7 +825,7 @@ public class ParametersPanel extends JPanel {
 
 		parameterPanel.add(cqSwitchPanel);
 
-		noiseFloorSlider = new JSlider(100, 250);
+		noiseFloorSlider = new JSlider(100, 500);
 		final JLabel noiseFloorFactorLabel = new JLabel("Noise floor factor    :");
 		noiseFloorSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -1659,6 +1750,87 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqCompressionLevelLabel);
 		cqParamsPanel.add(cqCompressionLevelInput);
 
+		JLabel spLowThresholdLabel = new JLabel("SP Low Threshold: ");
+		spLowThresholdInput = new JTextField(4);
+		spLowThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = spLowThresholdInput.getText();
+				spLowThresholdLabel.setText(String.format("SP Low Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_LOW_THRESHOLD, newValue);
+
+			}
+		});
+		spLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_LOW_THRESHOLD));
+		cqParamsPanel.add(spLowThresholdLabel);
+		cqParamsPanel.add(spLowThresholdInput);
+
+		JLabel spSignalMinimumLabel = new JLabel("SP Signal Minimum: ");
+		spSignalMinimumInput = new JTextField(4);
+		spSignalMinimumInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = spSignalMinimumInput.getText();
+				spSignalMinimumLabel.setText(String.format("SP Signal Minimum  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SIGNAL_MINIMUM, newValue);
+
+			}
+		});
+		spSignalMinimumInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SIGNAL_MINIMUM));
+		cqParamsPanel.add(spSignalMinimumLabel);
+		cqParamsPanel.add(spSignalMinimumInput);
+
+		JLabel spNormaliseThresholdLabel = new JLabel("SP Normalise Threshold: ");
+		spNormaliseThresholdInput = new JTextField(4);
+		spNormaliseThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = spNormaliseThresholdInput.getText();
+				spNormaliseThresholdLabel.setText(String.format("SP Normalise Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_NORMALISE_THRESHOLD,
+						newValue);
+
+			}
+		});
+		spNormaliseThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_NORMALISE_THRESHOLD));
+		cqParamsPanel.add(spNormaliseThresholdLabel);
+		cqParamsPanel.add(spNormaliseThresholdInput);
+
+		JLabel spDecibelLevelLabel = new JLabel("SP Decibel Level: ");
+		spDecibelLevelInput = new JTextField(4);
+		spDecibelLevelInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = spDecibelLevelInput.getText();
+				spDecibelLevelLabel.setText(String.format("SP Decibel Level  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_DECIBEL_LEVEL, newValue);
+
+			}
+		});
+		spDecibelLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_DECIBEL_LEVEL));
+		cqParamsPanel.add(spDecibelLevelLabel);
+		cqParamsPanel.add(spDecibelLevelInput);
+
+		JLabel spCompressionLevelLabel = new JLabel("SP Compression Level: ");
+		spCompressionLevelInput = new JTextField(4);
+		spCompressionLevelInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = spCompressionLevelInput.getText();
+				spCompressionLevelLabel.setText(String.format("SP Compression Level  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_COMPRESSION, newValue);
+
+			}
+		});
+		spCompressionLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_COMPRESSION));
+		cqParamsPanel.add(spCompressionLevelLabel);
+		cqParamsPanel.add(spCompressionLevelInput);
+
 		JLabel pdCompressionLevelLabel = new JLabel("Pitch Detect Compression Level: ");
 		pdCompressionLevelInput = new JTextField(4);
 		pdCompressionLevelInput.addActionListener(new ActionListener() {
@@ -1855,6 +2027,19 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD));
 		decibelSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
+		normaliseSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
+
+		spCompressionSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_COMPRESS));
+		spSquareSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_SQUARE));
+		spLowThresholdSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_LOW_THRESHOLD));
+		spDecibelSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_DECIBEL));
+		spNormaliseSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_NORMALISE));
 
 		noteScanAttenuateHarmonicsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS));
@@ -1863,8 +2048,6 @@ public class ParametersPanel extends JPanel {
 		noteScanAttenuateSemitonesSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES));
 
-		normaliseSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
 		tunerSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER));
 		peaksSwitchCB.setSelected(
@@ -1937,6 +2120,20 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL));
 		cqCompressionLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION));
+		cqLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
+
+		spSignalMinimumInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SIGNAL_MINIMUM));
+		spNormaliseThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_NORMALISE_THRESHOLD));
+		spDecibelLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_DECIBEL_LEVEL));
+		spCompressionLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_COMPRESSION));
+		spLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_LOW_THRESHOLD));
+
 		tunerNormaliseThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD));
 		tunerNormaliseTroughInput
@@ -1975,8 +2172,6 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
 		hearingMinFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
-		cqLowThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
 		hpsHarmonicWeightingSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING));
 		hpsHarmonicMedianSlider.setValue(

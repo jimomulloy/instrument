@@ -172,8 +172,10 @@ public class Hearing implements Organ {
 			Instrument.getInstance().getConsole().getVisor().clearView();
 			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
-			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);
 			AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
+			System.out.println(">>format!!: " + format);
+			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);
+			// AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
 
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();

@@ -32,6 +32,17 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_DECIBEL = "perception.hearing.cq.decibelSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE = "perception.hearing.cq.normaliseSwitch";
 
+	public static final String PERCEPTION_HEARING_SP_LOW_THRESHOLD = "perception.hearing.sp.lowThreshold";
+	public static final String PERCEPTION_HEARING_SP_SIGNAL_MINIMUM = "perception.hearing.sp.signalMinimum";
+	public static final String PERCEPTION_HEARING_SP_NORMALISE_THRESHOLD = "perception.hearing.sp.normaliseThreshold";
+	public static final String PERCEPTION_HEARING_SP_DECIBEL_LEVEL = "perception.hearing.sp.decibelLevel";
+	public static final String PERCEPTION_HEARING_SP_COMPRESSION = "perception.hearing.sp.compression";
+	public static final String PERCEPTION_HEARING_SP_SWITCH_COMPRESS = "perception.hearing.sp.compressionSwitch";
+	public static final String PERCEPTION_HEARING_SP_SWITCH_SQUARE = "perception.hearing.sp.squareSwitch";
+	public static final String PERCEPTION_HEARING_SP_SWITCH_LOW_THRESHOLD = "perception.hearing.sp.lowThresholdSwitch";
+	public static final String PERCEPTION_HEARING_SP_SWITCH_DECIBEL = "perception.hearing.sp.decibelSwitch";
+	public static final String PERCEPTION_HEARING_SP_SWITCH_NORMALISE = "perception.hearing.sp.normaliseSwitch";
+
 	public static final String PERCEPTION_HEARING_TUNER_THRESHOLD_FACTOR = "perception.hearing.tuner.thresholdFactor";
 	public static final String PERCEPTION_HEARING_TUNER_THRESHOLD_MINIMUM = "perception.hearing.tuner.signalMinimum";
 	public static final String PERCEPTION_HEARING_SWITCH_TUNER = "perception.hearing.tunerSwitch";

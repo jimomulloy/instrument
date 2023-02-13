@@ -9,6 +9,7 @@ import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
 import be.tarsos.dsp.util.fft.HammingWindow;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class SpectralPeakProcessor extends SpectralPeakDetector implements AudioProcessor {
 
@@ -66,7 +67,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 		fft.powerPhaseFFT(fftData, magnitudes, currentPhaseOffsets);
 	}
 
-	private void normalizeMagintudes() {
+	private void normalizeMagnitudes() {
 		float maxMagnitude = (float) -1e6;
 		for (float magnitude : magnitudes) {
 			maxMagnitude = Math.max(maxMagnitude, magnitude);
@@ -90,7 +91,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 		calculateFrequencyEstimates();
 
 		// 3. Normalize the each magnitude.
-		// normalizeMagintudes();
+		// normalizeMagnitudes();
 
 		// 4. Store the current phase so it can be used for the next frequency estimates
 		// block.
@@ -168,6 +169,18 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	 */
 	public static float[] calculateNoiseFloor(float[] magnitudes, int medianFilterLength, float noiseFloorFactor) {
 		double[] noiseFloorBuffer;
+		double maxMagnitude = 0;
+		for (int i = 0; i < magnitudes.length; i++) {
+			if (maxMagnitude < magnitudes[i]) {
+				maxMagnitude = magnitudes[i];
+			}
+		}
+
+		double noiseFloorMin = ToneTimeFrame.AMPLITUDE_FLOOR;
+		if (maxMagnitude > ToneTimeFrame.AMPLITUDE_FLOOR * 10.0) {
+			noiseFloorMin = maxMagnitude * 0.1;
+		}
+
 		float[] noisefloor = new float[magnitudes.length];
 
 		float median = (float) median(magnitudes.clone());
@@ -189,6 +202,9 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 			}
 			// calculate the noise floor value.
 			noisefloor[i] = median(noiseFloorBuffer) * (noiseFloorFactor);
+			if (noisefloor[i] < noiseFloorMin) {
+				noisefloor[i] = (float) noiseFloorMin;
+			}
 		}
 
 		float rampLength = 12.0f;
@@ -197,6 +213,9 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 			float ramp = 1.0f;
 			ramp = (float) (-1 * (Math.log(i / rampLength))) + 1.0f;
 			noisefloor[i] = ramp * noisefloor[i];
+			if (noisefloor[i] < noiseFloorMin) {
+				noisefloor[i] = (float) noiseFloorMin;
+			}
 		}
 
 		return noisefloor;
@@ -250,6 +269,9 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	public static List<SpectralPeak> findPeaks(float[] magnitudes, float[] frequencyEstimates,
 			List<Integer> localMaximaIndexes, int numberOfPeaks, int minDistanceInCents) {
 		int maxMagnitudeIndex = findMaxMagnitudeIndex(magnitudes);
+		if (localMaximaIndexes.size() > 0) {
+			System.out.println(">>AA got maxMagnitudeIndex: " + maxMagnitudeIndex);
+		}
 		List<SpectralPeak> spectralPeakList = new ArrayList<>();
 
 		if (localMaximaIndexes.size() == 0)

@@ -131,6 +131,18 @@ public class SpectralPeakDetector {
 	 */
 	public static float[] calculateNoiseFloor(float[] magnitudes, int medianFilterLength, float noiseFloorFactor) {
 		double[] noiseFloorBuffer;
+		double maxMagnitude = 0;
+		for (int i = 0; i < magnitudes.length; i++) {
+			if (maxMagnitude < magnitudes[i]) {
+				maxMagnitude = magnitudes[i];
+			}
+		}
+
+		double noiseFloorMin = ToneTimeFrame.AMPLITUDE_FLOOR;
+		if (maxMagnitude > ToneTimeFrame.AMPLITUDE_FLOOR * 10.0) {
+			noiseFloorMin = maxMagnitude * 0.1;
+		}
+
 		float[] noisefloor = new float[magnitudes.length];
 
 		float median = (float) median(magnitudes.clone());
@@ -153,6 +165,9 @@ public class SpectralPeakDetector {
 			}
 			// calculate the noise floor value.
 			noisefloor[i] = median(noiseFloorBuffer) * (noiseFloorFactor);
+			if (noisefloor[i] < noiseFloorMin) {
+				noisefloor[i] = (float) noiseFloorMin;
+			}
 		}
 
 		float rampLength = 12.0f;
@@ -161,6 +176,9 @@ public class SpectralPeakDetector {
 			float ramp = 1.0f;
 			ramp = (float) (-1 * (Math.log(i / rampLength))) + 1.0f;
 			noisefloor[i] = ramp * noisefloor[i];
+			if (noisefloor[i] < noiseFloorMin) {
+				noisefloor[i] = (float) noiseFloorMin;
+			}
 		}
 
 		return noisefloor;
