@@ -52,6 +52,15 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		float[] spectrum = pdf.getSpectrum();
 		System.out.println(">>PP TIME: " + toneMap.getTimeFrame().getStartTime());
 
+		float maxs = 0;
+		int maxi = 0;
+		for (int i = 0; i < spectrum.length; i++) {
+			if (maxs < spectrum[i]) {
+				maxs = spectrum[i];
+				maxi = i;
+			}
+		}
+
 		FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getPds().getSampleRate(), pdf.getPds().getBufferSize(), spectrum);
 
 		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
@@ -88,7 +97,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			toneMap.reset();
 			System.out.println(">>!!KLAPURI PEAKS : " + klapuri.f0s.size());
 		} else if (pdSwitchTarsos) {
-			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), fftSpectrum.getSampleRate(),
+			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), pdf.getPds().getSampleRate(),
 					toneMap.getTimeFrame().getPitches());
 			// pd.whiten(fftSpectrum.getSpectrum());
 			System.out.println(">>PP MAX ENTER TARSOS!!");
@@ -104,8 +113,9 @@ public class AudioPitchProcessor extends ProcessorCommon {
 
 		// !! pdf.normaliseToneMapFrame(toneMap);
 
-		System.out.println(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-				+ toneMap.getTimeFrame().getMinAmplitude());
+		System.out.println(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getStartTime() + ", "
+				+ toneMap.getTimeFrame().getMaxAmplitude() + ", " + toneMap.getTimeFrame().getMinAmplitude() + ", "
+				+ toneMap.getTimeFrame().getMaxPitch() + ",  " + maxs + ", " + maxi);
 
 		// if (pdSwitchCompress) {
 		// toneMap.getTimeFrame().compress(compression);
@@ -139,9 +149,9 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		}
 		for (int i = 0; i < fzeros.length; i++) {
 			if (fzeros[i] > 0) {
-				int note = PitchSet.freqToMidiNote(fzeros[i]);
-				// elements[i].amplitude = fzeroSaliences[i];
-				elements[note].amplitude = 1.0; // fzeroSaliences[i];
+				// int note = PitchSet.freqToMidiNote(fzeros[i]);
+				elements[i].amplitude = fzeroSaliences[i];
+				// elements[note].amplitude = 1.0; // fzeroSaliences[i];
 				System.out.println(">>TARSOS map: " + i + ", " + elements[i].amplitude);
 			}
 		}

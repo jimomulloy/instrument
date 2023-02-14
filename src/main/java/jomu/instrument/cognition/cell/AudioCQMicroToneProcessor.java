@@ -9,9 +9,9 @@ import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
-public class AudioCQProcessor extends ProcessorCommon {
+public class AudioCQMicroToneProcessor extends ProcessorCommon {
 
-	public AudioCQProcessor(NuCell cell) {
+	public AudioCQMicroToneProcessor(NuCell cell) {
 		super(cell);
 	}
 
@@ -19,8 +19,8 @@ public class AudioCQProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		System.out.println(">>AudioCQMicroToneProcessor accept: " + sequence + ", streamId: " + streamId);
+		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		if (afp != null) {

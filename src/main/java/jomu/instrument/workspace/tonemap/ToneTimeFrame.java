@@ -24,6 +24,7 @@ public class ToneTimeFrame {
 	private double highThreshold = 100;
 	private double lowThreshold = 0;
 	private double maxAmplitude;
+	private int maxPitch;
 	private double minAmplitude;
 	private NoteStatus noteStatus;
 	private PitchSet pitchSet;
@@ -53,6 +54,14 @@ public class ToneTimeFrame {
 		copy.setLowThreshold(this.getLowThres());
 		copy.setHighThreshold(this.getHighThreshold());
 		return copy;
+	}
+
+	public int getMaxPitch() {
+		return maxPitch;
+	}
+
+	public void setMaxPitch(int maxPitch) {
+		this.maxPitch = maxPitch;
 	}
 
 	public void compress(float factor) {
@@ -272,6 +281,7 @@ public class ToneTimeFrame {
 	}
 
 	public ToneTimeFrame reset() {
+		maxPitch = 0;
 		maxAmplitude = 0;
 		minAmplitude = 1000000;
 		avgAmplitude = 0;
@@ -289,8 +299,10 @@ public class ToneTimeFrame {
 				// elements[i].noteListElement = null;
 				avgAmplitude += elements[i].amplitude;
 				count++;
-				if (maxAmplitude < elements[i].amplitude)
+				if (maxAmplitude < elements[i].amplitude) {
 					maxAmplitude = elements[i].amplitude;
+					maxPitch = i;
+				}
 				if (minAmplitude > elements[i].amplitude)
 					minAmplitude = elements[i].amplitude;
 			}

@@ -48,7 +48,11 @@ public class PitchDetect {
 	 * This method takes an AudioBuffer object as argument. It detects all notes in
 	 * presence in buffer.
 	 */
-	public void detect(float[] spec) {
+	public void detect(float[] spectrum) {
+		float[] spec = new float[spectrum.length];
+		for (int i = 0; i < spectrum.length; i++) {
+			spec[i] = spectrum[i];
+		}
 		// for (int i = 0; i < spec.length; i++)
 		// spec[i] *= 1000;
 		// sw.whiten(spec);
@@ -71,12 +75,16 @@ public class PitchDetect {
 			// subtract the information of the found pitch from the current spectrum
 			for (int i = 1; (i * fzeroInfo[0] < sampleRate / 2) && i < 6; ++i) {
 				int partialInd = (int) Math.floor((double) (i * fzeroInfo[0] * timeSize / sampleRate));
-				float weighting = (fzeroInfo[0] + 52) / (i * fzeroInfo[0] + 320);
-				if (partialInd < spec.length) {
-					spec[partialInd] *= (1 - 0.89f * weighting);
-				}
-				if (partialInd > 0) {
-					spec[partialInd - 1] *= (1 - 0.89f * weighting);
+				if (i == 1) {
+					spec[partialInd] = 0;
+				} else {
+					float weighting = ((float) fzeroInfo[0] + 52.0F) / ((float) i * (float) fzeroInfo[0] + 320.0F);
+					if (partialInd < spec.length) {
+						spec[partialInd] *= (1f - 0.89f * weighting);
+					}
+					// if (partialInd > 0) {
+					// spec[partialInd - 1] *= (1 - 0.89f * weighting);
+					// }
 				}
 			}
 
@@ -110,34 +118,37 @@ public class PitchDetect {
 				if (pitches[j] == 0)
 					break;
 				for (int i = 1; (i * pitches[j] < sampleRate / 2) && i < 6; ++i) {
-
-					int bin = (int) Math.round(i * pitches[j] * timeSize / sampleRate);
-					System.out.println(">>detectfzero i,j: " + i + ", " + pitches[j]);
-					// System.out.println(">>detectfzero j: " + j + ", " + bin + ", " + pitches[j]);
-					// use the largest value of bins in vicinity
+					int bin = (int) ((double) i * pitches[j] * (double) timeSize / (double) sampleRate);
 					val = 0;
-					if (bin >= timeSize / 2)
+					if (bin >= spec.length)
 						break;
-					if (bin < timeSize / 2 - 1) {
-						val = spec[bin + 1];
-					}
-					if (bin < timeSize / 2 && val < spec[bin]) {
-						val = spec[bin];
-					}
-					if (bin > 0 && val < spec[bin - 1]) {
-						val = spec[bin - 1];
-					}
-					if (bin > 1 && val < spec[bin - 2]) {
-						val = spec[bin - 2];
-					}
-					if (bin > 2 && val < spec[bin - 3]) {
-						val = spec[bin - 3];
-					}
+					val = spec[bin];
+					// if (bin < timeSize / 2 - 1) {
+					// val = spec[bin + 1];
+					// }
+					// if (bin < timeSize / 2 && val < spec[bin]) {
+					// val = spec[bin];
+					// }
+					// if (bin > 0 && val < spec[bin - 1]) {
+					// val = spec[bin - 1];
+					// }
+					// if (bin > 1 && val < spec[bin - 2]) {
+					// val = spec[bin - 2];
+					// }
+					// if (bin > 2 && val < spec[bin - 3]) {
+					// val = spec[bin - 3];
+					// }
+
 					// calculate the salience of the current candidate
-					float weighting = (float) ((pitches[j] + 52) / (i * pitches[j] + 320));
-					cSalience += val * weighting;
+					if (i > 1) {
+						float weighting = (float) (((float) pitches[j] + 52.0F)
+								/ ((float) i * (float) pitches[j] + 320.0F));
+						cSalience += val * weighting;
+					} else {
+						cSalience = val;
+					}
 				}
-				System.out.println(">>detectfzero j: " + j + ", " + cSalience);
+				System.out.println(">>detectfzero j: " + j + ", " + cSalience + ", " + pitches[j]);
 				if (cSalience > maxSalience) {
 					maxSalience = cSalience;
 					fzeroInfo[0] = (float) pitches[j];

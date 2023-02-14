@@ -7,6 +7,7 @@ public class TarsosFeatureSource {
 	// private AudioEventSource audioEventSource;
 	// private BandedPitchDetectorSource bandedPitchDetectorSource;
 	private ConstantQSource constantQSource;
+	private CQMicroToneSource cqMicroToneSource;
 	private GoertzelSource goertzelSource;
 	private OnsetSource onsetSource;
 	private PitchDetectorSource pitchDetectorSource;
@@ -23,6 +24,10 @@ public class TarsosFeatureSource {
 
 	public ConstantQSource getConstantQSource() {
 		return constantQSource;
+	}
+
+	public CQMicroToneSource getCQMicroToneSource() {
+		return cqMicroToneSource;
 	}
 
 	public AudioDispatcher getDispatcher() {
@@ -63,6 +68,7 @@ public class TarsosFeatureSource {
 
 	public void initialise() {
 		constantQSource = new ConstantQSource(dispatcher);
+		cqMicroToneSource = new CQMicroToneSource(dispatcher);
 		onsetSource = new OnsetSource(dispatcher);
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
@@ -72,6 +78,7 @@ public class TarsosFeatureSource {
 		goertzelSource = new GoertzelSource(dispatcher);
 		scalogramSource = new ScalogramSource(dispatcher);
 		constantQSource.initialise();
+		cqMicroToneSource.initialise();
 		onsetSource.initialise();
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();

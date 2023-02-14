@@ -3,6 +3,7 @@ package jomu.instrument.audio.features;
 public class AudioFeatureFrame {
 	private AudioFeatureProcessor audioFeatureProcessor;
 	private ConstantQFeatures constantQFeatures;
+	private CQMicroToneFeatures cqMicroToneFeatures;
 	private double end;
 	private int frameSequence;
 	private GoertzelFeatures goertzelFeatures;
@@ -32,6 +33,10 @@ public class AudioFeatureFrame {
 
 	public ConstantQFeatures getConstantQFeatures() {
 		return constantQFeatures;
+	}
+
+	public CQMicroToneFeatures getCQMicroToneFeatures() {
+		return cqMicroToneFeatures;
 	}
 
 	public BeatFeatures getBeatFeatures() {
@@ -81,6 +86,7 @@ public class AudioFeatureFrame {
 	void initialise() {
 		System.out.println(">>PF INIT!!!: " + this.frameSequence + ", " + this.start);
 		constantQFeatures = new ConstantQFeatures();
+		cqMicroToneFeatures = new CQMicroToneFeatures();
 		onsetFeatures = new OnsetFeatures();
 		beatFeatures = new BeatFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
@@ -90,6 +96,7 @@ public class AudioFeatureFrame {
 		goertzelFeatures = new GoertzelFeatures();
 		scalogramFeatures = new ScalogramFeatures();
 		constantQFeatures.initialise(this);
+		cqMicroToneFeatures.initialise(this);
 		onsetFeatures.initialise(this);
 		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);
