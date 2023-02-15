@@ -57,7 +57,7 @@ public class ScalogramSource {
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, 131072, 0);
-		djp.setName("SC");
+		djp.setName("SG");
 		dispatcher.addAudioProcessor(djp);
 
 		djp.addAudioProcessor(new AudioProcessor() {

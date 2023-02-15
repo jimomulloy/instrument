@@ -144,9 +144,9 @@ public class CQMicroToneSource {
 		for (int i = 0; i < binStartingPointsInCents.length; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(startingPointsInHertz[i]);
 		}
-		System.out.println(">>CQS endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
-		System.out.println(">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
-		System.out.println(">>CQS endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
+		System.out.println(">>CQMT endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
+		System.out.println(">>CQMT startingPointsInCents: " + binStartingPointsInCents[0]);
+		System.out.println(">>CQMT endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
 
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
@@ -155,8 +155,8 @@ public class CQMicroToneSource {
 		dispatcher.addAudioProcessor(djp);
 
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
-		System.out.println(">>CQ size: " + size);
-		System.out.println(">>CQ lag: " + constantQLag);
+		System.out.println(">>CQMT size: " + size);
+		System.out.println(">>CQMT lag: " + constantQLag);
 		features = new TreeMap<>();
 
 		djp.addAudioProcessor(constantQ);

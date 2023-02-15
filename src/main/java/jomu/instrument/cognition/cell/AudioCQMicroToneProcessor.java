@@ -4,7 +4,7 @@ import java.util.List;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
-import jomu.instrument.audio.features.ConstantQFeatures;
+import jomu.instrument.audio.features.CQMicroToneFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -46,7 +46,7 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
 
 			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-			ConstantQFeatures cqf = aff.getConstantQFeatures();
+			CQMicroToneFeatures cqf = aff.getCQMicroToneFeatures();
 			cqf.buildToneMapFrame(toneMap);
 			System.out.println(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime());
 

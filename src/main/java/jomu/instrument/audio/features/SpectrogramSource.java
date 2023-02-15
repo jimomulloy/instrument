@@ -145,7 +145,7 @@ public class SpectrogramSource implements PitchDetectionHandler {
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(44100, 16, 1, true, true);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, fftsize, overlap);
-		djp.setName("SP");
+		djp.setName("SPG");
 		dispatcher.addAudioProcessor(djp);
 
 		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, windowSize, this));

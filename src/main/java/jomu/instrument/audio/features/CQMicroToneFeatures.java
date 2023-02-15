@@ -35,7 +35,7 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 			previousFrame.getCQMicroToneFeatures().addFeature(time, values);
 		} else {
 			this.features.put(time, values);
-			if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
+			if (previousFrame != null && !previousFrame.getCQMicroToneFeatures().isCommitted()) {
 				// previousFrame.getConstantQFeatures().buildToneMap();
 				previousFrame.getCQMicroToneFeatures().commit();
 			}
@@ -111,7 +111,7 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 			previousFrame = audioFeatureFrame.getAudioFeatureProcessor()
 					.getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
-		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
+		if (previousFrame != null && !previousFrame.getCQMicroToneFeatures().isCommitted()) {
 			previousFrame.close();
 		}
 		// if (features.size() > 0) {
@@ -146,7 +146,8 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 
 	private void commit() {
 		isCommitted = true;
-		audioFeatureFrame.getAudioFeatureProcessor().audioFeatureFrameChanged(audioFeatureFrame);
+		// !! TODO
+		// audioFeatureFrame.getAudioFeatureProcessor().audioFeatureFrameChanged(audioFeatureFrame);
 	}
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
