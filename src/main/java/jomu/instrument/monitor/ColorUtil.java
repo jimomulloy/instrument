@@ -9,6 +9,63 @@ public class ColorUtil {
 	 */
 	public final static ColorSpace sRGB = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 
+	private static int[][] toneMapColorsRainbow = { { 255, 255, 255 }, { 255, 200, 0 }, { 255, 50, 0 }, { 150, 100, 0 },
+			{ 100, 150, 0 }, { 0, 250, 0 }, { 0, 150, 80 }, { 0, 30, 150 }, { 0, 0, 200 }, { 0, 0, 0 }, };
+
+	private static int[][] toneMapColors = { { 255, 255, 255 }, { 255, 255, 0 }, { 255, 0, 0 }, { 0, 255, 255 },
+			{ 0, 255, 0 }, { 0, 0, 255 }, { 0, 0, 0 } };
+
+	private static int[][] toneMapBAWColors = { { 255, 255, 255 }, { 235, 235, 235 }, { 220, 220, 220 },
+			{ 210, 210, 210 }, { 200, 200, 200 }, { 180, 180, 180 }, { 150, 150, 150 }, { 0, 0, 0 } };
+
+	public static Color[] generateToneMapColors(int size) {
+
+		final Color[] result = new Color[size];
+
+		int start = 0;
+
+		for (int i = start; i < result.length; i++) {
+			int r = 0, g = 0, b = 0;
+			int lowIndex = (int) Math.floor((double) toneMapColors.length * ((double) i / (double) size));
+			int highIndex = (int) Math.ceil((double) toneMapColors.length * ((double) i / (double) size));
+			if (lowIndex >= toneMapColors.length) {
+				lowIndex = toneMapColors.length - 1;
+			}
+			if (highIndex >= toneMapColors.length) {
+				highIndex = toneMapColors.length - 1;
+			}
+			r = (toneMapColors[highIndex][0] + toneMapColors[lowIndex][0]) / 2;
+			g = (toneMapColors[highIndex][1] + toneMapColors[lowIndex][1]) / 2;
+			b = (toneMapColors[highIndex][2] + toneMapColors[lowIndex][2]) / 2;
+			result[i] = new Color(r, g, b);
+		}
+		return result;
+	}
+
+	public static Color[] generateToneMapBAWColors(int size) {
+
+		final Color[] result = new Color[size];
+
+		int start = 0;
+
+		for (int i = start; i < result.length; i++) {
+			int r = 0, g = 0, b = 0;
+			int lowIndex = (int) Math.floor((double) toneMapBAWColors.length * ((double) i / (double) size));
+			int highIndex = (int) Math.ceil((double) toneMapBAWColors.length * ((double) i / (double) size));
+			if (lowIndex >= toneMapBAWColors.length) {
+				lowIndex = toneMapBAWColors.length - 1;
+			}
+			if (highIndex >= toneMapBAWColors.length) {
+				highIndex = toneMapBAWColors.length - 1;
+			}
+			r = (toneMapBAWColors[highIndex][0] + toneMapBAWColors[lowIndex][0]) / 2;
+			g = (toneMapBAWColors[highIndex][1] + toneMapBAWColors[lowIndex][1]) / 2;
+			b = (toneMapBAWColors[highIndex][2] + toneMapBAWColors[lowIndex][2]) / 2;
+			result[i] = new Color(r, g, b);
+		}
+		return result;
+	}
+
 	/**
 	 * Basic rainbow colors
 	 */
@@ -19,6 +76,20 @@ public class ColorUtil {
 	 */
 	public static Color getRandomColor() {
 		return colors[Random.nextInt(20)];
+	}
+
+	public static Color[] generateToneMapHSB(int size) {
+
+		final Color[] result = new Color[size];
+
+		int start = 0;
+
+		for (int i = start; i < result.length; i++) {
+			result[i] = Color.getHSBColor((float) (i) / (float) (size * 2.0), 1.0F,
+					(float) (size - i) / (float) (size));
+		}
+
+		return result;
 	}
 
 	/**

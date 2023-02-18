@@ -269,9 +269,6 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	public static List<SpectralPeak> findPeaks(float[] magnitudes, float[] frequencyEstimates,
 			List<Integer> localMaximaIndexes, int numberOfPeaks, int minDistanceInCents) {
 		int maxMagnitudeIndex = findMaxMagnitudeIndex(magnitudes);
-		if (localMaximaIndexes.size() > 0) {
-			System.out.println(">>AA got maxMagnitudeIndex: " + maxMagnitudeIndex);
-		}
 		List<SpectralPeak> spectralPeakList = new ArrayList<>();
 
 		if (localMaximaIndexes.size() == 0)

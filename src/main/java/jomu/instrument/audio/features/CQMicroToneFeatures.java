@@ -87,18 +87,18 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < elements.length; i++) {
 					if (elements[i].amplitude > getCqs().getMaxMagnitudeThreshold()) {
-						getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
+						// getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
 						System.out.println(">>CQ MAX VALUE: " + getCqs().getMaxMagnitudeThreshold());
 					}
 				}
 				for (int i = 0; i < elements.length; i++) {
 					elements[i].amplitude = elements[i].amplitude / getCqs().getMaxMagnitudeThreshold();
 					if (elements[i].amplitude < getCqs().getMinMagnitudeThreshold()) {
-						elements[i].amplitude = getCqs().getMinMagnitudeThreshold();
+						// elements[i].amplitude = getCqs().getMinMagnitudeThreshold();
 					}
 				}
-				ttf.setHighThreshold(1.0);
-				ttf.setLowThreshold(getCqs().getMinMagnitudeThreshold());
+				// ttf.setHighThreshold(1.0);
+				// ttf.setLowThreshold(getCqs().getMinMagnitudeThreshold());
 				ttf.reset();
 			}
 		}

@@ -25,6 +25,8 @@ public class NoteListElement implements Serializable {
 	public double startTime; // Note Start Time
 	public int startTimeIndex; // Start Time Index in ToneMapMatrix
 	public boolean underTone; // Flag note as undertone
+	public NoteHarmonics noteHarmonics;
+	public NoteTimbre noteTimbre;
 
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin) {
@@ -38,17 +40,21 @@ public class NoteListElement implements Serializable {
 		this.maxAmp = maxAmp;
 		this.minAmp = minAmp;
 		this.percentMin = percentMin;
+		this.noteHarmonics = new NoteHarmonics();
+		this.noteTimbre = new NoteTimbre(this);
 	}
 
 	public NoteListElement clone() {
-		return new NoteListElement(this.note, this.pitchIndex, this.startTime, this.endTime, this.startTimeIndex,
-				this.endTimeIndex, this.avgAmp, this.maxAmp, this.minAmp, this.percentMin);
+		NoteListElement clone = new NoteListElement(this.note, this.pitchIndex, this.startTime, this.endTime,
+				this.startTimeIndex, this.endTimeIndex, this.avgAmp, this.maxAmp, this.minAmp, this.percentMin);
+		clone.noteHarmonics = noteHarmonics.clone();
+		clone.noteTimbre = noteTimbre.clone(clone);
+		return clone;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(avgAmp, endTime, endTimeIndex, maxAmp, minAmp, note, overTone, percentMin, pitchIndex,
-				startTime, startTimeIndex, underTone);
+		return Objects.hash(note, pitchIndex, startTime);
 	}
 
 	@Override
@@ -60,16 +66,8 @@ public class NoteListElement implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		NoteListElement other = (NoteListElement) obj;
-		return Double.doubleToLongBits(avgAmp) == Double.doubleToLongBits(other.avgAmp)
-				&& Double.doubleToLongBits(endTime) == Double.doubleToLongBits(other.endTime)
-				&& endTimeIndex == other.endTimeIndex
-				&& Double.doubleToLongBits(maxAmp) == Double.doubleToLongBits(other.maxAmp)
-				&& Double.doubleToLongBits(minAmp) == Double.doubleToLongBits(other.minAmp) && note == other.note
-				&& overTone == other.overTone
-				&& Double.doubleToLongBits(percentMin) == Double.doubleToLongBits(other.percentMin)
-				&& pitchIndex == other.pitchIndex
-				&& Double.doubleToLongBits(startTime) == Double.doubleToLongBits(other.startTime)
-				&& startTimeIndex == other.startTimeIndex && underTone == other.underTone;
+		return note == other.note && pitchIndex == other.pitchIndex
+				&& Double.doubleToLongBits(startTime) == Double.doubleToLongBits(other.startTime);
 	}
 
 	@Override

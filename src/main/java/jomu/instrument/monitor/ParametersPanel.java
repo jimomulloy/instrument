@@ -1985,8 +1985,10 @@ public class ParametersPanel extends JPanel {
 		});
 		hpsMaskFactorInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_MASK_FACTOR));
-		cqParamsPanel.add(hpsMaskFactorLabel);
-		cqParamsPanel.add(hpsMaskFactorInput);
+		tunerParamsPanel.add(hpsMaskFactorLabel);
+		tunerParamsPanel.add(hpsMaskFactorInput);
+
+		parameterPanel.add(tunerParamsPanel);
 
 		Dimension minimumSize = new Dimension(1000, 1000);
 		parameterPanel.setMinimumSize(minimumSize);

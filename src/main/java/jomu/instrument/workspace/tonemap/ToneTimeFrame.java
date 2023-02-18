@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ToneTimeFrame {
@@ -631,4 +632,22 @@ public class ToneTimeFrame {
 		reset();
 		return this;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(pitchSet, timeSet);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ToneTimeFrame other = (ToneTimeFrame) obj;
+		return Objects.equals(pitchSet, other.pitchSet) && Objects.equals(timeSet, other.timeSet);
+	}
+
 }

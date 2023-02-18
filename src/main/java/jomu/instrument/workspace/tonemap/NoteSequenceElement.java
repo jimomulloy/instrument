@@ -1,5 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.Objects;
+
 /**
  * This class defines the fields of the data elements contained within the
  * NoteSequence object which represent Note data used for creating MIDI Messages
@@ -9,6 +11,23 @@ package jomu.instrument.workspace.tonemap;
  * @author Jim O'Mulloy
  */
 public class NoteSequenceElement implements Comparable {
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(note);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NoteSequenceElement other = (NoteSequenceElement) obj;
+		return note == other.note;
+	}
 
 	public int note; // MIDI note pitch
 

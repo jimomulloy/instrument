@@ -2,6 +2,7 @@ package jomu.instrument.workspace.tonemap;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * This is a class that encapsulates parameters associated with ToneMap Pitch
@@ -12,6 +13,23 @@ import java.util.Arrays;
  * @author Jim O'Mulloy
  */
 public class PitchSet implements Serializable {
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(highPitchIndex, lowPitchIndex);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PitchSet other = (PitchSet) obj;
+		return highPitchIndex == other.highPitchIndex && lowPitchIndex == other.lowPitchIndex;
+	}
 
 	public static final double A440 = 440.00;
 

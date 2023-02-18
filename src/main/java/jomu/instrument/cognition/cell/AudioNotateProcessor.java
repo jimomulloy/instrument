@@ -32,7 +32,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 		List<ToneTimeFrame> timeFrames = new ArrayList<>();
 		ToneTimeFrame ttf = timeFrame;
-		double fromTime = (ttf.getStartTime() - 1.0) >= 0 ? ttf.getStartTime() - 1.0 : 0;
+		double fromTime = (ttf.getStartTime() - 3.0) >= 0 ? ttf.getStartTime() - 3.0 : 0;
 
 		System.out.println(">>TTF time: " + ttf.getStartTime());
 		while (ttf != null && ttf.getStartTime() >= fromTime) {
@@ -42,22 +42,21 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 		for (ToneTimeFrame ttfv : timeFrames) {
 			processNotes(ttfv.getElements());
-			System.out.println(">>TTF PAINT time: " + ttfv.getStartTime());
 			console.getVisor().updateToneMapView(notateToneMap, ttfv, this.cell.getCellType().toString());
 		}
 		cell.send(streamId, sequence);
 	}
 
 	private void processNotes(ToneMapElement[] elements) {
-		System.out.println(">>IN PN:");
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			elements[elementIndex].amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
 			if (elements[elementIndex].noteState > 0) {
-				System.out.println(">>PN: " + elementIndex);
+				// System.out.println(">>PN STATE: " + elementIndex + ", " +
+				// elements[elementIndex].getIndex());
 				elements[elementIndex].amplitude = 1.0;
 			}
 			if (elements[elementIndex].isPeak) {
-				System.out.println(">>PN: " + elementIndex);
+				// System.out.println(">>PN PEAK: " + elementIndex);
 				// elements[elementIndex].amplitude = 0.5;
 			}
 		}

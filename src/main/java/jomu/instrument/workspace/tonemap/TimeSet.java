@@ -1,6 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * This is a class that encapsulates parameters associated with the ToneMap Time
@@ -102,5 +103,22 @@ public class TimeSet implements Serializable {
 		return "TimeSet [startTime=" + startTime + ", endTime=" + endTime + ", currentTime=" + currentTime
 				+ ", startSample=" + startSample + ", endSample=" + endSample + ", sampleRate=" + sampleRate
 				+ ", sampleTimeSize=" + sampleTimeSize + ", sampleIndexSize=" + sampleIndexSize + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(startTime);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TimeSet other = (TimeSet) obj;
+		return Double.doubleToLongBits(startTime) == Double.doubleToLongBits(other.startTime);
 	}
 } // End TimeSet
