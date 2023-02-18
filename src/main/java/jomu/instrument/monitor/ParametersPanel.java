@@ -414,7 +414,7 @@ public class ParametersPanel extends JPanel {
 		});
 
 		noteScanAttenuateHarmonicsSwitchCB.setSelected(parameterManager
-				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES));
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS));
 		tunerSwitchPanel.add(noteScanAttenuateHarmonicsSwitchCB);
 
 		noteScanAttenuateUndertonesSwitchCB = new JCheckBox("noteScanAttenuateUndertonesCB");
@@ -424,7 +424,7 @@ public class ParametersPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				JCheckBox cb = (JCheckBox) e.getSource();
 				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS,
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES,
 						Boolean.toString(newValue));
 			}
 		});
@@ -2015,6 +2015,7 @@ public class ParametersPanel extends JPanel {
 		n4SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH));
 		n5SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH));
 		n6SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH));
+
 		harmonicWeightingSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH));
 		harmonicGuitarSwitchCB.setSelected(
