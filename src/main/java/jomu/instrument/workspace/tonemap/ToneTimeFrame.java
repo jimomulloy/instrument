@@ -639,6 +639,11 @@ public class ToneTimeFrame {
 	}
 
 	@Override
+	public String toString() {
+		return "ToneTimeFrame [pitchSet=" + pitchSet + ", timeSet=" + timeSet + "]";
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

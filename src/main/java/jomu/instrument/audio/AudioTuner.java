@@ -431,7 +431,8 @@ public class AudioTuner implements ToneMapConstants {
 						// back fill set notes ON
 						System.out.println(
 								">>>Note scan PENDING high - PROCESS BACK FILL ON seq: " + sequence + ", " + note);
-						backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, ON);
+						backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, ON,
+								processedNotes);
 						System.out.println(">>>Note scan PENDING - ON seq: " + sequence + ", " + note + ", " + time);
 						noteStatusElement.state = ON;
 						noteStatusElement.offTime = time;
@@ -445,7 +446,8 @@ public class AudioTuner implements ToneMapConstants {
 						System.out.println(">>>Note scan PENDING high - PROCESS BACK FILL OFF seq: " + sequence + ", "
 								+ note + ", " + noteStatusElement.onTime + ", " + noteStatusElement.offTime + ", "
 								+ noteMinDuration);
-						backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, OFF);
+						backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, OFF,
+								processedNotes);
 						noteStatusElement.state = ON;
 						noteStatusElement.onTime = time;
 						noteStatusElement.offTime = time;
@@ -484,8 +486,8 @@ public class AudioTuner implements ToneMapConstants {
 							System.out.println(
 									">>>Note scan PENDING low - PROCESS BACK FILL OFF seq: " + sequence + ", " + note);
 							// back fill set notes OFF
-							backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time,
-									OFF);
+							backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, OFF,
+									processedNotes);
 							noteStatusElement.state = OFF;
 							noteStatusElement.onTime = 0.0;
 							noteStatusElement.offTime = 0.0;
@@ -542,12 +544,14 @@ public class AudioTuner implements ToneMapConstants {
 			noteStatusElement = noteStatus.getNoteStatusElement(note);
 			if (noteStatusElement.state == ON) {
 				if (i > 0) {
+					System.out.println(">>attenuateSemitone A: " + i + ", " + note);
 					attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i - 1, noteStatusElement, noteStatus,
-							note - 1);
+							note - 1, processedNotes);
 				}
 				if (i < ttfElements.length - 1) {
+					System.out.println(">>attenuateSemitone B: " + i + ", " + note);
 					attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i + 1, noteStatusElement, noteStatus,
-							note + 1);
+							note + 1, processedNotes);
 				}
 			}
 
@@ -563,34 +567,42 @@ public class AudioTuner implements ToneMapConstants {
 	}
 
 	private void attenuateSemitone(ToneMap toneMap, ToneTimeFrame previousToneTimeFrame, ToneMapElement[] ttfElements,
-			int index, NoteStatusElement parentNoteStatusElement, NoteStatus noteStatus, int note) {
+			int index, NoteStatusElement parentNoteStatusElement, NoteStatus noteStatus, int note,
+			List<NoteListElement> processedNotes) {
 		NoteStatusElement noteStatusElement = noteStatus.getNoteStatusElement(note);
 		ToneMapElement toneMapElement = ttfElements[index];
 		if (noteStatusElement.state == PENDING && (noteStatusElement.onTime > parentNoteStatusElement.onTime)) {
+			System.out.println(">>attenuateSemitone X: " + index);
 			if (index > 0 && previousToneTimeFrame != null) {
+				System.out.println(">>attenuateSemitone Y: " + index + ", " + note);
 				NoteStatus previousNoteStatus = previousToneTimeFrame.getNoteStatus();
 				NoteStatusElement previousNoteStatusElement = previousNoteStatus.getNoteStatusElement(note);
 				attenuateSemitone(toneMap, toneMap.getPreviousTimeFrame(previousToneTimeFrame.getStartTime()),
-						previousToneTimeFrame.getElements(), index - 1, previousNoteStatusElement, noteStatus,
-						note - 1);
+						previousToneTimeFrame.getElements(), index - 1, previousNoteStatusElement, noteStatus, note - 1,
+						processedNotes);
 			}
 			if (index < ttfElements.length - 1 && previousToneTimeFrame != null) {
+				System.out.println(">>attenuateSemitone Z: " + index + ", " + note);
 				NoteStatus previousNoteStatus = previousToneTimeFrame.getNoteStatus();
 				NoteStatusElement previousNoteStatusElement = previousNoteStatus.getNoteStatusElement(note);
 				attenuateSemitone(toneMap, toneMap.getPreviousTimeFrame(previousToneTimeFrame.getStartTime()),
-						previousToneTimeFrame.getElements(), index + 1, previousNoteStatusElement, noteStatus,
-						note + 1);
+						previousToneTimeFrame.getElements(), index + 1, previousNoteStatusElement, noteStatus, note + 1,
+						processedNotes);
 			}
-			backFillNotes(toneMap, note, toneMapElement.getIndex(), parentNoteStatusElement.offTime,
-					noteStatusElement.onTime, OFF);
+			System.out.println(">>attenuateSemitone BACKFILL: " + index + ", " + note + ", " + toneMapElement.getIndex()
+					+ ", " + parentNoteStatusElement.offTime + ", " + noteStatusElement.onTime);
+
+			backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime,
+					parentNoteStatusElement.offTime, OFF, processedNotes);
 		}
 
 	}
 
-	private void backFillNotes(ToneMap toneMap, int note, int index, double onTime, double tooTime, int state) {
+	private void backFillNotes(ToneMap toneMap, int note, int index, double onTime, double tooTime, int state,
+			List<NoteListElement> processedNotes) {
 
 		ToneTimeFrame tf = toneMap.getTimeFrame(onTime / 1000.0);
-		while (tf != null && tf.getStartTime() < tooTime / 1000.0) {
+		while (tf != null && tf.getStartTime() <= tooTime / 1000.0) {
 			NoteStatus noteStatus = tf.getNoteStatus();
 			NoteStatusElement noteStatusElement = noteStatus.getNoteStatusElement(note);
 			ToneMapElement toneMapElement = tf.getElement(index);
@@ -607,7 +619,11 @@ public class AudioTuner implements ToneMapConstants {
 				noteStatusElement.onTime = 0.0;
 				noteStatusElement.offTime = 0.0;
 				noteStatusElement.highFlag = false;
-				System.out.println(">>BACKFILL OFF: " + toneMapElement);
+				if (toneMapElement.noteListElement != null) {
+					processedNotes.remove(toneMapElement.noteListElement);
+					toneMapElement.noteListElement = null;
+				}
+				System.out.println(">>BACKFILL OFF: " + toneMapElement + ", " + tf.getStartTime() + ", " + tooTime);
 			}
 			tf = toneMap.getNextTimeFrame(tf.getStartTime());
 		}

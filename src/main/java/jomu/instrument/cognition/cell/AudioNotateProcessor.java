@@ -41,6 +41,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		}
 
 		for (ToneTimeFrame ttfv : timeFrames) {
+			System.out.println(">>processNotes TTF time: " + ttfv.getStartTime());
 			processNotes(ttfv.getElements());
 			console.getVisor().updateToneMapView(notateToneMap, ttfv, this.cell.getCellType().toString());
 		}
@@ -51,8 +52,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			elements[elementIndex].amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
 			if (elements[elementIndex].noteState > 0) {
-				// System.out.println(">>PN STATE: " + elementIndex + ", " +
-				// elements[elementIndex].getIndex());
+				System.out.println(">>PN STATE: " + elementIndex + ", " + elements[elementIndex].getIndex());
 				elements[elementIndex].amplitude = 1.0;
 			}
 			if (elements[elementIndex].isPeak) {
