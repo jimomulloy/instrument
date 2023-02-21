@@ -55,8 +55,8 @@ public class Voice implements Organ {
 
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		System.out.println(">>send!!!: " + toneTimeFrame.getTimeSet().getStartTime());
-		writeMidi(toneTimeFrame, streamId, sequence);
-		writeAudio(toneTimeFrame, streamId, sequence);
+		// writeMidi(toneTimeFrame, streamId, sequence);
+		// writeAudio(toneTimeFrame, streamId, sequence);
 	}
 
 	@Override

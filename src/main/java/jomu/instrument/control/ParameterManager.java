@@ -18,12 +18,13 @@ public class ParameterManager {
 	private Properties parameters = new Properties();
 
 	public void initialise() {
-		try {
-			reset();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		System.out.println(">>params init!!");
+//		try {
+//			reset();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	public void reset() throws FileNotFoundException, IOException {

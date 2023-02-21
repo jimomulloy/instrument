@@ -81,11 +81,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
 		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
-		this.features = pds.getFeatures();
-		TreeMap<Double, SpectrogramInfo> newFeatures = this.pds.getFeatures();
-		for (Entry<Double, SpectrogramInfo> entry : newFeatures.entrySet()) {
-			this.features.put(entry.getKey(), entry.getValue());
-		}
+		this.features = this.pds.getFeatures();
 		pds.clear();
 	}
 

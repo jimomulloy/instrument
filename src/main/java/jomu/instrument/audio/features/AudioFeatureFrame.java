@@ -11,6 +11,7 @@ public class AudioFeatureFrame {
 	private BeatFeatures beatFeatures;
 	private PitchDetectorFeatures pitchDetectorFeatures;
 	private ResynthFeatures resynthFeatures;
+	private SACFFeatures sacfFeatures;
 	private ScalogramFeatures scalogramFeatures;
 	private SpectralPeaksFeatures spectralPeaksFeatures;
 	private SpectrogramFeatures spectrogramFeatures;
@@ -63,8 +64,8 @@ public class AudioFeatureFrame {
 		return pitchDetectorFeatures;
 	}
 
-	public ResynthFeatures getResynthFeatures() {
-		return resynthFeatures;
+	public SACFFeatures getSACFFeatures() {
+		return sacfFeatures;
 	}
 
 	public ScalogramFeatures getScalogramFeatures() {
@@ -92,6 +93,7 @@ public class AudioFeatureFrame {
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
 		resynthFeatures = new ResynthFeatures();
+		sacfFeatures = new SACFFeatures();
 		spectrogramFeatures = new SpectrogramFeatures();
 		goertzelFeatures = new GoertzelFeatures();
 		scalogramFeatures = new ScalogramFeatures();
@@ -101,6 +103,7 @@ public class AudioFeatureFrame {
 		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);
 		resynthFeatures.initialise(this);
+		sacfFeatures.initialise(this);
 		spectrogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getSpectrogramSource());
 		goertzelFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getGoertzelSource());
 		scalogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getScalogramSource());

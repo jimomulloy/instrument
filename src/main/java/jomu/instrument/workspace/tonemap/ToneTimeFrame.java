@@ -387,14 +387,16 @@ public class ToneTimeFrame {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				double value = elements[i].amplitude;
-				if (value > 0.4) {
+				if (value > 0.8) {
 					value = 1.0;
-				} else if (value > 0.2) {
+				} else if (value > 0.4) {
 					value = 0.75;
-				} else if (value > 0.1) {
+				} else if (value > 0.2) {
 					value = 0.5;
-				} else if (value > 0.05) {
+				} else if (value > 0.1) {
 					value = 0.25;
+				} else if (value > 0.05) {
+					value = 0.1;
 				} else {
 					value = AMPLITUDE_FLOOR;
 				}

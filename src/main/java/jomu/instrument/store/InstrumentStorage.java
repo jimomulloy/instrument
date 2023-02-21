@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.enterprise.context.ApplicationScoped;
-
-import org.springframework.stereotype.Component;
-
 import jomu.instrument.workspace.tonemap.ToneMap;
+import one.microstream.integrations.spring.boot.types.Storage;
 
-//@Storage
-@ApplicationScoped
-@Component
+@Storage
+//@ApplicationScoped
+//@Component
 public class InstrumentStorage {
 
 	final List<ToneMap> toneMapList = new ArrayList<>();

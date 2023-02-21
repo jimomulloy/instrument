@@ -1606,7 +1606,7 @@ public class ParametersPanel extends JPanel {
 		chromaNormaliseThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = cqNormaliseThresholdInput.getText();
+				String newValue = chromaNormaliseThresholdInput.getText();
 				chromaNormaliseThresholdLabel.setText(String.format("CHROMA Normalise Threshold  (%s):", newValue));
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD,
 						newValue);

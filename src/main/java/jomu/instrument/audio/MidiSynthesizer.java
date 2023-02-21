@@ -19,6 +19,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiDevice.Info;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
@@ -208,10 +209,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public boolean open() {
 
 		try {
+
+			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
+			for (Info midiDev : midiDevs) {
+				System.out.println(">>midi dev: " + midiDev);
+			}
 			if (synthesizer == null) {
 				if ((synthesizer = MidiSystem.getSynthesizer()) == null) {
 					return false;
 				}
+				System.out.println(">>midi synth: " + synthesizer.getDeviceInfo());
 			}
 			synthesizer.open();
 			sequencer = MidiSystem.getSequencer();

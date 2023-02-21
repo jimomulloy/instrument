@@ -12,6 +12,7 @@ public class TarsosFeatureSource {
 	private OnsetSource onsetSource;
 	private PitchDetectorSource pitchDetectorSource;
 	private ResynthSource resynthSource;
+	private SACFSource sacfSource;
 	private ScalogramSource scalogramSource;
 	private SpectralPeaksSource spectralPeaksSource;
 	private SpectrogramSource spectrogramSource;
@@ -54,6 +55,10 @@ public class TarsosFeatureSource {
 		return resynthSource;
 	}
 
+	public SACFSource getSACFSource() {
+		return sacfSource;
+	}
+
 	public ScalogramSource getScalogramSource() {
 		return scalogramSource;
 	}
@@ -73,6 +78,7 @@ public class TarsosFeatureSource {
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
 		resynthSource = new ResynthSource(dispatcher);
+		sacfSource = new SACFSource(dispatcher);
 		spectrogramSource = new SpectrogramSource(dispatcher);
 		beatSource = new BeatSource(dispatcher);
 		goertzelSource = new GoertzelSource(dispatcher);
@@ -83,6 +89,7 @@ public class TarsosFeatureSource {
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();
 		resynthSource.initialise();
+		sacfSource.initialise();
 		spectrogramSource.initialise();
 		goertzelSource.initialise();
 		beatSource.initialise();

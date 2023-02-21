@@ -1153,7 +1153,7 @@ public class AudioTuner implements ToneMapConstants {
 		double rootFreq = PitchSet.getMidiFreq(root);
 		double noteFreq = PitchSet.getMidiFreq(note);
 		System.out.println(">>TEST is harmonic: " + root + " ," + note + ", " + rootFreq + ", " + noteFreq);
-		for (int n = 2; n < 7; n++) {
+		for (int n = 2; n < 9; n++) {
 			double harmonicFreq = n * rootFreq;
 			System.out.println(">>TEST is harmonic N: " + n + " ," + harmonicFreq);
 			if (Math.abs(harmonicFreq - noteFreq) < HARMONIC_VARIANCE) {
@@ -1166,7 +1166,7 @@ public class AudioTuner implements ToneMapConstants {
 	private int getHarmonic(int root, int note) {
 		double rootFreq = PitchSet.getMidiFreq(root);
 		double noteFreq = PitchSet.getMidiFreq(note);
-		for (int n = 2; n < 7; n++) {
+		for (int n = 2; n < 9; n++) {
 			double harmonicFreq = n * rootFreq;
 			if (Math.abs(harmonicFreq - noteFreq) < HARMONIC_VARIANCE) {
 				return n;

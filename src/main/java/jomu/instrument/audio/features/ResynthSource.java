@@ -180,7 +180,7 @@ public class ResynthSource implements PitchDetectionHandler {
 		}
 
 		final double twoPiF = 2 * Math.PI * frequency;
-		float[] audioBuffer = audioEvent.getFloatBuffer();
+		float[] audioBuffer = audioEvent.getFloatBuffer().clone(); // !!TODO CLONED
 		float[] envelope = null;
 		if (followEnvelope) {
 			envelope = audioBuffer.clone();

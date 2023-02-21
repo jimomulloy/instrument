@@ -16,18 +16,21 @@ public class MicrostreamConfig {
 	String location;
 
 	@Bean
-	InstrumentStorage dataRoot() {
-		InstrumentStorage dataRoot = new InstrumentStorage();
-		return dataRoot;
-	}
-
-	@Bean
 	public EmbeddedStorageManager storageManager() {
 
-		EmbeddedStorageManager storageManager = EmbeddedStorage.start(dataRoot(), // root object
-				Paths.get(location) // storage directory
-		);
-		System.out.println(">>MS init!!");
+		// EmbeddedStorageManager storageManager = EmbeddedStorage.start(dataRoot(), //
+		// root object
+		// Paths.get(location) // storage directory
+		// );
+		EmbeddedStorageManager storageManager = EmbeddedStorage.start(Paths.get(location));
+		if (storageManager.root() == null) {
+			InstrumentStorage rootInstance = new InstrumentStorage();
+			storageManager.setRoot(rootInstance);
+			storageManager.storeRoot();
+		} else {
+			InstrumentStorage rootInstance = (InstrumentStorage) storageManager.root();
+			// Use existing root loaded from storage
+		}
 		return storageManager;
 	}
 }
