@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
@@ -411,14 +412,32 @@ public class BeadsAudioSynthesizer implements AudioSynthesizer, ToneMapConstants
 		}
 	}
 
-	private class AudioQueueMessage {
+	private class AudioQueueMessage implements Delayed {
 		public ToneTimeFrame toneTimeFrame = null;
+		private long startTime;
 
-		public AudioQueueMessage() {
+		public AudioQueueMessage(ToneTimeFrame toneTimeFrame, long delayInMilliseconds) {
+			this.toneTimeFrame = toneTimeFrame;
+			this.startTime = System.currentTimeMillis() + delayInMilliseconds;
 		}
 
 		public AudioQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this.toneTimeFrame = toneTimeFrame;
+			this(toneTimeFrame, 2000);
+		}
+
+		public AudioQueueMessage() {
+			this(null, 2000);
+		}
+
+		@Override
+		public int compareTo(Delayed o) {
+			return (int) (this.startTime - ((AudioQueueMessage) o).startTime);
+		}
+
+		@Override
+		public long getDelay(TimeUnit unit) {
+			long diff = startTime - System.currentTimeMillis();
+			return unit.convert(diff, TimeUnit.MILLISECONDS);
 		}
 	}
 
@@ -427,7 +446,7 @@ public class BeadsAudioSynthesizer implements AudioSynthesizer, ToneMapConstants
 
 		private float baseFrequency;
 
-		private BlockingQueue<AudioQueueMessage> bq;
+		private DelayQueue<AudioQueueMessage> bq;
 
 		private int frequencies;
 
@@ -445,7 +464,7 @@ public class BeadsAudioSynthesizer implements AudioSynthesizer, ToneMapConstants
 			this.streamId = streamId;
 			this.baseFrequency = (float) pitchSet.getFreq(0);
 			this.frequencies = pitchSet.getRange();
-			bq = new LinkedBlockingQueue<>();
+			bq = new DelayQueue<>(); // LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
 			// initialize our AudioContext
 			// JavaSoundAudioIO audioIO = new JavaSoundAudioIO();

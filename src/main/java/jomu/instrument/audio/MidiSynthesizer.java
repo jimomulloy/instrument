@@ -10,7 +10,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -70,17 +71,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public int volumeSetting = INIT_VOLUME_SETTING;
 	private AtomicInteger channelCount = new AtomicInteger(0);
 
-	private double duration, seconds;
-	private String errStr;
 	private File file;
 	private String fileName;
 	private boolean midiEOM;
 
 	private Map<String, MidiStream> midiStreams = new ConcurrentHashMap<>();
-	private int note;
 
-	private NoteList noteList;
-	private NoteListElement noteListElement;
 	private NoteSequence noteSequence;
 
 	private NoteSequenceElement noteSequenceElement;
@@ -90,12 +86,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private Sequence sequence;
 	private Sequencer sequencer;
 
-	private long startTime;
 	private Synthesizer synthesizer;
 
-	private long tick;
-	private TimeSet timeSet;
-	private ToneMap toneMap;
 	private Track track;
 	private int velocity;
 
@@ -165,10 +157,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	public int getBPM() {
 		return bpmSetting;
-	}
-
-	public double getDuration() {
-		return duration;
 	}
 
 	public double getEndTime() {
@@ -306,8 +294,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		System.out.println("midi write 1");
 
-		this.noteList = noteList;
-
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 
 		TimeSet timeSet = toneTimeFrame.getTimeSet();
@@ -315,7 +301,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		int timeRange = timeSet.getRange();
 		int pitchRange = pitchSet.getRange();
 
-		if (!buildNoteSequence())
+		if (!buildNoteSequence(noteList))
 			return false;
 
 		System.out.println("midi write 2");
@@ -328,7 +314,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		System.out.println("midi write 3");
 
 		track = sequence.createTrack();
-		startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 
 		// add a program change right at the beginning of
 		// the track for the current instrument
@@ -356,7 +342,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 * Use the NoteList object to build a NoteSequence object sorted to be used to
 	 * create a MIDI sequence. Apply quantization functions on beat and duration
 	 */
-	private boolean buildNoteSequence() {
+	private boolean buildNoteSequence(NoteList noteList) {
 
 		noteSequence = new NoteSequence();
 
@@ -364,13 +350,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 		double quantizeDurationFactor = quantizeDurationSetting * 1000.0 * 60.0 / getBPM();
 
 		for (int i = 0; i < noteList.size(); i++) {
-			noteListElement = noteList.get(i);
+			NoteListElement noteListElement = noteList.get(i);
 
 			if (noteListElement.underTone) {
 				continue;
 			}
 
-			note = noteListElement.note;
+			int note = noteListElement.note;
 
 			if ((note < getLowPitch()) || (note > getHighPitch()))
 				continue;
@@ -456,7 +442,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						lastNotes = new HashSet<>();
 					}
 					for (ToneMapElement toneMapElement : ttfElements) {
-						note = pitchSet.getNote(toneMapElement.getPitchIndex());
+						int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 						noteStatusElement = noteStatus.getNoteStatusElement(note);
 
 						switch (noteStatusElement.state) {
@@ -517,19 +503,37 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 	}
 
-	private class MidiQueueMessage {
-		public ToneTimeFrame toneTimeFrame;
+	private class MidiQueueMessage implements Delayed {
+		public ToneTimeFrame toneTimeFrame = null;
+		private long startTime;
 
-		public MidiQueueMessage() {
+		public MidiQueueMessage(ToneTimeFrame toneTimeFrame, long delayInMilliseconds) {
+			this.toneTimeFrame = toneTimeFrame;
+			this.startTime = System.currentTimeMillis() + delayInMilliseconds;
 		}
 
 		public MidiQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this.toneTimeFrame = toneTimeFrame;
+			this(toneTimeFrame, 2000);
+		}
+
+		public MidiQueueMessage() {
+			this(null, 2000);
+		}
+
+		@Override
+		public int compareTo(Delayed o) {
+			return (int) (this.startTime - ((MidiQueueMessage) o).startTime);
+		}
+
+		@Override
+		public long getDelay(TimeUnit unit) {
+			long diff = startTime - System.currentTimeMillis();
+			return unit.convert(diff, TimeUnit.MILLISECONDS);
 		}
 	}
 
 	private class MidiStream {
-		public BlockingQueue<MidiQueueMessage> bq;
+		public DelayQueue<MidiQueueMessage> bq;
 
 		public int channelId;
 
@@ -539,7 +543,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.streamId = streamId;
 			// this.channelId = channelCount.getAndIncrement();
 			this.channelId = 0;
-			bq = new LinkedBlockingQueue<>();
+			bq = new DelayQueue<>(); // LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
 		}
 

@@ -15,7 +15,7 @@ public class MetricsManager {
 
 	private CompositeMeterRegistry registry;
 
-	public void initialsie() {
+	public void initialise() {
 		PrometheusMeterRegistry pr = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 		SimpleMeterRegistry sr = new SimpleMeterRegistry();
 		new ClassLoaderMetrics().bindTo(sr);

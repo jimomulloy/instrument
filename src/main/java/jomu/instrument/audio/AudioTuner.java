@@ -960,7 +960,8 @@ public class AudioTuner implements ToneMapConstants {
 				}
 			}
 
-			Set<ToneMapElement> elements = new HashSet<ToneMapElement>();
+			Set<ToneMapElement> tmElements = new HashSet<ToneMapElement>();
+			Set<NoteStatusElement> nsElements = new HashSet<NoteStatusElement>();
 			int numSlots = 0;
 			int numLowSlots = 0;
 			double amplitude;
@@ -976,10 +977,18 @@ public class AudioTuner implements ToneMapConstants {
 				if (toneTimeFrame.getStartTime() < nle.startTime / 1000.0) {
 					continue;
 				}
+
+				NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
+
 				ToneMapElement toneMapElement = toneTimeFrame.getElement(nle.pitchIndex);
-				elements.add(toneMapElement);
+				tmElements.add(toneMapElement);
+
+				NoteStatusElement noteStatusElement = noteStatus.getNoteStatusElement(nle.note);
+				nsElements.add(noteStatusElement);
+
 				System.out.println(">>attenuateHarmonics ADD NOTE: " + toneMapElement + ", "
-						+ toneTimeFrame.getStartTime() + ", " + elements.size());
+						+ toneTimeFrame.getStartTime() + ", " + tmElements.size());
+
 				ToneMapElement rootToneMapElement = toneTimeFrame.getElement(processedNote.pitchIndex);
 
 				double amplitudeFactor = rootToneMapElement.amplitude * harmonics[harmonic - 1];
@@ -1007,12 +1016,20 @@ public class AudioTuner implements ToneMapConstants {
 
 			avgAmp = ampSum / numSlots;
 			percentMin = numLowSlots / numSlots;
-
+			
+			System.out.println(">>attenuateHarmonics nle: " + nle);
 			// if (maxAmp <= MIN_AMPLITUDE) {
-			for (ToneMapElement toneMapElement : elements) {
+			for (ToneMapElement toneMapElement : tmElements) {
 				toneMapElement.noteListElement = null;
 				toneMapElement.noteState = OFF;
-				System.out.println(">>attenuateHarmonics CLEAR NOTE: " + toneMapElement);
+				System.out.println(">>attenuateHarmonics toneMapElement: " + toneMapElement);
+			}
+			for (NoteStatusElement noteStatusElement : nsElements) {
+				noteStatusElement.state = OFF;
+				noteStatusElement.onTime = 0.0;
+				noteStatusElement.offTime = 0.0;
+				noteStatusElement.highFlag = false;
+				System.out.println(">>attenuateHarmonics noteStatusElement: " + noteStatusElement);
 			}
 			// } else {
 			// nle.avgAmp = avgAmp;
@@ -1033,7 +1050,8 @@ public class AudioTuner implements ToneMapConstants {
 	private void attenuateUndertones(ToneTimeFrame[] timeFrames, Set<NoteListElement> underTones,
 			NoteListElement processedNote, ToneMapElement startElement, ToneMapElement endElement) {
 		for (NoteListElement nle : underTones) {
-			Set<ToneMapElement> elements = new HashSet<ToneMapElement>();
+			Set<ToneMapElement> tmElements = new HashSet<ToneMapElement>();
+			Set<NoteStatusElement> nsElements = new HashSet<NoteStatusElement>();
 			int numSlots = 0;
 			int numLowSlots = 0;
 			double amplitude;
@@ -1049,8 +1067,15 @@ public class AudioTuner implements ToneMapConstants {
 				if (toneTimeFrame.getStartTime() < nle.startTime / 1000.0) {
 					continue;
 				}
+
+				NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
+
 				ToneMapElement toneMapElement = toneTimeFrame.getElement(nle.pitchIndex);
-				elements.add(toneMapElement);
+				tmElements.add(toneMapElement);
+
+				NoteStatusElement noteStatusElement = noteStatus.getNoteStatusElement(nle.note);
+				nsElements.add(noteStatusElement);
+
 				ToneMapElement rootToneMapElement = toneTimeFrame.getElement(processedNote.pitchIndex);
 				if ((toneMapElement.amplitude + MIN_AMPLITUDE) <= rootToneMapElement.amplitude) {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
@@ -1076,9 +1101,15 @@ public class AudioTuner implements ToneMapConstants {
 			percentMin = numLowSlots / numSlots;
 
 			if (maxAmp <= MIN_AMPLITUDE) {
-				for (ToneMapElement toneMapElement : elements) {
+				for (ToneMapElement toneMapElement : tmElements) {
 					toneMapElement.noteListElement = null;
 					toneMapElement.noteState = OFF;
+				}
+				for (NoteStatusElement noteStatusElement : nsElements) {
+					noteStatusElement.state = OFF;
+					noteStatusElement.onTime = 0.0;
+					noteStatusElement.offTime = 0.0;
+					noteStatusElement.highFlag = false;
 				}
 			} else {
 				nle.avgAmp = avgAmp;
@@ -1092,7 +1123,8 @@ public class AudioTuner implements ToneMapConstants {
 	private void attenuateSemitones(ToneTimeFrame[] timeFrames, Set<NoteListElement> semiTones,
 			NoteListElement processedNote, ToneMapElement startElement, ToneMapElement endElement) {
 		for (NoteListElement nle : semiTones) {
-			Set<ToneMapElement> elements = new HashSet<ToneMapElement>();
+			Set<ToneMapElement> tmElements = new HashSet<ToneMapElement>();
+			Set<NoteStatusElement> nsElements = new HashSet<NoteStatusElement>();
 			int numSlots = 0;
 			int numLowSlots = 0;
 			double amplitude;
@@ -1109,8 +1141,15 @@ public class AudioTuner implements ToneMapConstants {
 				if (toneTimeFrame.getStartTime() < nle.startTime / 1000.0) {
 					continue;
 				}
+
+				NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
+
 				ToneMapElement toneMapElement = toneTimeFrame.getElement(nle.pitchIndex);
-				elements.add(toneMapElement);
+				tmElements.add(toneMapElement);
+
+				NoteStatusElement noteStatusElement = noteStatus.getNoteStatusElement(nle.note);
+				nsElements.add(noteStatusElement);
+
 				ToneMapElement rootToneMapElement = toneTimeFrame.getElement(processedNote.pitchIndex);
 				if ((toneMapElement.amplitude + MIN_AMPLITUDE) <= rootToneMapElement.amplitude) {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
@@ -1136,9 +1175,15 @@ public class AudioTuner implements ToneMapConstants {
 			percentMin = numLowSlots / numSlots;
 
 			if (maxAmp <= MIN_AMPLITUDE) {
-				for (ToneMapElement toneMapElement : elements) {
+				for (ToneMapElement toneMapElement : tmElements) {
 					toneMapElement.noteListElement = null;
 					toneMapElement.noteState = OFF;
+				}
+				for (NoteStatusElement noteStatusElement : nsElements) {
+					noteStatusElement.state = OFF;
+					noteStatusElement.onTime = 0.0;
+					noteStatusElement.offTime = 0.0;
+					noteStatusElement.highFlag = false;
 				}
 			} else {
 				nle.avgAmp = avgAmp;

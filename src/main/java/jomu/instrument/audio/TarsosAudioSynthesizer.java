@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
@@ -67,7 +68,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	public double timeStart = INIT_TIME_START;
 	public int transformMode = TRANSFORM_MODE_JAVA;
 	private Map<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
-	private BlockingQueue<Object> bq;
 	private double[] lastAmps;
 
 	/**
@@ -377,6 +377,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					iEnd = iStart + (int) (timeSet.getSampleTimeSize() * sampleRate);
 					double power;
 					System.out.println("istart/end: " + time + ", " + iStart + ", " + iEnd);
+					double totalPower = 0;
 					for (ToneMapElement toneMapElement : ttfElements) {
 						ampAdjust = 0;
 						ampFactor = 0;
@@ -396,7 +397,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						if (power != 0) {
 							System.out.println(">>SET GAIN: " + toneMapElement.getIndex() + ", "
 									+ +audioStream.getSineGenerators()[toneMapElement.getIndex()].getFrequency());
-							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(1.0);
+							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.2);
 							lastAmps[toneMapElement.getIndex()] = 1.0F; // ampAdjust;
 							// }
 						} else {
@@ -418,14 +419,32 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		}
 	}
 
-	private class AudioQueueMessage {
+	private class AudioQueueMessage implements Delayed {
 		public ToneTimeFrame toneTimeFrame = null;
+		private long startTime;
 
-		public AudioQueueMessage() {
+		public AudioQueueMessage(ToneTimeFrame toneTimeFrame, long delayInMilliseconds) {
+			this.toneTimeFrame = toneTimeFrame;
+			this.startTime = System.currentTimeMillis() + delayInMilliseconds;
 		}
 
 		public AudioQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this.toneTimeFrame = toneTimeFrame;
+			this(toneTimeFrame, 2000);
+		}
+
+		public AudioQueueMessage() {
+			this(null, 2000);
+		}
+
+		@Override
+		public int compareTo(Delayed o) {
+			return (int) (this.startTime - ((AudioQueueMessage) o).startTime);
+		}
+
+		@Override
+		public long getDelay(TimeUnit unit) {
+			long diff = startTime - System.currentTimeMillis();
+			return unit.convert(diff, TimeUnit.MILLISECONDS);
 		}
 	}
 
@@ -433,7 +452,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 		private float baseFrequency;
 
-		private BlockingQueue<AudioQueueMessage> bq;
+		private DelayQueue<AudioQueueMessage> bq;
 
 		private int frequencies;
 
@@ -447,7 +466,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			this.streamId = streamId;
 			this.baseFrequency = (float) pitchSet.getFreq(0);
 			this.frequencies = pitchSet.getRange();
-			bq = new LinkedBlockingQueue<>();
+			bq = new DelayQueue<>(); // LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
 
 			generator = new AudioGenerator(1024, 0);

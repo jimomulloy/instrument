@@ -48,31 +48,15 @@ public class SineGenerator implements AudioProcessor {
 		double sampleRate = audioEvent.getSampleRate();
 		double twoPiF = 2 * Math.PI * frequency;
 		double time = 0;
-		if (Math.abs(frequency) == 1569) {
-			System.out.println(">>1569: " + frequency + ", " + gain + ", " + audioEvent.getTimeStamp());
-		}
-		if (gain > 0) {
-			System.out.println(">>GAIN: " + frequency + ", " + gain + ", " + audioEvent.getTimeStamp() + ", " + phase);
-		}
 		for (int i = 0; i < buffer.length; i++) {
 			time = i / sampleRate;
-			// buffer[i] += (float) (gain * Math.sin(twoPiF * time + phase));
-			if (gain > 0) {
-				buffer[i] += (float) (gain * Math.sin(twoPiF * time + phase));
-			}
+			buffer[i] += (float) (gain * Math.sin(twoPiF * time + phase));
 		}
 		phase = twoPiF * buffer.length / sampleRate + phase;
 		return true;
 	}
 
 	public void setGain(double gain) {
-		if (this.gain > 0 && gain == 0) {
-			System.out.println(">>Reset gain: " + frequency + ", " + gain);
-		}
-		if (this.gain == 0 && gain > 0) {
-			System.out.println(">>Set gain: " + frequency + ", " + gain);
-		}
-
 		this.gain = gain;
 	}
 

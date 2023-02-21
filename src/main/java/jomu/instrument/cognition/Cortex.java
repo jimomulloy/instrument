@@ -61,24 +61,31 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
 		audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
 		audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
-		Weaver.connect(audioCQCell, audioTunerPeaksCell);
-		Weaver.connect(audioCQCell, audioPreChromaCell);
-		Weaver.connect(audioCQCell, audioHpsCell);
-		Weaver.connect(audioCQCell, audioOnsetCell);
-		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
-		Weaver.connect(audioTunerPeaksCell, audioNotateCell);
-		Weaver.connect(audioPostChromaCell, audioIntegrateCell);
-		Weaver.connect(audioNotateCell, audioIntegrateCell);
-		Weaver.connect(audioIntegrateCell, audioSinkCell);
-		Weaver.connect(audioOnsetCell, audioSinkCell);
-		Weaver.connect(audioBeatCell, audioSinkCell);
-		Weaver.connect(audioPitchCell, audioSinkCell);
-		Weaver.connect(audioHpsCell, audioSinkCell);
-		Weaver.connect(audioSpectralPeaksCell, audioSinkCell);
+		//
 		Weaver.connect(sourceUpdateCell, audioBeatCell);
 		Weaver.connect(sourceUpdateCell, audioPitchCell);
 		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Weaver.connect(sourceUpdateCell, audioSpectralPeaksCell);
+		//
+		Weaver.connect(audioCQCell, audioPreChromaCell);
+		Weaver.connect(audioCQCell, audioHpsCell);
+		Weaver.connect(audioCQCell, audioOnsetCell);
+		Weaver.connect(audioCQCell, audioTunerPeaksCell);
+		//
+		Weaver.connect(audioOnsetCell, audioTunerPeaksCell);
+		Weaver.connect(audioBeatCell, audioTunerPeaksCell);
+		Weaver.connect(audioPitchCell, audioTunerPeaksCell);
+		Weaver.connect(audioHpsCell, audioTunerPeaksCell);
+		Weaver.connect(audioSpectralPeaksCell, audioTunerPeaksCell);
+		//
+		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
+		//
+		Weaver.connect(audioTunerPeaksCell, audioNotateCell);
+		//
+		Weaver.connect(audioNotateCell, audioIntegrateCell);
+		//
+		Weaver.connect(audioPostChromaCell, audioSinkCell);
+		Weaver.connect(audioIntegrateCell, audioSinkCell);
 	}
 
 	@Override
