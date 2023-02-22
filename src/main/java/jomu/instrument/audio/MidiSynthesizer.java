@@ -31,6 +31,8 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 
+import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.NoteList;
 import jomu.instrument.workspace.tonemap.NoteListElement;
 import jomu.instrument.workspace.tonemap.NoteSequence;
@@ -91,11 +93,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private Track track;
 	private int velocity;
 
+	private ParameterManager parameterManager;
+
 	/**
 	 * MidiModel constructor. Test Java Sound MIDI System available Instantiate
 	 * MidiPanel
 	 */
-	public MidiSynthesizer() {
+	public MidiSynthesizer(ParameterManager parameterManager) {
+		this.parameterManager = parameterManager;
 	}
 
 	/**
@@ -441,17 +446,27 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (lastNotes == null) {
 						lastNotes = new HashSet<>();
 					}
+					double maxAmp = -1;
+					for (ToneMapElement toneMapElement : ttfElements) {
+						double amp = toneMapElement.amplitude;
+						if (maxAmp < amp) {
+							maxAmp = amp;
+						}
+					}
+
 					for (ToneMapElement toneMapElement : ttfElements) {
 						int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 						noteStatusElement = noteStatus.getNoteStatusElement(note);
+						double amp = toneMapElement.amplitude;
 
 						switch (noteStatusElement.state) {
 						case ON:
-							// case PENDING :
+						case PENDING:
+						case CONTINUING:
 							if (!lastNotes.contains(note)) {
 								midiMessage = new ShortMessage();
 								try {
-									int volume = 120;
+									int volume = (int) (120.0 * amp / maxAmp);
 									// if (toneMapElement.amplitude <= 1.0)
 									// {
 									// volume = (int) (120
@@ -513,11 +528,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		public MidiQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this(toneTimeFrame, 2000);
+			this(toneTimeFrame, parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
 		}
 
 		public MidiQueueMessage() {
-			this(null, 2000);
+			this(null, parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
 		}
 
 		@Override

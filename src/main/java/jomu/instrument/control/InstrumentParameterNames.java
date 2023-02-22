@@ -31,6 +31,10 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD = "perception.hearing.cq.lowThresholdSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_DECIBEL = "perception.hearing.cq.decibelSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE = "perception.hearing.cq.normaliseSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS = "perception.hearing.cq.preHarmonicsSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS = "perception.hearing.cq.postHarmonicsSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN = "perception.hearing.cq.preSharpenSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN = "perception.hearing.cq.postSharpenSwitch";
 
 	public static final String PERCEPTION_HEARING_SP_LOW_THRESHOLD = "perception.hearing.sp.lowThreshold";
 	public static final String PERCEPTION_HEARING_SP_SIGNAL_MINIMUM = "perception.hearing.sp.signalMinimum";
@@ -105,6 +109,8 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_HARMONIC_OPERATOR_SWITCH = "audio.tuner.harmonicOperatorSwitch";
 	public static final String AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH = "audio.tuner.harmonicWeightingSwitch";
 	public static final String AUDIO_TUNER_HARMONIC_GUITAR_SWITCH = "audio.tuner.harmonicGuitarSwitch";
+	public static final String AUDIO_TUNER_HARMONIC_ACCUMULATE_SWITCH = "audio.tuner.harmonicAccumulateSwitch";
+	public static final String AUDIO_TUNER_HARMONIC_ATTENUATE_SWITCH = "audio.tuner.harmonicAttenuateSwitch";
 	public static final String AUDIO_TUNER_NORMALISE_THRESHOLD = "audio.tuner.normalizeThreshold";
 	public static final String AUDIO_TUNER_NORMALISE_TROUGH = "audio.tuner.normalizeTrough";
 	public static final String AUDIO_TUNER_NORMALISE_PEAK = "audio.tuner.normalizePeak";
@@ -128,5 +134,7 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";
 	public static final String MONITOR_VIEW_TIME_AXIS_RANGE = "monitor.view.timeAxisRange";
 	public static final String MONITOR_VIEW_PITCH_AXIS_RANGE = "monitor.view.pitchAxisRange";
+
+	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 
 }

@@ -16,7 +16,11 @@ import javax.sound.sampled.SourceDataLine;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.io.jvm.AudioPlayer;
+import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.NoteListElement;
+import jomu.instrument.workspace.tonemap.NoteStatus;
+import jomu.instrument.workspace.tonemap.NoteStatusElement;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -69,12 +73,16 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	public int transformMode = TRANSFORM_MODE_JAVA;
 	private Map<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 	private double[] lastAmps;
+	private ParameterManager parameterManager;
 
 	/**
 	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
 	 * AudioPanel
+	 * 
+	 * @param parameterManager
 	 */
-	public TarsosAudioSynthesizer() {
+	public TarsosAudioSynthesizer(ParameterManager parameterManager) {
+		this.parameterManager = parameterManager;
 	}
 
 	/**
@@ -309,97 +317,37 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 					if (sampleTime != -1) {
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
-					} else {
-						// if (!this.audioStream.getAc().isRunning()) {
-						// this.audioStream.getAc().start();
-						// System.out.println(">>!!! Audio QueueConsumer start AC");
-						// JavaSoundAudioIO.printMixerInfo();
-						// }
 					}
 
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();
-
-					double time, frequency;
-					double maxSumAmp = 0;
-					double minSumAmp = 0;
-					double sumAmp = 0;
-					int numPitches = 0;
-					boolean condition = false;
-
+					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
+					NoteStatusElement noteStatusElement = null;
 					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
-					sumAmp = 0;
-					numPitches = 0;
-
-					time = toneTimeFrame.getStartTime();
-					NoteListElement noteListElement;
-					for (ToneMapElement toneMapElement : ttfElements) {
-						frequency = pitchSet.getFreq(toneMapElement.getIndex());
-						noteListElement = toneMapElement.noteListElement;
-						if (osc1Switch) {
-							condition = (toneMapElement.amplitude == -1 || noteListElement == null
-									|| noteListElement.underTone);
-						} else {
-							condition = (toneMapElement.amplitude == -1);
-						}
-						if (!condition) {
-							sumAmp += toneMapElement.amplitude;
-						}
-						numPitches++;
-
-					}
-					if (maxSumAmp < sumAmp)
-						maxSumAmp = sumAmp;
-					if (minSumAmp > sumAmp)
-						minSumAmp = sumAmp;
-
+					double time = toneTimeFrame.getStartTime();
 					if (lastAmps == null) {
-						lastAmps = new double[numPitches];
+						lastAmps = new double[ttfElements.length];
 					}
 
-					System.out.println("min/max sums: " + maxSumAmp + ", " + minSumAmp);
-
-					int i, iStart, iEnd;
-					sumAmp = 0;
-					float sampleRate = timeSet.getSampleRate();
-					iStart = 0;
-					iEnd = 0;
-					i = 0;
-
-					for (int j = 0; j < numPitches; j++) {
-						lastAmps[j] = 0;
-					}
-
-					double ampFactor = 0;
-					double ampAdjust = 0;
-					iStart = iEnd;
-					iStart = (int) (time * sampleRate);
-					iEnd = iStart + (int) (timeSet.getSampleTimeSize() * sampleRate);
-					double power;
-					System.out.println("istart/end: " + time + ", " + iStart + ", " + iEnd);
-					double totalPower = 0;
+					double maxAmp = -1;
 					for (ToneMapElement toneMapElement : ttfElements) {
-						ampAdjust = 0;
-						ampFactor = 0;
-						power = toneMapElement.amplitude;
-						frequency = pitchSet.getFreq(toneMapElement.getIndex());
-						noteListElement = toneMapElement.noteListElement;
-						if (osc1Switch) {
-							condition = (toneMapElement.amplitude == -1 || noteListElement == null
-									|| noteListElement.underTone);
-						} else {
-							// condition = (toneMapElement.amplitude == -1);
-							condition = (toneMapElement.amplitude < 0.9);
+						double amp = toneMapElement.amplitude;
+						if (maxAmp < amp) {
+							maxAmp = amp;
 						}
-						if (condition) {
-							power = 0;
-						}
-						if (power != 0) {
+					}
+
+					for (ToneMapElement toneMapElement : ttfElements) {
+						int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+						noteStatusElement = noteStatus.getNoteStatusElement(note);
+						double amp = toneMapElement.amplitude;
+
+						if (noteStatusElement.state != OFF) {
+							double power = amp / maxAmp;
 							System.out.println(">>SET GAIN: " + toneMapElement.getIndex() + ", "
 									+ +audioStream.getSineGenerators()[toneMapElement.getIndex()].getFrequency());
-							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.2);
-							lastAmps[toneMapElement.getIndex()] = 1.0F; // ampAdjust;
-							// }
+							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(power);
+							lastAmps[toneMapElement.getIndex()] = power;
 						} else {
 							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0);
 							lastAmps[toneMapElement.getIndex()] = 0F;
@@ -429,11 +377,11 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		}
 
 		public AudioQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this(toneTimeFrame, 2000);
+			this(toneTimeFrame, parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
 		}
 
 		public AudioQueueMessage() {
-			this(null, 2000);
+			this(null, parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
 		}
 
 		@Override
@@ -469,15 +417,14 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			bq = new DelayQueue<>(); // LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
 
+			float frequency = baseFrequency;
+
 			generator = new AudioGenerator(1024, 0);
 			sineGenerators = new SineGenerator[frequencies];
-			float currentGain = 1.0f;
 			for (int i = 0; i < frequencies; i++) {
-				sineGenerators[i] = new SineGenerator(0.0, baseFrequency * i);
-				// lower the gain for the next tone in the additive
-				// complex
+				frequency = (float) pitchSet.getFreq(i);
+				sineGenerators[i] = new SineGenerator(0.0, frequency);
 				generator.addAudioProcessor(sineGenerators[i]);
-				currentGain -= (1.0 / frequencies);
 			}
 			System.out.println(">>!!! Audio added freqs: " + frequencies);
 			try {

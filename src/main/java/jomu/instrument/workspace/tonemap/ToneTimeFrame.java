@@ -657,4 +657,49 @@ public class ToneTimeFrame {
 		return Objects.equals(pitchSet, other.pitchSet) && Objects.equals(timeSet, other.timeSet);
 	}
 
+	public void sharpen() {
+		int troughIndex = 0;
+		int peakIndex = 0;
+		double lastAmplitude = -1;
+		boolean downSlope = false;
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			ToneMapElement element = elements[elementIndex];
+			double originalAmplitude = element.amplitude;
+			if (originalAmplitude < (lastAmplitude * 0.8)) {
+				if (!downSlope) {
+					peakIndex = elementIndex > 0 ? elementIndex - 1 : elementIndex;
+					downSlope = true;
+				}
+				// element.amplitude = originalAmplitude * 0.5 * originalAmplitude /
+				// lastAmplitude;
+				if (troughIndex > 0) {
+					element.amplitude = elements[troughIndex].amplitude;
+				} else {
+					element.amplitude = AMPLITUDE_FLOOR;
+				}
+			}
+			if (originalAmplitude > lastAmplitude) {
+				if (downSlope) {
+					troughIndex = elementIndex > 0 ? elementIndex - 1 : elementIndex;
+					downSlope = false;
+				}
+				if (elementIndex > 0) {
+					int lastElementIndex = elementIndex - 1;
+					while (lastElementIndex > troughIndex) {
+						ToneMapElement lastElement = elements[lastElementIndex];
+						// lastElement.amplitude = lastElement.amplitude * 0.5 * lastElement.amplitude /
+						// element.amplitude;
+						if (troughIndex > 0) {
+							lastElement.amplitude = elements[troughIndex].amplitude;
+						} else {
+							lastElement.amplitude = AMPLITUDE_FLOOR;
+						}
+
+						lastElementIndex--;
+					}
+				}
+			}
+			lastAmplitude = originalAmplitude;
+		}
+	}
 }

@@ -48,6 +48,8 @@ public class ParametersPanel extends JPanel {
 	private AbstractButton n4SwitchCB;
 	private AbstractButton harmonicWeightingSwitchCB;
 	private JCheckBox harmonicGuitarSwitchCB;
+	private JCheckBox harmonicAttenuateSwitchCB;
+	private JCheckBox harmonicAccumulateSwitchCB;
 	private AbstractButton peakSwitchCB;
 	private JCheckBox compressionSwitchCB;
 	private JCheckBox squareSwitchCB;
@@ -141,6 +143,10 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox spLowThresholdSwitchCB;
 	private JCheckBox spDecibelSwitchCB;
 	private JCheckBox spNormaliseSwitchCB;
+	private JCheckBox cqPreHarmonicsSwitchCB;
+	private JCheckBox cqPostHarmonicsSwitchCB;
+	private JCheckBox cqPreSharpenSwitchCB;
+	private JCheckBox cqPostSharpenSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -497,6 +503,38 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_GUITAR_SWITCH));
 		tunerSwitchPanel.add(harmonicGuitarSwitchCB);
 
+		harmonicAttenuateSwitchCB = new JCheckBox("harmonicAttenuateSwitchCB");
+		harmonicAttenuateSwitchCB.setText("Audio Tuner Harmonic Attenuate Switch");
+		harmonicAttenuateSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ATTENUATE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		harmonicAttenuateSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ATTENUATE_SWITCH));
+		tunerSwitchPanel.add(harmonicAttenuateSwitchCB);
+
+		harmonicAccumulateSwitchCB = new JCheckBox("harmonicAccumulateSwitchCB");
+		harmonicAccumulateSwitchCB.setText("Audio Tuner Harmonic Accumulate Switch");
+		harmonicAccumulateSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ACCUMULATE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		harmonicAccumulateSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ACCUMULATE_SWITCH));
+		tunerSwitchPanel.add(harmonicAccumulateSwitchCB);
+
 		peakSwitchCB = new JCheckBox("peakSwitchCB");
 		peakSwitchCB.setText("Audio Tuner Peak Switch");
 		peakSwitchCB.addItemListener(new ItemListener() {
@@ -614,6 +652,70 @@ public class ParametersPanel extends JPanel {
 		normaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
 		cqSwitchPanel.add(normaliseSwitchCB);
+
+		cqPreHarmonicsSwitchCB = new JCheckBox("cqPreHarmonicsSwitchCB");
+		cqPreHarmonicsSwitchCB.setText("CQ Pre Harmonics");
+		cqPreHarmonicsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqPreHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS));
+		cqSwitchPanel.add(cqPreHarmonicsSwitchCB);
+
+		cqPostHarmonicsSwitchCB = new JCheckBox("cqPostHarmonicsSwitchCB");
+		cqPostHarmonicsSwitchCB.setText("CQ Post Harmonics");
+		cqPostHarmonicsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqPostHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS));
+		cqSwitchPanel.add(cqPostHarmonicsSwitchCB);
+
+		cqPreSharpenSwitchCB = new JCheckBox("cqPreSharpenSwitchCB");
+		cqPreSharpenSwitchCB.setText("CQ Pre Sharpen");
+		cqPreSharpenSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqPreSharpenSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN));
+		cqSwitchPanel.add(cqPreSharpenSwitchCB);
+
+		cqPostSharpenSwitchCB = new JCheckBox("cqPostSharpenSwitchCB");
+		cqPostSharpenSwitchCB.setText("CQ Post Sharpen");
+		cqPostSharpenSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqPostSharpenSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN));
+		cqSwitchPanel.add(cqPostSharpenSwitchCB);
 
 		spCompressionSwitchCB = new JCheckBox("spCompressionSwitchCB");
 		spCompressionSwitchCB.setText("SP Compression");
@@ -2020,6 +2122,10 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH));
 		harmonicGuitarSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_GUITAR_SWITCH));
+		harmonicAttenuateSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ATTENUATE_SWITCH));
+		harmonicAccumulateSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ACCUMULATE_SWITCH));
 		peakSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH));
 		compressionSwitchCB.setSelected(
@@ -2032,6 +2138,14 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
 		normaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
+		cqPreHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS));
+		cqPostHarmonicsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS));
+		cqPreSharpenSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN));
+		cqPostSharpenSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN));
 
 		spCompressionSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_COMPRESS));

@@ -62,6 +62,8 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean harmonicsOperator = false;
 	private boolean harmonicsWeighting = false;
 	private boolean harmonicsGuitar = false;
+	private boolean harmonicAttenuateSwitch = true;
+	private boolean harmonicAccumulateSwitch = true;
 
 	private boolean noteScanAttenuateHarmonics;
 	private boolean noteScanAttenuateUndertones;
@@ -138,6 +140,10 @@ public class AudioTuner implements ToneMapConstants {
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_WEIGHTING_SWITCH);
 		harmonicsGuitar = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_GUITAR_SWITCH);
+		harmonicAccumulateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ACCUMULATE_SWITCH);
+		harmonicAttenuateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ATTENUATE_SWITCH);
 
 		normalizeThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD);
@@ -668,23 +674,22 @@ public class AudioTuner implements ToneMapConstants {
 	}
 
 	// Attenuate audio data power values for given Harmonic overtone
-	private void attenuate(ToneMapElement overToneElement, double fundamental, double harmonic) {
-
+	private double attenuate(ToneMapElement overToneElement, double fundamental, double harmonic) {
 		double overToneData = fundamental * harmonic;
+		double difference = 0;
 
 		if ((overToneElement.amplitude + MIN_AMPLITUDE) <= overToneData) {
-			overToneElement.amplitude = MIN_AMPLITUDE;
+			difference = overToneElement.amplitude - MIN_AMPLITUDE;
+			if (harmonicAttenuateSwitch) {
+				overToneElement.amplitude = MIN_AMPLITUDE;
+			}
 		} else {
-			if (harmonic == 0.7 && overToneElement.amplitude > 0.01) {
-				System.out.println(">>ATTENUATE " + fundamental + ", " + harmonic + ", " + overToneData + ", "
-						+ overToneElement.amplitude);
+			if (harmonicAttenuateSwitch) {
+				overToneElement.amplitude -= overToneData;
 			}
-			overToneElement.amplitude -= overToneData;
-			if (harmonic == 0.7 && overToneElement.amplitude > 0.01) {
-				System.out.println(">>ATTENUATED " + fundamental + ", " + harmonic + ", " + overToneData + ", "
-						+ overToneElement.amplitude);
-			}
+			difference = overToneData;
 		}
+		return difference;
 	}
 
 	private void initFormants() {
@@ -1016,7 +1021,7 @@ public class AudioTuner implements ToneMapConstants {
 
 			avgAmp = ampSum / numSlots;
 			percentMin = numLowSlots / numSlots;
-			
+
 			System.out.println(">>attenuateHarmonics nle: " + nle);
 			// if (maxAmp <= MIN_AMPLITUDE) {
 			for (ToneMapElement toneMapElement : tmElements) {
@@ -1222,7 +1227,6 @@ public class AudioTuner implements ToneMapConstants {
 
 	// Process Harmonic overtones
 	private void processOvertones(ToneTimeFrame toneTimeFrame, int pitchIndex) {
-		System.out.println(">>processOvertones " + pitchIndex);
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 
 		double f0 = pitchSet.getFreq(pitchIndex);
@@ -1237,6 +1241,8 @@ public class AudioTuner implements ToneMapConstants {
 		if (f0Element == null || f0Element.amplitude == -1)
 			return;
 
+		double difference = 0;
+
 		for (double harmonic : harmonics) {
 			freq = n * f0;
 			note = PitchSet.freqToMidiNote(freq);
@@ -1247,22 +1253,18 @@ public class AudioTuner implements ToneMapConstants {
 			ToneMapElement toneMapElement = ttfElements[index];
 			if (toneMapElement == null || toneMapElement.amplitude == -1)
 				continue;
-			int index1 = toneMapElement.getIndex();
 
-			if (index != index1) {
-				System.out.println(">>!!WAHT!!processOvertones attenuate: " + index + ", " + index1);
-			}
-			if (harmonic == 0.7) {
-				System.out.println(">>processOvertones attenuate: " + pitchIndex + ", " + toneMapElement.amplitude
-						+ ", " + f0Element.amplitude);
-			}
-			attenuate(toneMapElement, f0Element.amplitude, harmonic);
+			difference += attenuate(toneMapElement, f0Element.amplitude, harmonic);
 			toneMapElement.addHarmonicWieght(n, toneMapElement.amplitude);
 			n++;
 		}
+
+		if (harmonicAccumulateSwitch) {
+			f0Element.amplitude += difference;
+		}
 	}
 
-	private void processOvertones(ToneTimeFrame toneTimeFrame, boolean peaks) {
+	public void processOvertones(ToneTimeFrame toneTimeFrame, boolean peaks) {
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 
 		for (ToneMapElement toneMapElement : ttfElements) {
@@ -1272,6 +1274,10 @@ public class AudioTuner implements ToneMapConstants {
 				}
 			}
 		}
+	}
+
+	public void processOvertones(ToneTimeFrame toneTimeFrame) {
+		processOvertones(toneTimeFrame, false);
 	}
 
 	private void processPeak(ToneTimeFrame toneTimeFrame, int startPeak, int endPeak, double trough,

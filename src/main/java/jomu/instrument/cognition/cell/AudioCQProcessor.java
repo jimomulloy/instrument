@@ -2,6 +2,7 @@ package jomu.instrument.cognition.cell;
 
 import java.util.List;
 
+import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
@@ -44,6 +45,14 @@ public class AudioCQProcessor extends ProcessorCommon {
 					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL);
 			boolean cqSwitchNormalise = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+			boolean cqSwitchPreHarmonics = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS);
+			boolean cqSwitchPostHarmonics = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS);
+			boolean cqSwitchPreSharpen = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN);
+			boolean cqSwitchPostSharpen = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN);
 
 			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 			ConstantQFeatures cqf = aff.getConstantQFeatures();
@@ -52,6 +61,19 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 			System.out.println(">>CQ MAX/MIN AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
+
+			AudioTuner tuner = new AudioTuner();
+
+			if (cqSwitchPreHarmonics) {
+				System.out.println(">>CQ PreHarmonics");
+				tuner.processOvertones(toneMap.getTimeFrame());
+			}
+
+			if (cqSwitchPreSharpen) {
+				System.out.println(">>CQ PreSharpen");
+				toneMap.getTimeFrame().sharpen();
+			}
+
 			if (cqSwitchCompress) {
 				toneMap.getTimeFrame().compress(compression);
 				System.out.println(">>CQ MAX/MIN AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
@@ -69,6 +91,16 @@ public class AudioCQProcessor extends ProcessorCommon {
 				toneMap.getTimeFrame().decibel(decibelLevel);
 				System.out.println(">>CQ MAX/MIN AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 						+ toneMap.getTimeFrame().getMinAmplitude());
+			}
+
+			if (cqSwitchPostHarmonics) {
+				System.out.println(">>CQ PostHarmonics");
+				tuner.processOvertones(toneMap.getTimeFrame());
+			}
+
+			if (cqSwitchPostSharpen) {
+				System.out.println(">>CQ PostSharpen");
+				toneMap.getTimeFrame().sharpen();
 			}
 
 			System.out.println(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
