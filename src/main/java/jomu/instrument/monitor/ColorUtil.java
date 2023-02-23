@@ -108,14 +108,18 @@ public class ColorUtil {
 
 		int start = 0;
 		if (black)
-			result[start++] = Color.black;
+			result[start++] = new Color(0, 0, 0, 0);
 		if (white)
-			result[start++] = Color.white;
+			result[start++] = new Color(255, 255, 255, 255);
 		if (gray)
-			result[start++] = Color.gray;
+			result[start++] = new Color(128, 128, 128, 255);
 
-		for (int i = start; i < result.length; i++)
+		for (int i = start; i < result.length; i++) {
 			result[i] = Color.getHSBColor((float) (i - start) / (float) (size - start), saturation, brightness);
+			if (result[i].getRed() != 0 && result[i].getGreen() != 0 && result[i].getBlue() != 0) {
+				result[i] = new Color(result[i].getRed(), result[i].getGreen(), result[i].getBlue(), 255);
+			}
+		}
 
 		return result;
 	}

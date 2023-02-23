@@ -37,16 +37,28 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		
+        <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>microstream-storage-embedded</artifactId>
+            <version>${microstream.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>microstream-storage-embedded-configuration</artifactId>
+            <version>${microstream.version}</version>
+        </dependency>
+        
 		<!--dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-embedded</artifactId>
 			<version>${microstream.version}</version>
 		</dependency-->
-		<dependency>
+		<!--dependency>
 	      <groupId>one.microstream</groupId>
 	      <artifactId>microstream-integrations-spring-boot</artifactId>
 	      <version>${microstream.version}</version>
-	    </dependency>
+	    </dependency-->
 		<!--dependency>
 			<groupId>org.eclipse.microprofile</groupId>
 			<artifactId>microprofile</artifactId>

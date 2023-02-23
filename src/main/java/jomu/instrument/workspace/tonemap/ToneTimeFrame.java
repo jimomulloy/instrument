@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class ToneTimeFrame {
@@ -407,20 +409,339 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, int factor, int sequence) {
+	public ToneTimeFrame chromaChordify() {
+		TreeSet<Integer> firstCandidates = new TreeSet<>();
+		TreeSet<Integer> secondCandidates = new TreeSet<>();
+		TreeSet<Integer> thirdCandidates = new TreeSet<>();
+		TreeSet<Integer> fourthCandidates = new TreeSet<>();
+
+		System.out.println(">>CHORDIFY!!: " + this.getStartTime() + ", " + maxAmplitude);
+		if (maxAmplitude < 0.25) {
+			return this;
+		}
+
+		for (int i = 0; i < elements.length; i++) {
+			int index = i % 12;
+			if (elements[i] != null) {
+				double value = elements[i].amplitude;
+				if (value == 1.0) {
+					firstCandidates.add(index);
+					System.out.println(">>CHORDIFY!!: ADD 1 index: " + index);
+				}
+			}
+		}
+
+		for (int i = 0; i < elements.length; i++) {
+			int index = i % 12;
+			if (elements[i] != null) {
+				double value = elements[i].amplitude;
+				if (value == 0.75) {
+					secondCandidates.add(index);
+					System.out.println(">>CHORDIFY!!: ADD 2 index: " + index);
+				}
+			}
+		}
+
+		for (int i = 0; i < elements.length; i++) {
+			int index = i % 12;
+			if (elements[i] != null) {
+				double value = elements[i].amplitude;
+				if (value == 0.5) {
+					thirdCandidates.add(index);
+					System.out.println(">>CHORDIFY!!: ADD 3 index: " + index);
+				}
+			}
+		}
+
+		for (int i = 0; i < elements.length; i++) {
+			int index = i % 12;
+			if (elements[i] != null) {
+				double value = elements[i].amplitude;
+				if (value == 0.25) {
+					fourthCandidates.add(index);
+					System.out.println(">>CHORDIFY!!: ADD 4 index: " + index);
+				}
+			}
+		}
+
+		System.out.println(">>CHORDIFY!! 1: " + firstCandidates.size());
+
+		if (censHasClusters(firstCandidates, 4)) {
+			return this;
+		}
+
+		censRemoveClusters(firstCandidates, 3);
+
+		Set<Integer> level1Pairs = censGetPairs(firstCandidates);
+		firstCandidates.removeAll(level1Pairs);
+
+		Set<Integer> level1Singles = censGetSingles(firstCandidates);
+
+		int level1CandidateNumber = level1Singles.size() / 2 + level1Singles.size();
+		if (level1CandidateNumber >= 4) {
+			for (int i = 0; i < elements.length; i++) {
+				elements[i].amplitude = AMPLITUDE_FLOOR;
+			}
+			for (int i = 0; i < elements.length; i++) {
+				int index = i % 12;
+				if (elements[i] != null) {
+					if (level1Singles.contains(index) || level1Pairs.contains(index)) {
+						elements[i].amplitude = 1.0;
+					}
+				}
+			}
+		} else {
+
+			System.out.println(">>CHORDIFY!! 2: " + secondCandidates.size());
+
+			if (censHasClusters(secondCandidates, 4)) {
+				if (level1CandidateNumber >= 3) {
+					for (int i = 0; i < elements.length; i++) {
+						elements[i].amplitude = AMPLITUDE_FLOOR;
+					}
+					for (int i = 0; i < elements.length; i++) {
+						int index = i % 12;
+						if (elements[i] != null) {
+							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
+								elements[i].amplitude = 1.0;
+							}
+						}
+					}
+					System.out.println(">>CHORDIFY!! 2A: " + level1CandidateNumber);
+				} else {
+					System.out.println(">>CHORDIFY!! 2B: " + level1CandidateNumber);
+					return this;
+				}
+			}
+			censRemoveClusters(secondCandidates, 3);
+			System.out.println(">>CHORDIFY!! 2.0: " + secondCandidates.size());
+
+			Set<Integer> level2Pairs = censGetPairs(secondCandidates);
+			secondCandidates.removeAll(level2Pairs);
+
+			Set<Integer> level2Singles = censGetSingles(secondCandidates);
+			int level2CandidateNumber = level2Singles.size() / 2 + level2Singles.size();
+			if (level2CandidateNumber + level1CandidateNumber >= 4) {
+				for (int i = 0; i < elements.length; i++) {
+					elements[i].amplitude = AMPLITUDE_FLOOR;
+				}
+				for (int i = 0; i < elements.length; i++) {
+					int index = i % 12;
+					if (elements[i] != null) {
+						if (level1Singles.contains(index) || level1Pairs.contains(index)) {
+							elements[i].amplitude = 1.0;
+						}
+						if (level2Singles.contains(index) || level2Pairs.contains(index)) {
+							elements[i].amplitude = 0.75;
+						}
+					}
+				}
+				System.out.println(">>CHORDIFY!! 2C: " + level1CandidateNumber);
+			} else {
+				System.out.println(">>CHORDIFY!! 3: " + thirdCandidates.size());
+
+				if (censHasClusters(thirdCandidates, 4)) {
+					for (int i = 0; i < elements.length; i++) {
+						elements[i].amplitude = AMPLITUDE_FLOOR;
+					}
+					for (int i = 0; i < elements.length; i++) {
+						int index = i % 12;
+						if (elements[i] != null) {
+							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
+								elements[i].amplitude = 1.0;
+							}
+							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
+								elements[i].amplitude = 0.75;
+							}
+						}
+					}
+					System.out.println(">>CHORDIFY!! 3A: " + level1CandidateNumber);
+				}
+				censRemoveClusters(thirdCandidates, 3);
+
+				Set<Integer> level3Pairs = censGetPairs(thirdCandidates);
+				thirdCandidates.removeAll(level3Pairs);
+
+				Set<Integer> level3Singles = censGetSingles(thirdCandidates);
+				int level3CandidateNumber = level3Singles.size() / 2 + level3Singles.size();
+				if (level3CandidateNumber + level2CandidateNumber + level1CandidateNumber >= 3) {
+					for (int i = 0; i < elements.length; i++) {
+						elements[i].amplitude = AMPLITUDE_FLOOR;
+					}
+					int counter = 0;
+					for (int i = 0; i < elements.length; i++) {
+						int index = i % 12;
+						if (elements[i] != null) {
+							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
+								elements[i].amplitude = 1.0;
+								counter++;
+							}
+							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
+								counter++;
+								elements[i].amplitude = 0.75;
+							}
+							if (level3Singles.contains(index) || level3Pairs.contains(index)) {
+								counter++;
+								elements[i].amplitude = 0.5;
+							}
+						}
+					}
+					System.out.println(">>CHORDIFY!! 3B: " + counter);
+				} else {
+					System.out.println(">>CHORDIFY!! 3C: " + level1CandidateNumber);
+				}
+			}
+		}
+
+		return this;
+	}
+
+	private Set<Integer> censGetSingles(TreeSet<Integer> candidates) {
+		TreeSet<Integer> result = new TreeSet<>();
+		int lastCandidate = -1;
+		for (Integer candidate : candidates) {
+			if (lastCandidate > -1) {
+				if ((candidate - lastCandidate) == 1) {
+					result.remove(lastCandidate);
+				}
+				if (candidate == 11 && candidates.first() == 0) {
+					result.remove(0);
+				} else {
+					result.add(candidate);
+				}
+			} else {
+				result.add(candidate);
+			}
+			lastCandidate = candidate;
+		}
+		return result;
+	}
+
+	private Set<Integer> censGetPairs(TreeSet<Integer> candidates) {
+		TreeSet<Integer> result = new TreeSet<>();
+		int lastCandidate = -1;
+		for (Integer candidate : candidates) {
+			if (lastCandidate > -1) {
+				if ((candidate - lastCandidate) == 1) {
+					result.add(lastCandidate);
+					result.add(candidate);
+				}
+				if (candidate == 11 && candidates.first() == 0) {
+					result.add(0);
+					result.add(11);
+				}
+			}
+			lastCandidate = candidate;
+		}
+		return result;
+	}
+
+	private void censRemoveClusters(TreeSet<Integer> candidates, int size) {
+		int lastCandidate = -1;
+		int cluster = 0;
+		for (Integer candidate : candidates) {
+			if (lastCandidate > -1) {
+				if ((candidate - lastCandidate) == 1) {
+					cluster++;
+					if (cluster == size) {
+						for (int count = 0; count < size; count++) {
+							candidates.remove(candidate - count);
+						}
+					} else if (candidate == 11) {
+						for (Integer candidate2 : candidates) {
+							if (candidate2 == 0 || (candidate2 - lastCandidate) == 1) {
+								cluster++;
+								if (cluster == size) {
+									for (int count = 0; count < size; count++) {
+										candidates.remove(candidate - count);
+									}
+								}
+							}
+						}
+						return;
+					}
+				} else {
+					cluster = 0;
+				}
+			}
+			lastCandidate = candidate;
+		}
+		return;
+	}
+
+	private boolean censHasClusters(TreeSet<Integer> candidates, int size) {
+		int lastCandidate = -1;
+		int cluster = 0;
+		for (Integer candidate : candidates) {
+			if (lastCandidate > -1) {
+				if ((candidate - lastCandidate) == 1) {
+					cluster++;
+					if (cluster == size) {
+						return true;
+					}
+					if (candidate == 11) {
+						for (Integer candidate2 : candidates) {
+							if (candidate2 == 0 || (candidate2 - lastCandidate) == 1) {
+								cluster++;
+								if (cluster == size) {
+									return true;
+								}
+							} else {
+								return false;
+							}
+							lastCandidate = candidate2;
+						}
+						return false;
+					}
+				} else {
+					cluster = 0;
+				}
+			}
+			lastCandidate = candidate;
+		}
+		return false;
+	}
+
+	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, ToneMap targetToneMap, int factor, int sequence,
+			boolean chromaChordifySwitch) {
 		// collect previous frames
-		List<ToneTimeFrame> frames = new ArrayList<>();
-		ToneTimeFrame tf = sourceToneMap.getTimeFrame(sequence);
+		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
+		ToneTimeFrame stf = sourceToneMap.getTimeFrame(sequence);
 		int i = factor;
-		while (tf != null && i > 1) {
-			frames.add(tf);
-			tf = sourceToneMap.getPreviousTimeFrame(tf.getStartTime());
+		while (stf != null && i > 1) {
+			sourceFrames.add(stf);
+			stf = sourceToneMap.getPreviousTimeFrame(stf.getStartTime());
 			i--;
 		}
-		if (frames.size() > 1) {
+		List<ToneTimeFrame> targetFrames = new ArrayList<>();
+		ToneTimeFrame ttf = targetToneMap.getTimeFrame(sequence);
+		i = factor / 2 + factor % 2;
+		while (ttf != null && i > 1) {
+			targetFrames.add(ttf);
+			ttf = targetToneMap.getPreviousTimeFrame(ttf.getStartTime());
+			i--;
+		}
+
+		if (sourceFrames.size() > 1 && ttf != null) {
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 				if (elements[elementIndex] != null) {
-					elements[elementIndex].amplitude = smoothMedian(frames, elementIndex);
+					double amplitude = smoothMedian(sourceFrames, elementIndex);
+					for (ToneTimeFrame tf : targetFrames) {
+						tf.elements[elementIndex].amplitude = amplitude;
+					}
+				}
+			}
+			for (ToneTimeFrame tf : targetFrames) {
+				tf.reset();
+				if (chromaChordifySwitch) {
+					tf.chromaChordify();
+				}
+				tf.reset();
+			}
+		} else if (stf != null) {
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				if (elements[elementIndex] != null) {
+					elements[elementIndex].amplitude = stf.elements[elementIndex].amplitude;
 				}
 			}
 			reset();

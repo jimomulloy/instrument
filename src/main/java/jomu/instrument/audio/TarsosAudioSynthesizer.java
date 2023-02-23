@@ -255,6 +255,8 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		System.out.println("made new out audio stream");
 
 		audioOutput.write(outAudioBytes, 0, outAudioBytes.length);
+
+		// AudioSystem.write(outAudioStream, AudioFileFormat.Type.WAVE, );
 		return outAudioStream;
 	}
 
@@ -319,6 +321,11 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 					}
 
+					double lowVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
+					double highVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();
 					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
@@ -340,14 +347,23 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					for (ToneMapElement toneMapElement : ttfElements) {
 						int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 						noteStatusElement = noteStatus.getNoteStatusElement(note);
-						double amp = toneMapElement.amplitude;
+						double amplitude = toneMapElement.amplitude;
+						double gain = 0.0F;
+						if (amplitude > highVoiceThreshold) {
+							gain = 1.0;
+						} else if (amplitude <= lowVoiceThreshold) {
+							gain = 0.0;
+						} else {
+							gain = Math
+									.log1p((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+									/ Math.log1p(1.0000001);
+							gain = Math.max(0, gain);
+							gain = ((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold));
+						}
 
 						if (noteStatusElement.state != OFF) {
-							double power = amp / maxAmp;
-							System.out.println(">>SET GAIN: " + toneMapElement.getIndex() + ", "
-									+ +audioStream.getSineGenerators()[toneMapElement.getIndex()].getFrequency());
-							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(power);
-							lastAmps[toneMapElement.getIndex()] = power;
+							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(gain);
+							lastAmps[toneMapElement.getIndex()] = gain;
 						} else {
 							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0);
 							lastAmps[toneMapElement.getIndex()] = 0F;

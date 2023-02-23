@@ -137,6 +137,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
 		midiStream.bq.add(midiQueueMessage);
 		midiStreams.remove(streamId);
+		System.out.println(">>!!! MIDI close: " + streamId);
 	}
 
 	/**
@@ -216,7 +217,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			synthesizer.open();
 			sequencer = MidiSystem.getSequencer();
 			sequencer.addMetaEventListener(new ProcessMeta());
-
+			System.out.println("!!>>TAKE MIDI open()");
 			sequence = new Sequence(Sequence.PPQ, 10);
 		} catch (Exception ex) {
 			return false;
@@ -420,11 +421,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 				boolean running = true;
 				while (running) {
 					MidiQueueMessage mqm = bq.take();
-
+					System.out.println("!!>>TAKE MIDI 1");
 					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 
 					if (toneTimeFrame == null) {
 						this.midiStream.close();
+						System.out.println("!!>>TAKE MIDI midiStream.close()");
 						running = false;
 						break;
 					}
@@ -434,6 +436,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (sampleTime != 0) {
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 					}
+
+					System.out.println("!!>>TAKE MIDI 2");
+
+					double lowVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
+					double highVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
 
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();
@@ -457,7 +466,21 @@ public class MidiSynthesizer implements ToneMapConstants {
 					for (ToneMapElement toneMapElement : ttfElements) {
 						int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 						noteStatusElement = noteStatus.getNoteStatusElement(note);
-						double amp = toneMapElement.amplitude;
+						double amplitude = toneMapElement.amplitude;
+
+						int volume = 0;
+						if (amplitude > highVoiceThreshold) {
+							volume = 120;
+						} else if (amplitude <= lowVoiceThreshold) {
+							volume = 0;
+						} else {
+							volume = (int) (Math
+									.log1p((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+									/ Math.log1p(1.0000001) * 120);
+							volume = Math.max(0, volume);
+							volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+									* 120);
+						}
 
 						switch (noteStatusElement.state) {
 						case ON:
@@ -466,18 +489,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (!lastNotes.contains(note)) {
 								midiMessage = new ShortMessage();
 								try {
-									int volume = (int) (120.0 * amp / maxAmp);
-									// if (toneMapElement.amplitude <= 1.0)
-									// {
-									// volume = (int) (120
-									// * toneMapElement.amplitude);
-									// }
 									midiMessage.setMessage(ShortMessage.NOTE_ON, midiStream.channelId, note, volume);
 								} catch (InvalidMidiDataException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 								midiMessages.add(midiMessage);
+								System.out.println("!!>>TAKE MIDI XX");
 								lastNotes.add(note);
 							}
 							break;
@@ -510,6 +528,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					}
 
 					sampleTime = timeSet.getSampleTimeSize();
+					System.out.println("!!>>TAKE MIDI 3");
+
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -560,6 +580,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.channelId = 0;
 			bq = new DelayQueue<>(); // LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
+			System.out.println("!!>>TAKE MIDI MidiStream: " + streamId);
 		}
 
 		public void close() {

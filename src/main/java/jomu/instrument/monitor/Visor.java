@@ -9,6 +9,10 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -25,6 +29,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -76,6 +81,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
 
 	private static String defaultAudioFileFolder = "D:/audio";
+	private static String defaultAudioRecordFileFolder = "D:/audio/record";
 	private static String defaultAudioFile = "3notescale.wav";
 
 	private LinkedPanel constantQPanel;
@@ -125,6 +131,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JTextField timeAxisRangeInput;
 	private JTextField pitchAxisRangeInput;
 	private JComboBox toneMapViewComboBox;
+	private JCheckBox playMidiSwitchCB;
+	private JCheckBox playAudioSwitchCB;
+	private JTextField voicePlayerLowThresholdInput;
+	private JTextField voicePlayerHighThresholdInput;
+	private JTextField voicePlayerDelayInput;
 
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
@@ -255,10 +266,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JTabbedPane diagnosticsTabbedPane = new JTabbedPane();
 		diagnosticsTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		spectrumPanel = createSpectrumPanel();
-		diagnosticsTabbedPane.addTab("Spectrum", spectrumPanel);
 		oscilloscopePanel = new OscilloscopePanel();
 		diagnosticsTabbedPane.addTab("Oscilloscope", oscilloscopePanel);
+		spectrumPanel = createSpectrumPanel();
+		diagnosticsTabbedPane.addTab("Spectrum", spectrumPanel);
 		panel.add(diagnosticsTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -447,7 +458,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				try {
 					// String fileName = "D:/audio/record/instrument_recording_" +
 					// getCurrentLocalDateTimeStamp();
-					String fileName = "instrument_recording.wav";
+					String fileName = defaultAudioRecordFileFolder + "/" + "instrument_recording_"
+							+ System.currentTimeMillis() + ".wav";
+					// File recordFile = new File(defaultAudioRecordFileFolder, fileName);
 					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
@@ -533,37 +546,131 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		actionPanel.add(audioFeatureIntervalLabel);
 		actionPanel.add(audioFeatureIntervalInput);
 
+		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");
+		playMidiSwitchCB.setText("MIDI");
+		playMidiSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_MIDI,
+						Boolean.toString(newValue));
+			}
+		});
+
+		playMidiSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_MIDI));
+		actionPanel.add(playMidiSwitchCB);
+
+		playAudioSwitchCB = new JCheckBox("playAudioSwitchCB");
+		playAudioSwitchCB.setText("Audio");
+		playAudioSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_AUDIO,
+						Boolean.toString(newValue));
+			}
+		});
+
+		playAudioSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_AUDIO));
+		actionPanel.add(playAudioSwitchCB);
+
+		JLabel voicePlayerDelayLabel = new JLabel("Player Delay: ");
+		voicePlayerDelayInput = new JTextField(4);
+		voicePlayerDelayInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = voicePlayerLowThresholdInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY, newValue);
+
+			}
+		});
+		voicePlayerDelayInput.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
+		actionPanel.add(voicePlayerDelayLabel);
+		actionPanel.add(voicePlayerDelayInput);
+
+		JLabel voicePlayerLowThresholdLabel = new JLabel("Player Low Threshold: ");
+		voicePlayerLowThresholdInput = new JTextField(4);
+		voicePlayerLowThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = voicePlayerLowThresholdInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD, newValue);
+
+			}
+		});
+		voicePlayerLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD));
+		actionPanel.add(voicePlayerLowThresholdLabel);
+		actionPanel.add(voicePlayerLowThresholdInput);
+
+		JLabel voicePlayerHighThresholdLabel = new JLabel("Player High Threshold: ");
+		voicePlayerHighThresholdInput = new JTextField(4);
+		voicePlayerHighThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = voicePlayerHighThresholdInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD, newValue);
+
+			}
+		});
+		voicePlayerHighThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD));
+		actionPanel.add(voicePlayerHighThresholdLabel);
+		actionPanel.add(voicePlayerHighThresholdInput);
+
 		final JButton parametersButton = new JButton("Parameters");
 
 		parametersButton.addActionListener(new ActionListener() {
+
+			private boolean parameterDialogOpen;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String s = e.getActionCommand();
 				if (s.equals("Parameters")) {
-					// create a dialog Box
-					JDialog d = new JDialog(mainframe, "Parameters");
 
-					JPanel dialogPanel = new JPanel(new BorderLayout());
+					if (!parameterDialogOpen) {
+						// create a dialog Box
+						JDialog d = new JDialog(mainframe, "Parameters");
 
-					JPanel parameterPanel = new ParametersPanel(Visor.this.parameterManager, Visor.this.iss);
-					dialogPanel.setBorder(
-							BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20), new EtchedBorder()));
+						d.addWindowListener(new WindowAdapter() {
+							public void windowClosed(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
 
-					dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
+							public void windowClosing(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
+						});
 
-					d.add(dialogPanel);
+						JPanel dialogPanel = new JPanel(new BorderLayout());
 
-					Toolkit myScreen = Toolkit.getDefaultToolkit();
-					Dimension screenSize = myScreen.getScreenSize();
-					int screenHeight = screenSize.height;
-					int screenWidth = screenSize.width;
+						JPanel parameterPanel = new ParametersPanel(Visor.this.parameterManager, Visor.this.iss);
+						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
+								new EtchedBorder()));
 
-					// setsize of dialog
-					d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
 
-					// set visibility of dialog
-					d.setVisible(true);
+						d.add(dialogPanel);
+
+						Toolkit myScreen = Toolkit.getDefaultToolkit();
+						Dimension screenSize = myScreen.getScreenSize();
+						int screenHeight = screenSize.height;
+						int screenWidth = screenSize.width;
+
+						// setsize of dialog
+						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+
+						// set visibility of dialog
+						d.setVisible(true);
+
+						parameterDialogOpen = true;
+
+					}
 				}
 			}
 		});
@@ -646,8 +753,16 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		beatsView.updateToneMap(toneMap);
 	}
 
+	public void updateChromaPreView(ToneMap toneMap, ToneTimeFrame ttf) {
+		chromaPreView.updateToneMap(ttf);
+	}
+
 	public void updateChromaPreView(ToneMap toneMap) {
 		chromaPreView.updateToneMap(toneMap);
+	}
+
+	public void updateChromaPostView(ToneMap toneMap, ToneTimeFrame ttf) {
+		chromaPostView.updateToneMap(ttf);
 	}
 
 	public void updateChromaPostView(ToneMap toneMap) {

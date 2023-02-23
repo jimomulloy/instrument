@@ -58,6 +58,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CHROMA_ROOT_NOTE = "perception.hearing.chroma.rootNote";
 	public static final String PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH = "perception.hearing.chroma.harmonicsSwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CEILING_SWITCH = "perception.hearing.chroma.ceilingSwitch";
+	public static final String PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH = "perception.hearing.chroma.chordifySwitch";
 
 	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";
 	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";
@@ -136,5 +137,9 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_PITCH_AXIS_RANGE = "monitor.view.pitchAxisRange";
 
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
+	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";
+	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";
+	public static final String ACTUATION_VOICE_PLAY_MIDI = "actuation.voice.playMidi";
+	public static final String ACTUATION_VOICE_PLAY_AUDIO = "actuation.voice.playAudio";
 
 }

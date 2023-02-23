@@ -147,6 +147,7 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox cqPostHarmonicsSwitchCB;
 	private JCheckBox cqPreSharpenSwitchCB;
 	private JCheckBox cqPostSharpenSwitchCB;
+	private AbstractButton chromaChordifySwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -925,6 +926,22 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH));
 		cqSwitchPanel.add(chromaCeilingSwitchCB);
 
+		chromaChordifySwitchCB = new JCheckBox("chromaChordifySwitchCB");
+		chromaChordifySwitchCB.setText("Chroma Chordify Switch");
+		chromaChordifySwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		chromaChordifySwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
+		cqSwitchPanel.add(chromaChordifySwitchCB);
+
 		parameterPanel.add(cqSwitchPanel);
 
 		noiseFloorSlider = new JSlider(100, 500);
@@ -936,8 +953,6 @@ public class ParametersPanel extends JPanel {
 				int newValue = source.getValue();
 				double actualValue = newValue / 100.0;
 				noiseFloorFactorLabel.setText(String.format("Noise floor factor (%.2f):", actualValue));
-
-				System.out.println("New noise floor factor: " + actualValue);
 				float noiseFloorFactor = (float) actualValue;
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR,
 						Float.toString(noiseFloorFactor));
@@ -2317,6 +2332,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH));
 		chromaCeilingSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH));
+		chromaChordifySwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 
 	}
 }

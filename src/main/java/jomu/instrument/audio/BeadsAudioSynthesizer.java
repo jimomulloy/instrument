@@ -324,6 +324,11 @@ public class BeadsAudioSynthesizer implements AudioSynthesizer, ToneMapConstants
 						}
 					}
 
+					double lowVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
+					double highVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();
 					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
@@ -343,12 +348,24 @@ public class BeadsAudioSynthesizer implements AudioSynthesizer, ToneMapConstants
 					for (ToneMapElement toneMapElement : ttfElements) {
 						int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 						NoteStatusElement noteStatusElement = noteStatus.getNoteStatusElement(note);
-						double amp = toneMapElement.amplitude;
+						double amplitude = toneMapElement.amplitude;
+						float gain = 0.0F;
+						if (amplitude > highVoiceThreshold) {
+							gain = 1.0F;
+						} else if (amplitude <= lowVoiceThreshold) {
+							gain = 0.0F;
+						} else {
+							gain = (float) (Math
+									.log1p((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+									/ Math.log1p(1.0000001));
+							gain = (float) Math.max(0, gain);
+							gain = (float) (((amplitude - lowVoiceThreshold)
+									/ (highVoiceThreshold - lowVoiceThreshold)));
+						}
 
 						if (noteStatusElement.state != OFF) {
-							double power = amp / maxAmp;
-							audioStream.getSineGain()[toneMapElement.getIndex()].setGain((float) power);
-							lastAmps[toneMapElement.getIndex()] = power; // ampAdjust;
+							audioStream.getSineGain()[toneMapElement.getIndex()].setGain(gain);
+							lastAmps[toneMapElement.getIndex()] = gain; // ampAdjust;
 						} else {
 							audioStream.getSineGain()[toneMapElement.getIndex()].setGain(0F);
 							lastAmps[toneMapElement.getIndex()] = 0F;

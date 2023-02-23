@@ -140,6 +140,11 @@ public class ChromaView extends JComponent implements ComponentListener {
 		}
 	}
 
+	public void updateToneMap(ToneTimeFrame ttf) {
+		renderToneMap(ttf);
+		repaint();
+	}
+
 	public void renderToneMap(ToneMap toneMap) {
 		this.toneMap = toneMap;
 		double timeStart = timeAxisStart / 1000;
@@ -167,6 +172,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 			this.currentWidth = getWidth();
 			this.currentHeight = getHeight();
 		}
+		drawGrid();
 		if (ttf != null) {
 
 			double timeAxisRange = parameterManager
@@ -243,7 +249,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 				}
 			}
 		}
-		drawGrid();
 	}
 
 	private void drawGrid() {

@@ -2,7 +2,6 @@ package jomu.instrument.perception;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,10 +19,9 @@ import org.springframework.stereotype.Component;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.filters.HighPass;
 import be.tarsos.dsp.filters.LowPassFS;
-import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
-import be.tarsos.dsp.writer.WriterProcessor;
+import be.tarsos.dsp.io.jvm.WaveformWriter;
 import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -31,7 +29,6 @@ import jomu.instrument.audio.features.TarsosFeatureSource;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.Workspace;
-import net.beadsproject.beads.core.AudioContext;
 
 @ApplicationScoped
 @Component
@@ -95,13 +92,13 @@ public class Hearing implements Organ {
 		audioStream.start();
 	}
 
-	public void startAudioLineStream(String fileName) throws LineUnavailableException, IOException {
+	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		System.out.println(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
-		audioStream.initialiseMicrophoneStream(fileName);
+		audioStream.initialiseMicrophoneStream(recordFile);
 
 		Instrument.getInstance().getCoordinator().getCortex();
 		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
@@ -121,7 +118,6 @@ public class Hearing implements Organ {
 
 	private class AudioStream {
 
-		private AudioContext ac;
 		private AudioFeatureProcessor audioFeatureProcessor;
 		private String streamId;
 		private TarsosFeatureSource tarsosFeatureSource;
@@ -138,17 +134,9 @@ public class Hearing implements Organ {
 		}
 
 		public void close() {
-			if (ac != null) {
-				ac.stop();
-				ac = null;
-			} else if (dispatcher != null) {
-				// dispatcher.stop();
+			if (dispatcher != null) {
 				dispatcher = null;
 			}
-		}
-
-		public AudioContext getAc() {
-			return ac;
 		}
 
 		public AudioFeatureProcessor getAudioFeatureProcessor() {
@@ -195,7 +183,7 @@ public class Hearing implements Organ {
 
 		}
 
-		public void initialiseMicrophoneStream(String fileName) throws LineUnavailableException, IOException {
+		public void initialiseMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			Instrument.getInstance().getConsole().getVisor().clearView();
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
@@ -210,6 +198,13 @@ public class Hearing implements Organ {
 			JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			// create a new dispatcher
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+
+			if (recordFile != null) {
+				AudioFormat recordFormat = new AudioFormat(sampleRate, 16, 1, true, true);
+				WaveformWriter writer = new WaveformWriter(recordFormat, recordFile);
+				dispatcher.addAudioProcessor(writer);
+			}
+
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
@@ -225,31 +220,19 @@ public class Hearing implements Organ {
 			if (audioLowPass < 0) {
 				dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
 			}
+
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
-			// Output
-			if (fileName != null) {
-				File file = new File(fileName);
-				file.createNewFile();
-				RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw");
-				final TarsosDSPAudioFormat outputFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, false);
-				WriterProcessor writer = new WriterProcessor(outputFormat, outputFile);
-				dispatcher.addAudioProcessor(writer);
-			}
 		}
 
 		public void start() {
-			if (ac != null) {
-				ac.start();
-			} else if (dispatcher != null) {
+			if (dispatcher != null) {
 				new Thread(dispatcher, "Audio dispatching").start();
 			}
 		}
 
 		public void stop() {
-			if (ac != null) {
-				ac.stop();
-			} else if (dispatcher != null) {
+			if (dispatcher != null) {
 				dispatcher.stop();
 			}
 		}
@@ -259,6 +242,5 @@ public class Hearing implements Organ {
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
-
 	}
 }

@@ -125,6 +125,7 @@ public class BeatsView extends JComponent implements ComponentListener {
 		this.timeAxisEnd = this.timeAxisStart
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		System.out.println("!!udpate tm time axis: " + toneMap + " ," + this.timeAxisStart + ", " + this.timeAxisEnd);
+
 		if (toneMap != null) {
 			renderToneMap(toneMap);
 		}
@@ -167,6 +168,7 @@ public class BeatsView extends JComponent implements ComponentListener {
 			this.currentWidth = getWidth();
 			this.currentHeight = getHeight();
 		}
+		drawGrid();
 		if (ttf != null) {
 
 			double timeAxisRange = parameterManager
@@ -240,7 +242,6 @@ public class BeatsView extends JComponent implements ComponentListener {
 				}
 			}
 		}
-		drawGrid();
 	}
 
 	private void drawGrid() {

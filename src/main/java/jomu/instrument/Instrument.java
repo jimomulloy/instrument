@@ -53,16 +53,17 @@ public class Instrument implements Organ, InstrumentFactory {
 	}
 
 	public void initialise() {
-		storage.initialise();
+		System.out.println(">>Init INSTRUMENT !!");
 		controller.initialise();
+		storage.initialise();
 		workspace.initialise();
 		console.initialise();
 		coordinator.initialise();
 	}
 
 	public void start() {
-		storage.start();
 		controller.start();
+		storage.start();
 		workspace.start();
 		console.start();
 		coordinator.start();

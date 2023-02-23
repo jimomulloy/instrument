@@ -11,6 +11,7 @@ import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.BeadsAudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
@@ -54,9 +55,14 @@ public class Voice implements Organ {
 	}
 
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
-		System.out.println(">>send!!!: " + toneTimeFrame.getTimeSet().getStartTime());
-		// writeMidi(toneTimeFrame, streamId, sequence);
-		writeAudio(toneTimeFrame, streamId, sequence);
+		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_MIDI)) {
+			System.out.println("!!>>WRITE MIDI");
+			writeMidi(toneTimeFrame, streamId, sequence);
+		}
+		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_AUDIO)) {
+			System.out.println("!!>>WRITE MIDI");
+			writeAudio(toneTimeFrame, streamId, sequence);
+		}
 	}
 
 	@Override
