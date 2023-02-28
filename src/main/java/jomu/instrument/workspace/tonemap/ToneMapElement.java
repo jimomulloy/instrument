@@ -72,7 +72,8 @@ public class ToneMapElement {
 
 	@Override
 	public String toString() {
-		return "ToneMapElement [amplitude=" + amplitude + ", noteState=" + noteState + ", index=" + index + "]";
+		return "ToneMapElement [amplitude=" + amplitude + ", noteState=" + noteState + ", index=" + index + ", pitch="
+				+ pitchIndex + "]";
 	}
 
 } // End ToneMapElement

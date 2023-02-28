@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
-import jomu.instrument.audio.BeadsAudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
+import jomu.instrument.audio.TarsosAudioSynthesizer;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
@@ -24,7 +24,7 @@ public class Voice implements Organ {
 	private ParameterManager parameterManager;
 
 	public AudioSynthesizer buildAudioSynthesizer() {
-		audioSynthesizer = new BeadsAudioSynthesizer(parameterManager);
+		audioSynthesizer = new TarsosAudioSynthesizer(parameterManager);
 		return this.audioSynthesizer;
 	}
 

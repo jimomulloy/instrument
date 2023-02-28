@@ -1,6 +1,7 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -8,6 +9,8 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioHpsProcessor extends ProcessorCommon {
+
+	private static final Logger LOG = Logger.getLogger(AudioHpsProcessor.class.getName());
 
 	public AudioHpsProcessor(NuCell cell) {
 		super(cell);
@@ -17,7 +20,7 @@ public class AudioHpsProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(">>AudioHpsProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.info(">>AudioHpsProcessor accept: " + sequence + ", streamId: " + streamId);
 		int hpsHarmonicMedian = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_MEDIAN);
 		int hpsPercussionMedian = parameterManager
@@ -47,25 +50,41 @@ public class AudioHpsProcessor extends ProcessorCommon {
 		hpsPercussionToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		hpsHarmonicMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		hpsPercussionMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-		System.out.println(">>mHPS MAKE TM: " + sequence);
 
 		hpsPercussionToneMap.getTimeFrame().hpsPercussionMedian(hpsPercussionMedian, hpsMedianSwitch);
 
-		if (sequence > hpsHarmonicMedian / 2) {
-			int tmIndex = sequence + 1 - hpsHarmonicMedian / 2;
+		int tmIndex = sequence - hpsHarmonicMedian / 2;
+		if (tmIndex > 0) {
 			ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(tmIndex);
 			ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(tmIndex);
-			System.out.println(">>mHPS GET TM: " + tmIndex);
 			hpsHarmonicToneMap.getTimeFrame(tmIndex).hpsHarmonicMedian(cqToneMap, sequence, hpsHarmonicMedian,
 					hpsMedianSwitch);
-			System.out.println(">>mHPS GOT TM: " + (tmIndex));
 			hpsToneMap.getTimeFrame(tmIndex).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
 					(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0);
 			hpsHarmonicMaskedToneMap.getTimeFrame(tmIndex).hpsHarmonicMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
 					hpsMaskFactor);
 			hpsPercussionMaskedToneMap.getTimeFrame(tmIndex).hpsPercussionMask(hpsHarmonicTimeFrame,
 					hpsPercussionTimeFrame, hpsMaskFactor);
+			cell.send(streamId, tmIndex);
 		}
+
+		if (isClosing(streamId, sequence)) {
+			for (int i = tmIndex + 1; i <= sequence; i++) {
+				ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(i);
+				ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(i);
+				hpsHarmonicToneMap.getTimeFrame(i).hpsHarmonicMedian(cqToneMap, sequence, hpsHarmonicMedian,
+						hpsMedianSwitch);
+				hpsToneMap.getTimeFrame(i).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
+						(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0);
+				hpsHarmonicMaskedToneMap.getTimeFrame(i).hpsHarmonicMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
+						hpsMaskFactor);
+				hpsPercussionMaskedToneMap.getTimeFrame(i).hpsPercussionMask(hpsHarmonicTimeFrame,
+						hpsPercussionTimeFrame, hpsMaskFactor);
+
+				cell.send(streamId, i);
+			}
+		}
+		//
 		console.getVisor().updateToneMapView(hpsHarmonicToneMap, this.cell.getCellType().toString() + "_HARMONIC");
 		console.getVisor().updateToneMapView(hpsPercussionToneMap, this.cell.getCellType().toString() + "_PERCUSSION");
 		console.getVisor().updateToneMapView(hpsHarmonicMaskedToneMap,
@@ -74,6 +93,5 @@ public class AudioHpsProcessor extends ProcessorCommon {
 				this.cell.getCellType().toString() + "_PERCUSSION_MASK");
 		console.getVisor().updateToneMapView(hpsToneMap, this.cell.getCellType().toString());
 
-		cell.send(streamId, sequence);
 	}
 }

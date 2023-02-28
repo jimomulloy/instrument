@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.Console;
@@ -34,15 +35,20 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 	@Override
 	abstract public void accept(List<NuMessage> messages) throws Exception;
 
-	static String buildToneMapKey(CellTypes cellType, String streamId) {
+	final static String buildToneMapKey(CellTypes cellType, String streamId) {
 		return cellType + ":" + streamId;
 	}
 
-	static String buildToneMapKey(String tmType, String streamId) {
+	final static String buildToneMapKey(String tmType, String streamId) {
 		return tmType + ":" + streamId;
 	}
 
-	String getMessagesStreamId(List<NuMessage> messages) throws Exception {
+	final boolean isClosing(String streamId, int sequence) {
+		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+		return (afp == null || (afp.isClosed() && afp.isLastSequence(sequence)));
+	}
+
+	final String getMessagesStreamId(List<NuMessage> messages) throws Exception {
 		Optional<String> streamId = messages.stream().findAny().map(message -> message.streamId);
 		if (!streamId.isPresent()) {
 			// TODO exception handling in API
@@ -51,7 +57,7 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 		return streamId.get();
 	}
 
-	int getMessagesSequence(List<NuMessage> messages) throws Exception {
+	final int getMessagesSequence(List<NuMessage> messages) throws Exception {
 		Optional<Integer> sequence = messages.stream().findAny().map(message -> message.sequence);
 		if (!sequence.isPresent()) {
 			// TODO exception handling in API
@@ -60,7 +66,7 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 		return sequence.get();
 	}
 
-	static double[] convertFloatsToDoubles(float[] input) {
+	final static double[] convertFloatsToDoubles(float[] input) {
 		if (input == null) {
 			return null; // Or throw an exception - your choice
 		}
@@ -71,7 +77,7 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 		return output;
 	}
 
-	static float[] convertDoublesToFloat(double[] input) {
+	final static float[] convertDoublesToFloat(double[] input) {
 		if (input == null) {
 			return null; // Or throw an exception - your choice
 		}

@@ -106,8 +106,6 @@ public class ToneMapView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.minCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET);
 		this.maxCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE);
-		System.out.println("!!udpate tm time axis: " + toneMap + " ," + this.timeAxisStart + ", " + this.timeAxisEnd);
-		System.out.println("!!udpate tm pitch axis: " + toneMap + " ," + this.minCents + ", " + this.maxCents);
 		if (toneMap != null) {
 			renderToneMap(toneMap);
 		}

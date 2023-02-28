@@ -11,7 +11,7 @@ public class Atlas {
 
 	public ToneMap getToneMap(String key) {
 		if (!toneMaps.containsKey(key)) {
-			toneMaps.put(key, new ToneMap(key));
+			putToneMap(key, new ToneMap(key));
 		}
 		return toneMaps.get(key);
 	}
@@ -30,5 +30,13 @@ public class Atlas {
 
 	public void removeToneMap(String key) {
 		this.toneMaps.remove(key);
+	}
+
+	public void removeToneMapsByStreamId(String streamId) {
+		for (String key : toneMaps.keySet()) {
+			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
+				this.toneMaps.remove(key);
+			}
+		}
 	}
 }

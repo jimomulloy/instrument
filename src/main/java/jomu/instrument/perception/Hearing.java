@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.sound.sampled.AudioFormat;
@@ -33,6 +34,8 @@ import jomu.instrument.workspace.Workspace;
 @ApplicationScoped
 @Component
 public class Hearing implements Organ {
+
+	private static final Logger LOG = Logger.getLogger(Hearing.class.getName());
 
 	public static final float AUDIO_HIGHPASS_MAX = 20000.0F;
 
@@ -80,9 +83,13 @@ public class Hearing implements Organ {
 
 	public void startAudioFileStream(String fileName)
 			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		if (streamId != null) {
+			LOG.info(">>remove last stream: " + streamId);
+			workspace.getAtlas().removeToneMapsByStreamId(streamId);
+		}
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
-		System.out.println(">>!!hearing initialise: " + streamId);
+		LOG.info(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
 		audioStream.initialiseAudioFileStream(fileName);
@@ -93,9 +100,13 @@ public class Hearing implements Organ {
 	}
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
+		if (streamId != null) {
+			LOG.info(">>remove last stream: " + streamId);
+			workspace.getAtlas().removeToneMapsByStreamId(streamId);
+		}
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
-		System.out.println(">>!!hearing initialise: " + streamId);
+		LOG.info(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
 		audioStream.initialiseMicrophoneStream(recordFile);
@@ -105,7 +116,7 @@ public class Hearing implements Organ {
 		audioStream.start();
 	}
 
-	public void stopAudioLineStream() throws LineUnavailableException {
+	public void stopAudioStream() {
 		AudioStream audioStream = audioStreams.get(streamId);
 		audioStream.stop();
 
@@ -161,7 +172,6 @@ public class Hearing implements Organ {
 			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
 			AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
-			System.out.println(">>format!!: " + format);
 			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);
 			// AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
 
@@ -186,11 +196,13 @@ public class Hearing implements Organ {
 		public void initialiseMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			Instrument.getInstance().getConsole().getVisor().clearView();
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 			TargetDataLine line;
 			// line = (TargetDataLine) mixer.getLine(dataLineInfo);
 			line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
-			final int numberOfSamples = bufferSize;
+			// final int numberOfSamples = bufferSize;
+			final int numberOfSamples = (int) (0.1 * sampleRate);
 			line.open(format, numberOfSamples);
 			line.start();
 			final AudioInputStream stream = new AudioInputStream(line);
@@ -199,7 +211,10 @@ public class Hearing implements Organ {
 			// create a new dispatcher
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
-			if (recordFile != null) {
+			boolean audioRecord = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH);
+
+			if (recordFile != null && audioRecord) {
 				AudioFormat recordFormat = new AudioFormat(sampleRate, 16, 1, true, true);
 				WaveformWriter writer = new WaveformWriter(recordFormat, recordFile);
 				dispatcher.addAudioProcessor(writer);

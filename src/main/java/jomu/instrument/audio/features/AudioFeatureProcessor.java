@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -11,8 +12,11 @@ import be.tarsos.dsp.Oscilloscope;
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.perception.Hearing;
 
 public class AudioFeatureProcessor implements AudioProcessor {
+
+	private static final Logger LOG = Logger.getLogger(AudioFeatureProcessor.class.getName());
 
 	private Map<Double, AudioFeatureFrame> audioFeatureFrames = new Hashtable<>();
 	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<>();
@@ -33,14 +37,19 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	private TarsosFeatureSource tarsosFeatures;
 	private AudioFeatureFrameState state = AudioFeatureFrameState.INITIALISED;
 	private ParameterManager parameterManager;
+	private int offset;
+	private int range;
+	private Hearing hearing;
 
 	public AudioFeatureProcessor(String streamId, TarsosFeatureSource tarsosFeatures) {
 		this.streamId = streamId;
 		this.tarsosFeatures = tarsosFeatures;
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
 		this.interval = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
-		System.out.println(">>AF interval: " + interval);
+		this.offset = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET);
+		this.range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
 		addObserver(Instrument.getInstance().getConsole().getVisor());
 		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getConsole().getVisor());
 		tarsosFeatures.getDispatcher().addAudioProcessor(oscilloscope);
@@ -111,6 +120,16 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
+		LOG.info(">>process startTimeMS: " + startTimeMS);
+		if (startTimeMS < offset) {
+			LOG.info(">>process startTimeMS < offset: " + offset);
+			// TODO return true;
+		}
+		if (startTimeMS > offset + range) {
+			LOG.info(">>process startTimeMS > range: " + offset + ", " + range);
+			hearing.stopAudioStream();
+			return false;
+		}
 		if (lastTimeStamp < startTimeMS) {
 			if (maxFrames < 0 || maxFrames > frameSequence) {
 				if (firstTimeStamp == -1) {
@@ -121,8 +140,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				}
 				if (startTimeMS - lastTimeStamp >= (double) (interval + lag)) {
 					frameSequence++;
-					System.out.println(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: "
-							+ firstTimeStamp + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
+					LOG.info(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: " + firstTimeStamp
+							+ ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
 							+ ", frameSequence: " + frameSequence);
 					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
 					lastTimeStamp = startTimeMS;
@@ -141,6 +160,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
 		state = AudioFeatureFrameState.CLOSED;
+		LOG.info(">>SET LAST SEQ: " + frameSequence);
 		lastSequence = frameSequence;
 		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);
 	}

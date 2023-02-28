@@ -44,6 +44,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		for (ToneTimeFrame ttfv : timeFrames) {
 			console.getVisor().updateChromaPostView(postChromaToneMap, ttfv);
 		}
+		console.getVisor().updateChromaPostView(postChromaToneMap);
 		cell.send(streamId, sequence);
 	}
 }

@@ -9,7 +9,6 @@ import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioTunerPeaksProcessor extends ProcessorCommon {
 
@@ -35,10 +34,10 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 		boolean tpSwitchPeaks = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS);
 
-		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap integrateToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
 		ToneMap tpToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		tpToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-		ToneTimeFrame tpTimeFrame = tpToneMap.getTimeFrame(sequence);
+		tpToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
 
 		AudioTuner tuner = new AudioTuner();
 

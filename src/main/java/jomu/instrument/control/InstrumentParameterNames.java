@@ -3,7 +3,9 @@ package jomu.instrument.control;
 public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS = "perception.hearing.minimumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS = "perception.hearing.maximumFrequencyInCents";
-	public static final String PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL = "perception.hearing.auditFeatureInterval";
+	public static final String PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL = "perception.hearing.audioFeatureInterval";
+	public static final String PERCEPTION_HEARING_AUDIO_OFFSET = "perception.hearing.audioOffset";
+	public static final String PERCEPTION_HEARING_AUDIO_RANGE = "perception.hearing.audioRange";
 	public static final String PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE = "perception.hearing.defaultSampleRate";
 	public static final String PERCEPTION_HEARING_DEFAULT_WINDOW = "perception.hearing.defaultWindow";
 	public static final String PERCEPTION_HEARING_AUDIO_PD_WINDOW = "perception.hearing.audio.pd.window";
@@ -16,6 +18,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_MINIMUM_PEAK_SIZE = "perception.hearing.minPeakSize";
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
+	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
 
 	public static final String MONITOR_TONEMAP_VIEW_LOW_THRESHOLD = "monitor.tonemap.view.lowThreshold";
 	public static final String MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD = "monitor.tonemap.view.highThreshold";
@@ -35,6 +38,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS = "perception.hearing.cq.postHarmonicsSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN = "perception.hearing.cq.preSharpenSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN = "perception.hearing.cq.postSharpenSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC = "perception.hearing.cq.sharpenHarmonicSwitch";
 
 	public static final String PERCEPTION_HEARING_SP_LOW_THRESHOLD = "perception.hearing.sp.lowThreshold";
 	public static final String PERCEPTION_HEARING_SP_SIGNAL_MINIMUM = "perception.hearing.sp.signalMinimum";
@@ -80,6 +84,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_HPS_PERCUSSION_WEIGHTING = "perception.hearing.hps.percussionWeighting";
 	public static final String PERCEPTION_HEARING_HPS_SWITCH_MEDIAN = "perception.hearing.hps.medianSwitch";
 	public static final String PERCEPTION_HEARING_HPS_MASK_FACTOR = "perception.hearing.hps.maskFactor";
+
+	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitchSwitch";
 
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
 	public static final String PERCEPTION_HEARING_ONSET_EDGE_FACTOR = "perception.hearing.onset.edgeFactor";
@@ -141,5 +147,6 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";
 	public static final String ACTUATION_VOICE_PLAY_MIDI = "actuation.voice.playMidi";
 	public static final String ACTUATION_VOICE_PLAY_AUDIO = "actuation.voice.playAudio";
+	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
 
 }

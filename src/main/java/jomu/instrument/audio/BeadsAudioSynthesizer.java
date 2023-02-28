@@ -309,6 +309,7 @@ public class BeadsAudioSynthesizer implements AudioSynthesizer, ToneMapConstants
 							+ counter + ", " + toneTimeFrame);
 
 					if (toneTimeFrame == null) {
+						System.out.println(">>!!! Audio QueueConsumer CLOSE: " + this.audioStream.getStreamId());
 						this.audioStream.close();
 						running = false;
 						break;

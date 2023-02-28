@@ -98,8 +98,6 @@ public class ParametersPanel extends JPanel {
 	private JTextField tunerNormaliseThresholdInput;
 	private JTextField tunerThresholdFactorInput;
 	private JTextField tunerSignalMinimumInput;
-	private JTextField toneMapViewLowThresholdInput;
-	private JTextField toneMapViewHighThresholdInput;
 	private JSlider pitchHarmonicsSlider;
 	private JTextField pdCompressionLevelInput;
 	private JCheckBox pdCompressionSwitchCB;
@@ -148,6 +146,8 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox cqPreSharpenSwitchCB;
 	private JCheckBox cqPostSharpenSwitchCB;
 	private AbstractButton chromaChordifySwitchCB;
+	private AbstractButton integrateHpsSwitchCB;
+	private AbstractButton cqSharpenHarmonicSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -718,6 +718,22 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN));
 		cqSwitchPanel.add(cqPostSharpenSwitchCB);
 
+		cqSharpenHarmonicSwitchCB = new JCheckBox("cqSharpenHarmonicSwitchCB");
+		cqSharpenHarmonicSwitchCB.setText("CQ Sharpen Harmonic");
+		cqSharpenHarmonicSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqSharpenHarmonicSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC));
+		cqSwitchPanel.add(cqSharpenHarmonicSwitchCB);
+
 		spCompressionSwitchCB = new JCheckBox("spCompressionSwitchCB");
 		spCompressionSwitchCB.setText("SP Compression");
 		spCompressionSwitchCB.addItemListener(new ItemListener() {
@@ -941,6 +957,22 @@ public class ParametersPanel extends JPanel {
 		chromaChordifySwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		cqSwitchPanel.add(chromaChordifySwitchCB);
+
+		integrateHpsSwitchCB = new JCheckBox("integrateHpsSwitchCB");
+		integrateHpsSwitchCB.setText("Integrate HPS");
+		integrateHpsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateHpsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
+		cqSwitchPanel.add(integrateHpsSwitchCB);
 
 		parameterPanel.add(cqSwitchPanel);
 
@@ -1686,38 +1718,6 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.setLayout(new GridLayout(0, 2));
 		cqParamsPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
 
-		JLabel toneMapViewLowThresholdLabel = new JLabel("ToneMap View Low Threshold: ");
-		toneMapViewLowThresholdInput = new JTextField(4);
-		toneMapViewLowThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = toneMapViewLowThresholdInput.getText();
-				toneMapViewLowThresholdLabel.setText(String.format("ToneMap View Low Threshold  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
-
-			}
-		});
-		toneMapViewLowThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD));
-		cqParamsPanel.add(toneMapViewLowThresholdLabel);
-		cqParamsPanel.add(toneMapViewLowThresholdInput);
-
-		JLabel toneMapViewHighThresholdLabel = new JLabel("ToneMap View High Threshold: ");
-		toneMapViewHighThresholdInput = new JTextField(4);
-		toneMapViewHighThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = toneMapViewHighThresholdInput.getText();
-				toneMapViewHighThresholdLabel.setText(String.format("ToneMap View High Threshold  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
-
-			}
-		});
-		toneMapViewHighThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
-		cqParamsPanel.add(toneMapViewHighThresholdLabel);
-		cqParamsPanel.add(toneMapViewHighThresholdInput);
-
 		JLabel chromaNormaliseThresholdLabel = new JLabel("CHROMA Normalise Threshold: ");
 		chromaNormaliseThresholdInput = new JTextField(4);
 		chromaNormaliseThresholdInput.addActionListener(new ActionListener() {
@@ -2161,6 +2161,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN));
 		cqPostSharpenSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN));
+		cqSharpenHarmonicSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC));
 
 		spCompressionSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_COMPRESS));
@@ -2236,10 +2238,6 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY));
 		formantHighFreqSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH_FREQUENCY));
-		toneMapViewLowThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD));
-		toneMapViewHighThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 		cqLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 		cqThresholdFactorInput.setText(
@@ -2334,6 +2332,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH));
 		chromaChordifySwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
+		integrateHpsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
 
 	}
 }

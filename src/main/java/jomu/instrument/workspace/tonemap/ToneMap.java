@@ -40,14 +40,6 @@ public class ToneMap {
 		return key;
 	}
 
-	public ToneMap cens() {
-		return this;
-	}
-
-	public ToneMap chroma() {
-		return this;
-	}
-
 	/**
 	 * Clear current ToneMap objects after Reset
 	 */
@@ -74,18 +66,6 @@ public class ToneMap {
 
 	public void deleteTimeFrame(Double time) {
 		toneMapStore.remove(time);
-	}
-
-	public ToneMap esacf() {
-		return this;
-	}
-
-	public ToneMap formants() {
-		return this;
-	}
-
-	public ToneMap gammatron() {
-		return this;
 	}
 
 	public ToneTimeFrame getNextTimeFrame(Double key) {
@@ -151,14 +131,6 @@ public class ToneMap {
 		return headMap.toArray(new ToneTimeFrame[headMap.size()]);
 	}
 
-	public ToneMap harmonics() {
-		return this;
-	}
-
-	public ToneMap hps() {
-		return this;
-	}
-
 	public void initialise() {
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
@@ -167,73 +139,9 @@ public class ToneMap {
 		return this;
 	}
 
-	public ToneMap loadACF() {
-		return this;
-	}
-
-	public ToneMap loadCQ() {
-		return this;
-	}
-
-	public ToneMap logCompress() {
-		return this;
-	}
-
-	public ToneMap mfcc() {
-		return this;
-	}
-
-	public ToneMap noiseRemove() {
-		return this;
-	}
-
-	public ToneMap normalise() {
-		return this;
-	}
-
-	public ToneMap noteTrack() {
-		return this;
-	}
-
-	public ToneMap peakPick() {
-		return this;
-	}
-
-	public ToneMap putFrame() {
-		return this;
-	}
-
-	public ToneMap quantize() {
-		return this;
-	}
-
 	public ToneMap reset() {
 		this.getTimeFrame().reset();
 		return this;
 	}
 
-	public ToneMap salience() {
-		return this;
-	}
-
-	public void setThreshhold(int lowThreshhold, int highThreshhold) {
-		// tunerModel.setThreshhold(lowThreshhold, highThreshhold);
-	}
-
-	public ToneMap smooth() {
-		return this;
-	}
-
-	public ToneMap timbre() {
-		return this;
-	}
-
-	public ToneMap tune() {
-		return this;
-	}
-
-	public ToneMap whiten() {
-		return this;
-	}
-
-} // End ToneMap
+}

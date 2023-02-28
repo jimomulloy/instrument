@@ -70,22 +70,22 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioCQCell, audioPreChromaCell);
 		Weaver.connect(audioCQCell, audioHpsCell);
 		Weaver.connect(audioCQCell, audioOnsetCell);
-		Weaver.connect(audioCQCell, audioTunerPeaksCell);
 		//
-		Weaver.connect(audioOnsetCell, audioTunerPeaksCell);
-		Weaver.connect(audioBeatCell, audioTunerPeaksCell);
-		Weaver.connect(audioPitchCell, audioTunerPeaksCell);
-		Weaver.connect(audioHpsCell, audioTunerPeaksCell);
-		Weaver.connect(audioSpectralPeaksCell, audioTunerPeaksCell);
+		Weaver.connect(audioCQCell, audioIntegrateCell);
+		Weaver.connect(audioOnsetCell, audioIntegrateCell);
+		Weaver.connect(audioBeatCell, audioIntegrateCell);
+		Weaver.connect(audioPitchCell, audioIntegrateCell);
+		Weaver.connect(audioHpsCell, audioIntegrateCell);
+		Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
 		//
-		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
+		Weaver.connect(audioIntegrateCell, audioTunerPeaksCell);
 		//
 		Weaver.connect(audioTunerPeaksCell, audioNotateCell);
 		//
-		Weaver.connect(audioNotateCell, audioIntegrateCell);
-		Weaver.connect(audioPostChromaCell, audioIntegrateCell);
+		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
 		//
-		Weaver.connect(audioIntegrateCell, audioSinkCell);
+		Weaver.connect(audioNotateCell, audioSinkCell);
+		Weaver.connect(audioPostChromaCell, audioSinkCell);
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package jomu.instrument.audio;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -101,14 +103,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 */
 	public MidiSynthesizer(ParameterManager parameterManager) {
 		this.parameterManager = parameterManager;
-	}
-
-	/**
-	 * Clear current MidiModel objects after Reset
-	 */
-	public void clear() {
-		close();
-		noteSequence = null;
 	}
 
 	// private int timeRange;
@@ -212,47 +206,124 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if ((synthesizer = MidiSystem.getSynthesizer()) == null) {
 					return false;
 				}
-				System.out.println(">>midi synth: " + synthesizer.getDeviceInfo());
 			}
 			synthesizer.open();
-			sequencer = MidiSystem.getSequencer();
+
+			Soundbank sb = null;
+
+			try {
+				file = new File(
+						parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
+				if (file.exists()) {
+					sb = MidiSystem.getSoundbank(file);
+					synthesizer.loadAllInstruments(sb);
+					instruments = synthesizer.getLoadedInstruments();
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			if (instruments == null || instruments.length == 0) {
+				sb = synthesizer.getDefaultSoundbank();
+				if (sb != null) {
+					instruments = synthesizer.getDefaultSoundbank().getInstruments();
+				} else {
+					instruments = synthesizer.getAvailableInstruments();
+				}
+			}
+
+			if (instruments == null || instruments.length == 0) {
+				return false;
+			}
+
+			Instrument melodyInstrument = instruments[0];
+			for (Instrument instrument : instruments) {
+				if (instrument.getName().contains("Church O")) {
+					melodyInstrument = instrument;
+					break;
+				}
+			}
+
+			synthesizer.loadInstrument(melodyInstrument);
+			MidiChannel midiChannels[] = synthesizer.getChannels();
+			numChannels = midiChannels.length;
+			if (numChannels == 0) {
+				return false;
+			}
+			channels = new ChannelData[midiChannels.length];
+			if (channels.length == 0)
+				return false;
+			for (int i = 0; i < channels.length; i++) {
+				channels[i] = new ChannelData(midiChannels[i], i);
+			}
+			cc = channels[0];
+			cc.channel.allNotesOff();
+			cc.channel.allSoundOff();
+			cc.channel.resetAllControllers();
+			// cc.channel.controlChange(controllerNum, ctrlValue);
+			// cc.channel.setChannelPressure(pressure);
+			// cc.channel.setPolyPressure(noteNum, pressure);
+			// cc.channel.programChange(program); // In "currently selected" bank - where
+			// does that state live?
+			// cc.channel.programChange(bank, program);
+			// cc.channel.setPitchBend(bendVal);
+			boolean soloState = false, muteState = false, omniState = false, monoState = false,
+					localControlState = true;
+			cc.channel.setSolo(soloState);
+			cc.channel.setMute(muteState);
+			cc.channel.setOmni(omniState);
+			cc.channel.setMono(monoState);
+			cc.channel.localControl(localControlState);
+
+			cc.channel.programChange(melodyInstrument.getPatch().getBank(), melodyInstrument.getPatch().getProgram());
+
+			// sequencer = MidiSystem.getSequencer();
+			sequencer = MidiSystem.getSequencer(false);
 			sequencer.addMetaEventListener(new ProcessMeta());
-			System.out.println("!!>>TAKE MIDI open()");
 			sequence = new Sequence(Sequence.PPQ, 10);
+
+			/*
+			 * To free system resources, it is recommended to close the synthesizer and
+			 * sequencer properly. To accomplish this, we register a Listener to the
+			 * Sequencer. It is called when there are "meta" events. Meta event 47 is end of
+			 * track. Thanks to Espen Riskedal for finding this trick.
+			 */
+			sequencer.addMetaEventListener(new MetaEventListener() {
+				public void meta(final MetaMessage event) {
+					if (event.getType() == 47) {
+						sequencer.close();
+						if (synthesizer != null) {
+							synthesizer.close();
+						}
+					}
+				}
+			});
 		} catch (Exception ex) {
 			return false;
 		}
-		Soundbank sb = synthesizer.getDefaultSoundbank();
-		if (sb != null) {
-			instruments = synthesizer.getDefaultSoundbank().getInstruments();
-			if (instruments.length == 0) {
-				return false;
-			}
-			synthesizer.loadInstrument(instruments[0]);
-		} else {
-			instruments = synthesizer.getAvailableInstruments();
-
-		}
-		MidiChannel midiChannels[] = synthesizer.getChannels();
-		numChannels = midiChannels.length;
-		if (numChannels == 0) {
-			return false;
-		}
-		channels = new ChannelData[midiChannels.length];
-		if (channels.length == 0)
-			return false;
-		for (int i = 0; i < channels.length; i++) {
-			channels[i] = new ChannelData(midiChannels[i], i);
-		}
-		cc = channels[0];
-
 		return true;
+	}
+
+	private File getFileFromResource(String fileName) throws URISyntaxException {
+
+		ClassLoader classLoader = getClass().getClassLoader();
+		URL resource = classLoader.getResource(fileName);
+		if (resource == null) {
+			throw new IllegalArgumentException("file not found! " + fileName);
+		} else {
+
+			// failed if files have whitespaces or special characters
+			// return new File(resource.getFile());
+
+			return new File(resource.toURI());
+		}
+
 	}
 
 	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId, int sequence)
 			throws InvalidMidiDataException, MidiUnavailableException {
 
-		System.out.println("midi write 1");
 		if (!midiStreams.containsKey(streamId)) {
 			midiStreams.put(streamId, new MidiStream(streamId));
 		}
@@ -298,8 +369,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 */
 	public boolean writeSequence(ToneMap toneMap, NoteList noteList) {
 
-		System.out.println("midi write 1");
-
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 
 		TimeSet timeSet = toneTimeFrame.getTimeSet();
@@ -310,14 +379,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (!buildNoteSequence(noteList))
 			return false;
 
-		System.out.println("midi write 2");
-
 		try {
 			// sequence = new Sequence(Sequence.PPQ, 10);
 		} catch (Exception ex) {
 			return false;
 		}
-		System.out.println("midi write 3");
 
 		track = sequence.createTrack();
 		long startTime = System.currentTimeMillis();
@@ -325,8 +391,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 		// add a program change right at the beginning of
 		// the track for the current instrument
 		createEvent(PROGRAM, cc.program + 1, 1, 127);
-
-		System.out.println("midi write 4");
 
 		for (int i = 0; i < noteSequence.size(); i++) {
 			noteSequenceElement = noteSequence.get(i);
@@ -340,7 +404,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					return false;
 
 		}
-		System.out.println("midi write 5");
 		return true;
 	}
 
@@ -421,12 +484,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 				boolean running = true;
 				while (running) {
 					MidiQueueMessage mqm = bq.take();
-					System.out.println("!!>>TAKE MIDI 1");
 					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 
 					if (toneTimeFrame == null) {
+						cc.channel.allNotesOff();
+						cc.channel.allSoundOff();
+						cc.channel.resetAllControllers();
 						this.midiStream.close();
-						System.out.println("!!>>TAKE MIDI midiStream.close()");
+						System.out.println(">> midiStream.close(): " + this.midiStream.streamId);
 						running = false;
 						break;
 					}
@@ -436,8 +501,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (sampleTime != 0) {
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 					}
-
-					System.out.println("!!>>TAKE MIDI 2");
 
 					double lowVoiceThreshold = parameterManager
 							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -495,7 +558,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 									e.printStackTrace();
 								}
 								midiMessages.add(midiMessage);
-								System.out.println("!!>>TAKE MIDI XX");
 								lastNotes.add(note);
 							}
 							break;
@@ -528,13 +590,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 					}
 
 					sampleTime = timeSet.getSampleTimeSize();
-					System.out.println("!!>>TAKE MIDI 3");
 
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
-			System.out.println(">>!!! midi QueueConsumer EXIT THREAD: " + Thread.currentThread());
 		}
 	}
 
@@ -580,7 +640,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.channelId = 0;
 			bq = new DelayQueue<>(); // LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
-			System.out.println("!!>>TAKE MIDI MidiStream: " + streamId);
 		}
 
 		public void close() {

@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -136,6 +138,12 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JTextField voicePlayerLowThresholdInput;
 	private JTextField voicePlayerHighThresholdInput;
 	private JTextField voicePlayerDelayInput;
+	private JTextField frameNumberInput;
+	private JTextField toneMapViewLowThresholdInput;
+	private JTextField toneMapViewHighThresholdInput;
+	private JTextField audioOffsetInput;
+	private JTextField audioRangeInput;
+	private JCheckBox recordSwitchCB;
 
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
@@ -285,6 +293,20 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		JPanel graphControlPanel = new JPanel();
 
+		JLabel frameNumberLabel = new JLabel("Frame #: ");
+		frameNumberInput = new JTextField(4);
+		frameNumberInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = frameNumberInput.getText();
+				// parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
+				// newValue);
+			}
+		});
+		frameNumberInput.setText("0");
+		graphControlPanel.add(frameNumberLabel);
+		graphControlPanel.add(frameNumberInput);
+
 		toneMapViewComboBox = new JComboBox<>();
 
 		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
@@ -306,7 +328,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			public void actionPerformed(ActionEvent e) {
 				String value = String.valueOf(toneMapViewComboBox.getSelectedItem());
 				if (value != null) {
-					System.out.println(">>SET TM VIEW: " + value);
 					currentToneMapViewType = value;
 					Visor.this.resetToneMapView();
 				}
@@ -321,8 +342,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		timeAxisOffsetInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = timeAxisOffsetInput.getText();
-				timeAxisOffsetLabel.setText(String.format("Time Axis Offset ms (%s):", newValue));
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, newValue);
 				Visor.this.toneMapView.updateAxis();
 				Visor.this.chromaPreView.updateAxis();
@@ -331,6 +352,26 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				Visor.this.resetToneMapView();
 			}
 		});
+
+		timeAxisOffsetInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+				Visor.this.resetToneMapView();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+
 		timeAxisOffsetInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET));
 		graphControlPanel.add(timeAxisOffsetLabel);
@@ -339,10 +380,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JLabel pitchAxisOffsetLabel = new JLabel("Pitch Axis Offset ms: ");
 		pitchAxisOffsetInput = new JTextField(4);
 		pitchAxisOffsetInput.addActionListener(new ActionListener() {
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = pitchAxisOffsetInput.getText();
-				pitchAxisOffsetLabel.setText(String.format("Pitch Axis Offset ms (%s):", newValue));
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET, newValue);
 				Visor.this.toneMapView.updateAxis();
 				Visor.this.chromaPreView.updateAxis();
@@ -351,6 +393,25 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 			}
 		});
+
+		pitchAxisOffsetInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+
 		pitchAxisOffsetInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET));
 		graphControlPanel.add(pitchAxisOffsetLabel);
@@ -361,14 +422,31 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		timeAxisRangeInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = timeAxisRangeInput.getText();
-				timeAxisRangeLabel.setText(String.format("Time Axis Range ms (%s):", newValue));
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, newValue);
 				Visor.this.toneMapView.updateAxis();
 				Visor.this.chromaPreView.updateAxis();
 				Visor.this.chromaPostView.updateAxis();
 				Visor.this.beatsView.updateAxis();
 
+			}
+		});
+		timeAxisRangeInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
 			}
 		});
 		timeAxisRangeInput
@@ -381,8 +459,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		pitchAxisRangeInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = pitchAxisRangeInput.getText();
-				pitchAxisRangeLabel.setText(String.format("Pitch Axis Range ms (%s):", newValue));
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, newValue);
 				Visor.this.toneMapView.updateAxis();
 				Visor.this.chromaPreView.updateAxis();
@@ -390,10 +468,99 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				Visor.this.beatsView.updateAxis();
 			}
 		});
+		pitchAxisRangeInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
 		pitchAxisRangeInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
 		graphControlPanel.add(pitchAxisRangeLabel);
 		graphControlPanel.add(pitchAxisRangeInput);
+
+		JLabel toneMapViewLowThresholdLabel = new JLabel("View Low Threshold: ");
+		toneMapViewLowThresholdInput = new JTextField(4);
+		toneMapViewLowThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+		});
+		toneMapViewLowThresholdInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+		toneMapViewLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD));
+		graphControlPanel.add(toneMapViewLowThresholdLabel);
+		graphControlPanel.add(toneMapViewLowThresholdInput);
+
+		JLabel toneMapViewHighThresholdLabel = new JLabel("View High Threshold: ");
+		toneMapViewHighThresholdInput = new JTextField(4);
+		toneMapViewHighThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+		});
+		toneMapViewHighThresholdInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+		toneMapViewHighThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
+		graphControlPanel.add(toneMapViewHighThresholdLabel);
+		graphControlPanel.add(toneMapViewHighThresholdInput);
 
 		panel.add(graphControlPanel, BorderLayout.CENTER);
 
@@ -409,7 +576,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		final JFileChooser fileChooser = new JFileChooser(new File(defaultAudioFileFolder));
 		final JButton chooseFileButton = new JButton("Open a file");
-		final JButton startFileProcessingButton = new JButton("Start File Processing");
+		final JButton startFileProcessingButton = new JButton("Start File");
 		final JButton startListeningButton = new JButton("Start Listening");
 		final JButton stopListeningButton = new JButton("Stop Listening");
 
@@ -477,22 +644,33 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				try {
-					Instrument.getInstance().getCoordinator().getHearing().stopAudioLineStream();
-					startFileProcessingButton.setEnabled(true);
-					startListeningButton.setEnabled(true);
-					stopListeningButton.setEnabled(false);
-					chooseFileButton.setEnabled(true);
-				} catch (LineUnavailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+				startFileProcessingButton.setEnabled(true);
+				startListeningButton.setEnabled(true);
+				stopListeningButton.setEnabled(false);
+				chooseFileButton.setEnabled(true);
 			}
 		});
 
 		actionPanel.add(startFileProcessingButton);
 		actionPanel.add(startListeningButton);
 		actionPanel.add(stopListeningButton);
+
+		recordSwitchCB = new JCheckBox("recordSwitchCB");
+		recordSwitchCB.setText("Record");
+		recordSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		recordSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH));
+		actionPanel.add(recordSwitchCB);
 
 		JComboBox<Integer> fftSizeComboBox = new JComboBox<>(fftSizes);
 		fftSizeComboBox.addActionListener(new ActionListener() {
@@ -503,10 +681,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				@SuppressWarnings("unchecked")
 				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
 				fftsize = value;
-				int noiseFloorMedianFilterLength = fftsize / 117;
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW,
 						Integer.toString(fftsize));
-				// startProcessing();
 			}
 		});
 
@@ -529,22 +705,93 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		actionPanel.add(new JLabel("Input sample rate:  "));
 		actionPanel.add(inputSampleRateCombobox);
 
-		JLabel audioFeatureIntervalLabel = new JLabel("Audio Feature Interval ms: ");
+		JLabel audioFeatureIntervalLabel = new JLabel("Interval ms: ");
 		audioFeatureIntervalInput = new JTextField(4);
 		audioFeatureIntervalInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = audioFeatureIntervalInput.getText();
-				audioFeatureIntervalLabel.setText(String.format("Audio Feature Interval ms (%s):", newValue));
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL,
 						newValue);
+			}
+		});
+		audioFeatureIntervalInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL,
+						newValue);
+			}
 
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
 			}
 		});
 		audioFeatureIntervalInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL));
 		actionPanel.add(audioFeatureIntervalLabel);
 		actionPanel.add(audioFeatureIntervalInput);
+
+		JLabel audioOffsetLabel = new JLabel("Offset ms: ");
+		audioOffsetInput = new JTextField(4);
+		audioOffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET, newValue);
+			}
+		});
+		audioOffsetInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET, newValue);
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+		audioOffsetInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET));
+		actionPanel.add(audioOffsetLabel);
+		actionPanel.add(audioOffsetInput);
+
+		JLabel audioRangeLabel = new JLabel("Range ms: ");
+		audioRangeInput = new JTextField(4);
+		audioRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE, newValue);
+			}
+		});
+		audioRangeInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE, newValue);
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
+		actionPanel.add(audioRangeLabel);
+		actionPanel.add(audioRangeInput);
+
+		JLabel playerTitleLabel = new JLabel("Player: ");
+		actionPanel.add(playerTitleLabel);
 
 		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");
 		playMidiSwitchCB.setText("MIDI");
@@ -578,7 +825,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_AUDIO));
 		actionPanel.add(playAudioSwitchCB);
 
-		JLabel voicePlayerDelayLabel = new JLabel("Player Delay: ");
+		JLabel spacer1Label = new JLabel("  ");
+		actionPanel.add(spacer1Label);
+
+		JLabel voicePlayerDelayLabel = new JLabel("Delay: ");
 		voicePlayerDelayInput = new JTextField(4);
 		voicePlayerDelayInput.addActionListener(new ActionListener() {
 			@Override
@@ -592,7 +842,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		actionPanel.add(voicePlayerDelayLabel);
 		actionPanel.add(voicePlayerDelayInput);
 
-		JLabel voicePlayerLowThresholdLabel = new JLabel("Player Low Threshold: ");
+		JLabel voicePlayerLowThresholdLabel = new JLabel("Low Threshold: ");
 		voicePlayerLowThresholdInput = new JTextField(4);
 		voicePlayerLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
@@ -607,7 +857,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		actionPanel.add(voicePlayerLowThresholdLabel);
 		actionPanel.add(voicePlayerLowThresholdInput);
 
-		JLabel voicePlayerHighThresholdLabel = new JLabel("Player High Threshold: ");
+		JLabel voicePlayerHighThresholdLabel = new JLabel("High Threshold: ");
 		voicePlayerHighThresholdInput = new JTextField(4);
 		voicePlayerHighThresholdInput.addActionListener(new ActionListener() {
 			@Override
@@ -674,6 +924,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				}
 			}
 		});
+
+		JLabel spacer2Label = new JLabel("  ");
+		actionPanel.add(spacer2Label);
+
 		actionPanel.add(parametersButton);
 
 		panel.add(actionPanel, BorderLayout.CENTER);
@@ -692,8 +946,21 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	public void clearView() {
-		// currentToneMapViewType = null;
 		toneMapViews.clear();
+		cqLayer.clear();
+		pdLayer.clear();
+		this.cqPanel.repaint();
+		this.pitchDetectPanel.repaint();
+		this.frameNumberInput.setText("0");
+	}
+
+	public void showFrame(int frame) {
+		toneMapViews.clear();
+		cqLayer.clear();
+		pdLayer.clear();
+		this.cqPanel.repaint();
+		this.pitchDetectPanel.repaint();
+		this.frameNumberInput.setText("0");
 	}
 
 	@Override
@@ -878,6 +1145,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		pdLayer.update(audioFeatureFrame);
 		this.cqPanel.repaint();
 		this.pitchDetectPanel.repaint();
+		this.frameNumberInput.setText(Integer.toString(audioFeatureFrame.getFrameSequence()));
 	}
 
 	private static class CQLayer implements Layer {
@@ -933,6 +1201,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					}
 				}
 			}
+		}
+
+		public void clear() {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					cqFeatures = new TreeMap<>();
+				}
+			});
 		}
 
 		@Override
@@ -1070,6 +1347,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		@Override
 		public String getName() {
 			return "Pitch Detect Layer";
+		}
+
+		public void clear() {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					features = new TreeMap<>();
+				}
+			});
 		}
 
 		public void update(AudioFeatureFrame audioFeatureFrame) {

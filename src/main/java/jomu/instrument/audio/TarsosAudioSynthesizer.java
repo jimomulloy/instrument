@@ -98,11 +98,9 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		if (!audioStreams.containsKey(streamId)) {
 			return;
 		}
-		System.out.println(">>!!! Audio audioStreams.close: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		AudioQueueMessage audioQueueMessage = new AudioQueueMessage();
 		audioStream.bq.add(audioQueueMessage);
-		System.out.println(">>!!! Audio audioStreams.remove: " + streamId);
 
 		audioStreams.remove(streamId);
 	}
@@ -110,10 +108,8 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	@Override
 	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
-		System.out.println(">>!!! Audio audioStreams play: " + streamId);
 		if (!audioStreams.containsKey(streamId)) {
 			audioStreams.put(streamId, new AudioStream(streamId, pitchSet));
-			System.out.println(">>!!! Audio audioStreams create: " + streamId);
 		}
 		AudioStream audioStream = audioStreams.get(streamId);
 		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(toneTimeFrame);
@@ -142,7 +138,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		for (int i = 0; i < sampleLength; i++) {
 			audioOutSamples[i] = 0;
 		}
-		System.out.println("Write stream samples: " + sampleLength);
 
 		double time, frequency;
 		double maxSumAmp = 0;
@@ -243,8 +238,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			lastAmps[toneMapElement.getIndex()] = ampAdjust;
 		}
 
-		System.out.println("getout audio bytes");
-
 		AudioFormat outFormat = new AudioFormat(timeSet.getSampleRate(), 16, 1, true, false);
 
 		byte[] outAudioBytes = getOutAudioBytes(audioOutSamples, outFormat);
@@ -252,7 +245,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		ByteArrayInputStream bais = new ByteArrayInputStream(outAudioBytes);
 		AudioInputStream outAudioStream = new AudioInputStream(bais, outFormat,
 				outAudioBytes.length / outFormat.getFrameSize());
-		System.out.println("made new out audio stream");
 
 		audioOutput.write(outAudioBytes, 0, outAudioBytes.length);
 
@@ -308,8 +300,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					counter++;
 
 					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
-					System.out.println(">>!!! Audio QueueConsumer take: " + this.audioStream.getStreamId() + ", "
-							+ counter + ", " + toneTimeFrame);
 
 					if (toneTimeFrame == null) {
 						this.audioStream.close();
@@ -371,7 +361,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					}
 					AudioEvent audioEvent = this.audioStream.getGenerator().getAudioEvent();
 					while (audioEvent.getEndTimeStamp() < time) {
-						System.out.println(">>Process audio event: " + time + ", " + audioEvent.getTimeStamp());
 						this.audioStream.getGenerator().process();
 						audioEvent = this.audioStream.getGenerator().getAudioEvent();
 					}
@@ -442,7 +431,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 				sineGenerators[i] = new SineGenerator(0.0, frequency);
 				generator.addAudioProcessor(sineGenerators[i]);
 			}
-			System.out.println(">>!!! Audio added freqs: " + frequencies);
 			try {
 				generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, false)));
 			} catch (LineUnavailableException e) {
