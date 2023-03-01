@@ -3,6 +3,7 @@ package jomu.instrument.monitor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -294,7 +295,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
-		JPanel graphControlPanel = new JPanel();
+		JPanel graphControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		JLabel frameNumberLabel = new JLabel("Frame #: ");
 		frameNumberInput = new JTextField(4);
@@ -581,13 +582,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
-		JPanel actionPanel = new JPanel();
+		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		final JFileChooser fileChooser = new JFileChooser(new File(defaultAudioFileFolder));
-		final JButton chooseFileButton = new JButton("Open a file");
-		final JButton startFileProcessingButton = new JButton("Start File");
-		final JButton startListeningButton = new JButton("Start Listening");
-		final JButton stopListeningButton = new JButton("Stop Listening");
+		final JButton chooseFileButton = new JButton("Open");
+		final JButton startFileProcessingButton = new JButton("Start");
+		final JButton startListeningButton = new JButton("Listen");
+		final JButton stopListeningButton = new JButton("Stop");
 
 		fileChooser.setSelectedFile(new File(defaultAudioFileFolder, defaultAudioFile));
 		chooseFileButton.addActionListener(new ActionListener() {
@@ -711,7 +712,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			}
 		});
 		inputSampleRateCombobox.setSelectedIndex(2);
-		actionPanel.add(new JLabel("Input sample rate:  "));
+		actionPanel.add(new JLabel("Sample rate:  "));
 		actionPanel.add(inputSampleRateCombobox);
 
 		JLabel audioFeatureIntervalLabel = new JLabel("Interval ms: ");
@@ -799,7 +800,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		actionPanel.add(audioRangeLabel);
 		actionPanel.add(audioRangeInput);
 
-		JLabel playerTitleLabel = new JLabel("Player: ");
+		JLabel playerTitleLabel = new JLabel(" Play ");
 		actionPanel.add(playerTitleLabel);
 
 		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");

@@ -148,6 +148,8 @@ public class ParametersPanel extends JPanel {
 	private AbstractButton chromaChordifySwitchCB;
 	private AbstractButton integrateHpsSwitchCB;
 	private AbstractButton cqSharpenHarmonicSwitchCB;
+	private JTextField notateCompressionLevelInput;
+	private JCheckBox notateCompressionSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -973,6 +975,22 @@ public class ParametersPanel extends JPanel {
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
 		cqSwitchPanel.add(integrateHpsSwitchCB);
+
+		notateCompressionSwitchCB = new JCheckBox("notateCompressionSwitchCB");
+		notateCompressionSwitchCB.setText("Notate Compression");
+		notateCompressionSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		notateCompressionSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS));
+		cqSwitchPanel.add(notateCompressionSwitchCB);
 
 		parameterPanel.add(cqSwitchPanel);
 
@@ -2016,6 +2034,22 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(tunerSignalMinimumLabel);
 		cqParamsPanel.add(tunerSignalMinimumInput);
 
+		JLabel notateCompressionLevelLabel = new JLabel("Notate Compression Level: ");
+		notateCompressionLevelInput = new JTextField(4);
+		notateCompressionLevelInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = notateCompressionLevelInput.getText();
+				notateCompressionLevelLabel.setText(String.format("Notate Compression Level  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION, newValue);
+
+			}
+		});
+		notateCompressionLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION));
+		cqParamsPanel.add(notateCompressionLevelLabel);
+		cqParamsPanel.add(notateCompressionLevelInput);
+
 		parameterPanel.add(cqParamsPanel);
 
 		JPanel tunerParamsPanel = new JPanel();
@@ -2145,6 +2179,8 @@ public class ParametersPanel extends JPanel {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH));
 		compressionSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
+		notateCompressionSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS));
 		squareSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE));
 		lowThresholdSwitchCB.setSelected(parameterManager
@@ -2252,6 +2288,9 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION));
 		cqLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
+
+		notateCompressionLevelInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION));
 
 		spSignalMinimumInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SIGNAL_MINIMUM));

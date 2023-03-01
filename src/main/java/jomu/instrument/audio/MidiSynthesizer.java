@@ -470,7 +470,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 					playChannelPads(mqm);
 
-					// playChannelBeats(mqm);
+					playChannelBeats(mqm);
 
 					playChannelBase(mqm);
 
@@ -523,17 +523,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 				double amplitude = toneMapElement.amplitude;
 
 				int volume = 0;
+				int nonlogVolume = 0;
 				if (amplitude > highVoiceThreshold) {
 					volume = 120;
 				} else if (amplitude <= lowVoiceThreshold) {
 					volume = 0;
 				} else {
-					volume = (int) (Math
-							.log1p((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
-							/ Math.log1p(1.0000001) * 120);
-					volume = Math.max(0, volume);
-					// volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold -
-					// lowVoiceThreshold)) * 120);
+					// volume = (int) (Math
+					// .log1p((amplitude - lowVoiceThreshold) / (highVoiceThreshold -
+					// lowVoiceThreshold))
+					// / Math.log1p(1.0000001) * 120);
+					// volume = Math.max(0, volume);
+					volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 120);
 				}
 
 				switch (noteStatusElement.state) {
@@ -541,6 +542,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				case PENDING:
 				case CONTINUING:
 					if (!voiceChannelLastNotes.contains(note)) {
+						System.out.println(">>VOICE NOTE ON: " + note + ", " + amplitude + ", " + volume);
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
@@ -992,6 +994,21 @@ public class MidiSynthesizer implements ToneMapConstants {
 			clearChannel(channels[BEAT_3_CHANNEL]);
 			clearChannel(channels[BEAT_4_CHANNEL]);
 			clearChannel(channels[BASE_1_CHANNEL]);
+			if (voiceChannelLastNotes != null) {
+				voiceChannelLastNotes.clear();
+			}
+			if (chordChannelLastNotes != null) {
+				chordChannelLastNotes.clear();
+			}
+			if (padChannelLastNotes != null) {
+				padChannelLastNotes.clear();
+			}
+			if (beatChannelLastNotes != null) {
+				beatChannelLastNotes.clear();
+			}
+			if (baseChannelLastNotes != null) {
+				baseChannelLastNotes.clear();
+			}
 		}
 
 		private void clearChannel(ChannelData channelData) {

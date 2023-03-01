@@ -90,6 +90,9 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
 	public static final String PERCEPTION_HEARING_ONSET_EDGE_FACTOR = "perception.hearing.onset.edgeFactor";
 
+	public static final String PERCEPTION_HEARING_NOTATE_COMPRESSION = "perception.hearing.notate.compression";
+	public static final String PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS = "perception.hearing.notate.compressionSwitch";
+
 	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
 	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";
 	public static final String AUDIO_TUNER_FORMANT_LOW = "audio.tuner.formantLowSetting";

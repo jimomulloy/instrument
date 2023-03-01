@@ -68,9 +68,7 @@ public class ToneTimeFrame {
 	}
 
 	public void compress(float factor) {
-		System.out.println(">>COMPRESS BEFORE: " + getHighThreshold());
 		double highThreshold = (float) Math.log10(1 + (factor * getHighThreshold()));
-		System.out.println(">>COMPRESS AFTER: " + getHighThreshold());
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				elements[i].amplitude = (float) Math.log10(1 + (factor * elements[i].amplitude));
