@@ -42,19 +42,31 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		AudioTuner tuner = new AudioTuner();
 
 		tuner.noteScan(notateToneMap, sequence);
+		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 
-		ToneTimeFrame ttf = timeFrame;
-		double fromTime = (ttf.getStartTime() - 2.0) >= 0 ? ttf.getStartTime() - 2.0 : 0;
-		while (ttf != null && ttf.getStartTime() >= fromTime) {
+		int tmIndex = sequence - 10;
+		if (tmIndex > 0) {
+			timeFrame = notateToneMap.getTimeFrame(tmIndex);
 			if (notateSwitchCompress) {
-				clearNotes(ttf);
-				ttf.compress(compression);
+				clearNotes(timeFrame);
+				timeFrame.compress(compression);
 			}
-			console.getVisor().updateToneMapView(notateToneMap, ttf, this.cell.getCellType().toString());
-			ttf = notateToneMap.getPreviousTimeFrame(ttf.getStartTime());
+			console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
+			cell.send(streamId, tmIndex);
 		}
 
-		cell.send(streamId, sequence);
+		if (isClosing(streamId, sequence)) {
+			for (int i = tmIndex + 1; i <= sequence; i++) {
+				timeFrame = notateToneMap.getTimeFrame(i);
+				if (notateSwitchCompress) {
+					clearNotes(timeFrame);
+					timeFrame.compress(compression);
+				}
+				console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
+				cell.send(streamId, i);
+			}
+		}
+
 	}
 
 	private void clearNotes(ToneTimeFrame ttf) {
@@ -66,7 +78,6 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			NoteStatusElement noteStatusElement = noteStatus.getNoteStatusElement(note);
 			if (noteStatusElement.state == ToneMapConstants.OFF) {
 				elements[elementIndex].amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
-				// elements[elementIndex].amplitude = 1.0;
 			}
 		}
 		ttf.reset();

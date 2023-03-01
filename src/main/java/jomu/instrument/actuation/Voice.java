@@ -59,7 +59,7 @@ public class Voice implements Organ {
 
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
-			System.out.println("!!>>WRITE MIDI");
+			System.out.println("!!>>WRITE MIDI: " + sequence);
 			writeMidi(toneTimeFrame, streamId, sequence);
 		}
 		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {

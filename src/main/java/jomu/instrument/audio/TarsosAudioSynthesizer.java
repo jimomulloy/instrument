@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
@@ -405,7 +405,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 		private float baseFrequency;
 
-		private DelayQueue<AudioQueueMessage> bq;
+		private BlockingQueue<AudioQueueMessage> bq;
 
 		private int frequencies;
 
@@ -419,7 +419,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			this.streamId = streamId;
 			this.baseFrequency = (float) pitchSet.getFreq(0);
 			this.frequencies = pitchSet.getRange();
-			bq = new DelayQueue<>(); // LinkedBlockingQueue<>();
+			bq = new LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
 
 			float frequency = baseFrequency;

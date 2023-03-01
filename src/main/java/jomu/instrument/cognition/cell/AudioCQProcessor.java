@@ -117,8 +117,9 @@ public class AudioCQProcessor extends ProcessorCommon {
 			LOG.info(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 
-			// iss.addToneMap(toneMap);
 			console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+			console.getVisor().updateSpectrumView(toneMap.getTimeFrame(), cqf.getCqs().getWindowSize());
+
 			cell.send(streamId, sequence);
 		}
 	}

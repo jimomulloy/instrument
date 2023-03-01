@@ -151,6 +151,11 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";
 	public static final String ACTUATION_VOICE_AUDIO_PLAY = "actuation.voice.playAudio";
 	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICES_SWITCH = "actuation.voice.midiPlayVoicesSwitch";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_CHORDS_SWITCH = "actuation.voice.midiPlayChordsSwitch";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_PADS_SWITCH = "actuation.voice.midiPlayPadsSwitch";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_BEATS_SWITCH = "actuation.voice.midiPlayBeatsSwitch";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH = "actuation.voice.midiPlayBaseSwitch";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1 = "actuation.voice.midiInstrumentVoice1";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2 = "actuation.voice.midiInstrumentVoice2";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_3 = "actuation.voice.midiInstrumentVoice3";

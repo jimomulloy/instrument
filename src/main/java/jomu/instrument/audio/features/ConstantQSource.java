@@ -44,7 +44,6 @@ public class ConstantQSource {
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW);
-		System.out.println(">>CQ window: " + this.windowSize);
 		this.minimumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
 		this.maximumFrequencyInCents = parameterManager
@@ -53,6 +52,10 @@ public class ConstantQSource {
 
 	public double getMaxMagnitudeThreshold() {
 		return maxMagnitudeThreshold;
+	}
+
+	public int getWindowSize() {
+		return windowSize;
 	}
 
 	public void setMaxMagnitudeThreshold(double maxMagnitudeThreshold) {

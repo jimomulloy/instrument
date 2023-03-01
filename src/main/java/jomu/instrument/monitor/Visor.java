@@ -73,6 +73,8 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.ConstantQSource;
 import jomu.instrument.audio.features.PitchDetectorSource;
+import jomu.instrument.audio.features.SpectralInfo;
+import jomu.instrument.audio.features.SpectralPeaksSource;
 import jomu.instrument.audio.features.SpectrogramInfo;
 import jomu.instrument.cognition.cell.Cell;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -147,6 +149,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JTextField audioRangeInput;
 	private JCheckBox recordSwitchCB;
 	private Workspace workspace;
+	private JCheckBox midiPlayVoicesSwitchCB;
+	private JCheckBox midiPlayChordsSwitchCB;
+	private JCheckBox midiPlayPadsSwitchCB;
+	private JCheckBox midiPlayBeatsSwitchCB;
+	private JCheckBox midiPlayBaseSwitchCB;
 
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
@@ -584,6 +591,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
+		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
 		final JFileChooser fileChooser = new JFileChooser(new File(defaultAudioFileFolder));
 		final JButton chooseFileButton = new JButton("Open");
 		final JButton startFileProcessingButton = new JButton("Start");
@@ -800,88 +809,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		actionPanel.add(audioRangeLabel);
 		actionPanel.add(audioRangeInput);
 
-		JLabel playerTitleLabel = new JLabel(" Play ");
-		actionPanel.add(playerTitleLabel);
-
-		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");
-		playMidiSwitchCB.setText("MIDI");
-		playMidiSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY,
-						Boolean.toString(newValue));
-			}
-		});
-
-		playMidiSwitchCB
-				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
-		actionPanel.add(playMidiSwitchCB);
-
-		playAudioSwitchCB = new JCheckBox("playAudioSwitchCB");
-		playAudioSwitchCB.setText("Audio");
-		playAudioSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY,
-						Boolean.toString(newValue));
-			}
-		});
-
-		playAudioSwitchCB
-				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY));
-		actionPanel.add(playAudioSwitchCB);
-
-		JLabel spacer1Label = new JLabel("  ");
-		actionPanel.add(spacer1Label);
-
-		JLabel voicePlayerDelayLabel = new JLabel("Delay: ");
-		voicePlayerDelayInput = new JTextField(4);
-		voicePlayerDelayInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = voicePlayerLowThresholdInput.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY, newValue);
-
-			}
-		});
-		voicePlayerDelayInput.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
-		actionPanel.add(voicePlayerDelayLabel);
-		actionPanel.add(voicePlayerDelayInput);
-
-		JLabel voicePlayerLowThresholdLabel = new JLabel("Low Threshold: ");
-		voicePlayerLowThresholdInput = new JTextField(4);
-		voicePlayerLowThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = voicePlayerLowThresholdInput.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD, newValue);
-
-			}
-		});
-		voicePlayerLowThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD));
-		actionPanel.add(voicePlayerLowThresholdLabel);
-		actionPanel.add(voicePlayerLowThresholdInput);
-
-		JLabel voicePlayerHighThresholdLabel = new JLabel("High Threshold: ");
-		voicePlayerHighThresholdInput = new JTextField(4);
-		voicePlayerHighThresholdInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = voicePlayerHighThresholdInput.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD, newValue);
-
-			}
-		});
-		voicePlayerHighThresholdInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD));
-		actionPanel.add(voicePlayerHighThresholdLabel);
-		actionPanel.add(voicePlayerHighThresholdInput);
-
 		final JButton parametersButton = new JButton("Parameters");
 
 		parametersButton.addActionListener(new ActionListener() {
@@ -942,6 +869,170 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		panel.add(actionPanel, BorderLayout.CENTER);
 
+		JLabel playerTitleLabel = new JLabel(" Play ");
+		voicePanel.add(playerTitleLabel);
+
+		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");
+		playMidiSwitchCB.setText("MIDI");
+		playMidiSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY,
+						Boolean.toString(newValue));
+			}
+		});
+
+		playMidiSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
+		voicePanel.add(playMidiSwitchCB);
+
+		playAudioSwitchCB = new JCheckBox("playAudioSwitchCB");
+		playAudioSwitchCB.setText("Audio");
+		playAudioSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY,
+						Boolean.toString(newValue));
+			}
+		});
+
+		playAudioSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY));
+		voicePanel.add(playAudioSwitchCB);
+
+		JLabel spacer1Label = new JLabel("  ");
+		voicePanel.add(spacer1Label);
+
+		JLabel voicePlayerDelayLabel = new JLabel("Delay: ");
+		voicePlayerDelayInput = new JTextField(4);
+		voicePlayerDelayInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = voicePlayerDelayInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY, newValue);
+
+			}
+		});
+		voicePlayerDelayInput.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
+		voicePanel.add(voicePlayerDelayLabel);
+		voicePanel.add(voicePlayerDelayInput);
+
+		JLabel voicePlayerLowThresholdLabel = new JLabel("Low Threshold: ");
+		voicePlayerLowThresholdInput = new JTextField(4);
+		voicePlayerLowThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = voicePlayerLowThresholdInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD, newValue);
+
+			}
+		});
+		voicePlayerLowThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD));
+		voicePanel.add(voicePlayerLowThresholdLabel);
+		voicePanel.add(voicePlayerLowThresholdInput);
+
+		JLabel voicePlayerHighThresholdLabel = new JLabel("High Threshold: ");
+		voicePlayerHighThresholdInput = new JTextField(4);
+		voicePlayerHighThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = voicePlayerHighThresholdInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD, newValue);
+
+			}
+		});
+		voicePlayerHighThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD));
+		voicePanel.add(voicePlayerHighThresholdLabel);
+		voicePanel.add(voicePlayerHighThresholdInput);
+
+		midiPlayVoicesSwitchCB = new JCheckBox("midiPlayVoicesSwitchCB");
+		midiPlayVoicesSwitchCB.setText("Voices");
+		midiPlayVoicesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICES_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayVoicesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICES_SWITCH));
+		voicePanel.add(midiPlayVoicesSwitchCB);
+
+		midiPlayChordsSwitchCB = new JCheckBox("midiPlayChordsSwitchCB");
+		midiPlayChordsSwitchCB.setText("Chords");
+		midiPlayChordsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORDS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayChordsSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORDS_SWITCH));
+		voicePanel.add(midiPlayChordsSwitchCB);
+
+		midiPlayPadsSwitchCB = new JCheckBox("midiPlayPadsSwitchCB");
+		midiPlayPadsSwitchCB.setText("Pads");
+		midiPlayPadsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PADS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayPadsSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PADS_SWITCH));
+		voicePanel.add(midiPlayPadsSwitchCB);
+
+		midiPlayBeatsSwitchCB = new JCheckBox("midiPlayBeatsSwitchCB");
+		midiPlayBeatsSwitchCB.setText("Beats");
+		midiPlayBeatsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEATS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayBeatsSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEATS_SWITCH));
+		voicePanel.add(midiPlayBeatsSwitchCB);
+
+		midiPlayBaseSwitchCB = new JCheckBox("midiPlayBaseSwitchCB");
+		midiPlayBaseSwitchCB.setText("Base");
+		midiPlayBaseSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayBaseSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH));
+		voicePanel.add(midiPlayBaseSwitchCB);
+
+		panel.add(voicePanel, BorderLayout.SOUTH);
+
 		return panel;
 	}
 
@@ -968,15 +1059,16 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		if (frame > 0) {
 			if (toneMapViews.containsKey(currentToneMapViewType)) {
 				ToneMap currentToneMap = toneMapViews.get(currentToneMapViewType);
-				ToneTimeFrame toneMapFrame = currentToneMap.getTimeFrame(frame);
-				if (toneMapFrame != null) {
-					double timeOffset = toneMapFrame.getStartTime() * 1000.0;
+				ToneTimeFrame toneTimeFrame = currentToneMap.getTimeFrame(frame);
+				if (toneTimeFrame != null) {
+					double timeOffset = toneTimeFrame.getStartTime() * 1000.0;
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
 							Double.toString(timeOffset));
 					Visor.this.toneMapView.updateAxis();
 					Visor.this.chromaPreView.updateAxis();
 					Visor.this.chromaPostView.updateAxis();
 					Visor.this.beatsView.updateAxis();
+					updateSpectrumView(toneTimeFrame, 1024);
 				}
 			}
 		}
@@ -1053,6 +1145,18 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	public void updateChromaPostView(ToneMap toneMap) {
 		chromaPostView.updateToneMap(toneMap);
+	}
+
+	public void updateSpectrumView(ToneTimeFrame toneTimeFrame, int windowSize) {
+		System.out.println(">>updateSpectrumView: " + toneTimeFrame.getStartTime());
+		float[] spectrum = toneTimeFrame.extractFFTSpectrum(windowSize).getSpectrum();
+		System.out.println(">>updateSpectrumView spectrum: " + spectrum.length);
+		for (int i = 0; i < spectrum.length; i++) {
+			spectrum[i] *= 100;
+		}
+		spectrumLayer.clearPeaks();
+		spectrumLayer.setSpectrum(spectrum);
+		spectrumPanel.repaint();
 	}
 
 	private LinkedPanel createCQPanel() {
@@ -1162,8 +1266,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private void updateView(AudioFeatureFrame audioFeatureFrame) {
 		cqLayer.update(audioFeatureFrame);
 		pdLayer.update(audioFeatureFrame);
-		this.cqPanel.repaint();
-		this.pitchDetectPanel.repaint();
+		cqPanel.repaint();
+		pitchDetectPanel.repaint();
+		// repaintSpectralInfo(audioFeatureFrame);
 		this.frameNumberInput.setText(Integer.toString(audioFeatureFrame.getFrameSequence()));
 	}
 
@@ -1398,4 +1503,16 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			});
 		}
 	}
+
+	protected void repaintSpectralInfo(AudioFeatureFrame audioFeatureFrame) {
+		TreeMap<Double, SpectralInfo> fs;
+		SpectralPeaksSource sps = audioFeatureFrame.getSpectralPeaksFeatures().getSps();
+		fs = audioFeatureFrame.getSpectralPeaksFeatures().getFeatures();
+		spectrumLayer.clearPeaks();
+		for (Entry<Double, SpectralInfo> entry : fs.entrySet()) {
+			spectrumLayer.setSpectrum(entry.getValue().getMagnitudes());
+			spectrumPanel.repaint();
+		}
+	}
+
 }
