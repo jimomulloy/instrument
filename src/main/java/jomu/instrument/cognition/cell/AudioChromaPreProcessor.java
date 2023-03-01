@@ -1,6 +1,7 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -8,6 +9,8 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioChromaPreProcessor extends ProcessorCommon {
+
+	private static final Logger LOG = Logger.getLogger(AudioChromaPreProcessor.class.getName());
 
 	public AudioChromaPreProcessor(NuCell cell) {
 		super(cell);
@@ -17,7 +20,7 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(">>AudioChromaProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.info(">>AudioChromaProcessor accept: " + sequence + ", streamId: " + streamId);
 		double normaliseThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD);
 		int chromaRootNote = parameterManager

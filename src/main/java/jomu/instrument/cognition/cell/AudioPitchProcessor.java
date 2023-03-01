@@ -2,6 +2,7 @@ package jomu.instrument.cognition.cell;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.audio.analysis.Klapuri;
 import jomu.instrument.audio.analysis.PitchDetect;
@@ -20,6 +21,8 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioPitchProcessor extends ProcessorCommon {
 
+	private static final Logger LOG = Logger.getLogger(AudioPitchProcessor.class.getName());
+
 	public AudioPitchProcessor(NuCell cell) {
 		super(cell);
 	}
@@ -28,7 +31,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.info(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
 		int harmonics = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS);
 		float compression = parameterManager
@@ -50,7 +53,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
 		pdf.buildToneMapFrame(toneMap);
 		float[] spectrum = pdf.getSpectrum();
-		System.out.println(">>PP TIME: " + toneMap.getTimeFrame().getStartTime());
+		LOG.info(">>PP TIME: " + toneMap.getTimeFrame().getStartTime());
 
 		float maxs = 0;
 		int maxi = 0;
@@ -65,7 +68,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 
 		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 
-		System.out.println(">>PP MAX AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.info(">>PP MAX AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 
 		// toneMap.getTimeFrame().square();
@@ -79,14 +82,14 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			fftSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
 					whitener.getWhitenedSpectrum());
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-			System.out.println(">>PP MAX AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.info(">>PP MAX AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
 
 		if (pdSwitchKlapuri) {
 			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getPds().getSampleRate(),
 					fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
-			System.out.println(">>PP MAX ENTER KLAPURI!!");
+			LOG.info(">>PP MAX ENTER KLAPURI!!");
 			Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
 			for (int i = 0; i < klapuri.processedSpectrumData.length; i++) {
 				spectrum[i] = (float) klapuri.processedSpectrumData[i];
@@ -95,31 +98,31 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			processKlapuriPeaks(fftSpectrum.getSpectrum(), new ArrayList<Double>(klapuri.f0s),
 					new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame().getElements());
 			toneMap.reset();
-			System.out.println(">>!!KLAPURI PEAKS : " + klapuri.f0s.size());
+			LOG.info(">>!!KLAPURI PEAKS : " + klapuri.f0s.size());
 		} else if (pdSwitchTarsos) {
 			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), pdf.getPds().getSampleRate(),
 					toneMap.getTimeFrame().getPitches());
 			// pd.whiten(fftSpectrum.getSpectrum());
-			System.out.println(">>PP MAX ENTER TARSOS!!");
+			LOG.info(">>PP MAX ENTER TARSOS!!");
 			pd.detect(fftSpectrum.getSpectrum());
 			// Arrays.stream(convertFloatsToDoubles(pd.fzeros)).boxed().collect(Collectors.toList()),
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 			processTarsosPeaks(fftSpectrum.getSpectrum(), pd.fzeros, pd.fzeroSaliences,
 					toneMap.getTimeFrame().getElements());
 			toneMap.reset();
-			System.out.println(">>PP MAX AMP 5: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.info(">>PP MAX AMP 5: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
 
 		// !! pdf.normaliseToneMapFrame(toneMap);
 
-		System.out.println(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getStartTime() + ", "
+		LOG.info(">>PP MAX AMP 6: " + toneMap.getTimeFrame().getStartTime() + ", "
 				+ toneMap.getTimeFrame().getMaxAmplitude() + ", " + toneMap.getTimeFrame().getMinAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMaxPitch() + ",  " + maxs + ", " + maxi);
 
 		// if (pdSwitchCompress) {
 		// toneMap.getTimeFrame().compress(compression);
-		// System.out.println(">>PP MAX AMP 2: " +
+		// LOG.info(">>PP MAX AMP 2: " +
 		// toneMap.getTimeFrame().getMaxAmplitude() + ", "
 		// + toneMap.getTimeFrame().getMinAmplitude());
 		// }
@@ -138,7 +141,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			double f0salience = f0saliences.get(i);
 			int note = PitchSet.freqToMidiNote(f0);
 			elements[note].amplitude = f0salience;
-			System.out.println(">>KLAP map: " + note + ", " + elements[note].amplitude);
+			LOG.info(">>KLAP map: " + note + ", " + elements[note].amplitude);
 		}
 	}
 
@@ -152,7 +155,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 				// int note = PitchSet.freqToMidiNote(fzeros[i]);
 				elements[i].amplitude = fzeroSaliences[i];
 				// elements[note].amplitude = 1.0; // fzeroSaliences[i];
-				System.out.println(">>TARSOS map: " + i + ", " + elements[i].amplitude);
+				LOG.info(">>TARSOS map: " + i + ", " + elements[i].amplitude);
 			}
 		}
 	}

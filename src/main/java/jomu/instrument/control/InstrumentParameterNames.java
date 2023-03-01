@@ -145,8 +145,21 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";
 	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";
-	public static final String ACTUATION_VOICE_PLAY_MIDI = "actuation.voice.playMidi";
-	public static final String ACTUATION_VOICE_PLAY_AUDIO = "actuation.voice.playAudio";
+	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";
+	public static final String ACTUATION_VOICE_AUDIO_PLAY = "actuation.voice.playAudio";
 	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1 = "actuation.voice.midiInstrumentVoice1";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2 = "actuation.voice.midiInstrumentVoice2";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_3 = "actuation.voice.midiInstrumentVoice3";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_4 = "actuation.voice.midiInstrumentVoice4";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_1 = "actuation.voice.midiInstrumentChord1";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_2 = "actuation.voice.midiInstrumentChord2";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_1 = "actuation.voice.midiInstrumentPad1";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_2 = "actuation.voice.midiInstrumentPad2";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1 = "actuation.voice.midiInstrumentBeat1";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_2 = "actuation.voice.midiInstrumentBeat2";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3 = "actuation.voice.midiInstrumentBeat3";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4 = "actuation.voice.midiInstrumentBeat4";
+	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1 = "actuation.voice.midiInstrumentBase1";
 
 }

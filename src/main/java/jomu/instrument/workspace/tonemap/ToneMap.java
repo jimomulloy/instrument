@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import jomu.instrument.cognition.cell.Cell.CellTypes;
+
 /**
  * This class is the main centre of control of program flow for the ToneMap.
  * This manages the data held in internal structures that define the "map"
@@ -34,6 +36,10 @@ public class ToneMap {
 	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
 		toneMapStore.put(toneTimeFrame.getStartTime(), toneTimeFrame);
 		return toneTimeFrame;
+	}
+
+	public final static String buildToneMapKey(CellTypes cellType, String streamId) {
+		return cellType + ":" + streamId;
 	}
 
 	public String getKey() {

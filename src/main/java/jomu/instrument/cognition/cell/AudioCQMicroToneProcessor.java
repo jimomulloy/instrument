@@ -1,6 +1,7 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -11,6 +12,8 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioCQMicroToneProcessor extends ProcessorCommon {
 
+	private static final Logger LOG = Logger.getLogger(AudioCQMicroToneProcessor.class.getName());
+
 	public AudioCQMicroToneProcessor(NuCell cell) {
 		super(cell);
 	}
@@ -19,7 +22,7 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(">>AudioCQMicroToneProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.info(">>AudioCQMicroToneProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
@@ -48,13 +51,13 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 			CQMicroToneFeatures cqf = aff.getCQMicroToneFeatures();
 			cqf.buildToneMapFrame(toneMap);
-			System.out.println(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime());
+			LOG.info(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime());
 
-			System.out.println(">>CQ MAX/MIN AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.info(">>CQ MAX/MIN AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 			if (cqSwitchCompress) {
 				toneMap.getTimeFrame().compress(compression);
-				System.out.println(">>CQ MAX/MIN AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+				LOG.info(">>CQ MAX/MIN AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 						+ toneMap.getTimeFrame().getMinAmplitude());
 			}
 			if (cqSwitchSquare) {
@@ -67,11 +70,11 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 
 			if (cqSwitchDecibel) {
 				toneMap.getTimeFrame().decibel(decibelLevel);
-				System.out.println(">>CQ MAX/MIN AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+				LOG.info(">>CQ MAX/MIN AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 						+ toneMap.getTimeFrame().getMinAmplitude());
 			}
 
-			System.out.println(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.info(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 
 			// iss.addToneMap(toneMap);

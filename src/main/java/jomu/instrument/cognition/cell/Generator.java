@@ -1,10 +1,13 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 
 public class Generator {
+
+	private static final Logger LOG = Logger.getLogger(Generator.class.getName());
 
 	public static NuCell createNuCell(CellTypes cellType) {
 		switch (cellType) {
@@ -205,7 +208,7 @@ public class Generator {
 	private static ThrowingConsumer<List<NuMessage>, Exception> getSinkProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
-				System.out.println(">>SinkProcessor process message: " + message);
+				LOG.info(">>SinkProcessor process message: " + message);
 			}
 		};
 	}

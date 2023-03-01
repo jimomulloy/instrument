@@ -2,6 +2,7 @@ package jomu.instrument.cognition.cell;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -9,6 +10,8 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioChromaPostProcessor extends ProcessorCommon {
+
+	private static final Logger LOG = Logger.getLogger(AudioChromaPostProcessor.class.getName());
 
 	public AudioChromaPostProcessor(NuCell cell) {
 		super(cell);
@@ -18,8 +21,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(
-				">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId + ", " + sequence);
+		LOG.info(">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId + ", " + sequence);
 		int chromaSmoothFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR);
 		boolean chromaChordifySwitch = parameterManager

@@ -1,6 +1,7 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -8,6 +9,8 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioOnsetProcessor extends ProcessorCommon {
+
+	private static final Logger LOG = Logger.getLogger(AudioOnsetProcessor.class.getName());
 
 	public AudioOnsetProcessor(NuCell cell) {
 		super(cell);
@@ -17,7 +20,7 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(">>AudioOnsetProcessor accept seq: " + sequence + ", streamId: " + streamId);
+		LOG.info(">>AudioOnsetProcessor accept seq: " + sequence + ", streamId: " + streamId);
 		int onsetSmoothingFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR);
 		int onsetEdgeFactor = parameterManager

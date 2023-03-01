@@ -1,6 +1,7 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -10,6 +11,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioSpectralPeaksProcessor extends ProcessorCommon {
+
+	private static final Logger LOG = Logger.getLogger(AudioSpectralPeaksProcessor.class.getName());
 
 	public AudioSpectralPeaksProcessor(NuCell cell) {
 		super(cell);
@@ -42,7 +45,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		boolean tpSwitchPeaks = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS);
 
-		System.out.println(">>AudioSpectralPeaksProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.info(">>AudioSpectralPeaksProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
@@ -66,8 +69,8 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		}
 
 		// toneMap.getTimeFrame().deNoise(0.05);
-		System.out.println(">>SP TIME: " + toneMap.getTimeFrame().getStartTime());
-		System.out.println(">>SP MAX/MIN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.info(">>SP TIME: " + toneMap.getTimeFrame().getStartTime());
+		LOG.info(">>SP MAX/MIN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

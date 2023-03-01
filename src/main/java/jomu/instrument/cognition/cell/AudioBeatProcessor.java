@@ -1,6 +1,7 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -10,6 +11,8 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioBeatProcessor extends ProcessorCommon {
 
+	private static final Logger LOG = Logger.getLogger(AudioBeatProcessor.class.getName());
+
 	public AudioBeatProcessor(NuCell cell) {
 		super(cell);
 	}
@@ -18,7 +21,7 @@ public class AudioBeatProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		System.out.println(">>AudioBeatProcessor accept seq: " + sequence + ", streamId: " + streamId);
+		LOG.info(">>AudioBeatProcessor accept seq: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		if (afp != null) {

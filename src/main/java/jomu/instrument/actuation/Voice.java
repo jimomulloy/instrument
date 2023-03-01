@@ -13,6 +13,7 @@ import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.audio.TarsosAudioSynthesizer;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
@@ -22,6 +23,7 @@ public class Voice implements Organ {
 	private AudioSynthesizer audioSynthesizer;
 	private MidiSynthesizer midiSynthesizer;
 	private ParameterManager parameterManager;
+	private Workspace workspace;
 
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new TarsosAudioSynthesizer(parameterManager);
@@ -29,7 +31,7 @@ public class Voice implements Organ {
 	}
 
 	public MidiSynthesizer buildMidiSynthesizer() {
-		midiSynthesizer = new MidiSynthesizer(parameterManager);
+		midiSynthesizer = new MidiSynthesizer(workspace, parameterManager);
 		midiSynthesizer.open();
 		return this.midiSynthesizer;
 	}
@@ -49,17 +51,18 @@ public class Voice implements Organ {
 
 	@Override
 	public void initialise() {
+		this.workspace = Instrument.getInstance().getWorkspace();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
 	}
 
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
-		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_MIDI)) {
+		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
 			System.out.println("!!>>WRITE MIDI");
 			writeMidi(toneTimeFrame, streamId, sequence);
 		}
-		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_AUDIO)) {
+		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
 			System.out.println("!!>>WRITE MIDI");
 			writeAudio(toneTimeFrame, streamId, sequence);
 		}

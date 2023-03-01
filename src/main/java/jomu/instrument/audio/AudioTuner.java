@@ -531,24 +531,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		}
 
-		// IF LAST
-//		switch (noteStatusElement.state) {
-//		case OFF:
-//			break;
-//		case ON:
-//			noteStatusElement.offTime = time;
-//		case PENDING:
-//			// Process candidate note
-//			processNote(note, toneMap, noteStatusElement);
-//			noteStatusElement.state = OFF;
-//			noteStatusElement.onTime = 0.0;
-//			noteStatusElement.offTime = 0.0;
-//			noteStatusElement.highFlag = false;
-//			break;
-//
-//		default:
-//			break;
-//		}
+		// IF LAST ?? TODO
 
 		// SECOND PASS
 		for (int i = 0; i < ttfElements.length; i++) {

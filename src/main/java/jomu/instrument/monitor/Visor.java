@@ -77,6 +77,7 @@ import jomu.instrument.cognition.cell.Cell;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.InstrumentStoreService;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
@@ -144,11 +145,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JTextField audioOffsetInput;
 	private JTextField audioRangeInput;
 	private JCheckBox recordSwitchCB;
+	private Workspace workspace;
 
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
+		this.workspace = Instrument.getInstance().getWorkspace();
 		this.setLayout(new BorderLayout());
 		JPanel topPanel = buildTopPanel();
 		JPanel bottomPanel = buildBottomPanel();
@@ -298,7 +301,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		frameNumberInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = frameNumberInput.getText();
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				int frame = Integer.valueOf(newValue);
+				if (frame < 1) {
+					frameNumberInput.setText("1");
+				}
+				showFrame(Integer.valueOf(newValue));
 				// parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
 				// newValue);
 			}
@@ -800,13 +809,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			public void itemStateChanged(ItemEvent e) {
 				JCheckBox cb = (JCheckBox) e.getSource();
 				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_MIDI,
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY,
 						Boolean.toString(newValue));
 			}
 		});
 
 		playMidiSwitchCB
-				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_MIDI));
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
 		actionPanel.add(playMidiSwitchCB);
 
 		playAudioSwitchCB = new JCheckBox("playAudioSwitchCB");
@@ -816,13 +825,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			public void itemStateChanged(ItemEvent e) {
 				JCheckBox cb = (JCheckBox) e.getSource();
 				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_AUDIO,
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY,
 						Boolean.toString(newValue));
 			}
 		});
 
 		playAudioSwitchCB
-				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_AUDIO));
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY));
 		actionPanel.add(playAudioSwitchCB);
 
 		JLabel spacer1Label = new JLabel("  ");
@@ -955,12 +964,21 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	public void showFrame(int frame) {
-		toneMapViews.clear();
-		cqLayer.clear();
-		pdLayer.clear();
-		this.cqPanel.repaint();
-		this.pitchDetectPanel.repaint();
-		this.frameNumberInput.setText("0");
+		if (frame > 0) {
+			if (toneMapViews.containsKey(currentToneMapViewType)) {
+				ToneMap currentToneMap = toneMapViews.get(currentToneMapViewType);
+				ToneTimeFrame toneMapFrame = currentToneMap.getTimeFrame(frame);
+				if (toneMapFrame != null) {
+					double timeOffset = toneMapFrame.getStartTime() * 1000.0;
+					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
+							Double.toString(timeOffset));
+					Visor.this.toneMapView.updateAxis();
+					Visor.this.chromaPreView.updateAxis();
+					Visor.this.chromaPostView.updateAxis();
+					Visor.this.beatsView.updateAxis();
+				}
+			}
+		}
 	}
 
 	@Override
