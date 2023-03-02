@@ -25,7 +25,6 @@ public class SpectralPeaksSource {
 
 	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
 	int currentFrame;
-	int increment = 1024;
 	int minPeakSize = 100;
 	float noiseFloorFactor = 1.0F;
 	int noiseFloorMedianFilterLength = 10;
@@ -93,10 +92,6 @@ public class SpectralPeaksSource {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
-	}
-
-	public int getIncrement() {
-		return increment;
 	}
 
 	public int getMinPeakSize() {

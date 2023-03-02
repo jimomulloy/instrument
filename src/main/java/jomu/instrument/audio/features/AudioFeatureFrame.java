@@ -60,6 +60,10 @@ public class AudioFeatureFrame {
 		return pitchDetectorFeatures;
 	}
 
+	public ResynthFeatures getResynthFeatures() {
+		return resynthFeatures;
+	}
+
 	public YINFeatures getYINFeatures() {
 		return yinFeatures;
 	}

@@ -10,6 +10,7 @@ import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
+import jomu.instrument.audio.ResynthAudioSynthesizer;
 import jomu.instrument.audio.TarsosAudioSynthesizer;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
@@ -20,6 +21,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 @Component
 public class Voice implements Organ {
 
+	private AudioSynthesizer resynthSynthesizer;
 	private AudioSynthesizer audioSynthesizer;
 	private MidiSynthesizer midiSynthesizer;
 	private ParameterManager parameterManager;
@@ -30,6 +32,11 @@ public class Voice implements Organ {
 		return this.audioSynthesizer;
 	}
 
+	public AudioSynthesizer buildResynthAudioSynthesizer() {
+		resynthSynthesizer = new ResynthAudioSynthesizer(parameterManager);
+		return this.resynthSynthesizer;
+	}
+
 	public MidiSynthesizer buildMidiSynthesizer() {
 		midiSynthesizer = new MidiSynthesizer(workspace, parameterManager);
 		midiSynthesizer.open();
@@ -37,6 +44,7 @@ public class Voice implements Organ {
 	}
 
 	public void close(String streamId) {
+		resynthSynthesizer.close(streamId);
 		audioSynthesizer.close(streamId);
 		midiSynthesizer.close(streamId);
 	}
@@ -49,22 +57,28 @@ public class Voice implements Organ {
 		return audioSynthesizer;
 	}
 
+	public AudioSynthesizer getResynthAudioSynthesizer() {
+		return resynthSynthesizer;
+	}
+
 	@Override
 	public void initialise() {
 		this.workspace = Instrument.getInstance().getWorkspace();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
+		resynthSynthesizer = buildResynthAudioSynthesizer();
 	}
 
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
-			System.out.println("!!>>WRITE MIDI: " + sequence);
 			writeMidi(toneTimeFrame, streamId, sequence);
 		}
 		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
-			System.out.println("!!>>WRITE MIDI");
 			writeAudio(toneTimeFrame, streamId, sequence);
+		}
+		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
+			writeResynthAudio(toneTimeFrame, streamId, sequence);
 		}
 	}
 
@@ -76,6 +90,11 @@ public class Voice implements Organ {
 
 	public void writeAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
+
+	}
+
+	public void writeResynthAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
+		resynthSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 
 	}
 

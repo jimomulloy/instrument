@@ -23,6 +23,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		LOG.info(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
+
 		voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
 		if (isClosing(streamId, sequence)) {
 			LOG.info(">>AudioSinkProcessor CLOSE!!");

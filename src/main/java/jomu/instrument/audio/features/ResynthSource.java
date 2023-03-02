@@ -1,6 +1,7 @@
 package jomu.instrument.audio.features;
 
 import java.util.Arrays;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import be.tarsos.dsp.AudioDispatcher;
@@ -33,7 +34,7 @@ public class ResynthSource implements PitchDetectionHandler {
 	private float[] binStartingPointsInCents;
 	private float binWidth;
 	private int windowSize = 1024;
-	private TreeMap<Double, float[]> features = new TreeMap<>();
+	private TreeMap<Double, ResynthInfo> features = new TreeMap<>();
 
 	private int overlap = 0;
 	private float sampleRate = 44100;
@@ -52,6 +53,7 @@ public class ResynthSource implements PitchDetectionHandler {
 	private boolean followEnvelope;
 	private final double[] previousFrequencies;
 	private int previousFrequencyIndex;
+	private float[] envelopeAudioBuffer;
 
 	public ResynthSource(AudioDispatcher dispatcher) {
 		super();
@@ -104,9 +106,9 @@ public class ResynthSource implements PitchDetectionHandler {
 		return windowSize;
 	}
 
-	public TreeMap<Double, float[]> getFeatures() {
-		TreeMap<Double, float[]> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, float[]> entry : features.entrySet()) {
+	public TreeMap<Double, ResynthInfo> getFeatures() {
+		TreeMap<Double, ResynthInfo> clonedFeatures = new TreeMap<>();
+		for (Entry<Double, ResynthInfo> entry : features.entrySet()) {
 			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
 		}
 		return clonedFeatures;
@@ -144,7 +146,9 @@ public class ResynthSource implements PitchDetectionHandler {
 
 			@Override
 			public boolean process(AudioEvent audioEvent) {
-				features.put(audioEvent.getTimeStamp() - binWidth /* - constantQLag */, audioEvent.getFloatBuffer());
+				float[] audioFloatBuffer = audioEvent.getFloatBuffer().clone();
+				ResynthInfo ri = new ResynthInfo(audioFloatBuffer, envelopeAudioBuffer);
+				features.put(audioEvent.getTimeStamp(), ri);
 				return true;
 			}
 
@@ -180,27 +184,27 @@ public class ResynthSource implements PitchDetectionHandler {
 		}
 
 		final double twoPiF = 2 * Math.PI * frequency;
-		float[] audioBuffer = audioEvent.getFloatBuffer().clone(); // !!TODO CLONED
+		envelopeAudioBuffer = audioEvent.getFloatBuffer().clone(); // !!TODO CLONED
 		float[] envelope = null;
 		if (followEnvelope) {
-			envelope = audioBuffer.clone();
+			envelope = envelopeAudioBuffer.clone();
 			envelopeFollower.calculateEnvelope(envelope);
 		}
 
-		for (int sample = 0; sample < audioBuffer.length; sample++) {
+		for (int sample = 0; sample < envelopeAudioBuffer.length; sample++) {
 			double time = sample / samplerate;
 			double wave = Math.sin(twoPiF * time + phase);
 			if (!usePureSine) {
 				wave += 0.05 * Math.sin(twoPiF * 4 * time + phaseFirst);
 				wave += 0.01 * Math.sin(twoPiF * 8 * time + phaseSecond);
 			}
-			audioBuffer[sample] = (float) wave;
+			envelopeAudioBuffer[sample] = (float) wave;
 			if (followEnvelope) {
-				audioBuffer[sample] = audioBuffer[sample] * envelope[sample];
+				envelopeAudioBuffer[sample] = envelopeAudioBuffer[sample] * envelope[sample];
 			}
 		}
 
-		double timefactor = twoPiF * audioBuffer.length / samplerate;
+		double timefactor = twoPiF * envelopeAudioBuffer.length / samplerate;
 		phase = timefactor + phase;
 		if (!usePureSine) {
 			phaseFirst = 4 * timefactor + phaseFirst;

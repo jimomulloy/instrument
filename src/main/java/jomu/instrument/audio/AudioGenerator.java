@@ -75,21 +75,12 @@ public class AudioGenerator {
 
 	private int audioBufferSize;
 
-	/**
-	 * Create a new generator.
-	 * 
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
-	 */
 	public AudioGenerator(final int audioBufferSize, final int bufferOverlap) {
 
 		this(audioBufferSize, bufferOverlap, 44100);
 	}
 
-	public AudioGenerator(final int audioBufferSize, final int bufferOverlap, final int samplerate) {
+	public AudioGenerator(final int auddioBufferSize, final int bufferOverlap, final int samplerate) {
 
 		audioProcessors = new CopyOnWriteArrayList<AudioProcessor>();
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Delayed;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -16,8 +15,10 @@ import javax.sound.sampled.SourceDataLine;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.io.jvm.AudioPlayer;
+import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.perception.Hearing;
 import jomu.instrument.workspace.tonemap.NoteListElement;
 import jomu.instrument.workspace.tonemap.NoteStatus;
 import jomu.instrument.workspace.tonemap.NoteStatusElement;
@@ -75,6 +76,10 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	private double[] lastAmps;
 	private ParameterManager parameterManager;
 
+	private Hearing hearing;
+
+	private int windowSize;
+
 	/**
 	 * AudioModel constructor. Test Java Sound Audio System available Instantiate
 	 * AudioPanel
@@ -83,6 +88,12 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	 */
 	public TarsosAudioSynthesizer(ParameterManager parameterManager) {
 		this.parameterManager = parameterManager;
+		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
+	}
+
+	public int getWindowSize() {
+		return windowSize;
 	}
 
 	/**
@@ -99,7 +110,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			return;
 		}
 		AudioStream audioStream = audioStreams.get(streamId);
-		AudioQueueMessage audioQueueMessage = new AudioQueueMessage();
+		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(null, 0);
 		audioStream.bq.add(audioQueueMessage);
 
 		audioStreams.remove(streamId);
@@ -112,7 +123,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			audioStreams.put(streamId, new AudioStream(streamId, pitchSet));
 		}
 		AudioStream audioStream = audioStreams.get(streamId);
-		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(toneTimeFrame);
+		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(toneTimeFrame, sequence);
 
 		audioStream.bq.add(audioQueueMessage);
 
@@ -372,33 +383,15 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		}
 	}
 
-	private class AudioQueueMessage implements Delayed {
+	private class AudioQueueMessage {
 		public ToneTimeFrame toneTimeFrame = null;
-		private long startTime;
+		public int sequence;
 
-		public AudioQueueMessage(ToneTimeFrame toneTimeFrame, long delayInMilliseconds) {
+		public AudioQueueMessage(ToneTimeFrame toneTimeFrame, int sequence) {
 			this.toneTimeFrame = toneTimeFrame;
-			this.startTime = System.currentTimeMillis() + delayInMilliseconds;
+			this.sequence = sequence;
 		}
 
-		public AudioQueueMessage(ToneTimeFrame toneTimeFrame) {
-			this(toneTimeFrame, parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
-		}
-
-		public AudioQueueMessage() {
-			this(null, parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
-		}
-
-		@Override
-		public int compareTo(Delayed o) {
-			return (int) (this.startTime - ((AudioQueueMessage) o).startTime);
-		}
-
-		@Override
-		public long getDelay(TimeUnit unit) {
-			long diff = startTime - System.currentTimeMillis();
-			return unit.convert(diff, TimeUnit.MILLISECONDS);
-		}
 	}
 
 	private class AudioStream {
@@ -424,7 +417,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 			float frequency = baseFrequency;
 
-			generator = new AudioGenerator(1024, 0);
+			generator = new AudioGenerator(TarsosAudioSynthesizer.this.getWindowSize(), 0);
 			sineGenerators = new SineGenerator[frequencies];
 			for (int i = 0; i < frequencies; i++) {
 				frequency = (float) pitchSet.getFreq(i);

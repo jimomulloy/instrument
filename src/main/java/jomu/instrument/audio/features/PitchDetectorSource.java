@@ -79,7 +79,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, currentPhaseOffsets,
 					frequencyEstimates);
 			features.put(audioEvent.getTimeStamp(), si);
-			System.out.println(">>PP FFT: " + fft.size());
 			return true;
 		}
 
