@@ -150,6 +150,7 @@ public class ParametersPanel extends JPanel {
 	private AbstractButton cqSharpenHarmonicSwitchCB;
 	private JTextField notateCompressionLevelInput;
 	private JCheckBox notateCompressionSwitchCB;
+	private JTextField yinLowPassInput;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -2050,6 +2051,22 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(notateCompressionLevelLabel);
 		cqParamsPanel.add(notateCompressionLevelInput);
 
+		JLabel yinLowPassLabel = new JLabel("YIN Low Pass: ");
+		yinLowPassInput = new JTextField(4);
+		yinLowPassInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = yinLowPassInput.getText();
+				yinLowPassLabel.setText(String.format("YIN Low Pass (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS, newValue);
+
+			}
+		});
+		yinLowPassInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS));
+		cqParamsPanel.add(yinLowPassLabel);
+		cqParamsPanel.add(yinLowPassInput);
+
 		parameterPanel.add(cqParamsPanel);
 
 		JPanel tunerParamsPanel = new JPanel();
@@ -2291,6 +2308,9 @@ public class ParametersPanel extends JPanel {
 
 		notateCompressionLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION));
+
+		yinLowPassInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS));
 
 		spSignalMinimumInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SIGNAL_MINIMUM));

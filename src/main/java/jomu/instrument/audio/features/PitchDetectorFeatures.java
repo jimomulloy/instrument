@@ -7,7 +7,6 @@ import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class PitchDetectorFeatures implements ToneMapConstants {
@@ -83,25 +82,5 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
 		this.features = this.pds.getFeatures();
 		pds.clear();
-	}
-
-	public void normaliseToneMapFrame(ToneMap toneMap) {
-		ToneTimeFrame ttf = toneMap.getTimeFrame();
-		ToneMapElement[] elements = ttf.getElements();
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i].amplitude > getPds().getMaxMagnitudeThreshold()) {
-				getPds().setMaxMagnitudeThreshold(elements[i].amplitude);
-				System.out.println(">>PD MAX VALUE: " + getPds().getMaxMagnitudeThreshold());
-			}
-		}
-		for (int i = 0; i < elements.length; i++) {
-			elements[i].amplitude = elements[i].amplitude / getPds().getMaxMagnitudeThreshold();
-			if (elements[i].amplitude < getPds().getMinMagnitudeThreshold()) {
-				elements[i].amplitude = getPds().getMinMagnitudeThreshold();
-			}
-		}
-		ttf.setHighThreshold(1.0);
-		ttf.setLowThreshold(getPds().getMinMagnitudeThreshold());
-		ttf.reset();
 	}
 }

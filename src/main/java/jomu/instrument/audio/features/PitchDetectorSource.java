@@ -12,6 +12,7 @@ import be.tarsos.dsp.pitch.PitchProcessor;
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
+import be.tarsos.dsp.util.fft.HammingWindow;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -39,19 +40,74 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 
 	AudioProcessor fftProcessor = new AudioProcessor() {
 
+		private float[] frequencyEstimates;
+		private float[] currentPhaseOffsets;
+		private float[] previousPhaseOffsets;
+
+		private double dt;
+		private double cbin;
+		private double inv_2pi;
+		private double inv_deltat;
+		private double inv_2pideltat;
+		private FFT fft;
+
 		@Override
 		public boolean process(AudioEvent audioEvent) {
-			FFT fft = new FFT(windowSize);
+			fft = new FFT(windowSize, new HammingWindow());
 			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
 			float[] transformbuffer = new float[windowSize * 2];
-			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
-			fft.forwardTransform(transformbuffer);
+
 			float[] amplitudes = new float[windowSize / 2];
-			fft.modulus(transformbuffer, amplitudes);
-			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, fft);
+			currentPhaseOffsets = new float[windowSize / 2];
+			frequencyEstimates = new float[windowSize / 2];
+
+			dt = (windowSize - overlap) / (double) sampleRate;
+			cbin = dt * sampleRate / windowSize;
+
+			inv_2pi = 1.0 / (2.0 * Math.PI);
+			inv_deltat = 1.0 / dt;
+			inv_2pideltat = inv_deltat * inv_2pi;
+
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
+
+			fft.powerPhaseFFT(transformbuffer, amplitudes, currentPhaseOffsets);
+			// fft.forwardTransform(transformbuffer);
+			// fft.modulus(transformbuffer, amplitudes);
+
+			calculateFrequencyEstimates();
+
+			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, currentPhaseOffsets,
+					frequencyEstimates);
 			features.put(audioEvent.getTimeStamp(), si);
 			System.out.println(">>PP FFT: " + fft.size());
 			return true;
+		}
+
+		private float getFrequencyForBin(int binIndex) {
+			final float frequencyInHertz;
+			// use the phase delta information to get a more precise
+			// frequency estimate
+			// if the phase of the previous frame is available.
+			// See
+			// * Moore 1976
+			// "The use of phase vocoder in computer music applications"
+			// * Sethares et al. 2009 - Spectral Tools for Dynamic
+			// Tonality and Audio Morphing
+			// * Laroche and Dolson 1999
+			if (previousPhaseOffsets != null) {
+				float phaseDelta = currentPhaseOffsets[binIndex] - previousPhaseOffsets[binIndex];
+				long k = Math.round(cbin * binIndex - inv_2pi * phaseDelta);
+				frequencyInHertz = (float) (inv_2pideltat * phaseDelta + inv_deltat * k);
+			} else {
+				frequencyInHertz = (float) fft.binToHz(binIndex, sampleRate);
+			}
+			return frequencyInHertz;
+		}
+
+		private void calculateFrequencyEstimates() {
+			for (int i = 0; i < frequencyEstimates.length; i++) {
+				frequencyEstimates[i] = getFrequencyForBin(i);
+			}
 		}
 
 		@Override
@@ -71,7 +127,12 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW);
-		System.out.println(">>PD window: " + this.windowSize);
+
+		int stepsize = 512;
+		overlap = windowSize - stepsize;
+		if (overlap < 1) {
+			overlap = 128;
+		}
 	}
 
 	public PitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {

@@ -20,6 +20,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
 
+	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
+
 	public static final String MONITOR_TONEMAP_VIEW_LOW_THRESHOLD = "monitor.tonemap.view.lowThreshold";
 	public static final String MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD = "monitor.tonemap.view.highThreshold";
 

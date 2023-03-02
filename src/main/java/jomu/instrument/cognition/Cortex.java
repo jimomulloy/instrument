@@ -30,6 +30,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 	private NuCell audioNotateCell;
 	private NuCell audioSinkCell;
 	private NuCell audioTunerPeaksCell;
+	private NuCell audioYINCell;
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
@@ -61,9 +62,11 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
 		audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
 		audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
+		audioYINCell = Generator.createNuCell(CellTypes.AUDIO_YIN);
 		//
 		Weaver.connect(sourceUpdateCell, audioBeatCell);
 		Weaver.connect(sourceUpdateCell, audioPitchCell);
+		Weaver.connect(sourceUpdateCell, audioYINCell);
 		Weaver.connect(sourceUpdateCell, audioCQCell);
 		Weaver.connect(sourceUpdateCell, audioSpectralPeaksCell);
 		//
@@ -75,6 +78,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioOnsetCell, audioIntegrateCell);
 		Weaver.connect(audioBeatCell, audioIntegrateCell);
 		Weaver.connect(audioPitchCell, audioIntegrateCell);
+		Weaver.connect(audioYINCell, audioIntegrateCell);
 		Weaver.connect(audioHpsCell, audioIntegrateCell);
 		Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
 		//

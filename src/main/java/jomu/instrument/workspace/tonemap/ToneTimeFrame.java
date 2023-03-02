@@ -112,18 +112,18 @@ public class ToneTimeFrame {
 			binEndFreq = pitchSet.getFreq(i + 1);
 			binStartIndex = (int) ((binStartFreq * windowSize * 2.0) / (timeSet.getSampleRate()));
 			binEndIndex = (int) ((binEndFreq * windowSize * 2.0) / (timeSet.getSampleRate()));
-			// System.out.println(">>extractFFT binStartFreq: " + binStartFreq);
-			// System.out.println(">>extractFFT binEndFreq: " + binEndFreq);
-			// System.out.println(">>extractFFT binStartIndex: " +
-			// binStartIndex);
-			// System.out.println(">>extractFFT binEndIndex: " + binEndIndex);
+
 			if (binEndIndex > binStartIndex) {
 				float partialValue = (float) (elements[i].amplitude) / (binEndIndex - binStartIndex);
 				for (int j = 0; j < (binEndIndex - binStartIndex); j++) {
-					spec[binStartIndex + j] += partialValue;
+					if (binStartIndex + j < spec.length) {
+						spec[binStartIndex + j] += partialValue;
+					}
 				}
 			} else {
-				spec[binStartIndex] += elements[i].amplitude;
+				if (binStartIndex < spec.length) {
+					spec[binStartIndex] += elements[i].amplitude;
+				}
 			}
 		}
 		System.out.println(">> MAXP, MAXA: " + maxP + ", " + maxA);

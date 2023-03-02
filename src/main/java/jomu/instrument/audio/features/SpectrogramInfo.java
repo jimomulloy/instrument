@@ -24,31 +24,37 @@
 package jomu.instrument.audio.features;
 
 import be.tarsos.dsp.pitch.PitchDetectionResult;
-import be.tarsos.dsp.util.fft.FFT;
 
 public class SpectrogramInfo {
 	float[] amplitudes;
-	FFT fft;
+	float[] phaseOffsets;
 	PitchDetectionResult pitchDetectionResult;
+	float[] frequencyEstimates;
 
-	public SpectrogramInfo(PitchDetectionResult pitchDetectionResult, float[] amplitudes, FFT fft) {
+	public SpectrogramInfo(PitchDetectionResult pitchDetectionResult, float[] amplitudes, float[] phaseOffsets,
+			float[] frequencyEstimates) {
 		super();
 		this.pitchDetectionResult = pitchDetectionResult;
 		this.amplitudes = amplitudes;
-		this.fft = fft;
+		this.phaseOffsets = phaseOffsets;
+		this.frequencyEstimates = frequencyEstimates;
 	}
 
 	@Override
 	public SpectrogramInfo clone() {
-		return new SpectrogramInfo(pitchDetectionResult.clone(), amplitudes.clone(), fft);
+		return new SpectrogramInfo(pitchDetectionResult.clone(), amplitudes.clone(), phaseOffsets, frequencyEstimates);
 	}
 
 	public float[] getAmplitudes() {
 		return amplitudes;
 	}
 
-	public FFT getFft() {
-		return fft;
+	public float[] getfrequencyEstimates() {
+		return frequencyEstimates;
+	}
+
+	public float[] getPhaseOffsets() {
+		return phaseOffsets;
 	}
 
 	public PitchDetectionResult getPitchDetectionResult() {

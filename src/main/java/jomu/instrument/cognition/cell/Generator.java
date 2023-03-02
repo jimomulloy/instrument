@@ -19,6 +19,8 @@ public class Generator {
 			return createAudioSinkTypeCell();
 		case AUDIO_PITCH:
 			return createAudioPitchTypeCell();
+		case AUDIO_YIN:
+			return createAudioYINTypeCell();
 		case AUDIO_TUNER_PEAKS:
 			return createAudioTunerPeaksTypeCell();
 		case AUDIO_SPECTRAL_PEAKS:
@@ -76,6 +78,12 @@ public class Generator {
 	private static NuCell createAudioPitchTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_PITCH);
 		cell.setProcessor(getAudioPitchProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioYINTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_YIN);
+		cell.setProcessor(getAudioYINProcessor(cell));
 		return cell;
 	}
 
@@ -163,6 +171,10 @@ public class Generator {
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioPitchProcessor(NuCell cell) {
 		return new AudioPitchProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioYINProcessor(NuCell cell) {
+		return new AudioYINProcessor(cell);
 	}
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSpectralPeaksProcessor(NuCell cell) {
