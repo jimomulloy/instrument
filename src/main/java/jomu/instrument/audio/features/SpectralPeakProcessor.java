@@ -3,6 +3,7 @@ package jomu.instrument.audio.features;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -12,6 +13,8 @@ import be.tarsos.dsp.util.fft.HammingWindow;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class SpectralPeakProcessor extends SpectralPeakDetector implements AudioProcessor {
+
+	private static final Logger LOG = Logger.getLogger(SpectralPeakProcessor.class.getName());
 
 	/**
 	 * The sample rate of the signal.

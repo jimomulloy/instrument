@@ -1,6 +1,7 @@
 package jomu.instrument.audio.features;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -19,6 +20,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class ResynthSource extends AudioEventSource<ResynthInfo> implements PitchDetectionHandler {
+
+	private static final Logger LOG = Logger.getLogger(ResynthSource.class.getName());
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -63,7 +66,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		this.usePureSine = true;
 		previousFrequencies = new double[5];
 		previousFrequencyIndex = 0;
-		System.out.println(">>RS window: " + this.windowSize);
+		LOG.info(">>RS window: " + this.windowSize);
 	}
 
 	public ResynthSource(AudioDispatcher dispatcher, int bufferSize) {

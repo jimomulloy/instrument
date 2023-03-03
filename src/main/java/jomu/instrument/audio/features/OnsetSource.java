@@ -2,6 +2,7 @@ package jomu.instrument.audio.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -15,6 +16,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class OnsetSource extends AudioEventSource<OnsetInfo[]> implements OnsetHandler {
+
+	private static final Logger LOG = Logger.getLogger(OnsetSource.class.getName());
 
 	private List<OnsetInfo> onsetInfos = new ArrayList<>();
 	private int windowSize = 1024;
@@ -41,7 +44,7 @@ public class OnsetSource extends AudioEventSource<OnsetInfo[]> implements OnsetH
 
 	@Override
 	public void handleOnset(double time, double salience) {
-		// System.out.println(">>Percussion at:" + time + ", " + salience);
+		// LOG.info(">>Percussion at:" + time + ", " + salience);
 		onsetInfos.add(new OnsetInfo(time, salience));
 	}
 

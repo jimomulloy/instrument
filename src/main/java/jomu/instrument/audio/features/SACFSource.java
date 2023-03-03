@@ -1,6 +1,7 @@
 package jomu.instrument.audio.features;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -15,6 +16,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class SACFSource extends AudioEventSource<Integer[]> {
+
+	private static final Logger LOG = Logger.getLogger(SACFSource.class.getName());
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -110,9 +113,9 @@ public class SACFSource extends AudioEventSource<Integer[]> {
 			public boolean process(AudioEvent audioEvent) {
 				ac.evaluate(convertFloatsToDoubles(audioEvent.getFloatBuffer()));
 				List<Integer> sacfPeaks = ac.findPeaks();
-				System.out.println(">>SACF Peaks: " + audioEvent.getTimeStamp() + ", " + sacfPeaks.size());
+				LOG.info(">>SACF Peaks: " + audioEvent.getTimeStamp() + ", " + sacfPeaks.size());
 				for (int peak : sacfPeaks) {
-					System.out.println(">>SACF Peak: " + peak);
+					LOG.info(">>SACF Peak: " + peak);
 				}
 				Integer[] featureValues = sacfPeaks.toArray(new Integer[sacfPeaks.size()]);
 				SACFSource.this.putFeature(audioEvent.getTimeStamp(), featureValues);

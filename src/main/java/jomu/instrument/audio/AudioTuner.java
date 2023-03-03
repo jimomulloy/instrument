@@ -637,6 +637,19 @@ public class AudioTuner implements ToneMapConstants {
 		}
 		for (SpectralPeak peak : peaks) {
 			ttfElements[peak.getBin()].amplitude = toneTimeFrame.getMaxAmplitude();
+			ttfElements[peak.getBin()].isPeak = true;
+		}
+
+	}
+
+	public void flagPeaks(ToneMap toneMap, List<SpectralPeak> peaks) {
+
+		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
+		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+
+		peaks.iterator();
+		for (SpectralPeak peak : peaks) {
+			ttfElements[peak.getBin()].isPeak = true;
 		}
 
 	}

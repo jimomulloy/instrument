@@ -2,6 +2,7 @@ package jomu.instrument.audio.features;
 
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
@@ -12,6 +13,8 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
+
+	private static final Logger LOG = Logger.getLogger(SpectralPeaksFeatures.class.getName());
 
 	List<SpectralInfo> spectralInfo;
 	private PitchSet pitchSet;
@@ -67,7 +70,16 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
-			System.out.println(">>AA usePeaks: " + usePeaks);
+			for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
+				List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(
+						getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),
+						getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
+				for (SpectralPeak peak : spectralPeaks) {
+					int note = PitchSet.freqToMidiNote(peak.getFrequencyInHertz());
+					int index = pitchSet.getIndex(note);
+					ttf.getElement(index).isPeak = true;
+				}
+			}
 
 			float[] spectrum = usePeaks ? processPeaks(getSpectrum()) : getSpectrum();
 
@@ -80,7 +92,6 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 			for (int i = 0; i < elements.length; i++) {
 				if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
 					getSource().setMaxMagnitudeThreshold(elements[i].amplitude);
-					System.out.println(">>SP MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
 				}
 			}
 			for (int i = 0; i < elements.length; i++) {
@@ -97,7 +108,7 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 
 	private float[] processPeaks(float[] spectrum) {
 		float[] peakSpectrum = new float[spectrum.length];
-		System.out.println(">>AA processPeaks");
+		LOG.info(">>AA processPeaks");
 		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
 			List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(
 					getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),

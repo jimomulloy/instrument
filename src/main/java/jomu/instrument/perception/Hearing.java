@@ -29,6 +29,7 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
@@ -47,12 +48,15 @@ public class Hearing implements Organ {
 
 	private Workspace workspace;
 
+	private Console console;
+
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
 			return;
 		}
 		audioStream.close();
+		console.getVisor().audioStopped();
 	}
 
 	public void removeAudioStream(String streamId) {
@@ -74,6 +78,7 @@ public class Hearing implements Organ {
 	@Override
 	public void initialise() {
 		this.workspace = Instrument.getInstance().getWorkspace();
+		this.console = Instrument.getInstance().getConsole();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
@@ -84,12 +89,10 @@ public class Hearing implements Organ {
 	public void startAudioFileStream(String fileName)
 			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		if (streamId != null) {
-			LOG.info(">>remove last stream: " + streamId);
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
-		LOG.info(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
 		audioStream.initialiseAudioFileStream(fileName);
@@ -101,12 +104,10 @@ public class Hearing implements Organ {
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
 		if (streamId != null) {
-			LOG.info(">>remove last stream: " + streamId);
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
-		LOG.info(">>!!hearing initialise: " + streamId);
 		audioStreams.put(streamId, audioStream);
 
 		audioStream.initialiseMicrophoneStream(recordFile);
@@ -118,13 +119,13 @@ public class Hearing implements Organ {
 
 	public void stopAudioStream() {
 		AudioStream audioStream = audioStreams.get(streamId);
-		audioStream.stop();
-
-		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().removeObserver(Instrument.getInstance().getCoordinator().getCortex());
-
-		closeAudioStream(streamId);
-
+		if (audioStream != null) {
+			audioStream.stop();
+			Instrument.getInstance().getCoordinator().getCortex();
+			audioStream.getAudioFeatureProcessor()
+					.removeObserver(Instrument.getInstance().getCoordinator().getCortex());
+			closeAudioStream(streamId);
+		}
 	}
 
 	private class AudioStream {

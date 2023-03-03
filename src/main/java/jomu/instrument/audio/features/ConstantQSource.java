@@ -1,5 +1,7 @@
 package jomu.instrument.audio.features;
 
+import java.util.logging.Logger;
+
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -12,6 +14,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class ConstantQSource extends AudioEventSource<float[]> {
+
+	private static final Logger LOG = Logger.getLogger(ConstantQSource.class.getName());
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 0.5F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -117,8 +121,8 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 	void initialise() {
 		float minimumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(minimumFrequencyInCents);
 		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(maximumFrequencyInCents);
-		System.out.println(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
-		System.out.println(">>CQS window increment: " + windowSize);
+		LOG.info(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
+		LOG.info(">>CQS window increment: " + windowSize);
 
 		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
 
@@ -126,14 +130,14 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		binHeight = 1200F / (float) binsPerOctave;
 
 		startingPointsInHertz = constantQ.getFreqencies();
-		System.out.println(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
+		LOG.info(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
 		binStartingPointsInCents = new float[startingPointsInHertz.length];
 		for (int i = 0; i < binStartingPointsInCents.length; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(startingPointsInHertz[i]);
 		}
-		System.out.println(">>CQS endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
-		System.out.println(">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
-		System.out.println(">>CQS endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
+		LOG.info(">>CQS endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
+		LOG.info(">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
+		LOG.info(">>CQS endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
 
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
@@ -142,8 +146,8 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		dispatcher.addAudioProcessor(djp);
 
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
-		System.out.println(">>CQ size: " + size);
-		System.out.println(">>CQ lag: " + constantQLag);
+		LOG.info(">>CQ size: " + size);
+		LOG.info(">>CQ lag: " + constantQLag);
 
 		djp.addAudioProcessor(constantQ);
 		djp.addAudioProcessor(new AudioProcessor() {

@@ -2,6 +2,7 @@ package jomu.instrument.audio.features;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -15,6 +16,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
+
+	private static final Logger LOG = Logger.getLogger(SpectralPeaksSource.class.getName());
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -45,7 +48,7 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
-		System.out.println(">>SP window: " + this.windowSize);
+		LOG.info(">>SP window: " + this.windowSize);
 	}
 
 	public double getMaxMagnitudeThreshold() {
@@ -117,7 +120,7 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 	}
 
 	void initialise() {
-		System.out.println(">>SP init: " + this.windowSize);
+		LOG.info(">>SP init: " + this.windowSize);
 		noiseFloorMedianFilterLength = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 		noiseFloorFactor = parameterManager
@@ -126,10 +129,10 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
 		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
 
-		System.out.println(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLength);
-		System.out.println(">>SP noiseFloorFactor: " + noiseFloorFactor);
-		System.out.println(">>SP numberOfSpectralPeaks: " + numberOfSpectralPeaks);
-		System.out.println(">>SP minPeakSize: " + minPeakSize);
+		LOG.info(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLength);
+		LOG.info(">>SP noiseFloorFactor: " + noiseFloorFactor);
+		LOG.info(">>SP numberOfSpectralPeaks: " + numberOfSpectralPeaks);
+		LOG.info(">>SP minPeakSize: " + minPeakSize);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];
@@ -142,7 +145,7 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 		binWidth = (float) windowSize / sampleRate;
 		binHeight = 1200F / (float) binsPerOctave;
 
-		System.out.println(">>SP binWidth: " + binWidth);
+		LOG.info(">>SP binWidth: " + binWidth);
 
 		int stepsize = 512;
 		int overlap = windowSize - stepsize;

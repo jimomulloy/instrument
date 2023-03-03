@@ -64,7 +64,6 @@ import be.tarsos.dsp.ui.layers.HorizontalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.Layer;
 import be.tarsos.dsp.ui.layers.LegendLayer;
 import be.tarsos.dsp.ui.layers.SelectionLayer;
-import be.tarsos.dsp.ui.layers.SpectrumLayer;
 import be.tarsos.dsp.ui.layers.TimeAxisLayer;
 import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
@@ -83,6 +82,7 @@ import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
@@ -164,6 +164,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JCheckBox midiPlayBeat2SwitchCB;
 	private JCheckBox midiPlayBeat3SwitchCB;
 	private JCheckBox midiPlayBeat4SwitchCB;
+	private TimeFramePanel timeFramePanel;
+	private JButton chooseFileButton;
+	private JButton startFileProcessingButton;
+	private JButton startListeningButton;
+	private JButton stopListeningButton;
+	private JCheckBox playPeaksSwitchCB;
+	private AbstractButton showPeaksSwitchCB;
 
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
@@ -295,6 +302,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JTabbedPane diagnosticsTabbedPane = new JTabbedPane();
 		diagnosticsTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		timeFramePanel = new TimeFramePanel();
+		diagnosticsTabbedPane.addTab("ToneMap Frame", timeFramePanel);
 		oscilloscopePanel = new OscilloscopePanel();
 		diagnosticsTabbedPane.addTab("Oscilloscope", oscilloscopePanel);
 		spectrumPanel = createSpectrumPanel();
@@ -518,6 +527,25 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		graphControlPanel.add(pitchAxisRangeLabel);
 		graphControlPanel.add(pitchAxisRangeInput);
 
+		showPeaksSwitchCB = new JCheckBox("showPeaksSwitchCB");
+		showPeaksSwitchCB.setText("Peaks");
+		showPeaksSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS,
+						Boolean.toString(newValue));
+				Visor.this.toneMapView.updateAxis();
+				Visor.this.chromaPreView.updateAxis();
+				Visor.this.chromaPostView.updateAxis();
+				Visor.this.beatsView.updateAxis();
+			}
+		});
+		showPeaksSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS));
+		graphControlPanel.add(showPeaksSwitchCB);
+
 		JLabel toneMapViewLowThresholdLabel = new JLabel("View Low Threshold: ");
 		toneMapViewLowThresholdInput = new JTextField(4);
 		toneMapViewLowThresholdInput.addActionListener(new ActionListener() {
@@ -605,10 +633,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		final JFileChooser fileChooser = new JFileChooser(new File(defaultAudioFileFolder));
-		final JButton chooseFileButton = new JButton("Open");
-		final JButton startFileProcessingButton = new JButton("Start");
-		final JButton startListeningButton = new JButton("Listen");
-		final JButton stopListeningButton = new JButton("Stop");
+		chooseFileButton = new JButton("Open");
+		startFileProcessingButton = new JButton("Start");
+		startListeningButton = new JButton("Listen");
+		stopListeningButton = new JButton("Stop");
 
 		fileChooser.setSelectedFile(new File(defaultAudioFileFolder, defaultAudioFile));
 		chooseFileButton.addActionListener(new ActionListener() {
@@ -620,6 +648,18 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					inputFile = fileChooser.getSelectedFile();
 					System.out.println(inputFile.toString());
 					fileName = inputFile.getAbsolutePath();
+					startListeningButton.setEnabled(false);
+					startFileProcessingButton.setEnabled(false);
+					stopListeningButton.setEnabled(true);
+					chooseFileButton.setEnabled(false);
+					frameNumberInput.setEnabled(false);
+					timeAxisOffsetInput.setText("0");
+					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					Visor.this.toneMapView.updateAxis();
+					Visor.this.chromaPreView.updateAxis();
+					Visor.this.chromaPostView.updateAxis();
+					Visor.this.beatsView.updateAxis();
+					Visor.this.resetToneMapView();
 					try {
 						Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
 					} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
@@ -638,8 +678,19 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					inputFile = fileChooser.getSelectedFile();
-					System.out.println(inputFile.toString());
 					fileName = inputFile.getAbsolutePath();
+					startListeningButton.setEnabled(false);
+					startFileProcessingButton.setEnabled(false);
+					stopListeningButton.setEnabled(true);
+					chooseFileButton.setEnabled(false);
+					frameNumberInput.setEnabled(false);
+					timeAxisOffsetInput.setText("0");
+					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					Visor.this.toneMapView.updateAxis();
+					Visor.this.chromaPreView.updateAxis();
+					Visor.this.chromaPostView.updateAxis();
+					Visor.this.beatsView.updateAxis();
+					Visor.this.resetToneMapView();
 					Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 					// TODO Auto-generated catch block
@@ -658,11 +709,20 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					String fileName = defaultAudioRecordFileFolder + "/" + "instrument_recording_"
 							+ System.currentTimeMillis() + ".wav";
 					// File recordFile = new File(defaultAudioRecordFileFolder, fileName);
-					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
+					frameNumberInput.setEnabled(false);
+					timeAxisOffsetInput.setText("0");
+					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					Visor.this.toneMapView.updateAxis();
+					Visor.this.chromaPreView.updateAxis();
+					Visor.this.chromaPostView.updateAxis();
+					Visor.this.beatsView.updateAxis();
+					Visor.this.resetToneMapView();
+					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
+
 				} catch (LineUnavailableException | IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -679,6 +739,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				startListeningButton.setEnabled(true);
 				stopListeningButton.setEnabled(false);
 				chooseFileButton.setEnabled(true);
+				frameNumberInput.setEnabled(true);
 			}
 		});
 
@@ -930,6 +991,22 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		playResynthSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY));
 		voicePanel.add(playResynthSwitchCB);
+
+		playPeaksSwitchCB = new JCheckBox("playPeaksSwitchCB");
+		playPeaksSwitchCB.setText("PEAKS");
+		playPeaksSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS,
+						Boolean.toString(newValue));
+			}
+		});
+
+		playPeaksSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS));
+		voicePanel.add(playPeaksSwitchCB);
 
 		JLabel spacer1Label = new JLabel("  ");
 		voicePanel.add(spacer1Label);
@@ -1216,6 +1293,12 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				ToneMap currentToneMap = toneMapViews.get(currentToneMapViewType);
 				ToneTimeFrame toneTimeFrame = currentToneMap.getTimeFrame(frame);
 				if (toneTimeFrame != null) {
+					updateTimeFrameView(toneTimeFrame);
+					oscilloscopePanel.paint(toneTimeFrame
+							.extractFFTSpectrum(parameterManager
+									.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW))
+							.getSpectrum());
+					oscilloscopePanel.repaint();
 					int timeOffset = (int) (toneTimeFrame.getStartTime() * 1000.0);
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
 							Integer.toString(timeOffset));
@@ -1233,8 +1316,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	@Override
 	public void handleEvent(float[] data, AudioEvent event) {
-		oscilloscopePanel.paint(data, event);
+		oscilloscopePanel.paint(data);
 		oscilloscopePanel.repaint();
+	}
+
+	public void updateTimeFrameView(ToneTimeFrame data) {
+		timeFramePanel.paint(data);
+		timeFramePanel.repaint();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1271,6 +1359,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				} else if (toneMapViewType.equals(currentToneMapViewType)) {
 					toneMapView.updateToneMap(ttf);
 				}
+				updateTimeFrameView(ttf);
 			}
 		});
 	}
@@ -1278,6 +1367,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	public void resetToneMapView() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
 			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			updateTimeFrameView(toneMapViews.get(currentToneMapViewType).getTimeFrame());
 			// chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			// chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			// beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
@@ -1305,9 +1395,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	}
 
 	public void updateSpectrumView(ToneTimeFrame toneTimeFrame, int windowSize) {
-		System.out.println(">>updateSpectrumView: " + toneTimeFrame.getStartTime());
 		float[] spectrum = toneTimeFrame.extractFFTSpectrum(windowSize).getSpectrum();
-		System.out.println(">>updateSpectrumView spectrum: " + spectrum.length);
 		for (int i = 0; i < spectrum.length; i++) {
 			spectrum[i] *= 100;
 		}
@@ -1376,11 +1464,11 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		spectrumLayer = new SpectrumLayer(cs,
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW),
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE),
-				Color.red);
-		noiseFloorLayer = new SpectrumLayer(cs,
-				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW),
-				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE),
-				Color.gray);
+				Color.black);
+		// noiseFloorLayer = new SpectrumLayer(cs,
+		// parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW),
+		// parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE),
+		// Color.gray);
 
 		spectrumPanel = new LinkedPanel(cs);
 		spectrumPanel.addLayer(new ZoomMouseListenerLayer());
@@ -1391,7 +1479,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		spectrumPanel.addLayer(new SelectionLayer(cs));
 		spectrumPanel.addLayer(new HorizontalFrequencyAxisLayer(cs));
 		spectrumPanel.addLayer(spectrumLayer);
-		spectrumPanel.addLayer(noiseFloorLayer);
+		// spectrumPanel.addLayer(noiseFloorLayer);
 
 		spectrumPanel.getViewPort().addViewPortChangedListener(new ViewPortChangedListener() {
 			boolean painting = false;
@@ -1431,8 +1519,15 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		pdLayer.update(audioFeatureFrame);
 		cqPanel.repaint();
 		pitchDetectPanel.repaint();
-		// repaintSpectralInfo(audioFeatureFrame);
 		this.frameNumberInput.setText(Integer.toString(audioFeatureFrame.getFrameSequence()));
+	}
+
+	public void audioStopped() {
+		startFileProcessingButton.setEnabled(true);
+		startListeningButton.setEnabled(true);
+		stopListeningButton.setEnabled(false);
+		chooseFileButton.setEnabled(true);
+		frameNumberInput.setEnabled(true);
 	}
 
 	private static class CQLayer implements Layer {
@@ -1537,7 +1632,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			setMinimumSize(new Dimension(80, 60));
 		}
 
-		public void paint(float[] data, AudioEvent event) {
+		public void paint(float[] data) {
 			this.data = data;
 		}
 
@@ -1552,8 +1647,50 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				float height = getHeight();
 				float halfHeight = height / 2;
 				for (int i = 0; i < data.length; i += 4) {
-					g.drawLine((int) (data[i] * width), (int) (halfHeight - data[i + 1] * height),
-							(int) (data[i + 2] * width), (int) (halfHeight - data[i + 3] * height));
+					if ((i + 3) < data.length) {
+						g.drawLine((int) (data[i] * width), (int) (halfHeight - data[i + 1] * height),
+								(int) (data[i + 2] * width), (int) (halfHeight - data[i + 3] * height));
+					}
+				}
+			}
+		}
+	}
+
+	private static class TimeFramePanel extends JPanel {
+
+		private ToneTimeFrame toneTimeFrame;
+
+		public TimeFramePanel() {
+			setMinimumSize(new Dimension(80, 60));
+		}
+
+		public void paint(ToneTimeFrame toneTimeFrame) {
+			this.toneTimeFrame = toneTimeFrame;
+		}
+
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g); // paint background
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(Color.WHITE);
+			if (toneTimeFrame != null) {
+				float width = getWidth();
+				float height = getHeight();
+				ToneMapElement[] elements = toneTimeFrame.getElements();
+				double xInc = width / elements.length;
+				double yInc = height / 1.0;
+				int x = 0;
+				int y = 0;
+				for (int i = 0; i < elements.length; i++) {
+					ToneMapElement element = elements[i];
+					x = (int) (i * xInc);
+					y = (int) height - 1;
+					if ((toneTimeFrame.getMaxAmplitude() - toneTimeFrame.getMinAmplitude()) > 0.1) {
+						y = (int) (height - (yInc * ((element.amplitude - toneTimeFrame.getMinAmplitude())
+								/ (toneTimeFrame.getMaxAmplitude() - toneTimeFrame.getMinAmplitude()))));
+					}
+					g.drawLine(x, (int) height - 1, x, y);
 				}
 			}
 		}
@@ -1575,7 +1712,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		public void draw(Graphics2D graphics) {
 
 			if (features != null) {
-				System.out.println(">>PD max amp: " + binWidth + ", " + binHeight);
 
 				Map<Double, SpectrogramInfo> spSubMap = features.subMap(cs.getMin(Axis.X) / 1000.0,
 						cs.getMax(Axis.X) / 1000.0);
@@ -1625,9 +1761,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 									(int) Math.ceil(100));
 						}
 					}
-
 				}
-
 			}
 		}
 

@@ -1,6 +1,7 @@
 package jomu.instrument.audio.features;
 
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
@@ -9,6 +10,8 @@ import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class SACFFeatures extends AudioEventFeatures<Integer[]> implements ToneMapConstants {
+
+	private static final Logger LOG = Logger.getLogger(SACFFeatures.class.getName());
 
 	public boolean logSwitch = true;
 	public int powerHigh = 100;

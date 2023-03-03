@@ -1,5 +1,7 @@
 package jomu.instrument.audio.features;
 
+import java.util.logging.Logger;
+
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -17,6 +19,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> implements PitchDetectionHandler {
+
+	private static final Logger LOG = Logger.getLogger(PitchDetectorSource.class.getName());
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;

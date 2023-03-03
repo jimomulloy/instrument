@@ -1,5 +1,7 @@
 package jomu.instrument.audio.features;
 
+import java.util.logging.Logger;
+
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -18,6 +20,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
 public class YINSource extends AudioEventSource<SpectrogramInfo> implements PitchDetectionHandler {
+
+	private static final Logger LOG = Logger.getLogger(YINSource.class.getName());
 
 	private float binHeight;
 

@@ -1,6 +1,11 @@
 package jomu.instrument.audio.features;
 
+import java.util.logging.Logger;
+
 public class AudioFeatureFrame {
+
+	private static final Logger LOG = Logger.getLogger(AudioFeatureFrame.class.getName());
+
 	private AudioFeatureProcessor audioFeatureProcessor;
 	private ConstantQFeatures constantQFeatures;
 	private CQMicroToneFeatures cqMicroToneFeatures;

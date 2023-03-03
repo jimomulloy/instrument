@@ -53,7 +53,6 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
 		pdf.buildToneMapFrame(toneMap);
 		float[] spectrum = pdf.getSpectrum();
-		LOG.info(">>PP TIME: " + toneMap.getTimeFrame().getStartTime());
 
 		float maxs = 0;
 		int maxi = 0;

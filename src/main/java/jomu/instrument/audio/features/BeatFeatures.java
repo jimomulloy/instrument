@@ -1,6 +1,7 @@
 package jomu.instrument.audio.features;
 
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.monitor.Visor;
@@ -11,6 +12,8 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
+
+	private static final Logger LOG = Logger.getLogger(BeatFeatures.class.getName());
 
 	private AudioFeatureFrame audioFeatureFrame;
 	private PitchSet pitchSet;

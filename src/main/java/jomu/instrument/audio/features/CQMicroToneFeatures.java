@@ -3,6 +3,7 @@ package jomu.instrument.audio.features;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.workspace.tonemap.PitchSet;
@@ -13,6 +14,8 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements ToneMapConstants {
+
+	private static final Logger LOG = Logger.getLogger(CQMicroToneFeatures.class.getName());
 
 	private AudioFeatureFrame audioFeatureFrame;
 	private boolean isCommitted;
@@ -51,7 +54,7 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 				}
 			}
 
-			System.out.println(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
+			LOG.info(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
@@ -62,7 +65,7 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 					PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
 
 			PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
-			System.out.println(">>CQ lowPitch: " + lowPitch + ", " + highPitch);
+			LOG.info(">>CQ lowPitch: " + lowPitch + ", " + highPitch);
 
 			// toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
@@ -80,7 +83,7 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 				for (int i = 0; i < elements.length; i++) {
 					if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
 						// getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
-						System.out.println(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
+						LOG.info(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
 					}
 				}
 				for (int i = 0; i < elements.length; i++) {

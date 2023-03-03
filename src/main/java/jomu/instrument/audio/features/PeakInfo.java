@@ -56,7 +56,6 @@ public class PeakInfo {
 		float[] noiseFloor = getNoiseFloor(medianFilterLength, noiseFloorFactor);
 		List<Integer> localMaxima = SpectralPeakDetector.findLocalMaxima(magnitudes, noiseFloor);
 		if (localMaxima.size() > 0) {
-			System.out.println(">>got local max: " + localMaxima.size());
 			return SpectralPeakDetector.findPeaks(magnitudes, frequencyEstimates, localMaxima, numberOfPeaks,
 					minPeakDistanceInCents);
 		} else {

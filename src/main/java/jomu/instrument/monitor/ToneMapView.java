@@ -168,6 +168,7 @@ public class ToneMapView extends JComponent implements ComponentListener {
 	}
 
 	private void renderToneMap(ToneTimeFrame ttf) {
+		boolean showPeaks = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS);
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (bufferedImage == null) {
@@ -243,6 +244,9 @@ public class ToneMapView extends JComponent implements ComponentListener {
 								/ Math.log1p(1.0000001) * 255);
 						greyValue = Math.max(0, greyValue);
 						color = rainbow[255 - greyValue];
+					}
+					if (toneMapElement.isPeak && showPeaks) {
+						color = Color.MAGENTA;
 					}
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
 					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);

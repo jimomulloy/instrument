@@ -57,6 +57,8 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 			List<SpectralPeak> peaks = peakInfo.getPeakList(noiseFloorMedianFilterLenth, noiseFloorFactor,
 					numberOfSpectralPeaks, minPeakSize);
 
+			tuner.flagPeaks(tpToneMap, peaks);
+
 			if (tpSwitchTuner) {
 				tuner.processPeaks(tpToneMap, peaks);
 			}

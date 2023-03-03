@@ -150,10 +150,12 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";
 	public static final String MONITOR_VIEW_TIME_AXIS_RANGE = "monitor.view.timeAxisRange";
 	public static final String MONITOR_VIEW_PITCH_AXIS_RANGE = "monitor.view.pitchAxisRange";
+	public static final String MONITOR_VIEW_SHOW_PEAKS = "monitor.view.showPeaks";
 
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";
 	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";
+	public static final String ACTUATION_VOICE_PLAY_PEAKS = "actuation.voice.playPeaks";
 	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";
 	public static final String ACTUATION_VOICE_AUDIO_PLAY = "actuation.voice.playAudio";
 	public static final String ACTUATION_VOICE_RESYNTH_PLAY = "actuation.voice.playResynth";

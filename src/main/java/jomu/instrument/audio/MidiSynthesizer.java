@@ -565,6 +565,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			boolean playPeaks = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 
 			ToneMap notateToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
@@ -658,6 +660,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			boolean playPeaks = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 
 			ToneMap pitchToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_PITCH, midiStream.getStreamId()));
@@ -686,9 +690,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				double amplitude = toneMapElement.amplitude;
+				boolean isPeak = toneMapElement.isPeak;
 
 				int volume = 0;
-				if (amplitude > 1.0) {
+				if (amplitude > 1.0 || (isPeak && playPeaks)) {
 					volume = 120;
 				} else if (amplitude < 0.1) {
 					volume = 0;
@@ -741,6 +746,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			boolean playPeaks = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 
 			ToneMap pitchToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_YIN, midiStream.getStreamId()));
@@ -769,9 +776,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				double amplitude = toneMapElement.amplitude;
+				boolean isPeak = toneMapElement.isPeak;
 
 				int volume = 0;
-				if (amplitude > 1.0) {
+				if (amplitude > 1.0 || (isPeak && playPeaks)) {
 					volume = 120;
 				} else if (amplitude < 0.1) {
 					volume = 0;
@@ -824,6 +832,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			boolean playPeaks = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 
 			ToneMap pitchToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, midiStream.getStreamId()));
@@ -852,9 +862,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				double amplitude = toneMapElement.amplitude;
+				boolean isPeak = toneMapElement.isPeak;
 
 				int volume = 0;
-				if (amplitude > 1.0) {
+				if (amplitude > 1.0 || (isPeak && playPeaks)) {
 					volume = 120;
 				} else if (amplitude < 0.1) {
 					volume = 0;

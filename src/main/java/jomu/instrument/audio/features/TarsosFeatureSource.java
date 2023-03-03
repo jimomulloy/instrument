@@ -1,8 +1,12 @@
 package jomu.instrument.audio.features;
 
+import java.util.logging.Logger;
+
 import be.tarsos.dsp.AudioDispatcher;
 
 public class TarsosFeatureSource {
+
+	private static final Logger LOG = Logger.getLogger(TarsosFeatureSource.class.getName());
 
 	private ConstantQSource constantQSource;
 	private CQMicroToneSource cqMicroToneSource;
