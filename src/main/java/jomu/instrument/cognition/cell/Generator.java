@@ -35,6 +35,8 @@ public class Generator {
 			return createAudioBeatTypeCell();
 		case AUDIO_ONSET:
 			return createAudioOnsetTypeCell();
+		case AUDIO_PERCUSSION:
+			return createAudioPercussionTypeCell();
 		case AUDIO_HPS:
 			return createAudioHpsTypeCell();
 		case AUDIO_PRE_CHROMA:
@@ -131,6 +133,12 @@ public class Generator {
 		return cell;
 	}
 
+	private static NuCell createAudioPercussionTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_PERCUSSION);
+		cell.setProcessor(getAudioPercussionProcessor(cell));
+		return cell;
+	}
+
 	private static NuCell createAudioHpsTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_HPS);
 		cell.setProcessor(getAudioHpsProcessor(cell));
@@ -211,6 +219,10 @@ public class Generator {
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioOnsetProcessor(NuCell cell) {
 		return new AudioOnsetProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioPercussionProcessor(NuCell cell) {
+		return new AudioPercussionProcessor(cell);
 	}
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioHpsProcessor(NuCell cell) {

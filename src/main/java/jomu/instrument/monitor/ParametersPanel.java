@@ -155,6 +155,13 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox hpsCQOriginSwitchCB;
 	private JCheckBox onsetCQOriginSwitchCB;
 	private JCheckBox cqWhitenSwitchCB;
+	private JTextField beatsThresholdInput;
+	private JTextField beatsSensitivityInput;
+	private JTextField onsetThresholdInput;
+	private JTextField onsetSensitivityInput;
+	private JTextField onsetIntervalInput;
+	private JTextField percussionThresholdInput;
+	private JTextField percussionSensitivityInput;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -2069,6 +2076,120 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(pdLowThresholdLabel);
 		cqParamsPanel.add(pdLowThresholdInput);
 
+		JLabel beatsThresholdLabel = new JLabel("Beats Threshold Factor: ");
+		beatsThresholdInput = new JTextField(4);
+		beatsThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = beatsThresholdInput.getText();
+				beatsThresholdLabel.setText(String.format("Beats Threshold Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD, newValue);
+
+			}
+		});
+		beatsThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD));
+		cqParamsPanel.add(beatsThresholdLabel);
+		cqParamsPanel.add(beatsThresholdInput);
+
+		JLabel beatsSensitivityLabel = new JLabel("Beats Sensitivity Factor: ");
+		beatsSensitivityInput = new JTextField(4);
+		beatsSensitivityInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = beatsSensitivityInput.getText();
+				beatsSensitivityLabel.setText(String.format("Beats Sensitivity Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_SENSITIVITY, newValue);
+
+			}
+		});
+		beatsSensitivityInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_SENSITIVITY));
+		cqParamsPanel.add(beatsSensitivityLabel);
+		cqParamsPanel.add(beatsSensitivityInput);
+
+		JLabel onsetThresholdLabel = new JLabel("Onset Threshold Factor: ");
+		onsetThresholdInput = new JTextField(4);
+		onsetThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = onsetThresholdInput.getText();
+				onsetThresholdLabel.setText(String.format("Onset Threshold Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_THRESHOLD, newValue);
+
+			}
+		});
+		onsetThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_THRESHOLD));
+		cqParamsPanel.add(onsetThresholdLabel);
+		cqParamsPanel.add(onsetThresholdInput);
+
+		JLabel onsetSensitivityLabel = new JLabel("Onset Sensitivity Factor: ");
+		onsetSensitivityInput = new JTextField(4);
+		onsetSensitivityInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = onsetSensitivityInput.getText();
+				onsetSensitivityLabel.setText(String.format("Onset Sensitivity Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SENSITIVITY, newValue);
+
+			}
+		});
+		onsetSensitivityInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SENSITIVITY));
+		cqParamsPanel.add(onsetSensitivityLabel);
+		cqParamsPanel.add(onsetSensitivityInput);
+
+		JLabel percussionThresholdLabel = new JLabel("Percussion Threshold Factor: ");
+		percussionThresholdInput = new JTextField(4);
+		percussionThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = percussionThresholdInput.getText();
+				percussionThresholdLabel.setText(String.format("Percussion Threshold Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_THRESHOLD,
+						newValue);
+
+			}
+		});
+		percussionThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_THRESHOLD));
+		cqParamsPanel.add(percussionThresholdLabel);
+		cqParamsPanel.add(percussionThresholdInput);
+
+		JLabel percussionSensitivityLabel = new JLabel("Percussion Sensitivity Factor: ");
+		percussionSensitivityInput = new JTextField(4);
+		percussionSensitivityInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = percussionSensitivityInput.getText();
+				percussionSensitivityLabel.setText(String.format("Percussion Sensitivity Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_SENSITIVITY,
+						newValue);
+
+			}
+		});
+		percussionSensitivityInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_SENSITIVITY));
+		cqParamsPanel.add(percussionSensitivityLabel);
+		cqParamsPanel.add(percussionSensitivityInput);
+
+		JLabel onsetIntervalLabel = new JLabel("Onset Interval Factor: ");
+		onsetIntervalInput = new JTextField(4);
+		onsetIntervalInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = onsetIntervalInput.getText();
+				onsetIntervalLabel.setText(String.format("Onset Interval Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL, newValue);
+
+			}
+		});
+		onsetIntervalInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL));
+		cqParamsPanel.add(onsetIntervalLabel);
+		cqParamsPanel.add(onsetIntervalInput);
+
 		JLabel tunerThresholdFactorLabel = new JLabel("Tuner Threshold Factor: ");
 		tunerThresholdFactorInput = new JTextField(4);
 		tunerThresholdFactorInput.addActionListener(new ActionListener() {
@@ -2470,6 +2591,21 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
+
+		beatsThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD));
+		beatsSensitivityInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_SENSITIVITY));
+		onsetThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_THRESHOLD));
+		onsetSensitivityInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SENSITIVITY));
+		onsetIntervalInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL));
+		percussionSensitivityInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_SENSITIVITY));
+		percussionThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_THRESHOLD));
 
 	}
 }

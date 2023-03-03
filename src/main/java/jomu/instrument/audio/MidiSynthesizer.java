@@ -623,6 +623,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 						}
 						midiMessages.add(midiMessage);
 						voiceChannel1LastNotes.add(note);
+					} else {
+						System.out.println(">>VOICE NOTE ON CC CHANGE: " + note + ", " + amplitude + ", " + volume);
+						midiMessage = new ShortMessage();
+						try {
+							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice1Channel.num, note, volume);
+						} catch (InvalidMidiDataException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						midiMessages.add(midiMessage);
 					}
 					break;
 				case OFF:

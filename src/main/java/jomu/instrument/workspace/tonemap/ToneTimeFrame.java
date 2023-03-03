@@ -961,7 +961,7 @@ public class ToneTimeFrame {
 
 	@Override
 	public String toString() {
-		return "ToneTimeFrame [pitchSet=" + pitchSet + ", timeSet=" + timeSet + "]";
+		return "ToneTimeFrame [pitchSet=" + pitchSet + ", timeSet=" + timeSet + ", maxAmpl=" + maxAmplitude + "]";
 	}
 
 	@Override

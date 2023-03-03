@@ -246,7 +246,7 @@ public class AudioTuner implements ToneMapConstants {
 		double peakStepFactor = (double) n6Setting / 100.0;
 
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
-
+		LOG.info(">>Process peaks: " + normalizePeak + ", " + toneTimeFrame);
 		for (ToneMapElement toneMapElement : ttfElements) {
 
 			index = toneMapElement.getIndex();
@@ -257,6 +257,8 @@ public class AudioTuner implements ToneMapConstants {
 				if (troughAmp <= normalizeTrough || (amplitude / troughAmp) > peakFactor) {
 					if (amplitude > lastAmp) {
 						if (startPeak != 0 && ((lastAmp / amplitude) < peakStepFactor)) {
+							LOG.info(">>Process peaks 1: " + amplitude + ", " + lastAmp + ", " + startPeak + ", "
+									+ endPeak);
 							processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 						}
 						startPeak = index;
@@ -274,6 +276,7 @@ public class AudioTuner implements ToneMapConstants {
 
 			if (amplitude < lastAmp) {
 				if (startPeak != 0) {
+					LOG.info(">>Process peaks 2: " + amplitude + ", " + lastAmp + ", " + startPeak + ", " + endPeak);
 					processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 					if ((amplitude / lastAmp) < peakStepFactor) {
 						startPeak = index;
@@ -295,7 +298,9 @@ public class AudioTuner implements ToneMapConstants {
 
 		if (startPeak != 0) {
 			if (lastAmp <= normalizeTrough || (lastPeakAmp / lastAmp) > peakFactor) {
-				processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
+				LOG.info(">>Process peaks 3: " + lastPeakAmp + ", " + lastAmp + ", " + startPeak + ", " + endPeak);
+				// TODO Produces invalid peak at end ?? processPeak(toneTimeFrame, startPeak,
+				// endPeak, troughAmp, thresholdElement, maxAmp);
 			}
 		}
 
@@ -316,11 +321,12 @@ public class AudioTuner implements ToneMapConstants {
 			for (ToneMapElement toneMapElement : ttfElements) {
 				if (!topPeaks.contains(toneMapElement)) {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
+				} else {
+					LOG.info(">>PEAK found: " + toneMapElement);
 				}
 			}
 			toneTimeFrame.reset();
-			System.out
-					.println(">>thresholds: " + toneTimeFrame.getHighThreshold() + ", " + toneTimeFrame.getLowThres());
+			LOG.info(">>PEAK thresholds: " + toneTimeFrame.getHighThreshold() + ", " + toneTimeFrame.getLowThres());
 		}
 
 		return true;

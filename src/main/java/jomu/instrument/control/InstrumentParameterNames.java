@@ -72,8 +72,12 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";
 
 	public static final String PERCEPTION_HEARING_ONSET_THRESHOLD = "perception.hearing.onset.threshold";
+	public static final String PERCEPTION_HEARING_ONSET_SENSITIVITY = "perception.hearing.onset.sensitivity";
 	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = " perception.hearing.onset.interval";
 	public static final String PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH = "perception.hearing.onset.cqOriginSwitch";
+
+	public static final String PERCEPTION_HEARING_PERCUSSION_THRESHOLD = "perception.hearing.percussion.threshold";
+	public static final String PERCEPTION_HEARING_PERCUSSION_SENSITIVITY = "perception.hearing.percussion.sensitivity";
 
 	public static final String PERCEPTION_HEARING_PITCH_DETECT_HARMONICS = "perception.hearing.pitch.detect.harmonics";
 	public static final String PERCEPTION_HEARING_PITCH_DETECT_COMPRESSION = "perception.hearing.pitch.detect.compresssion";

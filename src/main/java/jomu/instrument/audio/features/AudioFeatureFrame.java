@@ -13,6 +13,7 @@ public class AudioFeatureFrame {
 	private int frameSequence;
 
 	private OnsetFeatures onsetFeatures;
+	private PercussionFeatures percussionFeatures;
 	private BeatFeatures beatFeatures;
 	private PitchDetectorFeatures pitchDetectorFeatures;
 	private YINFeatures yinFeatures;
@@ -60,6 +61,10 @@ public class AudioFeatureFrame {
 		return onsetFeatures;
 	}
 
+	// public PercussionFeatures getPercussionFeatures() {
+	// return percussionFeatures;
+	// }
+
 	public PitchDetectorFeatures getPitchDetectorFeatures() {
 		return pitchDetectorFeatures;
 	}
@@ -88,6 +93,7 @@ public class AudioFeatureFrame {
 		constantQFeatures = new ConstantQFeatures();
 		cqMicroToneFeatures = new CQMicroToneFeatures();
 		onsetFeatures = new OnsetFeatures();
+		percussionFeatures = new PercussionFeatures();
 		beatFeatures = new BeatFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
 		pitchDetectorFeatures = new PitchDetectorFeatures();
@@ -97,6 +103,7 @@ public class AudioFeatureFrame {
 		constantQFeatures.initialise(this);
 		cqMicroToneFeatures.initialise(this);
 		onsetFeatures.initialise(this);
+		percussionFeatures.initialise(this);
 		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);
 		yinFeatures.initialise(this);
