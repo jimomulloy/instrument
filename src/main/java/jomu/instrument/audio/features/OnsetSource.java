@@ -2,8 +2,6 @@ package jomu.instrument.audio.features;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -16,9 +14,8 @@ import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class OnsetSource implements OnsetHandler {
+public class OnsetSource extends AudioEventSource<OnsetInfo[]> implements OnsetHandler {
 
-	private Map<Double, OnsetInfo[]> features = new TreeMap<>();
 	private List<OnsetInfo> onsetInfos = new ArrayList<>();
 	private int windowSize = 1024;
 	private float sampleRate = 44100;
@@ -34,14 +31,6 @@ public class OnsetSource implements OnsetHandler {
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
-	public TreeMap<Double, OnsetInfo[]> getFeatures() {
-		TreeMap<Double, OnsetInfo[]> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, OnsetInfo[]> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
 	public int getIncrement() {
 		return windowSize;
 	}
@@ -54,10 +43,6 @@ public class OnsetSource implements OnsetHandler {
 	public void handleOnset(double time, double salience) {
 		// System.out.println(">>Percussion at:" + time + ", " + salience);
 		onsetInfos.add(new OnsetInfo(time, salience));
-	}
-
-	void clear() {
-		features.clear();
 	}
 
 	void initialise() {
@@ -85,7 +70,7 @@ public class OnsetSource implements OnsetHandler {
 
 			@Override
 			public boolean process(AudioEvent audioEvent) {
-				features.put(audioEvent.getTimeStamp(), onsetInfos.toArray((new OnsetInfo[onsetInfos.size()])));
+				putFeature(audioEvent.getTimeStamp(), onsetInfos.toArray((new OnsetInfo[onsetInfos.size()])));
 				onsetInfos.clear();
 				return true;
 			}
@@ -97,11 +82,12 @@ public class OnsetSource implements OnsetHandler {
 			}
 		});
 
-		features.clear();
+		clear();
 	}
 
-	void removeFeatures(double endTime) {
-		features.keySet().removeIf(key -> key <= endTime);
+	@Override
+	OnsetInfo[] cloneFeatures(OnsetInfo[] features) {
+		return features.clone();
 	}
 
 }

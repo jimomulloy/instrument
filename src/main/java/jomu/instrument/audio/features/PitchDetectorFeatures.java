@@ -1,7 +1,6 @@
 package jomu.instrument.audio.features;
 
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
@@ -9,7 +8,7 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class PitchDetectorFeatures implements ToneMapConstants {
+public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> implements ToneMapConstants {
 
 	public boolean logSwitch = true;
 	public int powerHigh = 100;
@@ -18,9 +17,6 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 	private PitchSet pitchSet;
 	private TimeSet timeSet;
 	private ToneMap toneMap;
-
-	TreeMap<Double, SpectrogramInfo> features;
-	PitchDetectorSource pds;
 
 	public float[] getSpectrum() {
 		float[] spectrum = null;
@@ -45,7 +41,7 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 
 		if (features.size() > 0) {
 
-			float binWidth = pds.getBinWidth();
+			float binWidth = getSource().getBinWidth();
 			double timeStart = -1;
 			double nextTime = -1;
 
@@ -56,7 +52,8 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 				}
 			}
 
-			timeSet = new TimeSet(timeStart, nextTime + binWidth, pds.getSampleRate(), nextTime + binWidth - timeStart);
+			timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
+					nextTime + binWidth - timeStart);
 
 			pitchSet = new PitchSet();
 
@@ -65,22 +62,18 @@ public class PitchDetectorFeatures implements ToneMapConstants {
 		}
 	}
 
-	public TreeMap<Double, SpectrogramInfo> getFeatures() {
-		return features;
-	}
-
-	public PitchDetectorSource getPds() {
-		return pds;
-	}
-
 	public ToneMap getToneMap() {
 		return toneMap;
 	}
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.pds = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource();
-		this.features = this.pds.getFeatures();
-		pds.clear();
+		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource());
+		this.features = getSource().getAndClearFeatures();
+	}
+
+	@Override
+	public PitchDetectorSource getSource() {
+		return (PitchDetectorSource) source;
 	}
 }

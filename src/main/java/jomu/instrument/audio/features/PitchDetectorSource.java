@@ -1,7 +1,5 @@
 package jomu.instrument.audio.features;
 
-import java.util.TreeMap;
-
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -18,7 +16,7 @@ import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class PitchDetectorSource implements PitchDetectionHandler {
+public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> implements PitchDetectionHandler {
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -32,7 +30,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	private float[] binStartingPointsInCents;
 	private float binWidth;
 	private int windowSize = 1024;
-	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
 
 	private int overlap = 0;
 	private PitchDetectionResult pitchDetectionResult;
@@ -71,14 +68,12 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
 
 			fft.powerPhaseFFT(transformbuffer, amplitudes, currentPhaseOffsets);
-			// fft.forwardTransform(transformbuffer);
-			// fft.modulus(transformbuffer, amplitudes);
 
 			calculateFrequencyEstimates();
 
 			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, currentPhaseOffsets,
 					frequencyEstimates);
-			features.put(audioEvent.getTimeStamp(), si);
+			putFeature(audioEvent.getTimeStamp(), si);
 			return true;
 		}
 
@@ -171,14 +166,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		return windowSize;
 	}
 
-	public TreeMap<Double, SpectrogramInfo> getFeatures() {
-		TreeMap<Double, SpectrogramInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
 	public float getSampleRate() {
 		return sampleRate;
 	}
@@ -186,10 +173,6 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 	@Override
 	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
 		this.pitchDetectionResult = pitchDetectionResult;
-	}
-
-	void clear() {
-		features.clear();
 	}
 
 	void initialise() {
@@ -212,6 +195,11 @@ public class PitchDetectorSource implements PitchDetectionHandler {
 		dispatcher.addAudioProcessor(djp);
 		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, windowSize, this));
 		djp.addAudioProcessor(fftProcessor);
-		features.clear();
+		clear();
+	}
+
+	@Override
+	SpectrogramInfo cloneFeatures(SpectrogramInfo features) {
+		return features.clone();
 	}
 }

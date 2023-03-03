@@ -1,8 +1,6 @@
 package jomu.instrument.audio.features;
 
 import java.util.Arrays;
-import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -20,7 +18,7 @@ import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class ResynthSource implements PitchDetectionHandler {
+public class ResynthSource extends AudioEventSource<ResynthInfo> implements PitchDetectionHandler {
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -34,7 +32,6 @@ public class ResynthSource implements PitchDetectionHandler {
 	private float[] binStartingPointsInCents;
 	private float binWidth;
 	private int windowSize = 1024;
-	private TreeMap<Double, ResynthInfo> features = new TreeMap<>();
 
 	private int overlap = 0;
 	private float sampleRate = 44100;
@@ -106,20 +103,8 @@ public class ResynthSource implements PitchDetectionHandler {
 		return windowSize;
 	}
 
-	public TreeMap<Double, ResynthInfo> getFeatures() {
-		TreeMap<Double, ResynthInfo> clonedFeatures = new TreeMap<>();
-		for (Entry<Double, ResynthInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
 	public float getSampleRate() {
 		return sampleRate;
-	}
-
-	void clear() {
-		features.clear();
 	}
 
 	void initialise() {
@@ -148,7 +133,7 @@ public class ResynthSource implements PitchDetectionHandler {
 			public boolean process(AudioEvent audioEvent) {
 				float[] audioFloatBuffer = audioEvent.getFloatBuffer().clone();
 				ResynthInfo ri = new ResynthInfo(audioFloatBuffer, envelopeAudioBuffer);
-				features.put(audioEvent.getTimeStamp(), ri);
+				putFeature(audioEvent.getTimeStamp(), ri);
 				return true;
 			}
 
@@ -157,7 +142,8 @@ public class ResynthSource implements PitchDetectionHandler {
 
 			}
 		});
-		features.clear();
+
+		clear();
 	}
 
 	@Override
@@ -210,5 +196,10 @@ public class ResynthSource implements PitchDetectionHandler {
 			phaseFirst = 4 * timefactor + phaseFirst;
 			phaseSecond = 8 * timefactor + phaseSecond;
 		}
+	}
+
+	@Override
+	ResynthInfo cloneFeatures(ResynthInfo features) {
+		return features.clone();
 	}
 }

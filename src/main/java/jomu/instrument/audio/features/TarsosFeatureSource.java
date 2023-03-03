@@ -11,7 +11,6 @@ public class TarsosFeatureSource {
 	private YINSource yinSource;
 	private ResynthSource resynthSource;
 	private SACFSource sacfSource;
-	private ScalogramSource scalogramSource;
 	private SpectralPeaksSource spectralPeaksSource;
 	private BeatSource beatSource;
 	private AudioDispatcher dispatcher;
@@ -56,10 +55,6 @@ public class TarsosFeatureSource {
 		return sacfSource;
 	}
 
-	public ScalogramSource getScalogramSource() {
-		return scalogramSource;
-	}
-
 	public SpectralPeaksSource getSpectralPeaksSource() {
 		return spectralPeaksSource;
 	}
@@ -74,7 +69,6 @@ public class TarsosFeatureSource {
 		resynthSource = new ResynthSource(dispatcher);
 		sacfSource = new SACFSource(dispatcher);
 		beatSource = new BeatSource(dispatcher);
-		scalogramSource = new ScalogramSource(dispatcher);
 		constantQSource.initialise();
 		cqMicroToneSource.initialise();
 		onsetSource.initialise();

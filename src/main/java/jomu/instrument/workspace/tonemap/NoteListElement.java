@@ -1,6 +1,5 @@
 package jomu.instrument.workspace.tonemap;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -10,21 +9,20 @@ import java.util.Objects;
  * @version 1.0 01/01/01
  * @author Jim O'Mulloy
  */
-public class NoteListElement implements Serializable {
+public class NoteListElement {
 
-	public double avgAmp; // Average amplitude (loudness)
-
-	public double endTime; // Note End Time
-	public int endTimeIndex; // End Time Index in ToneMapMatrix
-	public double maxAmp; // Maximum amplitude
-	public double minAmp; // Minumum amplitude
-	public int note; // Midi note pitch
-	public boolean overTone; // Flag note as overtone
-	public double percentMin; // Percentage # entries below minimum
-	public int pitchIndex; // Pitch index in ToneMapMatrix
-	public double startTime; // Note Start Time
-	public int startTimeIndex; // Start Time Index in ToneMapMatrix
-	public boolean underTone; // Flag note as undertone
+	public double avgAmp;
+	public double endTime;
+	public int endTimeIndex;
+	public double maxAmp;
+	public double minAmp;
+	public int note;
+	public boolean overTone;
+	public double percentMin;
+	public int pitchIndex;
+	public double startTime;
+	public int startTimeIndex;
+	public boolean underTone;
 	public NoteHarmonics noteHarmonics;
 	public NoteTimbre noteTimbre;
 
@@ -53,6 +51,14 @@ public class NoteListElement implements Serializable {
 	}
 
 	@Override
+	public String toString() {
+		return "NoteListElement [avgAmp=" + avgAmp + ", endTime=" + endTime + ", endTimeIndex=" + endTimeIndex
+				+ ", maxAmp=" + maxAmp + ", minAmp=" + minAmp + ", note=" + note + ", overTone=" + overTone
+				+ ", percentMin=" + percentMin + ", pitchIndex=" + pitchIndex + ", startTime=" + startTime
+				+ ", startTimeIndex=" + startTimeIndex + ", underTone=" + underTone + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		return Objects.hash(note, pitchIndex, startTime);
 	}
@@ -70,12 +76,4 @@ public class NoteListElement implements Serializable {
 				&& Double.doubleToLongBits(startTime) == Double.doubleToLongBits(other.startTime);
 	}
 
-	@Override
-	public String toString() {
-		return "NoteListElement [avgAmp=" + avgAmp + ", endTime=" + endTime + ", endTimeIndex=" + endTimeIndex
-				+ ", maxAmp=" + maxAmp + ", minAmp=" + minAmp + ", note=" + note + ", overTone=" + overTone
-				+ ", percentMin=" + percentMin + ", pitchIndex=" + pitchIndex + ", startTime=" + startTime
-				+ ", startTimeIndex=" + startTimeIndex + ", underTone=" + underTone + "]";
-	}
-
-} // End NoteListElement
+}

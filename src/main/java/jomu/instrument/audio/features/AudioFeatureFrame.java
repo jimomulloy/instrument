@@ -13,7 +13,6 @@ public class AudioFeatureFrame {
 	private YINFeatures yinFeatures;
 	private ResynthFeatures resynthFeatures;
 	private SACFFeatures sacfFeatures;
-	private ScalogramFeatures scalogramFeatures;
 	private SpectralPeaksFeatures spectralPeaksFeatures;
 	private double start;
 
@@ -72,10 +71,6 @@ public class AudioFeatureFrame {
 		return sacfFeatures;
 	}
 
-	public ScalogramFeatures getScalogramFeatures() {
-		return scalogramFeatures;
-	}
-
 	public SpectralPeaksFeatures getSpectralPeaksFeatures() {
 		return spectralPeaksFeatures;
 	}
@@ -94,7 +89,6 @@ public class AudioFeatureFrame {
 		yinFeatures = new YINFeatures();
 		resynthFeatures = new ResynthFeatures();
 		sacfFeatures = new SACFFeatures();
-		scalogramFeatures = new ScalogramFeatures();
 		constantQFeatures.initialise(this);
 		cqMicroToneFeatures.initialise(this);
 		onsetFeatures.initialise(this);
@@ -103,7 +97,6 @@ public class AudioFeatureFrame {
 		yinFeatures.initialise(this);
 		resynthFeatures.initialise(this);
 		sacfFeatures.initialise(this);
-		scalogramFeatures.initialise(this.audioFeatureProcessor.getTarsosFeatures().getScalogramSource());
 		beatFeatures.initialise(this);
 
 	}

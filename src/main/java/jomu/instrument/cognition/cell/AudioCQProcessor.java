@@ -118,7 +118,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 					+ toneMap.getTimeFrame().getMinAmplitude());
 
 			console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
-			console.getVisor().updateSpectrumView(toneMap.getTimeFrame(), cqf.getCqs().getWindowSize());
+			console.getVisor().updateSpectrumView(toneMap.getTimeFrame(), cqf.getSource().getWindowSize());
 
 			cell.send(streamId, sequence);
 		}

@@ -1,34 +1,71 @@
 package jomu.instrument.audio.features;
 
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReentrantLock;
 
-import be.tarsos.dsp.AudioEvent;
-import jomu.instrument.audio.TarsosAudioIO;
+public abstract class AudioEventSource<T> {
 
-public class AudioEventSource {
+	final ReentrantLock lock = new ReentrantLock();
 
-	private TreeMap<Double, AudioEvent> features = new TreeMap<>();
-	private TarsosAudioIO tarsosIO;
+	final TreeMap<Double, T> features = new TreeMap<>();
 
-	public AudioEventSource(TarsosAudioIO tarsosIO) {
-		super();
-		this.tarsosIO = tarsosIO;
-	}
-
-	public TreeMap<Double, AudioEvent> getFeatures() {
-		features = tarsosIO.getFeatures();
-		TreeMap<Double, AudioEvent> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, AudioEvent> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue());
+	final public TreeMap<Double, T> getFeatures() {
+		TreeMap<Double, T> clonedFeatures = null;
+		lock.lock();
+		try {
+			clonedFeatures = new TreeMap<>();
+			for (java.util.Map.Entry<Double, T> entry : features.entrySet()) {
+				clonedFeatures.put(entry.getKey(), cloneFeatures(entry.getValue()));
+			}
+		} finally {
+			lock.unlock();
 		}
+
 		return clonedFeatures;
 	}
 
-	public TarsosAudioIO getTarsosIO() {
-		return tarsosIO;
+	final public TreeMap<Double, T> getAndClearFeatures() {
+		TreeMap<Double, T> clonedFeatures = null;
+		lock.lock();
+		try {
+			clonedFeatures = new TreeMap<>();
+			for (java.util.Map.Entry<Double, T> entry : features.entrySet()) {
+				clonedFeatures.put(entry.getKey(), cloneFeatures(entry.getValue()));
+			}
+			features.clear();
+		} finally {
+			lock.unlock();
+		}
+
+		return clonedFeatures;
 	}
 
-	void clear() {
-		tarsosIO.clearFeatures();
+	abstract T cloneFeatures(T features);
+
+	final void putFeature(double key, T feature) {
+		lock.lock();
+		try {
+			features.put(key, feature);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	void removeFeatures(double endTime) {
+		lock.lock();
+		try {
+			features.keySet().removeIf(key -> key <= endTime);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	final void clear() {
+		lock.lock();
+		try {
+			features.clear();
+		} finally {
+			lock.unlock();
+		}
 	}
 }

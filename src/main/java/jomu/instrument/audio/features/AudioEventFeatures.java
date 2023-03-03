@@ -2,24 +2,18 @@ package jomu.instrument.audio.features;
 
 import java.util.TreeMap;
 
-import be.tarsos.dsp.AudioEvent;
+public abstract class AudioEventFeatures<T> {
+	AudioEventSource<T> source;
+	TreeMap<Double, T> features = new TreeMap<>();
 
-public class AudioEventFeatures {
-	AudioEventSource aes;
-	TreeMap<Double, AudioEvent> features;
+	abstract public AudioEventSource<T> getSource();
 
-	public AudioEventSource getAes() {
-		return aes;
-	}
-
-	public TreeMap<Double, AudioEvent> getFeatures() {
+	final public TreeMap<Double, T> getFeatures() {
 		return features;
 	}
 
-	void initialise(AudioEventSource aes) {
-		this.aes = aes;
-		this.features = aes.getFeatures();
-		aes.clear();
+	final public void initialise(AudioEventSource<T> source) {
+		this.source = source;
 	}
 
 }

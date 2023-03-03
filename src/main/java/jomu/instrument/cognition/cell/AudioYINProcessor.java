@@ -63,8 +63,8 @@ public class AudioYINProcessor extends ProcessorCommon {
 			}
 		}
 
-		FFTSpectrum fftSpectrum = new FFTSpectrum(features.getYns().getSampleRate(), features.getYns().getBufferSize(),
-				spectrum);
+		FFTSpectrum fftSpectrum = new FFTSpectrum(features.getSource().getSampleRate(),
+				features.getSource().getBufferSize(), spectrum);
 
 		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 
@@ -77,7 +77,7 @@ public class AudioYINProcessor extends ProcessorCommon {
 		}
 
 		if (pdSwitchKlapuri) {
-			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(features.getYns().getSampleRate(),
+			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(features.getSource().getSampleRate(),
 					fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
 			Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
 			for (int i = 0; i < klapuri.processedSpectrumData.length; i++) {
@@ -86,9 +86,9 @@ public class AudioYINProcessor extends ProcessorCommon {
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 			processKlapuriPeaks(fftSpectrum.getSpectrum(), new ArrayList<Double>(klapuri.f0s),
 					new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame().getElements());
-			toneMap.reset();
+			toneMap.getTimeFrame().reset();
 		} else if (pdSwitchTarsos) {
-			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), features.getYns().getSampleRate(),
+			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), features.getSource().getSampleRate(),
 					toneMap.getTimeFrame().getPitches());
 			// pd.whiten(fftSpectrum.getSpectrum());
 			pd.detect(fftSpectrum.getSpectrum());
@@ -96,7 +96,7 @@ public class AudioYINProcessor extends ProcessorCommon {
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 			processTarsosPeaks(fftSpectrum.getSpectrum(), pd.fzeros, pd.fzeroSaliences,
 					toneMap.getTimeFrame().getElements());
-			toneMap.reset();
+			toneMap.getTimeFrame().reset();
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

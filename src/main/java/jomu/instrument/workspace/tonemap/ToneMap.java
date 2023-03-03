@@ -28,9 +28,15 @@ public class ToneMap {
 
 	private String key;
 
+	private NoteTracker noteTracker = new NoteTracker();
+
 	public ToneMap(String key) {
 		this.key = key;
 		toneMapStore = new ConcurrentSkipListMap<>();
+	}
+
+	public NoteTracker getNoteTracker() {
+		return noteTracker;
 	}
 
 	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
@@ -60,10 +66,6 @@ public class ToneMap {
 			copy.addTimeFrame(tmf.getValue().clone());
 		}
 		return copy;
-	}
-
-	public ToneMap compress() {
-		return this;
 	}
 
 	public void deleteTimeFrame() {
@@ -140,14 +142,4 @@ public class ToneMap {
 	public void initialise() {
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
-
-	public ToneMap instantaneousFrequency() {
-		return this;
-	}
-
-	public ToneMap reset() {
-		this.getTimeFrame().reset();
-		return this;
-	}
-
 }

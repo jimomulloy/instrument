@@ -1,10 +1,6 @@
 package jomu.instrument.audio.features;
 
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -18,7 +14,7 @@ import jomu.instrument.audio.analysis.Autocorrelation;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class SACFSource {
+public class SACFSource extends AudioEventSource<Integer[]> {
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -32,7 +28,6 @@ public class SACFSource {
 	private float[] binStartingPointsInCents;
 	private float binWidth;
 	private int windowSize = 1024;
-	private NavigableMap<Double, Integer[]> features = new ConcurrentSkipListMap<>();
 
 	private int overlap = 0;
 	private float sampleRate = 44100;
@@ -86,20 +81,8 @@ public class SACFSource {
 		return windowSize;
 	}
 
-	public TreeMap<Double, Integer[]> getFeatures() {
-		TreeMap<Double, Integer[]> clonedFeatures = new TreeMap<>();
-		for (Entry<Double, Integer[]> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
 	public float getSampleRate() {
 		return sampleRate;
-	}
-
-	void clear() {
-		features.clear();
 	}
 
 	void initialise() {
@@ -131,7 +114,8 @@ public class SACFSource {
 				for (int peak : sacfPeaks) {
 					System.out.println(">>SACF Peak: " + peak);
 				}
-				features.put(audioEvent.getTimeStamp(), sacfPeaks.toArray(new Integer[sacfPeaks.size()]));
+				Integer[] featureValues = sacfPeaks.toArray(new Integer[sacfPeaks.size()]);
+				SACFSource.this.putFeature(audioEvent.getTimeStamp(), featureValues);
 				return true;
 			}
 
@@ -140,7 +124,8 @@ public class SACFSource {
 
 			}
 		});
-		features.clear();
+
+		clear();
 	}
 
 	static double[] convertFloatsToDoubles(float[] input) {
@@ -152,6 +137,11 @@ public class SACFSource {
 			output[i] = input[i];
 		}
 		return output;
+	}
+
+	@Override
+	Integer[] cloneFeatures(Integer[] features) {
+		return features.clone();
 	}
 
 }

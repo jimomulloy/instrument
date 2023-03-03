@@ -2,7 +2,6 @@ package jomu.instrument.audio.features;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -15,7 +14,7 @@ import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class SpectralPeaksSource {
+public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -23,7 +22,6 @@ public class SpectralPeaksSource {
 	private double maxMagnitudeThreshold = MAX_MAGNITUDE_THRESHOLD;
 	private double minMagnitudeThreshold = MIN_MAGNITUDE_THRESHOLD;
 
-	private TreeMap<Double, SpectralInfo> features = new TreeMap<>();
 	int currentFrame;
 	int minPeakSize = 100;
 	float noiseFloorFactor = 1.0F;
@@ -86,14 +84,6 @@ public class SpectralPeaksSource {
 		return binWidth;
 	}
 
-	public TreeMap<Double, SpectralInfo> getFeatures() {
-		TreeMap<Double, SpectralInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectralInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
 	public int getMinPeakSize() {
 		return minPeakSize;
 	}
@@ -124,11 +114,6 @@ public class SpectralPeaksSource {
 
 	public SpectralPeakProcessor getSpectralPeakProcesser() {
 		return spectralPeakProcesser;
-	}
-
-	void clear() {
-		spectralInfos.clear();
-		features.clear();
 	}
 
 	void initialise() {
@@ -181,7 +166,7 @@ public class SpectralPeaksSource {
 				SpectralInfo si = new SpectralInfo(spectralPeakProcesser.getMagnitudes(),
 						spectralPeakProcesser.getFrequencyEstimates());
 				spectralInfos.add(si);
-				features.put(audioEvent.getTimeStamp(), si);
+				SpectralPeaksSource.this.putFeature(audioEvent.getTimeStamp(), si);
 				return true;
 			}
 
@@ -191,6 +176,11 @@ public class SpectralPeaksSource {
 		});
 
 		spectralInfos.clear();
-		features.clear();
+		clear();
+	}
+
+	@Override
+	SpectralInfo cloneFeatures(SpectralInfo features) {
+		return features.clone();
 	}
 }

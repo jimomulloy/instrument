@@ -12,7 +12,7 @@ import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class CQMicroToneFeatures implements ToneMapConstants {
+public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements ToneMapConstants {
 
 	private AudioFeatureFrame audioFeatureFrame;
 	private boolean isCommitted;
@@ -20,9 +20,6 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 	private PitchSet pitchSet;
 	private TimeSet timeSet;
 	private ToneMap toneMap;
-
-	CQMicroToneSource cqs;
-	Map<Double, float[]> features = new TreeMap<>();
 
 	public void addFeature(Double time, float[] values) {
 		AudioFeatureFrame previousFrame = null;
@@ -48,8 +45,8 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 
 		if (features.size() > 0) {
 
-			float[] binStartingPointsInCents = cqs.getBinStartingPointsInCents();
-			float binWidth = cqs.getBinWidth();
+			float[] binStartingPointsInCents = getSource().getBinStartingPointsInCents();
+			float binWidth = getSource().getBinWidth();
 			double timeStart = -1;
 			double nextTime = -1;
 
@@ -60,8 +57,9 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 				}
 			}
 
-			System.out.println(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + cqs.getSampleRate());
-			timeSet = new TimeSet(timeStart, nextTime + binWidth, cqs.getSampleRate(), nextTime + binWidth - timeStart);
+			System.out.println(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
+			timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
+					nextTime + binWidth - timeStart);
 
 			int window = timeSet.getSampleWindow();
 
@@ -86,14 +84,14 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 				}
 				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < elements.length; i++) {
-					if (elements[i].amplitude > getCqs().getMaxMagnitudeThreshold()) {
+					if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
 						// getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
-						System.out.println(">>CQ MAX VALUE: " + getCqs().getMaxMagnitudeThreshold());
+						System.out.println(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
 					}
 				}
 				for (int i = 0; i < elements.length; i++) {
-					elements[i].amplitude = elements[i].amplitude / getCqs().getMaxMagnitudeThreshold();
-					if (elements[i].amplitude < getCqs().getMinMagnitudeThreshold()) {
+					elements[i].amplitude = elements[i].amplitude / getSource().getMaxMagnitudeThreshold();
+					if (elements[i].amplitude < getSource().getMinMagnitudeThreshold()) {
 						// elements[i].amplitude = getCqs().getMinMagnitudeThreshold();
 					}
 				}
@@ -120,14 +118,6 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 		// }
 	}
 
-	public CQMicroToneSource getCqs() {
-		return cqs;
-	}
-
-	public Map<Double, float[]> getFeatures() {
-		return features;
-	}
-
 	public PitchSet getPitchSet() {
 		return pitchSet;
 	}
@@ -152,12 +142,15 @@ public class CQMicroToneFeatures implements ToneMapConstants {
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.cqs = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getCQMicroToneSource();
-		TreeMap<Double, float[]> newFeatures = this.cqs.getFeatures();
+		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getCQMicroToneSource());
+		TreeMap<Double, float[]> newFeatures = getSource().getAndClearFeatures();
 		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
 			addFeature(entry.getKey(), entry.getValue());
 		}
-		this.cqs.clear();
 	}
 
+	@Override
+	public CQMicroToneSource getSource() {
+		return (CQMicroToneSource) source;
+	}
 }

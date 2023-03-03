@@ -2,7 +2,6 @@ package jomu.instrument.audio.features;
 
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
@@ -12,32 +11,21 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class SpectralPeaksFeatures {
+public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 
-	private TreeMap<Double, SpectralInfo> features;
 	List<SpectralInfo> spectralInfo;
-	SpectralPeaksSource sps;
 	private PitchSet pitchSet;
 	private TimeSet timeSet;
 	private ToneMap toneMap;
-
-	public TreeMap<Double, SpectralInfo> getFeatures() {
-		return features;
-	}
 
 	public List<SpectralInfo> getSpectralInfo() {
 		return spectralInfo;
 	}
 
-	public SpectralPeaksSource getSps() {
-		return sps;
-	}
-
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
-		this.sps = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSpectralPeaksSource();
-		spectralInfo = sps.getSpectralInfo();
-		features = sps.getFeatures();
-		sps.clear();
+		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSpectralPeaksSource());
+		spectralInfo = getSource().getSpectralInfo();
+		features = getSource().getAndClearFeatures();
 	}
 
 	public float[] getSpectrum() {
@@ -60,7 +48,7 @@ public class SpectralPeaksFeatures {
 
 		if (features.size() > 0) {
 
-			float binWidth = sps.getBinWidth();
+			float binWidth = getSource().getBinWidth();
 			double timeStart = -1;
 			double nextTime = -1;
 
@@ -71,7 +59,8 @@ public class SpectralPeaksFeatures {
 				}
 			}
 
-			timeSet = new TimeSet(timeStart, nextTime + binWidth, sps.getSampleRate(), nextTime + binWidth - timeStart);
+			timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
+					nextTime + binWidth - timeStart);
 
 			pitchSet = new PitchSet();
 
@@ -82,25 +71,26 @@ public class SpectralPeaksFeatures {
 
 			float[] spectrum = usePeaks ? processPeaks(getSpectrum()) : getSpectrum();
 
-			FFTSpectrum fftSpectrum = new FFTSpectrum(getSps().getSampleRate(), getSps().getBufferSize(), spectrum);
+			FFTSpectrum fftSpectrum = new FFTSpectrum(getSource().getSampleRate(), getSource().getBufferSize(),
+					spectrum);
 
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 
 			ToneMapElement[] elements = ttf.getElements();
 			for (int i = 0; i < elements.length; i++) {
-				if (elements[i].amplitude > getSps().getMaxMagnitudeThreshold()) {
-					getSps().setMaxMagnitudeThreshold(elements[i].amplitude);
-					System.out.println(">>SP MAX VALUE: " + getSps().getMaxMagnitudeThreshold());
+				if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
+					getSource().setMaxMagnitudeThreshold(elements[i].amplitude);
+					System.out.println(">>SP MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
 				}
 			}
 			for (int i = 0; i < elements.length; i++) {
-				elements[i].amplitude = elements[i].amplitude / getSps().getMaxMagnitudeThreshold();
-				if (elements[i].amplitude < getSps().getMinMagnitudeThreshold()) {
-					elements[i].amplitude = getSps().getMinMagnitudeThreshold();
+				elements[i].amplitude = elements[i].amplitude / getSource().getMaxMagnitudeThreshold();
+				if (elements[i].amplitude < getSource().getMinMagnitudeThreshold()) {
+					elements[i].amplitude = getSource().getMinMagnitudeThreshold();
 				}
 			}
 			ttf.setHighThreshold(1.0);
-			ttf.setLowThreshold(getSps().getMinMagnitudeThreshold());
+			ttf.setLowThreshold(getSource().getMinMagnitudeThreshold());
 			ttf.reset();
 		}
 	}
@@ -109,8 +99,9 @@ public class SpectralPeaksFeatures {
 		float[] peakSpectrum = new float[spectrum.length];
 		System.out.println(">>AA processPeaks");
 		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
-			List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(sps.getNoiseFloorMedianFilterLenth(),
-					sps.getNoiseFloorFactor(), sps.getNumberOfSpectralPeaks(), sps.getMinPeakSize());
+			List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(
+					getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),
+					getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
 			for (SpectralPeak sp : spectralPeaks) {
 				for (int i = 0; i < peakSpectrum.length; i++) {
 					if (sp.getBin() == i) {
@@ -125,4 +116,8 @@ public class SpectralPeaksFeatures {
 
 	}
 
+	@Override
+	public SpectralPeaksSource getSource() {
+		return (SpectralPeaksSource) source;
+	}
 }

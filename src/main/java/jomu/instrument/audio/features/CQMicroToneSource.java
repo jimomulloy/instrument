@@ -1,8 +1,5 @@
 package jomu.instrument.audio.features;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -14,7 +11,7 @@ import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class CQMicroToneSource {
+public class CQMicroToneSource extends AudioEventSource<float[]> {
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 0.5F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -24,7 +21,6 @@ public class CQMicroToneSource {
 	private float binHeight;
 	private float[] binStartingPointsInCents;
 	private float binWidth;
-	private Map<Double, float[]> features = new TreeMap<>();
 	private int size;
 	private float[] startingPointsInHertz;
 	private int binsPerOctave = 48;
@@ -91,14 +87,6 @@ public class CQMicroToneSource {
 		return constantQLag;
 	}
 
-	public TreeMap<Double, float[]> getFeatures() {
-		TreeMap<Double, float[]> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, float[]> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
 	public int getIncrement() {
 		return windowSize;
 	}
@@ -121,10 +109,6 @@ public class CQMicroToneSource {
 
 	public float[] getStartingPointsInHertz() {
 		return startingPointsInHertz;
-	}
-
-	void clear() {
-		features.clear();
 	}
 
 	void initialise() {
@@ -157,7 +141,6 @@ public class CQMicroToneSource {
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
 		System.out.println(">>CQMT size: " + size);
 		System.out.println(">>CQMT lag: " + constantQLag);
-		features = new TreeMap<>();
 
 		djp.addAudioProcessor(constantQ);
 		djp.addAudioProcessor(new AudioProcessor() {
@@ -165,7 +148,7 @@ public class CQMicroToneSource {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				float[] values = constantQ.getMagnitudes().clone();
-				features.put(audioEvent.getTimeStamp() - binWidth /* - constantQLag */, values);
+				putFeature(audioEvent.getTimeStamp() - binWidth /* - constantQLag */, values);
 				return true;
 			}
 
@@ -175,11 +158,12 @@ public class CQMicroToneSource {
 			}
 		});
 
-		features.clear();
+		clear();
 	}
 
-	void removeFeatures(double endTime) {
-		features.keySet().removeIf(key -> key <= endTime);
+	@Override
+	float[] cloneFeatures(float[] features) {
+		return features.clone();
 	}
 
 }

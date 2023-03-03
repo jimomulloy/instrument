@@ -1,7 +1,6 @@
 package jomu.instrument.audio.features;
 
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.monitor.Visor;
@@ -11,30 +10,19 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class BeatFeatures {
+public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
-	private TreeMap<Double, OnsetInfo[]> features;
-	private BeatSource bs;
 	private AudioFeatureFrame audioFeatureFrame;
 	private PitchSet pitchSet;
 	private TimeSet timeSet;
 	private ToneMap toneMap;
 	private Visor visor;
 
-	public TreeMap<Double, OnsetInfo[]> getFeatures() {
-		return features;
-	}
-
-	public BeatSource getBs() {
-		return bs;
-	}
-
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.bs = audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getBeatSource();
-		this.features = bs.getFeatures();
+		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getBeatSource());
+		features = getSource().getAndClearFeatures();
 		this.visor = Instrument.getInstance().getConsole().getVisor();
-		bs.clear();
 	}
 
 	public void buildToneMapFrame(ToneMap toneMap) {
@@ -54,7 +42,8 @@ public class BeatFeatures {
 				}
 			}
 
-			timeSet = new TimeSet(timeStart, nextTime + binWidth, bs.getSampleRate(), nextTime + binWidth - timeStart);
+			timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
+					nextTime + binWidth - timeStart);
 
 			pitchSet = new PitchSet();
 
@@ -81,5 +70,10 @@ public class BeatFeatures {
 			ttf.reset();
 			ttf.setLowThreshold(0.1);
 		}
+	}
+
+	@Override
+	public BeatSource getSource() {
+		return (BeatSource) source;
 	}
 }

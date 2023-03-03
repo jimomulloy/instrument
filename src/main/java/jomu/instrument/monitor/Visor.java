@@ -1507,7 +1507,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					ConstantQSource cqs = audioFeatureFrame.getConstantQFeatures().getCqs();
+					ConstantQSource cqs = audioFeatureFrame.getConstantQFeatures().getSource();
 					binStartingPointsInCents = cqs.getBinStartingPointsInCents();
 					binWidth = cqs.getBinWidth();
 					binHeight = cqs.getBinHeight();
@@ -1650,7 +1650,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				public void run() {
 					TreeMap<Double, SpectrogramInfo> fs;
 					PitchDetectorSource pds;
-					pds = audioFeatureFrame.getPitchDetectorFeatures().getPds();
+					pds = audioFeatureFrame.getPitchDetectorFeatures().getSource();
 					binStartingPointsInCents = pds.getBinStartingPointsInCents();
 					binWidth = pds.getBinWidth();
 					binHeight = pds.getBinHeight();
@@ -1668,7 +1668,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 	protected void repaintSpectralInfo(AudioFeatureFrame audioFeatureFrame) {
 		TreeMap<Double, SpectralInfo> fs;
-		SpectralPeaksSource sps = audioFeatureFrame.getSpectralPeaksFeatures().getSps();
+		SpectralPeaksSource sps = audioFeatureFrame.getSpectralPeaksFeatures().getSource();
 		fs = audioFeatureFrame.getSpectralPeaksFeatures().getFeatures();
 		spectrumLayer.clearPeaks();
 		for (Entry<Double, SpectralInfo> entry : fs.entrySet()) {

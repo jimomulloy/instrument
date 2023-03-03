@@ -64,7 +64,8 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			}
 		}
 
-		FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getPds().getSampleRate(), pdf.getPds().getBufferSize(), spectrum);
+		FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getSource().getSampleRate(), pdf.getSource().getBufferSize(),
+				spectrum);
 
 		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 
@@ -77,7 +78,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		}
 
 		if (pdSwitchKlapuri) {
-			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getPds().getSampleRate(),
+			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getSource().getSampleRate(),
 					fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
 			Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
 			for (int i = 0; i < klapuri.processedSpectrumData.length; i++) {
@@ -86,9 +87,9 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 			processKlapuriPeaks(fftSpectrum.getSpectrum(), new ArrayList<Double>(klapuri.f0s),
 					new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame().getElements());
-			toneMap.reset();
+			toneMap.getTimeFrame().reset();
 		} else if (pdSwitchTarsos) {
-			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), pdf.getPds().getSampleRate(),
+			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), pdf.getSource().getSampleRate(),
 					toneMap.getTimeFrame().getPitches());
 			// pd.whiten(fftSpectrum.getSpectrum());
 			pd.detect(fftSpectrum.getSpectrum());
@@ -96,7 +97,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
 			processTarsosPeaks(fftSpectrum.getSpectrum(), pd.fzeros, pd.fzeroSaliences,
 					toneMap.getTimeFrame().getElements());
-			toneMap.reset();
+			toneMap.getTimeFrame().reset();
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

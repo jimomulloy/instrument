@@ -1,7 +1,5 @@
 package jomu.instrument.audio.features;
 
-import java.util.TreeMap;
-
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -19,7 +17,7 @@ import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class YINSource implements PitchDetectionHandler {
+public class YINSource extends AudioEventSource<SpectrogramInfo> implements PitchDetectionHandler {
 
 	private float binHeight;
 
@@ -28,7 +26,6 @@ public class YINSource implements PitchDetectionHandler {
 	private float[] binStartingPointsInCents;
 	private float binWidth;
 	private int windowSize = 4096;
-	private TreeMap<Double, SpectrogramInfo> features = new TreeMap<>();
 
 	private int overlap = 0;
 	private PitchDetectionResult pitchDetectionResult;
@@ -74,8 +71,7 @@ public class YINSource implements PitchDetectionHandler {
 
 			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, currentPhaseOffsets,
 					frequencyEstimates);
-			features.put(audioEvent.getTimeStamp(), si);
-			System.out.println(">>PP FFT: " + fft.size());
+			YINSource.this.putFeature(audioEvent.getTimeStamp(), si);
 			return true;
 		}
 
@@ -151,14 +147,6 @@ public class YINSource implements PitchDetectionHandler {
 		return windowSize;
 	}
 
-	public TreeMap<Double, SpectrogramInfo> getFeatures() {
-		TreeMap<Double, SpectrogramInfo> clonedFeatures = new TreeMap<>();
-		for (java.util.Map.Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-			clonedFeatures.put(entry.getKey(), entry.getValue().clone());
-		}
-		return clonedFeatures;
-	}
-
 	public float getSampleRate() {
 		return sampleRate;
 	}
@@ -166,10 +154,6 @@ public class YINSource implements PitchDetectionHandler {
 	@Override
 	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
 		this.pitchDetectionResult = pitchDetectionResult;
-	}
-
-	void clear() {
-		features.clear();
 	}
 
 	void initialise() {
@@ -193,6 +177,11 @@ public class YINSource implements PitchDetectionHandler {
 		djp.addAudioProcessor(new LowPassFS((float) this.lowPassFrequency, sampleRate));
 		djp.addAudioProcessor(new PitchProcessor(algo, sampleRate, windowSize, this));
 		djp.addAudioProcessor(fftProcessor);
-		features.clear();
+		clear();
+	}
+
+	@Override
+	SpectrogramInfo cloneFeatures(SpectrogramInfo features) {
+		return features.clone();
 	}
 }
