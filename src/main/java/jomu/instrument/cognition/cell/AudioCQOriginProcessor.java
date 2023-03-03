@@ -3,21 +3,18 @@ package jomu.instrument.cognition.cell;
 import java.util.List;
 import java.util.logging.Logger;
 
-import jomu.instrument.audio.AudioTuner;
-import jomu.instrument.audio.analysis.Whitener;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
-import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
-public class AudioCQProcessor extends ProcessorCommon {
+public class AudioCQOriginProcessor extends ProcessorCommon {
 
-	private static final Logger LOG = Logger.getLogger(AudioCQProcessor.class.getName());
+	private static final Logger LOG = Logger.getLogger(AudioCQOriginProcessor.class.getName());
 
-	public AudioCQProcessor(NuCell cell) {
+	public AudioCQOriginProcessor(NuCell cell) {
 		super(cell);
 	}
 
@@ -25,8 +22,8 @@ public class AudioCQProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		LOG.info(">>AudioCQOriginProcessor accept: " + sequence + ", streamId: " + streamId);
+		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		if (afp != null) {
@@ -60,40 +57,13 @@ public class AudioCQProcessor extends ProcessorCommon {
 					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN);
 			boolean cqSwitchSharpenHarmonic = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC);
-			boolean cqWhiten = parameterManager
-					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
 
 			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 			ConstantQFeatures cqf = aff.getConstantQFeatures();
 			cqf.buildToneMapFrame(toneMap);
-			LOG.info(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", "
-					+ toneMap.getTimeFrame().getMaxAmplitude() + ", " + toneMap.getTimeFrame().getMinAmplitude());
 
-			if (cqWhiten) {
-				FFTSpectrum fftSpectrum = toneMap.getTimeFrame().extractFFTSpectrum(cqf.getSource().getWindowSize());
-				Whitener whitener = new Whitener(fftSpectrum);
-				whitener.whiten();
-				fftSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
-						whitener.getWhitenedSpectrum());
-				toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-			}
-
-			AudioTuner tuner = new AudioTuner();
-
-			if (cqSwitchSharpenHarmonic) {
-				if (cqSwitchPreHarmonics) {
-					tuner.processOvertones(toneMap.getTimeFrame());
-				}
-				if (cqSwitchPreSharpen) {
-					toneMap.getTimeFrame().sharpen();
-				}
-			} else {
-				if (cqSwitchPreSharpen) {
-					toneMap.getTimeFrame().sharpen();
-				}
-				if (cqSwitchPreHarmonics) {
-					tuner.processOvertones(toneMap.getTimeFrame());
-				}
+			if (cqSwitchPreSharpen) {
+				toneMap.getTimeFrame().sharpen();
 			}
 
 			if (cqSwitchCompress) {
@@ -111,27 +81,12 @@ public class AudioCQProcessor extends ProcessorCommon {
 				toneMap.getTimeFrame().decibel(decibelLevel);
 			}
 
-			if (cqSwitchSharpenHarmonic) {
-				if (cqSwitchPostHarmonics) {
-					tuner.processOvertones(toneMap.getTimeFrame());
-				}
-				if (cqSwitchPostSharpen) {
-					toneMap.getTimeFrame().sharpen();
-				}
-			} else {
-				if (cqSwitchPostSharpen) {
-					toneMap.getTimeFrame().sharpen();
-				}
-				if (cqSwitchPostHarmonics) {
-					tuner.processOvertones(toneMap.getTimeFrame());
-				}
+			if (cqSwitchPostSharpen) {
+				toneMap.getTimeFrame().sharpen();
 			}
 
-			LOG.info(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-					+ toneMap.getTimeFrame().getMinAmplitude());
-
+			System.out.println(">> update CQ Orign View: " + this.cell.getCellType().toString());
 			console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
-			console.getVisor().updateSpectrumView(toneMap.getTimeFrame(), cqf.getSource().getWindowSize());
 
 			cell.send(streamId, sequence);
 		}

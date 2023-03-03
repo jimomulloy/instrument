@@ -850,6 +850,9 @@ public class AudioTuner implements ToneMapConstants {
 				element.noteListElement = noteListElement;
 			}
 			processedNotes.add(noteListElement);
+
+			toneMap.trackNote(noteListElement);
+
 			// Add noteList element to noteList object
 			// noteList.add(noteListElement);
 

@@ -142,4 +142,8 @@ public class ToneMap {
 	public void initialise() {
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
+
+	public void trackNote(NoteListElement noteListElement) {
+		noteTracker.trackNote(noteListElement);
+	}
 }

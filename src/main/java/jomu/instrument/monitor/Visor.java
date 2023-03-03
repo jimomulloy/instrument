@@ -336,9 +336,9 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		toneMapViewComboBox = new JComboBox<>();
 
-		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
-				Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(), Cell.CellTypes.AUDIO_PITCH.name(),
-				Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_NOTATE.name(),
+		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
+				Cell.CellTypes.AUDIO_TUNER_PEAKS.name(), Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(),
+				Cell.CellTypes.AUDIO_PITCH.name(), Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_NOTATE.name(),
 				Cell.CellTypes.AUDIO_INTEGRATE.name(), Cell.CellTypes.AUDIO_ONSET.name(),
 				Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", Cell.CellTypes.AUDIO_HPS.name(),
 				Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
@@ -1216,9 +1216,10 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				ToneMap currentToneMap = toneMapViews.get(currentToneMapViewType);
 				ToneTimeFrame toneTimeFrame = currentToneMap.getTimeFrame(frame);
 				if (toneTimeFrame != null) {
-					double timeOffset = toneTimeFrame.getStartTime() * 1000.0;
+					int timeOffset = (int) (toneTimeFrame.getStartTime() * 1000.0);
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
-							Double.toString(timeOffset));
+							Integer.toString(timeOffset));
+					timeAxisOffsetInput.setText(Integer.toString(timeOffset));
 					Visor.this.toneMapView.updateAxis();
 					Visor.this.chromaPreView.updateAxis();
 					Visor.this.chromaPostView.updateAxis();

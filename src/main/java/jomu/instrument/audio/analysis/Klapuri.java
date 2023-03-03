@@ -66,10 +66,12 @@ public class Klapuri {
 				summa = 0;
 				for (int j = 0; j < pppContext.f0index[i].size(); ++j) {
 					if (pppContext.f0index[i].get(j) >= spectrumData.length) {
-						System.out.println(">> WW: " + pppContext.freq.length + ", " + pppContext.f0index[i].get(j)
-								+ ", " + spectrumData.length);
+						// System.out.println(">> WW: " + pppContext.freq.length + ", " +
+						// pppContext.f0index[i].get(j)
+						// + ", " + spectrumData.length);
 					} else if (pppContext.f0index[i].get(j) >= pppContext.freq.length) {
-						System.out.println(">> DD: " + pppContext.f0index[i].get(j) + ", " + pppContext.freq.length);
+						// System.out.println(">> DD: " + pppContext.f0index[i].get(j) + ", " +
+						// pppContext.freq.length);
 					} else {
 						summa += (pppContext.samplingRate * pppContext.freq[pppContext.f0index[i].get(j)] + alpha)
 								/ ((j + 1) * pppContext.samplingRate * pppContext.freq[pppContext.f0index[i].get(j)]
@@ -93,8 +95,9 @@ public class Klapuri {
 			lastIndex = index;
 			f0s.add(pppContext.f0cands[index]);
 			F0salmaxes.add(salmax);
-			System.out.println("!!>KLAPURI ADD F0: " + index + ", " + pppContext.f0index[index] + ", "
-					+ pppContext.f0cands[index] + ", " + salmax);
+			// System.out.println("!!>KLAPURI ADD F0: " + index + ", " +
+			// pppContext.f0index[index] + ", "
+			// + pppContext.f0cands[index] + ", " + salmax);
 			F0BinIndexes.add(pppContext.f0index[index]);
 
 			if (salMaxCeiling < salmax) {
@@ -157,7 +160,7 @@ public class Klapuri {
 		// Normalise saliences
 		for (Double f0salmax : F0salmaxes) {
 			double f0sNormal = f0salmax / salMaxCeiling;
-			System.out.println(">>KLAP F0s norm: " + f0sNormal);
+			// System.out.println(">>KLAP F0s norm: " + f0sNormal);
 			f0saliences.add(f0sNormal);
 		}
 	}
@@ -177,7 +180,8 @@ public class Klapuri {
 				if (pppContext.hbIndices[i].get(j) < dataIn.length) {
 					tempSum += pppContext.Hb[i].get(j) * Math.pow(dataIn[pppContext.hbIndices[i].get(j)], 2.0);
 				} else {
-					System.out.println(">>xx: " + pppContext.hbIndices[i].get(j) + ", " + dataIn.length);
+					// System.out.println(">>xx: " + pppContext.hbIndices[i].get(j) + ", " +
+					// dataIn.length);
 				}
 			}
 			stdb.add(Math.sqrt(tempSum / (dataIn.length)));

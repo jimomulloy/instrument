@@ -17,10 +17,6 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 	private AudioFeatureFrame audioFeatureFrame;
 	private boolean isCommitted;
 
-	private PitchSet pitchSet;
-	private TimeSet timeSet;
-	private ToneMap toneMap;
-
 	public void addFeature(Double time, float[] values) {
 		AudioFeatureFrame previousFrame = null;
 		int frameSequence = audioFeatureFrame.getFrameSequence() - 1;
@@ -40,9 +36,6 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 	}
 
 	public void buildToneMapFrame(ToneMap toneMap) {
-
-		this.toneMap = toneMap;
-
 		if (features.size() > 0) {
 
 			float[] binStartingPointsInCents = getSource().getBinStartingPointsInCents();
@@ -58,7 +51,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 			}
 
 			System.out.println(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
-			timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
+			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
 			int window = timeSet.getSampleWindow();
@@ -67,7 +60,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 			int highPitch = PitchSet.freqToMidiNote(
 					PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
 
-			pitchSet = new PitchSet(lowPitch, highPitch);
+			PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
 			System.out.println(">>CQ lowPitch: " + lowPitch + ", " + highPitch);
 
 			// toneMap.initialise();
@@ -96,8 +89,6 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 						// !!TODO elements[i].amplitude = getCqs().getMinMagnitudeThreshold();
 					}
 				}
-				// !!TODO ttf.setHighThreshold(1.0);
-				// !!TODO ttf.setLowThreshold(getCqs().getMinMagnitudeThreshold());
 				ttf.reset();
 			}
 		}
@@ -113,22 +104,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
 			previousFrame.close();
 		}
-		// if (features.size() > 0) {
-		// buildToneMap();
 		commit();
-		// }
-	}
-
-	public PitchSet getPitchSet() {
-		return pitchSet;
-	}
-
-	public TimeSet getTimeSet() {
-		return timeSet;
-	}
-
-	public ToneMap getToneMap() {
-		return toneMap;
 	}
 
 	public boolean isCommitted() {

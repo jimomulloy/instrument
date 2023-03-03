@@ -151,6 +151,10 @@ public class ParametersPanel extends JPanel {
 	private JTextField notateCompressionLevelInput;
 	private JCheckBox notateCompressionSwitchCB;
 	private JTextField yinLowPassInput;
+	private AbstractButton chromaCQOriginSwitchCB;
+	private JCheckBox hpsCQOriginSwitchCB;
+	private JCheckBox onsetCQOriginSwitchCB;
+	private JCheckBox cqWhitenSwitchCB;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -737,6 +741,22 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC));
 		cqSwitchPanel.add(cqSharpenHarmonicSwitchCB);
 
+		cqWhitenSwitchCB = new JCheckBox("cqWhitenSwitchCB");
+		cqWhitenSwitchCB.setText("CQ Whiten");
+		cqWhitenSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqWhitenSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN));
+		cqSwitchPanel.add(cqWhitenSwitchCB);
+
 		spCompressionSwitchCB = new JCheckBox("spCompressionSwitchCB");
 		spCompressionSwitchCB.setText("SP Compression");
 		spCompressionSwitchCB.addItemListener(new ItemListener() {
@@ -960,6 +980,54 @@ public class ParametersPanel extends JPanel {
 		chromaChordifySwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		cqSwitchPanel.add(chromaChordifySwitchCB);
+
+		chromaCQOriginSwitchCB = new JCheckBox("chromaCQOriginSwitchCB");
+		chromaCQOriginSwitchCB.setText("Chroma CQ Origin Switch");
+		chromaCQOriginSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		chromaCQOriginSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH));
+		cqSwitchPanel.add(chromaCQOriginSwitchCB);
+
+		hpsCQOriginSwitchCB = new JCheckBox("hpsCQOriginSwitchCB");
+		hpsCQOriginSwitchCB.setText("HPS CQ Origin Switch");
+		hpsCQOriginSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		hpsCQOriginSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH));
+		cqSwitchPanel.add(hpsCQOriginSwitchCB);
+
+		onsetCQOriginSwitchCB = new JCheckBox("onsetCQOriginSwitchCB");
+		onsetCQOriginSwitchCB.setText("Onset CQ Origin Switch");
+		onsetCQOriginSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		onsetCQOriginSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH));
+		cqSwitchPanel.add(onsetCQOriginSwitchCB);
 
 		integrateHpsSwitchCB = new JCheckBox("integrateHpsSwitchCB");
 		integrateHpsSwitchCB.setText("Integrate HPS");
@@ -2216,6 +2284,15 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN));
 		cqSharpenHarmonicSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC));
+		cqWhitenSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN));
+
+		chromaCQOriginSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH));
+		hpsCQOriginSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH));
+		onsetCQOriginSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH));
 
 		spCompressionSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_COMPRESS));

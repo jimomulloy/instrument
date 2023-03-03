@@ -41,6 +41,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN = "perception.hearing.cq.preSharpenSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN = "perception.hearing.cq.postSharpenSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC = "perception.hearing.cq.sharpenHarmonicSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_WHITEN = "perception.hearing.cq.whiten";
 
 	public static final String PERCEPTION_HEARING_SP_LOW_THRESHOLD = "perception.hearing.sp.lowThreshold";
 	public static final String PERCEPTION_HEARING_SP_SIGNAL_MINIMUM = "perception.hearing.sp.signalMinimum";
@@ -65,12 +66,14 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH = "perception.hearing.chroma.harmonicsSwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CEILING_SWITCH = "perception.hearing.chroma.ceilingSwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH = "perception.hearing.chroma.chordifySwitch";
+	public static final String PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH = "perception.hearing.chroma.cqOriginSwitch";
 
 	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";
 	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";
 
 	public static final String PERCEPTION_HEARING_ONSET_THRESHOLD = "perception.hearing.onset.threshold";
 	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = " perception.hearing.onset.interval";
+	public static final String PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH = "perception.hearing.onset.cqOriginSwitch";
 
 	public static final String PERCEPTION_HEARING_PITCH_DETECT_HARMONICS = "perception.hearing.pitch.detect.harmonics";
 	public static final String PERCEPTION_HEARING_PITCH_DETECT_COMPRESSION = "perception.hearing.pitch.detect.compresssion";
@@ -86,6 +89,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_HPS_PERCUSSION_WEIGHTING = "perception.hearing.hps.percussionWeighting";
 	public static final String PERCEPTION_HEARING_HPS_SWITCH_MEDIAN = "perception.hearing.hps.medianSwitch";
 	public static final String PERCEPTION_HEARING_HPS_MASK_FACTOR = "perception.hearing.hps.maskFactor";
+	public static final String PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH = "perception.hearing.hps.cqOriginSwitch";
 
 	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitchSwitch";
 

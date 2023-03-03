@@ -33,6 +33,8 @@ public class AudioHpsProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_MASK_FACTOR);
 		boolean hpsMedianSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN);
+		boolean hpsCQOriginSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH);
 
 		ToneMap hpsHarmonicToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_HARMONIC", streamId));
@@ -44,7 +46,9 @@ public class AudioHpsProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_PERCUSSION_MASK", streamId));
 		ToneMap hpsToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS, streamId));
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-
+		if (hpsCQOriginSwitch) {
+			cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
+		}
 		hpsToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		hpsHarmonicToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		hpsPercussionToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
