@@ -53,14 +53,14 @@ public class PercussionFeatures extends AudioEventFeatures<OnsetInfo[]> {
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
-			int amplitude = 0;
+			double amplitude = 0;
 
 			for (Entry<Double, OnsetInfo[]> entry : features.entrySet()) {
 
 				OnsetInfo[] onsetInfo = entry.getValue();// in cents
 				// draw the pixels
 				for (OnsetInfo element : onsetInfo) {
-					amplitude += element.salience;
+					amplitude = 1.0;
 				}
 
 				ToneMapElement[] elements = ttf.getElements();

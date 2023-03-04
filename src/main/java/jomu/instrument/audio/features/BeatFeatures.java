@@ -61,6 +61,7 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 				// draw the pixels
 				for (OnsetInfo element : onsetInfo) {
 					amplitude += element.salience;
+					LOG.info(">>BEAT ADD SALIENCE : " + element);
 				}
 
 				ToneMapElement[] elements = ttf.getElements();
