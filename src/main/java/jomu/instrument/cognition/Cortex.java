@@ -22,7 +22,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 	private NuCell audioCQOriginCell;
 	private NuCell audioBeatCell;
 	private NuCell audioOnsetCell;
-	// private NuCell audioPercussionCell;
+	private NuCell audioPercussionCell;
 	private NuCell audioHpsCell;
 	private NuCell audioPitchCell;
 	private NuCell audioSpectralPeaksCell;
@@ -56,7 +56,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		audioCQOriginCell = Generator.createNuCell(CellTypes.AUDIO_CQ_ORIGIN);
 		audioBeatCell = Generator.createNuCell(CellTypes.AUDIO_BEAT);
 		audioOnsetCell = Generator.createNuCell(CellTypes.AUDIO_ONSET);
-		// audioPercussionCell = Generator.createNuCell(CellTypes.AUDIO_PERCUSSION);
+		audioPercussionCell = Generator.createNuCell(CellTypes.AUDIO_PERCUSSION);
 		audioHpsCell = Generator.createNuCell(CellTypes.AUDIO_HPS);
 		audioPitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
 		audioSpectralPeaksCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
@@ -69,7 +69,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		audioYINCell = Generator.createNuCell(CellTypes.AUDIO_YIN);
 		//
 		Weaver.connect(sourceUpdateCell, audioBeatCell);
-		// Weaver.connect(sourceUpdateCell, audioPercussionCell);
+		Weaver.connect(sourceUpdateCell, audioPercussionCell);
 		Weaver.connect(sourceUpdateCell, audioPitchCell);
 		Weaver.connect(sourceUpdateCell, audioYINCell);
 		Weaver.connect(sourceUpdateCell, audioCQCell);
@@ -82,12 +82,12 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioCQCell, audioHpsCell);
 		Weaver.connect(audioCQOriginCell, audioHpsCell);
 		Weaver.connect(audioCQCell, audioOnsetCell);
-		// Weaver.connect(audioCQOriginCell, audioOnsetCell);
+		Weaver.connect(audioCQOriginCell, audioOnsetCell);
 		//
 		Weaver.connect(audioCQCell, audioIntegrateCell);
 		Weaver.connect(audioOnsetCell, audioIntegrateCell);
 		Weaver.connect(audioBeatCell, audioIntegrateCell);
-		// Weaver.connect(audioPercussionCell, audioIntegrateCell);
+		Weaver.connect(audioPercussionCell, audioIntegrateCell);
 		Weaver.connect(audioPitchCell, audioIntegrateCell);
 		Weaver.connect(audioYINCell, audioIntegrateCell);
 		Weaver.connect(audioHpsCell, audioIntegrateCell);

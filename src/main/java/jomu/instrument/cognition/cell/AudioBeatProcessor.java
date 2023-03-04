@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
-import jomu.instrument.audio.features.OnsetFeatures;
+import jomu.instrument.audio.features.BeatFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -26,8 +26,8 @@ public class AudioBeatProcessor extends ProcessorCommon {
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		if (afp != null) {
 			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-			OnsetFeatures osf = aff.getOnsetFeatures();
-			osf.buildToneMapFrame(toneMap);
+			BeatFeatures features = aff.getBeatFeatures();
+			features.buildToneMapFrame(toneMap);
 			console.getVisor().updateBeatsView(toneMap);
 			cell.send(streamId, sequence);
 		}
