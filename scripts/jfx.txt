@@ -1,0 +1,1 @@
+I had to also include the 'lib' directory: --module-path %PATH_TO_FX%;%PATH_TO_FX%\lib to make it compile.
