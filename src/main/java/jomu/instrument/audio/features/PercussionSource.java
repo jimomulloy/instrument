@@ -9,7 +9,6 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.onsets.OnsetHandler;
-import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;

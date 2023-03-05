@@ -8,8 +8,8 @@ import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
+import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import be.tarsos.dsp.onsets.OnsetHandler;
-import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.DispatchJunctionProcessor;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -51,25 +51,22 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 	void initialise() {
 
 		double threshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD);
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_THRESHOLD);
 
-		double sensitivity = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_SENSITIVITY);
+		double onsetInterval = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL);
+
+		int overlap = 0;
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
 
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
-		djp.setName("SC");
+		djp.setName("BEAT");
 		dispatcher.addAudioProcessor(djp);
 
-		// djp.setZeroPadFirstBuffer(true);
-
-		PercussionOnsetDetector beatDetector = new PercussionOnsetDetector(sampleRate, windowSize, this, threshold,
-				sensitivity);
-
-		beatDetector.setHandler(this);
-
-		djp.addAudioProcessor(beatDetector);
+		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(windowSize, threshold, onsetInterval);
+		onsetDetector.setHandler(this);
+		djp.addAudioProcessor(onsetDetector);
 
 		djp.addAudioProcessor(new AudioProcessor() {
 

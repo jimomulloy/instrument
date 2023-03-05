@@ -10,7 +10,6 @@ public class TarsosFeatureSource {
 
 	private ConstantQSource constantQSource;
 	private CQMicroToneSource cqMicroToneSource;
-	private OnsetSource onsetSource;
 	private PercussionSource percussionSource;
 	private PitchDetectorSource pitchDetectorSource;
 	private YINSource yinSource;
@@ -40,10 +39,6 @@ public class TarsosFeatureSource {
 		return beatSource;
 	}
 
-	public OnsetSource getOnsetSource() {
-		return onsetSource;
-	}
-
 	public PercussionSource getPercussionSource() {
 		return percussionSource;
 	}
@@ -71,7 +66,6 @@ public class TarsosFeatureSource {
 	public void initialise() {
 		constantQSource = new ConstantQSource(dispatcher);
 		cqMicroToneSource = new CQMicroToneSource(dispatcher);
-		onsetSource = new OnsetSource(dispatcher);
 		percussionSource = new PercussionSource(dispatcher);
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
@@ -81,8 +75,7 @@ public class TarsosFeatureSource {
 		beatSource = new BeatSource(dispatcher);
 		constantQSource.initialise();
 		cqMicroToneSource.initialise();
-		onsetSource.initialise();
-		// percussionSource.initialise(); // TODO
+		percussionSource.initialise();
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();
 		yinSource.initialise();

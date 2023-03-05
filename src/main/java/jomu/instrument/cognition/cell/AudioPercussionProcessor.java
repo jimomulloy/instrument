@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
+import jomu.instrument.audio.features.PercussionFeatures;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioPercussionProcessor extends ProcessorCommon {
@@ -24,8 +25,8 @@ public class AudioPercussionProcessor extends ProcessorCommon {
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		if (afp != null) {
 			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-			// PercussionFeatures features = aff.getPercussionFeatures();
-			// features.buildToneMapFrame(toneMap);
+			PercussionFeatures features = aff.getPercussionFeatures();
+			features.buildToneMapFrame(toneMap);
 			console.getVisor().updatePercussionView(toneMap);
 			cell.send(streamId, sequence);
 		}
