@@ -613,7 +613,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				case PENDING:
 				case CONTINUING:
 					if (!voiceChannel1LastNotes.contains(note)) {
-						System.out.println(">>VOICE NOTE ON: " + note + ", " + amplitude + ", " + volume);
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
@@ -624,7 +623,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessages.add(midiMessage);
 						voiceChannel1LastNotes.add(note);
 					} else {
-						System.out.println(">>VOICE NOTE ON CC CHANGE: " + note + ", " + amplitude + ", " + volume);
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice1Channel.num, note, volume);

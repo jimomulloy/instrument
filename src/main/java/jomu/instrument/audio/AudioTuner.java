@@ -1214,10 +1214,8 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean isHarmonic(int root, int note) {
 		double rootFreq = PitchSet.getMidiFreq(root);
 		double noteFreq = PitchSet.getMidiFreq(note);
-		LOG.info(">>TEST is harmonic: " + root + " ," + note + ", " + rootFreq + ", " + noteFreq);
 		for (int n = 2; n < 9; n++) {
 			double harmonicFreq = n * rootFreq;
-			LOG.info(">>TEST is harmonic N: " + n + " ," + harmonicFreq);
 			if (Math.abs(harmonicFreq - noteFreq) < HARMONIC_VARIANCE) {
 				return true;
 			}

@@ -19,6 +19,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
+	public static final String PERCEPTION_HEARING_AUDIO_DIRECTORY = "perception.hearing.audioDirectory";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 

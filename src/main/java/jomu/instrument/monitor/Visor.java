@@ -18,6 +18,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -87,9 +88,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
 
-	private static String defaultAudioFileFolder = "D:/audio";
-	private static String defaultAudioRecordFileFolder = "D:/audio/record";
-	private static String defaultAudioFile = "3notescale.wav";
+	private static String defaultAudioFile = "notescale.wav";
 
 	private LinkedPanel constantQPanel;
 
@@ -655,13 +654,13 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-		final JFileChooser fileChooser = new JFileChooser(new File(defaultAudioFileFolder));
+		final JFileChooser fileChooser = new JFileChooser(new File(getAudioFileFolder()));
 		chooseFileButton = new JButton("Open");
 		startFileProcessingButton = new JButton("Start");
 		startListeningButton = new JButton("Listen");
 		stopListeningButton = new JButton("Stop");
 
-		fileChooser.setSelectedFile(new File(defaultAudioFileFolder, defaultAudioFile));
+		fileChooser.setSelectedFile(new File(getAudioFileFolder(), defaultAudioFile));
 		chooseFileButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -731,7 +730,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				try {
 					// String fileName = "D:/audio/record/instrument_recording_" +
 					// getCurrentLocalDateTimeStamp();
-					String fileName = defaultAudioRecordFileFolder + "/" + "instrument_recording_"
+					String fileName = Visor.this.getAudioFileFolder() + "/recording/" + "instrument_recording_"
 							+ System.currentTimeMillis() + ".wav";
 					// File recordFile = new File(defaultAudioRecordFileFolder, fileName);
 					startListeningButton.setEnabled(false);
@@ -1292,6 +1291,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		panel.add(voicePanel, BorderLayout.SOUTH);
 
 		return panel;
+	}
+
+	private String getAudioFileFolder() {
+		String userDir = System.getProperty("user.home");
+		return Paths
+				.get(userDir,
+						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
+				.toString();
 	}
 
 	@Override

@@ -1,19 +1,23 @@
 package jomu.instrument.store;
 
-import org.springframework.beans.factory.BeanCreationException;
+import java.nio.file.Paths;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import jomu.instrument.control.InstrumentParameterNames;
-import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
-import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
+import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.types.StorageManager;
 
 @Configuration
 public class DataConfiguration {
 
 	private final Environment environment;
+
+	@Value("${one.microstream.storage-directory}")
+	String rootPath;
 
 	public DataConfiguration(Environment environment) {
 		this.environment = environment;
@@ -22,9 +26,10 @@ public class DataConfiguration {
 	@Bean(destroyMethod = "shutdown")
 	public StorageManager defineStorageManager() {
 
-		EmbeddedStorageFoundation<?> embeddedStorageFoundation = embeddedStorageFoundation(environment);
+		String userDir = System.getProperty("user.home");
 
-		StorageManager storageManager = embeddedStorageFoundation.start();
+		StorageManager storageManager = EmbeddedStorage.start(Paths.get(userDir, rootPath) // storage directory
+		);
 
 		// Check Root available within StorageManager
 		InstrumentStorage root = (InstrumentStorage) storageManager.root();
@@ -47,16 +52,5 @@ public class DataConfiguration {
 			storageManager.storeRoot();
 		}
 		return storageManager;
-	}
-
-	private EmbeddedStorageFoundation<?> embeddedStorageFoundation(Environment env) {
-		String configLocation = env.getProperty("one.microstream.config");
-
-		if (configLocation == null) {
-			throw new BeanCreationException(
-					"Unable to create StorageManager as the configuration property 'one.microstream.config' could not be resolved");
-		}
-		return EmbeddedStorageConfiguration.load(configLocation).createEmbeddedStorageFoundation();
-
 	}
 }
