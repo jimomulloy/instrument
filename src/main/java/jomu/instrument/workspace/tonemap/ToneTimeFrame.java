@@ -404,14 +404,14 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame chromaChordify() {
+	public ToneTimeFrame chromaChordify(double threshold) {
 		TreeSet<Integer> firstCandidates = new TreeSet<>();
 		TreeSet<Integer> secondCandidates = new TreeSet<>();
 		TreeSet<Integer> thirdCandidates = new TreeSet<>();
 		TreeSet<Integer> fourthCandidates = new TreeSet<>();
 
 		System.out.println(">>CHORDIFY!!: " + this.getStartTime() + ", " + maxAmplitude);
-		if (maxAmplitude < 0.25) {
+		if (maxAmplitude < threshold) {
 			return this;
 		}
 
@@ -465,14 +465,14 @@ public class ToneTimeFrame {
 			return this;
 		}
 
-		censRemoveClusters(firstCandidates, 3);
+		censRemoveClusters(firstCandidates, 3, true);
 
 		Set<Integer> level1Pairs = censGetPairs(firstCandidates);
 		firstCandidates.removeAll(level1Pairs);
 
 		Set<Integer> level1Singles = censGetSingles(firstCandidates);
 
-		int level1CandidateNumber = level1Singles.size() / 2 + level1Singles.size();
+		int level1CandidateNumber = level1Pairs.size() / 2 + level1Singles.size();
 		if (level1CandidateNumber >= 4) {
 			for (int i = 0; i < elements.length; i++) {
 				elements[i].amplitude = AMPLITUDE_FLOOR;
@@ -508,14 +508,14 @@ public class ToneTimeFrame {
 					return this;
 				}
 			}
-			censRemoveClusters(secondCandidates, 3);
+			censRemoveClusters(secondCandidates, 3, true);
 			System.out.println(">>CHORDIFY!! 2.0: " + secondCandidates.size());
 
 			Set<Integer> level2Pairs = censGetPairs(secondCandidates);
 			secondCandidates.removeAll(level2Pairs);
 
 			Set<Integer> level2Singles = censGetSingles(secondCandidates);
-			int level2CandidateNumber = level2Singles.size() / 2 + level2Singles.size();
+			int level2CandidateNumber = level2Pairs.size() / 2 + level2Singles.size();
 			if (level2CandidateNumber + level1CandidateNumber >= 4) {
 				for (int i = 0; i < elements.length; i++) {
 					elements[i].amplitude = AMPLITUDE_FLOOR;
@@ -552,13 +552,13 @@ public class ToneTimeFrame {
 					}
 					System.out.println(">>CHORDIFY!! 3A: " + level1CandidateNumber);
 				}
-				censRemoveClusters(thirdCandidates, 3);
+				censRemoveClusters(thirdCandidates, 3, true);
 
 				Set<Integer> level3Pairs = censGetPairs(thirdCandidates);
 				thirdCandidates.removeAll(level3Pairs);
 
 				Set<Integer> level3Singles = censGetSingles(thirdCandidates);
-				int level3CandidateNumber = level3Singles.size() / 2 + level3Singles.size();
+				int level3CandidateNumber = level3Pairs.size() / 2 + level3Singles.size();
 				if (level3CandidateNumber + level2CandidateNumber + level1CandidateNumber >= 3) {
 					for (int i = 0; i < elements.length; i++) {
 						elements[i].amplitude = AMPLITUDE_FLOOR;
@@ -631,35 +631,44 @@ public class ToneTimeFrame {
 		return result;
 	}
 
-	private void censRemoveClusters(TreeSet<Integer> candidates, int size) {
+	private void censRemoveClusters(TreeSet<Integer> candidates, int size, boolean keepMedian) {
+		Set<Integer> candidateSet = new TreeSet<>();
+		Set<Integer> removeSet = new TreeSet<>();
 		int lastCandidate = -1;
-		int cluster = 0;
 		for (Integer candidate : candidates) {
 			if (lastCandidate > -1) {
 				if ((candidate - lastCandidate) == 1) {
-					cluster++;
-					if (cluster == size) {
-						for (int count = 0; count < size; count++) {
-							candidates.remove(candidate - count);
-						}
-					} else if (candidate == 11) {
-						for (Integer candidate2 : candidates) {
-							if (candidate2 == 0 || (candidate2 - lastCandidate) == 1) {
-								cluster++;
-								if (cluster == size) {
-									for (int count = 0; count < size; count++) {
-										candidates.remove(candidate - count);
-									}
-								}
+					candidateSet.add(candidate);
+					if (candidateSet.size() == size) {
+						for (int count = 0; count < candidateSet.size(); count++) {
+							if (!keepMedian || count != size / 2) {
+								removeSet.add(candidate - count);
 							}
 						}
-						return;
+						candidateSet.clear();
+					} else if (candidate == 11) {
+						for (Integer candidate2 : candidates) {
+							candidateSet.add(candidate2);
+							if (candidate2 == 0 || (candidate2 - lastCandidate) == 1) {
+								if (candidateSet.size() == size) {
+									for (int count = 0; count < candidateSet.size(); count++) {
+										if (!keepMedian || count != size / 2) {
+											removeSet.add(candidate - count);
+										}
+									}
+									candidateSet.clear();
+								} 
+							}
+						}
 					}
 				} else {
-					cluster = 0;
+					candidateSet.clear();
 				}
 			}
 			lastCandidate = candidate;
+		}
+		for (Integer removeCandidate: removeSet) {
+			candidates.remove(removeCandidate);
 		}
 		return;
 	}
@@ -698,7 +707,7 @@ public class ToneTimeFrame {
 	}
 
 	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, ToneMap targetToneMap, int factor, int sequence,
-			boolean chromaChordifySwitch) {
+			boolean chromaChordifySwitch, double chromaChordifyThreshold) {
 		// collect previous frames
 		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
 		ToneTimeFrame stf = sourceToneMap.getTimeFrame(sequence);
@@ -729,7 +738,7 @@ public class ToneTimeFrame {
 			for (ToneTimeFrame tf : targetFrames) {
 				tf.reset();
 				if (chromaChordifySwitch) {
-					tf.chromaChordify();
+					tf.chromaChordify(chromaChordifyThreshold);
 				}
 				tf.reset();
 			}

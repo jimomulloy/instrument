@@ -162,6 +162,7 @@ public class ParametersPanel extends JPanel {
 	private JTextField onsetIntervalInput;
 	private JTextField percussionThresholdInput;
 	private JTextField percussionSensitivityInput;
+	private JTextField chromaChordifyThresholdInput;
 
 	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
 		super(new BorderLayout());
@@ -1829,6 +1830,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(chromaNormaliseThresholdLabel);
 		cqParamsPanel.add(chromaNormaliseThresholdInput);
 
+		JLabel chromaChordifyThresholdLabel = new JLabel("CHROMA Chordify Threshold: ");
+		chromaChordifyThresholdInput = new JTextField(4);
+		chromaChordifyThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = chromaChordifyThresholdInput.getText();
+				chromaChordifyThresholdLabel.setText(String.format("CHROMA Chordify (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD,
+						newValue);
+
+			}
+		});
+		chromaChordifyThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD));
+		cqParamsPanel.add(chromaChordifyThresholdLabel);
+		cqParamsPanel.add(chromaChordifyThresholdInput);
+
 		JLabel hearingMinFreqCentsLabel = new JLabel("Hearing Min Frequency cents: ");
 		hearingMinFreqCentsInput = new JTextField(4);
 		hearingMinFreqCentsInput.addActionListener(new ActionListener() {
@@ -2577,6 +2595,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR));
 		chromaNormaliseThresholdInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD));
+		chromaChordifyThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD));
 		chromaSmoothingFactorSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR));
 		chromaRootNoteSlider.setValue(
