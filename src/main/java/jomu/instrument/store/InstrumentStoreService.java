@@ -20,7 +20,6 @@ public class InstrumentStoreService {
 
 	public InstrumentStoreService(StorageManager storageManager) {
 		instrumentStorage = (InstrumentStorage) storageManager.root();
-		System.out.println(">>Construct InstrumentStoreService !!");
 	}
 
 	public void initialise() {
@@ -34,8 +33,6 @@ public class InstrumentStoreService {
 
 	// @Store(root = true)
 	public void setParameters(Properties parameters) {
-		System.out.println(">>ISS Set Parmaters!!: "
-				+ parameters.get(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR));
 		Properties copyParams = new Properties();
 		copyParams.putAll(parameters);
 		instrumentStorage.setParameters(copyParams);

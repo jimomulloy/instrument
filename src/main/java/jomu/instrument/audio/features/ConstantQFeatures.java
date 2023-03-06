@@ -39,10 +39,17 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 	}
 
 	public void buildToneMapFrame(ToneMap toneMap) {
+
+		float[] binStartingPointsInCents = getSource().getBinStartingPointsInCents();
+		float binWidth = getSource().getBinWidth();
+		int lowPitch = PitchSet.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[0]));
+		int highPitch = PitchSet.freqToMidiNote(
+				PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
+
+		PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
+	
 		if (features.size() > 0) {
 
-			float[] binStartingPointsInCents = getSource().getBinStartingPointsInCents();
-			float binWidth = getSource().getBinWidth();
 			double timeStart = -1;
 			double nextTime = -1;
 
@@ -53,18 +60,11 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				}
 			}
 
-			LOG.info(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
+			LOG.info(">>CQ: " + this.audioFeatureFrame.getStart() + " ,"+ this.audioFeatureFrame.getEnd() + ", "+ timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
 			int window = timeSet.getSampleWindow();
-
-			int lowPitch = PitchSet.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[0]));
-			int highPitch = PitchSet.freqToMidiNote(
-					PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
-
-			PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
-			LOG.info(">>CQ lowPitch: " + lowPitch + ", " + highPitch);
 
 			// toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
@@ -94,6 +94,15 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				}
 				ttf.reset();
 			}
+		} else {
+			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
+			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
+		
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
+					timeEnd - timeStart);
+
+			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
 		}
 	}
 

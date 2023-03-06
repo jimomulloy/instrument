@@ -37,11 +37,7 @@ public class DataConfiguration {
 		if (root == null) {
 			root = new InstrumentStorage();
 			initRequired = true;
-			System.out.println(">>DataConfiguration init required");
-		} else {
-			System.out.println(">>DataConfiguration init existing "
-					+ root.getParameters().get(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR));
-		}
+		} 
 		// Prep Root
 		root.setStorageManager(storageManager);
 

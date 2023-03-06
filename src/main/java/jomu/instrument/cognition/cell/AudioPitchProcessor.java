@@ -49,8 +49,10 @@ public class AudioPitchProcessor extends ProcessorCommon {
 
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
+
 		pdf.buildToneMapFrame(toneMap);
 		float[] spectrum = pdf.getSpectrum();
 

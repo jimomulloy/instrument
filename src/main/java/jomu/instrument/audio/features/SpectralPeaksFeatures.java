@@ -21,11 +21,14 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 	private TimeSet timeSet;
 	private ToneMap toneMap;
 
+	private AudioFeatureFrame audioFeatureFrame;
+
 	public List<SpectralInfo> getSpectralInfo() {
 		return spectralInfo;
 	}
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
+		this.audioFeatureFrame = audioFeatureFrame;
 		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSpectralPeaksSource());
 		spectralInfo = getSource().getSpectralInfo();
 		features = getSource().getAndClearFeatures();
@@ -103,6 +106,17 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 			ttf.setHighThreshold(1.0);
 			ttf.setLowThreshold(getSource().getMinMagnitudeThreshold());
 			ttf.reset();
+		} else {
+			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
+			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
+			
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
+					timeEnd - timeStart);
+
+			PitchSet pitchSet = new PitchSet();
+
+			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
 		}
 	}
 

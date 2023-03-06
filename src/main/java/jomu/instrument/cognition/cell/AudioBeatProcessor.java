@@ -24,12 +24,10 @@ public class AudioBeatProcessor extends ProcessorCommon {
 		LOG.info(">>AudioBeatProcessor accept seq: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
-		if (afp != null) {
-			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-			BeatFeatures features = aff.getBeatFeatures();
-			features.buildToneMapFrame(toneMap);
-			console.getVisor().updateBeatsView(toneMap);
-			cell.send(streamId, sequence);
-		}
+		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+		BeatFeatures features = aff.getBeatFeatures();
+		features.buildToneMapFrame(toneMap);
+		console.getVisor().updateBeatsView(toneMap);
+		cell.send(streamId, sequence);
 	}
 }

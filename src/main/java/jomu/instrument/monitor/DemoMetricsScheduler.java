@@ -10,12 +10,10 @@ public class DemoMetricsScheduler {
 
 	public DemoMetricsScheduler(DemoMetrics demoMetrics) {
 		this.demoMetrics = demoMetrics;
-		System.out.println(">>init: DemoMetricsScheduler");
 	}
 
 	@Scheduled(fixedRate = 1000)
 	public void triggerCustomMetrics() {
 		demoMetrics.getRandomMetricsData();
-		System.out.println(">>call: DemoMetricsScheduler");
 	}
 }

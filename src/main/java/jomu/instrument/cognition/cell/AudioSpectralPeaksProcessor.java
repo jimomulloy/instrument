@@ -49,6 +49,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+
 		SpectralPeaksFeatures spf = aff.getSpectralPeaksFeatures();
 		float[] spectrum = spf.getSpectrum();
 		spf.buildToneMapFrame(toneMap, tpSwitchPeaks);
@@ -68,10 +69,6 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 			toneMap.getTimeFrame().decibel(decibelLevel);
 		}
 
-		// toneMap.getTimeFrame().deNoise(0.05);
-		LOG.info(">>SP TIME: " + toneMap.getTimeFrame().getStartTime());
-		LOG.info(">>SP MAX/MIN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-				+ toneMap.getTimeFrame().getMinAmplitude());
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}

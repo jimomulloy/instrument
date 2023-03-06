@@ -80,7 +80,7 @@ public class AudioGenerator {
 		this(audioBufferSize, bufferOverlap, 44100);
 	}
 
-	public AudioGenerator(final int auddioBufferSize, final int bufferOverlap, final int samplerate) {
+	public AudioGenerator(final int audioBufferSize, final int bufferOverlap, final int samplerate) {
 
 		audioProcessors = new CopyOnWriteArrayList<AudioProcessor>();
 
@@ -134,20 +134,14 @@ public class AudioGenerator {
 
 	public void process() {
 
-		System.out.println(">>generateNextAudioBlock A: " + System.currentTimeMillis());
 		// Read the first (and in some cases last) audio block.
 		generateNextAudioBlock();
-		System.out.println(">>generateNextAudioBlock B: " + System.currentTimeMillis());
 
 		// As long as the stream has not ended
 		if (!stopped) {
 
 			// Makes sure the right buffers are processed, they can be changed
 			// by audio processors.
-			System.out.println(">>Generate AUDIO EVENT: " + this.samplesProcessed + ", " + audioEvent.getBufferSize()
-					+ ", " + audioEvent.getFrameLength() + ", " + audioEvent.getSampleRate() + ", "
-					+ audioEvent.getTimeStamp() + ", " + audioEvent.getEndTimeStamp() + ", "
-					+ audioEvent.getSamplesProcessed() + ", " + audioEvent.getBufferSize());
 
 			audioFloatBuffer = new float[audioBufferSize];
 			audioEvent.clearFloatBuffer();
@@ -164,7 +158,6 @@ public class AudioGenerator {
 
 				// Read, convert and process consecutive overlapping buffers.
 				// Slide the buffer.
-				System.out.println(">>generateNextAudioBlock C: " + System.currentTimeMillis());
 				try {
 					TimeUnit.MILLISECONDS.sleep(10);
 				} catch (InterruptedException e) {

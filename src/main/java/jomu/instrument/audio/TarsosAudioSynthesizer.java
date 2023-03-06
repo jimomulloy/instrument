@@ -186,7 +186,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			lastAmps = new double[numPitches];
 		}
 
-		System.out.println("min/max sums: " + maxSumAmp + ", " + minSumAmp);
 		Oscillator[] oscillators = new Oscillator[numPitches];
 
 		int i, iStart, iEnd;
@@ -198,7 +197,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			oscillators[i] = new Oscillator(oscType, (int) frequency, (int) sampleRate, 1);
 			i++;
 		}
-		System.out.println("created oscs: " + i);
 		iStart = 0;
 		iEnd = 0;
 		i = 0;
@@ -215,7 +213,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			iStart = (int) (time * sampleRate);
 		iEnd = iStart + (int) (timeSet.getSampleTimeSize() * sampleRate);
 		double power;
-		System.out.println("istart/end: " + time + ", " + iStart + ", " + iEnd);
 		for (ToneMapElement toneMapElement : ttfElements) {
 			lastSample = 0;
 			ampAdjust = 0;

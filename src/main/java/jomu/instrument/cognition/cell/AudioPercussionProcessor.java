@@ -23,12 +23,10 @@ public class AudioPercussionProcessor extends ProcessorCommon {
 		LOG.info(">>AudioPercussionProcessor accept seq: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
-		if (afp != null) {
-			AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-			PercussionFeatures features = aff.getPercussionFeatures();
-			features.buildToneMapFrame(toneMap);
-			console.getVisor().updatePercussionView(toneMap);
-			cell.send(streamId, sequence);
-		}
+		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
+		PercussionFeatures features = aff.getPercussionFeatures();
+		features.buildToneMapFrame(toneMap);
+		console.getVisor().updatePercussionView(toneMap);
+		cell.send(streamId, sequence);
 	}
 }

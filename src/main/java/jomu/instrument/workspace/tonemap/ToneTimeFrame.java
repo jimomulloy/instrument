@@ -126,7 +126,6 @@ public class ToneTimeFrame {
 				}
 			}
 		}
-		System.out.println(">> MAXP, MAXA: " + maxP + ", " + maxA);
 		FFTSpectrum fftSpectrum = new FFTSpectrum(timeSet.getSampleRate(), windowSize, spec);
 		return fftSpectrum;
 	}
@@ -137,7 +136,7 @@ public class ToneTimeFrame {
 
 	public ToneMapElement getElement(int index) {
 		if (index >= elements.length) {
-			System.out.println("!!erro");
+			return null;
 		}
 		return elements[index];
 	}
@@ -275,8 +274,6 @@ public class ToneTimeFrame {
 				maxampli = elementIndex;
 			}
 		}
-		System.out.println(">>>currentFreq: " + maxfft + ", " + maxampl + ", " + maxffti + ", " + maxampli + ", "
-				+ pitchSet.getFreq(maxampli + 1));
 		reset();
 		return this;
 	}
@@ -788,7 +785,6 @@ public class ToneTimeFrame {
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 				ttf.elements[elementIndex].amplitude = downSample(frames, elementIndex);
 			}
-			System.out.println(">>add TF: " + ttf.getStartTime());
 			ttf.noteStatus = tfStart.noteStatus.clone();
 			ttf.reset();
 			ttf.setLowThreshold(tfStart.getLowThres());

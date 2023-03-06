@@ -16,7 +16,6 @@ public class Storage implements Organ {
 
 	@Override
 	public void initialise() {
-		System.out.println(">>Init Storage !!");
 		instrumentStoreService.initialise();
 	}
 

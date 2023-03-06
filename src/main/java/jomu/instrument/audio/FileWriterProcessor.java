@@ -37,7 +37,6 @@ public class FileWriterProcessor implements AudioProcessor {
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		audioLen += audioEvent.getByteBuffer().length;
-		System.out.println(">>Write audio bytes: " + audioLen);
 		AudioFormat outFormat = new AudioFormat(audioFormat.getSampleRate(), 16, 1, true, false);
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(audioEvent.getByteBuffer());
 				AudioInputStream outAudioStream = new AudioInputStream(bais, outFormat,

@@ -100,6 +100,12 @@ public class PolyphonicPitchDetection {
 					Hb[i - 1].add(1 - Math.abs(cb[i] - freq[kk]) / (cb[i + 1] - cb[i]));
 				}
 				++kk;
+				if (kk >= freq.length) {
+					break;
+				}
+			}
+			if (kk >= freq.length) {
+				break;
 			}
 		}
 

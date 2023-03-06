@@ -150,10 +150,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 	@Override
 	public boolean process(AudioEvent incomingAudioEvent) {
-		// System.out.println(
-		// ">>DJP audio: " + name + ", " + incomingAudioEvent.getTimeStamp() +
-		// ", " +
-		// incomingAudioEvent.getSamplesProcessed());
 		// Passthrough
 		if (this.audioFloatBuffer.length == incomingAudioEvent.getBufferSize()
 				&& this.floatOverlap == incomingAudioEvent.getOverlap()) {
@@ -223,10 +219,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 					audioEvent.setBytesProcessed(
 							(audioEvent.getSamplesProcessed() + processedLength) * format.getFrameSize());
 					for (final AudioProcessor processor : audioProcessors) {
-						// System.out.println(
-						// ">>DJP 2 processor: " + name + ", " +
-						// audioEvent.getTimeStamp() + ", " +
-						// processor.getClass().descriptorString());
 						if (!processor.process(audioEvent)) {
 							// skip to the next audio processors if false is
 							// returned.
@@ -245,7 +237,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 
 	@Override
 	public void processingFinished() {
-		System.out.println(">>!!DJP FINISH!!");
 		// TODO Auto-generated method stub
 		for (final AudioProcessor processor : audioProcessors) {
 			processor.processingFinished();
@@ -338,7 +329,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * Stops dispatching audio data.
 	 */
 	public void stop() {
-		System.out.println(">>!!DJP STOP!!");
 		stopped = true;
 		for (final AudioProcessor processor : audioProcessors) {
 			processor.processingFinished();
@@ -359,10 +349,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 						(audioEvent.getSamplesProcessed() + this.floatStepSize) * format.getFrameSize());
 			}
 			for (final AudioProcessor processor : audioProcessors) {
-				// System.out.println(
-				// ">>DJP processor: " + name + ", " + audioEvent.getTimeStamp()
-				// + ", " +
-				// processor.getClass().descriptorString());
 				if (!processor.process(audioEvent)) {
 					// skip to the next audio processors if false is returned.
 					break;

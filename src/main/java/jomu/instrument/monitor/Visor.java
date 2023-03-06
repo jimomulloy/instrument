@@ -110,7 +110,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private String fileName;
 
 	private static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private static final Integer[] inputSampleRate = { 8000, 22050, 44100, 192000 };
+	private static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 192000 };
 
 	private File inputFile;
 
@@ -668,7 +668,6 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				int returnVal = fileChooser.showOpenDialog(Visor.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					inputFile = fileChooser.getSelectedFile();
-					System.out.println(inputFile.toString());
 					fileName = inputFile.getAbsolutePath();
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
@@ -1364,15 +1363,17 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		List<ToneTimeFrame> timeFrames = new ArrayList<>();
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
-		double fromTime = (ttf.getStartTime() - 1.0) >= 0 ? ttf.getStartTime() - 1.0 : 0;
-
-		while (ttf != null && ttf.getStartTime() >= fromTime) {
-			timeFrames.add(ttf);
-			ttf = toneMap.getPreviousTimeFrame(ttf.getStartTime());
-		}
-		for (ToneTimeFrame ttfv : timeFrames) {
-			updateToneMapView(toneMap, ttfv, toneMapViewType);
-		}
+		if (ttf != null) {
+			double fromTime = (ttf.getStartTime() - 1.0) >= 0 ? ttf.getStartTime() - 1.0 : 0;
+	
+			while (ttf != null && ttf.getStartTime() >= fromTime) {
+				timeFrames.add(ttf);
+				ttf = toneMap.getPreviousTimeFrame(ttf.getStartTime());
+			}
+			for (ToneTimeFrame ttfv : timeFrames) {
+				updateToneMapView(toneMap, ttfv, toneMapViewType);
+			}
+		}	
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1782,9 +1783,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 						}
 					}
-					// System.out.println(">>PD max amp: " + maxAmp + ", " +
-					// timeStart);
-
+			
 					if (pitch > -1) {
 						double cents = PitchConverter.hertzToAbsoluteCent(pitch);
 						Color color = Color.red;

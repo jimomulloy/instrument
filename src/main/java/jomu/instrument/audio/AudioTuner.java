@@ -95,7 +95,7 @@ public class AudioTuner implements ToneMapConstants {
 	private static int thresholdHysteresisBaseNote = 12;
 	private static double[][] thresholdHysteresis = new double[][] { { 0.5, 0.3 }, { 0.6, 0.3 }, { 0.8, 0.4 },
 			{ 1.0, 0.5 }, { 1.0, 0.5 }, { 0.8, 0.3 }, { 0.7, 0.2 }, { 0.3, 0.05 }, { 0.2, 0.05 }, { 0.1, 0.01 },
-			{ 0.1, 0.01 }, { 0.05, 0.01 } };
+			{ 0.1, 0.01 }, { 0.05, 0.01 }, { 0.05, 0.01 } };
 
 	/**
 	 * TunerModel constructor. Instantiate TunerPanel
@@ -368,6 +368,11 @@ public class AudioTuner implements ToneMapConstants {
 			note = pitchSet.getNote(toneMapElement.getPitchIndex());
 
 			int thresholdHysteresisIndex = (note - thresholdHysteresisBaseNote) / 12;
+
+			if (thresholdHysteresisIndex >= thresholdHysteresis.length) {
+				LOG.severe(">>NOTE SCAN ERROR: " + note + ", " + toneTimeFrame.getStartTime());
+				continue;
+			}
 			double noteOnThresholdWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][0];
 			double noteOffThresholdhWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][1];
 			double noteHighThresholdhWithHysteresis = noteHigh * thresholdHysteresis[thresholdHysteresisIndex][0];
@@ -393,9 +398,8 @@ public class AudioTuner implements ToneMapConstants {
 			case OFF:
 				if (amplitude > noteOnThresholdWithHysteresis / 100.0) {
 					noteStatusElement.state = ON;
-					System.out.println(
-							">>>Note scan OFF - ON  seq: " + sequence + ", " + note + ", " + time + ", " + amplitude
-									+ ", " + noteHighThresholdhWithHysteresis + ", " + noteOnThresholdWithHysteresis);
+					LOG.info(">>>Note scan OFF - ON  seq: " + sequence + ", " + note + ", " + time + ", " + amplitude
+							+ ", " + noteHighThresholdhWithHysteresis + ", " + noteOnThresholdWithHysteresis);
 					noteStatusElement.onTime = time;
 					noteStatusElement.offTime = time;
 					if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
@@ -448,8 +452,7 @@ public class AudioTuner implements ToneMapConstants {
 
 					} else if ((time - noteStatusElement.offTime) < (noteSustain)) {
 						// back fill set notes ON
-						System.out.println(
-								">>>Note scan PENDING high - PROCESS BACK FILL ON seq: " + sequence + ", " + note);
+						LOG.info(">>>Note scan PENDING high - PROCESS BACK FILL ON seq: " + sequence + ", " + note);
 						backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, ON,
 								processedNotes);
 						LOG.info(">>>Note scan PENDING - ON seq: " + sequence + ", " + note + ", " + time);
@@ -502,8 +505,7 @@ public class AudioTuner implements ToneMapConstants {
 					if ((time - noteStatusElement.offTime) >= (noteSustain)
 							|| (noteStatusElement.offTime - noteStatusElement.onTime) > noteMaxDuration) {
 						if ((noteStatusElement.offTime - noteStatusElement.onTime) < (noteMinDuration)) {
-							System.out.println(
-									">>>Note scan PENDING low - PROCESS BACK FILL OFF seq: " + sequence + ", " + note);
+							LOG.info(">>>Note scan PENDING low - PROCESS BACK FILL OFF seq: " + sequence + ", " + note);
 							// back fill set notes OFF
 							backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, OFF,
 									processedNotes);
@@ -516,8 +518,7 @@ public class AudioTuner implements ToneMapConstants {
 							previousToneMapElement.noteState = OFF;
 							previousNoteStatusElement.state = OFF;
 							// Process candidate note
-							System.out.println(
-									">>>Note scan PENDING low - PROCESS NEW NOTE OFF seq: " + sequence + ", " + note);
+							LOG.info(">>>Note scan PENDING low - PROCESS NEW NOTE OFF seq: " + sequence + ", " + note);
 							processNote(toneMap, previousNoteStatusElement, processedNotes);
 							noteStatusElement.state = OFF;
 							noteStatusElement.onTime = 0.0;
@@ -971,8 +972,7 @@ public class AudioTuner implements ToneMapConstants {
 				LOG.info(">>attenuateHarmonics MatchingTimbre: " + nle.note + ", " + processedNote.note);
 				noteHarmonics.remove(processedNote.note);
 				if (noteHarmonics.isEmpty()) {
-					System.out.println(
-							">>attenuateHarmonics commitNote MatchingTimbre: " + nle.note + ", " + processedNote.note);
+					LOG.info(">>attenuateHarmonics commitNote MatchingTimbre: " + nle.note + ", " + processedNote.note);
 					commitNote(timeFrames, nle);
 				}
 			}

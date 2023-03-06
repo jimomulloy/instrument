@@ -157,7 +157,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
 		midiStream.getBq().add(midiQueueMessage);
 		midiStreams.remove(streamId);
-		System.out.println(">>!!! MIDI close: " + streamId);
+		LOG.info(">>!!! MIDI close: " + streamId);
 	}
 
 	/**
@@ -226,7 +226,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
 			for (Info midiDev : midiDevs) {
-				System.out.println(">>midi dev: " + midiDev);
+				LOG.info(">>midi dev: " + midiDev);
 			}
 			if (synthesizer == null) {
 				if ((synthesizer = MidiSystem.getSynthesizer()) == null) {
@@ -462,7 +462,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (toneTimeFrame == null) {
 						clearChannels();
 						this.midiStream.close();
-						System.out.println(">> midiStream.close(): " + this.midiStream.streamId);
+						LOG.info(">> midiStream.close(): " + this.midiStream.streamId);
 						running = false;
 						break;
 					}
@@ -615,6 +615,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (!voiceChannel1LastNotes.contains(note)) {
 						midiMessage = new ShortMessage();
 						try {
+							LOG.info(">>MIDI NOTE ON: " + note + ", "+ volume);
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block

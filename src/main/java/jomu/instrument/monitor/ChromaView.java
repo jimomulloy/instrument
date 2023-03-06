@@ -124,7 +124,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
 		this.timeAxisEnd = this.timeAxisStart
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
-		System.out.println("!!udpate tm time axis: " + toneMap + " ," + this.timeAxisStart + ", " + this.timeAxisEnd);
 		if (toneMap != null) {
 			renderToneMap(toneMap);
 		}

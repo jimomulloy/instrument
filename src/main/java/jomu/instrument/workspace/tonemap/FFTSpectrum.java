@@ -44,4 +44,9 @@ public class FFTSpectrum {
 			spectrum[i] *= factor;
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "FFTSpectrum [sampleRate=" + sampleRate + ", windowSize=" + windowSize + "]";
+	}
 }

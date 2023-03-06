@@ -72,6 +72,17 @@ public class PercussionFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 			ttf.reset();
 			ttf.setLowThreshold(0.1);
+		} else {
+			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
+			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
+		
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
+					timeEnd - timeStart);
+
+			PitchSet pitchSet = new PitchSet();
+
+			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
 		}
 	}
 

@@ -39,8 +39,6 @@ public class InstrumentStorage {
 	}
 
 	public void setParameters(final Properties parameters) {
-		System.out.println(">>IS Set Parmaters!!: "
-				+ parameters.get(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FACTOR));
 		this.parameters = parameters;
 		storageManager.store(this.parameters);
 		storageManager.storeRoot();
@@ -52,21 +50,17 @@ public class InstrumentStorage {
 
 	public void shutdown() {
 		storageManager.shutdown();
-		System.out.println(">>MS shut!!");
 	}
 
 	public void setInitRequired() {
-		System.out.println(">>IS SET INIT REQUIRED!!");
 		this.initialiseRequired = true;
 	}
 
 	public boolean isInitRequired() {
-		System.out.println(">>IS IS INIT REQUIRED??: " + this.initialiseRequired);
 		return this.initialiseRequired;
 	}
 
 	public void initialise() {
-		System.out.println(">>IS init!!");
 		if (isInitRequired()) {
 			try {
 				Instrument.getInstance().getController().getParameterManager().reset();
