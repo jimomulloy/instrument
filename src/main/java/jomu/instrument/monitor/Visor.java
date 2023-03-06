@@ -1365,7 +1365,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 		if (ttf != null) {
 			double fromTime = (ttf.getStartTime() - 1.0) >= 0 ? ttf.getStartTime() - 1.0 : 0;
-	
+
 			while (ttf != null && ttf.getStartTime() >= fromTime) {
 				timeFrames.add(ttf);
 				ttf = toneMap.getPreviousTimeFrame(ttf.getStartTime());
@@ -1373,7 +1373,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 			for (ToneTimeFrame ttfv : timeFrames) {
 				updateToneMapView(toneMap, ttfv, toneMapViewType);
 			}
-		}	
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1783,7 +1783,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 						}
 					}
-			
+
 					if (pitch > -1) {
 						double cents = PitchConverter.hertzToAbsoluteCent(pitch);
 						Color color = Color.red;

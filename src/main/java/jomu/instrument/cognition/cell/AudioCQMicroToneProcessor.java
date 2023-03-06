@@ -26,7 +26,7 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
-			double lowThreshold = parameterManager
+		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 		double signalMinimum = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM);
@@ -75,7 +75,7 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 
 		LOG.info(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
-	
+
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}

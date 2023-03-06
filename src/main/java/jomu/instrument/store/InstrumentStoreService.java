@@ -18,9 +18,9 @@ public class InstrumentStoreService {
 	@Inject
 	InstrumentStorage instrumentStorage;
 
-	//public InstrumentStoreService(StorageManager storageManager) {
-	//	instrumentStorage = (InstrumentStorage) storageManager.root();
-	//}
+	// public InstrumentStoreService(StorageManager storageManager) {
+	// instrumentStorage = (InstrumentStorage) storageManager.root();
+	// }
 
 	public void initialise() {
 		instrumentStorage.initialise();
@@ -53,7 +53,7 @@ public class InstrumentStoreService {
 		return copyParams;
 	}
 
-	//TODO @PreDestroy
+	// TODO @PreDestroy
 	public void preDestroy() {
 		instrumentStorage.shutdown();
 	}

@@ -3,6 +3,8 @@ package jomu.instrument.cognition.cell;
 import java.util.Objects;
 import java.util.UUID;
 
+import net.beadsproject.beads.core.BeadArray;
+
 public abstract class Cell {
 
 	private CellTypes cellType;

@@ -76,9 +76,8 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 		} else {
 			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
-		
-			timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
-					timeEnd - timeStart);
+
+			timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
 			pitchSet = new PitchSet();
 

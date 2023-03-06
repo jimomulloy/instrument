@@ -28,7 +28,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH);
 		double chromaChordifyThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD);
-	
+
 		ToneMap preChromaToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
 		ToneMap postChromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));

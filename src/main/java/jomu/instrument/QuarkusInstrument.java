@@ -9,19 +9,19 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 @QuarkusMain
 public class QuarkusInstrument implements QuarkusApplication {
 
-    @Inject
-    Instrument instrument; 
+	@Inject
+	Instrument instrument;
 
-    public static void main(String[] args) {
-        Quarkus.run(QuarkusInstrument.class, args);
-    }
+	public static void main(String[] args) {
+		Quarkus.run(QuarkusInstrument.class, args);
+	}
 
-    @Override
-    public int run(String... args) throws Exception {
-    	Instrument.setInstance(instrument);
+	@Override
+	public int run(String... args) throws Exception {
+		Instrument.setInstance(instrument);
 		instrument.initialise();
 		instrument.start();
-        Quarkus.waitForExit(); 
-        return 0;
-    }
+		Quarkus.waitForExit();
+		return 0;
+	}
 }

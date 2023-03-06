@@ -1,8 +1,8 @@
 package jomu.instrument.control;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ParameterManager {
 
-	private static String PARAMETER_CONFIG_FILE = "/instrument.properties";
+	private static String PARAMETER_CONFIG_FILE = "instrument.properties";
 
 	Properties parameters = new Properties();
 
@@ -21,8 +21,8 @@ public class ParameterManager {
 	}
 
 	public void reset() throws FileNotFoundException, IOException {
-		String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-		parameters.load(new FileInputStream(rootPath + PARAMETER_CONFIG_FILE));
+		InputStream is = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_FILE);
+		parameters.load(is);
 	}
 
 	public String getParameter(String key) {

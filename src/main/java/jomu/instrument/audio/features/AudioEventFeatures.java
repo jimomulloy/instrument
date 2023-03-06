@@ -11,7 +11,7 @@ public abstract class AudioEventFeatures<T> {
 	final public TreeMap<Double, T> getFeatures() {
 		return features;
 	}
-	
+
 	final public boolean hasFeatures() {
 		return features != null && !features.isEmpty();
 	}

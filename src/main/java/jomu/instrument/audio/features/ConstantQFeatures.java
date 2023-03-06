@@ -47,7 +47,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
 
 		PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
-	
+
 		if (features.size() > 0) {
 
 			double timeStart = -1;
@@ -60,7 +60,8 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				}
 			}
 
-			LOG.info(">>CQ: " + this.audioFeatureFrame.getStart() + " ,"+ this.audioFeatureFrame.getEnd() + ", "+ timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
+			LOG.info(">>CQ: " + this.audioFeatureFrame.getStart() + " ," + this.audioFeatureFrame.getEnd() + ", "
+					+ timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
@@ -97,9 +98,8 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 		} else {
 			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
-		
-			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
-					timeEnd - timeStart);
+
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);

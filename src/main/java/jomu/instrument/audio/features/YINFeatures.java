@@ -17,7 +17,7 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 	public int powerHigh = 100;
 	public int powerLow = 0;
 	private AudioFeatureFrame audioFeatureFrame;
-	
+
 	public float[] getSpectrum() {
 		float[] spectrum = null;
 		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
@@ -60,8 +60,7 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 		} else {
 			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
-			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
-					timeEnd - timeStart);
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
 			PitchSet pitchSet = new PitchSet();
 

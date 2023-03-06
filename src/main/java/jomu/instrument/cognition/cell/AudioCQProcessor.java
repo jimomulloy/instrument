@@ -65,8 +65,8 @@ public class AudioCQProcessor extends ProcessorCommon {
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		ConstantQFeatures cqf = aff.getConstantQFeatures();
 		cqf.buildToneMapFrame(toneMap);
-		LOG.info(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", "
-				+ toneMap.getTimeFrame().getMaxAmplitude() + ", " + toneMap.getTimeFrame().getMinAmplitude());
+		LOG.info(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", " + toneMap.getTimeFrame().getMaxAmplitude()
+				+ ", " + toneMap.getTimeFrame().getMinAmplitude());
 
 		if (cqWhiten) {
 			FFTSpectrum fftSpectrum = toneMap.getTimeFrame().extractFFTSpectrum(cqf.getSource().getWindowSize());
@@ -132,6 +132,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 
 		cell.send(streamId, sequence);
-		
+
 	}
 }

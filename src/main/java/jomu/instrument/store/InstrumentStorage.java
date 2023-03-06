@@ -10,7 +10,6 @@ import javax.enterprise.context.ApplicationScoped;
 import org.springframework.stereotype.Component;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
 //import one.microstream.storage.types.StorageManager;
 
@@ -21,12 +20,12 @@ public class InstrumentStorage {
 	final List<ToneMap> toneMapList = new ArrayList<>();
 	Properties parameters = new Properties();
 
-	//private transient StorageManager storageManager;
+	// private transient StorageManager storageManager;
 	private transient boolean initialiseRequired = false;
 
-	//public void setStorageManager(StorageManager storageManager) {
-	//	this.storageManager = storageManager;
-	//}
+	// public void setStorageManager(StorageManager storageManager) {
+	// this.storageManager = storageManager;
+	// }
 
 	public List<ToneMap> findAllToneMaps() {
 		return this.toneMapList;
@@ -34,20 +33,20 @@ public class InstrumentStorage {
 
 	public void removeAllToneMaps() {
 		this.toneMapList.clear();
-		//storageManager.store(toneMapList);
-		//storageManager.storeRoot();
+		// storageManager.store(toneMapList);
+		// storageManager.storeRoot();
 	}
 
 	public void addToneMap(final ToneMap toneMap) {
 		this.toneMapList.add(toneMap);
-		//storageManager.store(toneMapList);
-		//storageManager.storeRoot();
+		// storageManager.store(toneMapList);
+		// storageManager.storeRoot();
 	}
 
 	public void setParameters(final Properties parameters) {
 		this.parameters = parameters;
-		//storageManager.store(this.parameters);
-		//storageManager.storeRoot();
+		// storageManager.store(this.parameters);
+		// storageManager.storeRoot();
 	}
 
 	public Properties getParameters() {
@@ -55,7 +54,7 @@ public class InstrumentStorage {
 	}
 
 	public void shutdown() {
-		//storageManager.shutdown();
+		// storageManager.shutdown();
 	}
 
 	public void setInitRequired() {
@@ -78,8 +77,8 @@ public class InstrumentStorage {
 			}
 			System.out.println(">> Inited ParameterManager");
 			this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
-			//storageManager.setRoot(this);
-			//storageManager.storeRoot();
+			// storageManager.setRoot(this);
+			// storageManager.storeRoot();
 		} else {
 			Instrument.getInstance().getController().getParameterManager().setParameters(getParameters());
 		}

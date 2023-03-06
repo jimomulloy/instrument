@@ -4,9 +4,7 @@ import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-import jomu.instrument.control.InstrumentParameterNames;
 import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.types.StorageManager;
 
@@ -33,9 +31,9 @@ public class DataConfiguration {
 		if (root == null) {
 			root = new InstrumentStorage();
 			initRequired = true;
-		} 
+		}
 		// Prep Root
-		//TODOroot.setStorageManager(storageManager);
+		// TODOroot.setStorageManager(storageManager);
 
 		// Init 'database' with some data
 		if (initRequired) {

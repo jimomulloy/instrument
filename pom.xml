@@ -126,14 +126,6 @@
 			<systemPath>${project.basedir}/library/TarsosDSP-2.4.jar</systemPath>
 		</dependency>
 
-		<dependency>
-			<groupId>jomuddlo</groupId>
-			<artifactId>mp3spi</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/library/mp3spi1.9.4.jar</systemPath>
-		</dependency>
-
 	</dependencies>
 
 	<build>

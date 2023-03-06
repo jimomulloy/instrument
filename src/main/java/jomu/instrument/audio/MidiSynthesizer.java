@@ -238,6 +238,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			Soundbank sb = null;
 
 			try {
+				System.out.println(">>MIDI FILE: "
+						+ parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS));
 				file = new File(
 						parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
 				if (file.exists()) {
@@ -615,7 +617,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (!voiceChannel1LastNotes.contains(note)) {
 						midiMessage = new ShortMessage();
 						try {
-							LOG.info(">>MIDI NOTE ON: " + note + ", "+ volume);
+							LOG.info(">>MIDI NOTE ON: " + note + ", " + volume);
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1491,7 +1493,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.streamId = streamId;
 			bq = new LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
-			//new Thread(new MidiQueueConsumer(bq, this)).start();
+			// new Thread(new MidiQueueConsumer(bq, this)).start();
 		}
 
 		public void close() {

@@ -94,13 +94,12 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 				// ttf.setHighThreshold(1.0);
 				// ttf.setLowThreshold(getCqs().getMinMagnitudeThreshold());
 				ttf.reset();
-			} 
+			}
 		} else {
 			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
-		
-			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
-					timeEnd - timeStart);
+
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);

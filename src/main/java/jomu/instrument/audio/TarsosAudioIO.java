@@ -24,7 +24,6 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
-import jomu.instrument.audio.features.AudioFeatureFrame;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.AudioIO;
 import net.beadsproject.beads.core.AudioUtils;

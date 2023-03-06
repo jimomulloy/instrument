@@ -71,9 +71,8 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 		} else {
 			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
-		
-			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(),
-					timeEnd - timeStart);
+
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
 			PitchSet pitchSet = new PitchSet();
 

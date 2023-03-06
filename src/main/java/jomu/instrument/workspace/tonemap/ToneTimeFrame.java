@@ -657,7 +657,7 @@ public class ToneTimeFrame {
 										}
 									}
 									candidateSet.clear();
-								} 
+								}
 							}
 						}
 					}
@@ -667,7 +667,7 @@ public class ToneTimeFrame {
 			}
 			lastCandidate = candidate;
 		}
-		for (Integer removeCandidate: removeSet) {
+		for (Integer removeCandidate : removeSet) {
 			candidates.remove(removeCandidate);
 		}
 		return;
