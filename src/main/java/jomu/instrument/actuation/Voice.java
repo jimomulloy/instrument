@@ -21,11 +21,11 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 @Component
 public class Voice implements Organ {
 
-	private AudioSynthesizer resynthSynthesizer;
-	private AudioSynthesizer audioSynthesizer;
-	private MidiSynthesizer midiSynthesizer;
-	private ParameterManager parameterManager;
-	private Workspace workspace;
+	AudioSynthesizer resynthSynthesizer;
+	AudioSynthesizer audioSynthesizer;
+	MidiSynthesizer midiSynthesizer;
+	ParameterManager parameterManager;
+	Workspace workspace;
 
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new TarsosAudioSynthesizer(parameterManager);

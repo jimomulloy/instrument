@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ParameterManager {
 
-	private static String PARAMETER_CONFIG_FILE = "instrument.properties";
+	private static String PARAMETER_CONFIG_FILE = "/instrument.properties";
 
-	private Properties parameters = new Properties();
+	Properties parameters = new Properties();
 
 	public void initialise() {
 	}

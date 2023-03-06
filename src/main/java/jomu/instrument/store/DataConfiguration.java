@@ -5,22 +5,18 @@ import java.nio.file.Paths;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 import jomu.instrument.control.InstrumentParameterNames;
 import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.types.StorageManager;
 
-@Configuration
+//@Configuration
 public class DataConfiguration {
-
-	private final Environment environment;
 
 	@Value("${one.microstream.storage-directory}")
 	String rootPath;
 
-	public DataConfiguration(Environment environment) {
-		this.environment = environment;
+	public DataConfiguration() {
 	}
 
 	@Bean(destroyMethod = "shutdown")
@@ -39,7 +35,7 @@ public class DataConfiguration {
 			initRequired = true;
 		} 
 		// Prep Root
-		root.setStorageManager(storageManager);
+		//TODOroot.setStorageManager(storageManager);
 
 		// Init 'database' with some data
 		if (initRequired) {

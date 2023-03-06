@@ -2,12 +2,13 @@ package jomu.instrument;
 
 import java.util.logging.Logger;
 
+
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jomu.instrument.audio.AudioGenerator;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.Coordinator;
 import jomu.instrument.monitor.Console;
@@ -20,22 +21,22 @@ public class Instrument implements Organ, InstrumentFactory {
 
 	private static final Logger LOG = Logger.getLogger(Instrument.class.getName());
 
-	private static Instrument instrument;
+	static Instrument instrument;
 
-	@Autowired
-	private Coordinator coordinator;
+	@Inject
+	Coordinator coordinator;
 
-	@Autowired
-	private Controller controller;
+	@Inject
+	Controller controller;
 
-	@Autowired
-	private Console console;
+	@Inject
+	Console console;
 
-	@Autowired
-	private Storage storage;
+	@Inject
+	Storage storage;
 
-	@Autowired
-	private Workspace workspace;
+	@Inject
+	Workspace workspace;
 
 	public Controller getController() {
 		return controller;
@@ -58,12 +59,14 @@ public class Instrument implements Organ, InstrumentFactory {
 	}
 
 	public void initialise() {
+		System.out.println(">>Initialise INSTRUMENT");
 		LOG.info(">>Initialise INSTRUMENT");
 		controller.initialise();
 		storage.initialise();
 		workspace.initialise();
 		console.initialise();
 		coordinator.initialise();
+		System.out.println(">>Initialised INSTRUMENT");
 		LOG.info(">>Initialised INSTRUMENT");
 	}
 
@@ -74,6 +77,7 @@ public class Instrument implements Organ, InstrumentFactory {
 		workspace.start();
 		console.start();
 		coordinator.start();
+		System.out.println(">>Started INSTRUMENT");
 		LOG.info(">>Started INSTRUMENT");
 	}
 

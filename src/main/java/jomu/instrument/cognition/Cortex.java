@@ -16,23 +16,23 @@ import jomu.instrument.cognition.cell.Weaver;
 @Component
 public class Cortex implements Organ, AudioFeatureFrameObserver {
 
-	private NuCell sourceAddCell;
-	private NuCell sourceUpdateCell;
-	private NuCell audioCQCell;
-	private NuCell audioCQOriginCell;
-	private NuCell audioBeatCell;
-	private NuCell audioOnsetCell;
-	private NuCell audioPercussionCell;
-	private NuCell audioHpsCell;
-	private NuCell audioPitchCell;
-	private NuCell audioSpectralPeaksCell;
-	private NuCell audioPreChromaCell;
-	private NuCell audioPostChromaCell;
-	private NuCell audioIntegrateCell;
-	private NuCell audioNotateCell;
-	private NuCell audioSinkCell;
-	private NuCell audioTunerPeaksCell;
-	private NuCell audioYINCell;
+	NuCell sourceAddCell;
+	NuCell sourceUpdateCell;
+	NuCell audioCQCell;
+	NuCell audioCQOriginCell;
+	NuCell audioBeatCell;
+	NuCell audioOnsetCell;
+	NuCell audioPercussionCell;
+	NuCell audioHpsCell;
+	NuCell audioPitchCell;
+	NuCell audioSpectralPeaksCell;
+	NuCell audioPreChromaCell;
+	NuCell audioPostChromaCell;
+	NuCell audioIntegrateCell;
+	NuCell audioNotateCell;
+	NuCell audioSinkCell;
+	NuCell audioTunerPeaksCell;
+	NuCell audioYINCell;
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {

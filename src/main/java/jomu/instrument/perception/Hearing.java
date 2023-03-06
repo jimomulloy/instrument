@@ -40,15 +40,15 @@ public class Hearing implements Organ {
 
 	public static final float AUDIO_HIGHPASS_MAX = 20000.0F;
 
-	private String streamId;
+	String streamId;
 
-	private ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
+	ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 
-	private ParameterManager parameterManager;
+	ParameterManager parameterManager;
 
-	private Workspace workspace;
+	Workspace workspace;
 
-	private Console console;
+	Console console;
 
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);

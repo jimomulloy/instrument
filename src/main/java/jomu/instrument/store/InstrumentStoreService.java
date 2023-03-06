@@ -4,23 +4,23 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PreDestroy;
-import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import one.microstream.storage.types.StorageManager;
+//import one.microstream.storage.types.StorageManager;
 
 @ApplicationScoped
 @Component
 public class InstrumentStoreService {
 
+	@Inject
 	InstrumentStorage instrumentStorage;
 
-	public InstrumentStoreService(StorageManager storageManager) {
-		instrumentStorage = (InstrumentStorage) storageManager.root();
-	}
+	//public InstrumentStoreService(StorageManager storageManager) {
+	//	instrumentStorage = (InstrumentStorage) storageManager.root();
+	//}
 
 	public void initialise() {
 		instrumentStorage.initialise();
@@ -53,7 +53,7 @@ public class InstrumentStoreService {
 		return copyParams;
 	}
 
-	@PreDestroy
+	//TODO @PreDestroy
 	public void preDestroy() {
 		instrumentStorage.shutdown();
 	}

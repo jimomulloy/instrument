@@ -15,13 +15,13 @@ import jomu.instrument.perception.Hearing;
 public class Coordinator implements Organ {
 
 	@Autowired
-	private Cortex cortex;
+	Cortex cortex;
 
 	@Autowired
-	private Hearing hearing;
+	Hearing hearing;
 
 	@Autowired
-	private Voice voice;
+	Voice voice;
 
 	public Cortex getCortex() {
 		return cortex;

@@ -10,7 +10,7 @@ import jomu.instrument.Organ;
 @Component
 public class Controller implements Organ {
 
-	private ParameterManager parameterManager = new ParameterManager();
+	ParameterManager parameterManager = new ParameterManager();
 
 	public ParameterManager getParameterManager() {
 		return parameterManager;

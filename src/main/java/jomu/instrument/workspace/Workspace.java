@@ -11,8 +11,8 @@ import jomu.instrument.control.ParameterManager;
 @Component
 public class Workspace {
 
-	private Atlas atlas = new Atlas();
-	private ParameterManager parameterManager;
+	Atlas atlas = new Atlas();
+	ParameterManager parameterManager;
 
 	public Atlas getAtlas() {
 		return atlas;

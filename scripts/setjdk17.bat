@@ -1,8 +1,8 @@
 @echo off
 echo Setting JAVA_HOME
-set JAVA_HOME=C:\java\jdk-17
-setx JAVA_HOME "C:\java\jdk-17"
-setx /M JAVA_HOME "C:\java\jdk-17"
+set JAVA_HOME=E:\jdk\jdk-17
+setx JAVA_HOME "E:\jdk\jdk-17"
+setx /M JAVA_HOME "E:\jdk\jdk-17"
 set PATH_TO_FX=E:\jdk\javafx-sdk-17.0.6
 setx PATH_TO_FX "E:\jdk\javafx-sdk-17.0.6"
 setx /M PATH_TO_FX "E:\jdk\javafx-sdk-17.0.6"

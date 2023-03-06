@@ -33,10 +33,10 @@ import jomu.instrument.Organ;
 @Component
 public class Console implements Organ {
 
-	private Visor visor;
-	private JFrame mainFrame;
-	private JLabel statusLabel;
-	private JPanel contentPane;
+	Visor visor;
+	JFrame mainFrame;
+	JLabel statusLabel;
+	JPanel contentPane;
 
 	public OscilloscopeEventHandler getOscilloscopeHandler() {
 		return visor;

@@ -411,6 +411,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			this.frequencies = pitchSet.getRange();
 			bq = new LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
+			//new Thread(new AudioQueueConsumer(bq, this)).start();
 
 			float frequency = baseFrequency;
 

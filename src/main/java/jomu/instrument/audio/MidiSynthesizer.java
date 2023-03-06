@@ -1491,6 +1491,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.streamId = streamId;
 			bq = new LinkedBlockingQueue<>();
 			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
+			//new Thread(new MidiQueueConsumer(bq, this)).start();
 		}
 
 		public void close() {
