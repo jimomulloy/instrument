@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.ChordListElement;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
@@ -37,7 +38,11 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		postChromaToneMap.addTimeFrame(postTimeFrame);
 		postTimeFrame.smoothMedian(preChromaToneMap, postChromaToneMap, chromaSmoothFactor, sequence,
 				chromaChordifySwitch, chromaChordifyThreshold);
-
+		ChordListElement chord = postTimeFrame.getChord();
+		if (chord != null) {
+			postChromaToneMap.trackChord(chord);
+		}
+		
 		List<ToneTimeFrame> timeFrames = new ArrayList<>();
 		double fromTime = (postTimeFrame.getStartTime() - 2.0) >= 0 ? postTimeFrame.getStartTime() - 2.0 : 0;
 		while (postTimeFrame != null && postTimeFrame.getStartTime() >= fromTime) {

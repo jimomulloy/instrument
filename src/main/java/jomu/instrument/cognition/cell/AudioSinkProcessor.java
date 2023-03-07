@@ -28,6 +28,8 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 		console.getVisor().updateSpectrumView(cqToneMap.getTimeFrame(),
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW));
+		
+		LOG.info(">>VOICE SEND: " + sequence + ", " + notateToneMap.getTimeFrame(sequence).getStartTime());
 
 		voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
 		if (isClosing(streamId, sequence)) {

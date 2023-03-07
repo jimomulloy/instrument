@@ -57,8 +57,6 @@ public class PitchDetect {
 		// spec[i] *= 1000;
 		// sw.whiten(spec);
 
-		System.out.println(">>fzeros detecting");
-
 		// iteratively find all presented pitches
 		float test = 0, lasttest = 0;
 		int loopcount = 1;
@@ -70,8 +68,7 @@ public class PitchDetect {
 			if (test <= lasttest)
 				break;
 			loopcount++;
-			System.out.println(">>detected loop: " + test);
-
+	
 			// subtract the information of the found pitch from the current spectrum
 			for (int i = 1; (i * fzeroInfo[0] < sampleRate / 2) && i < 6; ++i) {
 				int partialInd = (int) Math.floor((double) (i * fzeroInfo[0] * timeSize / sampleRate));
@@ -92,11 +89,8 @@ public class PitchDetect {
 			if (fzeros[(int) fzeroInfo[2]] == 0) {
 				fzeros[(int) fzeroInfo[2]] = fzeroInfo[0];
 				fzeroSaliences[(int) fzeroInfo[2]] = fzeroInfo[1];
-				System.out.println(">>detected: " + fzeroInfo[2] + ", " + fzeroInfo[1] + ", " + fzeroInfo[0]);
 			}
 		}
-		System.out.println(">>done detectes");
-//
 //		for (int i = 0; i < spec.length; i++) {
 //			if (fzeroBins.containsKey(i)) {
 //				spec[i] = fzeroBins.get(i);
@@ -111,7 +105,6 @@ public class PitchDetect {
 	private void detectfzero(float[] spec, float[] fzeroInfo) {
 		{
 			float maxSalience = 0;
-			System.out.println(">>detectfzero pitches.length: " + pitches.length);
 			for (int j = 0; j < pitches.length; ++j) {
 				float cSalience = 0; // salience of the candidate pitch
 				float val = 0;
@@ -148,13 +141,11 @@ public class PitchDetect {
 						cSalience = val;
 					}
 				}
-				System.out.println(">>detectfzero j: " + j + ", " + cSalience + ", " + pitches[j]);
 				if (cSalience > maxSalience) {
 					maxSalience = cSalience;
 					fzeroInfo[0] = (float) pitches[j];
 					fzeroInfo[1] = cSalience;
 					fzeroInfo[2] = j;
-					System.out.println(">>set salience: " + cSalience + ", " + j);
 				}
 			}
 		}

@@ -7,6 +7,8 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.BeatFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.workspace.tonemap.BeatListElement;
+import jomu.instrument.workspace.tonemap.ChordListElement;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioBeatProcessor extends ProcessorCommon {
@@ -27,6 +29,10 @@ public class AudioBeatProcessor extends ProcessorCommon {
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		BeatFeatures features = aff.getBeatFeatures();
 		features.buildToneMapFrame(toneMap);
+		BeatListElement beat = toneMap.getTimeFrame().getBeat();
+		if (beat != null) {
+			toneMap.trackBeat(beat);
+		}
 		console.getVisor().updateBeatsView(toneMap);
 		cell.send(streamId, sequence);
 	}

@@ -1,5 +1,7 @@
 package jomu.instrument.actuation;
 
+import java.util.logging.Logger;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
+import jomu.instrument.audio.AudioGenerator;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.audio.ResynthAudioSynthesizer;
@@ -20,6 +23,8 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 @ApplicationScoped
 @Component
 public class Voice implements Organ {
+
+	private static final Logger LOG = Logger.getLogger(Voice.class.getName());
 
 	AudioSynthesizer resynthSynthesizer;
 	AudioSynthesizer audioSynthesizer;

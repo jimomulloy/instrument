@@ -63,7 +63,7 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 					amplitude += element.salience;
 					LOG.info(">>BEAT ADD SALIENCE : " + element);
 				}
-
+				
 				ToneMapElement[] elements = ttf.getElements();
 				for (int i = 0; i < elements.length; i++) {
 					elements[i].amplitude = amplitude;
@@ -71,6 +71,10 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 			}
 
+			if (amplitude > ToneTimeFrame.AMPLITUDE_FLOOR) {
+				ttf.setBeatAmplitude(amplitude);
+			}
+			
 			ttf.reset();
 			ttf.setLowThreshold(0.1);
 		} else {

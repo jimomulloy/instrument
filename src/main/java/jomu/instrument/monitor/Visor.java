@@ -816,7 +816,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 						Integer.toString(sampleRate));
 			}
 		});
-		inputSampleRateCombobox.setSelectedIndex(2);
+		inputSampleRateCombobox.setSelectedIndex(3);
 		actionPanel.add(new JLabel("Sample rate:  "));
 		actionPanel.add(inputSampleRateCombobox);
 

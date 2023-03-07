@@ -28,15 +28,22 @@ public class ToneMap {
 
 	private String key;
 
-	private NoteTracker noteTracker = new NoteTracker();
+	private NoteTracker noteTracker;
 
+	private TonePredictor tonePredictor;
 	public ToneMap(String key) {
 		this.key = key;
 		toneMapStore = new ConcurrentSkipListMap<>();
+		noteTracker = new NoteTracker(this);
+		tonePredictor = new TonePredictor(this);
 	}
 
 	public NoteTracker getNoteTracker() {
 		return noteTracker;
+	}
+
+	public TonePredictor getTonePredictor() {
+		return tonePredictor;
 	}
 
 	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
@@ -145,5 +152,15 @@ public class ToneMap {
 
 	public void trackNote(NoteListElement noteListElement) {
 		noteTracker.trackNote(noteListElement);
+		tonePredictor.addNote(noteListElement);
+	}	
+	
+	public void trackChord(ChordListElement chordListElement) {
+		tonePredictor.addChord(chordListElement);
 	}
+	
+	public void trackBeat(BeatListElement beatListElement) {
+		tonePredictor.addBeat(beatListElement);
+	}
+
 }

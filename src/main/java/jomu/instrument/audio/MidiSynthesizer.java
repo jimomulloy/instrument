@@ -393,7 +393,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			midiStreams.put(streamId, new MidiStream(streamId));
 		}
 		MidiStream midiStream = midiStreams.get(streamId);
-
+		if (toneTimeFrame != null) {
+			LOG.info(">>MIDI MQM SEND TTF TIME: " +toneTimeFrame.getStartTime() + ", "+ sequence);
+		}	
 		MidiQueueMessage midiQueueMessage = new MidiQueueMessage(toneTimeFrame, sequence);
 		midiStream.getBq().add(midiQueueMessage);
 		return;
@@ -460,7 +462,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				while (running) {
 					MidiQueueMessage mqm = bq.take();
 					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
-
+					
 					if (toneTimeFrame == null) {
 						clearChannels();
 						this.midiStream.close();
@@ -469,9 +471,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 						break;
 					}
 
+					LOG.info(">>MIDI MQM GOT TTF TIME: " +toneTimeFrame.getStartTime());
+
 					if (sampleTime != 0) {
+						LOG.info(">>MIDI MQM SLEEP TIME: " + sampleTime);
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 					}
+					
+					LOG.info(">>MIDI MQM START PLAY: " +toneTimeFrame.getStartTime());
+			
 
 					boolean midiPlayVoice1Switch = parameterManager
 							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH);
@@ -554,6 +562,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					sampleTime = timeSet.getSampleTimeSize();
+					
+					LOG.info(">>MIDI MQM PLAYED: " + sampleTime);
 
 				}
 			} catch (InterruptedException e) {
@@ -1011,6 +1021,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			for (ShortMessage mm : midiMessages) {
 				try {
+					LOG.info(">>MIDI CHORD SEND: " + mm.getData1() + ", " + mm.getData2() + ", "
+							+ mm.getChannel() + ", " + mm.getCommand());
 					synthesizer.getReceiver().send(mm, -1);
 					if (mm.getCommand() == ShortMessage.NOTE_ON && mm.getData2() == 120) {
 					}
