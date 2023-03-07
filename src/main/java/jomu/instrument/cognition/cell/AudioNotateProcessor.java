@@ -47,22 +47,26 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		int tmIndex = sequence - 10;
 		if (tmIndex > 0) {
 			timeFrame = notateToneMap.getTimeFrame(tmIndex);
-			if (notateSwitchCompress) {
-				clearNotes(timeFrame);
-				timeFrame.compress(compression);
+			if (timeFrame != null) {
+				if (notateSwitchCompress) {
+					clearNotes(timeFrame);
+					timeFrame.compress(compression);
+				}
+				console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 			}
-			console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 			cell.send(streamId, tmIndex);
 		}
 
 		if (isClosing(streamId, sequence)) {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				timeFrame = notateToneMap.getTimeFrame(i);
-				if (notateSwitchCompress) {
-					clearNotes(timeFrame);
-					timeFrame.compress(compression);
+				if (timeFrame != null) { // TODO or make fake on here?
+					if (notateSwitchCompress) {
+						clearNotes(timeFrame);
+						timeFrame.compress(compression);
+					}
+					console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 				}
-				console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 				cell.send(streamId, i);
 			}
 		}

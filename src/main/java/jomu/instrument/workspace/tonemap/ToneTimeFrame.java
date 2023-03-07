@@ -13,8 +13,6 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import jomu.instrument.Organ;
-
 public class ToneTimeFrame {
 
 	private static final Logger LOG = Logger.getLogger(ToneTimeFrame.class.getName());
@@ -74,7 +72,7 @@ public class ToneTimeFrame {
 	public void setBeatAmplitude(double beatAmplitude) {
 		this.beatAmplitude = beatAmplitude;
 	}
-	
+
 	public int getMaxPitch() {
 		return maxPitch;
 	}
@@ -427,7 +425,6 @@ public class ToneTimeFrame {
 		TreeSet<Integer> thirdCandidates = new TreeSet<>();
 		TreeSet<Integer> fourthCandidates = new TreeSet<>();
 
-		LOG.info(">>CHORDIFY!!: " + this.getStartTime() + ", " + maxAmplitude);
 		if (maxAmplitude < threshold) {
 			return this;
 		}
@@ -438,7 +435,6 @@ public class ToneTimeFrame {
 				double value = elements[i].amplitude;
 				if (value == 1.0) {
 					firstCandidates.add(index);
-					LOG.info(">>CHORDIFY!!: ADD 1 index: " + index);
 				}
 			}
 		}
@@ -449,7 +445,6 @@ public class ToneTimeFrame {
 				double value = elements[i].amplitude;
 				if (value == 0.75) {
 					secondCandidates.add(index);
-					LOG.info(">>CHORDIFY!!: ADD 2 index: " + index);
 				}
 			}
 		}
@@ -460,7 +455,6 @@ public class ToneTimeFrame {
 				double value = elements[i].amplitude;
 				if (value == 0.5) {
 					thirdCandidates.add(index);
-					LOG.info(">>CHORDIFY!!: ADD 3 index: " + index);
 				}
 			}
 		}
@@ -471,15 +465,11 @@ public class ToneTimeFrame {
 				double value = elements[i].amplitude;
 				if (value == 0.25) {
 					fourthCandidates.add(index);
-					LOG.info(">>CHORDIFY!!: ADD 4 index: " + index);
 				}
 			}
 		}
 
-		LOG.info(">>CHORDIFY!! 1: " + firstCandidates.size());
-
 		if (censHasClusters(firstCandidates, 4)) {
-			LOG.info(">>CHORDIFY!! firstCandidates cluster");
 			return this;
 		}
 
@@ -506,10 +496,7 @@ public class ToneTimeFrame {
 			}
 		} else {
 
-			LOG.info(">>CHORDIFY!! 2: " + secondCandidates.size());
-
 			if (censHasClusters(secondCandidates, 4)) {
-				LOG.info(">>CHORDIFY!! secondCandidates cluster");
 				if (level1CandidateNumber >= 3) {
 					for (int i = 0; i < elements.length; i++) {
 						elements[i].amplitude = AMPLITUDE_FLOOR;
@@ -523,14 +510,11 @@ public class ToneTimeFrame {
 							}
 						}
 					}
-					LOG.info(">>CHORDIFY!! 2A: " + level1CandidateNumber);
 				} else {
-					LOG.info(">>CHORDIFY!! 2B: " + level1CandidateNumber);
 					return this;
 				}
 			}
 			censRemoveClusters(secondCandidates, 3, true);
-			LOG.info(">>CHORDIFY!! 2.0: " + secondCandidates.size());
 
 			Set<Integer> level2Pairs = censGetPairs(secondCandidates);
 			secondCandidates.removeAll(level2Pairs);
@@ -554,12 +538,9 @@ public class ToneTimeFrame {
 						}
 					}
 				}
-				LOG.info(">>CHORDIFY!! 2C: " + level1CandidateNumber);
 			} else {
-				LOG.info(">>CHORDIFY!! 3: " + thirdCandidates.size());
 
 				if (censHasClusters(thirdCandidates, 4)) {
-					LOG.info(">>CHORDIFY!! thirdCandidates cluster");
 					for (int i = 0; i < elements.length; i++) {
 						elements[i].amplitude = AMPLITUDE_FLOOR;
 					}
@@ -576,7 +557,6 @@ public class ToneTimeFrame {
 							}
 						}
 					}
-					LOG.info(">>CHORDIFY!! 3A: " + level1CandidateNumber);
 				}
 				censRemoveClusters(thirdCandidates, 3, true);
 
@@ -594,7 +574,7 @@ public class ToneTimeFrame {
 						int index = i % 12;
 						if (elements[i] != null) {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
-								elements[i].amplitude = 1.0;					
+								elements[i].amplitude = 1.0;
 								chordNotes.add(new ChordNote(index, elements[i].amplitude));
 								counter++;
 							}
@@ -610,20 +590,16 @@ public class ToneTimeFrame {
 							}
 						}
 					}
-					LOG.info(">>CHORDIFY!! 3B: " + counter);
-				} else {
-					LOG.info(">>CHORDIFY!! 3C: " + level1CandidateNumber);
 				}
 			}
 		}
 		if (getChord() != null) {
-			LOG.info(">>CHORDIFY!! CHORDS FOUND: " + this.getStartTime() + ", " + getChord());
-		}	
+			LOG.info(">>CHORDIFY CHORDS FOUND: " + this.getStartTime() + ", " + getChord());
+		}
 		return this;
 	}
 
 	private Set<Integer> censGetSingles(TreeSet<Integer> candidates) {
-		LOG.info(">>CHORDIFY!! censGetSingles");
 		TreeSet<Integer> result = new TreeSet<>();
 		int lastCandidate = -1;
 		for (Integer candidate : candidates) {
@@ -641,12 +617,10 @@ public class ToneTimeFrame {
 			}
 			lastCandidate = candidate;
 		}
-		LOG.info(">>CHORDIFY!! censGetSingles EXIT");
 		return result;
 	}
 
 	private Set<Integer> censGetPairs(TreeSet<Integer> candidates) {
-		LOG.info(">>CHORDIFY!! censGetPairs");
 		TreeSet<Integer> result = new TreeSet<>();
 		int lastCandidate = -1;
 		for (Integer candidate : candidates) {
@@ -662,12 +636,10 @@ public class ToneTimeFrame {
 			}
 			lastCandidate = candidate;
 		}
-		LOG.info(">>CHORDIFY!! censGetPairs EXIT");
 		return result;
 	}
 
 	private void censRemoveClusters(TreeSet<Integer> candidates, int size, boolean keepMedian) {
-		LOG.info(">>CHORDIFY!! censRemoveClusters");
 		Set<Integer> candidateSet = new TreeSet<>();
 		Set<Integer> removeSet = new TreeSet<>();
 		int lastCandidate = -1;
@@ -706,12 +678,10 @@ public class ToneTimeFrame {
 		for (Integer removeCandidate : removeSet) {
 			candidates.remove(removeCandidate);
 		}
-		LOG.info(">>CHORDIFY!! censRemoveClusters EXIT");
 		return;
 	}
 
 	private boolean censHasClusters(TreeSet<Integer> candidates, int size) {
-		LOG.info(">>CHORDIFY!! censHasClusters");
 		int lastCandidate = -1;
 		int cluster = 0;
 		for (Integer candidate : candidates) {
@@ -741,7 +711,6 @@ public class ToneTimeFrame {
 			}
 			lastCandidate = candidate;
 		}
-		LOG.info(">>CHORDIFY!! censHasClusters EXIT");
 		return false;
 	}
 
@@ -1069,7 +1038,8 @@ public class ToneTimeFrame {
 	public ChordListElement getChord() {
 		ChordListElement chordListElement = null;
 		if (chordNotes.size() > 1) {
-			chordListElement = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]), getStartTime(), getTimeSet().getEndTime());
+			chordListElement = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
+					getStartTime(), getTimeSet().getEndTime());
 		}
 		return chordListElement;
 	}

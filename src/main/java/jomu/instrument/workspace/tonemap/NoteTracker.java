@@ -75,7 +75,7 @@ public class NoteTracker {
 	public NoteTracker(ToneMap toneMap) {
 		this.toneMap = toneMap;
 	}
-	
+
 	public void trackNote(NoteListElement noteListElement) {
 		NoteTrack salientTrack = null;
 		if (tracks.isEmpty()) {
@@ -91,7 +91,7 @@ public class NoteTracker {
 					if (salientTrack != null) {
 						NoteListElement disconnectedNote = salientTrack.getLastNote();
 						salientTrack.removeNote(disconnectedNote);
-					}	
+					}
 				}
 			}
 		}

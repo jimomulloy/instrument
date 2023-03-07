@@ -15,6 +15,14 @@ public class ChordNote implements Comparable<ChordNote> {
 		this.amplitiude = amplitude;
 	}
 
+	public double getAmplitiude() {
+		return amplitiude;
+	}
+
+	public int getPitchClass() {
+		return pitchClass;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(pitchClass);
@@ -39,9 +47,11 @@ public class ChordNote implements Comparable<ChordNote> {
 
 	@Override
 	public int compareTo(ChordNote o) {
-		if (this.pitchClass > o.pitchClass) return 1;
-		if (this.pitchClass < o.pitchClass) return -1;
+		if (this.pitchClass > o.pitchClass)
+			return 1;
+		if (this.pitchClass < o.pitchClass)
+			return -1;
 		return 0;
 	}
-	
+
 }

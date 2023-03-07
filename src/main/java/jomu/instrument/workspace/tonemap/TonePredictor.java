@@ -8,7 +8,7 @@ public class TonePredictor {
 	LinkedList<ChordListElement> chords = new LinkedList<>();
 	LinkedList<BeatListElement> beats = new LinkedList<>();
 	ToneMap toneMap;
-	
+
 	public TonePredictor(ToneMap toneMap) {
 		this.toneMap = toneMap;
 	}
@@ -20,7 +20,7 @@ public class TonePredictor {
 	void addChord(ChordListElement chord) {
 		chords.add(chord);
 	}
-	
+
 	void addBeat(BeatListElement beat) {
 		beats.add(beat);
 	}

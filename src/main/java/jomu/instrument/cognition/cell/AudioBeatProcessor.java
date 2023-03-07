@@ -8,7 +8,6 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.BeatFeatures;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.workspace.tonemap.BeatListElement;
-import jomu.instrument.workspace.tonemap.ChordListElement;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class AudioBeatProcessor extends ProcessorCommon {

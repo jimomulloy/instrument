@@ -1,9 +1,6 @@
 package jomu.instrument.workspace.tonemap;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * This class defines the fields of the elements contained in the NoteList
@@ -14,10 +11,9 @@ import java.util.Set;
  */
 public class BeatListElement {
 
-	private double amplitiude;
-	private double startTime;
-	
-	private double endTime;
+	double amplitiude;
+	double startTime;
+	double endTime;
 
 	public BeatListElement(double amplitude, double startTime, double endTime) {
 		this.amplitiude = amplitude;
@@ -29,7 +25,19 @@ public class BeatListElement {
 		BeatListElement clone = new BeatListElement(this.amplitiude, this.startTime, this.endTime);
 		return clone;
 	}
-	
+
+	public double getAmplitiude() {
+		return amplitiude;
+	}
+
+	public double getStartTime() {
+		return startTime;
+	}
+
+	public double getEndTime() {
+		return endTime;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(startTime);

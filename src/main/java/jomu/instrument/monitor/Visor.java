@@ -1045,6 +1045,19 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 			}
 		});
+		voicePlayerDelayInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY, newValue);
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
 		voicePlayerDelayInput.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
 		voicePanel.add(voicePlayerDelayLabel);
 		voicePanel.add(voicePlayerDelayInput);
@@ -1054,9 +1067,24 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		voicePlayerLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = voicePlayerLowThresholdInput.getText();
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD, newValue);
 
+			}
+		});
+
+		voicePlayerLowThresholdInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD, newValue);
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
 			}
 		});
 		voicePlayerLowThresholdInput
@@ -1069,9 +1097,22 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 		voicePlayerHighThresholdInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = voicePlayerHighThresholdInput.getText();
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD, newValue);
+			}
+		});
+		voicePlayerHighThresholdInput.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD, newValue);
+			}
 
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
 			}
 		});
 		voicePlayerHighThresholdInput

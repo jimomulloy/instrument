@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
-import jomu.instrument.audio.AudioGenerator;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.audio.ResynthAudioSynthesizer;

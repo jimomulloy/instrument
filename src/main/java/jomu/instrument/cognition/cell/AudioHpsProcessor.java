@@ -85,24 +85,27 @@ public class AudioHpsProcessor extends ProcessorCommon {
 		if (isClosing(streamId, sequence)) {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(i);
-				ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(i);
-				hpsHarmonicToneMap.getTimeFrame(i).hpsHarmonicMedian(cqToneMap, sequence, hpsHarmonicMedian,
-						hpsMedianSwitch);
-				hpsToneMap.getTimeFrame(i).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
-						(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0);
-				hpsHarmonicMaskedToneMap.getTimeFrame(i).hpsHarmonicMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
-						hpsMaskFactor);
-				hpsPercussionMaskedToneMap.getTimeFrame(i).hpsPercussionMask(hpsHarmonicTimeFrame,
-						hpsPercussionTimeFrame, hpsMaskFactor);
-				console.getVisor().updateToneMapView(hpsHarmonicToneMap, hpsHarmonicToneMap.getTimeFrame(i),
-						this.cell.getCellType().toString() + "_HARMONIC");
-				console.getVisor().updateToneMapView(hpsHarmonicMaskedToneMap, hpsHarmonicMaskedToneMap.getTimeFrame(i),
-						this.cell.getCellType().toString() + "_HARMONIC_MASK");
-				console.getVisor().updateToneMapView(hpsPercussionMaskedToneMap,
-						hpsPercussionMaskedToneMap.getTimeFrame(i),
-						this.cell.getCellType().toString() + "_PERCUSSION_MASK");
-				console.getVisor().updateToneMapView(hpsToneMap, hpsToneMap.getTimeFrame(i),
-						this.cell.getCellType().toString());
+				if (hpsHarmonicTimeFrame != null) {
+					ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(i);
+					hpsHarmonicToneMap.getTimeFrame(i).hpsHarmonicMedian(cqToneMap, sequence, hpsHarmonicMedian,
+							hpsMedianSwitch);
+					hpsToneMap.getTimeFrame(i).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
+							(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0);
+					hpsHarmonicMaskedToneMap.getTimeFrame(i).hpsHarmonicMask(hpsHarmonicTimeFrame,
+							hpsPercussionTimeFrame, hpsMaskFactor);
+					hpsPercussionMaskedToneMap.getTimeFrame(i).hpsPercussionMask(hpsHarmonicTimeFrame,
+							hpsPercussionTimeFrame, hpsMaskFactor);
+					console.getVisor().updateToneMapView(hpsHarmonicToneMap, hpsHarmonicToneMap.getTimeFrame(i),
+							this.cell.getCellType().toString() + "_HARMONIC");
+					console.getVisor().updateToneMapView(hpsHarmonicMaskedToneMap,
+							hpsHarmonicMaskedToneMap.getTimeFrame(i),
+							this.cell.getCellType().toString() + "_HARMONIC_MASK");
+					console.getVisor().updateToneMapView(hpsPercussionMaskedToneMap,
+							hpsPercussionMaskedToneMap.getTimeFrame(i),
+							this.cell.getCellType().toString() + "_PERCUSSION_MASK");
+					console.getVisor().updateToneMapView(hpsToneMap, hpsToneMap.getTimeFrame(i),
+							this.cell.getCellType().toString());
+				}
 				cell.send(streamId, i);
 			}
 		}

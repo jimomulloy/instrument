@@ -42,7 +42,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		if (chord != null) {
 			postChromaToneMap.trackChord(chord);
 		}
-		
+
 		List<ToneTimeFrame> timeFrames = new ArrayList<>();
 		double fromTime = (postTimeFrame.getStartTime() - 2.0) >= 0 ? postTimeFrame.getStartTime() - 2.0 : 0;
 		while (postTimeFrame != null && postTimeFrame.getStartTime() >= fromTime) {

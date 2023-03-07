@@ -3,6 +3,7 @@ package jomu.instrument.workspace.tonemap;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -15,8 +16,8 @@ import java.util.Set;
 public class ChordListElement {
 
 	Set<ChordNote> chordNotes = new HashSet<>();
-	private double endTime;
-	private double startTime;
+	double endTime;
+	double startTime;
 
 	public ChordListElement(ChordNote[] chords, double startTime, double endTime) {
 		this.chordNotes = new HashSet<>(Arrays.asList(chords));
@@ -25,8 +26,29 @@ public class ChordListElement {
 	}
 
 	public ChordListElement clone() {
-		ChordListElement clone = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]), this.startTime, this.endTime);
+		ChordListElement clone = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
+				this.startTime, this.endTime);
 		return clone;
+	}
+
+	public Set<ChordNote> getChordNotes() {
+		return chordNotes;
+	}
+
+	public boolean hasChordNote(int pitchClass) {
+		return chordNotes.stream().anyMatch(c -> c.pitchClass == pitchClass);
+	}
+
+	public Optional<ChordNote> getChordNote(int pitchClass) {
+		return chordNotes.stream().filter(c -> c.pitchClass == pitchClass).findAny();
+	}
+
+	public double getEndTime() {
+		return endTime;
+	}
+
+	public double getStartTime() {
+		return startTime;
 	}
 
 	@Override
@@ -49,7 +71,8 @@ public class ChordListElement {
 
 	@Override
 	public String toString() {
-		return "ChordListElement [chordNotes=" + chordNotes + ", size=" + chordNotes.size() + ", endTime=" + endTime + ", startTime=" + startTime + "]";
+		return "ChordListElement [chordNotes=" + chordNotes + ", size=" + chordNotes.size() + ", endTime=" + endTime
+				+ ", startTime=" + startTime + "]";
 	}
 
 }

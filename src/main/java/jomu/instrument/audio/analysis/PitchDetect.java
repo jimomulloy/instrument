@@ -68,7 +68,7 @@ public class PitchDetect {
 			if (test <= lasttest)
 				break;
 			loopcount++;
-	
+
 			// subtract the information of the found pitch from the current spectrum
 			for (int i = 1; (i * fzeroInfo[0] < sampleRate / 2) && i < 6; ++i) {
 				int partialInd = (int) Math.floor((double) (i * fzeroInfo[0] * timeSize / sampleRate));

@@ -31,6 +31,7 @@ public class ToneMap {
 	private NoteTracker noteTracker;
 
 	private TonePredictor tonePredictor;
+
 	public ToneMap(String key) {
 		this.key = key;
 		toneMapStore = new ConcurrentSkipListMap<>();
@@ -153,12 +154,12 @@ public class ToneMap {
 	public void trackNote(NoteListElement noteListElement) {
 		noteTracker.trackNote(noteListElement);
 		tonePredictor.addNote(noteListElement);
-	}	
-	
+	}
+
 	public void trackChord(ChordListElement chordListElement) {
 		tonePredictor.addChord(chordListElement);
 	}
-	
+
 	public void trackBeat(BeatListElement beatListElement) {
 		tonePredictor.addBeat(beatListElement);
 	}
