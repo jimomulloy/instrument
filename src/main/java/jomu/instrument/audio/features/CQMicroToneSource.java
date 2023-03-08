@@ -44,7 +44,7 @@ public class CQMicroToneSource extends AudioEventSource<float[]> {
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW);
-		LOG.info(">>CQ window: " + this.windowSize);
+		LOG.finer(">>CQ window: " + this.windowSize);
 		this.minimumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
 		this.maximumFrequencyInCents = parameterManager
@@ -118,8 +118,8 @@ public class CQMicroToneSource extends AudioEventSource<float[]> {
 	void initialise() {
 		float minimumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(minimumFrequencyInCents);
 		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(maximumFrequencyInCents);
-		LOG.info(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
-		LOG.info(">>CQS window increment: " + windowSize);
+		LOG.finer(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
+		LOG.finer(">>CQS window increment: " + windowSize);
 
 		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
 
@@ -127,14 +127,14 @@ public class CQMicroToneSource extends AudioEventSource<float[]> {
 		binHeight = 1200F / (float) binsPerOctave;
 
 		startingPointsInHertz = constantQ.getFreqencies();
-		LOG.info(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
+		LOG.finer(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
 		binStartingPointsInCents = new float[startingPointsInHertz.length];
 		for (int i = 0; i < binStartingPointsInCents.length; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(startingPointsInHertz[i]);
 		}
-		LOG.info(">>CQMT endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
-		LOG.info(">>CQMT startingPointsInCents: " + binStartingPointsInCents[0]);
-		LOG.info(">>CQMT endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
+		LOG.finer(">>CQMT endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
+		LOG.finer(">>CQMT startingPointsInCents: " + binStartingPointsInCents[0]);
+		LOG.finer(">>CQMT endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
 
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
@@ -143,8 +143,8 @@ public class CQMicroToneSource extends AudioEventSource<float[]> {
 		dispatcher.addAudioProcessor(djp);
 
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
-		LOG.info(">>CQMT size: " + size);
-		LOG.info(">>CQMT lag: " + constantQLag);
+		LOG.finer(">>CQMT size: " + size);
+		LOG.finer(">>CQMT lag: " + constantQLag);
 
 		djp.addAudioProcessor(constantQ);
 		djp.addAudioProcessor(new AudioProcessor() {

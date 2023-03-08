@@ -68,7 +68,7 @@ public class NuCell extends Cell implements Serializable {
 		bq = new LinkedBlockingQueue<>();
 		Thread.startVirtualThread(new QueueConsumer());
 		// new Thread(new QueueConsumer()).start();
-		LOG.info(">>Loom thread started: ");
+		LOG.finer(">>Loom thread started: ");
 		// new Thread(new QueueConsumer()).start();
 	}
 
@@ -78,7 +78,7 @@ public class NuCell extends Cell implements Serializable {
 	 * @return double
 	 */
 	public double computeActivationFunction(double d) {
-		// LOG.info("computeActivationFunction ... " + d );
+		// LOG.finer("computeActivationFunction ... " + d );
 		return activationFunction.compute(d);
 	}
 
@@ -87,7 +87,7 @@ public class NuCell extends Cell implements Serializable {
 	 * @return Double
 	 */
 	public Double computeNetInput() {
-		// LOG.info("NuCell.computeNetInput ..." );
+		// LOG.finer("NuCell.computeNetInput ..." );
 		// loop through all the
 		return dendrites.computeNetInput();
 	}
@@ -169,7 +169,7 @@ public class NuCell extends Cell implements Serializable {
 	 * @param NuCell
 	 */
 	public void disconnectInput(NuCell NuCell) {
-		// LOG.info(NuCellID + " disconnectInput " +
+		// LOG.finer(NuCellID + " disconnectInput " +
 		// NuCell.getNuCellID()
 		// + " success");
 		dendrites.disconnect(NuCell);
@@ -181,11 +181,11 @@ public class NuCell extends Cell implements Serializable {
 	 * @param NuCell
 	 */
 	public void disconnectOutput(NuCell NuCell) {
-		// LOG.info(NuCellID + " disconnectOutput " +
+		// LOG.finer(NuCellID + " disconnectOutput " +
 		// NuCell.getNuCellID() );
 		axon.disconnect(NuCell);
 		updateLayerClassification();
-		// LOG.info(NuCellID + " disconnectOutput " +
+		// LOG.finer(NuCellID + " disconnectOutput " +
 		// NuCell.getNuCellID() + "
 		// success");
 
@@ -298,7 +298,7 @@ public class NuCell extends Cell implements Serializable {
 	 * @return
 	 */
 	public boolean isCircularConnection(NuCell NuCell) {
-		// LOG.info("NuCell.isCircularConnection: " +
+		// LOG.finer("NuCell.isCircularConnection: " +
 		// NuCell.getNuCellID() );
 
 		// If this is first iteration, then create the
@@ -319,7 +319,7 @@ public class NuCell extends Cell implements Serializable {
 	 * @return boolean
 	 */
 	public boolean isCircularConnectionFound(List<NuCell> visitedNuCells, NuCell n) {
-		// LOG.info("NuCell.isCircularConnection: " +
+		// LOG.finer("NuCell.isCircularConnection: " +
 		// n.getNuCellID() );
 
 		// get list of outputs for NuCell n
@@ -397,7 +397,7 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	public void setActivationFunctionThreshold(double d) {
-		// LOG.info("setActivationFunctionThreshold: " + d);
+		// LOG.finer("setActivationFunctionThreshold: " + d);
 		activationFunction.setThreshold(d);
 	}
 

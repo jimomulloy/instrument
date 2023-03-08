@@ -113,9 +113,9 @@ public class SACFSource extends AudioEventSource<Integer[]> {
 			public boolean process(AudioEvent audioEvent) {
 				ac.evaluate(convertFloatsToDoubles(audioEvent.getFloatBuffer()));
 				List<Integer> sacfPeaks = ac.findPeaks();
-				LOG.info(">>SACF Peaks: " + audioEvent.getTimeStamp() + ", " + sacfPeaks.size());
+				LOG.finer(">>SACF Peaks: " + audioEvent.getTimeStamp() + ", " + sacfPeaks.size());
 				for (int peak : sacfPeaks) {
-					LOG.info(">>SACF Peak: " + peak);
+					LOG.finer(">>SACF Peak: " + peak);
 				}
 				Integer[] featureValues = sacfPeaks.toArray(new Integer[sacfPeaks.size()]);
 				SACFSource.this.putFeature(audioEvent.getTimeStamp(), featureValues);

@@ -22,7 +22,7 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioCQMicroToneProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioCQMicroToneProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
@@ -50,13 +50,13 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		CQMicroToneFeatures cqf = aff.getCQMicroToneFeatures();
 		cqf.buildToneMapFrame(toneMap);
-		LOG.info(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime());
+		LOG.finer(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime());
 
-		LOG.info(">>CQ MAX/MIN AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.finer(">>CQ MAX/MIN AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 		if (cqSwitchCompress) {
 			toneMap.getTimeFrame().compress(compression);
-			LOG.info(">>CQ MAX/MIN AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.finer(">>CQ MAX/MIN AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
 		if (cqSwitchSquare) {
@@ -69,11 +69,11 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 
 		if (cqSwitchDecibel) {
 			toneMap.getTimeFrame().decibel(decibelLevel);
-			LOG.info(">>CQ MAX/MIN AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.finer(">>CQ MAX/MIN AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
 
-		LOG.info(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.finer(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

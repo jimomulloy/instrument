@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
+import jomu.instrument.store.microstream.InstrumentStorage;
 import jomu.instrument.workspace.tonemap.ToneMap;
 //import one.microstream.storage.types.StorageManager;
 
@@ -17,10 +18,6 @@ public class InstrumentStoreService {
 
 	@Inject
 	InstrumentStorage instrumentStorage;
-
-	// public InstrumentStoreService(StorageManager storageManager) {
-	// instrumentStorage = (InstrumentStorage) storageManager.root();
-	// }
 
 	public void initialise() {
 		instrumentStorage.initialise();

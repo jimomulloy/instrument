@@ -64,12 +64,16 @@
 	      <artifactId>rest-assured</artifactId>
 	      <scope>test</scope>
 	    </dependency>
-   	
+		<!--dependency>
+		    <groupId>one.microstream</groupId>
+		    <artifactId>microstream-integrations-cdi</artifactId>
+		    <version>${microstream.version}</version>
+		</dependency>
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded</artifactId>
             <version>${microstream.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded-configuration</artifactId>
@@ -159,9 +163,10 @@
 		        <artifactId>maven-surefire-plugin</artifactId>
 		        <version>${surefire-plugin.version}</version>
 		        <configuration>
-		          <systemPropertyVariables>
-		            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-		            <maven.home>${maven.home}</maven.home>
+		            <argLine>--enable-preview</argLine>
+                    <systemPropertyVariables>
+		  		        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+		        	    <maven.home>${maven.home}</maven.home>
 		          </systemPropertyVariables>
 		        </configuration>
 		      </plugin>

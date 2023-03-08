@@ -19,7 +19,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioIntegrateProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioIntegrateProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		boolean integrateSwitchHps = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH);
@@ -30,10 +30,10 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		ToneMap integrateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
 		if (integrateSwitchHps) {
-			LOG.info(">>AudioIntegrateProcessor use hpsMaskToneMap");
+			LOG.finer(">>AudioIntegrateProcessor use hpsMaskToneMap");
 			integrateToneMap.addTimeFrame(hpsMaskToneMap.getTimeFrame(sequence).clone());
 		} else {
-			LOG.info(">>AudioIntegrateProcessor use cqToneMap");
+			LOG.finer(">>AudioIntegrateProcessor use cqToneMap");
 			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		}
 

@@ -25,7 +25,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
@@ -65,7 +65,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		ConstantQFeatures cqf = aff.getConstantQFeatures();
 		cqf.buildToneMapFrame(toneMap);
-		LOG.info(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", " + toneMap.getTimeFrame().getMaxAmplitude()
+		LOG.finer(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", " + toneMap.getTimeFrame().getMaxAmplitude()
 				+ ", " + toneMap.getTimeFrame().getMinAmplitude());
 
 		if (cqWhiten) {
@@ -126,7 +126,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 			}
 		}
 
-		LOG.info(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.finer(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

@@ -160,7 +160,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
 		midiStream.getBq().add(midiQueueMessage);
 		midiStreams.remove(streamId);
-		LOG.info(">>!!! MIDI close: " + streamId);
+		LOG.finer(">>! MIDI close: " + streamId);
 	}
 
 	/**
@@ -229,7 +229,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
 			for (Info midiDev : midiDevs) {
-				LOG.info(">>midi dev: " + midiDev);
+				LOG.finer(">>midi dev: " + midiDev);
 			}
 			if (synthesizer == null) {
 				if ((synthesizer = MidiSystem.getSynthesizer()) == null) {
@@ -241,8 +241,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 			Soundbank sb = null;
 
 			try {
-				System.out.println(">>MIDI FILE: "
-						+ parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS));
 				file = new File(
 						parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
 				if (file.exists()) {
@@ -466,7 +464,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (toneTimeFrame == null) {
 						clearChannels();
 						this.midiStream.close();
-						LOG.info(">> midiStream.close(): " + this.midiStream.streamId);
+						LOG.finer(">> midiStream.close(): " + this.midiStream.streamId);
 						running = false;
 						break;
 					}
@@ -620,7 +618,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
-							LOG.info(">>MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
+							LOG.finer(">>MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -660,7 +658,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			for (ShortMessage mm : midiMessages) {
 				try {
-					LOG.info(">>MIDI NOTE SEND: " + mqm.getSequence() + ", " + mm.getData1() + ", " + mm.getData2()
+					LOG.finer(">>MIDI NOTE SEND: " + mqm.getSequence() + ", " + mm.getData1() + ", " + mm.getData2()
 							+ ", " + mm.getChannel() + ", " + mm.getCommand());
 					synthesizer.getReceiver().send(mm, -1);
 					if (mm.getCommand() == ShortMessage.NOTE_ON && mm.getData2() == 120) {
@@ -900,7 +898,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
-							LOG.info(">>MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
+							LOG.finer(">>MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -940,7 +938,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			for (ShortMessage mm : midiMessages) {
 				try {
-					LOG.info(">>MIDI NOTE SEND: " + mqm.getSequence() + ", " + mm.getData1() + ", " + mm.getData2()
+					LOG.finer(">>MIDI NOTE SEND: " + mqm.getSequence() + ", " + mm.getData1() + ", " + mm.getData2()
 							+ ", " + mm.getChannel() + ", " + mm.getCommand());
 					synthesizer.getReceiver().send(mm, -1);
 					if (mm.getCommand() == ShortMessage.NOTE_ON && mm.getData2() == 120) {
@@ -1077,7 +1075,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			// LOG.info(">>IN MIDI CHORD MAX: " + maxAmp);
+			// LOG.finer(">>IN MIDI CHORD MAX: " + maxAmp);
 
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -1126,7 +1124,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			for (ShortMessage mm : midiMessages) {
 				try {
-					LOG.info(">>MIDI CHORD SEND: " + sequence + ", " + mm.getData1() + ", " + mm.getData2() + ", "
+					LOG.finer(">>MIDI CHORD SEND: " + sequence + ", " + mm.getData1() + ", " + mm.getData2() + ", "
 							+ mm.getChannel() + ", " + mm.getCommand());
 					synthesizer.getReceiver().send(mm, -1);
 					if (mm.getCommand() == ShortMessage.NOTE_ON && mm.getData2() == 120) {
@@ -1165,11 +1163,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 				int volume = 0;
 				double amplitude = 0;
 				if (chord != null) {
-					LOG.info(">>MIDI CHORD2 HAS CHORD: " + sequence + ", " + chord);
+					LOG.finer(">>MIDI CHORD2 HAS CHORD: " + sequence + ", " + chord);
 					if (chord.hasChordNote(note)) {
 						ChordNote chordNote = chord.getChordNote(note).orElse(null);
 						amplitude = (int) chordNote.getAmplitiude();
-						LOG.info(">>MIDI CHORD2 HAS CHORD NOTE: " + sequence + ", " + note + ", " + amplitude);
+						LOG.finer(">>MIDI CHORD2 HAS CHORD NOTE: " + sequence + ", " + note + ", " + amplitude);
 						amplitude = 1.0;
 						if (amplitude >= 1.0) {
 							volume = 127;
@@ -1214,7 +1212,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			for (ShortMessage mm : midiMessages) {
 				try {
-					LOG.info(">>MIDI CHORD2 SEND: " + sequence + ", " + mm.getData1() + ", " + mm.getData2() + ", "
+					LOG.finer(">>MIDI CHORD2 SEND: " + sequence + ", " + mm.getData1() + ", " + mm.getData2() + ", "
 							+ mm.getChannel() + ", " + mm.getCommand());
 					synthesizer.getReceiver().send(mm, -1);
 					if (mm.getCommand() == ShortMessage.NOTE_ON && mm.getData2() == 120) {

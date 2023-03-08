@@ -244,7 +244,7 @@ public class Generator {
 	private static ThrowingConsumer<List<NuMessage>, Exception> getSinkProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
-				LOG.info(">>SinkProcessor process message: " + message);
+				LOG.finer(">>SinkProcessor process message: " + message);
 			}
 		};
 	}

@@ -48,7 +48,7 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
-		LOG.info(">>SP window: " + this.windowSize);
+		LOG.finer(">>SP window: " + this.windowSize);
 	}
 
 	public double getMaxMagnitudeThreshold() {
@@ -120,7 +120,7 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 	}
 
 	void initialise() {
-		LOG.info(">>SP init: " + this.windowSize);
+		LOG.finer(">>SP init: " + this.windowSize);
 		noiseFloorMedianFilterLength = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 		noiseFloorFactor = parameterManager
@@ -129,10 +129,10 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
 		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
 
-		LOG.info(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLength);
-		LOG.info(">>SP noiseFloorFactor: " + noiseFloorFactor);
-		LOG.info(">>SP numberOfSpectralPeaks: " + numberOfSpectralPeaks);
-		LOG.info(">>SP minPeakSize: " + minPeakSize);
+		LOG.finer(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLength);
+		LOG.finer(">>SP noiseFloorFactor: " + noiseFloorFactor);
+		LOG.finer(">>SP numberOfSpectralPeaks: " + numberOfSpectralPeaks);
+		LOG.finer(">>SP minPeakSize: " + minPeakSize);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];
@@ -145,7 +145,7 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 		binWidth = (float) windowSize / sampleRate;
 		binHeight = 1200F / (float) binsPerOctave;
 
-		LOG.info(">>SP binWidth: " + binWidth);
+		LOG.finer(">>SP binWidth: " + binWidth);
 
 		int stepsize = 512;
 		int overlap = windowSize - stepsize;

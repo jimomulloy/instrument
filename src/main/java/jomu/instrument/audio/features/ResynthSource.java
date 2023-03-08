@@ -66,7 +66,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		this.usePureSine = true;
 		previousFrequencies = new double[5];
 		previousFrequencyIndex = 0;
-		LOG.info(">>RS window: " + this.windowSize);
+		LOG.finer(">>RS window: " + this.windowSize);
 	}
 
 	public ResynthSource(AudioDispatcher dispatcher, int bufferSize) {

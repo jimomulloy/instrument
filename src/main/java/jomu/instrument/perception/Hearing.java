@@ -57,6 +57,7 @@ public class Hearing implements Organ {
 		}
 		audioStream.close();
 		console.getVisor().audioStopped();
+		console.updateStatusMessage("Ready");
 	}
 
 	public void removeAudioStream(String streamId) {
@@ -121,9 +122,10 @@ public class Hearing implements Organ {
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream != null) {
 			audioStream.stop();
-			Instrument.getInstance().getCoordinator().getCortex();
-			audioStream.getAudioFeatureProcessor()
-					.removeObserver(Instrument.getInstance().getCoordinator().getCortex());
+			if (audioStream.getAudioFeatureProcessor() != null) {
+				audioStream.getAudioFeatureProcessor()
+						.removeObserver(Instrument.getInstance().getCoordinator().getCortex());
+			}
 			closeAudioStream(streamId);
 		}
 	}
@@ -173,7 +175,7 @@ public class Hearing implements Organ {
 			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
 			AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
-			LOG.info(">>Open Audio file:  " + fileName + ", format: " + format);
+			LOG.finer(">>Open Audio file:  " + fileName + ", format: " + format);
 			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);
 			// AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
 

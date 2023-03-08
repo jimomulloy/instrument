@@ -45,7 +45,7 @@ public class NoteStatus {
 			index = note - lowNote;
 		} else {
 			// TODO !!
-			System.err.println(">>!! NoteStatus getNote error 1: " + lowNote + ", " + highNote + ", " + note + ", "
+			System.err.println(">> NoteStatus getNote error 1: " + lowNote + ", " + highNote + ", " + note + ", "
 					+ noteStatus.length + ", " + (note - lowNote));
 			return noteStatus[0];
 		}
@@ -54,7 +54,7 @@ public class NoteStatus {
 			return noteStatus[index];
 		} else {
 			// TODO !!
-			System.err.println(">>!! NoteStatus getNote error 2: " + lowNote + ", " + highNote + ", " + note + ", "
+			System.err.println(">> NoteStatus getNote error 2: " + lowNote + ", " + highNote + ", " + note + ", "
 					+ noteStatus.length + ", " + (note - lowNote));
 			return noteStatus[0];
 		}
@@ -82,7 +82,7 @@ public class NoteStatus {
 			if (noteStatus.length > (note - lowNote)) {
 				noteStatus[note - lowNote] = copy.getNoteStatusElement(note);
 			} else {
-				System.err.println(">>!! NoteStatus clone error: " + index + ", " + lowNote + ", " + highNote + ", "
+				System.err.println(">> NoteStatus clone error: " + index + ", " + lowNote + ", " + highNote + ", "
 						+ copy.lowNote + ", " + copy.highNote + ", " + noteStatus.length + ", " + (note - lowNote));
 			}
 		}

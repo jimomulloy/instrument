@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 
@@ -20,6 +21,8 @@ import jomu.instrument.cognition.cell.Cell.CellTypes;
  * @author Jim O'Mulloy
  */
 public class ToneMap {
+
+	private static final Logger LOG = Logger.getLogger(ToneMap.class.getName());
 
 	public boolean audioSwitch = false;
 
@@ -152,15 +155,18 @@ public class ToneMap {
 	}
 
 	public void trackNote(NoteListElement noteListElement) {
+		LOG.finer(">>ToneMap trackNote: " + noteListElement);
 		noteTracker.trackNote(noteListElement);
 		tonePredictor.addNote(noteListElement);
 	}
 
 	public void trackChord(ChordListElement chordListElement) {
+		LOG.finer(">>ToneMap trackChord: " + chordListElement);
 		tonePredictor.addChord(chordListElement);
 	}
 
 	public void trackBeat(BeatListElement beatListElement) {
+		LOG.finer(">>ToneMap trackBeat: " + beatListElement);
 		tonePredictor.addBeat(beatListElement);
 	}
 

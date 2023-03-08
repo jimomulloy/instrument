@@ -594,7 +594,7 @@ public class ToneTimeFrame {
 			}
 		}
 		if (getChord() != null) {
-			LOG.info(">>CHORDIFY CHORDS FOUND: " + this.getStartTime() + ", " + getChord());
+			LOG.finer(">>CHORDIFY CHORDS FOUND: " + this.getStartTime() + ", " + getChord());
 		}
 		return this;
 	}
@@ -866,7 +866,7 @@ public class ToneTimeFrame {
 	public ToneTimeFrame hpsHarmonicMedian(ToneMap sourceToneMap, int sequence, int hpsHarmonicMedianFactor,
 			boolean hpsMedianSwitch) {
 
-		LOG.info(">>hpsHarmonicMedianFactor: " + hpsHarmonicMedianFactor + ", " + getStartTime());
+		LOG.finer(">>hpsHarmonicMedianFactor: " + hpsHarmonicMedianFactor + ", " + getStartTime());
 
 		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
 		ToneTimeFrame stf = sourceToneMap.getTimeFrame(sequence);
@@ -1051,4 +1051,5 @@ public class ToneTimeFrame {
 		}
 		return beatListElement;
 	}
+
 }

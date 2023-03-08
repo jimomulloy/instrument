@@ -31,7 +31,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
 		int harmonics = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS);
 		float compression = parameterManager

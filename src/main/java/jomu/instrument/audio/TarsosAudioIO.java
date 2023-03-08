@@ -69,7 +69,7 @@ public class TarsosAudioIO extends AudioIO {
 
 	public TarsosAudioIO(int systemBufferSize) {
 		this.systemBufferSizeInFrames = systemBufferSize;
-		LOG.info("Beads System Buffer size=" + systemBufferSize);
+		LOG.finer("Beads System Buffer size=" + systemBufferSize);
 		setThreadPriority(Thread.MAX_PRIORITY);
 	}
 
@@ -77,7 +77,7 @@ public class TarsosAudioIO extends AudioIO {
 	 * Presents a choice of mixers on the commandline.
 	 */
 	public void chooseMixerCommandLine() {
-		LOG.info("Choose a mixer...");
+		LOG.finer("Choose a mixer...");
 		printMixerInfo();
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try {
@@ -127,10 +127,10 @@ public class TarsosAudioIO extends AudioIO {
 				int sound_output_buffer_size = systemBufferSizeInFrames * audioFormat.getFrameSize() * 2;
 
 				sourceDataLine.open(audioFormat, sound_output_buffer_size);
-				LOG.info("Beads Output buffer size=" + sound_output_buffer_size);
+				LOG.finer("Beads Output buffer size=" + sound_output_buffer_size);
 			}
 		} catch (LineUnavailableException ex) {
-			LOG.info(getClass().getName() + " : Error getting line\n");
+			LOG.finer(getClass().getName() + " : Error getting line\n");
 		}
 
 		sourceDataLine.start();
@@ -151,9 +151,9 @@ public class TarsosAudioIO extends AudioIO {
 			outputMixer = AudioSystem.getMixer(mixerinfo[i]);
 			if (outputMixer != null) {
 				System.out.print("JavaSoundAudioIO: Chosen mixer is ");
-				LOG.info(outputMixer.getMixerInfo().getName() + ".");
+				LOG.finer(outputMixer.getMixerInfo().getName() + ".");
 			} else {
-				LOG.info("JavaSoundAudioIO: Failed to get mixer.");
+				LOG.finer("JavaSoundAudioIO: Failed to get mixer.");
 			}
 		}
 	}
@@ -233,7 +233,7 @@ public class TarsosAudioIO extends AudioIO {
 				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
 				audioFormat = audioInputStream.getFormat();
 				audioInputStream.close();
-				LOG.info(">>audioFormat: " + audioFormat);
+				LOG.finer(">>audioFormat: " + audioFormat);
 			} catch (UnsupportedAudioFileException e) {
 				throw new Error(e);
 			} catch (IOException e) {
@@ -292,13 +292,13 @@ public class TarsosAudioIO extends AudioIO {
 	protected boolean stop() {
 		inputProcessor.processingFinished();
 		inputProcessor.kill();
-		LOG.info(">>TARSOSIO STOPPING!!");
+		LOG.finer(">>TARSOSIO STOPPING!!");
 		sourceDataLine.drain();
 		sourceDataLine.close();
 		audioThread.interrupt();
 		// dispatcher.stop();
 		destroy();
-		LOG.info(">>TARSOSIO STOPPED!!");
+		LOG.finer(">>TARSOSIO STOPPED!!");
 		return true;
 	}
 
@@ -311,11 +311,11 @@ public class TarsosAudioIO extends AudioIO {
 			String name = mixerinfo[i].getName();
 			if (name.equals(""))
 				name = "No name";
-			LOG.info((i + 1) + ") " + name + " --- " + mixerinfo[i].getDescription());
+			LOG.finer((i + 1) + ") " + name + " --- " + mixerinfo[i].getDescription());
 			Mixer m = AudioSystem.getMixer(mixerinfo[i]);
 			Line.Info[] lineinfo = m.getSourceLineInfo();
 			for (Info element : lineinfo) {
-				LOG.info("  - " + element.toString());
+				LOG.finer("  - " + element.toString());
 			}
 		}
 	}
@@ -359,7 +359,7 @@ public class TarsosAudioIO extends AudioIO {
 		 */
 		@Override
 		public void calculateBuffer() {
-			// LOG.info(">>Tarsus calculate");
+			// LOG.finer(">>Tarsus calculate");
 			for (int i = 0; i < bufferSize; i++) {
 				bufOut[0][i] = audioFloatbuffer[i];
 				// bufOut[1][i] = audioFloatbuffer[i];
@@ -378,9 +378,9 @@ public class TarsosAudioIO extends AudioIO {
 
 			javaSoundInitialized = true;
 			interleavedSamples = new float[bufferSize * audioFormat.getChannels()];
-			LOG.info(">>bs: " + bufferSize);
-			LOG.info(">>af: " + audioFormat);
-			LOG.info(">>fs: " + audioFormat.getFrameSize());
+			LOG.finer(">>bs: " + bufferSize);
+			LOG.finer(">>af: " + audioFormat);
+			LOG.finer(">>fs: " + audioFormat.getFrameSize());
 			bbuf = new byte[bufferSize * audioFormat.getFrameSize()];
 
 			if (audioFile != null) {
@@ -409,9 +409,9 @@ public class TarsosAudioIO extends AudioIO {
 				inputMixer = AudioSystem.getMixer(mixerinfo[2]);
 				if (inputMixer != null) {
 					System.out.print("JavaSoundAudioIO INPUT MIXER: Chosen mixer is ");
-					LOG.info(inputMixer.getMixerInfo().getName() + ".");
+					LOG.finer(inputMixer.getMixerInfo().getName() + ".");
 				} else {
-					LOG.info("JavaSoundAudioIO INPUT MIXER: Failed to get mixer.");
+					LOG.finer("JavaSoundAudioIO INPUT MIXER: Failed to get mixer.");
 					return false;
 				}
 
@@ -426,12 +426,12 @@ public class TarsosAudioIO extends AudioIO {
 					targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
 					targetDataLine.open(format, inputBufferSize);
 				} catch (LineUnavailableException e) {
-					LOG.info("no line");
+					LOG.finer("no line");
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					return false;
 				}
-				LOG.info(
+				LOG.finer(
 						"CHOSEN INPUT: " + targetDataLine.getLineInfo() + ", buffer size in bytes: " + inputBufferSize);
 				targetDataLine.start();
 				interleavedSamples = new float[bufferSize * format.getChannels()];
@@ -484,7 +484,7 @@ public class TarsosAudioIO extends AudioIO {
 
 		@Override
 		public void processingFinished() {
-			LOG.info(">>!!processingFinished!!");
+			LOG.finer(">>processingFinished!!");
 			if (inputMixer != null) {
 				inputMixer.close();
 				inputMixer = null;

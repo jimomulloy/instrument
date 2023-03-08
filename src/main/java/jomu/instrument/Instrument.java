@@ -57,31 +57,28 @@ public class Instrument implements Organ, InstrumentFactory {
 	}
 
 	public void initialise() {
-		System.out.println(">>Initialise INSTRUMENT");
-		LOG.info(">>Initialise INSTRUMENT");
+		LOG.fine(">>Initialise INSTRUMENT");
 		controller.initialise();
 		storage.initialise();
 		workspace.initialise();
 		console.initialise();
 		coordinator.initialise();
-		System.out.println(">>Initialised INSTRUMENT");
-		LOG.info(">>Initialised INSTRUMENT");
+		LOG.fine(">>Initialised INSTRUMENT");
 	}
 
 	public void start() {
-		LOG.info(">>Start INSTRUMENT");
+		LOG.fine(">>Start INSTRUMENT");
 		controller.start();
 		storage.start();
 		workspace.start();
 		console.start();
 		coordinator.start();
-		System.out.println(">>Started INSTRUMENT");
-		LOG.info(">>Started INSTRUMENT");
+		LOG.fine(">>Started INSTRUMENT");
 	}
 
 	@Override
 	public void stop() {
-		LOG.info(">>Stop INSTRUMENT");
+		LOG.finer(">>Stop INSTRUMENT");
 
 	}
 

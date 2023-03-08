@@ -60,7 +60,7 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 				}
 			}
 
-			LOG.info(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
+			LOG.finer(">>CQ: " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
@@ -82,7 +82,7 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 				for (int i = 0; i < elements.length; i++) {
 					if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
 						// getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
-						LOG.info(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
+						LOG.finer(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
 					}
 				}
 				for (int i = 0; i < elements.length; i++) {

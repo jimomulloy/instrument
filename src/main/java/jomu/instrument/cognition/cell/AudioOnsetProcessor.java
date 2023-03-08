@@ -20,7 +20,7 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioOnsetProcessor accept seq: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioOnsetProcessor accept seq: " + sequence + ", streamId: " + streamId);
 		int onsetSmoothingFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR);
 		int onsetEdgeFactor = parameterManager

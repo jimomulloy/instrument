@@ -6,32 +6,45 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class NoteTracker {
+
+	private static final Logger LOG = Logger.getLogger(NoteTracker.class.getName());
 
 	Set<NoteTrack> tracks = new HashSet<>();
 	ToneMap toneMap;
 
-	class NoteTrack {
+	public class NoteTrack {
 
 		int number;
 		double salience;
 		LinkedList<NoteListElement> notes = new LinkedList<>();
 
 		public NoteTrack(int number) {
+			LOG.fine(">>Add Node Track: " + number);
 			this.number = number;
 		}
 
-		int getNumber() {
+		public int getNumber() {
 			return this.number;
 		}
 
-		void addNote(NoteListElement note) {
+		public void addNote(NoteListElement note) {
+			LOG.fine(">>Track Note: " + note);
 			notes.add(note);
 		}
 
-		NoteListElement getLastNote() {
+		public NoteListElement getLastNote() {
 			return notes.getLast();
+		}
+
+		public LinkedList<NoteListElement> getNotes() {
+			return notes;
+		}
+
+		public boolean hasNote(NoteListElement note) {
+			return notes.contains(note);
 		}
 
 		public NoteListElement getPenultimateNote() {
@@ -99,6 +112,16 @@ public class NoteTracker {
 			salientTrack = createTrack();
 		}
 		salientTrack.addNote(noteListElement);
+	}
+
+	public NoteTrack getTrack(NoteListElement noteListElement) {
+		NoteTrack result = null;
+		for (NoteTrack track : tracks) {
+			if (track.hasNote(noteListElement)) {
+				return track;
+			}
+		}
+		return result;
 	}
 
 	private NoteTrack getSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {

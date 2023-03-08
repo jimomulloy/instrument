@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.workspace.tonemap.BeatListElement;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -208,35 +209,53 @@ public class BeatsView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 			double highViewThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
+			boolean showTracking = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 
-			ToneMapElement[] elements = ttf.getElements();
+			if (showTracking) {
 
-			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				BeatListElement beat = ttf.getBeat();
 
-				ToneMapElement toneMapElement = elements[elementIndex];
 				Color color = Color.black;
-				if (toneMapElement != null) {
-					double amplitude = 0.0;
-					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
-					int height = (int) ((double) getHeight() / 2.0);
-					amplitude = toneMapElement.amplitude;
-					int greyValue = 0;
-					if (amplitude > highViewThreshold) {
-						greyValue = 255;
-						color = rainbow[0];
-					} else if (amplitude <= lowViewThreshold) {
-						greyValue = 0;
-						color = new Color(greyValue, greyValue, greyValue);
-					} else {
-						greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001) * 255);
-						greyValue = Math.max(0, greyValue);
-						color = rainbow[255 - greyValue];
-					}
-
+				if (beat != null) {
+					color = Color.WHITE;
 					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-
+					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+					width = 10;
+					int height = (int) ((double) getHeight() / 2.0);
 					bufferedGraphics.setColor(color);
 					bufferedGraphics.fillRect(timeCoordinate, (int) (height / 2.0), width, (int) (height / 10.0));
+				}
+			} else {
+				ToneMapElement[] elements = ttf.getElements();
+
+				for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+
+					ToneMapElement toneMapElement = elements[elementIndex];
+					Color color = Color.black;
+					if (toneMapElement != null) {
+						double amplitude = 0.0;
+						int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+						int height = (int) ((double) getHeight() / 2.0);
+						amplitude = toneMapElement.amplitude;
+						int greyValue = 0;
+						if (amplitude > highViewThreshold) {
+							greyValue = 255;
+							color = rainbow[0];
+						} else if (amplitude <= lowViewThreshold) {
+							greyValue = 0;
+							color = new Color(greyValue, greyValue, greyValue);
+						} else {
+							greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001) * 255);
+							greyValue = Math.max(0, greyValue);
+							color = rainbow[255 - greyValue];
+						}
+
+						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+
+						bufferedGraphics.setColor(color);
+						bufferedGraphics.fillRect(timeCoordinate, (int) (height / 2.0), width, (int) (height / 10.0));
+					}
 				}
 			}
 		}

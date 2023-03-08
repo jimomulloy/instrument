@@ -20,7 +20,7 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioChromaProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioChromaProcessor accept: " + sequence + ", streamId: " + streamId);
 		double normaliseThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD);
 		int chromaRootNote = parameterManager

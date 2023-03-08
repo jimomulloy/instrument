@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -87,6 +89,8 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeatureFrameObserver {
+
+	private static final Logger LOG = Logger.getLogger(Visor.class.getName());
 
 	private static String defaultAudioFile = "notescale.wav";
 
@@ -173,11 +177,16 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 	private JCheckBox playPeaksSwitchCB;
 	private AbstractButton showPeaksSwitchCB;
 
+	private JCheckBox showTrackingSwitchCB;
+
+	private Console console;
+
 	public Visor(JFrame mainframe) {
 		this.mainframe = mainframe;
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
 		this.workspace = Instrument.getInstance().getWorkspace();
+		this.console = Instrument.getInstance().getConsole();
 		this.setLayout(new BorderLayout());
 		JPanel topPanel = buildTopPanel();
 		JPanel bottomPanel = buildBottomPanel();
@@ -391,12 +400,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
-				Visor.this.resetToneMapView();
+				refreshMapViews();
+				resetToneMapView();
 			}
 		});
 
@@ -405,12 +410,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
-				Visor.this.resetToneMapView();
+				refreshMapViews();
+				resetToneMapView();
 			}
 
 			public void keyTyped(KeyEvent e) {
@@ -434,12 +435,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
-
+				refreshMapViews();
 			}
 		});
 
@@ -448,11 +444,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 
 			public void keyTyped(KeyEvent e) {
@@ -475,11 +467,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 
 			}
 		});
@@ -488,11 +476,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 
 			public void keyTyped(KeyEvent e) {
@@ -514,11 +498,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 		});
 		pitchAxisRangeInput.addKeyListener(new KeyAdapter() {
@@ -526,11 +506,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 
 			public void keyTyped(KeyEvent e) {
@@ -553,16 +529,28 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				boolean newValue = cb.isSelected();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS,
 						Boolean.toString(newValue));
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 		});
 		showPeaksSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS));
 		graphControlPanel.add(showPeaksSwitchCB);
+
+		showTrackingSwitchCB = new JCheckBox("showTrackingSwitchCB");
+		showTrackingSwitchCB.setText("Tracking");
+		showTrackingSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		showTrackingSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING));
+		graphControlPanel.add(showTrackingSwitchCB);
 
 		JLabel toneMapViewLowThresholdLabel = new JLabel("View Low Threshold: ");
 		toneMapViewLowThresholdInput = new JTextField(4);
@@ -572,11 +560,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 		});
 		toneMapViewLowThresholdInput.addKeyListener(new KeyAdapter() {
@@ -584,11 +568,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 
 			public void keyTyped(KeyEvent e) {
@@ -610,11 +590,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 		});
 		toneMapViewHighThresholdInput.addKeyListener(new KeyAdapter() {
@@ -622,11 +598,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
-				Visor.this.toneMapView.updateAxis();
-				Visor.this.chromaPreView.updateAxis();
-				Visor.this.chromaPostView.updateAxis();
-				Visor.this.beatsView.updateAxis();
-				Visor.this.percussionView.updateAxis();
+				refreshMapViews();
 			}
 
 			public void keyTyped(KeyEvent e) {
@@ -676,17 +648,20 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
-					Visor.this.toneMapView.updateAxis();
-					Visor.this.chromaPreView.updateAxis();
-					Visor.this.chromaPostView.updateAxis();
-					Visor.this.beatsView.updateAxis();
-					Visor.this.percussionView.updateAxis();
-					Visor.this.resetToneMapView();
+					refreshMapViews();
+					resetToneMapView();
 					try {
 						Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
+						console.updateStatusMessage("Choosen file: " + inputFile);
 					} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						LOG.log(Level.SEVERE, "Error choosing file :" + inputFile, e);
+						Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+						startFileProcessingButton.setEnabled(true);
+						startListeningButton.setEnabled(true);
+						stopListeningButton.setEnabled(false);
+						chooseFileButton.setEnabled(true);
+						frameNumberInput.setEnabled(true);
+						console.updateStatusMessage("Error choosing file :" + inputFile + ", " + e.getMessage());
 					}
 				}
 			}
@@ -708,16 +683,19 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
-					Visor.this.toneMapView.updateAxis();
-					Visor.this.chromaPreView.updateAxis();
-					Visor.this.chromaPostView.updateAxis();
-					Visor.this.beatsView.updateAxis();
-					Visor.this.percussionView.updateAxis();
-					Visor.this.resetToneMapView();
+					refreshMapViews();
+					resetToneMapView();
 					Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
+					console.updateStatusMessage("Started file: " + inputFile);
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LOG.log(Level.SEVERE, "Error starting file :" + inputFile, e);
+					Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+					startFileProcessingButton.setEnabled(true);
+					startListeningButton.setEnabled(true);
+					stopListeningButton.setEnabled(false);
+					chooseFileButton.setEnabled(true);
+					frameNumberInput.setEnabled(true);
+					console.updateStatusMessage("Error starting file :" + inputFile + ", " + e.getMessage());
 				}
 			}
 		});
@@ -739,17 +717,20 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
-					Visor.this.toneMapView.updateAxis();
-					Visor.this.chromaPreView.updateAxis();
-					Visor.this.chromaPostView.updateAxis();
-					Visor.this.beatsView.updateAxis();
-					Visor.this.percussionView.updateAxis();
-					Visor.this.resetToneMapView();
+					refreshMapViews();
+					resetToneMapView();
 					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
+					console.updateStatusMessage("Started listener: " + fileName);
 
 				} catch (LineUnavailableException | IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LOG.log(Level.SEVERE, "Error starting listener", e);
+					Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+					startFileProcessingButton.setEnabled(true);
+					startListeningButton.setEnabled(true);
+					stopListeningButton.setEnabled(false);
+					chooseFileButton.setEnabled(true);
+					frameNumberInput.setEnabled(true);
+					console.updateStatusMessage("Error starting listener :" + e.getMessage());
 				}
 			}
 		});
@@ -764,6 +745,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				stopListeningButton.setEnabled(false);
 				chooseFileButton.setEnabled(true);
 				frameNumberInput.setEnabled(true);
+				console.updateStatusMessage("Stopped");
 			}
 		});
 
@@ -1376,11 +1358,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
 							Integer.toString(timeOffset));
 					timeAxisOffsetInput.setText(Integer.toString(timeOffset));
-					Visor.this.toneMapView.updateAxis();
-					Visor.this.chromaPreView.updateAxis();
-					Visor.this.chromaPostView.updateAxis();
-					Visor.this.beatsView.updateAxis();
-					Visor.this.percussionView.updateAxis();
+					refreshMapViews();
 					updateSpectrumView(toneTimeFrame, parameterManager
 							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW));
 				}
@@ -1877,6 +1855,14 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				}
 			});
 		}
+	}
+
+	private void refreshMapViews() {
+		toneMapView.updateAxis();
+		chromaPreView.updateAxis();
+		chromaPostView.updateAxis();
+		beatsView.updateAxis();
+		percussionView.updateAxis();
 	}
 
 	protected void repaintSpectralInfo(AudioFeatureFrame audioFeatureFrame) {

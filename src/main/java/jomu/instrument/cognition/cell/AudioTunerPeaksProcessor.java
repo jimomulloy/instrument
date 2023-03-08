@@ -23,7 +23,7 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioTunerPeaksProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioTunerPeaksProcessor accept: " + sequence + ", streamId: " + streamId);
 		int noiseFloorMedianFilterLenth = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 		float noiseFloorFactor = parameterManager

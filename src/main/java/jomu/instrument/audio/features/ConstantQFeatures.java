@@ -60,7 +60,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				}
 			}
 
-			LOG.info(">>CQ: " + this.audioFeatureFrame.getStart() + " ," + this.audioFeatureFrame.getEnd() + ", "
+			LOG.finer(">>CQ: " + this.audioFeatureFrame.getStart() + " ," + this.audioFeatureFrame.getEnd() + ", "
 					+ timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
@@ -84,7 +84,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				for (int i = 0; i < elements.length; i++) {
 					if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
 						// !!TODO getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
-						LOG.info(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
+						LOG.finer(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
 					}
 				}
 				for (int i = 0; i < elements.length; i++) {

@@ -129,7 +129,7 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 */
 	public void addAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.add(audioProcessor);
-		LOG.fine("Added an audioprocessor to the list of processors: " + audioProcessor.toString());
+		LOG.finer("Added an audioprocessor to the list of processors: " + audioProcessor.toString());
 	}
 
 	public TarsosDSPAudioFormat getFormat() {
@@ -252,7 +252,7 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	public void removeAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.remove(audioProcessor);
 		audioProcessor.processingFinished();
-		LOG.fine("Remove an audioprocessor to the list of processors: " + audioProcessor.toString());
+		LOG.finer("Remove an audioprocessor to the list of processors: " + audioProcessor.toString());
 	}
 
 	/**

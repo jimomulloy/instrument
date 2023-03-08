@@ -1,4 +1,4 @@
-package jomu.instrument.store;
+package jomu.instrument.store.microstream;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,47 +6,51 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
-
-import org.springframework.stereotype.Component;
+import javax.inject.Inject;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.workspace.tonemap.ToneMap;
-//import one.microstream.storage.types.StorageManager;
+import one.microstream.storage.types.StorageManager;
 
 @ApplicationScoped
-@Component
+//@Component
+//@Storage
 public class InstrumentStorage {
 
 	final List<ToneMap> toneMapList = new ArrayList<>();
 	Properties parameters = new Properties();
 
-	// private transient StorageManager storageManager;
-	private transient boolean initialiseRequired = false;
+	String root = "testing";
 
-	// public void setStorageManager(StorageManager storageManager) {
-	// this.storageManager = storageManager;
-	// }
+	@Inject
+	transient StorageManagerController storageManagerController;
+
+	transient boolean initialiseRequired = false;
 
 	public List<ToneMap> findAllToneMaps() {
 		return this.toneMapList;
 	}
 
+	private StorageManager getStorageManager() {
+		return storageManagerController.getStorageManager();
+	}
+
 	public void removeAllToneMaps() {
 		this.toneMapList.clear();
-		// storageManager.store(toneMapList);
-		// storageManager.storeRoot();
+		getStorageManager().store(toneMapList);
+		getStorageManager().storeRoot();
 	}
 
 	public void addToneMap(final ToneMap toneMap) {
 		this.toneMapList.add(toneMap);
-		// storageManager.store(toneMapList);
-		// storageManager.storeRoot();
+		getStorageManager().store(toneMapList);
+		getStorageManager().storeRoot();
 	}
 
 	public void setParameters(final Properties parameters) {
 		this.parameters = parameters;
-		// storageManager.store(this.parameters);
-		// storageManager.storeRoot();
+		getStorageManager().store(this.parameters);
+		getStorageManager().storeRoot();
 	}
 
 	public Properties getParameters() {
@@ -54,7 +58,7 @@ public class InstrumentStorage {
 	}
 
 	public void shutdown() {
-		// storageManager.shutdown();
+		// getStorageManager().shutdown();
 	}
 
 	public void setInitRequired() {
@@ -69,16 +73,16 @@ public class InstrumentStorage {
 	public void initialise() {
 		if (isInitRequired()) {
 			try {
-				System.out.println(">> Init ParameterManager");
 				Instrument.getInstance().getController().getParameterManager().reset();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println(">> Inited ParameterManager");
 			this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
-			// storageManager.setRoot(this);
-			// storageManager.storeRoot();
+			getStorageManager().setRoot(root);
+			// getStorageManager().setRoot(this);
+			System.out.println(">>IS init");
+			getStorageManager().storeRoot();
 		} else {
 			Instrument.getInstance().getController().getParameterManager().setParameters(getParameters());
 		}

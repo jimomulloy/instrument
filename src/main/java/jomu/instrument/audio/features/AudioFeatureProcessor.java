@@ -120,13 +120,13 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
-		LOG.info(">>process startTimeMS: " + startTimeMS);
+		LOG.finer(">>process startTimeMS: " + startTimeMS);
 		if (startTimeMS < offset) {
-			LOG.info(">>process startTimeMS < offset: " + offset);
+			LOG.finer(">>process startTimeMS < offset: " + offset);
 			// TODO return true;
 		}
 		if (startTimeMS > offset + range) {
-			LOG.info(">>process startTimeMS > range: " + offset + ", " + range);
+			LOG.finer(">>process startTimeMS > range: " + offset + ", " + range);
 			hearing.stopAudioStream();
 			return false;
 		}
@@ -140,7 +140,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				}
 				if (startTimeMS - lastTimeStamp >= (double) (interval + lag)) {
 					frameSequence++;
-					LOG.info(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: " + firstTimeStamp
+					LOG.finer(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: " + firstTimeStamp
 							+ ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
 							+ ", frameSequence: " + frameSequence);
 					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
@@ -160,7 +160,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
 		state = AudioFeatureFrameState.CLOSED;
-		LOG.info(">>SET LAST SEQ: " + frameSequence);
+		LOG.finer(">>SET LAST SEQ: " + frameSequence);
 		lastSequence = frameSequence;
 		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);
 	}

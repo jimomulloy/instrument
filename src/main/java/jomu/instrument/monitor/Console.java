@@ -46,6 +46,10 @@ public class Console implements Organ {
 		return visor;
 	}
 
+	public void updateStatusMessage(String message) {
+		statusLabel.setText(message);
+	}
+
 	@Override
 	public void initialise() {
 		EventQueue.invokeLater(() -> {
@@ -100,7 +104,7 @@ public class Console implements Organ {
 		JPanel upperPane = new JPanel();
 		JPanel statusPane = new JPanel();
 		JPanel lowerPane = new JPanel();
-		statusLabel = new JLabel("Status Reset");
+		statusLabel = new JLabel("Ready");
 
 		contentPane.setLayout(new BorderLayout());
 

@@ -29,23 +29,40 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.workspace.tonemap.NoteTracker.NoteTrack;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class ToneMapView extends JComponent implements ComponentListener {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -3729805747119272534L;
+public class ToneMapView extends JComponent implements ComponentListener, ToneMapConstants {
+
+	private static final Logger LOG = Logger.getLogger(ToneMapView.class.getName());
+
+	public static final Color[] COLORS = { new Color(0xff0000), // red
+			new Color(0x0000ff), // blue
+			new Color(0xffa500), // orange
+			new Color(0xcc02de), // purple
+			new Color(0x00aaaa), // cyan-ish
+			new Color(0x000000), // black
+			new Color(0x53868b), // cadetblue4
+			new Color(0xff7f50), // coral
+			new Color(0x45ab1f), // dark green-ish
+			new Color(0x90422d), // sienna-ish
+			new Color(0xa0a0a0), // grey-ish
+			new Color(0x14ff14), // green-ish
+			new Color(0x6e4272), // dark purple
+			new Color(0x552209) // brown
+	};
 
 	private BufferedImage bufferedImage;
 	private Graphics2D bufferedGraphics;
@@ -168,7 +185,6 @@ public class ToneMapView extends JComponent implements ComponentListener {
 	}
 
 	private void renderToneMap(ToneTimeFrame ttf) {
-		boolean showPeaks = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS);
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
 		if (bufferedImage == null) {
@@ -220,6 +236,9 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 			double highViewThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
+			boolean showPeaks = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS);
+			boolean showTracking = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 
 			ToneMapElement[] elements = ttf.getElements();
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
@@ -248,6 +267,25 @@ public class ToneMapView extends JComponent implements ComponentListener {
 					if (toneMapElement.isPeak && showPeaks) {
 						color = Color.MAGENTA;
 					}
+
+					if (showTracking) {
+						color = Color.BLACK;
+						if (toneMapElement.noteListElement != null) {
+							LOG.fine(">>ToneMapView showTacking note: " + toneMapElement.noteListElement);
+							if (toneMapElement.noteState != ON) {
+								LOG.fine(">>ToneMapView showTacking ON");
+								color = Color.WHITE;
+								NoteTrack track = toneMap.getNoteTracker().getTrack(toneMapElement.noteListElement);
+								if (track != null) {
+									color = COLORS[track.getNumber() - 1];
+								}
+
+							} else if (toneMapElement.noteState == START) {
+								color = Color.RED;
+							}
+						}
+					}
+
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
 					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 

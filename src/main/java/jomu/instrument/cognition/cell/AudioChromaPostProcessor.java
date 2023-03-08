@@ -22,7 +22,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.info(">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId + ", " + sequence);
+		LOG.finer(">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId + ", " + sequence);
 		int chromaSmoothFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR);
 		boolean chromaChordifySwitch = parameterManager

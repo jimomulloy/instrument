@@ -1,8 +1,8 @@
 package jomu.instrument.store;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import jomu.instrument.Organ;
@@ -11,12 +11,14 @@ import jomu.instrument.Organ;
 @Component
 public class Storage implements Organ {
 
-	@Autowired
+	@Inject
 	InstrumentStoreService instrumentStoreService;
 
 	@Override
 	public void initialise() {
+		System.out.println(">>STORAGE IS Init");
 		instrumentStoreService.initialise();
+		System.out.println(">>STORAGE IS Initted");
 	}
 
 	public InstrumentStoreService getInstrumentStoreService() {
