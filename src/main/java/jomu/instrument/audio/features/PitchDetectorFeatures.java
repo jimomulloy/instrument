@@ -63,8 +63,7 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
 				float pitch = pitchDetect.getPitch();
 				if (pitch > -1) {
-					int note = PitchSet.freqToMidiNote(pitch);
-					int index = pitchSet.getIndex(note);
+					int index = pitchSet.getIndex(pitch);
 					ttf.getElement(index).isPeak = true;
 				}
 			}

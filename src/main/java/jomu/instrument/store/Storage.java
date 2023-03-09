@@ -1,5 +1,7 @@
 package jomu.instrument.store;
 
+import java.util.logging.Logger;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -10,6 +12,8 @@ import jomu.instrument.Organ;
 @ApplicationScoped
 @Component
 public class Storage implements Organ {
+
+	private static final Logger LOG = Logger.getLogger(Storage.class.getName());
 
 	@Inject
 	InstrumentStoreService instrumentStoreService;
@@ -27,13 +31,10 @@ public class Storage implements Organ {
 
 	@Override
 	public void start() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

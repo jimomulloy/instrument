@@ -2,6 +2,7 @@ package jomu.instrument.audio;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -96,12 +97,12 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		return windowSize;
 	}
 
-	/**
-	 * Clear current AudioModel objects after Reset
-	 */
-
 	@Override
 	public void clear() {
+		for (Entry<String, AudioStream> entry : audioStreams.entrySet()) {
+			close(entry.getKey());
+			entry.getValue().close();
+		}
 	}
 
 	@Override
@@ -112,7 +113,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		AudioStream audioStream = audioStreams.get(streamId);
 		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(null, 0);
 		audioStream.bq.add(audioQueueMessage);
-
 		audioStreams.remove(streamId);
 	}
 
@@ -293,6 +293,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		private BlockingQueue<AudioQueueMessage> bq;
 		double sampleTime = -1;
 		int counter = 0;
+		private boolean running = true;
 
 		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq, AudioStream audioStream) {
 			this.bq = bq;
@@ -302,21 +303,28 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		@Override
 		public void run() {
 			try {
-				boolean running = true;
 				while (running) {
+					if (audioStream.isClosed()) {
+						running = false;
+						break;
+					}
 					AudioQueueMessage aqm = bq.take();
 					counter++;
 
 					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
 
 					if (toneTimeFrame == null) {
-						this.audioStream.close();
 						running = false;
 						break;
 					}
 
 					if (sampleTime != -1) {
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
+					}
+
+					if (audioStream.isClosed()) {
+						running = false;
+						break;
 					}
 
 					double lowVoiceThreshold = parameterManager
@@ -377,6 +385,12 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
+			this.audioStream.close();
+
+		}
+
+		public void stop() {
+			running = false;
 		}
 	}
 
@@ -405,12 +419,17 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 		private AudioGenerator generator;
 
+		private boolean closed;
+
+		private AudioQueueConsumer consumer;
+
 		public AudioStream(String streamId, PitchSet pitchSet) {
 			this.streamId = streamId;
 			this.baseFrequency = (float) pitchSet.getFreq(0);
 			this.frequencies = pitchSet.getRange();
 			bq = new LinkedBlockingQueue<>();
-			Thread.startVirtualThread(new AudioQueueConsumer(bq, this));
+			consumer = new AudioQueueConsumer(bq, this);
+			Thread.startVirtualThread(consumer);
 			// new Thread(new AudioQueueConsumer(bq, this)).start();
 
 			float frequency = baseFrequency;
@@ -434,8 +453,14 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			return generator;
 		}
 
+		public boolean isClosed() {
+			return closed;
+		}
+
 		public void close() {
 			this.generator.stop();
+			closed = true;
+			consumer.stop();
 		}
 
 		@Override

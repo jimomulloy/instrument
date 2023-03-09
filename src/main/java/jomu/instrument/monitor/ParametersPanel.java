@@ -27,6 +27,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.InstrumentStoreService;
@@ -163,10 +164,21 @@ public class ParametersPanel extends JPanel {
 	private JTextField percussionThresholdInput;
 	private JTextField percussionSensitivityInput;
 	private JTextField chromaChordifyThresholdInput;
+	private JCheckBox normaliseMaxSwitchCB;
+	private JCheckBox cqScaleSwitchCB;
+	private AbstractButton cqCompressMaxSwitchCB;
+	private JCheckBox cqCompressLogSwitchCB;
+	private JCheckBox cqWhitenCompensateSwitchCB;
+	private JTextField cqWhitenFactorInput;
+	private JTextField cqWhitenThresholdInput;
+	private Console console;
+	private InstrumentStoreService iss;
 
-	public ParametersPanel(ParameterManager parameterManager, InstrumentStoreService iss) {
+	public ParametersPanel() {
 		super(new BorderLayout());
-		this.parameterManager = parameterManager;
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.console = Instrument.getInstance().getConsole();
+		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
 
 		this.setBorder(new TitledBorder("Input Parameters"));
 
@@ -180,6 +192,8 @@ public class ParametersPanel extends JPanel {
 				try {
 					parameterManager.reset();
 					updateParameters();
+					console.getVisor().updateParameters();
+
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -197,6 +211,7 @@ public class ParametersPanel extends JPanel {
 				if (params != null && !params.isEmpty()) {
 					parameterManager.setParameters(iss.getParameters());
 					updateParameters();
+					console.getVisor().updateParameters();
 				}
 			}
 		});
@@ -669,6 +684,70 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
 		cqSwitchPanel.add(normaliseSwitchCB);
 
+		normaliseMaxSwitchCB = new JCheckBox("normaliseMaxSwitchCB");
+		normaliseMaxSwitchCB.setText("CQ Normalise Max");
+		normaliseMaxSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX,
+						Boolean.toString(newValue));
+			}
+		});
+
+		normaliseMaxSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX));
+		cqSwitchPanel.add(normaliseMaxSwitchCB);
+
+		cqScaleSwitchCB = new JCheckBox("cqScaleSwitchCB");
+		cqScaleSwitchCB.setText("CQ Scale");
+		cqScaleSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SCALE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqScaleSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SCALE));
+		cqSwitchPanel.add(cqScaleSwitchCB);
+
+		cqCompressMaxSwitchCB = new JCheckBox("cqCompressMaxCB");
+		cqCompressMaxSwitchCB.setText("CQ Compress Max");
+		cqCompressMaxSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqCompressMaxSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX));
+		cqSwitchPanel.add(cqCompressMaxSwitchCB);
+
+		cqCompressLogSwitchCB = new JCheckBox("cqCompressLogCB");
+		cqCompressLogSwitchCB.setText("CQ Compress Log");
+		cqCompressLogSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqCompressLogSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG));
+		cqSwitchPanel.add(cqCompressLogSwitchCB);
+
 		cqPreHarmonicsSwitchCB = new JCheckBox("cqPreHarmonicsSwitchCB");
 		cqPreHarmonicsSwitchCB.setText("CQ Pre Harmonics");
 		cqPreHarmonicsSwitchCB.addItemListener(new ItemListener() {
@@ -764,6 +843,22 @@ public class ParametersPanel extends JPanel {
 		cqWhitenSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN));
 		cqSwitchPanel.add(cqWhitenSwitchCB);
+
+		cqWhitenCompensateSwitchCB = new JCheckBox("cqWhitenCompensateSwitchCB");
+		cqWhitenCompensateSwitchCB.setText("CQ Whiten Compensate");
+		cqWhitenCompensateSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqWhitenCompensateSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE));
+		cqSwitchPanel.add(cqWhitenCompensateSwitchCB);
 
 		spCompressionSwitchCB = new JCheckBox("spCompressionSwitchCB");
 		spCompressionSwitchCB.setText("SP Compression");
@@ -1979,6 +2074,39 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqCompressionLevelLabel);
 		cqParamsPanel.add(cqCompressionLevelInput);
 
+		JLabel cqWhitenFactorLabel = new JLabel("CQ Whiten Factor: ");
+		cqWhitenFactorInput = new JTextField(4);
+		cqWhitenFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqWhitenFactorInput.getText();
+				cqWhitenFactorLabel.setText(String.format("CQ Whiten Factor  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_FACTOR, newValue);
+
+			}
+		});
+		cqWhitenFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_FACTOR));
+		cqParamsPanel.add(cqWhitenFactorLabel);
+		cqParamsPanel.add(cqWhitenFactorInput);
+
+		JLabel cqWhitenThresholdLabel = new JLabel("CQ Whiten Threshold: ");
+		cqWhitenThresholdInput = new JTextField(4);
+		cqWhitenThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqWhitenThresholdInput.getText();
+				cqWhitenThresholdLabel.setText(String.format("CQ Whiten Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD,
+						newValue);
+
+			}
+		});
+		cqWhitenThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD));
+		cqParamsPanel.add(cqWhitenThresholdLabel);
+		cqParamsPanel.add(cqWhitenThresholdInput);
+
 		JLabel spLowThresholdLabel = new JLabel("SP Low Threshold: ");
 		spLowThresholdInput = new JTextField(4);
 		spLowThresholdInput.addActionListener(new ActionListener() {
@@ -2413,6 +2541,14 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
 		normaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
+		normaliseMaxSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX));
+		cqScaleSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SCALE));
+		cqCompressMaxSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX));
+		cqCompressLogSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG));
 		cqPreHarmonicsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS));
 		cqPostHarmonicsSwitchCB.setSelected(parameterManager
@@ -2425,6 +2561,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC));
 		cqWhitenSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN));
+		cqWhitenCompensateSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE));
 
 		chromaCQOriginSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH));
@@ -2519,6 +2657,10 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL));
 		cqCompressionLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION));
+		cqWhitenFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_FACTOR));
+		cqWhitenThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD));
 		cqLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
 

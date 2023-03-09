@@ -112,6 +112,9 @@ public class AudioYINProcessor extends ProcessorCommon {
 			double f0 = f0s.get(i);
 			double f0salience = f0saliences.get(i);
 			int note = PitchSet.freqToMidiNote(f0);
+			if (note == -1) {
+				note = 0;
+			}
 			elements[note].amplitude = f0salience;
 		}
 	}

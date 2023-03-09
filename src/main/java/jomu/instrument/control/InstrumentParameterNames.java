@@ -20,6 +20,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
 	public static final String PERCEPTION_HEARING_AUDIO_DIRECTORY = "perception.hearing.audioDirectory";
+	public static final String PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY = "perception.hearing.audioRecordDirectory";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 
@@ -32,17 +33,24 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD = "perception.hearing.cq.normaliseThreshold";
 	public static final String PERCEPTION_HEARING_CQ_DECIBEL_LEVEL = "perception.hearing.cq.decibelLevel";
 	public static final String PERCEPTION_HEARING_CQ_COMPRESSION = "perception.hearing.cq.compression";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX = "perception.hearing.cq.compressionMaxSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG = "perception.hearing.cq.compressionLogSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_COMPRESS = "perception.hearing.cq.compressionSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_SQUARE = "perception.hearing.cq.squareSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD = "perception.hearing.cq.lowThresholdSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_DECIBEL = "perception.hearing.cq.decibelSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE = "perception.hearing.cq.normaliseSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX = "perception.hearing.cq.normaliseMaxSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_SCALE = "perception.hearing.cq.scaleSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS = "perception.hearing.cq.preHarmonicsSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS = "perception.hearing.cq.postHarmonicsSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN = "perception.hearing.cq.preSharpenSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN = "perception.hearing.cq.postSharpenSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC = "perception.hearing.cq.sharpenHarmonicSwitch";
-	public static final String PERCEPTION_HEARING_CQ_SWITCH_WHITEN = "perception.hearing.cq.whiten";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_WHITEN = "perception.hearing.cq.whitenSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE = "perception.hearing.cq.whitenCompensateSwitch";
+	public static final String PERCEPTION_HEARING_CQ_WHITEN_FACTOR = "perception.hearing.cq.whitenFactor";
+	public static final String PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD = "perception.hearing.cq.whitenThreshold";
 
 	public static final String PERCEPTION_HEARING_SP_LOW_THRESHOLD = "perception.hearing.sp.lowThreshold";
 	public static final String PERCEPTION_HEARING_SP_SIGNAL_MINIMUM = "perception.hearing.sp.signalMinimum";
@@ -158,6 +166,7 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_PITCH_AXIS_RANGE = "monitor.view.pitchAxisRange";
 	public static final String MONITOR_VIEW_SHOW_PEAKS = "monitor.view.showPeaks";
 	public static final String MONITOR_VIEW_SHOW_TRACKING = "monitor.view.showTracking";
+	public static final String MONITOR_VIEW_SHOW_LOG = "monitor.view.showLog";
 
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";
@@ -165,6 +174,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_PLAY_PEAKS = "actuation.voice.playPeaks";
 	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";
 	public static final String ACTUATION_VOICE_AUDIO_PLAY = "actuation.voice.playAudio";
+	public static final String ACTUATION_VOICE_TRACK_WRITE_SWITCH = "actuation.voice.trackWriteSwitch";
 	public static final String ACTUATION_VOICE_RESYNTH_PLAY = "actuation.voice.playResynth";
 	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICES_SWITCH = "actuation.voice.midiPlayVoicesSwitch";

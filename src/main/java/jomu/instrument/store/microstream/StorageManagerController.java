@@ -29,11 +29,9 @@ public class StorageManagerController {
 	 * @param startupEvent quarkus startup event.
 	 */
 	public void onStartup(@Observes StartupEvent startupEvent) {
-		System.out.println(">>SM init");
 		String userDir = System.getProperty("user.home");
 		String rootPath = Paths.get(userDir, msdPath).toString();
 		DataConfiguration.init(rootPath);
-		System.out.println(">>SM initted: " + rootPath);
 	}
 
 	/**

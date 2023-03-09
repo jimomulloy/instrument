@@ -78,8 +78,7 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 						getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),
 						getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
 				for (SpectralPeak peak : spectralPeaks) {
-					int note = PitchSet.freqToMidiNote(peak.getFrequencyInHertz());
-					int index = pitchSet.getIndex(note);
+					int index = pitchSet.getIndex(peak.getFrequencyInHertz());
 					ttf.getElement(index).isPeak = true;
 				}
 			}

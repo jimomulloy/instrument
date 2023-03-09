@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -15,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sound.midi.Instrument;
@@ -118,7 +121,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	private Synthesizer synthesizer;
 
-	private Track track;
+	private Track tracdk;
 	private int velocity;
 
 	private ParameterManager parameterManager;
@@ -151,12 +154,21 @@ public class MidiSynthesizer implements ToneMapConstants {
 		instruments = null;
 	}
 
+	public void clear() {
+		for (Entry<String, MidiStream> entry : midiStreams.entrySet()) {
+			close(entry.getKey());
+			entry.getValue().close();
+			entry.getValue().getBq().clear();
+		}
+		close();
+		open();
+	}
+
 	public void close(String streamId) {
 		if (!midiStreams.containsKey(streamId)) {
 			return;
 		}
 		MidiStream midiStream = midiStreams.get(streamId);
-
 		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
 		midiStream.getBq().add(midiQueueMessage);
 		midiStreams.remove(streamId);
@@ -167,7 +179,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 * Create MIDI message, wrap in time based MIDI event and add the MIDI event to
 	 * the current MIDI track
 	 */
-	public boolean createEvent(ChannelData cc, int type, int num, long tick, int velocity) {
+	public boolean createEvent(Track track, ChannelData cc, int type, int num, long tick, int velocity) {
 		ShortMessage message = new ShortMessage();
 		try {
 			if (levelSwitch) {
@@ -418,13 +430,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 				return false;
 			} else {
 				if (MidiSystem.write(sequence, fileTypes[0], file) == -1) {
-					throw new IOException("Problems writing to file");
+					throw new IOException("Problems writing file to MIDI System");
 				}
 				return true;
 			}
 		} catch (SecurityException ex) {
+			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing file: " + file.getAbsolutePath(), ex);
 			return false;
 		} catch (Exception ex) {
+			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing file: " + file.getAbsolutePath(), ex);
 			return false;
 		}
 	}
@@ -448,29 +462,54 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public Set<Integer> beatsChannel4LastNotes;
 		public Set<Integer> baseChannelLastNotes;
 
+		public Track voice1Track;
+		public Track voice2Track;
+		public Track voice3Track;
+		public Track voice4Track;
+		public Track chord1Track;
+		public Track chord2Track;
+		public Track pad1Track;
+		public Track pad2Track;
+		public Track beats1Track;
+		public Track beats2Track;
+		public Track beats3Track;
+		public Track beats4Track;
+		public Track baseTrack;
+
+		private boolean running = true;
+
 		public MidiQueueConsumer(BlockingQueue<MidiQueueMessage> bq, MidiStream midiStream) {
 			this.bq = bq;
 			this.midiStream = midiStream;
 		}
 
+		public void stop() {
+			running = false;
+		}
+
 		@Override
 		public void run() {
 			try {
-				boolean running = true;
 				while (running) {
+					if (midiStream.isClosed()) {
+						running = false;
+						break;
+					}
 					MidiQueueMessage mqm = bq.take();
 					ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 
 					if (toneTimeFrame == null) {
-						clearChannels();
-						this.midiStream.close();
-						LOG.finer(">> midiStream.close(): " + this.midiStream.streamId);
 						running = false;
 						break;
 					}
 
 					if (sampleTime != 0) {
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
+					}
+
+					if (midiStream.isClosed()) {
+						running = false;
+						break;
 					}
 
 					boolean midiPlayVoice1Switch = parameterManager
@@ -559,6 +598,25 @@ public class MidiSynthesizer implements ToneMapConstants {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
+			clearChannels();
+			this.midiStream.close();
+
+			boolean writeTrack = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
+
+			if (writeTrack) {
+				LOG.warning(">>Write track");
+				String userDir = System.getProperty("user.home");
+				String folder = Paths.get(userDir,
+						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY),
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+						.toString();
+				String fileName = folder + "/instrument_recording_" + System.currentTimeMillis() + ".midi";
+				File file = new File(fileName);
+				LOG.warning(">>Write track file: " + file.getAbsolutePath());
+				saveMidiFile(file);
+			}
 		}
 
 		private void playVoiceChannel1(MidiQueueMessage mqm) {
@@ -569,6 +627,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
 			boolean playPeaks = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
+			boolean writeTrack = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 
 			ToneMap notateToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
@@ -576,6 +636,24 @@ public class MidiSynthesizer implements ToneMapConstants {
 			ToneTimeFrame toneTimeFrame = notateToneMap.getTimeFrame(mqm.sequence);
 
 			ChannelData voice1Channel = channels[VOICE_1_CHANNEL];
+
+			if (writeTrack && voice1Track == null) {
+				voice1Track = sequence.createTrack();
+
+				// add a program change right at the beginning of
+				// the track for the current instrument
+				createEvent(voice1Track, voice1Channel, PROGRAM, voice1Channel.program + 1, 1L, 127);
+
+			}
+
+			double quantizeBeatFactor = quantizeBeatSetting * 1000.0 * 60.0 / (double) getBPM();
+			double quantizeDurationFactor = quantizeDurationSetting * 1000.0 * 60.0 / (double) getBPM();
+
+			double tickStartTime = toneTimeFrame.getStartTime() * 1000;
+			if (quantizeBeatFactor != 0.0) {
+				tickStartTime = Math.floor(tickStartTime / quantizeBeatFactor) * quantizeBeatFactor;
+			}
+			long tick = 1 + (long) (tickStartTime * getTickRate() / 1000.0);
 
 			TimeSet timeSet = toneTimeFrame.getTimeSet();
 			PitchSet pitchSet = toneTimeFrame.getPitchSet();
@@ -618,6 +696,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
+							if (writeTrack) {
+								createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
+							}
 							LOG.finer(">>MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
@@ -642,6 +723,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice1Channel.num, note, 0);
+							if (writeTrack) {
+								createEvent(voice1Track, voice1Channel, NOTEOFF, note, tick, volume);
+							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -661,8 +745,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					LOG.finer(">>MIDI NOTE SEND: " + mqm.getSequence() + ", " + mm.getData1() + ", " + mm.getData2()
 							+ ", " + mm.getChannel() + ", " + mm.getCommand());
 					synthesizer.getReceiver().send(mm, -1);
-					if (mm.getCommand() == ShortMessage.NOTE_ON && mm.getData2() == 120) {
-					}
 				} catch (MidiUnavailableException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1042,6 +1124,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			boolean writeTrack = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 
 			ToneMap notesToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
@@ -1055,6 +1139,25 @@ public class MidiSynthesizer implements ToneMapConstants {
 			ToneTimeFrame beatTimeFrame = beatToneMap.getTimeFrame(mqm.sequence);
 
 			ChannelData chord1Channel = channels[CHORD_1_CHANNEL];
+
+			if (writeTrack && voice1Track == null) {
+				voice1Track = sequence.createTrack();
+
+				// add a program change right at the beginning of
+				// the track for the current instrument
+				createEvent(chord1Track, chord1Channel, PROGRAM, chord1Channel.program + 1, 1L, 127);
+
+			}
+
+			double quantizeBeatFactor = quantizeBeatSetting * 1000.0 * 60.0 / (double) getBPM();
+			double quantizeDurationFactor = quantizeDurationSetting * 1000.0 * 60.0 / (double) getBPM();
+
+			double tickStartTime = chromaTimeFrame.getStartTime() * 1000;
+			if (quantizeBeatFactor != 0.0) {
+				tickStartTime = Math.floor(tickStartTime / quantizeBeatFactor) * quantizeBeatFactor;
+			}
+
+			long tick = 1 + (long) (tickStartTime * getTickRate() / 1000.0);
 
 			TimeSet timeSet = chromaTimeFrame.getTimeSet();
 			PitchSet pitchSet = chromaTimeFrame.getPitchSet();
@@ -1099,6 +1202,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, chord1Channel.num, (note + 12 * octaveAdjust),
 									volume);
+							if (writeTrack) {
+								createEvent(chord1Track, chord1Channel, NOTEON, note, tick, volume);
+							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1112,6 +1218,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, chord1Channel.num, (note + 12 * octaveAdjust),
 									0);
+							if (writeTrack) {
+								createEvent(chord1Track, chord1Channel, NOTEOFF, note, tick, volume);
+							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1688,16 +1797,26 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		private String streamId;
 
+		boolean closed = false;
+
+		private MidiQueueConsumer consumer;
+
 		public MidiStream(String streamId) {
 			this.streamId = streamId;
 			bq = new LinkedBlockingQueue<>();
+			consumer = new MidiQueueConsumer(bq, this);
 			Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
 			// new Thread(new MidiQueueConsumer(bq, this)).start();
 		}
 
 		public void close() {
 			bq.clear();
+			closed = true;
+			consumer.stop();
+		}
 
+		public boolean isClosed() {
+			return closed;
 		}
 
 		public BlockingQueue<MidiQueueMessage> getBq() {
@@ -1757,7 +1876,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 	}
 
-	// Inner class handles MIDI data playback event listener
+// Inner class handles MIDI data playback event listener
 	class ProcessMeta implements MetaEventListener {
 
 		@Override
@@ -1773,7 +1892,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 	}
 
-	// Inner class defines fields associated with a MIDI Track
+// Inner class defines fields associated with a MIDI Track
 	class TrackData extends Object {
 		Integer chanNum;
 		String name;

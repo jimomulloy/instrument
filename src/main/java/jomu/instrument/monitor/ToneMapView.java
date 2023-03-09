@@ -239,6 +239,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			boolean showPeaks = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS);
 			boolean showTracking = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
+			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
 			ToneMapElement[] elements = ttf.getElements();
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
@@ -258,9 +259,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						greyValue = 0;
 						color = Color.BLACK;
 					} else {
-						greyValue = (int) (Math
-								.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
-								/ Math.log1p(1.0000001) * 255);
+						if (showLog) {
+							greyValue = (int) (Math
+									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+									/ Math.log1p(1.0000001) * 255);
+						} else {
+							greyValue = (int) (((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+									* 255);
+						}
 						greyValue = Math.max(0, greyValue);
 						color = rainbow[255 - greyValue];
 					}
@@ -271,9 +277,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					if (showTracking) {
 						color = Color.BLACK;
 						if (toneMapElement.noteListElement != null) {
-							LOG.fine(">>ToneMapView showTacking note: " + toneMapElement.noteListElement);
+							LOG.warning(">>ToneMapView showTacking note: " + toneMapElement.noteListElement);
 							if (toneMapElement.noteState != ON) {
-								LOG.fine(">>ToneMapView showTacking ON");
+								LOG.warning(">>ToneMapView showTacking ON");
 								color = Color.WHITE;
 								NoteTrack track = toneMap.getNoteTracker().getTrack(toneMapElement.noteListElement);
 								if (track != null) {

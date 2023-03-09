@@ -38,14 +38,30 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION);
 		boolean cqSwitchCompress = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS);
+		boolean cqSwitchNormalise = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+		boolean cqSwitchNormaliseMax = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+		boolean cqSwitchCompressMax = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX);
+		boolean cqSwitchCompressLog = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG);
+		boolean cqSwitchScale = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SCALE);
 		boolean cqSwitchSquare = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE);
 		boolean cqSwitchLowThreshold = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD);
 		boolean cqSwitchDecibel = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL);
-		boolean cqSwitchNormalise = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+		boolean cqSwitchWhiten = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
+		boolean cqSwitchWhitenCompensate = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE);
+		double cqWhitenFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_FACTOR);
+		double cqWhitenThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD);
 		boolean cqSwitchPreHarmonics = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS);
 		boolean cqSwitchPostHarmonics = parameterManager
@@ -56,17 +72,24 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN);
 		boolean cqSwitchSharpenHarmonic = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC);
+		double lowCQThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
+		double highCQThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		ConstantQFeatures cqf = aff.getConstantQFeatures();
 		cqf.buildToneMapFrame(toneMap);
+		ToneMap cqAdaptiveWhitenControlMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_WHITENER", streamId));
+		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 
 		if (cqSwitchPreSharpen) {
 			toneMap.getTimeFrame().sharpen();
 		}
 
 		if (cqSwitchCompress) {
-			toneMap.getTimeFrame().compress(compression);
+			toneMap.getTimeFrame().compress(compression, cqSwitchCompressMax);
 		}
 		if (cqSwitchSquare) {
 			toneMap.getTimeFrame().square();
@@ -74,6 +97,15 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 
 		if (cqSwitchLowThreshold) {
 			toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
+		}
+
+		if (cqSwitchScale) {
+			toneMap.getTimeFrame().scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
+		}
+		if (cqSwitchWhiten) {
+			toneMap.getTimeFrame().adaptiveWhiten(cqAdaptiveWhitenControlMap,
+					toneMap.getPreviousTimeFrame(toneMap.getTimeFrame().getStartTime()), cqWhitenFactor,
+					cqWhitenThreshold, cqSwitchWhitenCompensate);
 		}
 
 		if (cqSwitchDecibel) {

@@ -213,9 +213,5 @@
 			<id>clojars_repo</id>
 			<url>https://clojars.org/repo/</url>
 		</repository>
-        <repository>
-            <id>microstream-maven-releases</id>
-            <url>https://repo.microstream.one/repository/maven-public/</url>
-        </repository>
 	</repositories>
 </project>

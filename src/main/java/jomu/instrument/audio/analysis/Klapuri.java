@@ -152,7 +152,6 @@ public class Klapuri {
 
 		}
 		// The last F0 is extra...
-		System.out.println("Remove extra");
 		if (f0s.size() > 1) {
 			f0s.remove(f0s.size() - 1);
 		}
@@ -160,7 +159,6 @@ public class Klapuri {
 		// Normalise saliences
 		for (Double f0salmax : F0salmaxes) {
 			double f0sNormal = f0salmax / salMaxCeiling;
-			// System.out.println(">>KLAP F0s norm: " + f0sNormal);
 			f0saliences.add(f0sNormal);
 		}
 	}

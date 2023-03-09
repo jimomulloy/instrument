@@ -38,14 +38,26 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION);
 		boolean cqSwitchCompress = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS);
+		boolean cqSwitchNormalise = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+		boolean cqSwitchNormaliseMax = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+		boolean cqSwitchCompressMax = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX);
+		boolean cqSwitchCompressLog = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG);
+		boolean cqSwitchScale = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SCALE);
 		boolean cqSwitchSquare = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE);
 		boolean cqSwitchLowThreshold = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD);
 		boolean cqSwitchDecibel = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL);
-		boolean cqSwitchNormalise = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+		double lowCQThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
+		double highCQThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		CQMicroToneFeatures cqf = aff.getCQMicroToneFeatures();
@@ -55,7 +67,7 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 		LOG.finer(">>CQ MAX/MIN AMP 1: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 		if (cqSwitchCompress) {
-			toneMap.getTimeFrame().compress(compression);
+			toneMap.getTimeFrame().compress(compression, cqSwitchCompressMax);
 			LOG.finer(">>CQ MAX/MIN AMP 2: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
@@ -65,6 +77,10 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 
 		if (cqSwitchLowThreshold) {
 			toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
+		}
+
+		if (cqSwitchScale) {
+			toneMap.getTimeFrame().scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
 		}
 
 		if (cqSwitchDecibel) {

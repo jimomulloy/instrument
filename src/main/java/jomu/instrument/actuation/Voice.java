@@ -120,4 +120,10 @@ public class Voice implements Organ {
 		// TODO Auto-generated method stub
 
 	}
+
+	public void clear() {
+		resynthSynthesizer.clear();
+		audioSynthesizer.clear();
+		midiSynthesizer.clear();
+	}
 }

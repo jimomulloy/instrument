@@ -198,4 +198,13 @@ public class PitchSet implements Serializable {
 		return 0;
 	}
 
+	public int getIndex(float frequencyInHertz) {
+		int note = PitchSet.freqToMidiNote(frequencyInHertz);
+		if (note == -1) {
+			return 0;
+		} else {
+			return getIndex(note);
+		}
+	}
+
 } // End PitchSet

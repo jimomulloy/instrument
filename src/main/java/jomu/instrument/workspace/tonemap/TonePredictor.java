@@ -14,22 +14,22 @@ public class TonePredictor {
 	ToneMap toneMap;
 
 	public TonePredictor(ToneMap toneMap) {
-		LOG.fine(">>Tone Predictor create");
+		LOG.finer(">>Tone Predictor create");
 		this.toneMap = toneMap;
 	}
 
 	void addNote(NoteListElement note) {
-		LOG.fine(">>Tone Predictor add note: " + note);
+		LOG.finer(">>Tone Predictor add note: " + note);
 		notes.add(note);
 	}
 
 	void addChord(ChordListElement chord) {
-		LOG.fine(">>Tone Predictor add chord: " + chord);
+		LOG.finer(">>Tone Predictor add chord: " + chord);
 		chords.add(chord);
 	}
 
 	void addBeat(BeatListElement beat) {
-		LOG.fine(">>Tone Predictor add beat: " + beat);
+		LOG.finer(">>Tone Predictor add beat: " + beat);
 		beats.add(beat);
 	}
 

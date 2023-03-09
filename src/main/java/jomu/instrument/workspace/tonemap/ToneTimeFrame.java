@@ -23,7 +23,14 @@ public class ToneTimeFrame {
 	public static final boolean LOGAMP = true;
 	public static final boolean POWERAMP = false;
 
-	private boolean ampType = LOGAMP;
+	private static AdaptiveWhitenConfig[] adaptiveWhitenConfigs = new AdaptiveWhitenConfig[] {
+			new AdaptiveWhitenConfig(0, 23, 50, 1.0, 1.0, 1.0), new AdaptiveWhitenConfig(24, 35, 50, 1.0, 1.0, 1.0),
+			new AdaptiveWhitenConfig(26, 47, 50, 1.0, 1.0, 1.0), new AdaptiveWhitenConfig(48, 59, 50, 1.0, 1.0, 1.0),
+			new AdaptiveWhitenConfig(60, 71, 40, 1.0, 1.0, 1.0), new AdaptiveWhitenConfig(72, 83, 30, 1.0, 1.0, 1.0),
+			new AdaptiveWhitenConfig(84, 95, 12, 1.0, 1.0, 1.0), new AdaptiveWhitenConfig(96, 107, 12, 1.0, 1.0, 1.0),
+			new AdaptiveWhitenConfig(108, 119, 12, 1.0, 1.0, 1.0),
+			new AdaptiveWhitenConfig(120, 1000, 12, 1.0, 1.0, 1.0), };
+
 	private double avgAmplitude = AMPLITUDE_FLOOR;
 
 	ToneMapElement[] elements;
@@ -39,6 +46,34 @@ public class ToneTimeFrame {
 	TimeSet timeSet;
 	Set<ChordNote> chordNotes = new HashSet<>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
+
+	static class AdaptiveWhitenConfig {
+		public int lowNote;
+		public int highNote;
+		public double attackFactor;
+		public double decayFactor;
+		public double thresholdFactor;
+		public int range;
+
+		public AdaptiveWhitenConfig(int lowNote, int highNote, int range, double attackFactor, double decayFactor,
+				double thresholdFactor) {
+			this.lowNote = lowNote;
+			this.highNote = highNote;
+			this.range = range;
+			this.attackFactor = attackFactor;
+			this.decayFactor = decayFactor;
+			this.thresholdFactor = thresholdFactor;
+		}
+	};
+
+	public static AdaptiveWhitenConfig getAdaptiveWhitenConfig(int note) {
+		for (AdaptiveWhitenConfig config : adaptiveWhitenConfigs) {
+			if (config.lowNote <= note && config.highNote > note) {
+				return config;
+			}
+		}
+		return adaptiveWhitenConfigs[0];
+	}
 
 	public ToneTimeFrame(TimeSet timeSet, PitchSet pitchSet) {
 		this.timeSet = timeSet;
@@ -81,8 +116,12 @@ public class ToneTimeFrame {
 		this.maxPitch = maxPitch;
 	}
 
-	public void compress(float factor) {
+	public void compress(float factor, boolean useMax) {
 		double highThreshold = (float) Math.log10(1 + (factor * getHighThreshold()));
+		if (useMax) {
+			reset();
+			highThreshold = getMaxAmplitude();
+		}
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				elements[i].amplitude = (float) Math.log10(1 + (factor * elements[i].amplitude));
@@ -98,6 +137,24 @@ public class ToneTimeFrame {
 			}
 		}
 		setHighThreshold(1.0);
+		reset();
+	}
+
+	public void scale(double lowThreshold, double highThreshold, boolean useLog) {
+		for (int i = 0; i < elements.length; i++) {
+			double amp = elements[i].amplitude;
+			if (amp > highThreshold) {
+				amp = 1.0;
+			} else if (amp <= lowThreshold) {
+				amp = AMPLITUDE_FLOOR;
+			} else {
+				if (useLog) {
+					amp = Math.log1p((amp - lowThreshold) / (highThreshold - lowThreshold));
+				} else {
+					amp = (amp - lowThreshold) / (highThreshold - lowThreshold);
+				}
+			}
+		}
 		reset();
 	}
 
@@ -950,6 +1007,54 @@ public class ToneTimeFrame {
 					((previousFrame.elements[elementIndex].amplitude * onsetFactor)
 							+ (elements[elementIndex].amplitude * (1 - onsetFactor))),
 					elements[elementIndex].amplitude);
+		}
+		reset();
+		return this;
+	}
+
+	public ToneTimeFrame adaptiveWhiten(ToneMap controlMap, ToneTimeFrame previousFrame, double onsetFactor,
+			double threshold, boolean compensate) {
+		ToneTimeFrame controlFrame = controlMap.getTimeFrame();
+		ToneTimeFrame previousControlFrame = controlMap.getPreviousTimeFrame(controlFrame.getStartTime());
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			ToneMapElement toneMapElement = elements[elementIndex];
+			int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+			AdaptiveWhitenConfig config = getAdaptiveWhitenConfig(note);
+			double onsetAttackFactor = onsetFactor * config.attackFactor;
+			double onsetDecayFactor = onsetFactor * config.decayFactor;
+			double controlFactor = onsetAttackFactor;
+			double onsetThresholdFactor = onsetFactor * config.thresholdFactor;
+			int rangeStart = elementIndex - config.range / 2 > 0 ? elementIndex - config.range / 2 : 0;
+			int rangeEnd = elementIndex + config.range / 2 <= elements.length ? elementIndex + config.range / 2
+					: elements.length;
+			boolean isAttack = true;
+			if (previousFrame != null
+					&& previousFrame.getElements()[elementIndex].amplitude <= toneMapElement.amplitude) {
+				controlFactor = onsetDecayFactor;
+			}
+			double controlAmplitude;
+			if (previousControlFrame != null) {
+				double maxControlAmpl = 0;
+				for (int controlElementIndex = rangeStart; controlElementIndex < rangeEnd; controlElementIndex++) {
+					ToneMapElement controlElement = previousControlFrame.getElement(controlElementIndex);
+					if (maxControlAmpl < controlElement.amplitude) {
+						maxControlAmpl = controlElement.amplitude;
+					}
+				}
+				if (compensate) {
+					controlAmplitude = Math.max(
+							((maxControlAmpl * controlFactor)
+									+ (elements[elementIndex].amplitude * (1 - controlFactor))),
+							Math.max(onsetThresholdFactor, elements[elementIndex].amplitude));
+				} else {
+					controlAmplitude = Math.max(((maxControlAmpl * controlFactor)),
+							Math.max(onsetThresholdFactor, elements[elementIndex].amplitude));
+				}
+			} else {
+				controlAmplitude = Math.max(onsetThresholdFactor, elements[elementIndex].amplitude);
+			}
+			elements[elementIndex].amplitude = elements[elementIndex].amplitude / controlAmplitude;
+			controlFrame.getElement(elementIndex).amplitude = controlAmplitude;
 		}
 		reset();
 		return this;

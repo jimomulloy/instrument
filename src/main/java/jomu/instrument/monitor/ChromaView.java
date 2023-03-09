@@ -44,10 +44,6 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class ChromaView extends JComponent implements ComponentListener {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -3729805747119272534L;
 
 	private BufferedImage bufferedImage;
 	private Graphics2D bufferedGraphics;
@@ -217,6 +213,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 			boolean showTracking = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
+			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
 			if (showTracking) {
 
@@ -240,6 +237,14 @@ public class ChromaView extends JComponent implements ComponentListener {
 							greyValue = (int) (Math
 									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
 									/ Math.log1p(1.0000001) * 255);
+							if (showLog) {
+								greyValue = (int) (Math
+										.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+										/ Math.log1p(1.0000001) * 255);
+							} else {
+								greyValue = (int) (((amplitude - lowViewThreshold)
+										/ (highViewThreshold - lowViewThreshold)) * 255);
+							}
 							greyValue = Math.max(0, greyValue);
 							color = rainbow[255 - greyValue];
 						}

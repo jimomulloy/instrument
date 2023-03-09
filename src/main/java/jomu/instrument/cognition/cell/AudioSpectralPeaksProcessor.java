@@ -55,7 +55,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		spf.buildToneMapFrame(toneMap, tpSwitchPeaks);
 
 		if (switchCompress) {
-			toneMap.getTimeFrame().compress(compression);
+			toneMap.getTimeFrame().compress(compression, false);
 		}
 		if (switchSquare) {
 			toneMap.getTimeFrame().square();

@@ -50,7 +50,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			if (timeFrame != null) {
 				if (notateSwitchCompress) {
 					clearNotes(timeFrame);
-					timeFrame.compress(compression);
+					timeFrame.compress(compression, false);
 				}
 				console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 			}
@@ -63,7 +63,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				if (timeFrame != null) { // TODO or make fake on here?
 					if (notateSwitchCompress) {
 						clearNotes(timeFrame);
-						timeFrame.compress(compression);
+						timeFrame.compress(compression, false);
 					}
 					console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 				}

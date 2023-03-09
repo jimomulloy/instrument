@@ -37,20 +37,20 @@ public class InstrumentStorage {
 
 	public void removeAllToneMaps() {
 		this.toneMapList.clear();
-		getStorageManager().store(toneMapList);
-		getStorageManager().storeRoot();
+		// getStorageManager().store(toneMapList);
+		// getStorageManager().storeRoot();
 	}
 
 	public void addToneMap(final ToneMap toneMap) {
 		this.toneMapList.add(toneMap);
-		getStorageManager().store(toneMapList);
-		getStorageManager().storeRoot();
+		// getStorageManager().store(toneMapList);
+		// getStorageManager().storeRoot();
 	}
 
 	public void setParameters(final Properties parameters) {
 		this.parameters = parameters;
-		getStorageManager().store(this.parameters);
-		getStorageManager().storeRoot();
+		// getStorageManager().store(this.parameters);
+		// getStorageManager().storeRoot();
 	}
 
 	public Properties getParameters() {
@@ -79,10 +79,10 @@ public class InstrumentStorage {
 				e.printStackTrace();
 			}
 			this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
-			getStorageManager().setRoot(root);
+			// getStorageManager().setRoot(root);
 			// getStorageManager().setRoot(this);
 			System.out.println(">>IS init");
-			getStorageManager().storeRoot();
+			// getStorageManager().storeRoot();
 		} else {
 			Instrument.getInstance().getController().getParameterManager().setParameters(getParameters());
 		}
