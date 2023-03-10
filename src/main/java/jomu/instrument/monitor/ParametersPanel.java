@@ -173,6 +173,7 @@ public class ParametersPanel extends JPanel {
 	private JTextField cqWhitenThresholdInput;
 	private Console console;
 	private InstrumentStoreService iss;
+	private JCheckBox chromaChordifySharpenSwitchCB;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -1083,6 +1084,23 @@ public class ParametersPanel extends JPanel {
 		chromaChordifySwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		cqSwitchPanel.add(chromaChordifySwitchCB);
+
+		chromaChordifySharpenSwitchCB = new JCheckBox("chromaChordifySharpenSwitchCB");
+		chromaChordifySharpenSwitchCB.setText("Chroma Chordify Sharpen Switch");
+		chromaChordifySharpenSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		chromaChordifySharpenSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH));
+		cqSwitchPanel.add(chromaChordifySharpenSwitchCB);
 
 		chromaCQOriginSwitchCB = new JCheckBox("chromaCQOriginSwitchCB");
 		chromaCQOriginSwitchCB.setText("Chroma CQ Origin Switch");

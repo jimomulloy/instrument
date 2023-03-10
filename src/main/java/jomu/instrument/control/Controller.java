@@ -57,7 +57,7 @@ public class Controller implements Organ {
 			String message = "Required directory " + audioDirectory
 					+ " is not writable!\n Please configure another directory for '"
 					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY + "'.";
-			LOG.severe(message);
+			LOG.finer(message);
 			System.exit(-1);
 		}
 
@@ -73,7 +73,7 @@ public class Controller implements Organ {
 			String message = "Required directory " + audioRecordDirectory
 					+ " is not writable!\n Please configure another directory for '"
 					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY + "'.";
-			LOG.severe(message);
+			LOG.finer(message);
 			System.exit(-1);
 		}
 

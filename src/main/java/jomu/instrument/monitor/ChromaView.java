@@ -224,7 +224,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 					for (ChordNote chordNote : chord.getChordNotes()) {
 						int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
 						int height = (int) ((double) getHeight() / 12.0);
-						double amplitude = chordNote.getAmplitiude();
+						double amplitude = chordNote.getAmplitude();
 						amplitude = 1.0; // TODO
 						int greyValue = 0;
 						if (amplitude > highViewThreshold) {

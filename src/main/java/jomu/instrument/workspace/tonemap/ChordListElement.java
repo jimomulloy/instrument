@@ -1,10 +1,9 @@
 package jomu.instrument.workspace.tonemap;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * This class defines the fields of the elements contained in the NoteList
@@ -15,12 +14,12 @@ import java.util.Set;
  */
 public class ChordListElement {
 
-	Set<ChordNote> chordNotes = new HashSet<>();
+	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	double endTime;
 	double startTime;
 
 	public ChordListElement(ChordNote[] chords, double startTime, double endTime) {
-		this.chordNotes = new HashSet<>(Arrays.asList(chords));
+		this.chordNotes = new TreeSet<>(Arrays.asList(chords));
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
@@ -31,7 +30,7 @@ public class ChordListElement {
 		return clone;
 	}
 
-	public Set<ChordNote> getChordNotes() {
+	public TreeSet<ChordNote> getChordNotes() {
 		return chordNotes;
 	}
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +43,7 @@ public class ToneTimeFrame {
 	PitchSet pitchSet;
 
 	TimeSet timeSet;
-	Set<ChordNote> chordNotes = new HashSet<>();
+	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
 
 	static class AdaptiveWhitenConfig {
@@ -479,7 +478,7 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame chromaChordify(double threshold) {
+	public ToneTimeFrame chromaChordify(double threshold, boolean sharpen) {
 		chordNotes = new TreeSet<>();
 		TreeSet<Integer> firstCandidates = new TreeSet<>();
 		TreeSet<Integer> secondCandidates = new TreeSet<>();
@@ -551,7 +550,7 @@ public class ToneTimeFrame {
 				if (elements[i] != null) {
 					if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 						elements[i].amplitude = 1.0;
-						chordNotes.add(new ChordNote(index, elements[i].amplitude));
+						chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 					}
 				}
 			}
@@ -567,7 +566,7 @@ public class ToneTimeFrame {
 						if (elements[i] != null) {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
-								chordNotes.add(new ChordNote(index, elements[i].amplitude));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 							}
 						}
 					}
@@ -591,11 +590,11 @@ public class ToneTimeFrame {
 					if (elements[i] != null) {
 						if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 							elements[i].amplitude = 1.0;
-							chordNotes.add(new ChordNote(index, elements[i].amplitude));
+							chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 						}
 						if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 							elements[i].amplitude = 0.75;
-							chordNotes.add(new ChordNote(index, elements[i].amplitude));
+							chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 						}
 					}
 				}
@@ -610,11 +609,11 @@ public class ToneTimeFrame {
 						if (elements[i] != null) {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
-								chordNotes.add(new ChordNote(index, elements[i].amplitude));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 							}
 							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 								elements[i].amplitude = 0.75;
-								chordNotes.add(new ChordNote(index, elements[i].amplitude));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 							}
 						}
 					}
@@ -636,28 +635,74 @@ public class ToneTimeFrame {
 						if (elements[i] != null) {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
-								chordNotes.add(new ChordNote(index, elements[i].amplitude));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 								counter++;
 							}
 							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 								counter++;
 								elements[i].amplitude = 0.75;
-								chordNotes.add(new ChordNote(index, elements[i].amplitude));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 							}
 							if (level3Singles.contains(index) || level3Pairs.contains(index)) {
 								counter++;
 								elements[i].amplitude = 0.5;
-								chordNotes.add(new ChordNote(index, elements[i].amplitude));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude));
 							}
 						}
 					}
 				}
 			}
 		}
-		if (getChord() != null) {
+		if (getChord() != null && sharpen) {
 			LOG.finer(">>CHORDIFY CHORDS FOUND: " + this.getStartTime() + ", " + getChord());
+			sharpenChord();
+			reset();
 		}
 		return this;
+	}
+
+	private void sharpenChord() {
+		LOG.warning(">>Sharpen: " + getStartTime() + ", " + chordNotes);
+		TreeSet<ChordNote> result = new TreeSet<>();
+		ChordNote lastCandidate = null;
+		int pass = 0;
+		do {
+			pass++;
+			LOG.warning(">>Sharpen pass: " + pass);
+			result.clear();
+			lastCandidate = null;
+			for (ChordNote candidate : chordNotes) {
+				if (lastCandidate != null) {
+					if (candidate.pitchClass - lastCandidate.pitchClass == 1) {
+						result.add(lastCandidate);
+						result.add(candidate);
+						LOG.warning(">>Sharpen A semi: " + lastCandidate + " ," + candidate);
+						break;
+					}
+					if (candidate.pitchClass == 11 && chordNotes.first().pitchClass == 0) {
+						result.add(chordNotes.first());
+						result.add(candidate);
+						LOG.warning(">>Sharpen B semi: " + lastCandidate + " ," + candidate);
+						break;
+					}
+				}
+				lastCandidate = candidate;
+			}
+			if (result.size() > 0) {
+				// clear pair
+				if (result.first().amplitude >= result.last().amplitude) {
+					chordNotes.remove(result.last());
+					elements[result.last().index].amplitude = AMPLITUDE_FLOOR;
+					LOG.warning(">>Sharpened chord note remove: " + result.last());
+				} else {
+					elements[result.first().index].amplitude = AMPLITUDE_FLOOR;
+					chordNotes.remove(result.first());
+					LOG.warning(">>Sharpened chord note remove: " + result.first());
+				}
+				LOG.warning(">>Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
+			}
+		} while (result.size() > 0);
+		LOG.warning(">>EXIT Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
 	}
 
 	private Set<Integer> censGetSingles(TreeSet<Integer> candidates) {
@@ -776,7 +821,7 @@ public class ToneTimeFrame {
 	}
 
 	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, ToneMap targetToneMap, int factor, int sequence,
-			boolean chromaChordifySwitch, double chromaChordifyThreshold) {
+			boolean chromaChordifySwitch, double chromaChordifyThreshold, boolean chromaChordifySharpen) {
 		// collect previous frames
 		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
 		ToneTimeFrame stf = sourceToneMap.getTimeFrame(sequence);
@@ -807,7 +852,7 @@ public class ToneTimeFrame {
 			for (ToneTimeFrame tf : targetFrames) {
 				tf.reset();
 				if (chromaChordifySwitch) {
-					tf.chromaChordify(chromaChordifyThreshold);
+					tf.chromaChordify(chromaChordifyThreshold, chromaChordifySharpen);
 				}
 				tf.reset();
 			}

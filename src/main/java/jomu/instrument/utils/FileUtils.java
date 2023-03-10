@@ -175,7 +175,7 @@ public final class FileUtils {
 			}
 			reader.close();
 		} catch (final IOException i1) {
-			LOG.severe("Can't open file:" + name);
+			LOG.finer("Can't open file:" + name);
 		}
 		return contents.toString();
 	}
@@ -202,9 +202,9 @@ public final class FileUtils {
 			}
 			reader.close();
 		} catch (final IOException e) {
-			LOG.severe("Error while reading file " + path + " from jar: " + e.getMessage());
+			LOG.finer("Error while reading file " + path + " from jar: " + e.getMessage());
 		} catch (final NullPointerException e) {
-			LOG.severe("Error while reading file " + path + " from jar: " + e.getMessage());
+			LOG.finer("Error while reading file " + path + " from jar: " + e.getMessage());
 		}
 		return contents.toString();
 	}
@@ -302,7 +302,7 @@ public final class FileUtils {
 			}
 			in.close();
 		} catch (final IOException i1) {
-			LOG.severe("Can't open file:" + fileName);
+			LOG.finer("Can't open file:" + fileName);
 		}
 		return data;
 	}
@@ -372,7 +372,7 @@ public final class FileUtils {
 			}
 			outputStream.flush();
 		} catch (final IOException i1) {
-			LOG.severe("Can't open file:" + filename);
+			LOG.finer("Can't open file:" + filename);
 		} finally {
 			output.close();
 		}
@@ -523,9 +523,9 @@ public final class FileUtils {
 				// JavaVM does its best to do this as native I/O operations.
 				inChannel.transferTo(0, inChannel.size(), outChannel);
 			} catch (final FileNotFoundException e) {
-				LOG.severe("File " + source + " not found! " + e.getMessage());
+				LOG.finer("File " + source + " not found! " + e.getMessage());
 			} catch (final IOException e) {
-				LOG.severe("Error while copying " + source + " to " + target + " : " + e.getMessage());
+				LOG.finer("Error while copying " + source + " to " + target + " : " + e.getMessage());
 			} finally {
 				try {
 					if (inChannel != null) {

@@ -7,16 +7,22 @@ import java.util.Objects;
  *
  */
 public class ChordNote implements Comparable<ChordNote> {
-	double amplitiude;
+	double amplitude;
 	int pitchClass;
+	int index;
 
-	public ChordNote(int pitchClass, double amplitude) {
+	public ChordNote(int index, int pitchClass, double amplitude) {
+		this.index = index;
 		this.pitchClass = pitchClass;
-		this.amplitiude = amplitude;
+		this.amplitude = amplitude;
 	}
 
-	public double getAmplitiude() {
-		return amplitiude;
+	public int getIndex() {
+		return index;
+	}
+
+	public double getAmplitude() {
+		return amplitude;
 	}
 
 	public int getPitchClass() {
@@ -24,7 +30,7 @@ public class ChordNote implements Comparable<ChordNote> {
 	}
 
 	public ChordNote clone() {
-		ChordNote clone = new ChordNote(pitchClass, amplitiude);
+		ChordNote clone = new ChordNote(index, pitchClass, amplitude);
 		return clone;
 	}
 
@@ -47,7 +53,7 @@ public class ChordNote implements Comparable<ChordNote> {
 
 	@Override
 	public String toString() {
-		return "ChordNote [amplitiude=" + amplitiude + ", pitchClass=" + pitchClass + "]";
+		return "ChordNote [amplitiude=" + amplitude + ", pitchClass=" + pitchClass + "]";
 	}
 
 	@Override

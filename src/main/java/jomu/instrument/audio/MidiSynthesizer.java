@@ -674,13 +674,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			LOG.severe(">>V1 PLAY MIDI ttf len: " + ttfElements.length);
+			LOG.finer(">>V1 PLAY MIDI ttf len: " + ttfElements.length);
 
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				noteStatusElement = noteStatus.getNoteStatusElement(note);
 				if (noteStatusElement.state != OFF) {
-					LOG.severe(">>V1 MIDI NOTE CANDIDATES.: " + mqm.getSequence() + ", " + note);
+					LOG.finer(">>V1 MIDI NOTE CANDIDATES.: " + mqm.getSequence() + ", " + note);
 				}
 			}
 
@@ -702,7 +702,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				case ON:
 				case PENDING:
 				case CONTINUING:
-					LOG.severe(">>V1 MIDI NOTE CANDIDATE...: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
+					LOG.finer(">>V1 MIDI NOTE CANDIDATE...: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 							+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 					if (!voiceChannel1LastNotes.contains(note)) {
 						midiMessage = new ShortMessage();
@@ -711,7 +711,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (writeTrack) {
 								createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
 							}
-							LOG.severe(">>V1 MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
+							LOG.finer(">>V1 MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -738,7 +738,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (writeTrack) {
 								createEvent(voice1Track, voice1Channel, NOTEOFF, note, tick, volume);
 							}
-							LOG.severe(">>V1 MIDI NOTE OFF: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
+							LOG.finer(">>V1 MIDI NOTE OFF: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -994,7 +994,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
-							LOG.severe(">>V4 MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
+							LOG.finer(">>V4 MIDI NOTE ON: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1018,7 +1018,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice4Channel.num, note, 0);
-							LOG.severe(">>V4 MIDI NOTE OFF: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
+							LOG.finer(">>V4 MIDI NOTE OFF: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
 									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1206,7 +1206,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					LOG.finer(">>MIDI CHORD2 HAS CHORD: " + sequence + ", " + chord);
 					if (chord.hasChordNote(note)) {
 						ChordNote chordNote = chord.getChordNote(note).orElse(null);
-						amplitude = (int) chordNote.getAmplitiude();
+						amplitude = (int) chordNote.getAmplitude();
 						LOG.finer(">>MIDI CHORD2 HAS CHORD NOTE: " + sequence + ", " + note + ", " + amplitude);
 						amplitude = 1.0;
 						if (amplitude >= 1.0) {

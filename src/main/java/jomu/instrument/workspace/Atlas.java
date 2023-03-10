@@ -14,7 +14,7 @@ public class Atlas {
 
 	public ToneMap getToneMap(String key) {
 		if (!toneMaps.containsKey(key)) {
-			LOG.severe(">>ATLAS PUT TM : " + key);
+			LOG.finer(">>ATLAS PUT TM : " + key);
 			putToneMap(key, new ToneMap(key));
 		}
 		return toneMaps.get(key);

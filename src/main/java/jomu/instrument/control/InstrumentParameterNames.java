@@ -76,6 +76,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH = "perception.hearing.chroma.harmonicsSwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CEILING_SWITCH = "perception.hearing.chroma.ceilingSwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH = "perception.hearing.chroma.chordifySwitch";
+	public static final String PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH = "perception.hearing.chroma.chordifySharpenSwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH = "perception.hearing.chroma.cqOriginSwitch";
 
 	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";

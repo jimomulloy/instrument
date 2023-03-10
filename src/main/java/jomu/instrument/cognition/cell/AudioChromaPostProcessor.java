@@ -27,6 +27,8 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR);
 		boolean chromaChordifySwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH);
+		boolean chromaChordifySharpenSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH);
 		double chromaChordifyThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD);
 
@@ -38,7 +40,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		ToneTimeFrame postTimeFrame = preTimeFrame.clone();
 		postChromaToneMap.addTimeFrame(postTimeFrame);
 		postTimeFrame.smoothMedian(preChromaToneMap, postChromaToneMap, chromaSmoothFactor, sequence,
-				chromaChordifySwitch, chromaChordifyThreshold);
+				chromaChordifySwitch, chromaChordifyThreshold, chromaChordifySharpenSwitch);
 		ChordListElement chord = postTimeFrame.getChord();
 		if (chord != null) {
 			postChromaToneMap.trackChord(chord);

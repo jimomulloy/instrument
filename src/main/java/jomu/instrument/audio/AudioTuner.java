@@ -370,7 +370,7 @@ public class AudioTuner implements ToneMapConstants {
 			int thresholdHysteresisIndex = (note - thresholdHysteresisBaseNote) / 12;
 
 			if (thresholdHysteresisIndex >= thresholdHysteresis.length) {
-				LOG.severe(">>NOTE SCAN ERROR: " + note + ", " + toneTimeFrame.getStartTime());
+				LOG.finer(">>NOTE SCAN ERROR: " + note + ", " + toneTimeFrame.getStartTime());
 				continue;
 			}
 			double noteOnThresholdWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][0];

@@ -22,7 +22,7 @@ public class AudioSACFProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 
-		LOG.severe(">>AudioSACFProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioSACFProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
