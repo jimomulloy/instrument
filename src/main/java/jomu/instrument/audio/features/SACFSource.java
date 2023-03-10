@@ -94,7 +94,7 @@ public class SACFSource extends AudioEventSource<Integer[]> {
 
 	void initialise() {
 
-		Autocorrelation ac = new Autocorrelation(100);
+		Autocorrelation ac = new Autocorrelation(1000);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];

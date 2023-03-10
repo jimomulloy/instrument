@@ -31,7 +31,7 @@ public class SACFFeatures extends AudioEventFeatures<Integer[]> implements ToneM
 	}
 
 	public float[] getSpectrum() {
-		float[] spectrum = new float[getSource().getWindowSize() + 1];
+		float[] spectrum = new float[getSource().getWindowSize() / 2 + 1];
 		Set<Integer> peaks = new HashSet<Integer>();
 		for (Integer[] indexes : features.values()) {
 			Collections.addAll(peaks, indexes);

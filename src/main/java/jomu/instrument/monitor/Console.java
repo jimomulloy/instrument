@@ -21,8 +21,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import org.springframework.stereotype.Component;
-
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatMaterialDesignDarkIJTheme;
 
@@ -30,7 +28,6 @@ import be.tarsos.dsp.Oscilloscope.OscilloscopeEventHandler;
 import jomu.instrument.Organ;
 
 @ApplicationScoped
-@Component
 public class Console implements Organ {
 
 	Visor visor;

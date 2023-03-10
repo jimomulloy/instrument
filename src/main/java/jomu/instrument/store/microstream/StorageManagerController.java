@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
@@ -20,7 +20,7 @@ import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 @ApplicationScoped
 public class StorageManagerController {
 
-	@Value("${one.microstream.storage-directory}")
+	@ConfigProperty(name = "one.microstream.storage-directory")
 	String msdPath;
 
 	/**

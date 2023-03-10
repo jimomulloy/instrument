@@ -5,12 +5,9 @@ import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.springframework.stereotype.Component;
-
 import jomu.instrument.Organ;
 
 @ApplicationScoped
-@Component
 public class Storage implements Organ {
 
 	private static final Logger LOG = Logger.getLogger(Storage.class.getName());

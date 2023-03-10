@@ -2,13 +2,10 @@ package jomu.instrument.workspace;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.springframework.stereotype.Component;
-
 import jomu.instrument.Instrument;
 import jomu.instrument.control.ParameterManager;
 
 @ApplicationScoped
-@Component
 public class Workspace {
 
 	Atlas atlas = new Atlas();

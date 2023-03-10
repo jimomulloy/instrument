@@ -13,7 +13,6 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import one.microstream.storage.types.StorageManager;
 
 @ApplicationScoped
-//@Component
 //@Storage
 public class InstrumentStorage {
 

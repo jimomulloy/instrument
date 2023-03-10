@@ -5,8 +5,6 @@ import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.springframework.stereotype.Component;
-
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.Coordinator;
 import jomu.instrument.monitor.Console;
@@ -14,7 +12,6 @@ import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
-@Component
 public class Instrument implements Organ, InstrumentFactory {
 
 	private static final Logger LOG = Logger.getLogger(Instrument.class.getName());

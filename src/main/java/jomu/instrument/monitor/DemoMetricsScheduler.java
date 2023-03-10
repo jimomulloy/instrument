@@ -1,9 +1,8 @@
 package jomu.instrument.monitor;
 
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import javax.enterprise.context.ApplicationScoped;
 
-@Component
+@ApplicationScoped
 public class DemoMetricsScheduler {
 
 	private final DemoMetrics demoMetrics;
@@ -12,7 +11,7 @@ public class DemoMetricsScheduler {
 		this.demoMetrics = demoMetrics;
 	}
 
-	@Scheduled(fixedRate = 1000)
+	// @Scheduled(fixedRate = 1000)
 	public void triggerCustomMetrics() {
 		demoMetrics.getRandomMetricsData();
 	}

@@ -5,13 +5,10 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.springframework.stereotype.Component;
-
 import jomu.instrument.Organ;
 import jomu.instrument.utils.FileUtils;
 
 @ApplicationScoped
-@Component
 public class Controller implements Organ {
 
 	private static final Logger LOG = Logger.getLogger(Controller.class.getName());

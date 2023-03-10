@@ -2,12 +2,12 @@ package jomu.instrument.monitor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.stereotype.Component;
+import javax.enterprise.context.ApplicationScoped;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
-@Component
+@ApplicationScoped
 public class DemoMetrics {
 	private final Counter demoCounter;
 	private final AtomicInteger demoGauge;

@@ -51,10 +51,6 @@
 	      <artifactId>quarkus-resteasy</artifactId>
 	    </dependency>
 	    <dependency>
-		    <groupId>io.quarkus</groupId>
-    		<artifactId>quarkus-spring-di</artifactId>
-		</dependency>
-	    <dependency>
 	      <groupId>io.quarkus</groupId>
 	      <artifactId>quarkus-junit5</artifactId>
 	      <scope>test</scope>
@@ -64,22 +60,11 @@
 	      <artifactId>rest-assured</artifactId>
 	      <scope>test</scope>
 	    </dependency>
-		<!--dependency>
-		    <groupId>one.microstream</groupId>
-		    <artifactId>microstream-integrations-cdi</artifactId>
-		    <version>${microstream.version}</version>
-		</dependency>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded</artifactId>
-            <version>${microstream.version}</version>
-        </dependency-->
-        <dependency>
+	    <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded-configuration</artifactId>
             <version>${microstream.version}</version>
         </dependency>
-        
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
@@ -89,25 +74,16 @@
 		    <artifactId>common</artifactId>
 		    <version>8.3.0</version>
 		</dependency>   	
-		
 		<dependency>
 		    <groupId>io.quarkus</groupId>
 		    <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
     	    <version>2.15.0.Final</version>
 		</dependency>
-		
-		<!--dependency>
-			<groupId>net.beadsproject</groupId>
-			<artifactId>beads</artifactId>
-			<version>3.2</version>
-		</dependency-->
-		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.12.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>

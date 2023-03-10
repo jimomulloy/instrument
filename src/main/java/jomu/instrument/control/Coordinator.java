@@ -1,9 +1,7 @@
 package jomu.instrument.control;
 
 import javax.enterprise.context.ApplicationScoped;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import javax.inject.Inject;
 
 import jomu.instrument.Organ;
 import jomu.instrument.actuation.Voice;
@@ -11,16 +9,15 @@ import jomu.instrument.cognition.Cortex;
 import jomu.instrument.perception.Hearing;
 
 @ApplicationScoped
-@Component
 public class Coordinator implements Organ {
 
-	@Autowired
+	@Inject
 	Cortex cortex;
 
-	@Autowired
+	@Inject
 	Hearing hearing;
 
-	@Autowired
+	@Inject
 	Voice voice;
 
 	public Cortex getCortex() {

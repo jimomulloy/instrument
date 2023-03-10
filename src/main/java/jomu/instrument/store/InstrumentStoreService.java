@@ -6,14 +6,11 @@ import java.util.Properties;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.springframework.stereotype.Component;
-
 import jomu.instrument.store.microstream.InstrumentStorage;
 import jomu.instrument.workspace.tonemap.ToneMap;
 //import one.microstream.storage.types.StorageManager;
 
 @ApplicationScoped
-@Component
 public class InstrumentStoreService {
 
 	@Inject

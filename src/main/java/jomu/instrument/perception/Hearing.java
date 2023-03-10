@@ -15,8 +15,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.springframework.stereotype.Component;
-
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.filters.HighPass;
 import be.tarsos.dsp.filters.LowPassFS;
@@ -33,7 +31,6 @@ import jomu.instrument.monitor.Console;
 import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
-@Component
 public class Hearing implements Organ {
 
 	private static final Logger LOG = Logger.getLogger(Hearing.class.getName());

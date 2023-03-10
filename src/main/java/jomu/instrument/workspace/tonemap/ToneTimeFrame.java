@@ -662,13 +662,13 @@ public class ToneTimeFrame {
 	}
 
 	private void sharpenChord() {
-		LOG.warning(">>Sharpen: " + getStartTime() + ", " + chordNotes);
+		LOG.finer(">>Sharpen: " + getStartTime() + ", " + chordNotes);
 		TreeSet<ChordNote> result = new TreeSet<>();
 		ChordNote lastCandidate = null;
 		int pass = 0;
 		do {
 			pass++;
-			LOG.warning(">>Sharpen pass: " + pass);
+			LOG.finer(">>Sharpen pass: " + pass);
 			result.clear();
 			lastCandidate = null;
 			for (ChordNote candidate : chordNotes) {
@@ -676,13 +676,13 @@ public class ToneTimeFrame {
 					if (candidate.pitchClass - lastCandidate.pitchClass == 1) {
 						result.add(lastCandidate);
 						result.add(candidate);
-						LOG.warning(">>Sharpen A semi: " + lastCandidate + " ," + candidate);
+						LOG.finer(">>Sharpen A semi: " + lastCandidate + " ," + candidate);
 						break;
 					}
 					if (candidate.pitchClass == 11 && chordNotes.first().pitchClass == 0) {
 						result.add(chordNotes.first());
 						result.add(candidate);
-						LOG.warning(">>Sharpen B semi: " + lastCandidate + " ," + candidate);
+						LOG.finer(">>Sharpen B semi: " + lastCandidate + " ," + candidate);
 						break;
 					}
 				}
@@ -693,16 +693,16 @@ public class ToneTimeFrame {
 				if (result.first().amplitude >= result.last().amplitude) {
 					chordNotes.remove(result.last());
 					elements[result.last().index].amplitude = AMPLITUDE_FLOOR;
-					LOG.warning(">>Sharpened chord note remove: " + result.last());
+					LOG.finer(">>Sharpened chord note remove: " + result.last());
 				} else {
 					elements[result.first().index].amplitude = AMPLITUDE_FLOOR;
 					chordNotes.remove(result.first());
-					LOG.warning(">>Sharpened chord note remove: " + result.first());
+					LOG.finer(">>Sharpened chord note remove: " + result.first());
 				}
-				LOG.warning(">>Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
+				LOG.finer(">>Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
 			}
 		} while (result.size() > 0);
-		LOG.warning(">>EXIT Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
+		LOG.finer(">>EXIT Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
 	}
 
 	private Set<Integer> censGetSingles(TreeSet<Integer> candidates) {
