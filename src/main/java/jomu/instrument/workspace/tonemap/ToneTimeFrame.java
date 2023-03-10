@@ -90,6 +90,10 @@ public class ToneTimeFrame {
 	public ToneTimeFrame clone() {
 		ToneTimeFrame copy = new ToneTimeFrame(this.timeSet.clone(), this.pitchSet.clone());
 		copy.noteStatus = this.noteStatus.clone();
+		for (ChordNote chord : chordNotes) {
+			copy.chordNotes.add(chord.clone());
+		}
+
 		ToneMapElement[] copyElements = copy.getElements();
 		for (int i = 0; i < elements.length; i++) {
 			copyElements[i] = elements[i].clone();

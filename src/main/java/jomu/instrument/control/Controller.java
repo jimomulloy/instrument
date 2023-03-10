@@ -48,9 +48,9 @@ public class Controller implements Organ {
 		if (!new File(audioDirectory).isAbsolute()) {
 			audioDirectory = FileUtils.combine(userDir, audioDirectory);
 		}
-		LOG.warning("Creating directory: " + audioDirectory);
+		LOG.finer("Creating directory: " + audioDirectory);
 		if (FileUtils.mkdirs(audioDirectory)) {
-			LOG.warning("Created directory: " + audioDirectory);
+			LOG.finer("Created directory: " + audioDirectory);
 		}
 		// Check if the directory is writable
 		if (!new File(audioDirectory).canWrite()) {
@@ -64,9 +64,9 @@ public class Controller implements Organ {
 		String audioRecordDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY);
 		audioRecordDirectory = FileUtils.combine(audioDirectory, audioRecordDirectory);
-		LOG.warning("Creating directory: " + audioRecordDirectory);
+		LOG.finer("Creating directory: " + audioRecordDirectory);
 		if (FileUtils.mkdirs(audioRecordDirectory)) {
-			LOG.warning("Created directory: " + audioRecordDirectory);
+			LOG.finer("Created directory: " + audioRecordDirectory);
 		}
 		// Check if the directory is writable
 		if (!new File(audioRecordDirectory).canWrite()) {

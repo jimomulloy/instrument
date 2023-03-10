@@ -3,8 +3,6 @@ package jomu.instrument.cognition.cell;
 import java.util.Objects;
 import java.util.UUID;
 
-import net.beadsproject.beads.core.BeadArray;
-
 public abstract class Cell {
 
 	private CellTypes cellType;
@@ -169,8 +167,8 @@ public abstract class Cell {
 
 	public static enum CellTypes {
 		AUDIO_CQ, AUDIO_CQ_ORIGIN, AUDIO_CQ_MICRO_TONE, AUDIO_TUNER_PEAKS, AUDIO_BEAT, AUDIO_ONSET, AUDIO_PERCUSSION,
-		AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_YIN, AUDIO_HPS, AUDIO_SPECTRAL_PEAKS, AUDIO_SINK,
-		AUDIO_PRE_CHROMA, AUDIO_POST_CHROMA, JUNCTION, PASS_THROUGH, SINK, SOURCE
+		AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_YIN, AUDIO_SACF, AUDIO_SYNTHESIS, AUDIO_HPS,
+		AUDIO_SPECTRAL_PEAKS, AUDIO_SINK, AUDIO_PRE_CHROMA, AUDIO_POST_CHROMA, JUNCTION, PASS_THROUGH, SINK, SOURCE
 
 	}
 

@@ -23,6 +23,11 @@ public class ChordNote implements Comparable<ChordNote> {
 		return pitchClass;
 	}
 
+	public ChordNote clone() {
+		ChordNote clone = new ChordNote(pitchClass, amplitiude);
+		return clone;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(pitchClass);

@@ -23,6 +23,14 @@ public class NoteStatusElement {
 		this.index = index;
 	}
 
+	public NoteStatusElement clone() {
+		NoteStatusElement clone = new NoteStatusElement(note, index);
+		clone.offTime = offTime;
+		clone.onTime = offTime;
+		clone.state = state;
+		return clone;
+	}
+
 	@Override
 	public String toString() {
 		return "NoteStatusElement [highFlag=" + highFlag + ", index=" + index + ", note=" + note + ", offTime="

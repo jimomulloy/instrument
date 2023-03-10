@@ -373,7 +373,8 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 
 		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
 				Cell.CellTypes.AUDIO_TUNER_PEAKS.name(), Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(),
-				Cell.CellTypes.AUDIO_PITCH.name(), Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_NOTATE.name(),
+				Cell.CellTypes.AUDIO_PITCH.name(), Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(),
+				Cell.CellTypes.AUDIO_SYNTHESIS.name(), Cell.CellTypes.AUDIO_NOTATE.name(),
 				Cell.CellTypes.AUDIO_INTEGRATE.name(), Cell.CellTypes.AUDIO_ONSET.name(),
 				Cell.CellTypes.AUDIO_PERCUSSION.name(), Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
 				Cell.CellTypes.AUDIO_HPS.name(), Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
@@ -569,7 +570,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				boolean newValue = cb.isSelected();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG,
 						Boolean.toString(newValue));
-				LOG.warning(">>show log: " + newValue);
+				LOG.finer(">>show log: " + newValue);
 				refreshMapViews();
 			}
 		});
@@ -732,7 +733,7 @@ public class Visor extends JPanel implements OscilloscopeEventHandler, AudioFeat
 				try {
 					String fileName = Visor.this.getAudioRecordFileFolder() + "/instrument_recording_"
 							+ System.currentTimeMillis() + ".wav";
-					LOG.warning(">>Recording Audio to fileName" + fileName);
+					LOG.finer(">>Recording Audio to fileName" + fileName);
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
 					stopListeningButton.setEnabled(true);

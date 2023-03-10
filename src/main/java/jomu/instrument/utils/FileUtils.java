@@ -63,7 +63,7 @@ public final class FileUtils {
 	public static String temporaryDirectory() {
 		final String tempDir = System.getProperty("java.io.tmpdir");
 		if (tempDir.contains(" ")) {
-			LOG.warning("Temporary directory (" + tempDir + ") contains whitespace");
+			LOG.finer("Temporary directory (" + tempDir + ") contains whitespace");
 		}
 		return tempDir;
 	}

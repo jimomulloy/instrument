@@ -96,11 +96,12 @@
     	    <version>2.15.0.Final</version>
 		</dependency>
 		
-		<dependency>
+		<!--dependency>
 			<groupId>net.beadsproject</groupId>
 			<artifactId>beads</artifactId>
 			<version>3.2</version>
-		</dependency>
+		</dependency-->
+		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>

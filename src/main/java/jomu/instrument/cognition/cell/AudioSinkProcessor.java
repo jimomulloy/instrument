@@ -21,18 +21,19 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
-		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
+		ToneMap synthesisToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 
 		console.getVisor().updateSpectrumView(cqToneMap.getTimeFrame(),
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW));
 
-		LOG.finer(">>VOICE SEND: " + sequence + ", " + notateToneMap.getTimeFrame(sequence).getStartTime());
+		LOG.severe(">>VOICE SEND: " + sequence + ", " + synthesisToneMap.getTimeFrame(sequence).getStartTime());
 
-		if (notateToneMap.getTimeFrame(sequence) != null) {
-			voice.send(notateToneMap.getTimeFrame(sequence), streamId, sequence);
+		if (synthesisToneMap.getTimeFrame(sequence) != null) {
+			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence);
 		}
 		if (isClosing(streamId, sequence)) {
 			LOG.finer(">>AudioSinkProcessor CLOSE!!");

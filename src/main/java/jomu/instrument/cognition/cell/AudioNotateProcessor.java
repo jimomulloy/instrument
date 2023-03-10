@@ -26,7 +26,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioNotateProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioNotateProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		float compression = parameterManager
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION);
@@ -48,12 +48,14 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		if (tmIndex > 0) {
 			timeFrame = notateToneMap.getTimeFrame(tmIndex);
 			if (timeFrame != null) {
+
 				if (notateSwitchCompress) {
 					clearNotes(timeFrame);
 					timeFrame.compress(compression, false);
 				}
 				console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 			}
+			LOG.severe(">>AudioNotateProcessor send: " + sequence + ", streamId: " + streamId);
 			cell.send(streamId, tmIndex);
 		}
 

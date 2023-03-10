@@ -52,6 +52,10 @@ public class SACFSource extends AudioEventSource<Integer[]> {
 		this.windowSize = bufferSize;
 	}
 
+	public int getWindowSize() {
+		return windowSize;
+	}
+
 	public double getMaxMagnitudeThreshold() {
 		return maxMagnitudeThreshold;
 	}

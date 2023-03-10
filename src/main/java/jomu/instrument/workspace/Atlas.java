@@ -2,15 +2,19 @@ package jomu.instrument.workspace;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 public class Atlas {
 
+	private static final Logger LOG = Logger.getLogger(Atlas.class.getName());
+
 	Map<String, ToneMap> toneMaps = new ConcurrentHashMap<>();
 
 	public ToneMap getToneMap(String key) {
 		if (!toneMaps.containsKey(key)) {
+			LOG.severe(">>ATLAS PUT TM : " + key);
 			putToneMap(key, new ToneMap(key));
 		}
 		return toneMaps.get(key);

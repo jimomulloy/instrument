@@ -20,6 +20,7 @@ public class Autocorrelation {
 	private FastFourierTransformer fftTran = new FastFourierTransformer(DftNormalization.STANDARD);
 	private double ACF_THRESH = 0.2; // Minimum correlation threshold
 	private int maxLag; // Maximum length of autocorrelation to calculate
+	private Complex[] fft;
 
 	public Autocorrelation(int maxLag) {
 		this.maxLag = maxLag;
@@ -59,7 +60,7 @@ public class Autocorrelation {
 	public void evaluate(double[] data) {
 		double[] values = formatData(data);
 		// FFT
-		Complex[] fft = fftTran.transform(values, TransformType.FORWARD);
+		fft = fftTran.transform(values, TransformType.FORWARD);
 		// Multiply by complex conjugate
 		for (int i = 0; i < fft.length; i++) {
 			fft[i] = fft[i].multiply(fft[i].conjugate());
@@ -71,6 +72,10 @@ public class Autocorrelation {
 		for (int i = 1; i < maxLag; i++) {
 			correlations[i] = fft[i].getReal() / fft[0].getReal();
 		}
+	}
+
+	public int getLength() {
+		return fft.length;
 	}
 
 	/* Find autocorrelation peaks */

@@ -30,9 +30,10 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		double chromaChordifyThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD);
 
+		ToneMap postChromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+
 		ToneMap preChromaToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
-		ToneMap postChromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneTimeFrame preTimeFrame = preChromaToneMap.getTimeFrame(sequence);
 		ToneTimeFrame postTimeFrame = preTimeFrame.clone();
 		postChromaToneMap.addTimeFrame(postTimeFrame);

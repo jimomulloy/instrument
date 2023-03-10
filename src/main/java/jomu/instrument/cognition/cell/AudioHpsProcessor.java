@@ -36,6 +36,8 @@ public class AudioHpsProcessor extends ProcessorCommon {
 		boolean hpsCQOriginSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH);
 
+		ToneMap hpsToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+
 		ToneMap hpsHarmonicToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_HARMONIC", streamId));
 		ToneMap hpsPercussionToneMap = workspace.getAtlas()
@@ -44,7 +46,6 @@ public class AudioHpsProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_HARMONIC_MASK", streamId));
 		ToneMap hpsPercussionMaskedToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_PERCUSSION_MASK", streamId));
-		ToneMap hpsToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS, streamId));
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (hpsCQOriginSwitch) {
 			cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));

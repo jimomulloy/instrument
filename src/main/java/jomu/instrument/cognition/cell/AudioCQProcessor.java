@@ -7,7 +7,6 @@ import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
-import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -24,7 +23,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.finer(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		double lowThreshold = parameterManager
@@ -133,21 +132,21 @@ public class AudioCQProcessor extends ProcessorCommon {
 			toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
 		}
 
-		LOG.warning(">>CQ MAX/MIN BEFORE SCALE: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.finer(">>CQ MAX/MIN BEFORE SCALE: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 		if (cqSwitchScale) {
 			toneMap.getTimeFrame().scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
-			LOG.warning(">>CQ MAX/MIN AMP AFTER SCALE: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.finer(">>CQ MAX/MIN AMP AFTER SCALE: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
 
-		LOG.warning(">>CQ MAX/MIN BEFORE WHITEN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.finer(">>CQ MAX/MIN BEFORE WHITEN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 		if (cqSwitchWhiten) {
 			toneMap.getTimeFrame().adaptiveWhiten(cqAdaptiveWhitenControlMap,
 					toneMap.getPreviousTimeFrame(toneMap.getTimeFrame().getStartTime()), cqWhitenFactor,
 					cqWhitenThreshold, cqSwitchWhitenCompensate);
-			LOG.warning(">>CQ MAX/MIN AMP AFTER WHITEN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+			LOG.finer(">>CQ MAX/MIN AMP AFTER WHITEN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
 

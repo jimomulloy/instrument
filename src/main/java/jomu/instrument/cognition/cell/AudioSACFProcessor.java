@@ -5,15 +5,15 @@ import java.util.logging.Logger;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
-import jomu.instrument.audio.features.BeatFeatures;
-import jomu.instrument.workspace.tonemap.BeatListElement;
+import jomu.instrument.audio.features.SACFFeatures;
+import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
-public class AudioBeatProcessor extends ProcessorCommon {
+public class AudioSACFProcessor extends ProcessorCommon {
 
-	private static final Logger LOG = Logger.getLogger(AudioBeatProcessor.class.getName());
+	private static final Logger LOG = Logger.getLogger(AudioSACFProcessor.class.getName());
 
-	public AudioBeatProcessor(NuCell cell) {
+	public AudioSACFProcessor(NuCell cell) {
 		super(cell);
 	}
 
@@ -21,17 +21,21 @@ public class AudioBeatProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioBeatProcessor accept seq: " + sequence + ", streamId: " + streamId);
+
+		LOG.severe(">>AudioSACFProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-		BeatFeatures features = aff.getBeatFeatures();
+
+		SACFFeatures features = aff.getSACFFeatures();
 		features.buildToneMapFrame(toneMap);
-		BeatListElement beat = toneMap.getTimeFrame().getBeat();
-		if (beat != null) {
-			toneMap.trackBeat(beat);
-		}
-		console.getVisor().updateBeatsView(toneMap);
+		float[] spectrum = features.getSpectrum();
+
+		FFTSpectrum fftSpectrum = new FFTSpectrum(features.getSource().getSampleRate(),
+				features.getSource().getBufferSize(), spectrum);
+
+		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}
 }
