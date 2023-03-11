@@ -12,7 +12,7 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class SACFFeatures extends AudioEventFeatures<Integer[]> implements ToneMapConstants {
+public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMapConstants {
 
 	private static final Logger LOG = Logger.getLogger(SACFFeatures.class.getName());
 
@@ -32,12 +32,14 @@ public class SACFFeatures extends AudioEventFeatures<Integer[]> implements ToneM
 
 	public float[] getSpectrum() {
 		float[] spectrum = new float[getSource().getWindowSize() / 2 + 1];
-		Set<Integer> peaks = new HashSet<Integer>();
-		for (Integer[] indexes : features.values()) {
-			Collections.addAll(peaks, indexes);
+		Set<Integer> peakIndexes = new HashSet<Integer>();
+		for (SACFInfo feature : features.values()) {
+			for (int peak : feature.peaks) {
+				peakIndexes.add((int)feature.correlations[peak]);
+			}
 		}
 		for (int i = 0; i < spectrum.length; i++) {
-			if (peaks.contains(i)) {
+			if (peakIndexes.contains(i)) {
 				spectrum[i] = 1.0F;
 			}
 		}
@@ -52,7 +54,7 @@ public class SACFFeatures extends AudioEventFeatures<Integer[]> implements ToneM
 			double timeStart = -1;
 			double nextTime = -1;
 
-			for (Entry<Double, Integer[]> column : features.entrySet()) {
+			for (Entry<Double, SACFInfo> column : features.entrySet()) {
 				nextTime = column.getKey();
 				if (timeStart == -1) {
 					timeStart = nextTime;

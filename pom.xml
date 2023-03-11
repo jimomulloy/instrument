@@ -16,8 +16,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <microstream.version>07.01.00-MS-GA</microstream.version>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
 	    <maven.compiler.parameters>true</maven.compiler.parameters>
@@ -29,6 +29,8 @@
    		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
    		<client.version>1.0.0</client.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
+        <imageName>instrument</imageName>
+        <mainClass>demo.Fortune</mainClass>
 	</properties>
 	
 	<dependencyManagement>
@@ -101,13 +103,23 @@
   			<artifactId>flatlaf-intellij-themes</artifactId>
 		  <version>2.6</version>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>jomuddlo</groupId>
 			<artifactId>tarsos</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/library/TarsosDSP-2.4.jar</systemPath>
+		</dependency-->
+		<dependency>
+		  <groupId>be.tarsos.dsp</groupId>
+		  <artifactId>core</artifactId>
+		  <version>2.5</version>
 		</dependency>
+		<dependency>
+		  <groupId>be.tarsos.dsp</groupId>
+		  <artifactId>jvm</artifactId>
+		  <version>2.5</version>
+</dependency>
 
 	</dependencies>
 
@@ -133,8 +145,8 @@
 		        <version>${compiler-plugin.version}</version>
 		        <configuration>
 		          <parameters>${maven.compiler.parameters}</parameters>
-		          <source>17</source>
-				  <target>17</target>
+		          <source>11</source>
+				  <target>11</target>
 			    </configuration>
 		      </plugin>
 		      <plugin>
@@ -155,66 +167,21 @@
                     <mainClass>com.dlsc.jpackagefx.App</mainClass>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.4.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/libs</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                            <includeScope>compile</includeScope>
-                            <includeScope>runtime</includeScope>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
 		</plugins>
 	</build>
 	<profiles>
 	    <profile>
-	      <id>native</id>
-	      <activation>
+	        <id>native</id>
+	        <properties>
+	            <quarkus.package.type>native</quarkus.package.type>
+	        </properties>
+	         <activation>
 	        <property>
 	          <name>native</name>
 	        </property>
 	      </activation>
-	      <build>
-	        <plugins>
-	          <plugin>
-	            <artifactId>maven-failsafe-plugin</artifactId>
-	            <version>${surefire-plugin.version}</version>
-	            <executions>
-	              <execution>
-	                <goals>
-	                  <goal>integration-test</goal>
-	                  <goal>verify</goal>
-	                </goals>
-	                <configuration>
-	                  <systemPropertyVariables>
-	                    <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-	                    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-	                    <maven.home>${maven.home}</maven.home>
-	                  </systemPropertyVariables>
-	                </configuration>
-	              </execution>
-	            </executions>
-	          </plugin>
-	        </plugins>
-	      </build>
-	      <properties>
-	        <quarkus.package.type>native</quarkus.package.type>
-	      </properties>
 	    </profile>
+	 
 	    <profile>
             <id>build-mac</id>
 
@@ -268,7 +235,7 @@
 
             <build>
                 <plugins>
-                    <plugin>
+					<plugin>
                         <artifactId>exec-maven-plugin</artifactId>
                         <groupId>org.codehaus.mojo</groupId>
                         <version>${exec.maven.plugin.version}</version>
@@ -343,6 +310,11 @@
 		<repository>
 			<id>clojars_repo</id>
 			<url>https://clojars.org/repo/</url>
+		</repository>
+		<repository>
+		  <id>be.0110.repo-releases</id>
+		  <name>0110.be repository</name>
+		  <url>https://mvn.0110.be/releases</url>
 		</repository>
 	</repositories>
 </project>

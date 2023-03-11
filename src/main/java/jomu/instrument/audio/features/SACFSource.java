@@ -15,7 +15,7 @@ import jomu.instrument.audio.analysis.Autocorrelation;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class SACFSource extends AudioEventSource<Integer[]> {
+public class SACFSource extends AudioEventSource<SACFInfo> {
 
 	private static final Logger LOG = Logger.getLogger(SACFSource.class.getName());
 
@@ -117,12 +117,8 @@ public class SACFSource extends AudioEventSource<Integer[]> {
 			public boolean process(AudioEvent audioEvent) {
 				ac.evaluate(convertFloatsToDoubles(audioEvent.getFloatBuffer()));
 				List<Integer> sacfPeaks = ac.findPeaks();
-				LOG.finer(">>SACF Peaks: " + audioEvent.getTimeStamp() + ", " + sacfPeaks.size());
-				for (int peak : sacfPeaks) {
-					LOG.finer(">>SACF Peak: " + peak);
-				}
-				Integer[] featureValues = sacfPeaks.toArray(new Integer[sacfPeaks.size()]);
-				SACFSource.this.putFeature(audioEvent.getTimeStamp(), featureValues);
+				SACFInfo sacfInfo = new SACFInfo(sacfPeaks, ac.correlations, ac.maxACF);
+				SACFSource.this.putFeature(audioEvent.getTimeStamp(), sacfInfo);
 				return true;
 			}
 
@@ -147,7 +143,7 @@ public class SACFSource extends AudioEventSource<Integer[]> {
 	}
 
 	@Override
-	Integer[] cloneFeatures(Integer[] features) {
+	SACFInfo cloneFeatures(SACFInfo features) {
 		return features.clone();
 	}
 
