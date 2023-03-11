@@ -257,8 +257,8 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 			this.streamId = streamId;
 			bq = new LinkedBlockingQueue<>();
 			consumer = new AudioQueueConsumer(bq, this);
-			Thread.startVirtualThread(consumer);
-			// new Thread(new AudioQueueConsumer(bq, this)).start();
+			// TODO LOOM Thread.startVirtualThread(consumer);
+			new Thread(new AudioQueueConsumer(bq, this)).start();
 			resynthProcessor = new ResynthProcessor();
 			generator = new AudioGenerator(ResynthAudioSynthesizer.this.getWindowSize(), 0);
 			try {
