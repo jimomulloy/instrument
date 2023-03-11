@@ -8,7 +8,7 @@
 	<groupId>jomu</groupId>
 	<artifactId>instrument-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	 <packaging>pom</packaging>
+	<packaging>pom</packaging>
 
 	<name>instrument-parent</name>
 	<!-- FIXME change it to the project's website -->
