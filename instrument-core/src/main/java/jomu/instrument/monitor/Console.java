@@ -49,6 +49,7 @@ public class Console implements Organ {
 	@Override
 	public void start() {
 		visor.startUp();
+		
 	}
 
 	@Override

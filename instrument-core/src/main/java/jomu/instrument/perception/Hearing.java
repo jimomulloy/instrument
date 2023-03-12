@@ -100,6 +100,7 @@ public class Hearing implements Organ {
 		audioStream.initialiseAudioFileStream(fileName);
 
 		audioStream.getAudioFeatureProcessor().addObserver(cortex);
+		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
 		audioStream.start();
 	}
 
@@ -114,6 +115,7 @@ public class Hearing implements Organ {
 		audioStream.initialiseMicrophoneStream(recordFile);
 
 		audioStream.getAudioFeatureProcessor().addObserver(cortex);
+		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
 		audioStream.start();
 	}
 

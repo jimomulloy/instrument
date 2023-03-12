@@ -1,10 +1,11 @@
 package jomu.instrument.monitor;
 
 import jomu.instrument.audio.features.AudioFeatureFrame;
+import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public interface Visor {
+public interface Visor extends AudioFeatureFrameObserver {
 
 	void startUp();
 	
