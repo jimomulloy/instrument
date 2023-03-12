@@ -3,6 +3,7 @@ package jomu.instrument.actuation;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
@@ -25,6 +26,8 @@ public class Voice implements Organ {
 	AudioSynthesizer resynthSynthesizer;
 	AudioSynthesizer audioSynthesizer;
 	MidiSynthesizer midiSynthesizer;
+	
+	@Inject
 	ParameterManager parameterManager;
 
 	Workspace workspace;
@@ -66,7 +69,6 @@ public class Voice implements Organ {
 	@Override
 	public void initialise() {
 		this.workspace = Instrument.getInstance().getWorkspace();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
 		resynthSynthesizer = buildResynthAudioSynthesizer();

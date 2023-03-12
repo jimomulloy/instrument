@@ -1,6 +1,5 @@
 package jomu.instrument.audio.features;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;

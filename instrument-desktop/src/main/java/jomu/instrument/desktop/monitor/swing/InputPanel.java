@@ -21,7 +21,7 @@
 *
 */
 
-package jomu.instrument.monitor;
+package jomu.instrument.desktop.monitor.swing;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -36,6 +36,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
+
+import jomu.instrument.monitor.Shared;
 
 public class InputPanel extends JPanel {
 

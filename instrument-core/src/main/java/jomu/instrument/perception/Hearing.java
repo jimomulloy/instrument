@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -21,10 +22,10 @@ import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
-import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
+import jomu.instrument.cognition.Cortex;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.Console;
@@ -41,10 +42,16 @@ public class Hearing implements Organ {
 
 	ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 
+	@Inject
 	ParameterManager parameterManager;
 
+	@Inject
 	Workspace workspace;
 
+	@Inject
+	Cortex cortex;
+
+	@Inject
 	Console console;
 
 	public void closeAudioStream(String streamId) {
@@ -54,7 +61,7 @@ public class Hearing implements Organ {
 		}
 		audioStream.close();
 		console.getVisor().audioStopped();
-		console.updateStatusMessage("Ready");
+		console.getVisor().updateStatusMessage("Ready");
 	}
 
 	public void removeAudioStream(String streamId) {
@@ -75,9 +82,6 @@ public class Hearing implements Organ {
 
 	@Override
 	public void initialise() {
-		this.workspace = Instrument.getInstance().getWorkspace();
-		this.console = Instrument.getInstance().getConsole();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 	}
 
 	@Override
@@ -95,8 +99,7 @@ public class Hearing implements Organ {
 
 		audioStream.initialiseAudioFileStream(fileName);
 
-		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.getAudioFeatureProcessor().addObserver(cortex);
 		audioStream.start();
 	}
 
@@ -110,8 +113,7 @@ public class Hearing implements Organ {
 
 		audioStream.initialiseMicrophoneStream(recordFile);
 
-		Instrument.getInstance().getCoordinator().getCortex();
-		audioStream.getAudioFeatureProcessor().addObserver(Instrument.getInstance().getCoordinator().getCortex());
+		audioStream.getAudioFeatureProcessor().addObserver(cortex);
 		audioStream.start();
 	}
 
@@ -121,7 +123,7 @@ public class Hearing implements Organ {
 			audioStream.stop();
 			if (audioStream.getAudioFeatureProcessor() != null) {
 				audioStream.getAudioFeatureProcessor()
-						.removeObserver(Instrument.getInstance().getCoordinator().getCortex());
+						.removeObserver(cortex);
 			}
 			closeAudioStream(streamId);
 		}
@@ -154,21 +156,9 @@ public class Hearing implements Organ {
 			return audioFeatureProcessor;
 		}
 
-		public float getSampleRate() {
-			return sampleRate;
-		}
-
-		public String getStreamId() {
-			return streamId;
-		}
-
-		public TarsosFeatureSource getTarsosFeatureSource() {
-			return tarsosFeatureSource;
-		}
-
 		public void initialiseAudioFileStream(String fileName)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-			Instrument.getInstance().getConsole().getVisor().clearView();
+			console.getVisor().clearView();
 			// tarsosIO.selectMixer(2);
 			File file = new File(fileName);
 			AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
@@ -195,7 +185,7 @@ public class Hearing implements Organ {
 		}
 
 		public void initialiseMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
-			Instrument.getInstance().getConsole().getVisor().clearView();
+			console.getVisor().clearView();
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);

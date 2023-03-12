@@ -1,4 +1,4 @@
-package jomu.instrument.monitor;
+package jomu.instrument.monitor.core;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -30,6 +30,7 @@ import javax.swing.event.ChangeListener;
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.store.InstrumentStoreService;
 
 public class ParametersPanel extends JPanel {

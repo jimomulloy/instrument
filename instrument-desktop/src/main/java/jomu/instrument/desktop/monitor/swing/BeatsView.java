@@ -21,7 +21,7 @@
 *
 */
 
-package jomu.instrument.monitor;
+package jomu.instrument.desktop.monitor.swing;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.monitor.ColorUtil;
 import jomu.instrument.workspace.tonemap.BeatListElement;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;

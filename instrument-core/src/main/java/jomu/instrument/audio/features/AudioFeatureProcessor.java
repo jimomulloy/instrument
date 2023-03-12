@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
-import be.tarsos.dsp.Oscilloscope;
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
@@ -50,9 +49,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 		this.offset = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET);
 		this.range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
-		addObserver(Instrument.getInstance().getConsole().getVisor());
-		Oscilloscope oscilloscope = new Oscilloscope(Instrument.getInstance().getConsole().getVisor());
-		tarsosFeatures.getDispatcher().addAudioProcessor(oscilloscope);
 	}
 
 	public void addAudioFeatureFrame(double time, AudioFeatureFrame audioFeatureFrame) {

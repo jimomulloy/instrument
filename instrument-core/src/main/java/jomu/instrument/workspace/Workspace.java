@@ -1,14 +1,17 @@
 package jomu.instrument.workspace;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
-import jomu.instrument.Instrument;
 import jomu.instrument.control.ParameterManager;
 
 @ApplicationScoped
 public class Workspace {
 
-	Atlas atlas = new Atlas();
+	@Inject
+	Atlas atlas;
+		
+	@Inject
 	ParameterManager parameterManager;
 
 	public Atlas getAtlas() {
@@ -16,16 +19,9 @@ public class Workspace {
 	}
 
 	public void initialise() {
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-	}
-
-	public void setAtlas(Atlas atlas) {
-		this.atlas = atlas;
 	}
 
 	public void start() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

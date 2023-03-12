@@ -3,6 +3,7 @@ package jomu.instrument;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
 import jomu.instrument.control.Controller;
@@ -12,6 +13,7 @@ import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
+@Default
 public class Instrument implements Organ, InstrumentFactory {
 
 	private static final Logger LOG = Logger.getLogger(Instrument.class.getName());

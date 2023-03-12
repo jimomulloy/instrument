@@ -16,6 +16,7 @@
 	
 	<modules>
     	<module>instrument-core</module>
+    	<module>instrument-desktop</module>
   	</modules>
   
 </project>

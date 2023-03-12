@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import jomu.instrument.Organ;
 import jomu.instrument.utils.FileUtils;
@@ -13,8 +14,9 @@ public class Controller implements Organ {
 
 	private static final Logger LOG = Logger.getLogger(Controller.class.getName());
 
-	ParameterManager parameterManager = new ParameterManager();
-
+	@Inject
+	ParameterManager parameterManager;
+	
 	public ParameterManager getParameterManager() {
 		return parameterManager;
 	}

@@ -21,7 +21,7 @@
 * 
 */
 
-package jomu.instrument.monitor;
+package jomu.instrument.monitor.core;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
