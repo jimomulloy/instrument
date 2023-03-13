@@ -27,14 +27,16 @@ import java.util.List;
 
 public class SACFInfo {
 	List<Integer> peaks;
-	double[] correlations; 
-	double maxACF = 0; 
-	
-	public SACFInfo(List<Integer> peaks, double[] correlations, double maxACF) {
+	double[] correlations;
+	double maxACF = 0;
+	int length;
+
+	public SACFInfo(List<Integer> peaks, double[] correlations, double maxACF, int length) {
 		super();
 		this.peaks = peaks;
 		this.correlations = correlations;
 		this.maxACF = maxACF;
+		this.length = length;
 	}
 
 	public List<Integer> getPeaks() {
@@ -45,11 +47,15 @@ public class SACFInfo {
 		return correlations;
 	}
 
+	public int getLength() {
+		return length;
+	}
+
 	public double getMaxACF() {
 		return maxACF;
 	}
-	
+
 	public SACFInfo clone() {
-		return new SACFInfo(peaks, correlations, maxACF);
+		return new SACFInfo(peaks, correlations, maxACF, length);
 	}
 }

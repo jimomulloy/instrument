@@ -125,33 +125,41 @@ public class NoteTracker {
 	}
 
 	private NoteTrack getSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
-		double maxSalience = -1, salience = -1;
-		NoteTrack salientTrack = null;
+		NoteTrack pitchSalientTrack = null;
+		NoteTrack timeSalientTrack = null;
+		int pitchProximity = Integer.MAX_VALUE;
+		double timeProximity = Double.MAX_VALUE;
 		for (NoteTrack track : candidateTracks) {
 			NoteListElement lastNote = track.getLastNote();
-			salience = calculateSalience(noteListElement, lastNote);
-			if (salience > maxSalience) {
-				salientTrack = track;
-				maxSalience = salience;
+			if (pitchProximity > noteListElement.note - lastNote.note) {
+				pitchProximity = noteListElement.note - lastNote.note;
+				pitchSalientTrack = track;
 			}
+			if (timeProximity > noteListElement.startTime - lastNote.endTime) {
+				timeProximity = noteListElement.startTime - lastNote.endTime;
+				timeSalientTrack = track;
+			}
+			// double timbreFactor = noteListElement.noteTimbre. - lastNote.endTime;
 		}
-		return salientTrack;
+		if (pitchSalientTrack == timeSalientTrack) {
+			return pitchSalientTrack;
+		}
+		if ((noteListElement.note - timeSalientTrack.getLastNote().note) > 2
+				* (noteListElement.note - pitchSalientTrack.getLastNote().note)) {
+			return pitchSalientTrack;
+		}
+		return timeSalientTrack;
 	}
 
 	private NoteTrack getPendingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
 
-		double maxSalience = -1, salience = -1;
 		NoteTrack salientTrack = null;
 		for (NoteTrack track : candidateTracks) {
 			NoteListElement lastNote = track.getLastNote();
 			NoteListElement penultimateNote = track.getPenultimateNote();
 			if (penultimateNote != null) {
 				if (compareSalience(noteListElement, lastNote, penultimateNote)) {
-					salience = calculateSalience(noteListElement, lastNote);
-					if (salience > maxSalience) {
-						salientTrack = track;
-						maxSalience = salience;
-					}
+					salientTrack = track;
 				}
 			}
 		}
@@ -160,13 +168,20 @@ public class NoteTracker {
 
 	private boolean compareSalience(NoteListElement newNote, NoteListElement lastNote,
 			NoteListElement penultimateNote) {
-		double salienceNewNote = calculateSalience(newNote, penultimateNote);
-		double salienceCurrentNote = calculateSalience(lastNote, penultimateNote);
-		return salienceNewNote > salienceCurrentNote;
-	}
-
-	private double calculateSalience(NoteListElement noteListElement, NoteListElement lastNote) {
-		return 1.0;
+		int pitchProximity = Integer.MAX_VALUE;
+		double timeProximity = Double.MAX_VALUE;
+		pitchProximity = newNote.note - penultimateNote.note;
+		timeProximity = newNote.startTime - penultimateNote.endTime;
+		if (pitchProximity >= lastNote.note - penultimateNote.note) {
+			if (timeProximity >= lastNote.startTime - penultimateNote.endTime) {
+				return false;
+			}
+		} else {
+			if (timeProximity < lastNote.startTime - penultimateNote.endTime) {
+				return true;
+			}
+		}
+		return true;
 	}
 
 	private NoteTrack[] getPendingTracks(NoteListElement noteListElement) {

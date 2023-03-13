@@ -106,7 +106,9 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_HPS_MASK_FACTOR = "perception.hearing.hps.maskFactor";
 	public static final String PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH = "perception.hearing.hps.cqOriginSwitch";
 
-	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitchSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitch";
+
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH = "perception.hearing.synthesis.chordsSwitch";
 
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
 	public static final String PERCEPTION_HEARING_ONSET_EDGE_FACTOR = "perception.hearing.onset.edgeFactor";

@@ -183,28 +183,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 			if (timeStart >= timeAxisEnd) {
 				return;
 			}
-//			if (timeStart > timeAxisEnd) {
-//				timeAxisStart = timeStart;
-//				timeAxisEnd = timeStart + 20000.0;
-//				this.currentWidth = getWidth();
-//				this.currentHeight = getHeight();
-//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-//				bufferedGraphics = bufferedImage.createGraphics();
-//			} else if (timeStart == 0) {
-//				timeAxisStart = timeStart;
-//				timeAxisEnd = timeStart + 20000.0;
-//				this.currentWidth = getWidth();
-//				this.currentHeight = getHeight();
-//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-//				bufferedGraphics = bufferedImage.createGraphics();
-//			} else if (timeStart < timeAxisStart) {
-//				timeAxisStart -= 20000.0;
-//				timeAxisEnd -= 20000.0;
-//				this.currentWidth = getWidth();
-//				this.currentHeight = getHeight();
-//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-//				bufferedGraphics = bufferedImage.createGraphics();
-//			}
 
 			bufferedGraphics.setColor(Color.black);
 

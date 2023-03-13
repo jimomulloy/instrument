@@ -208,28 +208,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			if (timeStart >= timeAxisEnd) {
 				return;
 			}
-//			if (timeStart > timeAxisEnd) {
-//				timeAxisStart = timeStart;
-//				timeAxisEnd = timeStart + timeAxisRange;
-//				this.currentWidth = getWidth();
-//				this.currentHeight = getHeight();
-//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-//				bufferedGraphics = bufferedImage.createGraphics();
-//			} else if (timeStart == 0) {
-//				timeAxisStart = timeStart;
-//				timeAxisEnd = timeStart + timeAxisRange;
-//				this.currentWidth = getWidth();
-//				this.currentHeight = getHeight();
-//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-//				bufferedGraphics = bufferedImage.createGraphics();
-//			} else if (timeStart < timeAxisStart) {
-//				timeAxisStart -= timeAxisRange;
-//				timeAxisEnd -= timeAxisRange;
-//				this.currentWidth = getWidth();
-//				this.currentHeight = getHeight();
-//				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
-//				bufferedGraphics = bufferedImage.createGraphics();
-//			}
 
 			bufferedGraphics.setColor(Color.black);
 

@@ -175,6 +175,7 @@ public class ParametersPanel extends JPanel {
 	private Console console;
 	private InstrumentStoreService iss;
 	private JCheckBox chromaChordifySharpenSwitchCB;
+	private JCheckBox synthesisChordsSwitchCB;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -1166,6 +1167,22 @@ public class ParametersPanel extends JPanel {
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
 		cqSwitchPanel.add(integrateHpsSwitchCB);
+
+		synthesisChordsSwitchCB = new JCheckBox("synthesisChordsSwitchCB");
+		synthesisChordsSwitchCB.setText("Synthesis Chords");
+		synthesisChordsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisChordsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH));
+		cqSwitchPanel.add(synthesisChordsSwitchCB);
 
 		notateCompressionSwitchCB = new JCheckBox("notateCompressionSwitchCB");
 		notateCompressionSwitchCB.setText("Notate Compression");
@@ -2772,6 +2789,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
+		synthesisChordsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH));
 
 		beatsThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD));

@@ -1,8 +1,6 @@
 package jomu.instrument.audio.features;
 
-import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import jomu.instrument.workspace.tonemap.PitchSet;
@@ -29,22 +27,6 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 		this.features = getSource().getAndClearFeatures();
 	}
 
-	public float[] getSpectrum() {
-		float[] spectrum = new float[getSource().getWindowSize() / 2 + 1];
-		Set<Integer> peakIndexes = new HashSet<Integer>();
-		for (SACFInfo feature : features.values()) {
-			for (int peak : feature.peaks) {
-				peakIndexes.add((int)feature.correlations[peak]);
-			}
-		}
-		for (int i = 0; i < spectrum.length; i++) {
-			if (peakIndexes.contains(i)) {
-				spectrum[i] = 1.0F;
-			}
-		}
-		return spectrum;
-	}
-
 	public void buildToneMapFrame(ToneMap toneMap) {
 
 		if (features.size() > 0) {
@@ -67,6 +49,19 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
+
+			if (features.size() > 0) {
+				for (SACFInfo feature : features.values()) {
+					for (int peak : feature.peaks) {
+						// float frequency = feature.getLength() / peak;
+						float frequency = getSource().getSampleRate() / peak;
+						int tmIndex = pitchSet.getIndex(frequency);
+						ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+					}
+				}
+				ttf.reset();
+			}
+
 		} else {
 			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;

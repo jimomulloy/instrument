@@ -305,6 +305,10 @@ public class ToneTimeFrame {
 		return getTimeSet().getStartTime();
 	}
 
+	public Double getEndTime() {
+		return getTimeSet().getEndTime();
+	}
+
 	public TimeSet getTimeSet() {
 		return timeSet;
 	}
@@ -661,7 +665,7 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	private void sharpenChord() {
+	public void sharpenChord() {
 		LOG.finer(">>Sharpen: " + getStartTime() + ", " + chordNotes);
 		TreeSet<ChordNote> result = new TreeSet<>();
 		ChordNote lastCandidate = null;
@@ -1196,6 +1200,11 @@ public class ToneTimeFrame {
 					getStartTime(), getTimeSet().getEndTime());
 		}
 		return chordListElement;
+	}
+
+	public void setChord(ChordListElement chord) {
+		chordNotes.clear();
+		chordNotes.addAll(chord.getChordNotes());
 	}
 
 	public BeatListElement getBeat() {

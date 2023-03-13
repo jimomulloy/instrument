@@ -440,8 +440,8 @@ public class AudioTuner implements ToneMapConstants {
 						if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 							noteStatusElement.highFlag = true;
 						}
-						LOG.finer(">>>Note scan ON - PENDING NEW NOTE PARTIAL CONTINUING seq: " + sequence + ", " + note
-								+ ", " + time + ", " + amplitude + ", " + noteOffThresholdhWithHysteresis);
+						LOG.finer(">>>Note scan ON - PENDING NEW NOTE PARTIAL CONTINUING seq: " + sequence + ", "
+								+ note + ", " + time + ", " + amplitude + ", " + noteOffThresholdhWithHysteresis);
 						// Process partial note here
 						processNote(toneMap, noteStatusElement, processedNotes);
 						noteStatusElement.state = ON;
@@ -523,7 +523,8 @@ public class AudioTuner implements ToneMapConstants {
 							previousToneMapElement.noteState = OFF;
 							previousNoteStatusElement.state = OFF;
 							// Process candidate note
-							LOG.finer(">>>Note scan PENDING low - PROCESS NEW NOTE OFF seq: " + sequence + ", " + note);
+							LOG.finer(
+									">>>Note scan PENDING low - PROCESS NEW NOTE OFF seq: " + sequence + ", " + note);
 							processNote(toneMap, previousNoteStatusElement, processedNotes);
 							noteStatusElement.state = OFF;
 							noteStatusElement.onTime = 0.0;
@@ -873,7 +874,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		// Cross-Register NoteList element against ToneMapMatrix elements
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
-			if (toneTimeFrame.getStartTime() > noteStatusElement.offTime) {
+			if (toneTimeFrame.getStartTime() >= noteStatusElement.offTime / 1000.0) {
 				break;
 			}
 			ToneMapElement element = toneTimeFrame.getElement(noteStatusElement.index);
