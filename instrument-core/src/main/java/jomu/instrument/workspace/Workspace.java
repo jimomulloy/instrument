@@ -10,7 +10,7 @@ public class Workspace {
 
 	@Inject
 	Atlas atlas;
-		
+
 	@Inject
 	ParameterManager parameterManager;
 

@@ -16,7 +16,7 @@ public class Controller implements Organ {
 
 	@Inject
 	ParameterManager parameterManager;
-	
+
 	public ParameterManager getParameterManager() {
 		return parameterManager;
 	}

@@ -180,7 +180,8 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 		}
 	}
 
-	public void updateToneMap(ToneTimeFrame ttf) {
+	public void updateToneMap(ToneMap toneMap, ToneTimeFrame ttf) {
+		this.toneMap = toneMap;
 		renderToneMap(ttf);
 		repaint();
 	}

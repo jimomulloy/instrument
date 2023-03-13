@@ -26,7 +26,7 @@ public class Voice implements Organ {
 	AudioSynthesizer resynthSynthesizer;
 	AudioSynthesizer audioSynthesizer;
 	MidiSynthesizer midiSynthesizer;
-	
+
 	@Inject
 	ParameterManager parameterManager;
 

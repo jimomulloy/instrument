@@ -29,6 +29,8 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 
@@ -45,6 +47,8 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class ChromaView extends JComponent implements ComponentListener {
+
+	private static final Logger LOG = Logger.getLogger(ChromaView.class.getName());
 
 	private BufferedImage bufferedImage;
 	private Graphics2D bufferedGraphics;
@@ -138,7 +142,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 		}
 	}
 
-	public void updateToneMap(ToneTimeFrame ttf) {
+	public void updateToneMap(ToneMap toneMap, ToneTimeFrame ttf) {
+		this.toneMap = toneMap;
 		renderToneMap(ttf);
 		repaint();
 	}
@@ -172,7 +177,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 		}
 		drawGrid();
 		if (ttf != null) {
-
+			Double time = ttf.getStartTime();
 			double timeAxisRange = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 			TimeSet timeSet = ttf.getTimeSet();
@@ -192,9 +197,53 @@ public class ChromaView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 			boolean showTracking = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
+			boolean showSynthesis = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
-			if (showTracking) {
+			if (showSynthesis) {
+
+				Optional<ChordListElement> chord = toneMap.getTonePredictor().getChord(timeStart);
+
+				Color color = Color.black;
+				if (chord.isPresent()) {
+					for (ChordNote chordNote : chord.get().getChordNotes()) {
+						int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+						int height = (int) ((double) getHeight() / 12.0);
+						double amplitude = chordNote.getAmplitude();
+						amplitude = 1.0; // TODO
+						int greyValue = 0;
+						if (amplitude > highViewThreshold) {
+							greyValue = 255;
+							color = rainbow[0];
+						} else if (amplitude <= lowViewThreshold) {
+							greyValue = 0;
+							color = new Color(greyValue, greyValue, greyValue);
+						} else {
+							greyValue = (int) (Math
+									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+									/ Math.log1p(1.0000001) * 255);
+							if (showLog) {
+								greyValue = (int) (Math
+										.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+										/ Math.log1p(1.0000001) * 255);
+							} else {
+								greyValue = (int) (((amplitude - lowViewThreshold)
+										/ (highViewThreshold - lowViewThreshold)) * 255);
+							}
+							greyValue = Math.max(0, greyValue);
+							color = rainbow[255 - greyValue];
+						}
+
+						color = Color.WHITE;
+						int centsCoordinate = getCentsCoordinate(chordNote.getPitchClass());
+						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+
+						bufferedGraphics.setColor(color);
+						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+					}
+				}
+			} else if (showTracking) {
 
 				ChordListElement chord = ttf.getChord();
 

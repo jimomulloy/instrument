@@ -8,7 +8,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 public interface Visor extends AudioFeatureFrameObserver {
 
 	void startUp();
-	
+
 	void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame);
 
 	void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame);

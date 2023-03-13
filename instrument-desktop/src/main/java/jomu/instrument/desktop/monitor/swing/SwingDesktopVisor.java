@@ -35,8 +35,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -155,7 +153,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Inject
 	InstrumentStoreService iss;
-	
+
 	private JTextField audioFeatureIntervalInput;
 	private JTextField timeAxisOffsetInput;
 	private JTextField pitchAxisOffsetInput;
@@ -173,10 +171,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	private JTextField audioOffsetInput;
 	private JTextField audioRangeInput;
 	private JCheckBox recordSwitchCB;
-	
+
 	@Inject
 	Workspace workspace;
-	
+
 	private JCheckBox midiPlayBaseSwitchCB;
 	private JCheckBox playResynthSwitchCB;
 	private JCheckBox midiPlayVoice1SwitchCB;
@@ -221,18 +219,20 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JLabel statusLabel;
 
+	private JCheckBox showSynthesisSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.warning(">>Using SwingDesktopVisor");
 		EventQueue.invokeLater(() -> {
 			buildMainFrame();
-		});		
+		});
 	}
-	
+
 	public void updateStatusMessage(String message) {
 		statusLabel.setText(message);
 	}
-	
+
 	protected void buildMainFrame() {
 		FlatMaterialDesignDarkIJTheme.setup();
 		FlatLaf.setUseNativeWindowDecorations(true);
@@ -243,7 +243,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		buildMenus();
 
 		buildContent();
-		
+
 		initialise(mainFrame);
 
 		upperPane.add(getContentPanel(), BorderLayout.CENTER);
@@ -283,7 +283,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		statusPane.setBorder(cb1);
 
 		upperPane.setLayout(new BorderLayout());
-		
+
 		lowerPane.setLayout(new BorderLayout());
 		lowerPane.add(statusPane, BorderLayout.CENTER);
 
@@ -330,7 +330,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		quit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//stop();
+				// stop();
 			}
 		});
 
@@ -734,6 +734,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING));
 		graphControlPanel.add(showTrackingSwitchCB);
 
+		showSynthesisSwitchCB = new JCheckBox("showSynthesisSwitchCB");
+		showSynthesisSwitchCB.setText("Synthesis");
+		showSynthesisSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		showSynthesisSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS));
+		graphControlPanel.add(showSynthesisSwitchCB);
+
 		showLogSwitchCB = new JCheckBox("showLogSwitchCB");
 		showLogSwitchCB.setText("Logarithm");
 		showLogSwitchCB.addItemListener(new ItemListener() {
@@ -904,8 +920,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String fileName = getAudioRecordFileFolder() + "/instrument_recording_"
-							+ System.currentTimeMillis() + ".wav";
+					String fileName = getAudioRecordFileFolder() + "/instrument_recording_" + System.currentTimeMillis()
+							+ ".wav";
 					LOG.finer(">>Recording Audio to fileName" + fileName);
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
@@ -1632,7 +1648,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						toneMapView.renderToneMap(toneMap);
 					}
 				} else if (toneMapViewType.equals(currentToneMapViewType) && toneMapView != null) {
-					toneMapView.updateToneMap(ttf);
+					toneMapView.updateToneMap(toneMap, ttf);
 				}
 				updateTimeFrameView(ttf);
 			}
@@ -1662,7 +1678,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Override
 	public void updateChromaPreView(ToneMap toneMap, ToneTimeFrame ttf) {
-		chromaPreView.updateToneMap(ttf);
+		chromaPreView.updateToneMap(toneMap, ttf);
 	}
 
 	@Override
@@ -1672,7 +1688,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Override
 	public void updateChromaPostView(ToneMap toneMap, ToneTimeFrame ttf) {
-		chromaPostView.updateToneMap(ttf);
+		chromaPostView.updateToneMap(toneMap, ttf);
 	}
 
 	@Override
@@ -2053,7 +2069,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	private void refreshMapViews() {
 		if (toneMapView != null) {
 			toneMapView.updateAxis();
-			chromaPreView.updateAxis();
+			// chromaPreView.updateAxis();
 			chromaPostView.updateAxis();
 			beatsView.updateAxis();
 			percussionView.updateAxis();

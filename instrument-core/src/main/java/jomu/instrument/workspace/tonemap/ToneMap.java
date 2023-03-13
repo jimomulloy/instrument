@@ -39,7 +39,7 @@ public class ToneMap {
 		this.key = key;
 		toneMapStore = new ConcurrentSkipListMap<>();
 		noteTracker = new NoteTracker(this);
-		tonePredictor = new TonePredictor(this);
+		tonePredictor = new TonePredictor();
 	}
 
 	public NoteTracker getNoteTracker() {

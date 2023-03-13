@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
-import jomu.instrument.workspace.tonemap.ChordListElement;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.TonePredictor;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
@@ -30,17 +29,13 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
 		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
-		synthesisToneMap.addTimeFrame(notateToneMap.getTimeFrame(sequence).clone());
+		ToneTimeFrame synthesisFrame = notateToneMap.getTimeFrame(sequence).clone();
+		synthesisToneMap.addTimeFrame(synthesisFrame);
+		ToneTimeFrame chromaFrame = chromaToneMap.getTimeFrame(sequence);
 
 		if (synthesisSwitchChords) {
 			TonePredictor chordPredictor = chromaToneMap.getTonePredictor();
-			ToneTimeFrame chromaFrame = chromaToneMap.getTimeFrame(sequence);
-
 			chordPredictor.predictChord(chromaFrame);
-			ChordListElement chord = chromaFrame.getChord();
-			if (chord != null) {
-				chromaToneMap.trackChord(chord);
-			}
 		}
 
 		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
