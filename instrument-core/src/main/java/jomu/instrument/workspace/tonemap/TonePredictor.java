@@ -14,8 +14,15 @@ public class TonePredictor {
 	List<ChordListElement> chords = new CopyOnWriteArrayList<>();
 	List<BeatListElement> beats = new CopyOnWriteArrayList<>();
 
-	public TonePredictor() {
+	private String key;
+
+	public TonePredictor(String key) {
 		LOG.finer(">>Tone Predictor create");
+		this.key = key;
+	}
+
+	public String getKey() {
+		return key;
 	}
 
 	public void addNote(NoteListElement note) {
@@ -26,11 +33,6 @@ public class TonePredictor {
 	public void addChord(ChordListElement chord) {
 		LOG.finer(">>Tone Predictor add chord: " + chord);
 		chords.add(chord);
-	}
-
-	public ChordListElement[] getChords() {
-		// LOG.severe(">>Tone Predictor chords size: " + chords.size());
-		return chords.toArray(new ChordListElement[chords.size()]);
 	}
 
 	public void predictChord(ToneTimeFrame targetFrame) {
@@ -67,13 +69,13 @@ public class TonePredictor {
 					}
 				}
 			}
-			LOG.severe(">>Update chord: " + targetFrame.getStartTime() + ", " + chord);
+			LOG.severe(">>Update chord: " + targetFrame.getStartTime() + ", " + chord + ", " + key);
 		} else {
 			ChordListElement newChord = new ChordListElement(
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), targetFrame.getStartTime(),
 					targetFrame.getEndTime());
 			chords.add(chords.indexOf(previousChord.get()) + 1, newChord);
-			LOG.severe(">>Add chord: " + targetFrame.getStartTime() + ", " + newChord);
+			LOG.severe(">>Add chord: " + targetFrame.getStartTime() + ", " + newChord + ", " + key);
 		}
 	}
 
@@ -83,77 +85,45 @@ public class TonePredictor {
 	}
 
 	public boolean hasNote(double time) {
-		for (NoteListElement noteListElement : notes) {
-			if (noteListElement.startTime >= time && noteListElement.endTime <= time) {
-				return true;
-			}
-		}
-		return false;
+		return notes.stream()
+				.anyMatch(noteListElement -> (noteListElement.startTime <= time && noteListElement.endTime >= time));
 	}
 
 	public Optional<NoteListElement> getNote(double time) {
-		Optional<NoteListElement> result = Optional.empty();
-		for (NoteListElement noteListElement : notes) {
-			if (noteListElement.startTime >= time && noteListElement.endTime <= time) {
-				result = Optional.of(noteListElement);
-				break;
-			}
-		}
-		return result;
+		return notes.stream()
+				.filter(noteListElement -> (noteListElement.startTime <= time && noteListElement.endTime >= time))
+				.findFirst();
 	}
 
 	public boolean hasBeat(double time) {
-		for (BeatListElement beatListElement : beats) {
-			if (beatListElement.startTime >= time && beatListElement.endTime <= time) {
-				return true;
-			}
-		}
-		return false;
+		return notes.stream()
+				.anyMatch(beatListElement -> (beatListElement.startTime <= time && beatListElement.endTime >= time));
 	}
 
 	public Optional<BeatListElement> getBeat(double time) {
-		Optional<BeatListElement> result = Optional.empty();
-		for (BeatListElement beatListElement : beats) {
-			if (beatListElement.startTime >= time && beatListElement.endTime <= time) {
-				result = Optional.of(beatListElement);
-				break;
-			}
-		}
-		return result;
+		return beats.stream()
+				.filter(beatListElement -> (beatListElement.startTime <= time && beatListElement.endTime >= time))
+				.findFirst();
 	}
 
 	public boolean hasChord(double time) {
-		for (ChordListElement chordListElement : chords) {
-			if (chordListElement.startTime >= time && chordListElement.endTime <= time) {
-				return true;
-			}
-		}
-		return false;
+		return chords.stream()
+				.anyMatch(chordListElement -> (chordListElement.startTime <= time && chordListElement.endTime >= time));
 	}
 
 	public Optional<ChordListElement> getChord(double time) {
-		Optional<ChordListElement> result = Optional.empty();
-		for (ChordListElement chordListElement : chords) {
-			if (chordListElement.startTime >= time && chordListElement.endTime <= time) {
-				result = Optional.of(chordListElement);
-				break;
-			}
-		}
-		return result;
+		return chords.stream()
+				.filter(chordListElement -> (chordListElement.startTime <= time && chordListElement.endTime >= time))
+				.findFirst();
 	}
 
 	private Optional<ChordListElement> getPreviousChord(double time) {
 		Optional<ChordListElement> result = Optional.empty();
-		if (chords.size() > 0) {
-			ChordListElement chord = chords.get(chords.size() - 1);
-			int index = chords.indexOf(chord);
-			while (index > 0 && chord.startTime >= time) {
-				index--;
-				chord = chords.get(index);
-				if (chord.startTime < time) {
-					result = Optional.of(chord);
-				}
+		for (ChordListElement chord : chords) {
+			if (chord.startTime > time) {
+				break;
 			}
+			result = Optional.of(chord);
 		}
 		return result;
 	}
