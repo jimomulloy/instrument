@@ -106,7 +106,6 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
-@Alternative
 public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName());

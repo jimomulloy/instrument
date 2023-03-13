@@ -26,7 +26,6 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.intellijthemes.FlatMaterialDesignDarkIJTheme;
 
 import jomu.instrument.Organ;
-import jomu.instrument.monitor.core.SwingVisor;
 
 @ApplicationScoped
 public class Console implements Organ {
