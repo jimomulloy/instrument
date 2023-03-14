@@ -136,7 +136,6 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				ac.evaluate(convertFloatsToDoubles(audioEvent.getFloatBuffer()));
-				LOG.severe(">>AC find peaks: " + audioEvent.getTimeStamp());
 				List<Integer> sacfPeaks = ac.findPeaks();
 				SACFInfo sacfInfo = new SACFInfo(sacfPeaks, ac.correlations, ac.maxACF, ac.length);
 				SACFSource.this.putFeature(audioEvent.getTimeStamp(), sacfInfo);

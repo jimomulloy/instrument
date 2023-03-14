@@ -209,7 +209,7 @@ public class Autocorrelation {
 				}
 			}
 		}
-		if (maxIndex > -1 || peaksProcessed.size() < undertoneRange) {
+		if (maxIndex > -1 && peaksProcessed.size() < undertoneRange) {
 			peaksProcessed.add(maxIndex);
 			for (int peakIndex : peaks) {
 				if (!peaksProcessed.contains(peakIndex) && peakIndex > maxIndex

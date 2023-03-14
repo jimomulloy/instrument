@@ -2643,12 +2643,12 @@ public class ParametersPanel extends JPanel {
 				String newValue = acCorrelationThresholdInput.getText();
 				acCorrelationThresholdLabel.setText(String.format("Autocorrelation Threshold  (%s):", newValue));
 				parameterManager.setParameter(
-						InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD, newValue);
+						InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_CORRELATION_THRESHOLD, newValue);
 
 			}
 		});
 		acCorrelationThresholdInput.setText(parameterManager
-				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD));
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_CORRELATION_THRESHOLD));
 		tunerParamsPanel.add(acCorrelationThresholdLabel);
 		tunerParamsPanel.add(acCorrelationThresholdInput);
 

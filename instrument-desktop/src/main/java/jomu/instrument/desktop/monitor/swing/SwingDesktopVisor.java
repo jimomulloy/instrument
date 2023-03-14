@@ -579,21 +579,21 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		timeAxisOffsetInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, newValue);
-				refreshMapViews();
-				resetToneMapView();
+				if (parseIntegerTextField((JTextField) e.getSource(), 0, 60000,
+						InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET)) {
+					refreshMapViews();
+					resetToneMapView();
+				}
 			}
 		});
 
 		timeAxisOffsetInput.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, newValue);
-				refreshMapViews();
-				resetToneMapView();
+				if (parseIntegerTextField((JTextField) e.getSource(), 0, 60000,
+						InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET)) {
+					refreshMapViews();
+					resetToneMapView();
+				}
 			}
 
 			public void keyTyped(KeyEvent e) {
@@ -830,6 +830,21 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		panel.add(graphControlPanel, BorderLayout.CENTER);
 
 		return panel;
+	}
+
+	protected boolean parseIntegerTextField(JTextField textField, int min, int max, String parameterName) {
+		try {
+			int value = Integer.parseInt(textField.getText());
+			if (value >= min && value <= max) {
+				parameterManager.setParameter(parameterName, Integer.toString(value));
+				return true;
+			} else {
+				textField.setText(parameterManager.getParameter(parameterName));
+			}
+		} catch (Exception ex) {
+			textField.setText(parameterManager.getParameter(parameterName));
+		}
+		return false;
 	}
 
 	private JPanel buildControlPanel() {

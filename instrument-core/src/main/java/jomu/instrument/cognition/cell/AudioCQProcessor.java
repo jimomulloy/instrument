@@ -89,7 +89,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_WHITENER", streamId));
 		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 
-		LOG.finer(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", "
+		LOG.severe(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", "
 				+ toneMap.getTimeFrame().getMaxAmplitude() + ", " + toneMap.getTimeFrame().getMinAmplitude());
 
 		// if (cqWhiten) {
@@ -170,7 +170,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 			}
 		}
 
-		LOG.finer(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
+		LOG.severe(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

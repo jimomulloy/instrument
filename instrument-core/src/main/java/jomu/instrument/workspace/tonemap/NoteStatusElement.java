@@ -5,18 +5,17 @@ package jomu.instrument.workspace.tonemap;
  * NoteSequence object which register state of Note data used for creating MIDI
  * Messages as written to a MIDI Sequence
  *
- * @version 1.0 01/01/01
  * @author Jim O'Mulloy
  */
 public class NoteStatusElement {
 
-	public boolean highFlag; // Note High state flag
-
-	public int index; // Index
-	public int note; // Midi note pitch
-	public double offTime; // Note OFF time
-	public double onTime; // Note ON time
-	public int state; // Note state code
+	public boolean highFlag;
+	public int index;
+	public int note;
+	public double offTime;
+	public double onTime;
+	public int state;
+	public boolean isContinuation;
 
 	public NoteStatusElement(int note, int index) {
 		this.note = note;
@@ -28,13 +27,14 @@ public class NoteStatusElement {
 		clone.offTime = offTime;
 		clone.onTime = offTime;
 		clone.state = state;
+		clone.isContinuation = isContinuation;
 		return clone;
 	}
 
 	@Override
 	public String toString() {
 		return "NoteStatusElement [highFlag=" + highFlag + ", index=" + index + ", note=" + note + ", offTime="
-				+ offTime + ", onTime=" + onTime + ", state=" + state + "]";
+				+ offTime + ", onTime=" + onTime + ", state=" + state + ", isContinuation=" + isContinuation + "]";
 	}
 
 } // End NoteStatusElement
