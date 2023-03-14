@@ -32,6 +32,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION);
 		boolean notateSwitchCompress = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS);
+		int noteMaxDuration = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION);
 
 		ToneMap tunerPeaksToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
@@ -44,7 +45,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		tuner.noteScan(notateToneMap, sequence);
 		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 
-		int tmIndex = sequence - 10;
+		int tmIndex = sequence - 10 * (noteMaxDuration / 1000); // TODO !!
 		if (tmIndex > 0) {
 			timeFrame = notateToneMap.getTimeFrame(tmIndex);
 			if (timeFrame != null) {

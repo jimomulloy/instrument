@@ -878,6 +878,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					LOG.severe(">>!! chosen file");
+					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
 					try {
@@ -913,6 +915,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
 					Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
@@ -945,6 +948,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
 					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
@@ -1674,11 +1678,18 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	@Override
 	public void resetToneMapView() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
+			LOG.severe(">>!! chosen file reset TM views: " + currentToneMapViewType);
 			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			updateTimeFrameView(toneMapViews.get(currentToneMapViewType).getTimeFrame());
-			// chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
-			// chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
-			// beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+		} else {
+			LOG.severe(">>Visor clear TM views: " + currentToneMapViewType);
+			toneMapView.clear();
+			chromaPreView.clear();
+			chromaPostView.clear();
+			beatsView.clear();
 		}
 	}
 
@@ -2085,7 +2096,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	private void refreshMapViews() {
 		if (toneMapView != null) {
 			toneMapView.updateAxis();
-			// chromaPreView.updateAxis();
+			chromaPreView.updateAxis();
 			chromaPostView.updateAxis();
 			beatsView.updateAxis();
 			percussionView.updateAxis();

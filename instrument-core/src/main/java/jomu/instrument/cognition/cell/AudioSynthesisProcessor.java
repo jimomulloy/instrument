@@ -37,7 +37,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			TonePredictor chordPredictor = chromaToneMap.getTonePredictor();
 			chordPredictor.predictChord(chromaFrame);
 		}
-
+		console.getVisor().updateChromaPostView(chromaToneMap, chromaFrame);
 		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}

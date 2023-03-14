@@ -103,9 +103,9 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioNotateCell, audioSynthesisCell);
 		//
 		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
+		Weaver.connect(audioPostChromaCell, audioSynthesisCell);
 		//
 		Weaver.connect(audioSynthesisCell, audioSinkCell);
-		Weaver.connect(audioPostChromaCell, audioSinkCell);
 	}
 
 	@Override

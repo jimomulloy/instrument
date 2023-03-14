@@ -399,7 +399,7 @@ public class AudioTuner implements ToneMapConstants {
 			case OFF:
 				if (amplitude > noteOnThresholdWithHysteresis / 100.0) {
 					noteStatusElement.state = ON;
-					LOG.severe(">>>Note scan OFF - ON  seq: " + sequence + ", " + note + ", " + time + ", " + amplitude
+					LOG.finer(">>>Note scan OFF - ON  seq: " + sequence + ", " + note + ", " + time + ", " + amplitude
 							+ ", " + noteHighThresholdhWithHysteresis + ", " + noteOnThresholdWithHysteresis);
 					noteStatusElement.onTime = time;
 					noteStatusElement.offTime = time;
@@ -407,7 +407,7 @@ public class AudioTuner implements ToneMapConstants {
 						noteStatusElement.highFlag = true;
 					}
 					toneMapElement.noteState = START;
-					LOG.severe(">>NOTE START 1: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note + ", "
+					LOG.finer(">>NOTE START 1: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note + ", "
 							+ noteStatusElement.onTime);
 				}
 				break;
@@ -416,24 +416,24 @@ public class AudioTuner implements ToneMapConstants {
 				if (amplitude <= noteOffThresholdhWithHysteresis / 100.0
 						|| (time - noteStatusElement.onTime) > noteMaxDuration) {
 					noteStatusElement.state = PENDING;
-					LOG.warning(">>>Note scan ON - PENDING seq: " + sequence + ", " + note + ", " + time + ", "
+					LOG.finer(">>>Note scan ON - PENDING seq: " + sequence + ", " + note + ", " + time + ", "
 							+ amplitude + ", " + noteOffThresholdhWithHysteresis);
 					noteStatusElement.offTime = time;
 				} else {
-					LOG.warning(">>>Note scan ON - CONTINUE seq: " + sequence + ", " + note + ", " + time + ", "
+					LOG.finer(">>>Note scan ON - CONTINUE seq: " + sequence + ", " + note + ", " + time + ", "
 							+ amplitude + ", " + noteOffThresholdhWithHysteresis);
 					if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 						noteStatusElement.highFlag = true;
 					}
 				}
 				toneMapElement.noteState = ON;
-				LOG.warning(">>NOTE ON 1: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note + ", "
+				LOG.finer(">>NOTE ON 1: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note + ", "
 						+ noteStatusElement.onTime);
 				break;
 
 			case PENDING:
 				if (amplitude > noteOffThresholdhWithHysteresis / 100.0) {
-					LOG.warning(">>>Note scan PENDING high amp: " + sequence + ", " + note + ", " + time + ", "
+					LOG.finer(">>>Note scan PENDING high amp: " + sequence + ", " + note + ", " + time + ", "
 							+ amplitude + ", " + noteStatusElement.offTime + ", " + noteSustain + ", noteMaxDuration: "
 							+ noteMaxDuration);
 					if ((time - noteStatusElement.onTime) > noteMaxDuration) {
@@ -441,7 +441,7 @@ public class AudioTuner implements ToneMapConstants {
 						if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 							noteStatusElement.highFlag = true;
 						}
-						LOG.severe(">>PROCESS NEW NOTE X - Note scan ON - PENDING NEW NOTE PARTIAL CONTINUING seq: "
+						LOG.finer(">>PROCESS NEW NOTE X - Note scan ON - PENDING NEW NOTE PARTIAL CONTINUING seq: "
 								+ sequence + ", " + note + ", " + time + ", " + amplitude + ", "
 								+ noteOffThresholdhWithHysteresis);
 						// Process partial note here
@@ -455,16 +455,16 @@ public class AudioTuner implements ToneMapConstants {
 							noteStatusElement.highFlag = true;
 						}
 						toneMapElement.noteState = ON;
-						LOG.warning(">>NOTE ON CONTINUING 2: " + toneMapElement + ", " + timeSet.getStartTime() + ", "
+						LOG.finer(">>NOTE ON CONTINUING 2: " + toneMapElement + ", " + timeSet.getStartTime() + ", "
 								+ note + ", " + noteStatusElement.onTime);
 
 					} else if ((time - noteStatusElement.offTime) < (noteSustain)
 							&& !noteStatusElement.isContinuation) {
 						// back fill set notes ON
-						LOG.warning(">>>Note scan PENDING high - PROCESS BACK FILL ON seq: " + sequence + ", " + note);
+						LOG.finer(">>>Note scan PENDING high - PROCESS BACK FILL ON seq: " + sequence + ", " + note);
 						backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, ON,
 								processedNotes);
-						LOG.warning(">>>Note scan PENDING - ON seq: " + sequence + ", " + note + ", " + time);
+						LOG.finer(">>>Note scan PENDING - ON seq: " + sequence + ", " + note + ", " + time);
 						noteStatusElement.state = ON;
 						noteStatusElement.offTime = time;
 						noteStatusElement.isContinuation = false;
@@ -472,11 +472,11 @@ public class AudioTuner implements ToneMapConstants {
 							noteStatusElement.highFlag = true;
 						}
 						toneMapElement.noteState = ON;
-						LOG.warning(">>NOTE ON 3: " + toneMapElement + ", " + timeSet.getStartTime());
+						LOG.finer(">>NOTE ON 3: " + toneMapElement + ", " + timeSet.getStartTime());
 					} else if ((noteStatusElement.offTime - noteStatusElement.onTime) < (noteMinDuration)
 							&& !noteStatusElement.isContinuation) {
 						// back fill set notes OFF
-						LOG.warning(">>>Note scan PENDING high - PROCESS BACK FILL OFF seq: " + sequence + ", " + note
+						LOG.finer(">>>Note scan PENDING high - PROCESS BACK FILL OFF seq: " + sequence + ", " + note
 								+ ", " + noteStatusElement.onTime + ", " + noteStatusElement.offTime + ", "
 								+ noteMinDuration);
 						backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, OFF,
@@ -489,10 +489,10 @@ public class AudioTuner implements ToneMapConstants {
 							noteStatusElement.highFlag = true;
 						}
 						toneMapElement.noteState = START;
-						LOG.warning(">>NOTE START 2: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note
+						LOG.finer(">>NOTE START 2: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note
 								+ ", " + noteStatusElement.onTime);
 					} else {
-						LOG.severe(">>PROCESS NEW NOTE Y - Note scan PENDING - PROCESS NEW NOTE ON seq: " + sequence
+						LOG.finer(">>PROCESS NEW NOTE Y - Note scan PENDING - PROCESS NEW NOTE ON seq: " + sequence
 								+ ", " + note);
 						previousToneMapElement.noteState = OFF;
 						previousNoteStatusElement.state = OFF;
@@ -507,21 +507,21 @@ public class AudioTuner implements ToneMapConstants {
 							noteStatusElement.highFlag = true;
 						}
 						toneMapElement.noteState = START;
-						LOG.warning(">>NOTE START 3: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note
+						LOG.finer(">>NOTE START 3: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note
 								+ ", " + noteStatusElement.onTime);
 					}
 				} else {
-					LOG.warning(">>>Note scan PENDING low amp: " + sequence + ", " + note + ", " + time + ", "
+					LOG.finer(">>>Note scan PENDING low amp: " + sequence + ", " + note + ", " + time + ", "
 							+ amplitude + ", " + noteStatusElement.onTime + ", " + noteStatusElement.offTime + ", "
 							+ noteSustain + ", " + noteMaxDuration + ", " + noteOffThresholdhWithHysteresis);
-					LOG.warning(">>>Note scan PENDING - CONTINUE seq: " + sequence + ", note: " + note + ", sus: "
+					LOG.finer(">>>Note scan PENDING - CONTINUE seq: " + sequence + ", note: " + note + ", sus: "
 							+ noteSustain + ", maxDur: " + noteMaxDuration + ", time " + time + ", offTime: "
 							+ noteStatusElement.offTime + ", onTime: " + noteStatusElement.onTime);
 					if ((time - noteStatusElement.offTime) >= (noteSustain)
 							|| (noteStatusElement.offTime - noteStatusElement.onTime) > noteMaxDuration) {
 						if (((noteStatusElement.offTime - noteStatusElement.onTime) < (noteMinDuration))
 								&& !noteStatusElement.isContinuation) {
-							LOG.warning(
+							LOG.finer(
 									">>>Note scan PENDING low - PROCESS BACK FILL OFF seq: " + sequence + ", " + note);
 							// back fill set notes OFF
 							backFillNotes(toneMap, note, toneMapElement.getIndex(), noteStatusElement.onTime, time, OFF,
@@ -535,9 +535,8 @@ public class AudioTuner implements ToneMapConstants {
 						} else {
 							previousToneMapElement.noteState = OFF;
 							previousNoteStatusElement.state = OFF;
-							noteStatusElement.isContinuation = false;
 							// Process candidate note
-							LOG.severe(">>>PROCESS NEW NOTE Z - Note scan PENDING low - PROCESS NEW NOTE OFF seq: "
+							LOG.finer(">>>PROCESS NEW NOTE Z - Note scan PENDING low - PROCESS NEW NOTE OFF seq: "
 									+ sequence + ", " + note);
 							processNote(toneMap, previousNoteStatusElement, processedNotes);
 							noteStatusElement.state = OFF;
@@ -568,12 +567,12 @@ public class AudioTuner implements ToneMapConstants {
 //			noteStatusElement = noteStatus.getNoteStatusElement(note);
 //			if (noteStatusElement.state == ON) {
 //				if (i > 0) {
-//					LOG.warning(">>attenuateSemitone A: " + i + ", " + note);
+//					LOG.finer(">>attenuateSemitone A: " + i + ", " + note);
 //					attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i - 1, noteStatusElement, noteStatus,
 //							note - 1, processedNotes);
 //				}
 //				if (i < ttfElements.length - 1) {
-//					LOG.warning(">>attenuateSemitone B: " + i + ", " + note);
+//					LOG.finer(">>attenuateSemitone B: " + i + ", " + note);
 //					attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i + 1, noteStatusElement, noteStatus,
 //							note + 1, processedNotes);
 //				}
@@ -803,6 +802,7 @@ public class AudioTuner implements ToneMapConstants {
 		double avgAmp = 0;
 		double percentMin = 0;
 		double startTime, endTime;
+		boolean isContinuation = false;
 		int pitchIndex, startTimeIndex, endTimeIndex;
 
 		ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom((noteStatusElement.onTime / 1000.0));
@@ -810,6 +810,7 @@ public class AudioTuner implements ToneMapConstants {
 		ToneMapElement endElement = null;
 		startTime = noteStatusElement.onTime;
 		endTime = noteStatusElement.offTime;
+		isContinuation = noteStatusElement.isContinuation;
 
 		// LOG.finer(">>PROCESS NOTE: " + noteStatusElement + ", startTime: " +
 		// startTime + ", endTime: " + endTime
@@ -883,7 +884,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		// Create noteList element object
 		NoteListElement noteListElement = new NoteListElement(noteStatusElement.note, pitchIndex, startTime, endTime,
-				startTimeIndex, endTimeIndex, avgAmp, maxAmp, minAmp, percentMin);
+				startTimeIndex, endTimeIndex, avgAmp, maxAmp, minAmp, percentMin, isContinuation);
 
 		// LOG.finer(">>PROCESS NOTE: " + note + ", " + noteListElement + ",
 		// " + timeFrames.length);
@@ -898,7 +899,7 @@ public class AudioTuner implements ToneMapConstants {
 			LOG.finer(">>PROCESS NOTE ADDED NOTE TO: " + toneTimeFrame.getStartTime() + ", " + noteStatusElement);
 		}
 		processedNotes.add(noteListElement);
-		LOG.severe(">>PROCESS NOTE ADDED NOTE DONE: " + noteStatusElement + ", " + noteStatusElement.offTime);
+		LOG.finer(">>PROCESS NOTE ADDED NOTE DONE: " + noteStatusElement + ", " + noteStatusElement.offTime);
 
 		toneMap.trackNote(noteListElement);
 

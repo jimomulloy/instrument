@@ -131,6 +131,9 @@ public class NoteTracker {
 		double timeProximity = Double.MAX_VALUE;
 		for (NoteTrack track : candidateTracks) {
 			NoteListElement lastNote = track.getLastNote();
+			if (noteListElement.isContinuation && noteListElement.note == lastNote.note) {
+				return track;
+			}
 			if (pitchProximity > noteListElement.note - lastNote.note) {
 				pitchProximity = noteListElement.note - lastNote.note;
 				pitchSalientTrack = track;

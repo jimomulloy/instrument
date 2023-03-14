@@ -25,9 +25,10 @@ public class NoteListElement {
 	public boolean underTone;
 	public NoteHarmonics noteHarmonics;
 	public NoteTimbre noteTimbre;
+	public boolean isContinuation;
 
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
-			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin) {
+			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin, boolean isContinuation) {
 		this.note = note;
 		this.pitchIndex = pitchIndex;
 		this.startTime = startTime;
@@ -40,11 +41,13 @@ public class NoteListElement {
 		this.percentMin = percentMin;
 		this.noteHarmonics = new NoteHarmonics();
 		this.noteTimbre = new NoteTimbre(this);
+		this.isContinuation = isContinuation;
 	}
 
 	public NoteListElement clone() {
 		NoteListElement clone = new NoteListElement(this.note, this.pitchIndex, this.startTime, this.endTime,
-				this.startTimeIndex, this.endTimeIndex, this.avgAmp, this.maxAmp, this.minAmp, this.percentMin);
+				this.startTimeIndex, this.endTimeIndex, this.avgAmp, this.maxAmp, this.minAmp, this.percentMin,
+				this.isContinuation);
 		clone.noteHarmonics = noteHarmonics.clone();
 		clone.noteTimbre = noteTimbre.clone(clone);
 		return clone;

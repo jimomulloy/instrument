@@ -31,7 +31,7 @@ public class TonePredictor {
 	}
 
 	public void addChord(ChordListElement chord) {
-		LOG.finer(">>Tone Predictor add chord: " + chord);
+		LOG.severe(">>Tone Predictor add chord: " + chord);
 		chords.add(chord);
 	}
 
@@ -41,6 +41,7 @@ public class TonePredictor {
 		}
 		Optional<ChordListElement> chord = getChord(targetFrame.getStartTime());
 		Optional<ChordListElement> previousChord = getPreviousChord(targetFrame.getStartTime());
+		LOG.finer(">>Predict Chord: " + targetFrame.getStartTime() + ", " + chord + ",  " + previousChord);
 		if (previousChord.isEmpty() || (chord.isPresent() && chord.get().getChordNotes().size() > 2)) {
 			return;
 		}
@@ -74,6 +75,8 @@ public class TonePredictor {
 				}
 				if (isChanged) {
 					chords.set(chords.indexOf(previousChord.get()), chord.get());
+					LOG.finer(">>Predict Chord changed: " + targetFrame.getStartTime() + ", " + chord + ",  "
+							+ previousChord);
 				}
 			}
 		} else {
@@ -81,6 +84,7 @@ public class TonePredictor {
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), targetFrame.getStartTime(),
 					targetFrame.getEndTime());
 			chords.add(chords.indexOf(previousChord.get()) + 1, newChord);
+			LOG.finer(">>Predict Chord added: " + targetFrame.getStartTime() + ", " + chord + ",  " + previousChord);
 		}
 	}
 

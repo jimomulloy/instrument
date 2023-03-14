@@ -1,6 +1,5 @@
 package jomu.instrument.cognition.cell;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -22,7 +21,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId + ", " + sequence);
+		LOG.severe(">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId);
 		int chromaSmoothFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR);
 		boolean chromaChordifySwitch = parameterManager
@@ -41,22 +40,36 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		postChromaToneMap.addTimeFrame(postTimeFrame);
 		postTimeFrame.smoothMedian(preChromaToneMap, postChromaToneMap, chromaSmoothFactor, sequence,
 				chromaChordifySwitch, chromaChordifyThreshold, chromaChordifySharpenSwitch);
-		ChordListElement chord = postTimeFrame.getChord();
-		if (chord != null) {
-			postChromaToneMap.trackChord(chord);
+
+		int tmIndex = sequence - 10; // TODO !!
+		ToneTimeFrame timeFrame;
+		if (tmIndex > 0) {
+			timeFrame = postChromaToneMap.getTimeFrame(tmIndex);
+			if (timeFrame != null) {
+				ChordListElement chord = timeFrame.getChord();
+				LOG.severe(">>AudioChromaPostProcessor get chord: " + tmIndex + ", time: " + timeFrame.getStartTime());
+				if (chord != null) {
+					LOG.severe(">>AudioChromaPostProcessor got chord: " + tmIndex + ", time: "
+							+ timeFrame.getStartTime() + " ," + chord);
+					postChromaToneMap.trackChord(chord);
+				}
+				console.getVisor().updateChromaPostView(postChromaToneMap, timeFrame);
+			}
+			cell.send(streamId, tmIndex);
 		}
 
-		List<ToneTimeFrame> timeFrames = new ArrayList<>();
-		double fromTime = (postTimeFrame.getStartTime() - 2.0) >= 0 ? postTimeFrame.getStartTime() - 2.0 : 0;
-		while (postTimeFrame != null && postTimeFrame.getStartTime() >= fromTime) {
-			timeFrames.add(postTimeFrame);
-			postTimeFrame = postChromaToneMap.getPreviousTimeFrame(postTimeFrame.getStartTime());
+		if (isClosing(streamId, sequence)) {
+			for (int i = tmIndex + 1; i <= sequence; i++) {
+				timeFrame = postChromaToneMap.getTimeFrame(i);
+				if (timeFrame != null) { // TODO or make fake on here?
+					ChordListElement chord = timeFrame.getChord();
+					if (chord != null) {
+						postChromaToneMap.trackChord(chord);
+					}
+					console.getVisor().updateChromaPostView(postChromaToneMap, timeFrame);
+				}
+				cell.send(streamId, i);
+			}
 		}
-
-		for (ToneTimeFrame ttfv : timeFrames) {
-			console.getVisor().updateChromaPostView(postChromaToneMap, ttfv);
-		}
-		console.getVisor().updateChromaPostView(postChromaToneMap);
-		cell.send(streamId, sequence);
 	}
 }

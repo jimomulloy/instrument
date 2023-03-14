@@ -114,7 +114,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 		ac.setIsSacf(sacfSwitch);
 		ac.setMaxLag(maxLag);
 		ac.setIsRemoveUndertones(undertoneRemove);
-		LOG.severe(">>SACF params: " + ac);
+		LOG.finer(">>SACF params: " + ac);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];

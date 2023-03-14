@@ -82,6 +82,24 @@ public class ChromaView extends JComponent implements ComponentListener {
 		rainbow = ColorUtil.generateRainbow(512);
 	}
 
+	public void clear() {
+		this.timeAxisStart = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
+		this.timeAxisEnd = this.timeAxisStart
+				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
+		this.toneMap = null;
+		this.currentWidth = getWidth();
+		this.currentHeight = getHeight();
+		position = 0;
+		bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+		bufferedGraphics = bufferedImage.createGraphics();
+		this.currentWidth = getWidth();
+		this.currentHeight = getHeight();
+		drawGrid();
+		repaint();
+		LOG.severe(">>Clear chroma view: " + this.toneMap);
+	}
+
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
@@ -129,6 +147,17 @@ public class ChromaView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		if (toneMap != null) {
 			renderToneMap(toneMap);
+		} else {
+			this.currentWidth = getWidth();
+			this.currentHeight = getHeight();
+			if (bufferedImage == null) {
+				position = 0;
+				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+				bufferedGraphics = bufferedImage.createGraphics();
+				this.currentWidth = getWidth();
+				this.currentHeight = getHeight();
+			}
+			drawGrid();
 		}
 	}
 

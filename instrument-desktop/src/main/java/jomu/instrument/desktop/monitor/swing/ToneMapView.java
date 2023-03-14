@@ -89,8 +89,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 	private Color[] rainbow;
 
-	private String currentToneMap;
-
 	private ParameterManager parameterManager;
 
 	public ToneMapView() {
@@ -111,6 +109,16 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
 		this.timeAxisEnd = this.timeAxisStart
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
+		this.toneMap = null;
+		this.currentWidth = getWidth();
+		this.currentHeight = getHeight();
+		position = 0;
+		bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+		bufferedGraphics = bufferedImage.createGraphics();
+		this.currentWidth = getWidth();
+		this.currentHeight = getHeight();
+		drawGrid();
+		repaint();
 	}
 
 	public ToneMap getToneMap() {
@@ -126,6 +134,17 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 		this.maxCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE);
 		if (toneMap != null) {
 			renderToneMap(toneMap);
+		} else {
+			this.currentWidth = getWidth();
+			this.currentHeight = getHeight();
+			if (bufferedImage == null) {
+				position = 0;
+				bufferedImage = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_RGB);
+				bufferedGraphics = bufferedImage.createGraphics();
+				this.currentWidth = getWidth();
+				this.currentHeight = getHeight();
+			}
+			drawGrid();
 		}
 	}
 
