@@ -119,12 +119,16 @@ public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 
 	private ParameterManager parameterManager;
 
+	private boolean isPowerSquared;
+
 	public PitchDetectorSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW);
+		this.isPowerSquared = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);
 
 		int stepsize = 512;
 		overlap = windowSize - stepsize;
@@ -136,6 +140,10 @@ public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 	public PitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {
 		this(dispatcher);
 		this.windowSize = bufferSize;
+	}
+
+	public boolean isPowerSquared() {
+		return isPowerSquared;
 	}
 
 	public double getMaxMagnitudeThreshold() {

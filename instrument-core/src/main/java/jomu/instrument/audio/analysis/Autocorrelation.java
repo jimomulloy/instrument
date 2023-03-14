@@ -1,7 +1,9 @@
 package jomu.instrument.audio.analysis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.commons.math3.complex.Complex;
@@ -27,8 +29,32 @@ public class Autocorrelation {
 	private int maxLag; // Maximum length of autocorrelation to calculate
 	private Complex[] fft;
 
+	private int undertoneRange = 4;
+
+	private int undertoneThreshold = 10;
+
+	private boolean isRemoveUndertones = true;
+
+	private boolean isSacf = false;
+
 	public Autocorrelation(int maxLag) {
 		this.maxLag = maxLag;
+	}
+
+	public void setUndertoneRange(int undertoneRange) {
+		this.undertoneRange = undertoneRange;
+	}
+
+	public void setIsRemoveUndertones(boolean isRemoveUndertones) {
+		this.isRemoveUndertones = isRemoveUndertones;
+	}
+
+	public void setIsSacf(boolean isSacf) {
+		this.isSacf = isSacf;
+	}
+
+	public void setUndertoneThreshold(int undertoneThreshold) {
+		this.undertoneThreshold = undertoneThreshold;
 	}
 
 	public void setMaxLag(int lag) {
@@ -79,7 +105,9 @@ public class Autocorrelation {
 			correlations[i] = fft[i].getReal() / fft[0].getReal();
 		}
 
-		sacfCorrelations();
+		if (isSacf) {
+			sacfCorrelations();
+		}
 	}
 
 	private void sacfCorrelations() {
@@ -158,7 +186,46 @@ public class Autocorrelation {
 					positive = !positive;
 				}
 			}
+
+			if (isRemoveUndertones) {
+				HashSet<Integer> peaksProcessed = new HashSet<>();
+				HashSet<Integer> peaksToRemove = new HashSet<>();
+				removeUndertonePeaks(peaks, peaksToRemove, peaksProcessed);
+				peaks.removeAll(peaksToRemove);
+			}
+
 		}
 		return peaks;
 	}
+
+	private void removeUndertonePeaks(List<Integer> peaks, Set<Integer> peaksToRemove, Set<Integer> peaksProcessed) {
+		int maxIndex = -1;
+		double maxValue = 0;
+		for (int peakIndex : peaks) {
+			if (!peaksProcessed.contains(peakIndex)) {
+				if (maxValue < correlations[peakIndex]) {
+					maxIndex = peakIndex;
+					maxValue = correlations[peakIndex];
+				}
+			}
+		}
+		if (maxIndex > -1 || peaksProcessed.size() < undertoneRange) {
+			peaksProcessed.add(maxIndex);
+			for (int peakIndex : peaks) {
+				if (!peaksProcessed.contains(peakIndex) && peakIndex > maxIndex
+						&& Math.abs(peakIndex % maxIndex) < undertoneThreshold) {
+					peaksToRemove.add(peakIndex);
+				}
+			}
+			removeUndertonePeaks(peaks, peaksToRemove, peaksProcessed);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "Autocorrelation [maxACF=" + maxACF + ", length=" + length + ", ACF_THRESH=" + ACF_THRESH + ", maxLag="
+				+ maxLag + ", undertoneRange=" + undertoneRange + ", undertoneThreshold=" + undertoneThreshold
+				+ ", isRemoveUndertones=" + isRemoveUndertones + ", isSacf=" + isSacf + "]";
+	}
+
 }

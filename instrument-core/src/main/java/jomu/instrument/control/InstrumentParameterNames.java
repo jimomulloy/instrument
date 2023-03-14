@@ -21,6 +21,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
 	public static final String PERCEPTION_HEARING_AUDIO_DIRECTORY = "perception.hearing.audioDirectory";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY = "perception.hearing.audioRecordDirectory";
+	public static final String PERCEPTION_HEARING_POWER_SQUARED_SWITCH = "perception.hearing.powerSquaredSwitch";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 
@@ -105,6 +106,13 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_HPS_SWITCH_MEDIAN = "perception.hearing.hps.medianSwitch";
 	public static final String PERCEPTION_HEARING_HPS_MASK_FACTOR = "perception.hearing.hps.maskFactor";
 	public static final String PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH = "perception.hearing.hps.cqOriginSwitch";
+
+	public static final String PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_REMOVE_SWITCH = "perception.hearing.autocorrelation.undertoneRemoveSwitch";
+	public static final String PERCEPTION_HEARING_AUTOCORRELATION_SACF_SWITCH = "perception.hearing.autocorrelation.sacfSwitch";
+	public static final String PERCEPTION_HEARING_AUTOCORRELATION_MAX_LAG = "perception.hearing.autocorrelation.maxLag";
+	public static final String PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD = "perception.hearing.autocorrelation.undertoneThreshold";
+	public static final String PERCEPTION_HEARING_AUTOCORRELATION_CORRELATION_THRESHOLD = "perception.hearing.autocorrelation.correlationThreshold";
+	public static final String PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE = "perception.hearing.autocorrelation.undertoneRange";
 
 	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitch";
 

@@ -4,6 +4,8 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import be.tarsos.dsp.pitch.PitchDetectionResult;
+import jomu.instrument.Instrument;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -19,6 +21,8 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 	public int powerLow = 0;
 	private AudioFeatureFrame audioFeatureFrame;
 
+	private ParameterManager parameterManager;
+
 	public float[] getSpectrum() {
 		float[] spectrum = null;
 		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
@@ -27,7 +31,11 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 				spectrum = new float[spectralEnergy.length];
 			}
 			for (int i = 0; i < spectralEnergy.length; i++) {
-				spectrum[i] += spectralEnergy[i];
+				if (getSource().isPowerSquared()) {
+					spectrum[i] += spectralEnergy[i] * spectralEnergy[i];
+				} else {
+					spectrum[i] += spectralEnergy[i];
+				}
 			}
 		}
 		if (spectrum == null) {
@@ -82,6 +90,7 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource());
 		this.features = getSource().getAndClearFeatures();
 	}

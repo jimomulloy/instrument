@@ -108,7 +108,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName());
 
-	private static String defaultAudioFile = "notescale.wav";
+	private static String defaultAudioFile = "NOTETRACK49sec.wav";
 
 	private LinkedPanel constantQPanel;
 
@@ -1548,11 +1548,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	}
 
 	private String getAudioFileFolder() {
-		String userDir = System.getProperty("user.home");
-		return Paths
-				.get(userDir,
-						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
-				.toString();
+		return "F:\\instrumnet";
+//		String userDir = System.getProperty("user.home");
+//		return Paths
+//				.get(userDir,
+//						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
+//				.toString();
 	}
 
 	private String getAudioRecordFileFolder() {

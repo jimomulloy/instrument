@@ -94,7 +94,27 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 
 	void initialise() {
 
-		Autocorrelation ac = new Autocorrelation(1000);
+		boolean undertoneRemove = parameterManager.getBooleanParameter(
+				InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_REMOVE_SWITCH);
+		boolean sacfSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_SACF_SWITCH);
+		int maxLag = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_MAX_LAG);
+		double correlationThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_CORRELATION_THRESHOLD);
+		int undertoneThreshold = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD);
+		int undertoneRange = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE);
+
+		Autocorrelation ac = new Autocorrelation(maxLag);
+		ac.setCorrelationThreshold(correlationThreshold);
+		ac.setUndertoneRange(undertoneRange);
+		ac.setUndertoneThreshold(undertoneThreshold);
+		ac.setIsSacf(sacfSwitch);
+		ac.setMaxLag(maxLag);
+		ac.setIsRemoveUndertones(undertoneRemove);
+		LOG.severe(">>SACF params: " + ac);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];
@@ -116,6 +136,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				ac.evaluate(convertFloatsToDoubles(audioEvent.getFloatBuffer()));
+				LOG.severe(">>AC find peaks: " + audioEvent.getTimeStamp());
 				List<Integer> sacfPeaks = ac.findPeaks();
 				SACFInfo sacfInfo = new SACFInfo(sacfPeaks, ac.correlations, ac.maxACF, ac.length);
 				SACFSource.this.putFeature(audioEvent.getTimeStamp(), sacfInfo);

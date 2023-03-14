@@ -52,30 +52,35 @@ public class TonePredictor {
 			for (ChordNote currentNote : chord.get().getChordNotes()) {
 				candidateChordNotes.remove(currentNote);
 			}
-			for (ChordNote candidateNote : candidateChordNotes) {
-				boolean isValid = true;
-				for (ChordNote currentNote : chord.get().getChordNotes()) {
-					if ((Math.abs(candidateNote.index - currentNote.index) <= 1)
-							|| (candidateNote.index == 11 && currentNote.index == 0)
-							|| (candidateNote.index == 0 && currentNote.index == 11)) {
-						isValid = false;
-						break;
+			if (candidateChordNotes.size() > 0) {
+				boolean isChanged = false;
+				for (ChordNote candidateNote : candidateChordNotes) {
+					boolean isValid = true;
+					for (ChordNote currentNote : chord.get().getChordNotes()) {
+						if ((Math.abs(candidateNote.index - currentNote.index) <= 1)
+								|| (candidateNote.index == 11 && currentNote.index == 0)
+								|| (candidateNote.index == 0 && currentNote.index == 11)) {
+							isValid = false;
+							break;
+						}
+					}
+					if (isValid) {
+						chord.get().getChordNotes().add(candidateNote);
+						isChanged = true;
+						if (chord.get().getChordNotes().size() > 3) {
+							break;
+						}
 					}
 				}
-				if (isValid) {
-					chord.get().getChordNotes().add(candidateNote);
-					if (chord.get().getChordNotes().size() > 3) {
-						break;
-					}
+				if (isChanged) {
+					chords.set(chords.indexOf(previousChord.get()), chord.get());
 				}
 			}
-			LOG.severe(">>Update chord: " + targetFrame.getStartTime() + ", " + chord + ", " + key);
 		} else {
 			ChordListElement newChord = new ChordListElement(
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), targetFrame.getStartTime(),
 					targetFrame.getEndTime());
 			chords.add(chords.indexOf(previousChord.get()) + 1, newChord);
-			LOG.severe(">>Add chord: " + targetFrame.getStartTime() + ", " + newChord + ", " + key);
 		}
 	}
 
@@ -120,7 +125,7 @@ public class TonePredictor {
 	private Optional<ChordListElement> getPreviousChord(double time) {
 		Optional<ChordListElement> result = Optional.empty();
 		for (ChordListElement chord : chords) {
-			if (chord.startTime > time) {
+			if (chord.startTime >= time) {
 				break;
 			}
 			result = Optional.of(chord);

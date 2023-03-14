@@ -42,17 +42,24 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 	private AudioDispatcher dispatcher;
 	private ParameterManager parameterManager;
 
+	private boolean isPowerSquared;
+
 	public SpectralPeaksSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
-		LOG.finer(">>SP window: " + this.windowSize);
+		this.isPowerSquared = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);
 	}
 
 	public double getMaxMagnitudeThreshold() {
 		return maxMagnitudeThreshold;
+	}
+
+	public boolean isPowerSquared() {
+		return isPowerSquared;
 	}
 
 	public void setMaxMagnitudeThreshold(double maxMagnitudeThreshold) {

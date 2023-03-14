@@ -176,6 +176,13 @@ public class ParametersPanel extends JPanel {
 	private InstrumentStoreService iss;
 	private JCheckBox chromaChordifySharpenSwitchCB;
 	private JCheckBox synthesisChordsSwitchCB;
+	private JCheckBox powerSquareSwitchCB;
+	private JCheckBox acUndertoneRemoveSwitchCB;
+	private JCheckBox acSACFSwitchCB;
+	private JTextField acMaxLagInput;
+	private JTextField acUndertoneThresholdInput;
+	private JTextField acUndertoneRangeInput;
+	private JTextField acCorrelationThresholdInput;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -601,6 +608,39 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN));
 		tunerSwitchPanel.add(hpsMedianSwitchCB);
 
+		acUndertoneRemoveSwitchCB = new JCheckBox("acUndertoneRemoveSwitchCB");
+		acUndertoneRemoveSwitchCB.setText("AutoCorrelation Undertone Remove Switch");
+		acUndertoneRemoveSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_REMOVE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		acUndertoneRemoveSwitchCB.setSelected(parameterManager.getBooleanParameter(
+				InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_REMOVE_SWITCH));
+		tunerSwitchPanel.add(acUndertoneRemoveSwitchCB);
+
+		acSACFSwitchCB = new JCheckBox("acSACFSwitchCB");
+		acSACFSwitchCB.setText("AutoCorrelation SACF Switch");
+		acSACFSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_SACF_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		acSACFSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_SACF_SWITCH));
+		tunerSwitchPanel.add(acSACFSwitchCB);
+
 		parameterPanel.add(tunerSwitchPanel);
 
 		JPanel cqSwitchPanel = new JPanel();
@@ -942,6 +982,22 @@ public class ParametersPanel extends JPanel {
 		spNormaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_NORMALISE));
 		cqSwitchPanel.add(spNormaliseSwitchCB);
+
+		powerSquareSwitchCB = new JCheckBox("powerSquareSwitchCB");
+		powerSquareSwitchCB.setText("Power Square");
+		powerSquareSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		powerSquareSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH));
+		cqSwitchPanel.add(powerSquareSwitchCB);
 
 		tunerSwitchCB = new JCheckBox("tunerSwitchCB");
 		tunerSwitchCB.setText("Tuner");
@@ -2527,6 +2583,75 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(hpsMaskFactorLabel);
 		tunerParamsPanel.add(hpsMaskFactorInput);
 
+		JLabel acMaxLagLabel = new JLabel("Autocorrelation Max Lag: ");
+		acMaxLagInput = new JTextField(4);
+		acMaxLagInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = acMaxLagInput.getText();
+				acMaxLagLabel.setText(String.format("Autocorrelation Max Lag  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_MAX_LAG,
+						newValue);
+
+			}
+		});
+		acMaxLagInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_MAX_LAG));
+		tunerParamsPanel.add(acMaxLagLabel);
+		tunerParamsPanel.add(acMaxLagInput);
+
+		JLabel acUndertoneThresholdLabel = new JLabel("Autocorrelation Undertone Threshold: ");
+		acUndertoneThresholdInput = new JTextField(4);
+		acUndertoneThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = acUndertoneThresholdInput.getText();
+				acUndertoneThresholdLabel
+						.setText(String.format("Autocorrelation Undertone Threshold  (%s):", newValue));
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD, newValue);
+
+			}
+		});
+		acUndertoneThresholdInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD));
+		tunerParamsPanel.add(acUndertoneThresholdLabel);
+		tunerParamsPanel.add(acUndertoneThresholdInput);
+
+		JLabel acUndertoneRangeLabel = new JLabel("Autocorrelation Undertone Range: ");
+		acUndertoneRangeInput = new JTextField(4);
+		acUndertoneRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = acUndertoneRangeInput.getText();
+				acUndertoneRangeLabel.setText(String.format("Autocorrelation Undertone Range  (%s):", newValue));
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE, newValue);
+
+			}
+		});
+		acUndertoneRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE));
+		tunerParamsPanel.add(acUndertoneRangeLabel);
+		tunerParamsPanel.add(acUndertoneRangeInput);
+
+		JLabel acCorrelationThresholdLabel = new JLabel("Autocorrelation Threshold: ");
+		acCorrelationThresholdInput = new JTextField(4);
+		acCorrelationThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = acCorrelationThresholdInput.getText();
+				acCorrelationThresholdLabel.setText(String.format("Autocorrelation Threshold  (%s):", newValue));
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD, newValue);
+
+			}
+		});
+		acCorrelationThresholdInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD));
+		tunerParamsPanel.add(acCorrelationThresholdLabel);
+		tunerParamsPanel.add(acCorrelationThresholdInput);
+
 		parameterPanel.add(tunerParamsPanel);
 
 		Dimension minimumSize = new Dimension(1000, 1000);
@@ -2617,6 +2742,9 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_DECIBEL));
 		spNormaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_NORMALISE));
+
+		powerSquareSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH));
 
 		noteScanAttenuateHarmonicsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS));
@@ -2767,6 +2895,20 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN));
 		hpsMaskFactorInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_MASK_FACTOR));
+
+		acCorrelationThresholdInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_CORRELATION_THRESHOLD));
+		acMaxLagInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_MAX_LAG));
+		acUndertoneRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE));
+		acUndertoneThresholdInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD));
+		acSACFSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_SACF_SWITCH));
+		acUndertoneRemoveSwitchCB.setSelected(parameterManager.getBooleanParameter(
+				InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_REMOVE_SWITCH));
+
 		onsetSmoothingFactorSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR));
 		onsetEdgeFactorSlider.setValue(

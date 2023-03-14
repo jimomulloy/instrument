@@ -119,6 +119,8 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 
 	private int lowPassFrequency;
 
+	private boolean isPowerSquared;
+
 	public YINSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
@@ -128,11 +130,17 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW);
 		this.lowPassFrequency = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS);
+		this.isPowerSquared = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);
 	}
 
 	public YINSource(AudioDispatcher dispatcher, int bufferSize) {
 		this(dispatcher);
 		this.windowSize = bufferSize;
+	}
+
+	public boolean isPowerSquared() {
+		return isPowerSquared;
 	}
 
 	public float getBinHeight() {

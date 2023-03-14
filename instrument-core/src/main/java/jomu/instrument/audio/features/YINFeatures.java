@@ -26,7 +26,11 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 				spectrum = new float[spectralEnergy.length];
 			}
 			for (int i = 0; i < spectralEnergy.length; i++) {
-				spectrum[i] += spectralEnergy[i];
+				if (getSource().isPowerSquared()) {
+					spectrum[i] += spectralEnergy[i] * spectralEnergy[i];
+				} else {
+					spectrum[i] += spectralEnergy[i];
+				}
 			}
 		}
 		if (spectrum == null) {
