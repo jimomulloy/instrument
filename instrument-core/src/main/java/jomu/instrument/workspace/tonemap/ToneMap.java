@@ -161,7 +161,7 @@ public class ToneMap {
 	}
 
 	public void trackChord(ChordListElement chordListElement) {
-		LOG.severe(">>ToneMap trackChord: " + chordListElement);
+		LOG.finer(">>ToneMap trackChord: " + chordListElement);
 		tonePredictor.addChord(chordListElement);
 	}
 

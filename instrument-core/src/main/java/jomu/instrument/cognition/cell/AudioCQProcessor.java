@@ -80,6 +80,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
+		double lowCQPitchThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
+		double highCQPitchThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		ConstantQFeatures cqf = aff.getConstantQFeatures();

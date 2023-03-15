@@ -22,7 +22,7 @@ public class NoteTracker {
 		LinkedList<NoteListElement> notes = new LinkedList<>();
 
 		public NoteTrack(int number) {
-			LOG.finer(">>Add Node Track: " + number);
+			LOG.severe(">>Add Node Track: " + number);
 			this.number = number;
 		}
 

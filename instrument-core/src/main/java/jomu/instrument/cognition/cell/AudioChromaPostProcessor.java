@@ -21,7 +21,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.severe(">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioChromaPostProcessor accept: " + sequence + ", streamId: " + streamId);
 		int chromaSmoothFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR);
 		boolean chromaChordifySwitch = parameterManager
@@ -47,9 +47,9 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 			timeFrame = postChromaToneMap.getTimeFrame(tmIndex);
 			if (timeFrame != null) {
 				ChordListElement chord = timeFrame.getChord();
-				LOG.severe(">>AudioChromaPostProcessor get chord: " + tmIndex + ", time: " + timeFrame.getStartTime());
+				LOG.finer(">>AudioChromaPostProcessor get chord: " + tmIndex + ", time: " + timeFrame.getStartTime());
 				if (chord != null) {
-					LOG.severe(">>AudioChromaPostProcessor got chord: " + tmIndex + ", time: "
+					LOG.finer(">>AudioChromaPostProcessor got chord: " + tmIndex + ", time: "
 							+ timeFrame.getStartTime() + " ," + chord);
 					postChromaToneMap.trackChord(chord);
 				}

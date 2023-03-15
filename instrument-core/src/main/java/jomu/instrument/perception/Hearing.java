@@ -17,8 +17,6 @@ import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import be.tarsos.dsp.AudioDispatcher;
-import be.tarsos.dsp.filters.HighPass;
-import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
@@ -36,7 +34,9 @@ public class Hearing implements Organ {
 
 	private static final Logger LOG = Logger.getLogger(Hearing.class.getName());
 
-	public static final float AUDIO_HIGHPASS_MAX = 20000.0F;
+	public static final float AUDIO_HIGHPASS_MAX = 20.0F;
+
+	public static final float AUDIO_LOWPASS_MIN = 12000.0F;
 
 	String streamId;
 
@@ -164,23 +164,36 @@ public class Hearing implements Organ {
 			File file = new File(fileName);
 			AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
 			LOG.finer(">>Open Audio file:  " + fileName + ", format: " + format);
+			// UniversalAudioInputStream ais = new UniversalAudioInputStream(new
+			// FileInputStream(file),
+			// new TarsosDSPAudioFormat((int)sampleRate, 16, 1, true, false));
 			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);
 			// AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
-
-			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
-			tarsosFeatureSource.initialise();
-			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
-			// audioFeatureProcessor.setMaxFrames(10000); // TODO!!
 			float audioHighPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
-			if (audioHighPass < AUDIO_HIGHPASS_MAX) {
-				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-			}
-			if (audioLowPass < 0) {
-				dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
-			}
+//			if (audioHighPass > AUDIO_LOWPASS_MIN && audioHighPass < AUDIO_HIGHPASS_MAX) {
+//				LOG.severe(">>audioHighPass: " + audioHighPass);
+//				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+//			} else {
+//				LOG.severe(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
+//				dispatcher.addAudioProcessor(new HighPass(AUDIO_HIGHPASS_MAX, sampleRate));
+//			}
+//			if (audioLowPass > AUDIO_LOWPASS_MIN && audioLowPass < AUDIO_HIGHPASS_MAX) {
+//				LOG.severe(">>audioLowPass: " + audioLowPass);
+//				dispatcher.addAudioProcessor(new LowPassSP(audioLowPass, sampleRate));
+//			} else {
+//				LOG.severe(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
+//				dispatcher.addAudioProcessor(new LowPassSP(AUDIO_LOWPASS_MIN, sampleRate));
+//			}
+			// if (audioLowPass - audioHighPass > 0) {
+			// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
+			// audioHighPass, sampleRate));
+			// }
+			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
+			tarsosFeatureSource.initialise();
+			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
 		}
@@ -211,22 +224,32 @@ public class Hearing implements Organ {
 				WaveformWriter writer = new WaveformWriter(recordFormat, recordFile);
 				dispatcher.addAudioProcessor(writer);
 			}
-
-			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
-			tarsosFeatureSource.initialise();
-			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
-			// audioFeatureProcessor.setMaxFrames(10000); // TODO!!
-
 			float audioHighPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
-			if (audioHighPass < AUDIO_HIGHPASS_MAX) {
-				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-			}
-			if (audioLowPass < 0) {
-				dispatcher.addAudioProcessor(new LowPassFS(100, sampleRate));
-			}
+//			if (audioHighPass > AUDIO_LOWPASS_MIN && audioHighPass < AUDIO_HIGHPASS_MAX) {
+//			LOG.severe(">>audioHighPass: " + audioHighPass);
+//			dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+//		} else {
+//			LOG.severe(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
+//			dispatcher.addAudioProcessor(new HighPass(AUDIO_HIGHPASS_MAX, sampleRate));
+//		}
+//		if (audioLowPass > AUDIO_LOWPASS_MIN && audioLowPass < AUDIO_HIGHPASS_MAX) {
+//			LOG.severe(">>audioLowPass: " + audioLowPass);
+//			dispatcher.addAudioProcessor(new LowPassSP(audioLowPass, sampleRate));
+//		} else {
+//			LOG.severe(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
+//			dispatcher.addAudioProcessor(new LowPassSP(AUDIO_LOWPASS_MIN, sampleRate));
+//		}
+			// if (audioLowPass - audioHighPass > 0) {
+			// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
+			// audioHighPass, sampleRate));
+			// }
+
+			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
+			tarsosFeatureSource.initialise();
+			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
 
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 

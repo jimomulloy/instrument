@@ -31,7 +31,7 @@ public class TonePredictor {
 	}
 
 	public void addChord(ChordListElement chord) {
-		LOG.severe(">>Tone Predictor add chord: " + chord);
+		LOG.finer(">>Tone Predictor add chord: " + chord);
 		chords.add(chord);
 	}
 

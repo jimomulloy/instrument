@@ -658,7 +658,7 @@ public class ToneTimeFrame {
 			}
 		}
 		if (getChord() != null && sharpen) {
-			LOG.severe(">>CHORDIFY CHORDS FOUND: " + this.getStartTime() + ", " + getChord());
+			LOG.finer(">>CHORDIFY CHORDS FOUND: " + this.getStartTime() + ", " + getChord());
 			sharpenChord();
 			reset();
 		}

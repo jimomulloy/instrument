@@ -243,7 +243,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.setLayout(new BoxLayout(parameterPanel, BoxLayout.Y_AXIS));
 		parameterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		audioLowPassSlider = new JSlider(0, 20000);
+		audioLowPassSlider = new JSlider(0, 12000);
 		final JLabel audioLowPassLabel = new JLabel("Audio Low Pass :");
 		audioLowPassSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -261,7 +261,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(audioLowPassLabel);
 		parameterPanel.add(audioLowPassSlider);
 
-		audioHighPassSlider = new JSlider(0, 20000);
+		audioHighPassSlider = new JSlider(0, 12000);
 		final JLabel audioHighPassLabel = new JLabel("Audio High Pass :");
 		audioHighPassSlider.addChangeListener(new ChangeListener() {
 			@Override
