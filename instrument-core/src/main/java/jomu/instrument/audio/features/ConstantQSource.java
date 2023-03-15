@@ -38,6 +38,10 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 	private ParameterManager parameterManager;
 	float max = 0;
 
+	private int hearingMinimumFrequencyInCents;
+
+	private int hearingMaximumFrequencyInCents;
+
 	public ConstantQSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
@@ -45,8 +49,12 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW);
 		this.minimumFrequencyInCents = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS);
 		this.maximumFrequencyInCents = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS);
+		this.hearingMinimumFrequencyInCents = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
+		this.hearingMaximumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS);
 	}
 
@@ -104,6 +112,14 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 
 	public int getMinimumFrequencyInCents() {
 		return minimumFrequencyInCents;
+	}
+
+	public int getHearingMaximumFrequencyInCents() {
+		return hearingMaximumFrequencyInCents;
+	}
+
+	public int getHearingMinimumFrequencyInCents() {
+		return hearingMinimumFrequencyInCents;
 	}
 
 	public float getSampleRate() {

@@ -42,9 +42,10 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 
 		float[] binStartingPointsInCents = getSource().getBinStartingPointsInCents();
 		float binWidth = getSource().getBinWidth();
-		int lowPitch = PitchSet.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[0]));
-		int highPitch = PitchSet.freqToMidiNote(
-				PitchConverter.absoluteCentToHertz(binStartingPointsInCents[binStartingPointsInCents.length - 1]));
+		int lowPitch = PitchSet
+				.freqToMidiNote(PitchConverter.absoluteCentToHertz(getSource().getHearingMinimumFrequencyInCents()));
+		int highPitch = PitchSet
+				.freqToMidiNote(PitchConverter.absoluteCentToHertz(getSource().getHearingMaximumFrequencyInCents()));
 
 		PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
 
@@ -75,9 +76,13 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				for (Map.Entry<Double, float[]> entry : features.entrySet()) {
 					float[] spectralEnergy = entry.getValue();
 					ToneMapElement[] elements = ttf.getElements();
+
 					for (int i = 0; i < spectralEnergy.length; i++) {
-						elements[i].amplitude += spectralEnergy[i];
-						elements[i].microTones.addMicroTone(entry.getKey(), spectralEnergy[i]);
+						int note = PitchSet
+								.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[i]));
+						int index = pitchSet.getIndex(note);
+						elements[index].amplitude += spectralEnergy[i];
+						elements[index].microTones.addMicroTone(entry.getKey(), spectralEnergy[i]);
 					}
 				}
 				ToneMapElement[] elements = ttf.getElements();

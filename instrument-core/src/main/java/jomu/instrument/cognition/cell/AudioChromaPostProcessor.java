@@ -49,8 +49,8 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 				ChordListElement chord = timeFrame.getChord();
 				LOG.finer(">>AudioChromaPostProcessor get chord: " + tmIndex + ", time: " + timeFrame.getStartTime());
 				if (chord != null) {
-					LOG.finer(">>AudioChromaPostProcessor got chord: " + tmIndex + ", time: "
-							+ timeFrame.getStartTime() + " ," + chord);
+					LOG.finer(">>AudioChromaPostProcessor got chord: " + tmIndex + ", time: " + timeFrame.getStartTime()
+							+ " ," + chord);
 					postChromaToneMap.trackChord(chord);
 				}
 				console.getVisor().updateChromaPostView(postChromaToneMap, timeFrame);

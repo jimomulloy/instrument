@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,6 +221,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	private JLabel statusLabel;
 
 	private JCheckBox showSynthesisSwitchCB;
+
+	private JTextField hearingMinFreqCentsInput;
+
+	private JTextField hearingMaxFreqCentsInput;
+
+	private JCheckBox updateThresholdSwitchCB;
 
 	@Override
 	public void startUp() {
@@ -767,7 +774,19 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG));
 		graphControlPanel.add(showLogSwitchCB);
 
-		JLabel toneMapViewLowThresholdLabel = new JLabel("View Low Threshold: ");
+		final JButton parametersButton = new JButton("Update");
+		parametersButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateViewThresholds();
+				toneMapViewHighThresholdInput.setText(
+						parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
+			}
+		});
+		graphControlPanel.add(parametersButton);
+
+		JLabel toneMapViewLowThresholdLabel = new JLabel("Low Threshold: ");
 		toneMapViewLowThresholdInput = new JTextField(4);
 		toneMapViewLowThresholdInput.addActionListener(new ActionListener() {
 			@Override
@@ -797,7 +816,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		graphControlPanel.add(toneMapViewLowThresholdLabel);
 		graphControlPanel.add(toneMapViewLowThresholdInput);
 
-		JLabel toneMapViewHighThresholdLabel = new JLabel("View High Threshold: ");
+		JLabel toneMapViewHighThresholdLabel = new JLabel("High Threshold: ");
 		toneMapViewHighThresholdInput = new JTextField(4);
 		toneMapViewHighThresholdInput.addActionListener(new ActionListener() {
 			@Override
@@ -830,6 +849,19 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		panel.add(graphControlPanel, BorderLayout.CENTER);
 
 		return panel;
+	}
+
+	protected void updateViewThresholds() {
+		if (toneMapViews.containsKey(currentToneMapViewType)) {
+			double maxAmplitude = toneMapView.getMaxAmplitude();
+
+			Formatter formatter = new Formatter();
+			formatter.format("%.2f", maxAmplitude);
+			parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD,
+					formatter.toString());
+			formatter.close();
+		}
+		refreshMapViews();
 	}
 
 	protected boolean parseIntegerTextField(JTextField textField, int min, int max, String parameterName) {
@@ -1120,6 +1152,40 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionPanel.add(audioRangeLabel);
 		actionPanel.add(audioRangeInput);
 
+		JLabel hearingMinFreqCentsLabel = new JLabel("Min Cents: ");
+		hearingMinFreqCentsInput = new JTextField(4);
+		hearingMinFreqCentsInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = hearingMinFreqCentsInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS,
+						newValue);
+
+			}
+		});
+		hearingMinFreqCentsInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
+		actionPanel.add(hearingMinFreqCentsLabel);
+		actionPanel.add(hearingMinFreqCentsInput);
+
+		JLabel hearingMaxFreqCentsLabel = new JLabel("Max Cents: ");
+		hearingMaxFreqCentsInput = new JTextField(4);
+		hearingMaxFreqCentsInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = hearingMaxFreqCentsInput.getText();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS,
+						newValue);
+
+			}
+		});
+		hearingMaxFreqCentsInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		actionPanel.add(hearingMaxFreqCentsLabel);
+		actionPanel.add(hearingMaxFreqCentsInput);
+
+		actionPanel.add(new JLabel("  "));
+
 		final JButton parametersButton = new JButton("Parameters");
 
 		parametersButton.addActionListener(new ActionListener() {
@@ -1173,8 +1239,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		JLabel spacer2Label = new JLabel("  ");
-		actionPanel.add(spacer2Label);
+		actionPanel.add(new JLabel("  "));
 
 		actionPanel.add(parametersButton);
 

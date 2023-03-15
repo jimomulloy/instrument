@@ -112,8 +112,8 @@ public class ParametersPanel extends JPanel {
 	private JComboBox cqWindowComboBox;
 	private JComboBox pdWindowComboBox;
 	private JComboBox spWindowComboBox;
-	private JTextField hearingMinFreqCentsInput;
-	private JTextField hearingMaxFreqCentsInput;
+	private JTextField cqMinFreqCentsInput;
+	private JTextField cqMaxFreqCentsInput;
 	private JComboBox pdLowWindowComboBox;
 	private JSlider hpsHarmonicWeightingSlider;
 	private JSlider hpsPercussionWeightingSlider;
@@ -348,6 +348,40 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW)));
 		audioComboPanel.add(new JLabel("Spectral Peaks Window Size:  "));
 		audioComboPanel.add(spWindowComboBox);
+
+		JLabel cqMinFreqCentsLabel = new JLabel("CQ Min Cents: ");
+		cqMinFreqCentsInput = new JTextField(4);
+		cqMinFreqCentsInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqMinFreqCentsInput.getText();
+				cqMinFreqCentsLabel.setText(String.format("CQ Min Cents (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS,
+						newValue);
+
+			}
+		});
+		cqMinFreqCentsInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS));
+		audioComboPanel.add(cqMinFreqCentsLabel);
+		audioComboPanel.add(cqMinFreqCentsInput);
+
+		JLabel cqMaxFreqCentsLabel = new JLabel("CQ Max Cents: ");
+		cqMaxFreqCentsInput = new JTextField(4);
+		cqMaxFreqCentsInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqMaxFreqCentsInput.getText();
+				cqMaxFreqCentsLabel.setText(String.format("CQ Max Cents (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS,
+						newValue);
+
+			}
+		});
+		cqMaxFreqCentsInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS));
+		audioComboPanel.add(cqMaxFreqCentsLabel);
+		audioComboPanel.add(cqMaxFreqCentsInput);
 
 		parameterPanel.add(audioComboPanel);
 
@@ -2034,40 +2068,6 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(chromaChordifyThresholdLabel);
 		cqParamsPanel.add(chromaChordifyThresholdInput);
 
-		JLabel hearingMinFreqCentsLabel = new JLabel("Hearing Min Frequency cents: ");
-		hearingMinFreqCentsInput = new JTextField(4);
-		hearingMinFreqCentsInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqLowThresholdInput.getText();
-				hearingMinFreqCentsLabel.setText(String.format("Hearing Min Frequency cents (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS,
-						newValue);
-
-			}
-		});
-		hearingMinFreqCentsInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
-		cqParamsPanel.add(hearingMinFreqCentsLabel);
-		cqParamsPanel.add(hearingMinFreqCentsInput);
-
-		JLabel hearingMaxFreqCentsLabel = new JLabel("Hearing Max Frequency cents: ");
-		hearingMaxFreqCentsInput = new JTextField(4);
-		hearingMaxFreqCentsInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqLowThresholdInput.getText();
-				hearingMinFreqCentsLabel.setText(String.format("Hearing Max Frequency cents (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS,
-						newValue);
-
-			}
-		});
-		hearingMaxFreqCentsInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
-		cqParamsPanel.add(hearingMaxFreqCentsLabel);
-		cqParamsPanel.add(hearingMaxFreqCentsInput);
-
 		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
 		cqLowThresholdInput = new JTextField(4);
 		cqLowThresholdInput.addActionListener(new ActionListener() {
@@ -2879,9 +2879,9 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW)));
 		spWindowComboBox.setSelectedIndex(getFFTWindowIndex(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW)));
-		hearingMaxFreqCentsInput.setText(
+		cqMaxFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
-		hearingMinFreqCentsInput.setText(
+		cqMinFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
 		hpsHarmonicWeightingSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING));

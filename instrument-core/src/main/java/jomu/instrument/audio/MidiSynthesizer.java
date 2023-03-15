@@ -729,9 +729,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (writeTrack) {
 								createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
 							}
-							LOG.finer(">>V1 MIDI NOTE ON: " + mqm.getSequence() + ", " + voice1Channel.num + ", "
-									+ note + ", " + volume + ", " + tick + ", " + amplitude + ", " + highVoiceThreshold
-									+ ", " + lowVoiceThreshold);
+							LOG.finer(">>V1 MIDI NOTE ON: " + mqm.getSequence() + ", " + voice1Channel.num + ", " + note
+									+ ", " + volume + ", " + tick + ", " + amplitude + ", " + highVoiceThreshold + ", "
+									+ lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

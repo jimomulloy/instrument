@@ -89,6 +89,8 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 	private Color[] rainbow;
 
+	private double maxAmplitude = 0;
+
 	private ParameterManager parameterManager;
 
 	public ToneMapView() {
@@ -109,6 +111,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
 		this.timeAxisEnd = this.timeAxisStart
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
+		maxAmplitude = 0;
 		this.toneMap = null;
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
@@ -119,6 +122,10 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 		this.currentHeight = getHeight();
 		drawGrid();
 		repaint();
+	}
+
+	public double getMaxAmplitude() {
+		return maxAmplitude;
 	}
 
 	public ToneMap getToneMap() {
@@ -132,6 +139,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.minCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET);
 		this.maxCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE);
+		maxAmplitude = 0;
 		if (toneMap != null) {
 			renderToneMap(toneMap);
 		} else {
@@ -170,6 +178,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 	public void renderToneMap(ToneMap toneMap) {
 		this.toneMap = toneMap;
+		maxAmplitude = 0;
 		double timeStart = timeAxisStart / 1000;
 		double timeEnd = timeAxisEnd / 1000;
 		this.currentWidth = getWidth();
@@ -250,6 +259,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
 					int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
 					amplitude = toneMapElement.amplitude;
+					if (maxAmplitude < amplitude) {
+						maxAmplitude = amplitude;
+					}
 					int greyValue = 0;
 					if (amplitude > highViewThreshold) {
 						greyValue = 255;

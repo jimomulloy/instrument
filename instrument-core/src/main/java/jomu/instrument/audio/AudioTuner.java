@@ -511,9 +511,9 @@ public class AudioTuner implements ToneMapConstants {
 								+ ", " + noteStatusElement.onTime);
 					}
 				} else {
-					LOG.finer(">>>Note scan PENDING low amp: " + sequence + ", " + note + ", " + time + ", "
-							+ amplitude + ", " + noteStatusElement.onTime + ", " + noteStatusElement.offTime + ", "
-							+ noteSustain + ", " + noteMaxDuration + ", " + noteOffThresholdhWithHysteresis);
+					LOG.finer(">>>Note scan PENDING low amp: " + sequence + ", " + note + ", " + time + ", " + amplitude
+							+ ", " + noteStatusElement.onTime + ", " + noteStatusElement.offTime + ", " + noteSustain
+							+ ", " + noteMaxDuration + ", " + noteOffThresholdhWithHysteresis);
 					LOG.finer(">>>Note scan PENDING - CONTINUE seq: " + sequence + ", note: " + note + ", sus: "
 							+ noteSustain + ", maxDur: " + noteMaxDuration + ", time " + time + ", offTime: "
 							+ noteStatusElement.offTime + ", onTime: " + noteStatusElement.onTime);
