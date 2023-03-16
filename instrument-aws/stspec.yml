@@ -10,6 +10,6 @@ phases:
   build:
     commands:
       - echo "compiling system test"
-      - cd ${CODEBUILD_SRC_DIR}/lambda-st && mvn --no-transfer-progress -DskipTests test-compile
+      - cd ${CODEBUILD_SRC_DIR}/instrument-lambda-st && mvn --no-transfer-progress -DskipTests test-compile
       - echo "performing system test"
-      - cd ${CODEBUILD_SRC_DIR}/lambda-st && mvn failsafe:integration-test failsafe:verify
+      - cd ${CODEBUILD_SRC_DIR}/instrument-lambda-st && mvn failsafe:integration-test failsafe:verify

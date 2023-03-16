@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    	
+	<parent>
+		<groupId>jomu</groupId>
+		<artifactId>instrument-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	
+	<packaging>pom</packaging>
+    <artifactId>instrument-aws</artifactId>
+	
+	<modules>
+    	<module>instrument-lambda</module>
+    	<module>instrument-lambda-st</module>
+    	<module>instrument-cdk</module>
+     	<module>instrument-s3handler</module>
+     	<module>instrument-s3handler-cdk</module>
+    </modules>
+  	
+</project>

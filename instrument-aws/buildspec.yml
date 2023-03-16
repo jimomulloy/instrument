@@ -13,8 +13,8 @@ phases:
   build:
     commands:
       - echo "building AWS Lambda"
-      - cd ${CODEBUILD_SRC_DIR}/lambda && mvn --no-transfer-progress -DskipTests package
+      - cd ${CODEBUILD_SRC_DIR}/instrument-lambda && mvn --no-transfer-progress -DskipTests package
       - echo "building cdk"
-      - cd ${CODEBUILD_SRC_DIR}/cdk && mvn --no-transfer-progress -DskipTests package
+      - cd ${CODEBUILD_SRC_DIR}/instrument-cdk && mvn --no-transfer-progress -DskipTests package
       - echo "deploying application"
-      - cd ${CODEBUILD_SRC_DIR}/cdk && cdk deploy --all --require-approval=never
+      - cd ${CODEBUILD_SRC_DIR}/instrument-cdk && cdk deploy --all --require-approval=never

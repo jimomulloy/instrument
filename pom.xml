@@ -19,6 +19,7 @@
     	<module>instrument-desktop</module>
     	<module>instrument-command</module>
   		<module>instrument-server</module>
+  		<module>instrument-aws</module>
     </modules>
   	
   	<properties>

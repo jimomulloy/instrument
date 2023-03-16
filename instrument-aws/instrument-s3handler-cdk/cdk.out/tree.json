@@ -1,0 +1,303 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "quarkus-lambda-function-url-stack": {
+        "id": "quarkus-lambda-function-url-stack",
+        "path": "quarkus-lambda-function-url-stack",
+        "children": {
+          "QuarkusLambda": {
+            "id": "QuarkusLambda",
+            "path": "quarkus-lambda-function-url-stack/QuarkusLambda",
+            "children": {
+              "jomu_instrument_lambda_greetings_boundary_Greetings": {
+                "id": "jomu_instrument_lambda_greetings_boundary_Greetings",
+                "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings",
+                "children": {
+                  "ServiceRole": {
+                    "id": "ServiceRole",
+                    "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/ServiceRole",
+                    "children": {
+                      "ImportServiceRole": {
+                        "id": "ImportServiceRole",
+                        "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/ServiceRole/ImportServiceRole",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.Resource",
+                          "version": "2.66.1"
+                        }
+                      },
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/ServiceRole/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                          "aws:cdk:cloudformation:props": {
+                            "assumeRolePolicyDocument": {
+                              "Statement": [
+                                {
+                                  "Action": "sts:AssumeRole",
+                                  "Effect": "Allow",
+                                  "Principal": {
+                                    "Service": "lambda.amazonaws.com"
+                                  }
+                                }
+                              ],
+                              "Version": "2012-10-17"
+                            },
+                            "managedPolicyArns": [
+                              {
+                                "Fn::Join": [
+                                  "",
+                                  [
+                                    "arn:",
+                                    {
+                                      "Ref": "AWS::Partition"
+                                    },
+                                    ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                                  ]
+                                ]
+                              }
+                            ],
+                            "tags": [
+                              {
+                                "key": "application",
+                                "value": "quarkus-lambda"
+                              },
+                              {
+                                "key": "environment",
+                                "value": "development"
+                              },
+                              {
+                                "key": "project",
+                                "value": "MicroProfile with Quarkus on AWS Lambda"
+                              }
+                            ]
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                          "version": "2.66.1"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.Role",
+                      "version": "2.66.1"
+                    }
+                  },
+                  "Code": {
+                    "id": "Code",
+                    "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/Code",
+                    "children": {
+                      "Stage": {
+                        "id": "Stage",
+                        "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/Code/Stage",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.AssetStaging",
+                          "version": "2.66.1"
+                        }
+                      },
+                      "AssetBucket": {
+                        "id": "AssetBucket",
+                        "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/Code/AssetBucket",
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                          "version": "2.66.1"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                      "version": "2.66.1"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                      "aws:cdk:cloudformation:props": {
+                        "code": {
+                          "s3Bucket": {
+                            "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                          },
+                          "s3Key": "3b159337e5a1c14e65c65cb68a90419335aa3ba02176822370a753797cba568d.zip"
+                        },
+                        "role": {
+                          "Fn::GetAtt": [
+                            "QuarkusLambdajomuinstrumentlambdagreetingsboundaryGreetingsServiceRole2031478C",
+                            "Arn"
+                          ]
+                        },
+                        "architectures": [
+                          "arm64"
+                        ],
+                        "environment": {
+                          "variables": {
+                            "JAVA_TOOL_OPTIONS": "-XX:+TieredCompilation -XX:TieredStopAtLevel=1",
+                            "message": "hello, quarkus as AWS Lambda"
+                          }
+                        },
+                        "functionName": "jomu_instrument_lambda_greetings_boundary_Greetings",
+                        "handler": "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest",
+                        "memorySize": 1024,
+                        "runtime": "java11",
+                        "tags": [
+                          {
+                            "key": "application",
+                            "value": "quarkus-lambda"
+                          },
+                          {
+                            "key": "environment",
+                            "value": "development"
+                          },
+                          {
+                            "key": "project",
+                            "value": "MicroProfile with Quarkus on AWS Lambda"
+                          }
+                        ],
+                        "timeout": 10
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                      "version": "2.66.1"
+                    }
+                  },
+                  "FunctionUrl": {
+                    "id": "FunctionUrl",
+                    "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/FunctionUrl",
+                    "children": {
+                      "Resource": {
+                        "id": "Resource",
+                        "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/FunctionUrl/Resource",
+                        "attributes": {
+                          "aws:cdk:cloudformation:type": "AWS::Lambda::Url",
+                          "aws:cdk:cloudformation:props": {
+                            "authType": "NONE",
+                            "targetFunctionArn": {
+                              "Fn::GetAtt": [
+                                "QuarkusLambdajomuinstrumentlambdagreetingsboundaryGreetings90BE4A84",
+                                "Arn"
+                              ]
+                            }
+                          }
+                        },
+                        "constructInfo": {
+                          "fqn": "aws-cdk-lib.aws_lambda.CfnUrl",
+                          "version": "2.66.1"
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.FunctionUrl",
+                      "version": "2.66.1"
+                    }
+                  },
+                  "invoke-function-url": {
+                    "id": "invoke-function-url",
+                    "path": "quarkus-lambda-function-url-stack/QuarkusLambda/jomu_instrument_lambda_greetings_boundary_Greetings/invoke-function-url",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::Lambda::Permission",
+                      "aws:cdk:cloudformation:props": {
+                        "action": "lambda:InvokeFunctionUrl",
+                        "functionName": {
+                          "Fn::GetAtt": [
+                            "QuarkusLambdajomuinstrumentlambdagreetingsboundaryGreetings90BE4A84",
+                            "Arn"
+                          ]
+                        },
+                        "principal": "*",
+                        "functionUrlAuthType": "NONE"
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_lambda.CfnPermission",
+                      "version": "2.66.1"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.Function",
+                  "version": "2.66.1"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.0"
+            }
+          },
+          "FunctionURLOutput": {
+            "id": "FunctionURLOutput",
+            "path": "quarkus-lambda-function-url-stack/FunctionURLOutput",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnOutput",
+              "version": "2.66.1"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "quarkus-lambda-function-url-stack/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "quarkus-lambda-function-url-stack/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.66.1"
+                }
+              },
+              "Condition": {
+                "id": "Condition",
+                "path": "quarkus-lambda-function-url-stack/CDKMetadata/Condition",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnCondition",
+                  "version": "2.66.1"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.0.0"
+            }
+          },
+          "BootstrapVersion": {
+            "id": "BootstrapVersion",
+            "path": "quarkus-lambda-function-url-stack/BootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.66.1"
+            }
+          },
+          "CheckBootstrapVersion": {
+            "id": "CheckBootstrapVersion",
+            "path": "quarkus-lambda-function-url-stack/CheckBootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnRule",
+              "version": "2.66.1"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.66.1"
+        }
+      },
+      "Tree": {
+        "id": "Tree",
+        "path": "Tree",
+        "constructInfo": {
+          "fqn": "constructs.Construct",
+          "version": "10.0.0"
+        }
+      }
+    },
+    "constructInfo": {
+      "fqn": "aws-cdk-lib.App",
+      "version": "2.66.1"
+    }
+  }
+}
