@@ -68,4 +68,27 @@ public class MicroTones {
 		return power;
 	}
 
+	public double getPowerCeiling() {
+		double power = 0;
+		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
+			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
+				if (power < mtpm.getValue()) {
+					power = mtpm.getValue();
+				}
+			}
+		}
+		return power;
+	}
+
+	public double getPowerFloor() {
+		double power = Double.MAX_VALUE;
+		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
+			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
+				if (power > mtpm.getValue()) {
+					power = mtpm.getValue();
+				}
+			}
+		}
+		return power;
+	}
 }

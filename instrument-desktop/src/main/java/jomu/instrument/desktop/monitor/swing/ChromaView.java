@@ -226,6 +226,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 			boolean showTracking = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
+			boolean showColour = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR);
 			boolean showSynthesis = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
@@ -244,10 +246,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 						int greyValue = 0;
 						if (amplitude > highViewThreshold) {
 							greyValue = 255;
-							color = rainbow[0];
 						} else if (amplitude <= lowViewThreshold) {
 							greyValue = 0;
-							color = new Color(greyValue, greyValue, greyValue);
 						} else {
 							greyValue = (int) (Math
 									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
@@ -261,7 +261,11 @@ public class ChromaView extends JComponent implements ComponentListener {
 										/ (highViewThreshold - lowViewThreshold)) * 255);
 							}
 							greyValue = Math.max(0, greyValue);
-							color = rainbow[255 - greyValue];
+							if (showColour) {
+								color = rainbow[255 - greyValue];
+							} else {
+								color = new Color(greyValue, greyValue, greyValue);
+							}
 						}
 
 						color = Color.WHITE;
@@ -286,10 +290,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 						int greyValue = 0;
 						if (amplitude > highViewThreshold) {
 							greyValue = 255;
-							color = rainbow[0];
 						} else if (amplitude <= lowViewThreshold) {
 							greyValue = 0;
-							color = new Color(greyValue, greyValue, greyValue);
 						} else {
 							greyValue = (int) (Math
 									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
@@ -303,7 +305,11 @@ public class ChromaView extends JComponent implements ComponentListener {
 										/ (highViewThreshold - lowViewThreshold)) * 255);
 							}
 							greyValue = Math.max(0, greyValue);
-							color = rainbow[255 - greyValue];
+							if (showColour) {
+								color = rainbow[255 - greyValue];
+							} else {
+								color = new Color(greyValue, greyValue, greyValue);
+							}
 						}
 
 						color = Color.WHITE;
@@ -329,16 +335,18 @@ public class ChromaView extends JComponent implements ComponentListener {
 						int greyValue = 0;
 						if (amplitude > highViewThreshold) {
 							greyValue = 255;
-							color = rainbow[0];
 						} else if (amplitude <= lowViewThreshold) {
 							greyValue = 0;
-							color = new Color(greyValue, greyValue, greyValue);
 						} else {
 							greyValue = (int) (Math
 									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
 									/ Math.log1p(1.0000001) * 255);
 							greyValue = Math.max(0, greyValue);
-							color = rainbow[255 - greyValue];
+							if (showColour) {
+								color = rainbow[255 - greyValue];
+							} else {
+								color = new Color(greyValue, greyValue, greyValue);
+							}
 						}
 
 						int centsCoordinate = getCentsCoordinate(elementIndex);

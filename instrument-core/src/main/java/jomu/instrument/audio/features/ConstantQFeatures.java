@@ -79,8 +79,8 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 						int note = PitchSet
 								.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[i]));
 						int index = pitchSet.getIndex(note);
-						elements[index].amplitude += spectralEnergy[i];
 						elements[index].microTones.putMicroTone(entry.getKey(), spectralEnergy[i]);
+						elements[index].amplitude += spectralEnergy[i];
 					}
 				}
 				ttf.reset();
@@ -93,6 +93,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
+			ttf.reset();
 		}
 	}
 

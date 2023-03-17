@@ -17,17 +17,23 @@ public class ChordListElement {
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	double endTime;
 	double startTime;
+	int octave;
 
-	public ChordListElement(ChordNote[] chords, double startTime, double endTime) {
+	public ChordListElement(ChordNote[] chords, double startTime, double endTime, int octave) {
 		this.chordNotes = new TreeSet<>(Arrays.asList(chords));
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.octave = octave;
 	}
 
 	public ChordListElement clone() {
 		ChordListElement clone = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
-				this.startTime, this.endTime);
+				this.startTime, this.endTime, this.octave);
 		return clone;
+	}
+
+	public int getOctave() {
+		return octave;
 	}
 
 	public TreeSet<ChordNote> getChordNotes() {

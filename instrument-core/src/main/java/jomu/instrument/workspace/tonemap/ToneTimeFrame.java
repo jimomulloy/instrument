@@ -48,6 +48,7 @@ public class ToneTimeFrame {
 	double totalAmplitude;
 	double totalRawAmplitude;
 	int spectralCentroid;
+	int spectralMean;
 
 	TimeSet timeSet;
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
@@ -393,8 +394,10 @@ public class ToneTimeFrame {
 		minAmplitude = 1000000;
 		avgAmplitude = 0;
 		spectralCentroid = 0;
+		totalAmplitude = 0;
+		totalRawAmplitude = 0;
 		double sumRawSquareAmplitude = 0;
-		int sumSquareAmplitude = 0;
+		double sumSquareAmplitude = 0;
 		long count = 0;
 
 		for (int i = 0; i < elements.length; i++) {
@@ -415,16 +418,16 @@ public class ToneTimeFrame {
 				}
 				if (minAmplitude > elements[i].amplitude) {
 					minAmplitude = elements[i].amplitude;
-				}	
-				totalAmplitude +=  elements[i].amplitude;
+				}
+				totalAmplitude += elements[i].amplitude;
 				totalRawAmplitude += elements[i].microTones.getPower();
 				sumRawSquareAmplitude += elements[i].microTones.getPower() * elements[i].microTones.getPower();
 				sumSquareAmplitude += elements[i].amplitude * elements[i].amplitude;
 			}
 		}
 		avgAmplitude = avgAmplitude / count;
-		rawRmsPower = Math.sqrt(sumRawSquareAmplitude/count);;
-		rmsPower = Math.sqrt(sumSquareAmplitude/count);
+		rawRmsPower = Math.sqrt(sumRawSquareAmplitude / count);
+		rmsPower = Math.sqrt(sumSquareAmplitude / count);
 		List<Integer> meanFreqs = new ArrayList<Integer>();
 		double minAmp = Double.MAX_VALUE;
 		int minIndex = 0;
@@ -441,7 +444,11 @@ public class ToneTimeFrame {
 			meanFreqs.add(minIndex);
 		}
 		Collections.sort(meanFreqs);
-		spectralCentroid = meanFreqs.get(meanFreqs.size() / 2);
+		spectralMean = meanFreqs.get(meanFreqs.size() / 2);
+		spectralCentroid = 0;
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			spectralCentroid += elementIndex * (elements[elementIndex].amplitude / totalAmplitude);
+		}
 		return this;
 	}
 
@@ -1126,10 +1133,12 @@ public class ToneTimeFrame {
 	public ToneTimeFrame updateSpectralFlux(ToneTimeFrame previousFrame) {
 		reset();
 		spectralFlux = 0;
-		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			double value = elements[elementIndex].amplitude / totalAmplitude 
-					- previousFrame.getElement(elementIndex).amplitude / previousFrame.getTotalAmplitude();
-			spectralFlux += value * value;
+		if (previousFrame != null) {
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				double value = elements[elementIndex].amplitude / totalAmplitude
+						- previousFrame.getElement(elementIndex).amplitude / previousFrame.getTotalAmplitude();
+				spectralFlux += value * value;
+			}
 		}
 		return this;
 	}
@@ -1193,16 +1202,31 @@ public class ToneTimeFrame {
 		reset();
 		return this;
 	}
-	
-	public ToneTimeFrame fadeWhiten(ToneTimeFrame previousFrame, double fadeWhitenFactor) {
-		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-//			if (elements[elementIndex].amplitude <= AMPLITUDE_FLOOR
-//					|| ((elements[elementIndex].amplitude - previousFrame.elements[elementIndex].amplitude)
-//							/ elements[elementIndex].amplitude) < onsetEdgeFactor) {
-//				elements[elementIndex].amplitude = 0;
-//			}
-		}
+
+	public ToneTimeFrame envelopeWhiten(ToneTimeFrame previousFrame, double whitenThreshold, double decayWhitenFactor,
+			double attackWhitenFactor) {
 		reset();
+		if (previousFrame != null) {
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				double currentPower = elements[elementIndex].microTones.getPowerFloor();
+				double previousPower = previousFrame.getElement(elementIndex).microTones.getPowerCeiling();
+				if (currentPower < previousPower && ((previousPower - currentPower) > whitenThreshold)
+						&& decayWhitenFactor > 0) {
+					double decayWhitenValue = previousFrame.getElement(elementIndex).amplitude * decayWhitenFactor;
+					if (elements[elementIndex].amplitude < decayWhitenValue) {
+						elements[elementIndex].amplitude = decayWhitenValue;
+					}
+				} else if (currentPower > previousPower && ((currentPower - previousPower) > whitenThreshold)
+						&& attackWhitenFactor > 0) {
+					double attackWhitenValue = previousFrame.getElement(elementIndex).amplitude * attackWhitenFactor;
+					if (elements[elementIndex].amplitude > attackWhitenValue) {
+						LOG.severe(">>ATTACK " + getStartTime() + ", " + elementIndex + ", " + attackWhitenValue);
+						elements[elementIndex].amplitude = attackWhitenValue;
+					}
+				}
+			}
+			reset();
+		}
 		return this;
 	}
 
@@ -1228,7 +1252,7 @@ public class ToneTimeFrame {
 		return Objects.equals(pitchSet, other.pitchSet) && Objects.equals(timeSet, other.timeSet);
 	}
 
-	public void sharpen() {
+	public void sharpen(double sharpenThreshold) {
 		int troughIndex = 0;
 		int peakIndex = 0;
 		double lastAmplitude = -1;
@@ -1236,7 +1260,7 @@ public class ToneTimeFrame {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			double originalAmplitude = element.amplitude;
-			if (originalAmplitude < (lastAmplitude * 0.8)) {
+			if (originalAmplitude < (lastAmplitude * sharpenThreshold)) {
 				if (!downSlope) {
 					peakIndex = elementIndex > 0 ? elementIndex - 1 : elementIndex;
 					downSlope = true;
@@ -1277,8 +1301,9 @@ public class ToneTimeFrame {
 	public ChordListElement getChord() {
 		ChordListElement chordListElement = null;
 		if (chordNotes.size() > 1) {
+			int octave = pitchSet.getOctave(this.getSpectralCentroid());
 			chordListElement = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
-					getStartTime(), getTimeSet().getEndTime());
+					getStartTime(), getTimeSet().getEndTime(), octave);
 		}
 		return chordListElement;
 	}

@@ -212,6 +212,8 @@ public class BeatsView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 			double highViewThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
+			boolean showColour = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR);
 			boolean showTracking = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
@@ -245,10 +247,10 @@ public class BeatsView extends JComponent implements ComponentListener {
 						int greyValue = 0;
 						if (amplitude > highViewThreshold) {
 							greyValue = 255;
-							color = rainbow[0];
+							color = Color.WHITE;
 						} else if (amplitude <= lowViewThreshold) {
 							greyValue = 0;
-							color = new Color(greyValue, greyValue, greyValue);
+							color = Color.BLACK;
 						} else {
 							if (showLog) {
 								greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001)
@@ -257,7 +259,11 @@ public class BeatsView extends JComponent implements ComponentListener {
 								greyValue = (int) ((amplitude / highViewThreshold) * 255);
 							}
 							greyValue = Math.max(0, greyValue);
-							color = rainbow[255 - greyValue];
+							if (showColour) {
+								color = rainbow[255 - greyValue];
+							} else {
+								color = new Color(greyValue, greyValue, greyValue);
+							}
 						}
 
 						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);

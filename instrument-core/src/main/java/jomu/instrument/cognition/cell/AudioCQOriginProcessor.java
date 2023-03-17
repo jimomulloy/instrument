@@ -35,6 +35,8 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL);
 		float compression = parameterManager
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION);
+		double cqSharpenThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD);
 		boolean cqSwitchCompress = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS);
 		boolean cqSwitchNormalise = parameterManager
@@ -84,7 +86,7 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 
 		if (cqSwitchPreSharpen) {
-			toneMap.getTimeFrame().sharpen();
+			toneMap.getTimeFrame().sharpen(cqSharpenThreshold);
 		}
 
 		if (cqSwitchCompress) {
@@ -112,7 +114,7 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		}
 
 		if (cqSwitchPostSharpen) {
-			toneMap.getTimeFrame().sharpen();
+			toneMap.getTimeFrame().sharpen(cqSharpenThreshold);
 		}
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

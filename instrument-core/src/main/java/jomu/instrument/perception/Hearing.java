@@ -174,17 +174,17 @@ public class Hearing implements Organ {
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
 //			if (audioHighPass > AUDIO_LOWPASS_MIN && audioHighPass < AUDIO_HIGHPASS_MAX) {
-//				LOG.severe(">>audioHighPass: " + audioHighPass);
+//				LOG.finer(">>audioHighPass: " + audioHighPass);
 //				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
 //			} else {
-//				LOG.severe(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
+//				LOG.finer(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
 //				dispatcher.addAudioProcessor(new HighPass(AUDIO_HIGHPASS_MAX, sampleRate));
 //			}
 //			if (audioLowPass > AUDIO_LOWPASS_MIN && audioLowPass < AUDIO_HIGHPASS_MAX) {
-//				LOG.severe(">>audioLowPass: " + audioLowPass);
+//				LOG.finer(">>audioLowPass: " + audioLowPass);
 //				dispatcher.addAudioProcessor(new LowPassSP(audioLowPass, sampleRate));
 //			} else {
-//				LOG.severe(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
+//				LOG.finer(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
 //				dispatcher.addAudioProcessor(new LowPassSP(AUDIO_LOWPASS_MIN, sampleRate));
 //			}
 			// if (audioLowPass - audioHighPass > 0) {
@@ -229,17 +229,17 @@ public class Hearing implements Organ {
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
 //			if (audioHighPass > AUDIO_LOWPASS_MIN && audioHighPass < AUDIO_HIGHPASS_MAX) {
-//			LOG.severe(">>audioHighPass: " + audioHighPass);
+//			LOG.finer(">>audioHighPass: " + audioHighPass);
 //			dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
 //		} else {
-//			LOG.severe(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
+//			LOG.finer(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
 //			dispatcher.addAudioProcessor(new HighPass(AUDIO_HIGHPASS_MAX, sampleRate));
 //		}
 //		if (audioLowPass > AUDIO_LOWPASS_MIN && audioLowPass < AUDIO_HIGHPASS_MAX) {
-//			LOG.severe(">>audioLowPass: " + audioLowPass);
+//			LOG.finer(">>audioLowPass: " + audioLowPass);
 //			dispatcher.addAudioProcessor(new LowPassSP(audioLowPass, sampleRate));
 //		} else {
-//			LOG.severe(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
+//			LOG.finer(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
 //			dispatcher.addAudioProcessor(new LowPassSP(AUDIO_LOWPASS_MIN, sampleRate));
 //		}
 			// if (audioLowPass - audioHighPass > 0) {

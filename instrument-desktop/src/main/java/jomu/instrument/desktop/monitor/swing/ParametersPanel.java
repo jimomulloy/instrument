@@ -183,6 +183,12 @@ public class ParametersPanel extends JPanel {
 	private JTextField acUndertoneThresholdInput;
 	private JTextField acUndertoneRangeInput;
 	private JTextField acCorrelationThresholdInput;
+	private JTextField cqEnvelopeWhitenThresholdInput;
+	private JTextField cqEnvelopeWhitenAttackFactorInput;
+	private JTextField cqEnvelopeWhitenDecayFactorInput;
+	private JCheckBox cqEnvelopeWhitenPreSwitchCB;
+	private JCheckBox cqEnvelopeWhitenPostSwitchCB;
+	private JTextField cqSharpenThresholdInput;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -856,6 +862,39 @@ public class ParametersPanel extends JPanel {
 		cqPostHarmonicsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS));
 		cqSwitchPanel.add(cqPostHarmonicsSwitchCB);
+
+		cqEnvelopeWhitenPreSwitchCB = new JCheckBox("cqEnvelopeWhitenPreSwitchCB");
+		cqEnvelopeWhitenPreSwitchCB.setText("CQ Pre Envelope Whiten");
+		cqEnvelopeWhitenPreSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqEnvelopeWhitenPreSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH));
+		cqSwitchPanel.add(cqEnvelopeWhitenPreSwitchCB);
+
+		cqEnvelopeWhitenPostSwitchCB = new JCheckBox("cqEnvelopeWhitenPostSwitchCB");
+		cqEnvelopeWhitenPostSwitchCB.setText("CQ Post Envelope Whiten");
+		cqEnvelopeWhitenPostSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqEnvelopeWhitenPostSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH));
+		cqSwitchPanel.add(cqEnvelopeWhitenPostSwitchCB);
 
 		cqPreSharpenSwitchCB = new JCheckBox("cqPreSharpenSwitchCB");
 		cqPreSharpenSwitchCB.setText("CQ Pre Sharpen");
@@ -2101,6 +2140,59 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqThresholdFactorLabel);
 		cqParamsPanel.add(cqThresholdFactorInput);
 
+		JLabel cqEnvelopeWhitenThresholdLabel = new JLabel("CQ Envelope Whiten Threshold: ");
+		cqEnvelopeWhitenThresholdInput = new JTextField(4);
+		cqEnvelopeWhitenThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqEnvelopeWhitenThresholdInput.getText();
+				cqEnvelopeWhitenThresholdLabel.setText(String.format("CQ Envelope Whiten Threshold (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_THRESHOLD,
+						newValue);
+
+			}
+		});
+		cqEnvelopeWhitenThresholdInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_THRESHOLD));
+		cqParamsPanel.add(cqEnvelopeWhitenThresholdLabel);
+		cqParamsPanel.add(cqEnvelopeWhitenThresholdInput);
+
+		JLabel cqEnvelopeWhitenAttackFactorLabel = new JLabel("CQ Envelope Whiten Attack Factor: ");
+		cqEnvelopeWhitenAttackFactorInput = new JTextField(4);
+		cqEnvelopeWhitenAttackFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqEnvelopeWhitenAttackFactorInput.getText();
+				cqEnvelopeWhitenAttackFactorLabel
+						.setText(String.format("CQ Envelope Whiten Attack Factor (%s):", newValue));
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_ATTACK_FACTOR, newValue);
+
+			}
+		});
+		cqEnvelopeWhitenAttackFactorInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_ATTACK_FACTOR));
+		cqParamsPanel.add(cqEnvelopeWhitenAttackFactorLabel);
+		cqParamsPanel.add(cqEnvelopeWhitenAttackFactorInput);
+
+		JLabel cqEnvelopeWhitenDecayFactorLabel = new JLabel("CQ Envelope Whiten Decay Factor: ");
+		cqEnvelopeWhitenDecayFactorInput = new JTextField(4);
+		cqEnvelopeWhitenDecayFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqEnvelopeWhitenDecayFactorInput.getText();
+				cqEnvelopeWhitenDecayFactorLabel
+						.setText(String.format("CQ Envelope Whiten Decay Factor (%s):", newValue));
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR, newValue);
+
+			}
+		});
+		cqEnvelopeWhitenDecayFactorInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR));
+		cqParamsPanel.add(cqEnvelopeWhitenDecayFactorLabel);
+		cqParamsPanel.add(cqEnvelopeWhitenDecayFactorInput);
+
 		JLabel cqSignalMinimumLabel = new JLabel("CQ Signal Minimum: ");
 		cqSignalMinimumInput = new JTextField(4);
 		cqSignalMinimumInput.addActionListener(new ActionListener() {
@@ -2133,6 +2225,23 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD));
 		cqParamsPanel.add(cqNormaliseThresholdLabel);
 		cqParamsPanel.add(cqNormaliseThresholdInput);
+
+		JLabel cqSharpenThresholdLabel = new JLabel("CQ Sharpen Threshold: ");
+		cqSharpenThresholdInput = new JTextField(4);
+		cqSharpenThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqSharpenThresholdInput.getText();
+				cqSharpenThresholdLabel.setText(String.format("CQ Sharpen Threshold  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD,
+						newValue);
+
+			}
+		});
+		cqSharpenThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD));
+		cqParamsPanel.add(cqSharpenThresholdLabel);
+		cqParamsPanel.add(cqSharpenThresholdInput);
 
 		JLabel cqDecibelLevelLabel = new JLabel("CQ Decibel Level: ");
 		cqDecibelLevelInput = new JTextField(4);
@@ -2714,6 +2823,10 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS));
 		cqPostHarmonicsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS));
+		cqEnvelopeWhitenPreSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH));
+		cqEnvelopeWhitenPostSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH));
 		cqPreSharpenSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN));
 		cqPostSharpenSwitchCB.setSelected(parameterManager
@@ -2813,10 +2926,18 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 		cqThresholdFactorInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR));
+		cqEnvelopeWhitenThresholdInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_THRESHOLD));
+		cqEnvelopeWhitenAttackFactorInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_ATTACK_FACTOR));
+		cqEnvelopeWhitenDecayFactorInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR));
 		cqSignalMinimumInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM));
 		cqNormaliseThresholdInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD));
+		cqSharpenThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD));
 		cqDecibelLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL));
 		cqCompressionLevelInput

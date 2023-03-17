@@ -245,6 +245,8 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			double highViewThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 			boolean showPeaks = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS);
+			boolean showColour = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR);
 			boolean showTracking = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
@@ -279,7 +281,11 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 									* 255);
 						}
 						greyValue = Math.max(0, greyValue);
-						color = rainbow[255 - greyValue];
+						if (showColour) {
+							color = rainbow[255 - greyValue];
+						} else {
+							color = new Color(greyValue, greyValue, greyValue);
+						}
 					}
 					if (toneMapElement.isPeak && showPeaks) {
 						color = Color.MAGENTA;

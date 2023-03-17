@@ -30,8 +30,14 @@ public class InstrumentParameterNames {
 
 	public static final String PERCEPTION_HEARING_CQ_LOW_THRESHOLD = "perception.hearing.cq.lowThreshold";
 	public static final String PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR = "perception.hearing.cq.thresholdFactor";
+	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_THRESHOLD = "perception.hearing.cq.envelopeWhitenThreshold";
+	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_ATTACK_FACTOR = "perception.hearing.cq.envelopeWhitenAttackFactor";
+	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR = "perception.hearing.cq.envelopeWhitenDecayFactor";
+	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH = "perception.hearing.cq.envelopeWhitenPreSwitch";
+	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH = "perception.hearing.cq.envelopeWhitenPostSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM = "perception.hearing.cq.signalMinimum";
 	public static final String PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD = "perception.hearing.cq.normaliseThreshold";
+	public static final String PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD = "perception.hearing.cq.sharpenThreshold";
 	public static final String PERCEPTION_HEARING_CQ_DECIBEL_LEVEL = "perception.hearing.cq.decibelLevel";
 	public static final String PERCEPTION_HEARING_CQ_COMPRESSION = "perception.hearing.cq.compression";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX = "perception.hearing.cq.compressionMaxSwitch";
@@ -181,6 +187,7 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_SHOW_TRACKING = "monitor.view.showTracking";
 	public static final String MONITOR_VIEW_SHOW_SYNTHESIS = "monitor.view.showSynthesis";
 	public static final String MONITOR_VIEW_SHOW_LOG = "monitor.view.showLog";
+	public static final String MONITOR_VIEW_SHOW_COLOUR = "monitor.view.showColour";
 
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";

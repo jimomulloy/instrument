@@ -72,8 +72,8 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 					float[] spectralEnergy = entry.getValue();
 					ToneMapElement[] elements = ttf.getElements();
 					for (int i = 0; i < spectralEnergy.length; i++) {
-						elements[i].amplitude += spectralEnergy[i];
 						elements[i].microTones.putMicroTone(entry.getKey(), spectralEnergy[i]);
+						elements[i].amplitude += spectralEnergy[i];
 					}
 				}
 				ttf.reset();

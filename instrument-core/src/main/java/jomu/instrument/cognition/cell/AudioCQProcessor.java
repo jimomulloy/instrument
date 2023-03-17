@@ -9,6 +9,7 @@ import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioCQProcessor extends ProcessorCommon {
 
@@ -76,6 +77,18 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC);
 		boolean cqWhiten = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
+		double cqSharpenThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD);
+		double cqEnvelopeWhitenThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_THRESHOLD);
+		double cqEnvelopeWhitenAttackFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_ATTACK_FACTOR);
+		double cqEnvelopeWhitenDecayFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR);
+		boolean cqEnvelopeWhitenPreSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH);
+		boolean cqEnvelopeWhitenPostSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH);
 		double lowCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
@@ -93,9 +106,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_WHITENER", streamId));
 		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 
-		LOG.finer(">>CQ TIME: " + toneMap.getTimeFrame().getStartTime() + ", "
-				+ toneMap.getTimeFrame().getMaxAmplitude() + ", " + toneMap.getTimeFrame().getMinAmplitude());
-
 		// if (cqWhiten) {
 		// FFTSpectrum fftSpectrum =
 		// toneMap.getTimeFrame().extractFFTSpectrum(cqf.getSource().getWindowSize());
@@ -109,16 +119,29 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		AudioTuner tuner = new AudioTuner();
 
+		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);
+		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
+
+		LOG.severe(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+				+ ", " + ttf.getRmsPower());
+
+		if (cqEnvelopeWhitenPreSwitch && previousTimeFrame != null) {
+			LOG.severe(">>CQ PRE WHITEN: " + ttf.getStartTime() + ", " + previousTimeFrame.getStartTime() + ", "
+					+ ttf.getRmsPower() + ", " + ttf.getSpectralFlux() + ", " + ttf.getSpectralCentroid());
+			ttf.envelopeWhiten(previousTimeFrame, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
+					cqEnvelopeWhitenAttackFactor);
+		}
+
 		if (cqSwitchSharpenHarmonic) {
 			if (cqSwitchPreHarmonics) {
 				tuner.processOvertones(toneMap.getTimeFrame());
 			}
 			if (cqSwitchPreSharpen) {
-				toneMap.getTimeFrame().sharpen();
+				ttf.sharpen(cqSharpenThreshold);
 			}
 		} else {
 			if (cqSwitchPreSharpen) {
-				toneMap.getTimeFrame().sharpen();
+				ttf.sharpen(cqSharpenThreshold);
 			}
 			if (cqSwitchPreHarmonics) {
 				tuner.processOvertones(toneMap.getTimeFrame());
@@ -126,36 +149,27 @@ public class AudioCQProcessor extends ProcessorCommon {
 		}
 
 		if (cqSwitchCompress) {
-			toneMap.getTimeFrame().compress(compression, cqSwitchCompressMax);
+			ttf.compress(compression, cqSwitchCompressMax);
 		}
 		if (cqSwitchSquare) {
-			toneMap.getTimeFrame().square();
+			ttf.square();
 		}
 
 		if (cqSwitchLowThreshold) {
-			toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
+			ttf.lowThreshold(lowThreshold, signalMinimum);
 		}
 
-		LOG.finer(">>CQ MAX/MIN BEFORE SCALE: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-				+ toneMap.getTimeFrame().getMinAmplitude());
 		if (cqSwitchScale) {
-			toneMap.getTimeFrame().scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
-			LOG.finer(">>CQ MAX/MIN AMP AFTER SCALE: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-					+ toneMap.getTimeFrame().getMinAmplitude());
+			ttf.scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
 		}
 
-		LOG.finer(">>CQ MAX/MIN BEFORE WHITEN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-				+ toneMap.getTimeFrame().getMinAmplitude());
 		if (cqSwitchWhiten) {
-			toneMap.getTimeFrame().adaptiveWhiten(cqAdaptiveWhitenControlMap,
-					toneMap.getPreviousTimeFrame(toneMap.getTimeFrame().getStartTime()), cqWhitenFactor,
-					cqWhitenThreshold, cqSwitchWhitenCompensate);
-			LOG.finer(">>CQ MAX/MIN AMP AFTER WHITEN: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-					+ toneMap.getTimeFrame().getMinAmplitude());
+			ttf.adaptiveWhiten(cqAdaptiveWhitenControlMap, toneMap.getPreviousTimeFrame(ttf.getStartTime()),
+					cqWhitenFactor, cqWhitenThreshold, cqSwitchWhitenCompensate);
 		}
 
 		if (cqSwitchDecibel) {
-			toneMap.getTimeFrame().decibel(decibelLevel);
+			ttf.decibel(decibelLevel);
 		}
 
 		if (cqSwitchSharpenHarmonic) {
@@ -163,19 +177,30 @@ public class AudioCQProcessor extends ProcessorCommon {
 				tuner.processOvertones(toneMap.getTimeFrame());
 			}
 			if (cqSwitchPostSharpen) {
-				toneMap.getTimeFrame().sharpen();
+				ttf.sharpen(cqSharpenThreshold);
 			}
 		} else {
 			if (cqSwitchPostSharpen) {
-				toneMap.getTimeFrame().sharpen();
+				ttf.sharpen(cqSharpenThreshold);
 			}
 			if (cqSwitchPostHarmonics) {
 				tuner.processOvertones(toneMap.getTimeFrame());
 			}
 		}
 
-		LOG.finer(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
-				+ toneMap.getTimeFrame().getMinAmplitude());
+		if (cqEnvelopeWhitenPostSwitch && previousTimeFrame != null) {
+			ttf.envelopeWhiten(previousTimeFrame, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
+					cqEnvelopeWhitenAttackFactor);
+		}
+
+		if (previousTimeFrame != null) {
+			ttf.updateSpectralFlux(previousTimeFrame);
+		}
+
+		LOG.severe(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
+				+ ", " + ttf.getSpectralCentroid());
+
+		LOG.finer(">>CQ MAX/MIN AMP X: " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude());
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 
