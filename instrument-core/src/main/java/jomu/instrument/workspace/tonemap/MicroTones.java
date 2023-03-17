@@ -17,13 +17,13 @@ public class MicroTones {
 		MicroTones copy = new MicroTones();
 		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
 			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
-				copy.addMicroTone(mtm.getKey(), mtpm.getKey(), mtpm.getValue());
+				copy.putMicroTone(mtm.getKey(), mtpm.getKey(), mtpm.getValue());
 			}
 		}
 		return copy;
 	}
 
-	public void addMicroTone(double time, int subPitchIndex, double amplitude) {
+	public void putMicroTone(double time, int subPitchIndex, double amplitude) {
 		Map<Integer, Double> microTonePitchMap = null;
 		if (microToneMap.containsKey(time)) {
 			microTonePitchMap = microToneMap.get(time);
@@ -38,8 +38,8 @@ public class MicroTones {
 		}
 	}
 
-	public void addMicroTone(double time, double amplitude) {
-		addMicroTone(time, 0, amplitude);
+	public void putMicroTone(double time, double amplitude) {
+		putMicroTone(time, 0, amplitude);
 	}
 
 	public Map<Double, Double> getMicroTones(int subPitchIndex) {
@@ -56,6 +56,16 @@ public class MicroTones {
 
 	public Map<Double, Double> getMicroTones() {
 		return getMicroTones(0);
+	}
+
+	public double getPower() {
+		double power = 0;
+		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
+			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
+				power += mtpm.getValue();
+			}
+		}
+		return power;
 	}
 
 }

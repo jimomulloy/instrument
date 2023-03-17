@@ -66,8 +66,6 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
-			int window = timeSet.getSampleWindow();
-
 			// toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
@@ -82,20 +80,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 								.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[i]));
 						int index = pitchSet.getIndex(note);
 						elements[index].amplitude += spectralEnergy[i];
-						elements[index].microTones.addMicroTone(entry.getKey(), spectralEnergy[i]);
-					}
-				}
-				ToneMapElement[] elements = ttf.getElements();
-				for (int i = 0; i < elements.length; i++) {
-					if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
-						// !!TODO getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
-						LOG.finer(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
-					}
-				}
-				for (int i = 0; i < elements.length; i++) {
-					elements[i].amplitude = elements[i].amplitude / getSource().getMaxMagnitudeThreshold();
-					if (elements[i].amplitude < getSource().getMinMagnitudeThreshold()) {
-						// !!TODO elements[i].amplitude = getCqs().getMinMagnitudeThreshold();
+						elements[index].microTones.putMicroTone(entry.getKey(), spectralEnergy[i]);
 					}
 				}
 				ttf.reset();

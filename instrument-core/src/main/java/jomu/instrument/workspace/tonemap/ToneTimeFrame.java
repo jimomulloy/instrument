@@ -41,16 +41,17 @@ public class ToneTimeFrame {
 	double minAmplitude;
 	NoteStatus noteStatus;
 	PitchSet pitchSet;
-	double rawPower = 0;
-	double power = 0;
-	double rawShape = 0;
-	double shape = 0;
+	double rmsPower = 0;
+	double rawRmsPower = 0;
+	double spectralFlux = 0;
+	double rawSpectralFlux = 0;
+	double totalAmplitude;
+	double totalRawAmplitude;
+	int spectralCentroid;
 
 	TimeSet timeSet;
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
-
-	private int totalAmplitude;
 
 	static class AdaptiveWhitenConfig {
 		public int lowNote;
@@ -109,20 +110,28 @@ public class ToneTimeFrame {
 		return copy;
 	}
 
-	public double getRawPower() {
-		return rawPower;
+	public double getRmsPower() {
+		return rmsPower;
 	}
 
-	public double getPower() {
-		return power;
+	public double getRawRmsPower() {
+		return rawRmsPower;
 	}
 
-	public double getRawShape() {
-		return rawShape;
+	public double getSpectralFlux() {
+		return spectralFlux;
 	}
 
-	public double getShape() {
-		return shape;
+	public double getRawSpectralFlux() {
+		return rawSpectralFlux;
+	}
+
+	public double getTotalAmplitude() {
+		return totalAmplitude;
+	}
+
+	public int getSpectralCentroid() {
+		return spectralCentroid;
 	}
 
 	public double getBeatAmplitude() {
@@ -383,7 +392,8 @@ public class ToneTimeFrame {
 		maxAmplitude = 0;
 		minAmplitude = 1000000;
 		avgAmplitude = 0;
-		int sumAmplitude = 0;
+		spectralCentroid = 0;
+		double sumRawSquareAmplitude = 0;
 		int sumSquareAmplitude = 0;
 		long count = 0;
 
@@ -406,13 +416,32 @@ public class ToneTimeFrame {
 				if (minAmplitude > elements[i].amplitude) {
 					minAmplitude = elements[i].amplitude;
 				}	
-				sumAmplitude +=  elements[i].amplitude;
+				totalAmplitude +=  elements[i].amplitude;
+				totalRawAmplitude += elements[i].microTones.getPower();
+				sumRawSquareAmplitude += elements[i].microTones.getPower() * elements[i].microTones.getPower();
 				sumSquareAmplitude += elements[i].amplitude * elements[i].amplitude;
 			}
 		}
 		avgAmplitude = avgAmplitude / count;
-		totalAmplitude = sumAmplitude;
-		power = Math.sqrt(sumSquareAmplitude);
+		rawRmsPower = Math.sqrt(sumRawSquareAmplitude/count);;
+		rmsPower = Math.sqrt(sumSquareAmplitude/count);
+		List<Integer> meanFreqs = new ArrayList<Integer>();
+		double minAmp = Double.MAX_VALUE;
+		int minIndex = 0;
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i].amplitude == avgAmplitude) {
+				meanFreqs.add(i);
+			} else {
+				if (elements[i].amplitude > avgAmplitude && elements[i].amplitude < minAmp) {
+					minIndex = i;
+				}
+			}
+		}
+		if (meanFreqs.isEmpty()) {
+			meanFreqs.add(minIndex);
+		}
+		Collections.sort(meanFreqs);
+		spectralCentroid = meanFreqs.get(meanFreqs.size() / 2);
 		return this;
 	}
 
@@ -1094,6 +1123,17 @@ public class ToneTimeFrame {
 		return this;
 	}
 
+	public ToneTimeFrame updateSpectralFlux(ToneTimeFrame previousFrame) {
+		reset();
+		spectralFlux = 0;
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			double value = elements[elementIndex].amplitude / totalAmplitude 
+					- previousFrame.getElement(elementIndex).amplitude / previousFrame.getTotalAmplitude();
+			spectralFlux += value * value;
+		}
+		return this;
+	}
+
 	public ToneTimeFrame adaptiveWhiten(ToneMap controlMap, ToneTimeFrame previousFrame, double onsetFactor,
 			double threshold, boolean compensate) {
 		ToneTimeFrame controlFrame = controlMap.getTimeFrame();
@@ -1149,6 +1189,18 @@ public class ToneTimeFrame {
 							/ elements[elementIndex].amplitude) < onsetEdgeFactor) {
 				elements[elementIndex].amplitude = 0;
 			}
+		}
+		reset();
+		return this;
+	}
+	
+	public ToneTimeFrame fadeWhiten(ToneTimeFrame previousFrame, double fadeWhitenFactor) {
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+//			if (elements[elementIndex].amplitude <= AMPLITUDE_FLOOR
+//					|| ((elements[elementIndex].amplitude - previousFrame.elements[elementIndex].amplitude)
+//							/ elements[elementIndex].amplitude) < onsetEdgeFactor) {
+//				elements[elementIndex].amplitude = 0;
+//			}
 		}
 		reset();
 		return this;

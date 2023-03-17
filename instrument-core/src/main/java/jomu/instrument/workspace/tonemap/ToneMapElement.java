@@ -43,6 +43,7 @@ public class ToneMapElement {
 		if (this.noteListElement != null) {
 			clone.noteListElement = this.noteListElement.clone();
 		}
+		clone.microTones = microTones.clone();
 		return clone;
 	}
 

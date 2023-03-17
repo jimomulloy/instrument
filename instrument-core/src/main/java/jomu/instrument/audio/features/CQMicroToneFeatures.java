@@ -64,9 +64,6 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
-			int window = timeSet.getSampleWindow();
-
-			// toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
@@ -76,23 +73,9 @@ public class CQMicroToneFeatures extends AudioEventFeatures<float[]> implements 
 					ToneMapElement[] elements = ttf.getElements();
 					for (int i = 0; i < spectralEnergy.length; i++) {
 						elements[i].amplitude += spectralEnergy[i];
+						elements[i].microTones.putMicroTone(entry.getKey(), spectralEnergy[i]);
 					}
 				}
-				ToneMapElement[] elements = ttf.getElements();
-				for (int i = 0; i < elements.length; i++) {
-					if (elements[i].amplitude > getSource().getMaxMagnitudeThreshold()) {
-						// getCqs().setMaxMagnitudeThreshold(elements[i].amplitude);
-						LOG.finer(">>CQ MAX VALUE: " + getSource().getMaxMagnitudeThreshold());
-					}
-				}
-				for (int i = 0; i < elements.length; i++) {
-					elements[i].amplitude = elements[i].amplitude / getSource().getMaxMagnitudeThreshold();
-					if (elements[i].amplitude < getSource().getMinMagnitudeThreshold()) {
-						// elements[i].amplitude = getCqs().getMinMagnitudeThreshold();
-					}
-				}
-				// ttf.setHighThreshold(1.0);
-				// ttf.setLowThreshold(getCqs().getMinMagnitudeThreshold());
 				ttf.reset();
 			}
 		} else {
