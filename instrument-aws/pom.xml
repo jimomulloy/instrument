@@ -17,6 +17,7 @@
     	<module>instrument-lambda</module>
     	<module>instrument-lambda-st</module>
     	<module>instrument-cdk</module>
+     	<module>instrument-layer</module>
      	<module>instrument-s3handler</module>
      	<module>instrument-s3handler-cdk</module>
     </modules>

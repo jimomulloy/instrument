@@ -30,7 +30,7 @@ public class ToneTimeFrame {
 			new AdaptiveWhitenConfig(108, 119, 12, 1.0, 1.0, 1.0),
 			new AdaptiveWhitenConfig(120, 1000, 12, 1.0, 1.0, 1.0), };
 
-	private double avgAmplitude = AMPLITUDE_FLOOR;
+	double avgAmplitude = AMPLITUDE_FLOOR;
 
 	ToneMapElement[] elements;
 
@@ -41,10 +41,16 @@ public class ToneTimeFrame {
 	double minAmplitude;
 	NoteStatus noteStatus;
 	PitchSet pitchSet;
+	double rawPower = 0;
+	double power = 0;
+	double rawShape = 0;
+	double shape = 0;
 
 	TimeSet timeSet;
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
+
+	private int totalAmplitude;
 
 	static class AdaptiveWhitenConfig {
 		public int lowNote;
@@ -101,6 +107,22 @@ public class ToneTimeFrame {
 		copy.setLowThreshold(this.getLowThres());
 		copy.setHighThreshold(this.getHighThreshold());
 		return copy;
+	}
+
+	public double getRawPower() {
+		return rawPower;
+	}
+
+	public double getPower() {
+		return power;
+	}
+
+	public double getRawShape() {
+		return rawShape;
+	}
+
+	public double getShape() {
+		return shape;
 	}
 
 	public double getBeatAmplitude() {
@@ -361,6 +383,8 @@ public class ToneTimeFrame {
 		maxAmplitude = 0;
 		minAmplitude = 1000000;
 		avgAmplitude = 0;
+		int sumAmplitude = 0;
+		int sumSquareAmplitude = 0;
 		long count = 0;
 
 		for (int i = 0; i < elements.length; i++) {
@@ -379,11 +403,16 @@ public class ToneTimeFrame {
 					maxAmplitude = elements[i].amplitude;
 					maxPitch = i;
 				}
-				if (minAmplitude > elements[i].amplitude)
+				if (minAmplitude > elements[i].amplitude) {
 					minAmplitude = elements[i].amplitude;
+				}	
+				sumAmplitude +=  elements[i].amplitude;
+				sumSquareAmplitude += elements[i].amplitude * elements[i].amplitude;
 			}
 		}
 		avgAmplitude = avgAmplitude / count;
+		totalAmplitude = sumAmplitude;
+		power = Math.sqrt(sumSquareAmplitude);
 		return this;
 	}
 
