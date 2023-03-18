@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -48,7 +49,7 @@ public class Hearing implements Organ {
 
 	String streamId;
 
-	ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>(); 
+	ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 
 	@Inject
 	ParameterManager parameterManager;
@@ -70,7 +71,7 @@ public class Hearing implements Organ {
 		audioStream.close();
 		console.getVisor().audioStopped();
 		console.getVisor().updateStatusMessage("Ready");
-		LOG.severe(">>Closed Audio Stream: "+ streamId);
+		LOG.severe(">>Closed Audio Stream: " + streamId);
 	}
 
 	public void removeAudioStream(String streamId) {
@@ -97,8 +98,7 @@ public class Hearing implements Organ {
 	public void start() {
 	}
 
-	public void startAudioFileStream(String fileName)
-			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+	public void startAudioFileStream(String fileName) throws Exception {
 		if (streamId != null) {
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
@@ -107,8 +107,14 @@ public class Hearing implements Organ {
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 		File file = new File(fileName);
-		InputStream stream = new FileInputStream(file);
-		audioStream.initialiseAudioFileStream(new BufferedInputStream(stream));
+		InputStream stream = new FileInputStream(file); 
+    	BufferedInputStream bs = new BufferedInputStream(stream);
+		try {
+			audioStream.initialiseAudioFileStream(bs);
+		} catch (UnsupportedAudioFileException |IOException | LineUnavailableException ex) {
+			LOG.log(Level.SEVERE, "Audio file process error:" + fileName, ex);	
+			throw new Exception("Audio file process error: " + ex.getMessage());
+		} 
 
 		audioStream.getAudioFeatureProcessor().addObserver(cortex);
 		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
@@ -120,7 +126,7 @@ public class Hearing implements Organ {
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
-		LOG.severe(">>Start Audio Stream: "+ streamId);
+		LOG.severe(">>Start Audio Stream: " + streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 
@@ -283,17 +289,17 @@ public class Hearing implements Organ {
 
 	public void test() {
 		InputStream is = getClass().getClassLoader().getResourceAsStream("test.wav");
-    	if (is == null) {
-    	   throw new IllegalArgumentException("file not found!");
-    	}
-    	
+		if (is == null) {
+			throw new IllegalArgumentException("file not found!");
+		}
+
 		if (streamId != null) {
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
-		
+
 		try {
 			audioStream.initialiseAudioFileStream(new BufferedInputStream(is));
 		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {

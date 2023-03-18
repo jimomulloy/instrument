@@ -936,7 +936,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					try {
 						Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
 						updateStatusMessage("Choosen file: " + inputFile);
-					} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+					} catch (Exception e) {
 						LOG.log(Level.SEVERE, "Error choosing file :" + inputFile, e);
 						Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
 						startFileProcessingButton.setEnabled(true);
@@ -971,7 +971,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					resetToneMapView();
 					Instrument.getInstance().getCoordinator().getHearing().startAudioFileStream(fileName);
 					updateStatusMessage("Started file: " + inputFile);
-				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+				} catch (Exception e) {
 					LOG.log(Level.SEVERE, "Error starting file :" + inputFile, e);
 					Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
 					startFileProcessingButton.setEnabled(true);
