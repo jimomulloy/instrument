@@ -107,7 +107,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 @ApplicationScoped
 public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
-	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName());
+	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName()); 
 
 	private static String defaultAudioFile = "NOTETRACK49sec.wav";
 
@@ -229,6 +229,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	private JCheckBox updateThresholdSwitchCB;
 
 	private JCheckBox showColourSwitchCB;
+
+	private JCheckBox silentWriteSwitchCB;
 
 	@Override
 	public void startUp() {
@@ -1259,7 +1261,20 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionPanel.add(new JLabel("  "));
 
 		actionPanel.add(parametersButton);
+		
+		actionPanel.add(new JLabel("  "));
 
+		final JButton testButton = new JButton("Test");
+
+		testButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Instrument.getInstance().test();
+			}
+		});
+		actionPanel.add(testButton);
+		
 		panel.add(actionPanel, BorderLayout.CENTER);
 
 		JLabel playerTitleLabel = new JLabel(" Play ");
@@ -1626,6 +1641,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(midiPlayBaseSwitchCB);
 
 		voicePanel.add(new JLabel("  "));
+
+		silentWriteSwitchCB = new JCheckBox("silentWriteCB");
+		silentWriteSwitchCB.setText("Silent Write");
+		silentWriteSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		silentWriteSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE));
+		voicePanel.add(silentWriteSwitchCB);
 
 		trackWriteSwitchCB = new JCheckBox("trackWriteCB");
 		trackWriteSwitchCB.setText("Track Write");

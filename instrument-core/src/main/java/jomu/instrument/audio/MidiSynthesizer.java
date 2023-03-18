@@ -435,7 +435,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	/**
 	 * Write MIDI sequence to MIDI file
 	 */
-	public boolean saveMidiFile(File file) {
+	public boolean saveMidiFile(File file) { 
 		try {
 			int[] fileTypes = MidiSystem.getMidiFileTypes(sequence);
 			if (fileTypes.length == 0) {
@@ -510,6 +510,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 		@Override
 		public void run() {
 			boolean completed = false;
+			boolean silentWrite = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+
 			try {
 				while (running) {
 					if (midiStream.isClosed()) {
@@ -525,7 +528,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						break;
 					}
 
-					if (sampleTime != 0) {
+					if (sampleTime != 0 && !silentWrite) {
 						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 					}
 
@@ -664,6 +667,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
+			boolean silentWrite = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
 
 			ToneMap notateToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
@@ -772,15 +777,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 					break;
 				}
 			}
-
-			for (ShortMessage mm : midiMessages) {
-				try {
-					synthesizer.getReceiver().send(mm, -1);
-				} catch (MidiUnavailableException e) {
-					LOG.log(Level.SEVERE, "Send MIDI Voice Channel1 error ", e);
-					return false;
+			
+			
+			if (!silentWrite) {
+				for (ShortMessage mm : midiMessages) {
+					try {
+						synthesizer.getReceiver().send(mm, -1);
+					} catch (MidiUnavailableException e) {
+						LOG.log(Level.SEVERE, "Send MIDI Voice Channel1 error ", e);
+						return false;
+					}
 				}
-			}
+			}	
 
 			return true;
 

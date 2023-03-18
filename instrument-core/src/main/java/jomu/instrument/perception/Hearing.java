@@ -1,7 +1,13 @@
 package jomu.instrument.perception;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -17,6 +23,8 @@ import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import be.tarsos.dsp.AudioDispatcher;
+import be.tarsos.dsp.filters.BandPass;
+import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
@@ -40,7 +48,7 @@ public class Hearing implements Organ {
 
 	String streamId;
 
-	ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
+	ConcurrentHashMap<String, AudioStream> audioStreams = new ConcurrentHashMap<>(); 
 
 	@Inject
 	ParameterManager parameterManager;
@@ -62,6 +70,7 @@ public class Hearing implements Organ {
 		audioStream.close();
 		console.getVisor().audioStopped();
 		console.getVisor().updateStatusMessage("Ready");
+		LOG.severe(">>Closed Audio Stream: "+ streamId);
 	}
 
 	public void removeAudioStream(String streamId) {
@@ -94,10 +103,12 @@ public class Hearing implements Organ {
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
+		LOG.severe(">>Start Audio Stream: "+ streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
-
-		audioStream.initialiseAudioFileStream(fileName);
+		File file = new File(fileName);
+		InputStream stream = new FileInputStream(file);
+		audioStream.initialiseAudioFileStream(new BufferedInputStream(stream));
 
 		audioStream.getAudioFeatureProcessor().addObserver(cortex);
 		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
@@ -109,6 +120,7 @@ public class Hearing implements Organ {
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
+		LOG.severe(">>Start Audio Stream: "+ streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 
@@ -157,17 +169,12 @@ public class Hearing implements Organ {
 			return audioFeatureProcessor;
 		}
 
-		public void initialiseAudioFileStream(String fileName)
+		public void initialiseAudioFileStream(BufferedInputStream inputStream)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 			console.getVisor().clearView();
-			// tarsosIO.selectMixer(2);
-			File file = new File(fileName);
-			AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
-			LOG.finer(">>Open Audio file:  " + fileName + ", format: " + format);
-			// UniversalAudioInputStream ais = new UniversalAudioInputStream(new
-			// FileInputStream(file),
-			// new TarsosDSPAudioFormat((int)sampleRate, 16, 1, true, false));
-			dispatcher = AudioDispatcherFactory.fromFile(file, bufferSize, overlap);
+			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
+			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
+			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			// AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
 			float audioHighPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
@@ -187,10 +194,10 @@ public class Hearing implements Organ {
 //				LOG.finer(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
 //				dispatcher.addAudioProcessor(new LowPassSP(AUDIO_LOWPASS_MIN, sampleRate));
 //			}
-			// if (audioLowPass - audioHighPass > 0) {
-			// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
-			// audioHighPass, sampleRate));
-			// }
+			// TODO??
+			if (audioLowPass - audioHighPass > 0) {
+				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
+			}
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
@@ -272,5 +279,31 @@ public class Hearing implements Organ {
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
+	}
+
+	public void test() {
+		InputStream is = getClass().getClassLoader().getResourceAsStream("test.wav");
+    	if (is == null) {
+    	   throw new IllegalArgumentException("file not found!");
+    	}
+    	
+		if (streamId != null) {
+			workspace.getAtlas().removeToneMapsByStreamId(streamId);
+		}
+		streamId = UUID.randomUUID().toString();
+		AudioStream audioStream = new AudioStream(streamId);
+		audioStreams.put(streamId, audioStream);
+		
+		try {
+			audioStream.initialiseAudioFileStream(new BufferedInputStream(is));
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		audioStream.getAudioFeatureProcessor().addObserver(cortex);
+		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
+		audioStream.start();
+
 	}
 }

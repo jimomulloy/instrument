@@ -194,6 +194,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";
 	public static final String ACTUATION_VOICE_PLAY_PEAKS = "actuation.voice.playPeaks";
 	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";
+	public static final String ACTUATION_VOICE_SILENT_WRITE = "actuation.voice.silentWrite";
 	public static final String ACTUATION_VOICE_AUDIO_PLAY = "actuation.voice.playAudio";
 	public static final String ACTUATION_VOICE_TRACK_WRITE_SWITCH = "actuation.voice.trackWriteSwitch";
 	public static final String ACTUATION_VOICE_RESYNTH_PLAY = "actuation.voice.playResynth";

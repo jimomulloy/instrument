@@ -13,7 +13,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 	private static final Logger LOG = Logger.getLogger(AudioSinkProcessor.class.getName());
 
-	public AudioSinkProcessor(NuCell cell) {
+	public AudioSinkProcessor(NuCell cell) { 
 		super(cell);
 	}
 
@@ -36,7 +36,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence);
 		}
 		if (isClosing(streamId, sequence)) {
-			LOG.finer(">>AudioSinkProcessor CLOSE!!");
+			LOG.severe(">>AudioSinkProcessor CLOSE!!");
 			voice.close(streamId);
 			hearing.removeAudioStream(streamId);
 		}
