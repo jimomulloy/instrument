@@ -9,7 +9,7 @@ public class S3Bucket extends Construct {
 
 	public S3Bucket(Construct scope) {
 		super(scope, "Bucket");
-		this.bucket = Bucket.Builder.create(this, "EventBridgeDemoBucket").bucketName("jomu-instrument-demo")
+		this.bucket = Bucket.Builder.create(this, "jomu-instrument-store").bucketName("jomu-instrument-store")
 				.eventBridgeEnabled(true).build();
 	}
 
