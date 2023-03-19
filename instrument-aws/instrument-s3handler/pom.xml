@@ -38,6 +38,12 @@
     </dependencyManagement>
     <dependencies>
 		<dependency>
+	      <groupId>jomu</groupId>
+	      <artifactId>instrument</artifactId>
+	      <version>0.0.1-SNAPSHOT</version>
+	      <scope>compile</scope>
+	    </dependency>
+		<dependency>
 	      <groupId>io.quarkus</groupId>
 	      <artifactId>quarkus-resteasy</artifactId>
 	    </dependency>

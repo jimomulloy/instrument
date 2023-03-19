@@ -36,6 +36,7 @@ import jomu.instrument.cognition.Cortex;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.Console;
+import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
@@ -63,6 +64,9 @@ public class Hearing implements Organ {
 	@Inject
 	Console console;
 
+	@Inject
+	Storage storage;
+	
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
@@ -106,8 +110,8 @@ public class Hearing implements Organ {
 		LOG.severe(">>Start Audio Stream: "+ streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
-		File file = new File(fileName);
-		InputStream stream = new FileInputStream(file); 
+		//File file = new File(fileName);
+		InputStream stream = storage.getObjectStorage().read(fileName); 
     	BufferedInputStream bs = new BufferedInputStream(stream);
 		try {
 			audioStream.initialiseAudioFileStream(bs);

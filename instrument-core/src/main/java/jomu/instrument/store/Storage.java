@@ -15,6 +15,9 @@ public class Storage implements Organ {
 	@Inject
 	InstrumentStoreService instrumentStoreService;
 
+	@Inject
+	ObjectStorage objectStorage;
+
 	@Override
 	public void initialise() {
 		System.out.println(">>STORAGE IS Init");
@@ -24,6 +27,10 @@ public class Storage implements Organ {
 
 	public InstrumentStoreService getInstrumentStoreService() {
 		return instrumentStoreService;
+	}
+
+	public ObjectStorage getObjectStorage() {
+		return objectStorage;
 	}
 
 	@Override

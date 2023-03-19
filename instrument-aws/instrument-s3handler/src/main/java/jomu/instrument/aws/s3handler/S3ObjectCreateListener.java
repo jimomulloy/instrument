@@ -1,11 +1,19 @@
 package jomu.instrument.aws.s3handler;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 
+@Named("test")
 public class S3ObjectCreateListener implements RequestHandler<S3Event, OutputObject> {
 
+
+    @Inject
+    ProcessingService service;
+    
 	@Override
 	public OutputObject handleRequest(S3Event event, Context context) {
 		var records = event.getRecords();
@@ -13,7 +21,8 @@ public class S3ObjectCreateListener implements RequestHandler<S3Event, OutputObj
 			System.out.println(String.format("%s-%s-%s", record.getEventName(), record.getEventSource(),
 					record.getS3().getBucket().getArn()));
 		}
-		return null;
+		InputObject input = new InputObject();
+		return service.process(input).setRequestId(context.getAwsRequestId());
 	}
 
 }
