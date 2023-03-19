@@ -1,6 +1,7 @@
 package jomu.instrument.control;
 
 import java.io.File;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,7 +14,9 @@ import jomu.instrument.utils.FileUtils;
 public class Controller implements Organ {
 
 	private static final Logger LOG = Logger.getLogger(Controller.class.getName());
-
+    
+	private CountDownLatch countDownLatch;
+	
 	@Inject
 	ParameterManager parameterManager;
 
@@ -36,6 +39,21 @@ public class Controller implements Organ {
 		// TODO Auto-generated method stub
 	}
 
+	public CountDownLatch getCountDownLatch() {
+		return countDownLatch;
+	}
+
+	public boolean isCountDownLatch() {
+		return countDownLatch == null;
+	}
+
+	public void clearCountDownLatch() {
+		countDownLatch = null;
+	}
+
+	public void setCountDownLatch(CountDownLatch countDownLatch) {
+		this.countDownLatch = countDownLatch;
+	}
 	/**
 	 * Checks the configured directories and creates them if they are not present.
 	 */

@@ -1,6 +1,8 @@
 package jomu.instrument;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -91,8 +93,22 @@ public class Instrument implements Organ, InstrumentFactory {
 				"false");
 		controller.getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE,
 				"true");
+		controller.getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE,
+				"true");
+		controller.getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE,
+				"true");
+		//TODO update UI here
 		//TODO update UI here)
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+		controller.setCountDownLatch(countDownLatch);
 		coordinator.getHearing().test();
+		try {
+			countDownLatch.await(60, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		controller.clearCountDownLatch();
 		LOG.severe(">>Tested INSTRUMENT");
 	}
 

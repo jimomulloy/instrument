@@ -13,6 +13,7 @@ import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.audio.ResynthAudioSynthesizer;
 import jomu.instrument.audio.TarsosAudioSynthesizer;
+import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.Workspace;
@@ -30,6 +31,9 @@ public class Voice implements Organ {
 	@Inject
 	ParameterManager parameterManager;
 
+	@Inject
+	Controller controller;
+
 	Workspace workspace;
 
 	public AudioSynthesizer buildAudioSynthesizer() {
@@ -43,7 +47,7 @@ public class Voice implements Organ {
 	}
 
 	public MidiSynthesizer buildMidiSynthesizer() {
-		midiSynthesizer = new MidiSynthesizer(workspace, parameterManager);
+		midiSynthesizer = new MidiSynthesizer(workspace, parameterManager, controller);
 		midiSynthesizer.open();
 		return this.midiSynthesizer;
 	}

@@ -37,6 +37,7 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.Workspace;
@@ -128,13 +129,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	private Workspace workspace;
 
+	private Controller controller;
+
 	/**
 	 * MidiModel constructor. Test Java Sound MIDI System available Instantiate
 	 * MidiPanel
+	 * @param controller 
 	 */
-	public MidiSynthesizer(Workspace workspace, ParameterManager parameterManager) {
+	public MidiSynthesizer(Workspace workspace, ParameterManager parameterManager, Controller controller) {
 		this.workspace = workspace;
 		this.parameterManager = parameterManager;
+		this.controller = controller;
 	}
 
 	// private int timeRange;
@@ -637,8 +642,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				Thread.currentThread().interrupt();
 			}
 			clearChannels();
-			this.midiStream.close();
-
+		
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 
@@ -655,6 +659,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				LOG.finer(">>Write track file: " + file.getAbsolutePath());
 				saveMidiFile(file);
 			}
+			this.midiStream.close();
 		}
 
 		private boolean playVoiceChannel1(MidiQueueMessage mqm) {
@@ -2003,6 +2008,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			bq.drainTo(new ArrayList<Object>());
 			closed = true;
 			consumer.stop();
+			if (controller.isCountDownLatch()) {
+				controller.getCountDownLatch().countDown();
+			}			
 		}
 
 		public boolean isClosed() {
