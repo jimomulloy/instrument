@@ -12,7 +12,7 @@ import com.amazonaws.services.lambda.runtime.events.S3Event;
 @Named("test")
 public class S3ObjectCreateListener implements RequestHandler<S3Event, OutputObject> {
 
-	private static final Logger LOG = Logger.getLogger(ProcessingService.class.getName());
+	private static final Logger LOG = Logger.getLogger(S3ObjectCreateListener.class.getName());
 
 	@Inject
 	ProcessingService service;
@@ -28,7 +28,7 @@ public class S3ObjectCreateListener implements RequestHandler<S3Event, OutputObj
 		context.getLogger().log(">>S3ObjectCreateListener handleRequest LOG2: " + (service == null));
 		LOG.severe(">>S3ObjectCreateListener handleRequest LOG3: " + (service == null));
 		InputObject input = new InputObject();
-		return service.process(input); // .setRequestId(context.getAwsRequestId());
+		return service.process(input).setRequestId(context.getAwsRequestId());
 	}
 
 }

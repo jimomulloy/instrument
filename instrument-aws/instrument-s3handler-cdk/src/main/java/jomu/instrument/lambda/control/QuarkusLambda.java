@@ -56,7 +56,7 @@ public class QuarkusLambda extends Construct {
 			int timeout, boolean snapStart) {
 		var architecture = snapStart ? Architecture.X86_64 : Architecture.ARM_64;
 		return Function.Builder.create(this, functionName).runtime(Runtime.JAVA_11).architecture(architecture)
-				.code(Code.fromAsset("../instrument-lambda/target/function.zip")).handler(functionHandler)
+				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
 				.memorySize(memory).functionName(functionName).environment(configuration)
 				.timeout(Duration.seconds(timeout)).build();
 	}
