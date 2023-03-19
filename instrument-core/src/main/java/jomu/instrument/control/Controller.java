@@ -14,9 +14,9 @@ import jomu.instrument.utils.FileUtils;
 public class Controller implements Organ {
 
 	private static final Logger LOG = Logger.getLogger(Controller.class.getName());
-    
-	private CountDownLatch countDownLatch;
-	
+
+	private CountDownLatch countDownLatch = null;
+
 	@Inject
 	ParameterManager parameterManager;
 
@@ -44,7 +44,7 @@ public class Controller implements Organ {
 	}
 
 	public boolean isCountDownLatch() {
-		return countDownLatch == null;
+		return countDownLatch != null;
 	}
 
 	public void clearCountDownLatch() {
@@ -54,6 +54,7 @@ public class Controller implements Organ {
 	public void setCountDownLatch(CountDownLatch countDownLatch) {
 		this.countDownLatch = countDownLatch;
 	}
+
 	/**
 	 * Checks the configured directories and creates them if they are not present.
 	 */
