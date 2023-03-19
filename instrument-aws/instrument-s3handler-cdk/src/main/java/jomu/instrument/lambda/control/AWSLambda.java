@@ -12,23 +12,17 @@ import software.constructs.Construct;
 
 public interface AWSLambda {
 
-    static Function createFunction(Construct thiz,String functionName,String functionHandler, Map<String,String> configuration, int memory, int timeout) {
-        return Function.Builder.create(thiz, functionName)
-                .runtime(Runtime.JAVA_11)
-                .architecture(Architecture.ARM_64)
-                .code(Code.fromAsset("../lambda/target/function.jar"))
-                .handler(functionHandler)
-                .memorySize(memory)
-                .functionName(functionName)
-                .environment(configuration)
-                .timeout(Duration.seconds(timeout))
-                .tracing(Tracing.ACTIVE)
-                .build();
-    }
+	static Function createFunction(Construct thiz, String functionName, String functionHandler,
+			Map<String, String> configuration, int memory, int timeout) {
+		return Function.Builder.create(thiz, functionName).runtime(Runtime.JAVA_11).architecture(Architecture.ARM_64)
+				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
+				.memorySize(memory).functionName(functionName).environment(configuration)
+				.timeout(Duration.seconds(timeout)).tracing(Tracing.ACTIVE).build();
+	}
 
-    static Function createFunction(Construct thiz,String functionName,String functionHandler){
-        return createFunction(thiz, functionName, functionHandler,Map.of(),1024, 10);
+	static Function createFunction(Construct thiz, String functionName, String functionHandler) {
+		return createFunction(thiz, functionName, functionHandler, Map.of(), 1024, 10);
 
-    }
-    
+	}
+
 }

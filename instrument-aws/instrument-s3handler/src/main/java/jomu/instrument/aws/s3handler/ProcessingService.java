@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.Instrument;
-import jomu.instrument.perception.Hearing;
 
 @ApplicationScoped
 public class ProcessingService {

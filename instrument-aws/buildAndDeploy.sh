@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
 echo "building functions"
-cd instrument-lambda && mvn clean package
+cd instrument-s3handler && mvn clean package
 echo "building CDK"
-cd ../instrument-cdk && mvn clean package && cdk deploy
+cd ../instrument-s3handler-cdk && mvn clean package && cdk deploy

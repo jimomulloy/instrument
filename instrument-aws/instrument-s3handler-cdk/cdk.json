@@ -2,8 +2,8 @@
   "app": "mvn -e -q compile exec:java",
   "watch":{
     "include":[
-      "../instrument-lambda/target/function.zip",
-      "../instrument-lambda/src/main/resources/application.properties"
+      "../instrument-s3handler/target/function.zip",
+      "../instrument-s3handler/src/main/resources/application.properties"
     ]
   },
   "context": {
