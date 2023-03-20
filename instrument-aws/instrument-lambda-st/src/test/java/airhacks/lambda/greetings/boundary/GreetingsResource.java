@@ -10,9 +10,9 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterRestClient(configKey = "base_uri")
 public interface GreetingsResource {
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("hello")
-    String content();
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("hello")
+	String content();
 
 }

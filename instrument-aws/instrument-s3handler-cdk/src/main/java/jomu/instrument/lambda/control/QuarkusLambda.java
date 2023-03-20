@@ -18,8 +18,8 @@ public class QuarkusLambda extends Construct {
 	static Map<String, String> configuration = Map.of("message", "hello, quarkus as AWS Lambda", "JAVA_TOOL_OPTIONS",
 			"-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
 	static String lambdaHandler = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest";
-	static int memory = 1024; // ~0.5 vCPU
-	static int timeout = 10;
+	static int memory = 5120;
+	static int timeout = 300;
 	IFunction function;
 
 	public QuarkusLambda(Construct scope, String functionName) {
@@ -60,11 +60,11 @@ public class QuarkusLambda extends Construct {
 		// final LayerVersion layer = new LayerVersion(this, "InstrumentLayer",
 		// LayerVersionProps.builder().code(Code.fromAsset("../instrument-layer/target/bundle"))
 		// .compatibleRuntimes(Arrays.asList(Runtime.JAVA_11)).build());
-
 		return Function.Builder.create(this, functionName).runtime(Runtime.JAVA_11).architecture(architecture)
 				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
 				.memorySize(memory).functionName(functionName).environment(configuration)
-				.timeout(Duration.seconds(timeout)).build();
+				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store")).timeout(Duration.seconds(timeout))
+				.build();
 	}
 
 	public IFunction getFunction() {

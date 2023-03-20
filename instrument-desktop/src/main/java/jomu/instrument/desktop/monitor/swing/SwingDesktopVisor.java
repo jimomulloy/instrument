@@ -38,7 +38,6 @@ import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -99,6 +98,7 @@ import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.Console;
 import jomu.instrument.monitor.Visor;
 import jomu.instrument.store.InstrumentStoreService;
+import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
@@ -107,98 +107,101 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 @ApplicationScoped
 public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
-	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName()); 
+	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName());
 
 	private static String defaultAudioFile = "NOTETRACK49sec.wav";
 
-	private LinkedPanel constantQPanel;
+	LinkedPanel constantQPanel;
 
-	private CQLayer cqLayer;
+	CQLayer cqLayer;
 
-	private LinkedPanel cqPanel;
+	LinkedPanel cqPanel;
 
-	private SpectrumLayer noiseFloorLayer;
+	SpectrumLayer noiseFloorLayer;
 
-	private PitchDetectLayer pdLayer;
-	private LinkedPanel pitchDetectPanel;
-	private SpectrumLayer spectrumLayer;
-	private LinkedPanel spectrumPanel;
-	private ToneMapView toneMapView;
-	private String currentToneMapViewType;
+	PitchDetectLayer pdLayer;
+	LinkedPanel pitchDetectPanel;
+	SpectrumLayer spectrumLayer;
+	LinkedPanel spectrumPanel;
+	ToneMapView toneMapView;
+	String currentToneMapViewType;
 
-	private Map<String, ToneMap> toneMapViews = new HashMap<>();
+	Map<String, ToneMap> toneMapViews = new HashMap<>();
 
-	private String fileName;
+	String fileName;
 
-	private static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 192000 };
+	static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
+	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 192000 };
 
-	private File inputFile;
+	File inputFile;
 
-	private JPanel diagnosticsPanel;
+	JPanel diagnosticsPanel;
 
 	@Inject
 	ParameterManager parameterManager;
 
-	private ChromaView chromaPreView;
+	@Inject
+	Storage storage;
 
-	private ChromaView chromaPostView;
+	ChromaView chromaPreView;
 
-	private BeatsView beatsView;
+	ChromaView chromaPostView;
 
-	private BeatsView percussionView;
+	BeatsView beatsView;
 
-	private JFrame mainframe;
+	BeatsView percussionView;
 
-	private JPanel beatsPanel;
+	JFrame mainframe;
+
+	JPanel beatsPanel;
 
 	@Inject
 	InstrumentStoreService iss;
 
-	private JTextField audioFeatureIntervalInput;
-	private JTextField timeAxisOffsetInput;
-	private JTextField pitchAxisOffsetInput;
-	private JTextField timeAxisRangeInput;
-	private JTextField pitchAxisRangeInput;
-	private JComboBox toneMapViewComboBox;
-	private JCheckBox playMidiSwitchCB;
-	private JCheckBox playAudioSwitchCB;
-	private JTextField voicePlayerLowThresholdInput;
-	private JTextField voicePlayerHighThresholdInput;
-	private JTextField voicePlayerDelayInput;
-	private JTextField frameNumberInput;
-	private JTextField toneMapViewLowThresholdInput;
-	private JTextField toneMapViewHighThresholdInput;
-	private JTextField audioOffsetInput;
-	private JTextField audioRangeInput;
-	private JCheckBox recordSwitchCB;
+	JTextField audioFeatureIntervalInput;
+	JTextField timeAxisOffsetInput;
+	JTextField pitchAxisOffsetInput;
+	JTextField timeAxisRangeInput;
+	JTextField pitchAxisRangeInput;
+	JComboBox toneMapViewComboBox;
+	JCheckBox playMidiSwitchCB;
+	JCheckBox playAudioSwitchCB;
+	JTextField voicePlayerLowThresholdInput;
+	JTextField voicePlayerHighThresholdInput;
+	JTextField voicePlayerDelayInput;
+	JTextField frameNumberInput;
+	JTextField toneMapViewLowThresholdInput;
+	JTextField toneMapViewHighThresholdInput;
+	JTextField audioOffsetInput;
+	JTextField audioRangeInput;
+	JCheckBox recordSwitchCB;
 
 	@Inject
 	Workspace workspace;
 
-	private JCheckBox midiPlayBaseSwitchCB;
-	private JCheckBox playResynthSwitchCB;
-	private JCheckBox midiPlayVoice1SwitchCB;
-	private AbstractButton midiPlayVoice2SwitchCB;
-	private AbstractButton midiPlayVoice3SwitchCB;
-	private AbstractButton midiPlayVoice4SwitchCB;
-	private AbstractButton midiPlayChord1SwitchCB;
-	private AbstractButton midiPlayChord2SwitchCB;
-	private AbstractButton midiPlayPad1SwitchCB;
-	private JCheckBox midiPlayPad2SwitchCB;
-	private JCheckBox midiPlayBeat1SwitchCB;
-	private JCheckBox midiPlayBeat2SwitchCB;
-	private JCheckBox midiPlayBeat3SwitchCB;
-	private JCheckBox midiPlayBeat4SwitchCB;
-	private TimeFramePanel timeFramePanel;
-	private JButton chooseFileButton;
-	private JButton startFileProcessingButton;
-	private JButton startListeningButton;
-	private JButton stopListeningButton;
-	private JCheckBox playPeaksSwitchCB;
-	private AbstractButton showPeaksSwitchCB;
+	JCheckBox midiPlayBaseSwitchCB;
+	JCheckBox playResynthSwitchCB;
+	JCheckBox midiPlayVoice1SwitchCB;
+	AbstractButton midiPlayVoice2SwitchCB;
+	AbstractButton midiPlayVoice3SwitchCB;
+	AbstractButton midiPlayVoice4SwitchCB;
+	AbstractButton midiPlayChord1SwitchCB;
+	AbstractButton midiPlayChord2SwitchCB;
+	AbstractButton midiPlayPad1SwitchCB;
+	JCheckBox midiPlayPad2SwitchCB;
+	JCheckBox midiPlayBeat1SwitchCB;
+	JCheckBox midiPlayBeat2SwitchCB;
+	JCheckBox midiPlayBeat3SwitchCB;
+	JCheckBox midiPlayBeat4SwitchCB;
+	TimeFramePanel timeFramePanel;
+	JButton chooseFileButton;
+	JButton startFileProcessingButton;
+	JButton startListeningButton;
+	JButton stopListeningButton;
+	JCheckBox playPeaksSwitchCB;
+	AbstractButton showPeaksSwitchCB;
 
-	private JCheckBox showTrackingSwitchCB;
+	JCheckBox showTrackingSwitchCB;
 
 	@Inject
 	Console console;
@@ -206,31 +209,31 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	@Inject
 	Coordinator coordinator;
 
-	private JCheckBox showLogSwitchCB;
+	JCheckBox showLogSwitchCB;
 
-	private JCheckBox trackWriteSwitchCB;
+	JCheckBox trackWriteSwitchCB;
 
-	private JPanel visorPanel;
+	JPanel visorPanel;
 
-	private JFrame mainFrame;
+	JFrame mainFrame;
 
-	private Container upperPane;
+	Container upperPane;
 
-	private JPanel contentPane;
+	JPanel contentPane;
 
-	private JLabel statusLabel;
+	JLabel statusLabel;
 
-	private JCheckBox showSynthesisSwitchCB;
+	JCheckBox showSynthesisSwitchCB;
 
-	private JTextField hearingMinFreqCentsInput;
+	JTextField hearingMinFreqCentsInput;
 
-	private JTextField hearingMaxFreqCentsInput;
+	JTextField hearingMaxFreqCentsInput;
 
-	private JCheckBox updateThresholdSwitchCB;
+	JCheckBox updateThresholdSwitchCB;
 
-	private JCheckBox showColourSwitchCB;
+	JCheckBox showColourSwitchCB;
 
-	private JCheckBox silentWriteSwitchCB;
+	JCheckBox silentWriteSwitchCB;
 
 	@Override
 	public void startUp() {
@@ -1261,7 +1264,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionPanel.add(new JLabel("  "));
 
 		actionPanel.add(parametersButton);
-		
+
 		actionPanel.add(new JLabel("  "));
 
 		final JButton testButton = new JButton("Test");
@@ -1270,11 +1273,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Instrument.getInstance().test();
+				Instrument.getInstance().getController().test();
 			}
 		});
 		actionPanel.add(testButton);
-		
+
 		panel.add(actionPanel, BorderLayout.CENTER);
 
 		JLabel playerTitleLabel = new JLabel(" Play ");
@@ -1680,18 +1683,17 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	}
 
 	private String getAudioFileFolder() {
-		return "F:\\instrumnet";
-//		String userDir = System.getProperty("user.home");
-//		return Paths
-//				.get(userDir,
-//						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
-//				.toString();
+		String baseDir = storage.getObjectStorage().getBasePath();
+		return Paths
+				.get(baseDir,
+						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
+				.toString();
 	}
 
 	private String getAudioRecordFileFolder() {
-		String userDir = System.getProperty("user.home");
+		String baseDir = storage.getObjectStorage().getBasePath();
 		return Paths
-				.get(userDir,
+				.get(baseDir,
 						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY),
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))

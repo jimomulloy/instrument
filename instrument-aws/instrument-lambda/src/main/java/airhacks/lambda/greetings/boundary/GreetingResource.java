@@ -13,18 +13,18 @@ import javax.ws.rs.core.MediaType;
 @ApplicationScoped
 public class GreetingResource {
 
-    @Inject
-    Greeter greeter;
+	@Inject
+	Greeter greeter;
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String hello() {
-        return this.greeter.greetings();
-    }
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String hello() {
+		return this.greeter.greetings();
+	}
 
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    public void hello(String message) {
-        this.greeter.greetings(message);
-    }
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	public void hello(String message) {
+		this.greeter.greetings(message);
+	}
 }

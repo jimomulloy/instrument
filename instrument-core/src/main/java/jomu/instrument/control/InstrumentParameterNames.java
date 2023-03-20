@@ -197,6 +197,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_SILENT_WRITE = "actuation.voice.silentWrite";
 	public static final String ACTUATION_VOICE_AUDIO_PLAY = "actuation.voice.playAudio";
 	public static final String ACTUATION_VOICE_TRACK_WRITE_SWITCH = "actuation.voice.trackWriteSwitch";
+	public static final String ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH = "actuation.voice.useSynthesizer";
 	public static final String ACTUATION_VOICE_RESYNTH_PLAY = "actuation.voice.playResynth";
 	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICES_SWITCH = "actuation.voice.midiPlayVoicesSwitch";

@@ -13,19 +13,19 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 public class GreetingsResourceIT {
 
-    @Inject
-    @RestClient
-    GreetingsResource resource;
+	@Inject
+	@RestClient
+	GreetingsResource resource;
 
-    @Inject
-    @ConfigProperty(name = "base_uri/mp-rest/url")
-    String baseURI;
+	@Inject
+	@ConfigProperty(name = "base_uri/mp-rest/url")
+	String baseURI;
 
-    @Test
-    public void hello() {
-        var message = this.resource.content();
-        assertNotNull(message);
-        System.out.println(message);
-    }
+	@Test
+	public void hello() {
+		var message = this.resource.content();
+		assertNotNull(message);
+		System.out.println(message);
+	}
 
 }

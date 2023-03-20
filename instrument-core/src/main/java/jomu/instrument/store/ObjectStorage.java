@@ -1,12 +1,13 @@
 package jomu.instrument.store;
 
+import java.io.File;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 public interface ObjectStorage {
-	
-	void write(String name, OutputStream stream);
-	
+
 	public InputStream read(String name);
-	
+
+	void write(String name, File file);
+
+	String getBasePath();
 }

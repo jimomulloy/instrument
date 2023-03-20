@@ -57,8 +57,6 @@ public class DataConfiguration {
 
 	public StorageManager defineStorageManager(String rootPath) {
 
-		String userDir = System.getProperty("user.home");
-
 		System.out.println(">>MS root: " + rootPath);
 		NioFileSystem fileSystem = NioFileSystem.New();
 		// StorageManager storageManager = EmbeddedStorage.start(Paths.get(userDir,

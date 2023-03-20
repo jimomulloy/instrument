@@ -4,11 +4,13 @@ import java.nio.file.Paths;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import jomu.instrument.store.Storage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 /**
@@ -23,14 +25,17 @@ public class StorageManagerController {
 	@ConfigProperty(name = "one.microstream.storage-directory")
 	String msdPath;
 
+	@Inject
+	Storage instrumentStorage;
+
 	/**
 	 * Initialize storage manager on quarkus startup.
 	 *
 	 * @param startupEvent quarkus startup event.
 	 */
 	public void onStartup(@Observes StartupEvent startupEvent) {
-		String userDir = System.getProperty("user.home");
-		String rootPath = Paths.get(userDir, msdPath).toString();
+		String baseDir = instrumentStorage.getObjectStorage().getBasePath();
+		String rootPath = Paths.get(baseDir, msdPath).toString();
 		DataConfiguration.init(rootPath);
 	}
 

@@ -1,13 +1,8 @@
 package jomu.instrument.perception;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -26,7 +21,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.filters.BandPass;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
-import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 import jomu.instrument.Organ;
@@ -66,7 +60,7 @@ public class Hearing implements Organ {
 
 	@Inject
 	Storage storage;
-	
+
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
@@ -107,18 +101,18 @@ public class Hearing implements Organ {
 			workspace.getAtlas().removeToneMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
-		LOG.severe(">>Start Audio Stream: "+ streamId);
+		LOG.severe(">>Start Audio Stream: " + streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
-		//File file = new File(fileName);
-		InputStream stream = storage.getObjectStorage().read(fileName); 
-    	BufferedInputStream bs = new BufferedInputStream(stream);
+		// File file = new File(fileName);
+		InputStream stream = storage.getObjectStorage().read(fileName);
+		BufferedInputStream bs = new BufferedInputStream(stream);
 		try {
 			audioStream.initialiseAudioFileStream(bs);
-		} catch (UnsupportedAudioFileException |IOException | LineUnavailableException ex) {
-			LOG.log(Level.SEVERE, "Audio file process error:" + fileName, ex);	
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+			LOG.log(Level.SEVERE, "Audio file process error:" + fileName, ex);
 			throw new Exception("Audio file process error: " + ex.getMessage());
-		} 
+		}
 
 		audioStream.getAudioFeatureProcessor().addObserver(cortex);
 		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
@@ -142,6 +136,7 @@ public class Hearing implements Organ {
 	}
 
 	public void stopAudioStream() {
+		LOG.severe(">>Stop Audio Stream: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream != null) {
 			audioStream.stop();

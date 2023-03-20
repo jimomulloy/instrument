@@ -156,7 +156,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
 		state = AudioFeatureFrameState.CLOSED;
-		LOG.finer(">>SET LAST SEQ: " + frameSequence);
+		LOG.severe(">>SET LAST SEQ: " + frameSequence);
 		lastSequence = frameSequence;
 		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);
 	}

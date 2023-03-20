@@ -8,24 +8,21 @@ import software.constructs.Construct;
 
 public class LambdaEventBridgeListener extends Construct {
 
-    static Map<String, String> configuration = Map.of("message", "hello,duke");
-    static int memory = 512;
-    static int timeout = 10;
-    Function function;
+	static Map<String, String> configuration = Map.of("message", "hello,duke");
+	static int memory = 512;
+	static int timeout = 10;
+	Function function;
 
-    public LambdaEventBridgeListener(Construct scope, String lambdaHandler,String functionName) {
-        super(scope, "LambdaEventBridgeListener");
-        
-        this.function = AWSLambda.createFunction(this,functionName, lambdaHandler, configuration, memory, timeout);
-        
-        CfnOutput.Builder.create(this, "FunctionARN").value(function.getFunctionArn()).build();
-    }
-    
+	public LambdaEventBridgeListener(Construct scope, String lambdaHandler, String functionName) {
+		super(scope, "LambdaEventBridgeListener");
 
+		this.function = AWSLambda.createFunction(this, functionName, lambdaHandler, configuration, memory, timeout);
 
+		CfnOutput.Builder.create(this, "FunctionARN").value(function.getFunctionArn()).build();
+	}
 
-    public Function getFunction(){
-        return this.function;
-    }
-    
+	public Function getFunction() {
+		return this.function;
+	}
+
 }

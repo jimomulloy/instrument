@@ -13,7 +13,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 	private static final Logger LOG = Logger.getLogger(AudioSinkProcessor.class.getName());
 
-	public AudioSinkProcessor(NuCell cell) { 
+	public AudioSinkProcessor(NuCell cell) {
 		super(cell);
 	}
 
@@ -21,7 +21,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
 		ToneMap synthesisToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));

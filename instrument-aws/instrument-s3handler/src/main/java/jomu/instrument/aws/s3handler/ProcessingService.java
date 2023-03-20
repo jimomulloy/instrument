@@ -28,11 +28,11 @@ public class ProcessingService {
 	}
 
 	public OutputObject process(InputObject input) {
-		LOG.severe(">>ProcessingService process");
+		LOG.severe(">>ProcessingService process: " + input);
 		// if (input.getName().equals("Stuart")) {
 		// throw new IllegalArgumentException(CAN_ONLY_GREET_NICKNAMES);
 		// }
-		instrument.test();
+		instrument.getController().run(input.getName(), "");
 		String result = "done"; // input.getGreeting() + " " + input.getName();
 		OutputObject out = new OutputObject();
 		out.setResult(result);

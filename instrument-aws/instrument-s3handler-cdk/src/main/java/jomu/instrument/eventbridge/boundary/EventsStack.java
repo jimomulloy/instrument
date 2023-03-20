@@ -28,9 +28,10 @@ public class EventsStack extends Stack {
 		var logGroup = cloudWatchLogGroup.getLogGroup();
 		var s3Bucket = new S3Bucket(this);
 		var bucket = s3Bucket.getBucket();
-		bucket.grantRead(s3Listener.getFunction());
+		bucket.grantReadWrite(s3Listener.getFunction());
 		var destination = new LambdaDestination(s3Listener.getFunction());
-		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[0]);
+		NotificationKeyFilter nkf = new NotificationKeyFilter.Builder().prefix("input/").suffix(".wav").build();
+		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkf });
 		var eventBridgeRouting = new EventBridgeRouting(this, logGroup, eventBridgeListener);
 		CfnOutput.Builder.create(this, "BucketOutput").value(bucket.getBucketArn()).build();
 	}

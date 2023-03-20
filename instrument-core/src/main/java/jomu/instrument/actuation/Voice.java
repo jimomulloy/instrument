@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
-import jomu.instrument.Instrument;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
@@ -16,6 +15,7 @@ import jomu.instrument.audio.TarsosAudioSynthesizer;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
@@ -26,6 +26,8 @@ public class Voice implements Organ {
 
 	AudioSynthesizer resynthSynthesizer;
 	AudioSynthesizer audioSynthesizer;
+
+	@Inject
 	MidiSynthesizer midiSynthesizer;
 
 	@Inject
@@ -34,6 +36,10 @@ public class Voice implements Organ {
 	@Inject
 	Controller controller;
 
+	@Inject
+	Storage storage;
+
+	@Inject
 	Workspace workspace;
 
 	public AudioSynthesizer buildAudioSynthesizer() {
@@ -47,7 +53,9 @@ public class Voice implements Organ {
 	}
 
 	public MidiSynthesizer buildMidiSynthesizer() {
-		midiSynthesizer = new MidiSynthesizer(workspace, parameterManager, controller);
+		// midiSynthesizer = new MidiSynthesizer(workspace, parameterManager,
+		// controller);
+		LOG.severe(">>Voice buildMidiSynthesizer");
 		midiSynthesizer.open();
 		return this.midiSynthesizer;
 	}
@@ -55,6 +63,7 @@ public class Voice implements Organ {
 	public void close(String streamId) {
 		resynthSynthesizer.close(streamId);
 		audioSynthesizer.close(streamId);
+		LOG.severe(">>Voice CLOSE!!");
 		midiSynthesizer.close(streamId);
 	}
 
@@ -72,7 +81,7 @@ public class Voice implements Organ {
 
 	@Override
 	public void initialise() {
-		this.workspace = Instrument.getInstance().getWorkspace();
+		LOG.severe(">>Voice initialise");
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
 		resynthSynthesizer = buildResynthAudioSynthesizer();
