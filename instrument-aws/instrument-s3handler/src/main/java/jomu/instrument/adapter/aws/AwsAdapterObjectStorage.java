@@ -44,7 +44,7 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 
 	@Override
 	public void write(String name, File file) {
-		LOG.severe(">>AwsAdapterObjectStorage write: " + name + ", " + file.getAbsolutePath());
+		LOG.severe(">>AwsAdapterObjectStorage write: " + name + ", " + file.getAbsolutePath() + ", " + file.length());
 		String writeKey = createWriteKeyName("test", name);
 		PutObjectRequest request = buildPutRequest(name.startsWith("/") ? name.substring(1) : name);
 
@@ -52,7 +52,7 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 		try (FileInputStream fis = new FileInputStream(file)) {
 			fis.read(bytes);
 			RequestBody body = RequestBody.fromBytes(bytes);
-			LOG.severe(">>AwsAdapterObjectStorage body len: " + body.optionalContentLength());
+			LOG.severe(">>AwsAdapterObjectStorage body len: " + body.optionalContentLength() + ", " + bytes.length);
 			s3Client.putObject(request, body);
 		} catch (IOException e) {
 			LOG.log(Level.SEVERE, "", e);

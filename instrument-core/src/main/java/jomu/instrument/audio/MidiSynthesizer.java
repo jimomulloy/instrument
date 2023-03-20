@@ -193,6 +193,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			MidiEvent event = new MidiEvent(message, tick);
 			track.add(event);
+			LOG.severe(">>createEvent: " + track.size() + ", " + type + ", " + cc.num + ", " + number + ", " + velocity
+					+ ", " + event + ", " + message + ", " + tick);
 			return true;
 		} catch (Exception ex) {
 			return false;
@@ -466,18 +468,26 @@ public class MidiSynthesizer implements ToneMapConstants {
 		try {
 			LOG.severe(">>saveMidiFile A: " + sequence);
 			LOG.severe(">>saveMidiFile A1: " + MidiSystem.getMidiDeviceInfo());
+			LOG.severe(">>saveMidiFile A2: " + file.getAbsolutePath());
 			int[] fileTypes = MidiSystem.getMidiFileTypes(sequence);
-			LOG.severe(">>saveMidiFile B: " + fileTypes);
+			LOG.severe(">>saveMidiFile B1: " + fileTypes[0]);
+			if (fileTypes.length > 1) {
+				LOG.severe(">>saveMidiFile B2: " + ", " + fileTypes[1]);
+			}
 			if (fileTypes.length == 0) {
 				return false;
 			} else {
-				LOG.severe(">>saveMidiFile C:");
+				LOG.severe(">>saveMidiFile C1: " + MidiSystem.isFileTypeSupported(fileTypes[0], sequence));
+				if (fileTypes.length > 1) {
+					LOG.severe(">>saveMidiFile C2: " + MidiSystem.isFileTypeSupported(fileTypes[1], sequence));
+				}
+
 				if (MidiSystem.write(sequence, fileTypes[0], file) == -1) {
 					LOG.severe(">>saveMidiFile D:");
 					throw new IOException("Problems writing file to MIDI System");
 				}
 				LOG.severe(">>saveMidiFile E: " + file.getAbsolutePath() + ", " + file.exists() + " ,"
-						+ file.getTotalSpace());
+						+ file.getTotalSpace() + ", " + file.length());
 				return true;
 			}
 		} catch (SecurityException ex) {
@@ -684,6 +694,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 
+			LOG.severe(">>MidiQueueConsumer ending: " + writeTrack + ", " + completed);
 			if (writeTrack && completed) {
 				LOG.severe(">>Write track");
 				String baseDir = storage.getObjectStorage().getBasePath();
@@ -784,9 +795,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (writeTrack) {
 								createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
 							}
-							LOG.finer(">>V1 MIDI NOTE ON: " + mqm.getSequence() + ", " + voice1Channel.num + ", " + note
-									+ ", " + volume + ", " + tick + ", " + amplitude + ", " + highVoiceThreshold + ", "
-									+ lowVoiceThreshold);
+							LOG.severe(">>V1 MIDI NOTE ON: " + mqm.getSequence() + ", " + voice1Channel.num + ", "
+									+ note + ", " + volume + ", " + tick + ", " + amplitude + ", " + highVoiceThreshold
+									+ ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

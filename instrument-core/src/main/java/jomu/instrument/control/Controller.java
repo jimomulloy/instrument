@@ -88,7 +88,8 @@ public class Controller implements Organ {
 	public void run(String fileName, String paramStyle) {
 		LOG.severe(">>INSTRUMENT Run started");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1, "true");
+		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH, "true");
+		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE, "true");
 		CountDownLatch countDownLatch = new CountDownLatch(1);
