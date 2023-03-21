@@ -30,6 +30,8 @@ import jomu.instrument.cognition.Cortex;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.Console;
+import jomu.instrument.store.InstrumentSession;
+import jomu.instrument.store.InstrumentSession.InstrumentSessionState;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 
@@ -104,6 +106,10 @@ public class Hearing implements Organ {
 		LOG.severe(">>Start Audio Stream: " + streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
+		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
+		instrumentSession.setInputAudioFilePath(fileName);
+		instrumentSession.setStreamId(streamId);
+		instrumentSession.setState(InstrumentSessionState.RUNNING);
 		// File file = new File(fileName);
 		InputStream stream = storage.getObjectStorage().read(fileName);
 		BufferedInputStream bs = new BufferedInputStream(stream);

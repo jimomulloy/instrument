@@ -1,11 +1,15 @@
 package jomu.instrument.desktop.monitor;
 
+import java.time.Instant;
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import jomu.instrument.Instrument;
+import jomu.instrument.store.InstrumentSession;
 
 @QuarkusMain
 public class QuarkusInstrument implements QuarkusApplication {
@@ -22,6 +26,10 @@ public class QuarkusInstrument implements QuarkusApplication {
 		Instrument.setInstance(instrument);
 		instrument.initialise();
 		instrument.start();
+		InstrumentSession instrumentSession = instrument.getWorkspace().getInstrumentSessionManager()
+				.getInstrumentSession(UUID.randomUUID().toString());
+		instrumentSession.setUserId("desktop");
+		instrumentSession.setDateTime(Instant.now());
 		Quarkus.waitForExit();
 		return 0;
 	}

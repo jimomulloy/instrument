@@ -106,17 +106,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_WHITENER", streamId));
 		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 
-		// if (cqWhiten) {
-		// FFTSpectrum fftSpectrum =
-		// toneMap.getTimeFrame().extractFFTSpectrum(cqf.getSource().getWindowSize());
-		// Whitener whitener = new Whitener(fftSpectrum);
-		// whitener.whiten();
-		// fftSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(),
-		// fftSpectrum.getWindowSize(),
-		// whitener.getWhitenedSpectrum());
-		// toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-		// }
-
 		AudioTuner tuner = new AudioTuner();
 
 		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);

@@ -14,8 +14,15 @@ public class Workspace {
 	@Inject
 	ParameterManager parameterManager;
 
+	@Inject
+	InstrumentSessionManager instrumentSessionManager;
+
 	public Atlas getAtlas() {
 		return atlas;
+	}
+
+	public InstrumentSessionManager getInstrumentSessionManager() {
+		return instrumentSessionManager;
 	}
 
 	public void initialise() {

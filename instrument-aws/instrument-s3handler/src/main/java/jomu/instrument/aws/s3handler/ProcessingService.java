@@ -1,5 +1,6 @@
 package jomu.instrument.aws.s3handler;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -8,6 +9,7 @@ import javax.inject.Inject;
 
 import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.Instrument;
+import jomu.instrument.store.InstrumentSession;
 
 @ApplicationScoped
 public class ProcessingService {
@@ -29,10 +31,15 @@ public class ProcessingService {
 
 	public OutputObject process(InputObject input) {
 		LOG.severe(">>ProcessingService process: " + input);
-		// if (input.getName().equals("Stuart")) {
-		// throw new IllegalArgumentException(CAN_ONLY_GREET_NICKNAMES);
-		// }
-		instrument.getController().run(input.getName(), "");
+		String userId = "jomu";
+		instrument.getController().run(userId, input.getName(), "default");
+		InstrumentSession instrumentSession = instrument.getWorkspace().getInstrumentSessionManager()
+				.getCurrentSession();
+		String midiFilePath = instrumentSession.getOutputMidiFilePath();
+		String midiFileName = instrumentSession.getOutputMidiFileName();
+		File midiFile = new File(midiFilePath);
+		instrument.getStorage().getObjectStorage().write("output/" + userId + "/" + midiFileName, midiFile);
+
 		String result = "done"; // input.getGreeting() + " " + input.getName();
 		OutputObject out = new OutputObject();
 		out.setResult(result);

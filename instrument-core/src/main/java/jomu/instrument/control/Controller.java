@@ -1,6 +1,8 @@
 package jomu.instrument.control;
 
 import java.io.File;
+import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -10,8 +12,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import jomu.instrument.Organ;
+import jomu.instrument.store.InstrumentSession;
 import jomu.instrument.store.Storage;
 import jomu.instrument.utils.FileUtils;
+import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
 public class Controller implements Organ {
@@ -30,6 +34,9 @@ public class Controller implements Organ {
 
 	@Inject
 	Storage storage;
+
+	@Inject
+	Workspace workspace;
 
 	public ParameterManager getParameterManager() {
 		return parameterManager;
@@ -85,7 +92,7 @@ public class Controller implements Organ {
 		LOG.severe(">>Tested INSTRUMENT");
 	}
 
-	public void run(String fileName, String paramStyle) {
+	public void run(String userId, String fileName, String paramStyle) {
 		LOG.severe(">>INSTRUMENT Run started");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH, "true");
@@ -95,6 +102,10 @@ public class Controller implements Organ {
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		setCountDownLatch(countDownLatch);
 		try {
+			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager()
+					.getInstrumentSession(UUID.randomUUID().toString());
+			instrumentSession.setUserId(userId);
+			instrumentSession.setDateTime(Instant.now());
 			coordinator.getHearing().startAudioFileStream(fileName);
 			countDownLatch.await(TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {

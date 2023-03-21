@@ -42,6 +42,8 @@ import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.store.InstrumentSession;
+import jomu.instrument.store.InstrumentSession.InstrumentSessionState;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ChordListElement;
@@ -193,8 +195,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			MidiEvent event = new MidiEvent(message, tick);
 			track.add(event);
-			LOG.severe(">>createEvent: " + track.size() + ", " + type + ", " + cc.num + ", " + number + ", " + velocity
-					+ ", " + event + ", " + message + ", " + tick);
 			return true;
 		} catch (Exception ex) {
 			return false;
@@ -252,10 +252,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 		boolean useSynthesizer = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
 		try {
-			LOG.severe(">>MidiSynth open A");
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
 			for (Info midiDev : midiDevs) {
-				LOG.severe(">>midi dev: " + midiDev);
+				LOG.severe(">>MidiSynth dev: " + midiDev);
 			}
 
 			Soundbank sb = null;
@@ -266,34 +265,22 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			LOG.severe(">>MidiSynth open B: " + synthesizer);
-			LOG.severe(">>MidiSynth open BA: " + synthesizer.getChannels());
-
 			if (useSynthesizer) {
 				synthesizer.open();
 			}
 
-			LOG.severe(">>MidiSynth open BX");
-
 			try {
-				// TODO AWS
-				LOG.severe(">>MidiSynth open B1");
 				File file = new File(
 						parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
-				LOG.severe(">>MidiSynth open B2");
 				if (file.exists()) {
-					LOG.severe(">>MidiSynth open B3");
 					sb = MidiSystem.getSoundbank(file);
 					synthesizer.loadAllInstruments(sb);
 					instruments = synthesizer.getLoadedInstruments();
-					LOG.severe(">>MidiSynth open B4");
-				} else {
-					LOG.severe(">>MidiSynth open B5");
 				}
 			} catch (Exception e) {
 				LOG.log(Level.SEVERE, ">>MidiSynth open error", e);
+				return false;
 			}
-			LOG.severe(">>MidiSynth open C");
 
 			if (instruments == null || instruments.length == 0) {
 				sb = synthesizer.getDefaultSoundbank();
@@ -303,13 +290,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 					instruments = synthesizer.getAvailableInstruments();
 				}
 			}
-			LOG.severe(">>MidiSynth open D");
 			if (instruments == null || instruments.length == 0) {
 				LOG.severe(">>MidiSynth MISSING INSTRUMENTS!!");
 				return false;
 			}
 
-			LOG.severe(">>MidiSynth open E");
 			MidiChannel midiChannels[] = synthesizer.getChannels();
 			numChannels = midiChannels.length;
 			if (numChannels == 0) {
@@ -323,16 +308,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 				channels[i] = new ChannelData(midiChannels[i], i);
 			}
 
-			LOG.severe(">>MidiSynth open F");
 			initChannels();
 
-			LOG.severe(">>MidiSynth open G");
-			// sequencer = MidiSystem.getSequencer();
 			sequencer = MidiSystem.getSequencer(false);
 			sequencer.addMetaEventListener(new ProcessMeta());
 			sequence = new Sequence(Sequence.PPQ, 10);
-
-			LOG.severe(">>MidiSynth open H");
 			/*
 			 * To free system resources, it is recommended to close the synthesizer and
 			 * sequencer properly. To accomplish this, we register a Listener to the
@@ -358,7 +338,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	private void initChannels() {
-		LOG.severe(">>midi init channels");
 		initChannel(channels[VOICE_1_CHANNEL],
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1));
 		initChannel(channels[VOICE_2_CHANNEL],
@@ -466,36 +445,19 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 */
 	public boolean saveMidiFile(File file) {
 		try {
-			LOG.severe(">>saveMidiFile A: " + sequence);
-			LOG.severe(">>saveMidiFile A1: " + MidiSystem.getMidiDeviceInfo());
-			LOG.severe(">>saveMidiFile A2: " + file.getAbsolutePath());
 			int[] fileTypes = MidiSystem.getMidiFileTypes(sequence);
-			LOG.severe(">>saveMidiFile B1: " + fileTypes[0]);
-			if (fileTypes.length > 1) {
-				LOG.severe(">>saveMidiFile B2: " + ", " + fileTypes[1]);
-			}
 			if (fileTypes.length == 0) {
 				return false;
 			} else {
-				LOG.severe(">>saveMidiFile C1: " + MidiSystem.isFileTypeSupported(fileTypes[0], sequence));
-				if (fileTypes.length > 1) {
-					LOG.severe(">>saveMidiFile C2: " + MidiSystem.isFileTypeSupported(fileTypes[1], sequence));
-				}
-
 				if (MidiSystem.write(sequence, fileTypes[0], file) == -1) {
-					LOG.severe(">>saveMidiFile D:");
 					throw new IOException("Problems writing file to MIDI System");
 				}
-				LOG.severe(">>saveMidiFile E: " + file.getAbsolutePath() + ", " + file.exists() + " ,"
-						+ file.getTotalSpace() + ", " + file.length());
 				return true;
 			}
 		} catch (SecurityException ex) {
-			LOG.severe(">>saveMidiFile X:");
 			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing out stream", ex);
 			return false;
 		} catch (Exception ex) {
-			LOG.severe(">>saveMidiFile Y:");
 			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing out stream", ex);
 			return false;
 		}
@@ -561,9 +523,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			try {
 				while (running) {
-					LOG.severe(">>MidiQueueConsumer running");
+					LOG.info(">>MidiQueueConsumer running");
 					if (midiStream.isClosed()) {
-						LOG.severe(">>MidiQueueConsumer stop 1");
 						stop();
 						break;
 					}
@@ -573,7 +534,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (toneTimeFrame == null || midiStream.isClosed()) {
 						completed = true;
 						stop();
-						LOG.severe(">>MidiQueueConsumer stop 2");
 						break;
 					}
 
@@ -583,7 +543,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 					if (midiStream.isClosed()) {
 						stop();
-						LOG.severe(">>MidiQueueConsumer stop 3");
 						break;
 					}
 
@@ -615,7 +574,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH);
 
 					if (midiPlayVoice1Switch && !playVoiceChannel1(mqm)) {
-						LOG.severe(">>MidiQueueConsumer stop 4");
 						stop();
 						break;
 					}
@@ -685,18 +643,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				}
 			} catch (InterruptedException e) {
-				LOG.severe(">>MidiQueueConsumer stop X");
 				Thread.currentThread().interrupt();
 			}
-			LOG.severe(">>MidiQueueConsumer run exit");
+			LOG.info(">>MidiQueueConsumer run exit");
 			clearChannels();
-			LOG.severe(">>MidiQueueConsumer after clear channels");
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 
-			LOG.severe(">>MidiQueueConsumer ending: " + writeTrack + ", " + completed);
 			if (writeTrack && completed) {
-				LOG.severe(">>Write track");
 				String baseDir = storage.getObjectStorage().getBasePath();
 				String folder = Paths.get(baseDir,
 						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY),
@@ -709,17 +663,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 				// OutputStream outputStream =
 				// storage.getObjectStorage().createOutputStream(fileName);
 				File file = new File(fileName);
-				LOG.severe(">>Write track A file name: " + fileName);
-				LOG.severe(">>Write track B file: " + file.getAbsolutePath());
-				LOG.severe(">>Write track C file: " + file.exists());
 				saveMidiFile(file);
-				storage.getObjectStorage().write(fileName, file);
+
+				InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
+				instrumentSession.setOutputMidiFileName(fileName.substring(fileName.lastIndexOf("/")));
+				instrumentSession.setOutputMidiFilePath(fileName);
 			}
 			this.midiStream.close();
 		}
 
 		private boolean playVoiceChannel1(MidiQueueMessage mqm) {
-			LOG.severe(">>MidiQueueConsumer playVoiceChannel1");
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -795,9 +748,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (writeTrack) {
 								createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
 							}
-							LOG.severe(">>V1 MIDI NOTE ON: " + mqm.getSequence() + ", " + voice1Channel.num + ", "
-									+ note + ", " + volume + ", " + tick + ", " + amplitude + ", " + highVoiceThreshold
-									+ ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -823,8 +773,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (writeTrack) {
 								createEvent(voice1Track, voice1Channel, NOTEOFF, note, tick, volume);
 							}
-							LOG.finer(">>V1 MIDI NOTE OFF: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
-									+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1258,8 +1206,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			// LOG.finer(">>IN MIDI CHORD MAX: " + maxAmp);
-
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				noteStatusElement = noteStatus.getNoteStatusElement(note);
@@ -1421,8 +1367,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (!silentWrite && synthesizer != null && synthesizer.isOpen()) {
 				for (ShortMessage mm : midiMessages) {
 					try {
-						LOG.finer(">>MIDI CHORD2 SEND: " + sequence + ", " + mm.getData1() + ", " + mm.getData2() + ", "
-								+ mm.getChannel() + ", " + mm.getCommand());
 						synthesizer.getReceiver().send(mm, -1);
 						if (mm.getCommand() == ShortMessage.NOTE_ON && mm.getData2() == 120) {
 						}
@@ -2000,7 +1944,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private void clearChannels() {
-			LOG.severe(">>clearChannels");
 			if (channels != null) {
 				clearChannel(channels[VOICE_1_CHANNEL]);
 				clearChannel(channels[VOICE_2_CHANNEL]);
@@ -2106,6 +2049,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			closed = true;
 			consumer.stop();
 			LOG.severe(">>MidiStream close stop");
+			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
+			instrumentSession.setState(InstrumentSessionState.STOPPED);
 			if (controller.isCountDownLatch()) {
 				LOG.severe(">>MidiStream close controller");
 				controller.getCountDownLatch().countDown();
