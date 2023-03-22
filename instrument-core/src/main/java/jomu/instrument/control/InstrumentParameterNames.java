@@ -35,6 +35,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR = "perception.hearing.cq.envelopeWhitenDecayFactor";
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH = "perception.hearing.cq.envelopeWhitenPreSwitch";
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH = "perception.hearing.cq.envelopeWhitenPostSwitch";
+	public static final String PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH = "perception.hearing.cq.calibrateSwitch";
+	public static final String PERCEPTION_HEARING_CQ_CALIBRATE_RANGE = "perception.hearing.cq.calibrateRange";
 	public static final String PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM = "perception.hearing.cq.signalMinimum";
 	public static final String PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD = "perception.hearing.cq.normaliseThreshold";
 	public static final String PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD = "perception.hearing.cq.sharpenThreshold";

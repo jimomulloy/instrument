@@ -9,9 +9,9 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMapConstants {
+public class MFCCFeatures extends AudioEventFeatures<MFCCInfo> implements ToneMapConstants {
 
-	private static final Logger LOG = Logger.getLogger(SACFFeatures.class.getName());
+	private static final Logger LOG = Logger.getLogger(MFCCFeatures.class.getName());
 
 	public boolean logSwitch = true;
 	public int powerHigh = 100;
@@ -23,7 +23,7 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSACFSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getMFCCSource());
 		this.features = getSource().getAndClearFeatures();
 	}
 
@@ -35,7 +35,7 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 			double timeStart = -1;
 			double nextTime = -1;
 
-			for (Entry<Double, SACFInfo> column : features.entrySet()) {
+			for (Entry<Double, MFCCInfo> column : features.entrySet()) {
 				nextTime = column.getKey();
 				if (timeStart == -1) {
 					timeStart = nextTime;
@@ -51,13 +51,12 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 			toneMap.addTimeFrame(ttf);
 
 			if (features.size() > 0) {
-				for (SACFInfo feature : features.values()) {
-					for (int peak : feature.getPeaks()) {
-						if (peak == feature.getMaxACFIndex()) {
-							float frequency = getSource().getSampleRate() / peak;
-							int tmIndex = pitchSet.getIndex(frequency);
-							ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
-						}
+				for (MFCCInfo feature : features.values()) {
+					for (int peak : feature.peaks) {
+						// float frequency = feature.getLength() / peak;
+						float frequency = getSource().getSampleRate() / peak;
+						int tmIndex = pitchSet.getIndex(frequency);
+						ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
 					}
 				}
 				ttf.reset();
@@ -76,8 +75,8 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 	}
 
 	@Override
-	public SACFSource getSource() {
-		return (SACFSource) source;
+	public MFCCSource getSource() {
+		return (MFCCSource) source;
 	}
 
 }

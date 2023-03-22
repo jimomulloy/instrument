@@ -18,6 +18,8 @@ public class AudioFeatureFrame {
 	private YINFeatures yinFeatures;
 	private ResynthFeatures resynthFeatures;
 	private SACFFeatures sacfFeatures;
+	private MFCCFeatures mfccFeatures;
+	private CepstrumFeatures cepstrumFeatures;
 	private SpectralPeaksFeatures spectralPeaksFeatures;
 	private double start;
 
@@ -76,6 +78,14 @@ public class AudioFeatureFrame {
 		return sacfFeatures;
 	}
 
+	public MFCCFeatures getMFCCFeatures() {
+		return mfccFeatures;
+	}
+
+	public CepstrumFeatures getCepstrumFeatures() {
+		return cepstrumFeatures;
+	}
+
 	public SpectralPeaksFeatures getSpectralPeaksFeatures() {
 		return spectralPeaksFeatures;
 	}
@@ -94,6 +104,8 @@ public class AudioFeatureFrame {
 		yinFeatures = new YINFeatures();
 		resynthFeatures = new ResynthFeatures();
 		sacfFeatures = new SACFFeatures();
+		mfccFeatures = new MFCCFeatures();
+		cepstrumFeatures = new CepstrumFeatures();
 		constantQFeatures.initialise(this);
 		cqMicroToneFeatures.initialise(this);
 		percussionFeatures.initialise(this);
@@ -102,6 +114,8 @@ public class AudioFeatureFrame {
 		yinFeatures.initialise(this);
 		resynthFeatures.initialise(this);
 		sacfFeatures.initialise(this);
+		mfccFeatures.initialise(this);
+		cepstrumFeatures.initialise(this);
 		beatFeatures.initialise(this);
 
 	}

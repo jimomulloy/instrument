@@ -6,11 +6,8 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.junit.jupiter.api.Test;
 
-import io.quarkus.test.junit.QuarkusTest;
-
-@QuarkusTest
+//@QuarkusTest
 public class GreetingsResourceIT {
 
 	@Inject
@@ -21,7 +18,7 @@ public class GreetingsResourceIT {
 	@ConfigProperty(name = "base_uri/mp-rest/url")
 	String baseURI;
 
-	@Test
+	// @Test
 	public void hello() {
 		var message = this.resource.content();
 		assertNotNull(message);

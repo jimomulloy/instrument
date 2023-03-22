@@ -19,6 +19,8 @@ import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import be.tarsos.dsp.AudioDispatcher;
+import be.tarsos.dsp.AudioEvent;
+import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.filters.BandPass;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
@@ -34,6 +36,7 @@ import jomu.instrument.store.InstrumentSession;
 import jomu.instrument.store.InstrumentSession.InstrumentSessionState;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 
 @ApplicationScoped
 public class Hearing implements Organ {
@@ -62,6 +65,8 @@ public class Hearing implements Organ {
 
 	@Inject
 	Storage storage;
+
+	private BufferedInputStream bs;
 
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
@@ -100,24 +105,37 @@ public class Hearing implements Organ {
 
 	public void startAudioFileStream(String fileName) throws Exception {
 		if (streamId != null) {
-			workspace.getAtlas().removeToneMapsByStreamId(streamId);
+			workspace.getAtlas().removeMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
-		LOG.severe(">>Start Audio Stream: " + streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 		instrumentSession.setInputAudioFilePath(fileName);
 		instrumentSession.setStreamId(streamId);
 		instrumentSession.setState(InstrumentSessionState.RUNNING);
+
 		// File file = new File(fileName);
 		InputStream stream = storage.getObjectStorage().read(fileName);
-		BufferedInputStream bs = new BufferedInputStream(stream);
+		bs = new BufferedInputStream(stream);
+		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
+		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format);
+
+		try {
+			audioStream.calibrateAudioFileStream(bs);
+			bs.close();
+			stream.close();
+		} catch (UnsupportedAudioFileException | IOException ex) {
+			LOG.log(Level.SEVERE, "Audio file calibrate error:" + fileName, ex);
+			throw new Exception("Audio file calibrate error: " + ex.getMessage());
+		}
+		stream = storage.getObjectStorage().read(fileName);
+		bs = new BufferedInputStream(stream);
 		try {
 			audioStream.initialiseAudioFileStream(bs);
-		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-			LOG.log(Level.SEVERE, "Audio file process error:" + fileName, ex);
-			throw new Exception("Audio file process error: " + ex.getMessage());
+		} catch (UnsupportedAudioFileException | IOException ex) {
+			LOG.log(Level.SEVERE, "Audio file init error:" + fileName, ex);
+			throw new Exception("Audio file init error: " + ex.getMessage());
 		}
 
 		audioStream.getAudioFeatureProcessor().addObserver(cortex);
@@ -127,7 +145,7 @@ public class Hearing implements Organ {
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
 		if (streamId != null) {
-			workspace.getAtlas().removeToneMapsByStreamId(streamId);
+			workspace.getAtlas().removeMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
 		LOG.severe(">>Start Audio Stream: " + streamId);
@@ -151,6 +169,12 @@ public class Hearing implements Organ {
 			}
 			closeAudioStream(streamId);
 		}
+		if (bs != null) {
+			try {
+				bs.close();
+			} catch (IOException e) {
+			}
+		}
 	}
 
 	private class AudioStream {
@@ -162,6 +186,7 @@ public class Hearing implements Organ {
 		private int bufferSize = 1024;
 		private int overlap = 0;
 		private AudioDispatcher dispatcher;
+		private TargetDataLine line;
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
@@ -180,13 +205,47 @@ public class Hearing implements Organ {
 			return audioFeatureProcessor;
 		}
 
+		public void calibrateAudioFileStream(BufferedInputStream inputStream)
+				throws UnsupportedAudioFileException, IOException {
+			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
+			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
+			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
+			dispatcher.addAudioProcessor(new AudioProcessor() {
+
+				@Override
+				public boolean process(AudioEvent audioEvent) {
+					double max = 0;
+					float[] values = audioEvent.getFloatBuffer();
+					int numSamples = values.length;
+					double total = 0;
+					for (var cur = 0; cur < numSamples; cur++) {
+						total += values[cur] * values[cur];
+						if (max < total) {
+							max = total;
+						}
+					}
+					double result = Math.sqrt(total / numSamples);
+					calibrationMap.put(audioEvent.getTimeStamp(), result);
+					return true;
+				}
+
+				@Override
+				public void processingFinished() {
+
+				}
+			});
+			LOG.severe(">>Calibrate audio file");
+			dispatcher.run();
+			LOG.severe(">>Calibrated audio file");
+		}
+
 		public void initialiseAudioFileStream(BufferedInputStream inputStream)
-				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+				throws UnsupportedAudioFileException, IOException {
 			console.getVisor().clearView();
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
-			// AudioFormat format = AudioSystem.getAudioFileFormat(file).getFormat();
 			float audioHighPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			float audioLowPass = parameterManager
@@ -221,10 +280,7 @@ public class Hearing implements Organ {
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
-			TargetDataLine line;
-			// line = (TargetDataLine) mixer.getLine(dataLineInfo);
 			line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
-			// final int numberOfSamples = bufferSize;
 			final int numberOfSamples = (int) (0.1 * sampleRate);
 			line.open(format, numberOfSamples);
 			line.start();
@@ -283,6 +339,11 @@ public class Hearing implements Organ {
 			if (dispatcher != null) {
 				dispatcher.stop();
 			}
+			if (line != null) {
+				line.drain();
+				line.close();
+				line = null;
+			}
 		}
 
 	}
@@ -299,7 +360,7 @@ public class Hearing implements Organ {
 		}
 
 		if (streamId != null) {
-			workspace.getAtlas().removeToneMapsByStreamId(streamId);
+			workspace.getAtlas().removeMapsByStreamId(streamId);
 		}
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
@@ -307,7 +368,7 @@ public class Hearing implements Organ {
 
 		try {
 			audioStream.initialiseAudioFileStream(new BufferedInputStream(is));
-		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+		} catch (UnsupportedAudioFileException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -3,6 +3,7 @@ package jomu.instrument.audio.features;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import be.tarsos.dsp.pitch.PitchDetectionResult;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -21,6 +22,7 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 	public float[] getSpectrum() {
 		float[] spectrum = null;
 		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
+			PitchDetectionResult pdr = entry.getValue().getPitchDetectionResult();
 			float[] spectralEnergy = entry.getValue().getAmplitudes();
 			if (spectrum == null) {
 				spectrum = new float[spectralEnergy.length];
@@ -61,6 +63,15 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
+
+			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
+				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
+				float pitch = pitchDetect.getPitch();
+				if (pitch > -1) {
+					int index = pitchSet.getIndex(pitch);
+					ttf.getElement(index).isPeak = true;
+				}
+			}
 		} else {
 			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;

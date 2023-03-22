@@ -474,6 +474,18 @@ public class ToneTimeFrame {
 		return this;
 	}
 
+	public ToneTimeFrame calibrate(double calibrateWindowThreshold, double calibrateThreshold, double lowThreshold) {
+		reset();
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] != null && elements[i].amplitude > lowThreshold) {
+				elements[i].amplitude = (calibrateThreshold / calibrateWindowThreshold)
+						* (elements[i].amplitude / maxAmplitude);
+			}
+		}
+		reset();
+		return this;
+	}
+
 	static double log(double x, int base) {
 		return (Math.log(x) / Math.log(base));
 	}

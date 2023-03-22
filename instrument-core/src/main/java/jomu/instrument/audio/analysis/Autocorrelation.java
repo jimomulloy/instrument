@@ -23,6 +23,8 @@ public class Autocorrelation {
 	public double[] correlations; // Autocorrelation
 	public double maxACF = 0; // Max autocorrelation peak
 	public int length = 0;
+	public int maxACFIndex = -1;
+	public int minPeakIndex = Integer.MAX_VALUE;
 
 	private FastFourierTransformer fftTran = new FastFourierTransformer(DftNormalization.STANDARD);
 	private double ACF_THRESH = 0.2; // Minimum correlation threshold
@@ -36,6 +38,8 @@ public class Autocorrelation {
 	private boolean isRemoveUndertones = true;
 
 	private boolean isSacf = false;
+
+	private boolean isCepstrum;
 
 	public Autocorrelation(int maxLag) {
 		this.maxLag = maxLag;
@@ -63,6 +67,14 @@ public class Autocorrelation {
 
 	public void setCorrelationThreshold(double thresh) {
 		ACF_THRESH = thresh;
+	}
+
+	public double[] getMagnitudes() {
+		double[] magnitudes = new double[fft.length];
+		for (int i = 0; i < fft.length; i++) {
+			magnitudes[i] = fft[i].getReal() * fft[i].getReal() + fft[i].getImaginary() * fft[i].getImaginary();
+		}
+		return magnitudes;
 	}
 
 	private double mean(double[] metrics) {
@@ -95,7 +107,11 @@ public class Autocorrelation {
 		fft = fftTran.transform(values, TransformType.FORWARD);
 		// Multiply by complex conjugate
 		for (int i = 0; i < fft.length; i++) {
-			fft[i] = fft[i].multiply(fft[i].conjugate());
+			if (isCepstrum) {
+				fft[i] = new Complex(Math.log10(1 + (1000 * (fft[i].abs()))));
+			} else {
+				fft[i] = fft[i].multiply(fft[i].conjugate());
+			}
 		}
 		// Inverse transform
 		fft = fftTran.transform(fft, TransformType.INVERSE);
@@ -181,6 +197,10 @@ public class Autocorrelation {
 						peaks.add(max);
 						if (correlations[max] > maxACF) {
 							maxACF = correlations[max];
+							maxACFIndex = max;
+						}
+						if (max < minPeakIndex) {
+							minPeakIndex = max;
 						}
 					}
 					positive = !positive;
@@ -226,6 +246,11 @@ public class Autocorrelation {
 		return "Autocorrelation [maxACF=" + maxACF + ", length=" + length + ", ACF_THRESH=" + ACF_THRESH + ", maxLag="
 				+ maxLag + ", undertoneRange=" + undertoneRange + ", undertoneThreshold=" + undertoneThreshold
 				+ ", isRemoveUndertones=" + isRemoveUndertones + ", isSacf=" + isSacf + "]";
+	}
+
+	public void setIsCepstrum(boolean isCepstrum) {
+		this.isCepstrum = isCepstrum;
+
 	}
 
 }

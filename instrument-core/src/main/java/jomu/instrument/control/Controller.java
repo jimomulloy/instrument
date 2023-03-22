@@ -128,32 +128,32 @@ public class Controller implements Organ {
 		if (!new File(audioDirectory).isAbsolute()) {
 			audioDirectory = FileUtils.combine(baseDir, audioDirectory);
 		}
-		LOG.finer("Creating directory: " + audioDirectory);
+		LOG.severe("Creating directory: " + audioDirectory);
 		if (FileUtils.mkdirs(audioDirectory)) {
-			LOG.finer("Created directory: " + audioDirectory);
+			LOG.severe("Created directory: " + audioDirectory);
 		}
 		// Check if the directory is writable
 		if (!new File(audioDirectory).canWrite()) {
 			String message = "Required directory " + audioDirectory
 					+ " is not writable!\n Please configure another directory for '"
 					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY + "'.";
-			LOG.finer(message);
+			LOG.severe(message);
 			System.exit(-1);
 		}
 
 		String audioRecordDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY);
 		audioRecordDirectory = FileUtils.combine(audioDirectory, audioRecordDirectory);
-		LOG.finer("Creating directory: " + audioRecordDirectory);
+		LOG.severe("Creating directory: " + audioRecordDirectory);
 		if (FileUtils.mkdirs(audioRecordDirectory)) {
-			LOG.finer("Created directory: " + audioRecordDirectory);
+			LOG.severe("Created directory: " + audioRecordDirectory);
 		}
 		// Check if the directory is writable
 		if (!new File(audioRecordDirectory).canWrite()) {
 			String message = "Required directory " + audioRecordDirectory
 					+ " is not writable!\n Please configure another directory for '"
 					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY + "'.";
-			LOG.finer(message);
+			LOG.severe(message);
 			System.exit(-1);
 		}
 

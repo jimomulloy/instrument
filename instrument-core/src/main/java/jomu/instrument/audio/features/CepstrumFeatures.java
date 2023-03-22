@@ -9,9 +9,9 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMapConstants {
+public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implements ToneMapConstants {
 
-	private static final Logger LOG = Logger.getLogger(SACFFeatures.class.getName());
+	private static final Logger LOG = Logger.getLogger(CepstrumFeatures.class.getName());
 
 	public boolean logSwitch = true;
 	public int powerHigh = 100;
@@ -23,8 +23,25 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSACFSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getCepstrumSource());
 		this.features = getSource().getAndClearFeatures();
+	}
+
+	public float[] getSpectrum() {
+		float[] spectrum = null;
+		for (Entry<Double, CepstrumInfo> entry : features.entrySet()) {
+			double[] spectralEnergy = entry.getValue().getMagnitudes();
+			if (spectrum == null) {
+				spectrum = new float[spectralEnergy.length];
+			}
+			for (int i = 0; i < spectralEnergy.length; i++) {
+				spectrum[i] += spectralEnergy[i];
+			}
+		}
+		if (spectrum == null) {
+			spectrum = new float[0];
+		}
+		return spectrum;
 	}
 
 	public void buildToneMapFrame(ToneMap toneMap) {
@@ -35,7 +52,7 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 			double timeStart = -1;
 			double nextTime = -1;
 
-			for (Entry<Double, SACFInfo> column : features.entrySet()) {
+			for (Entry<Double, CepstrumInfo> column : features.entrySet()) {
 				nextTime = column.getKey();
 				if (timeStart == -1) {
 					timeStart = nextTime;
@@ -51,13 +68,12 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 			toneMap.addTimeFrame(ttf);
 
 			if (features.size() > 0) {
-				for (SACFInfo feature : features.values()) {
-					for (int peak : feature.getPeaks()) {
-						if (peak == feature.getMaxACFIndex()) {
-							float frequency = getSource().getSampleRate() / peak;
-							int tmIndex = pitchSet.getIndex(frequency);
-							ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
-						}
+				for (CepstrumInfo feature : features.values()) {
+					for (int peak : feature.peaks) {
+						// float frequency = feature.getLength() / peak;
+						float frequency = getSource().getSampleRate() / peak;
+						int tmIndex = pitchSet.getIndex(frequency);
+						// TODO ?? ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
 					}
 				}
 				ttf.reset();
@@ -76,8 +92,8 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 	}
 
 	@Override
-	public SACFSource getSource() {
-		return (SACFSource) source;
+	public CepstrumSource getSource() {
+		return (CepstrumSource) source;
 	}
 
 }

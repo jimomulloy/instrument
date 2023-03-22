@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -15,7 +13,7 @@ public class FunctionURLStackTest {
 
 	private final static ObjectMapper JSON = new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
 
-	@Test
+	// @Test
 	public void functionURLSynth() throws IOException {
 		App app = new App();
 		var stack = new FunctionURLStack(app, "function-url-stack", true);

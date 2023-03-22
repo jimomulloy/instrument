@@ -8,6 +8,7 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
@@ -89,6 +90,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH);
 		boolean cqEnvelopeWhitenPostSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH);
+		boolean cqCalibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
+		double cqCalibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
 		double lowCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
@@ -111,12 +116,18 @@ public class AudioCQProcessor extends ProcessorCommon {
 		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);
 		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
 
-		LOG.severe(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
 				+ ", " + ttf.getRmsPower());
 
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			double cmPower = cm.get(ttf.getStartTime());
+			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
+					ttf.getStartTime() + cqCalibrateRange / 2);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+		}
+
 		if (cqEnvelopeWhitenPreSwitch && previousTimeFrame != null) {
-			LOG.severe(">>CQ PRE WHITEN: " + ttf.getStartTime() + ", " + previousTimeFrame.getStartTime() + ", "
-					+ ttf.getRmsPower() + ", " + ttf.getSpectralFlux() + ", " + ttf.getSpectralCentroid());
 			ttf.envelopeWhiten(previousTimeFrame, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
 					cqEnvelopeWhitenAttackFactor);
 		}
@@ -186,7 +197,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 			ttf.updateSpectralFlux(previousTimeFrame);
 		}
 
-		LOG.severe(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
+		LOG.finer(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
 				+ ", " + ttf.getSpectralCentroid());
 
 		LOG.finer(">>CQ MAX/MIN AMP X: " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude());

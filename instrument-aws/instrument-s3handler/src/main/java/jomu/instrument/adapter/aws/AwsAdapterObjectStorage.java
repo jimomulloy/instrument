@@ -92,7 +92,6 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 
 	@Override
 	public String getBasePath() {
-		// TODO Auto-generated method stub
 		return "/tmp";
 	}
 

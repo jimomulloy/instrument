@@ -15,9 +15,9 @@ import jomu.instrument.audio.analysis.Autocorrelation;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class SACFSource extends AudioEventSource<SACFInfo> {
+public class MFCCSource extends AudioEventSource<MFCCInfo> {
 
-	private static final Logger LOG = Logger.getLogger(SACFSource.class.getName());
+	private static final Logger LOG = Logger.getLogger(MFCCSource.class.getName());
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -39,7 +39,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 
 	private ParameterManager parameterManager;
 
-	public SACFSource(AudioDispatcher dispatcher) {
+	public MFCCSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
@@ -47,7 +47,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW);
 	}
 
-	public SACFSource(AudioDispatcher dispatcher, int bufferSize) {
+	public MFCCSource(AudioDispatcher dispatcher, int bufferSize) {
 		this(dispatcher);
 		this.windowSize = bufferSize;
 	}
@@ -137,9 +137,9 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 			public boolean process(AudioEvent audioEvent) {
 				ac.evaluate(convertFloatsToDoubles(audioEvent.getFloatBuffer()));
 				List<Integer> sacfPeaks = ac.findPeaks();
-				SACFInfo sacfInfo = new SACFInfo(sacfPeaks, ac.correlations, ac.maxACFIndex, ac.minPeakIndex, ac.length,
+				MFCCInfo sacfInfo = new MFCCInfo(sacfPeaks, ac.correlations, ac.maxACFIndex, ac.minPeakIndex, ac.length,
 						ac.getMagnitudes());
-				SACFSource.this.putFeature(audioEvent.getTimeStamp(), sacfInfo);
+				MFCCSource.this.putFeature(audioEvent.getTimeStamp(), sacfInfo);
 				return true;
 			}
 
@@ -164,7 +164,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 	}
 
 	@Override
-	SACFInfo cloneFeatures(SACFInfo features) {
+	MFCCInfo cloneFeatures(MFCCInfo features) {
 		return features.clone();
 	}
 

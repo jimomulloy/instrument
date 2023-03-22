@@ -15,9 +15,9 @@ import jomu.instrument.audio.analysis.Autocorrelation;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 
-public class SACFSource extends AudioEventSource<SACFInfo> {
+public class CepstrumSource extends AudioEventSource<CepstrumInfo> {
 
-	private static final Logger LOG = Logger.getLogger(SACFSource.class.getName());
+	private static final Logger LOG = Logger.getLogger(CepstrumSource.class.getName());
 
 	private static double MAX_MAGNITUDE_THRESHOLD = 1000.0F;
 	private static double MIN_MAGNITUDE_THRESHOLD = 1E-12F;
@@ -39,7 +39,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 
 	private ParameterManager parameterManager;
 
-	public SACFSource(AudioDispatcher dispatcher) {
+	public CepstrumSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
@@ -47,7 +47,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW);
 	}
 
-	public SACFSource(AudioDispatcher dispatcher, int bufferSize) {
+	public CepstrumSource(AudioDispatcher dispatcher, int bufferSize) {
 		this(dispatcher);
 		this.windowSize = bufferSize;
 	}
@@ -109,6 +109,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 
 		Autocorrelation ac = new Autocorrelation(maxLag);
 		ac.setCorrelationThreshold(correlationThreshold);
+		ac.setIsCepstrum(true);
 		ac.setUndertoneRange(undertoneRange);
 		ac.setUndertoneThreshold(undertoneThreshold);
 		ac.setIsSacf(sacfSwitch);
@@ -137,9 +138,9 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 			public boolean process(AudioEvent audioEvent) {
 				ac.evaluate(convertFloatsToDoubles(audioEvent.getFloatBuffer()));
 				List<Integer> sacfPeaks = ac.findPeaks();
-				SACFInfo sacfInfo = new SACFInfo(sacfPeaks, ac.correlations, ac.maxACFIndex, ac.minPeakIndex, ac.length,
-						ac.getMagnitudes());
-				SACFSource.this.putFeature(audioEvent.getTimeStamp(), sacfInfo);
+				CepstrumInfo sacfInfo = new CepstrumInfo(sacfPeaks, ac.correlations, ac.maxACFIndex, ac.minPeakIndex,
+						ac.length, ac.getMagnitudes());
+				CepstrumSource.this.putFeature(audioEvent.getTimeStamp(), sacfInfo);
 				return true;
 			}
 
@@ -164,7 +165,7 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 	}
 
 	@Override
-	SACFInfo cloneFeatures(SACFInfo features) {
+	CepstrumInfo cloneFeatures(CepstrumInfo features) {
 		return features.clone();
 	}
 

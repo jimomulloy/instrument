@@ -657,11 +657,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 						.toString();
-				// String fileName = folder + "/instrument_recording_" +
-				// System.currentTimeMillis() + ".midi";
-				String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() + ".midi";
-				// OutputStream outputStream =
-				// storage.getObjectStorage().createOutputStream(fileName);
+				String fileName = folder + "/instrument_recording_" + System.currentTimeMillis() + ".midi";
+				// String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() +
+				// ".midi";
 				File file = new File(fileName);
 				saveMidiFile(file);
 
@@ -1312,6 +1310,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (int note = 0; note < 12; note++) {
 				int volume = 0;
 				double amplitude = 0;
+				int octaveAdjust = 3;
 				if (chord != null) {
 					if (chord.hasChordNote(note)) {
 						ChordNote chordNote = chord.getChordNote(note).orElse(null);
@@ -1325,9 +1324,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 							volume = (int) (((amplitude - 0.1) / (1.0 - 0.1)) * 120);
 						}
 					}
+					octaveAdjust = chord.getOctave();
 				}
-
-				int octaveAdjust = 3;
 
 				if (amplitude > 0.1) {
 					if (!chordsChannel2LastNotes.contains(note)) {

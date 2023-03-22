@@ -15,6 +15,8 @@ public class TarsosFeatureSource {
 	private YINSource yinSource;
 	private ResynthSource resynthSource;
 	private SACFSource sacfSource;
+	private MFCCSource mfccSource;
+	private CepstrumSource cepstrumSource;
 	private SpectralPeaksSource spectralPeaksSource;
 	private BeatSource beatSource;
 	private AudioDispatcher dispatcher;
@@ -59,6 +61,14 @@ public class TarsosFeatureSource {
 		return sacfSource;
 	}
 
+	public MFCCSource getMFCCSource() {
+		return mfccSource;
+	}
+
+	public CepstrumSource getCepstrumSource() {
+		return cepstrumSource;
+	}
+
 	public SpectralPeaksSource getSpectralPeaksSource() {
 		return spectralPeaksSource;
 	}
@@ -72,6 +82,8 @@ public class TarsosFeatureSource {
 		yinSource = new YINSource(dispatcher);
 		resynthSource = new ResynthSource(dispatcher);
 		sacfSource = new SACFSource(dispatcher);
+		mfccSource = new MFCCSource(dispatcher);
+		cepstrumSource = new CepstrumSource(dispatcher);
 		beatSource = new BeatSource(dispatcher);
 		constantQSource.initialise();
 		cqMicroToneSource.initialise();
@@ -81,6 +93,8 @@ public class TarsosFeatureSource {
 		yinSource.initialise();
 		resynthSource.initialise();
 		sacfSource.initialise();
+		mfccSource.initialise();
+		cepstrumSource.initialise();
 		beatSource.initialise();
 	}
 }

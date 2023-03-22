@@ -25,15 +25,15 @@ package jomu.instrument.audio.features;
 
 import java.util.List;
 
-public class SACFInfo {
+public class MFCCInfo {
 	List<Integer> peaks;
 	double[] correlations;
-	int length;
 	double[] magnitudes;
-	int minPeakIndex;
-	int maxACFIndex;
+	int length;
+	private int minPeakIndex;
+	private int maxACFIndex;
 
-	public SACFInfo(List<Integer> peaks, double[] correlations, int maxACFIndex, int minPeakIndex, int length,
+	public MFCCInfo(List<Integer> peaks, double[] correlations, int maxACFIndex, int minPeakIndex, int length,
 			double[] magnitudes) {
 		super();
 		this.peaks = peaks;
@@ -68,7 +68,7 @@ public class SACFInfo {
 		return maxACFIndex;
 	}
 
-	public SACFInfo clone() {
-		return new SACFInfo(peaks, correlations, maxACFIndex, minPeakIndex, length, magnitudes);
+	public MFCCInfo clone() {
+		return new MFCCInfo(peaks, correlations, maxACFIndex, minPeakIndex, length, magnitudes);
 	}
 }

@@ -23,6 +23,10 @@ public class Generator {
 			return createAudioYINTypeCell();
 		case AUDIO_SACF:
 			return createAudioSACFTypeCell();
+		case AUDIO_MFCC:
+			return createAudioMFCCTypeCell();
+		case AUDIO_CEPSTRUM:
+			return createAudioCepstrumTypeCell();
 		case AUDIO_SYNTHESIS:
 			return createAudioSyntesisTypeCell();
 		case AUDIO_TUNER_PEAKS:
@@ -104,6 +108,18 @@ public class Generator {
 	private static NuCell createAudioSACFTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_SACF);
 		cell.setProcessor(getAudioSACFProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioMFCCTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_MFCC);
+		cell.setProcessor(getAudioMFCCProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioCepstrumTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_CEPSTRUM);
+		cell.setProcessor(getAudioCepstrumProcessor(cell));
 		return cell;
 	}
 
@@ -215,6 +231,14 @@ public class Generator {
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSACFProcessor(NuCell cell) {
 		return new AudioSACFProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioMFCCProcessor(NuCell cell) {
+		return new AudioMFCCProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioCepstrumProcessor(NuCell cell) {
+		return new AudioCepstrumProcessor(cell);
 	}
 
 	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSynthesisProcessor(NuCell cell) {

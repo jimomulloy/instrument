@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
@@ -15,11 +16,32 @@ public class Atlas {
 
 	Map<String, ToneMap> toneMaps = new ConcurrentHashMap<>();
 
+	Map<String, CalibrationMap> calibrationMaps = new ConcurrentHashMap<>();
+
+	public boolean hasToneMap(String key) {
+		return toneMaps.containsKey(key);
+	}
+
 	public ToneMap getToneMap(String key) {
 		if (!toneMaps.containsKey(key)) {
 			putToneMap(key, new ToneMap(key));
 		}
 		return toneMaps.get(key);
+	}
+
+	public boolean hasCalibrationMap(String key) {
+		return calibrationMaps.containsKey(key);
+	}
+
+	public CalibrationMap getCalibrationMap(String key) {
+		if (!calibrationMaps.containsKey(key)) {
+			putCalibrationMap(key, new CalibrationMap(key));
+		}
+		return calibrationMaps.get(key);
+	}
+
+	private void putCalibrationMap(String key, CalibrationMap calibrationMap) {
+		calibrationMaps.put(key, calibrationMap);
 	}
 
 	public Map<String, ToneMap> getToneMaps() {
@@ -38,10 +60,19 @@ public class Atlas {
 		this.toneMaps.remove(key);
 	}
 
-	public void removeToneMapsByStreamId(String streamId) {
+	public void removeCalibrationMap(String key) {
+		this.calibrationMaps.remove(key);
+	}
+
+	public void removeMapsByStreamId(String streamId) {
 		for (String key : toneMaps.keySet()) {
 			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
 				this.toneMaps.remove(key);
+			}
+		}
+		for (String key : calibrationMaps.keySet()) {
+			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
+				this.calibrationMaps.remove(key);
 			}
 		}
 	}

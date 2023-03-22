@@ -379,13 +379,14 @@ public class AudioTuner implements ToneMapConstants {
 
 			previousNoteStatusElement = previousNoteStatus.getNoteStatusElement(note);
 			noteStatusElement = noteStatus.getNoteStatusElement(note);
+			time = timeSet.getStartTime() * 1000.0;
+			double timeIncrement = 100;
 			if (sequence > 1) {
 				previousToneMapElement = previousToneTimeFrame.getElement(toneMapElement.getIndex());
+				timeIncrement = time - previousToneTimeFrame.getStartTime() * 1000.0;
 			}
 
 			double amplitude = toneMapElement.amplitude;
-
-			time = timeSet.getStartTime() * 1000.0;
 
 			noteStatusElement.state = previousNoteStatusElement.state;
 			noteStatusElement.onTime = previousNoteStatusElement.onTime;
@@ -473,8 +474,7 @@ public class AudioTuner implements ToneMapConstants {
 						}
 						toneMapElement.noteState = ON;
 						LOG.finer(">>NOTE ON 3: " + toneMapElement + ", " + timeSet.getStartTime());
-					} else if ((noteStatusElement.offTime - noteStatusElement.onTime) < (noteMinDuration)
-							&& !noteStatusElement.isContinuation) {
+					} else if (shortNote(noteStatusElement, timeIncrement) && !noteStatusElement.isContinuation) {
 						// back fill set notes OFF
 						LOG.finer(">>>Note scan PENDING high - PROCESS BACK FILL OFF seq: " + sequence + ", " + note
 								+ ", " + noteStatusElement.onTime + ", " + noteStatusElement.offTime + ", "
@@ -519,8 +519,7 @@ public class AudioTuner implements ToneMapConstants {
 							+ noteStatusElement.offTime + ", onTime: " + noteStatusElement.onTime);
 					if ((time - noteStatusElement.offTime) >= (noteSustain)
 							|| (noteStatusElement.offTime - noteStatusElement.onTime) > noteMaxDuration) {
-						if (((noteStatusElement.offTime - noteStatusElement.onTime) < (noteMinDuration))
-								&& !noteStatusElement.isContinuation) {
+						if (shortNote(noteStatusElement, timeIncrement) && !noteStatusElement.isContinuation) {
 							LOG.finer(
 									">>>Note scan PENDING low - PROCESS BACK FILL OFF seq: " + sequence + ", " + note);
 							// back fill set notes OFF
@@ -587,6 +586,13 @@ public class AudioTuner implements ToneMapConstants {
 //			}
 //		}
 		return true;
+	}
+
+	private boolean shortNote(NoteStatusElement noteStatusElement, double timeIncrement) {
+		if ((noteStatusElement.offTime - noteStatusElement.onTime) <= (noteMinDuration)) {
+			return true;
+		}
+		return false;
 	}
 
 	private void attenuateSemitone(ToneMap toneMap, ToneTimeFrame previousToneTimeFrame, ToneMapElement[] ttfElements,
