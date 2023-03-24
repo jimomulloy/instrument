@@ -523,7 +523,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			try {
 				while (running) {
-					LOG.info(">>MidiQueueConsumer running");
+					LOG.finer(">>MidiQueueConsumer running");
 					if (midiStream.isClosed()) {
 						stop();
 						break;
@@ -645,7 +645,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
-			LOG.info(">>MidiQueueConsumer run exit");
+			LOG.severe(">>MidiQueueConsumer run exit");
 			clearChannels();
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
@@ -660,6 +660,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				String fileName = folder + "/instrument_recording_" + System.currentTimeMillis() + ".midi";
 				// String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() +
 				// ".midi";
+				LOG.severe(">>Writing MIDI file name: " + fileName);
 				File file = new File(fileName);
 				saveMidiFile(file);
 

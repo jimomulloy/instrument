@@ -31,15 +31,15 @@ public class ProcessingService {
 
 	public OutputObject process(InputObject input) {
 		LOG.severe(">>ProcessingService process: " + input);
-		String userId = "jomu";
+		String s3Key = input.getName();
+		String userId = s3Key.substring("private/".length(), s3Key.indexOf("/input/"));
 		instrument.getController().run(userId, input.getName(), "default");
 		InstrumentSession instrumentSession = instrument.getWorkspace().getInstrumentSessionManager()
 				.getCurrentSession();
 		String midiFilePath = instrumentSession.getOutputMidiFilePath();
 		String midiFileName = instrumentSession.getOutputMidiFileName();
 		File midiFile = new File(midiFilePath);
-		instrument.getStorage().getObjectStorage().write("output/" + userId + "/" + midiFileName, midiFile);
-
+		instrument.getStorage().getObjectStorage().write("private/" + userId + "/output/" + midiFileName, midiFile);
 		String result = "done"; // input.getGreeting() + " " + input.getName();
 		OutputObject out = new OutputObject();
 		out.setResult(result);

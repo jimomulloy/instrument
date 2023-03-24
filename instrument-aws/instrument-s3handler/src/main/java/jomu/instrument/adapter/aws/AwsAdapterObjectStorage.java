@@ -28,7 +28,6 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 	private static final Logger LOG = Logger.getLogger(AwsAdapterObjectStorage.class.getName());
 
 	private static final String INSTRUMENT_STORE = "INSTRUMENT_STORE";
-	private static final String WRITE_FILES_PATH = "output";
 
 	@Inject
 	S3Client s3Client;
@@ -45,9 +44,7 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 	@Override
 	public void write(String name, File file) {
 		LOG.severe(">>AwsAdapterObjectStorage write: " + name + ", " + file.getAbsolutePath() + ", " + file.length());
-		String writeKey = createWriteKeyName("test", name);
 		PutObjectRequest request = buildPutRequest(name.startsWith("/") ? name.substring(1) : name);
-
 		byte[] bytes = new byte[(int) file.length()];
 		try (FileInputStream fis = new FileInputStream(file)) {
 			fis.read(bytes);
@@ -61,20 +58,8 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 
 	@Override
 	public InputStream read(String name) {
-		String readKey = createReadKeyName(name);
-		GetObjectRequest request = buildGetRequest(readKey);
+		GetObjectRequest request = buildGetRequest(name);
 		return s3Client.getObject(request);
-	}
-
-	private String createReadKeyName(String name) {
-		return name;
-	}
-
-	private String createWriteKeyName(String stage, String name) {
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd");
-//		String today = LocalDate.now().format(formatter);
-//		return String.format("%s/%s/%s/%s-%s", WRITE_FILES_PATH, today, odsCode, stage, odsCode);
-		return name;
 	}
 
 	private boolean initEnvironment() {

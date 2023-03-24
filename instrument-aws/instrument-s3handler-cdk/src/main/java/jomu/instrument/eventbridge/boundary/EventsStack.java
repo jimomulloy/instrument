@@ -18,9 +18,6 @@ public class EventsStack extends Stack {
 
 		var eventBridgeListener = AWSLambda.createFunction(this, "instrument_EventBridgeListener",
 				"jomu.instrument.aws.s3handler.EventBridgeListener::handleRequest");
-		// var s3Listener = AWSLambda.createFunction(this,
-		// "instrument_S3ObjectCreateListener",
-		// "jomu.instrument.aws.s3handler.S3ObjectCreateListener::handleRequest");
 
 		var s3Listener = new QuarkusLambda(this, "instrument_S3ObjectCreateListener", snapStart);
 
@@ -30,7 +27,7 @@ public class EventsStack extends Stack {
 		var bucket = s3Bucket.getBucket();
 		bucket.grantReadWrite(s3Listener.getFunction());
 		var destination = new LambdaDestination(s3Listener.getFunction());
-		NotificationKeyFilter nkf = new NotificationKeyFilter.Builder().prefix("input/").suffix(".wav").build();
+		NotificationKeyFilter nkf = new NotificationKeyFilter.Builder().prefix("private/").suffix("wav").build();
 		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkf });
 		var eventBridgeRouting = new EventBridgeRouting(this, logGroup, eventBridgeListener);
 		CfnOutput.Builder.create(this, "BucketOutput").value(bucket.getBucketArn()).build();

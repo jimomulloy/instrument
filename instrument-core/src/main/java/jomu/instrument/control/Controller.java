@@ -93,7 +93,7 @@ public class Controller implements Organ {
 	}
 
 	public void run(String userId, String fileName, String paramStyle) {
-		LOG.severe(">>INSTRUMENT Run started");
+		LOG.severe(">>INSTRUMENT Run started userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH, "true");
@@ -107,6 +107,8 @@ public class Controller implements Organ {
 			instrumentSession.setUserId(userId);
 			instrumentSession.setDateTime(Instant.now());
 			coordinator.getHearing().startAudioFileStream(fileName);
+			LOG.severe(
+					">>INSTRUMENT Run ended userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
 			countDownLatch.await(TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			LOG.severe(">>Controller run completed for fileName: " + fileName);
