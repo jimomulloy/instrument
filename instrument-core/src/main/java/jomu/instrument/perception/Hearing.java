@@ -250,21 +250,6 @@ public class Hearing implements Organ {
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
-//			if (audioHighPass > AUDIO_LOWPASS_MIN && audioHighPass < AUDIO_HIGHPASS_MAX) {
-//				LOG.finer(">>audioHighPass: " + audioHighPass);
-//				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-//			} else {
-//				LOG.finer(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
-//				dispatcher.addAudioProcessor(new HighPass(AUDIO_HIGHPASS_MAX, sampleRate));
-//			}
-//			if (audioLowPass > AUDIO_LOWPASS_MIN && audioLowPass < AUDIO_HIGHPASS_MAX) {
-//				LOG.finer(">>audioLowPass: " + audioLowPass);
-//				dispatcher.addAudioProcessor(new LowPassSP(audioLowPass, sampleRate));
-//			} else {
-//				LOG.finer(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
-//				dispatcher.addAudioProcessor(new LowPassSP(AUDIO_LOWPASS_MIN, sampleRate));
-//			}
-			// TODO??
 			if (audioLowPass - audioHighPass > 0) {
 				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
 			}
@@ -302,24 +287,9 @@ public class Hearing implements Organ {
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
-//			if (audioHighPass > AUDIO_LOWPASS_MIN && audioHighPass < AUDIO_HIGHPASS_MAX) {
-//			LOG.finer(">>audioHighPass: " + audioHighPass);
-//			dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-//		} else {
-//			LOG.finer(">>audioHighPass: " + AUDIO_HIGHPASS_MAX);
-//			dispatcher.addAudioProcessor(new HighPass(AUDIO_HIGHPASS_MAX, sampleRate));
-//		}
-//		if (audioLowPass > AUDIO_LOWPASS_MIN && audioLowPass < AUDIO_HIGHPASS_MAX) {
-//			LOG.finer(">>audioLowPass: " + audioLowPass);
-//			dispatcher.addAudioProcessor(new LowPassSP(audioLowPass, sampleRate));
-//		} else {
-//			LOG.finer(">>audioLowPass: " + AUDIO_LOWPASS_MIN);
-//			dispatcher.addAudioProcessor(new LowPassSP(AUDIO_LOWPASS_MIN, sampleRate));
-//		}
-			// if (audioLowPass - audioHighPass > 0) {
-			// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
-			// audioHighPass, sampleRate));
-			// }
+			if (audioLowPass - audioHighPass > 0) {
+				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
+			}
 
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();

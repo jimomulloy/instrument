@@ -48,6 +48,7 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean n4Switch;
 	private boolean n5Switch;
 	private boolean n6Switch;
+	private boolean n7Switch;
 	private int n5Setting = 100;
 	private int n6Setting = 80;
 	private int normalizeSetting = 100;
@@ -126,6 +127,7 @@ public class AudioTuner implements ToneMapConstants {
 		n4Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH);
 		n5Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH);
 		n6Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH);
+		n7Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N7_SWITCH);
 
 		noteScanAttenuateHarmonics = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS);
@@ -557,34 +559,34 @@ public class AudioTuner implements ToneMapConstants {
 
 		}
 
-		// IF LAST ?? TODO
+		if (n7Switch) {
 
-		// SECOND PASS TODO !!
-//		for (int i = 0; i < ttfElements.length; i++) {
-//			ToneMapElement toneMapElement = ttfElements[i];
-//			note = pitchSet.getNote(toneMapElement.getPitchIndex());
-//			noteStatusElement = noteStatus.getNoteStatusElement(note);
-//			if (noteStatusElement.state == ON) {
-//				if (i > 0) {
-//					LOG.finer(">>attenuateSemitone A: " + i + ", " + note);
-//					attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i - 1, noteStatusElement, noteStatus,
-//							note - 1, processedNotes);
-//				}
-//				if (i < ttfElements.length - 1) {
-//					LOG.finer(">>attenuateSemitone B: " + i + ", " + note);
-//					attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i + 1, noteStatusElement, noteStatus,
-//							note + 1, processedNotes);
-//				}
-//			}
-//
-//		}
+			for (int i = 0; i < ttfElements.length; i++) {
+				ToneMapElement toneMapElement = ttfElements[i];
+				note = pitchSet.getNote(toneMapElement.getPitchIndex());
+				noteStatusElement = noteStatus.getNoteStatusElement(note);
+				if (noteStatusElement.state == ON) {
+					if (i > 0) {
+						LOG.finer(">>attenuateSemitone A: " + i + ", " + note);
+						attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i - 1, noteStatusElement,
+								noteStatus, note - 1, processedNotes);
+					}
+					if (i < ttfElements.length - 1) {
+						LOG.finer(">>attenuateSemitone B: " + i + ", " + note);
+						attenuateSemitone(toneMap, previousToneTimeFrame, ttfElements, i + 1, noteStatusElement,
+								noteStatus, note + 1, processedNotes);
+					}
+				}
 
-//		for (NoteListElement processedNote : processedNotes) {
-//			if (!hasPendingHarmonics(toneMap, processedNote)) {
-//				ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom((processedNote.startTime / 1000.0));
-//				commitNote(timeFrames, processedNote);
-//			}
-//		}
+			}
+
+			for (NoteListElement processedNote : processedNotes) {
+				if (!hasPendingHarmonics(toneMap, processedNote)) {
+					ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom((processedNote.startTime / 1000.0));
+					commitNote(timeFrames, processedNote);
+				}
+			}
+		}
 		return true;
 	}
 

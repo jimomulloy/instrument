@@ -1266,19 +1266,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		actionPanel.add(parametersButton);
 
-		actionPanel.add(new JLabel("  "));
-
-		final JButton testButton = new JButton("Test");
-
-		testButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Instrument.getInstance().getController().test();
-			}
-		});
-		actionPanel.add(testButton);
-
 		panel.add(actionPanel, BorderLayout.CENTER);
 
 		JLabel playerTitleLabel = new JLabel(" Play ");

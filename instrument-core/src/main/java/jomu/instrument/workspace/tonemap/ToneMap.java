@@ -170,4 +170,11 @@ public class ToneMap {
 		tonePredictor.addBeat(beatListElement);
 	}
 
+	public void clearOldFrames(Double time) {
+		ToneTimeFrame[] ttfs = getTimeFramesTo(time);
+		for (ToneTimeFrame ttf : ttfs) {
+			deleteTimeFrame(ttf.getStartTime());
+		}
+	}
+
 }

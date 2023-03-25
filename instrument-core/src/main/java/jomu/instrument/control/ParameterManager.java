@@ -10,7 +10,8 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ParameterManager {
 
-	private static String PARAMETER_CONFIG_FILE = "instrument.properties";
+	private static String PARAMETER_CONFIG_FILE_PREFIX = "instrument";
+	private static String PARAMETER_CONFIG_FILE_POSTFIX = "properties";
 
 	Properties parameters = new Properties();
 
@@ -18,7 +19,8 @@ public class ParameterManager {
 	}
 
 	public void reset() throws FileNotFoundException, IOException {
-		InputStream is = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_FILE);
+		InputStream is = getClass().getClassLoader()
+				.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 		parameters.load(is);
 	}
 
@@ -72,5 +74,14 @@ public class ParameterManager {
 		} catch (Exception e) {
 			return 0;
 		}
+	}
+
+	public void loadStyle(String paramStyle) throws FileNotFoundException, IOException {
+		reset();
+		Properties styleParameters = new Properties();
+		InputStream is = getClass().getClassLoader().getResourceAsStream(
+				PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+		styleParameters.load(is);
+		parameters.putAll(styleParameters);
 	}
 }

@@ -150,6 +150,7 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_N4_SWITCH = "audio.tuner.n4Switch";
 	public static final String AUDIO_TUNER_N5_SWITCH = "audio.tuner.n5Switch";
 	public static final String AUDIO_TUNER_N6_SWITCH = "audio.tuner.n6Switch";
+	public static final String AUDIO_TUNER_N7_SWITCH = "audio.tuner.n7Switch";
 	public static final String AUDIO_TUNER_HARMONIC1_SETTING = "audio.tuner.harmonic1Setting";
 	public static final String AUDIO_TUNER_HARMONIC2_SETTING = "audio.tuner.harmonic2Setting";
 	public static final String AUDIO_TUNER_HARMONIC3_SETTING = "audio.tuner.harmonic3Setting";

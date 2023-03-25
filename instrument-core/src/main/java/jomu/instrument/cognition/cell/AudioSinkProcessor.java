@@ -8,6 +8,7 @@ import jomu.instrument.actuation.Voice;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioSinkProcessor extends ProcessorCommon {
 
@@ -34,6 +35,16 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 		if (synthesisToneMap.getTimeFrame(sequence) != null) {
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence);
+		}
+		if (workspace.getInstrumentSessionManager().getCurrentSession().isJob()) {
+			int tmIndex = sequence - 20;
+			if (tmIndex > 0) {
+				ToneTimeFrame tf = cqToneMap.getTimeFrame(tmIndex);
+				if (tf != null) {
+					LOG.severe(">>AudioSinkProcessor isJob clear old maps: " + sequence + ", " + tf.getStartTime());
+					workspace.getAtlas().clearOldMaps(streamId, tf.getStartTime());
+				}
+			}
 		}
 		if (isClosing(streamId, sequence)) {
 			LOG.severe(">>AudioSinkProcessor CLOSE!!");

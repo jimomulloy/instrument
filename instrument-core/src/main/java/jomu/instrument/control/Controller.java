@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import jomu.instrument.Organ;
 import jomu.instrument.store.InstrumentSession;
+import jomu.instrument.store.InstrumentSession.InstrumentSessionMode;
 import jomu.instrument.store.Storage;
 import jomu.instrument.utils.FileUtils;
 import jomu.instrument.workspace.Workspace;
@@ -73,29 +74,9 @@ public class Controller implements Organ {
 		this.countDownLatch = countDownLatch;
 	}
 
-	public void test() {
-		LOG.severe(">>Test INSTRUMENT");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1, "true");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE, "true");
-		CountDownLatch countDownLatch = new CountDownLatch(1);
-		setCountDownLatch(countDownLatch);
-		coordinator.getHearing().test();
-		try {
-			countDownLatch.await(TIMEOUT, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		clearCountDownLatch();
-		LOG.severe(">>Tested INSTRUMENT");
-	}
-
 	public void run(String userId, String fileName, String paramStyle) {
 		LOG.severe(">>INSTRUMENT Run started userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
 		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE, "true");
@@ -106,6 +87,11 @@ public class Controller implements Organ {
 					.getInstrumentSession(UUID.randomUUID().toString());
 			instrumentSession.setUserId(userId);
 			instrumentSession.setDateTime(Instant.now());
+			instrumentSession.setParamStyle(paramStyle);
+			instrumentSession.setMode(InstrumentSessionMode.JOB);
+			if (paramStyle != null && !paramStyle.equals("default")) {
+				parameterManager.loadStyle(paramStyle);
+			}
 			coordinator.getHearing().startAudioFileStream(fileName);
 			LOG.severe(
 					">>INSTRUMENT Run ended userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);

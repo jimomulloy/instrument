@@ -168,6 +168,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 		open();
 	}
 
+	public void reset() {
+		close();
+		open();
+	}
+
 	public void close(String streamId) {
 		if (!midiStreams.containsKey(streamId)) {
 			return;
@@ -249,6 +254,19 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 * Open MIDI Java Sound system objects
 	 */
 	public boolean open() {
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			@Override
+			public void run() {
+				for (Entry<String, MidiStream> entry : midiStreams.entrySet()) {
+					close(entry.getKey());
+					entry.getValue().close();
+				}
+				close();
+			}
+		});
+
 		boolean useSynthesizer = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
 		try {
@@ -506,14 +524,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public void stop() {
 			running = false;
 		}
-
-		// Runtime.getRuntime().addShutdownHook(new Thread() {
-//
-//			@Override
-//			public void run() {
-//				midiStream.close();
-//			}
-//		});
 
 		@Override
 		public void run() {
@@ -2053,6 +2063,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (controller.isCountDownLatch()) {
 				LOG.severe(">>MidiStream close controller");
 				controller.getCountDownLatch().countDown();
+			} else {
+				MidiSynthesizer.this.reset();
 			}
 		}
 

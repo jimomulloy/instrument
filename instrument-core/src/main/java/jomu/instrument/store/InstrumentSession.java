@@ -10,10 +10,15 @@ public class InstrumentSession {
 		INIT, RUNNING, STOPPED, FAILED
 	};
 
+	public enum InstrumentSessionMode {
+		DESKTOP, JOB
+	};
+
 	String id;
 	String streamId;
 	Instant dateTime;
 	String userId;
+	String paramStyle;
 	String inputAudioFileName;
 	String inputAudioFilePath;
 	String outputMidiFileName;
@@ -23,6 +28,19 @@ public class InstrumentSession {
 
 	transient final ReentrantLock lock = new ReentrantLock();
 	InstrumentSessionState state = InstrumentSessionState.INIT;
+	InstrumentSessionMode mode = InstrumentSessionMode.DESKTOP;
+
+	public boolean isJob() {
+		return mode.equals(InstrumentSessionMode.JOB);
+	}
+
+	public InstrumentSessionMode getMode() {
+		return mode;
+	}
+
+	public void setMode(InstrumentSessionMode mode) {
+		this.mode = mode;
+	}
 
 	public InstrumentSession(String id) {
 		setId(id);
@@ -140,6 +158,14 @@ public class InstrumentSession {
 		}
 	}
 
+	public String getParamStyle() {
+		return paramStyle;
+	}
+
+	public void setParamStyle(String paramStyle) {
+		this.paramStyle = paramStyle;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
@@ -159,9 +185,11 @@ public class InstrumentSession {
 
 	@Override
 	public String toString() {
-		return "InstrumentSession [streamId=" + streamId + ", dateTime=" + dateTime + ", id=" + id + ", userId="
-				+ userId + ", inputAudioFileName=" + inputAudioFileName + ", inputAudioFilePath=" + inputAudioFilePath
-				+ ", outputMidiFileName=" + outputMidiFileName + ", outputMidiFilePath=" + outputMidiFilePath + "]";
+		return "InstrumentSession [id=" + id + ", streamId=" + streamId + ", dateTime=" + dateTime + ", userId="
+				+ userId + ", paramStyle=" + paramStyle + ", inputAudioFileName=" + inputAudioFileName
+				+ ", inputAudioFilePath=" + inputAudioFilePath + ", outputMidiFileName=" + outputMidiFileName
+				+ ", outputMidiFilePath=" + outputMidiFilePath + ", statusCode=" + statusCode + ", statusMessage="
+				+ statusMessage + ", state=" + state + ", mode=" + mode + "]";
 	}
 
 }

@@ -76,4 +76,13 @@ public class Atlas {
 			}
 		}
 	}
+
+	public void clearOldMaps(String streamId, Double time) {
+		for (String key : toneMaps.keySet()) {
+			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
+				ToneMap tm = getToneMap(key);
+				tm.clearOldFrames(time);
+			}
+		}
+	}
 }
