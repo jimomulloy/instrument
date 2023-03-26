@@ -1,7 +1,10 @@
 package jomu.instrument.aws.s3handler;
 
 import java.io.File;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -37,12 +40,30 @@ public class ProcessingService {
 		InstrumentSession instrumentSession = instrument.getWorkspace().getInstrumentSessionManager()
 				.getCurrentSession();
 		String midiFilePath = instrumentSession.getOutputMidiFilePath();
-		String midiFileName = instrumentSession.getOutputMidiFileName();
-		File midiFile = new File(midiFilePath);
-		instrument.getStorage().getObjectStorage().write("private/" + userId + "/output/" + midiFileName, midiFile);
+		String midiFileFolder = midiFilePath;
+		LOG.severe(">>ProcessingService midiFilePath: " + midiFilePath);
+		if (midiFilePath.lastIndexOf("/") > -1) {
+			midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("/"));
+		} else if (midiFilePath.lastIndexOf("\\") > -1) {
+			midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("\\"));
+		} 
+		LOG.severe(">>ProcessingService midiFileFolder: " + midiFileFolder);
+		Set<String> fileNames = listFiles(midiFileFolder);
+		for (String fileName: fileNames) {
+			File midiFile = new File(midiFileFolder + "/" + fileName);
+			LOG.severe(">>ProcessingService store: " + midiFileFolder + "/" + fileName);
+			instrument.getStorage().getObjectStorage().write("private/" + userId + "/output/" + fileName, midiFile);
+		}
 		String result = "done"; // input.getGreeting() + " " + input.getName();
 		OutputObject out = new OutputObject();
 		out.setResult(result);
 		return out;
+	}
+	
+	private Set<String> listFiles(String dir) {
+	    return Stream.of(new File(dir).listFiles())
+	      .filter(file -> !file.isDirectory())
+	      .map(File::getName)
+	      .collect(Collectors.toSet());
 	}
 }

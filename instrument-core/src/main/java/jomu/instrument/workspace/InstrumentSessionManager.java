@@ -20,7 +20,7 @@ public class InstrumentSessionManager {
 	public InstrumentSession getInstrumentSession(String id) {
 		if (!sessions.containsKey(id)) {
 			putInstrumentSession(id, new InstrumentSession(id));
-		}
+		} 
 		currentSession = sessions.get(id);
 		return currentSession;
 	}

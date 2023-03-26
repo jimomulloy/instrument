@@ -14,7 +14,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 	private static final Logger LOG = Logger.getLogger(AudioSinkProcessor.class.getName());
 
-	public AudioSinkProcessor(NuCell cell) {
+	public AudioSinkProcessor(NuCell cell) { 
 		super(cell);
 	}
 
@@ -42,7 +42,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				ToneTimeFrame tf = cqToneMap.getTimeFrame(tmIndex);
 				if (tf != null) {
 					LOG.severe(">>AudioSinkProcessor isJob clear old maps: " + sequence + ", " + tf.getStartTime());
-					workspace.getAtlas().clearOldMaps(streamId, tf.getStartTime());
+					//workspace.getAtlas().clearOldMaps(streamId, tf.getStartTime());
 				}
 			}
 		}

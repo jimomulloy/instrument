@@ -111,7 +111,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private double timeEnd = INIT_TIME_END;
 	private double timeStart = INIT_TIME_START;
 
-	private String fileName;
+	private String fisleName;
 	private boolean midiEOM;
 
 	private Map<String, MidiStream> midiStreams = new ConcurrentHashMap<>();
@@ -224,10 +224,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	public double getEndTime() {
 		return timeEnd;
-	}
-
-	public String getFileName() {
-		return fileName;
 	}
 
 	public int getHighPitch() {
@@ -461,7 +457,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	/**
 	 * Write MIDI sequence to MIDI file
 	 */
-	public boolean saveMidiFile(File file) {
+	public boolean saveMidiFile(File file, Sequence sequence) {
 		try {
 			int[] fileTypes = MidiSystem.getMidiFileTypes(sequence);
 			if (fileTypes.length == 0) {
@@ -480,6 +476,25 @@ public class MidiSynthesizer implements ToneMapConstants {
 			return false;
 		}
 	}
+	
+	/**
+	 * Write MIDI sequence to MIDI file
+	 */
+	public boolean saveMidiFile(File file, int trackNumber) {
+		Track track = sequence.getTracks()[trackNumber];
+		Sequence trackSequence;
+		try {
+			trackSequence = new Sequence(Sequence.PPQ, 10);
+		} catch (InvalidMidiDataException ex) {
+			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing out track", ex);
+			return false;
+		}
+		Track newTrack = trackSequence.createTrack();
+		for(int i = 0; i< track.size(); i++) {
+			newTrack.add(track.get(i));
+		}
+		return saveMidiFile(file, trackSequence);
+	} 
 
 	private class MidiQueueConsumer implements Runnable {
 
@@ -667,16 +682,26 @@ public class MidiSynthesizer implements ToneMapConstants {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 						.toString();
-				String fileName = folder + "/instrument_recording_" + System.currentTimeMillis() + ".midi";
+				String masterFileName = folder + "/recording.midi";
 				// String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() +
 				// ".midi";
-				LOG.severe(">>Writing MIDI file name: " + fileName);
-				File file = new File(fileName);
-				saveMidiFile(file);
-
+				LOG.severe(">>Writing MIDI file name: " + masterFileName);
+				File file = new File(masterFileName);
+				saveMidiFile(file, sequence);
+				
+				Track[] tracks = sequence.getTracks();
+				for(int i = 0; i < tracks.length; i++) {
+					String trackFileName = folder + "/track_" + i + "_recording.midi";
+					// String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() +
+					// ".midi";
+					LOG.severe(">>Writing MIDI file name: " + trackFileName);
+					file = new File(trackFileName);
+					saveMidiFile(file, i);
+				}
+				
 				InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
-				instrumentSession.setOutputMidiFileName(fileName.substring(fileName.lastIndexOf("/")));
-				instrumentSession.setOutputMidiFilePath(fileName);
+				instrumentSession.setOutputMidiFileName(masterFileName.substring(masterFileName.lastIndexOf("/")));
+				instrumentSession.setOutputMidiFilePath(masterFileName);
 			}
 			this.midiStream.close();
 		}
@@ -2135,7 +2160,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		@Override
 		public void meta(MetaMessage message) {
 
-			if (message.getType() == 47 && playState != PAUSED && sequence != null) {
+			if (message.getType() == 47 && playState != PAUSED && sequencer != null) {
 				midiEOM = true;
 				if (playState != STOPPED) {
 					sequencer.stop();
