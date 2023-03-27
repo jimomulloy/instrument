@@ -1,6 +1,7 @@
 package jomu.instrument.aws.s3handler;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -36,7 +37,13 @@ public class ProcessingService {
 		LOG.severe(">>ProcessingService process: " + input);
 		String s3Key = input.getName();
 		String userId = s3Key.substring("private/".length(), s3Key.indexOf("/input/"));
-		instrument.getController().run(userId, input.getName(), "default");
+		Map<String, String> metaData = instrument.getStorage().getObjectStorage().getMetaData(input.getName());
+		LOG.severe(">>ProcessingService process: " + metaData);
+		String style = metaData.containsKey("x-amz-meta-instrument-style") ? metaData.get("x-amz-meta-instrument-style")
+				: "default";
+		LOG.severe(">>ProcessingService process style: " + style + ", " + metaData);
+		instrument.getStorage().getObjectStorage().clearStore("private/" + userId + "/output");
+		instrument.getController().run(userId, input.getName(), style);
 		InstrumentSession instrumentSession = instrument.getWorkspace().getInstrumentSessionManager()
 				.getCurrentSession();
 		String midiFilePath = instrumentSession.getOutputMidiFilePath();
@@ -46,10 +53,10 @@ public class ProcessingService {
 			midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("/"));
 		} else if (midiFilePath.lastIndexOf("\\") > -1) {
 			midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("\\"));
-		} 
+		}
 		LOG.severe(">>ProcessingService midiFileFolder: " + midiFileFolder);
 		Set<String> fileNames = listFiles(midiFileFolder);
-		for (String fileName: fileNames) {
+		for (String fileName : fileNames) {
 			File midiFile = new File(midiFileFolder + "/" + fileName);
 			LOG.severe(">>ProcessingService store: " + midiFileFolder + "/" + fileName);
 			instrument.getStorage().getObjectStorage().write("private/" + userId + "/output/" + fileName, midiFile);
@@ -59,11 +66,9 @@ public class ProcessingService {
 		out.setResult(result);
 		return out;
 	}
-	
+
 	private Set<String> listFiles(String dir) {
-	    return Stream.of(new File(dir).listFiles())
-	      .filter(file -> !file.isDirectory())
-	      .map(File::getName)
-	      .collect(Collectors.toSet());
+		return Stream.of(new File(dir).listFiles()).filter(file -> !file.isDirectory()).map(File::getName)
+				.collect(Collectors.toSet());
 	}
 }

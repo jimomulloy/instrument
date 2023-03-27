@@ -2219,7 +2219,18 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Override
 	public void updateParameters() {
-		// TODO Update main Visor display from latest parameters.
+		timeAxisOffsetInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET));
+		pitchAxisOffsetInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET));
+		timeAxisRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE));
+		pitchAxisRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
+		showColourSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR));
+		showPeaksSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS));
 	}
 
 	public JPanel getContentPanel() {

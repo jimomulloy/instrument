@@ -19,8 +19,14 @@ import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.store.ObjectStorage;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 @ApplicationScoped
 public class AwsAdapterObjectStorage implements ObjectStorage {
@@ -39,6 +45,13 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 
 	void onStart(@Observes StartupEvent ev) {
 		initEnvironment();
+	}
+
+	@Override
+	public Map<String, String> getMetaData(String name) {
+		HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(bucketName).key(name).build();
+		HeadObjectResponse headObjectResponse = s3Client.headObject(headObjectRequest);
+		return headObjectResponse.metadata();
 	}
 
 	@Override
@@ -86,6 +99,17 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 
 	protected GetObjectRequest buildGetRequest(String objectKey) {
 		return GetObjectRequest.builder().bucket(bucketName).key(objectKey).build();
+	}
+
+	@Override
+	public void clearStore(String name) {
+		ListObjectsRequest listObjectsRequest = ListObjectsRequest.builder().bucket(bucketName).prefix(name).build();
+		ListObjectsResponse objectListing = s3Client.listObjects(listObjectsRequest);
+		for (S3Object objectSummary : objectListing.contents()) {
+			DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName)
+					.key(objectSummary.key()).build();
+			s3Client.deleteObject(deleteObjectRequest);
+		}
 	}
 
 }

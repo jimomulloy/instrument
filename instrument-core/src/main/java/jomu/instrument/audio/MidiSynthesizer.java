@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.InvalidMidiDataException;
@@ -38,6 +39,7 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 
+import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -127,7 +129,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	private Synthesizer synthesizer;
 
-	private Track track;
 	private int velocity;
 
 	@Inject
@@ -142,7 +143,19 @@ public class MidiSynthesizer implements ToneMapConstants {
 	@Inject
 	Workspace workspace;
 
-	// private int timeRange;
+	public void onStartup(@Observes StartupEvent startupEvent) {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			@Override
+			public void run() {
+				for (Entry<String, MidiStream> entry : midiStreams.entrySet()) {
+					close(entry.getKey());
+					entry.getValue().close();
+				}
+				close();
+			}
+		});
+	}
 
 	/**
 	 * Close MIDI Java Sound system objects
@@ -154,6 +167,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (sequencer != null && sequencer.isOpen()) {
 			sequencer.close();
 		}
+		sequence = null;
 		sequencer = null;
 		synthesizer = null;
 		instruments = null;
@@ -250,18 +264,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 * Open MIDI Java Sound system objects
 	 */
 	public boolean open() {
-
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-
-			@Override
-			public void run() {
-				for (Entry<String, MidiStream> entry : midiStreams.entrySet()) {
-					close(entry.getKey());
-					entry.getValue().close();
-				}
-				close();
-			}
-		});
 
 		boolean useSynthesizer = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
@@ -433,10 +435,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	}
 
+	private void clearTracks() {
+		Track[] tracks = sequence.getTracks();
+		for (int i = 0; i < tracks.length; i++) {
+			sequence.deleteTrack(tracks[i]);
+		}
+	}
+
 	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId, int sequence)
 			throws InvalidMidiDataException, MidiUnavailableException {
 
 		if (!midiStreams.containsKey(streamId)) {
+			clearTracks();
 			midiStreams.put(streamId, new MidiStream(streamId));
 		}
 		MidiStream midiStream = midiStreams.get(streamId);
@@ -476,12 +486,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Write MIDI sequence to MIDI file
 	 */
-	public boolean saveMidiFile(File file, int trackNumber) {
-		Track track = sequence.getTracks()[trackNumber];
+	public boolean saveMidiFile(File file, Track track) {
 		Sequence trackSequence;
 		try {
 			trackSequence = new Sequence(Sequence.PPQ, 10);
@@ -490,11 +499,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 			return false;
 		}
 		Track newTrack = trackSequence.createTrack();
-		for(int i = 0; i< track.size(); i++) {
+		for (int i = 0; i < track.size(); i++) {
 			newTrack.add(track.get(i));
 		}
 		return saveMidiFile(file, trackSequence);
-	} 
+	}
 
 	private class MidiQueueConsumer implements Runnable {
 
@@ -682,23 +691,23 @@ public class MidiSynthesizer implements ToneMapConstants {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 						.toString();
-				String masterFileName = folder + "/recording.midi";
+				String masterFileName = folder + "/recording_master.midi";
 				// String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() +
 				// ".midi";
 				LOG.severe(">>Writing MIDI file name: " + masterFileName);
 				File file = new File(masterFileName);
 				saveMidiFile(file, sequence);
-				
+
 				Track[] tracks = sequence.getTracks();
-				for(int i = 0; i < tracks.length; i++) {
-					String trackFileName = folder + "/track_" + i + "_recording.midi";
+				for (int i = 0; i < tracks.length; i++) {
+					String trackFileName = folder + "/recording_track_" + i + ".midi";
 					// String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() +
 					// ".midi";
 					LOG.severe(">>Writing MIDI file name: " + trackFileName);
 					file = new File(trackFileName);
-					saveMidiFile(file, i);
+					saveMidiFile(file, tracks[i]);
+					sequence.deleteTrack(tracks[i]);
 				}
-				
 				InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 				instrumentSession.setOutputMidiFileName(masterFileName.substring(masterFileName.lastIndexOf("/")));
 				instrumentSession.setOutputMidiFilePath(masterFileName);
@@ -707,6 +716,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playVoiceChannel1(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playVoiceChannel1");
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -837,6 +847,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playVoiceChannel2(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playVoiceChannel2");
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -950,6 +961,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playVoiceChannel3(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playVoiceChannel3");
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -1059,6 +1071,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playVoiceChannel4(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playVoiceChannel4");
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -1187,6 +1200,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playChordChannel1(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playChordChannel1");
 
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -1307,6 +1321,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playChordChannel2(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playChordChannel2");
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -1416,6 +1431,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playPadChannel1(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playPadChannel1");
 
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -1542,6 +1558,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playBeatChannel1(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playBeatChannel1");
 
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -1647,6 +1664,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playBeatChannel2(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playBeatChannel2");
 
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -1759,6 +1777,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playBeatChannel3(MidiQueueMessage mqm) {
+			LOG.severe(">>MIDI CHANNEL playBeatChannel3");
 
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -1868,7 +1887,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playBaseChannel(MidiQueueMessage mqm) {
-
+			LOG.severe(">>MIDI CHANNEL playBaseChannel");
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -2085,11 +2104,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			LOG.severe(">>MidiStream close stop");
 			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 			instrumentSession.setState(InstrumentSessionState.STOPPED);
+			MidiSynthesizer.this.reset();
 			if (controller.isCountDownLatch()) {
 				LOG.severe(">>MidiStream close controller");
 				controller.getCountDownLatch().countDown();
-			} else {
-				MidiSynthesizer.this.reset();
 			}
 		}
 

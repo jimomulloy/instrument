@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -57,6 +59,15 @@ public class FileStorage implements ObjectStorage {
 	@Override
 	public String getBasePath() {
 		return System.getProperty("user.home");
+	}
+
+	@Override
+	public Map<String, String> getMetaData(String name) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public void clearStore(String name) {
 	}
 
 }
