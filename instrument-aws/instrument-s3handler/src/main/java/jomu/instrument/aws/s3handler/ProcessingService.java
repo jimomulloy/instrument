@@ -44,8 +44,7 @@ public class ProcessingService {
 		String userId = s3Key.substring("private/".length(), s3Key.indexOf("/input/"));
 		Map<String, String> metaData = instrument.getStorage().getObjectStorage().getMetaData(input.getName());
 		LOG.severe(">>ProcessingService process: " + metaData);
-		String style = metaData.containsKey("x-amz-meta-instrument-style") ? metaData.get("x-amz-meta-instrument-style")
-				: "default";
+		String style = metaData.containsKey("instrument-style") ? metaData.get("instrument-style") : "default";
 		LOG.severe(">>ProcessingService process style: " + style + ", " + metaData);
 		instrument.getStorage().getObjectStorage().clearStore("private/" + userId + "/output");
 		instrument.getController().run(userId, input.getName(), style);
