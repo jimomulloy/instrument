@@ -22,7 +22,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
 		ToneMap synthesisToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
@@ -30,8 +30,6 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 		console.getVisor().updateSpectrumView(cqToneMap.getTimeFrame(),
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW));
-
-		LOG.severe(">>VOICE SEND: " + sequence + ", " + synthesisToneMap.getTimeFrame(sequence).getStartTime());
 
 		if (synthesisToneMap.getTimeFrame(sequence) != null) {
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence);
@@ -41,7 +39,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			if (tmIndex > 0) {
 				ToneTimeFrame tf = cqToneMap.getTimeFrame(tmIndex);
 				if (tf != null) {
-					LOG.severe(">>AudioSinkProcessor isJob clear old maps: " + sequence + ", " + tf.getStartTime());
+					LOG.finer(">>AudioSinkProcessor isJob clear old maps: " + sequence + ", " + tf.getStartTime());
 					// workspace.getAtlas().clearOldMaps(streamId, tf.getStartTime());
 				}
 			}

@@ -4,11 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class ParameterManager {
+
+	private static final Logger LOG = Logger.getLogger(ParameterManager.class.getName());
 
 	private static String PARAMETER_CONFIG_FILE_PREFIX = "instrument";
 	private static String PARAMETER_CONFIG_FILE_POSTFIX = "properties";
@@ -79,9 +82,18 @@ public class ParameterManager {
 	public void loadStyle(String paramStyle) throws FileNotFoundException, IOException {
 		reset();
 		Properties styleParameters = new Properties();
-		InputStream is = getClass().getClassLoader().getResourceAsStream(
-				PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
-		styleParameters.load(is);
-		parameters.putAll(styleParameters);
+		InputStream is = null;
+		if (paramStyle != null && !paramStyle.equals("default")) {
+			LOG.severe(">>Loading :" + paramStyle);
+			is = getClass().getClassLoader().getResourceAsStream(
+					PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+			styleParameters.load(is);
+			parameters.putAll(styleParameters);
+			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
+			LOG.severe(">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
+					+ PARAMETER_CONFIG_FILE_POSTFIX);
+		} else {
+			LOG.severe(">>ReLoaded :" + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+		}
 	}
 }

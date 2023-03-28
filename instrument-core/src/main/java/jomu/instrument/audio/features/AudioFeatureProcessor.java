@@ -153,11 +153,11 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	@Override
 	public void processingFinished() {
 		frameSequence++;
+		state = AudioFeatureFrameState.CLOSED;
+		lastSequence = frameSequence;
+		LOG.severe(">>SET LAST SEQ: " + frameSequence);
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
-		state = AudioFeatureFrameState.CLOSED;
-		LOG.severe(">>SET LAST SEQ: " + frameSequence);
-		lastSequence = frameSequence;
 		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);
 	}
 

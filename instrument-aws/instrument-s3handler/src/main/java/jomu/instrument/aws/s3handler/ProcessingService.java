@@ -1,6 +1,10 @@
 package jomu.instrument.aws.s3handler;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -13,6 +17,7 @@ import javax.inject.Inject;
 
 import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.Instrument;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.store.InstrumentSession;
 
 @ApplicationScoped
@@ -49,17 +54,46 @@ public class ProcessingService {
 		String midiFilePath = instrumentSession.getOutputMidiFilePath();
 		String midiFileFolder = midiFilePath;
 		LOG.severe(">>ProcessingService midiFilePath: " + midiFilePath);
-		if (midiFilePath.lastIndexOf("/") > -1) {
-			midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("/"));
-		} else if (midiFilePath.lastIndexOf("\\") > -1) {
-			midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("\\"));
-		}
-		LOG.severe(">>ProcessingService midiFileFolder: " + midiFileFolder);
-		Set<String> fileNames = listFiles(midiFileFolder);
-		for (String fileName : fileNames) {
-			File midiFile = new File(midiFileFolder + "/" + fileName);
-			LOG.severe(">>ProcessingService store: " + midiFileFolder + "/" + fileName);
-			instrument.getStorage().getObjectStorage().write("private/" + userId + "/output/" + fileName, midiFile);
+		if (midiFilePath == null || midiFilePath.isEmpty()) {
+			LOG.severe(">>ProcessingService no midi files to write");
+			String baseDir = instrument.getStorage().getObjectStorage().getBasePath();
+			String folder = Paths
+					.get(baseDir,
+							instrument.getController().getParameterManager()
+									.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY),
+							instrument.getController().getParameterManager()
+									.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+					.toString();
+			String masterFileName = folder + System.getProperty("file.separator") + "dummy.txt";
+			String str = "Hello";
+			try {
+				BufferedWriter writer = new BufferedWriter(new FileWriter(masterFileName));
+				writer.write(str);
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			File file = new File(masterFileName);
+			LOG.severe(">>ProcessingService dummy midi files: " + masterFileName);
+			instrument.getStorage().getObjectStorage().write("private/" + userId + "/output/" + masterFileName, file);
+		} else {
+			if (midiFilePath.lastIndexOf("/") > -1) {
+				midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("/"));
+			} else if (midiFilePath.lastIndexOf("\\") > -1) {
+				midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("\\"));
+			}
+			LOG.severe(">>ProcessingService midiFileFolder: " + midiFileFolder);
+			Set<String> fileNames = listFiles(midiFileFolder);
+			for (String fileName : fileNames) {
+				if (fileName.split("_")[0].equals(instrumentSession.getInputAudioFileName())) {
+					File midiFile = new File(midiFileFolder + "/" + fileName);
+					LOG.severe(">>ProcessingService store: " + midiFileFolder + "/" + fileName);
+					instrument.getStorage().getObjectStorage().write("private/" + userId + "/output/" + fileName,
+							midiFile);
+					midiFile.delete();
+				}
+			}
 		}
 		String result = "done"; // input.getGreeting() + " " + input.getName();
 		OutputObject out = new OutputObject();
@@ -71,4 +105,5 @@ public class ProcessingService {
 		return Stream.of(new File(dir).listFiles()).filter(file -> !file.isDirectory()).map(File::getName)
 				.collect(Collectors.toSet());
 	}
+
 }

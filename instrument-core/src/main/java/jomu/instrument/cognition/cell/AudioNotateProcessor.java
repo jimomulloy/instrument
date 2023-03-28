@@ -56,11 +56,12 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				}
 				console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
 			}
-			LOG.finer(">>AudioNotateProcessor send: " + sequence + ", streamId: " + streamId);
+			LOG.finer(">>AudioNotateProcessor send: " + tmIndex + ", streamId: " + streamId);
 			cell.send(streamId, tmIndex);
 		}
 
 		if (isClosing(streamId, sequence)) {
+			LOG.finer(">>AudioNotateProcessor closing: " + sequence + ", streamId: " + streamId);
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				timeFrame = notateToneMap.getTimeFrame(i);
 				if (timeFrame != null) { // TODO or make fake on here?

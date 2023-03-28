@@ -507,7 +507,9 @@ public class NuCell extends Cell implements Serializable {
 					received.add(Integer.valueOf(qe.sequence));
 					if (entries.size() >= dendrites.getCount()) {
 						try {
+							LOG.finer(">>NuCell QueueConsumer processor: " + NuCell.this.getCellType());
 							processor.accept(entries);
+							LOG.finer(">>NuCell QueueConsumer processed: " + NuCell.this.getCellType());
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

@@ -1,6 +1,9 @@
 package jomu.instrument.control;
 
 public class InstrumentParameterNames {
+
+	public static final String CONTROL_PARAMETER_STYLE = "control.parameter.style";
+
 	public static final String PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS = "perception.hearing.minimumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS = "perception.hearing.maximumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL = "perception.hearing.audioFeatureInterval";

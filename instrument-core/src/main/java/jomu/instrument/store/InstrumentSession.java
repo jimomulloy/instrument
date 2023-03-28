@@ -3,8 +3,11 @@ package jomu.instrument.store;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 public class InstrumentSession {
+
+	private static final Logger LOG = Logger.getLogger(InstrumentSession.class.getName());
 
 	public enum InstrumentSessionState {
 		INIT, RUNNING, STOPPED, FAILED
@@ -115,6 +118,10 @@ public class InstrumentSession {
 		} else {
 			this.inputAudioFileName = inputAudioFilePath;
 		}
+		if (this.inputAudioFileName.lastIndexOf(".") > -1) {
+			this.inputAudioFileName = this.inputAudioFileName.substring(0, this.inputAudioFileName.lastIndexOf("."));
+		}
+		LOG.severe(">>SET inputAudioFileName: " + this.inputAudioFileName);
 	}
 
 	public String getOutputMidiFileName() {

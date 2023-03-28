@@ -10,6 +10,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -34,6 +36,8 @@ import jomu.instrument.monitor.Console;
 import jomu.instrument.store.InstrumentStoreService;
 
 public class ParametersPanel extends JPanel {
+
+	private static final Logger LOG = Logger.getLogger(ParametersPanel.class.getName());
 
 	private static final long serialVersionUID = 1L;
 	private JTextField tunerHarmonicDriftFactorInput;
@@ -109,7 +113,8 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox pdTarsosSwitchCB;
 	private JTextField pdLowThresholdInput;
 
-	private final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
+	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
+	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal" };
 	private JComboBox cqWindowComboBox;
 	private JComboBox pdWindowComboBox;
 	private JComboBox spWindowComboBox;
@@ -192,6 +197,7 @@ public class ParametersPanel extends JPanel {
 	private JTextField cqSharpenThresholdInput;
 	private AbstractButton cqCalibrateSwitchCB;
 	private JTextField cqCalibrateRangeInput;
+	private JComboBox<String> selectStyleComboBox;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -214,8 +220,10 @@ public class ParametersPanel extends JPanel {
 					console.getVisor().updateParameters();
 
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					LOG.log(Level.SEVERE, "Reset Parameter exception", e);
+					parameterManager.setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, "default");
+					selectStyleComboBox.setSelectedIndex(getSelectStyleIndex(
+							parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
 				}
 			}
 		});
@@ -245,6 +253,35 @@ public class ParametersPanel extends JPanel {
 			}
 		});
 		actionPanel.add(saveButton);
+
+		selectStyleComboBox = new JComboBox<String>(styles);
+		selectStyleComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				String value = (String) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
+				parameterManager.setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, value);
+				selectStyleComboBox.setSelectedIndex(getSelectStyleIndex(
+						parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
+				LOG.severe(">> selectStyleComboBox: " + value + " ," + getSelectStyleIndex(
+						parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
+				try {
+					parameterManager.loadStyle(value);
+					updateParameters();
+					console.getVisor().updateParameters();
+				} catch (IOException e1) {
+					LOG.log(Level.SEVERE, "Select Parameter Style exception", e);
+					parameterManager.setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, "default");
+					selectStyleComboBox.setSelectedIndex(getSelectStyleIndex(
+							parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
+				}
+			}
+		});
+
+		// selectStyleComboBox.setSelectedIndex(
+		// getSelectStyleIndex(parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
+		actionPanel.add(new JLabel("Select Style: "));
+		actionPanel.add(selectStyleComboBox);
 
 		this.add(actionPanel, BorderLayout.NORTH);
 
@@ -2827,6 +2864,15 @@ public class ParametersPanel extends JPanel {
 		return 2;
 	}
 
+	private int getSelectStyleIndex(String parameter) {
+		for (int i = 0; i < styles.length; i++) {
+			if (styles[i].toString().equals(parameter)) {
+				return i;
+			}
+		}
+		return 0;
+	}
+
 	public void updateParameters() {
 		audioLowPassSlider
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS));
@@ -3124,6 +3170,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_SENSITIVITY));
 		percussionThresholdInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_THRESHOLD));
+		selectStyleComboBox.setSelectedIndex(
+				getSelectStyleIndex(parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
 
 	}
 }

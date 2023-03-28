@@ -2,6 +2,7 @@ package jomu.instrument.cognition.cell;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -13,6 +14,8 @@ import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.Workspace;
 
 public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage>, Exception> {
+
+	private static final Logger LOG = Logger.getLogger(ProcessorCommon.class.getName());
 
 	static final int C4_NOTE = 36;
 	NuCell cell;
@@ -45,6 +48,8 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 
 	final boolean isClosing(String streamId, int sequence) {
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
+		LOG.finer(">>Isclosing: " + sequence + ", " + this.cell.getCellType() + ", " + afp.isClosed() + ", "
+				+ afp.isLastSequence(sequence));
 		return (afp == null || (afp.isClosed() && afp.isLastSequence(sequence)));
 	}
 
