@@ -117,7 +117,7 @@ public class Autocorrelation {
 		fft = fftTran.transform(fft, TransformType.INVERSE);
 
 		correlations = new double[maxLag];
-		for (int i = 1; i < maxLag; i++) {
+		for (int i = 1; i < maxLag && i < fft.length; i++) {
 			correlations[i] = fft[i].getReal() / fft[0].getReal();
 		}
 

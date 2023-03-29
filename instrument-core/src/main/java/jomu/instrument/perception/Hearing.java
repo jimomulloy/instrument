@@ -107,6 +107,17 @@ public class Hearing implements Organ {
 		if (streamId != null) {
 			workspace.getAtlas().removeMapsByStreamId(streamId);
 		}
+		System.gc();
+		// Get current size of heap in bytes
+		long heapSize = Runtime.getRuntime().totalMemory();
+		// Get maximum size of heap in bytes. The heap cannot grow beyond this size.//
+		// Any attempt will result in an OutOfMemoryException.
+		long heapMaxSize = Runtime.getRuntime().maxMemory();
+		// Get amount of free memory within the heap in bytes. This size will increase
+		// // after garbage collection and decrease as new objects are created.
+		long heapFreeSize = Runtime.getRuntime().freeMemory();
+		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
+
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
@@ -121,6 +132,13 @@ public class Hearing implements Organ {
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
 		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format);
 
+		if (format.getSampleRate() != audioStream.getSampleRate()) {
+			audioStream.setSampleRate(format.getSampleRate());
+			LOG.severe(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
+		}
+
+		LOG.severe(">>Start Audio file processing buffer size: " + audioStream.getBufferSize() + ", sampelRate: "
+				+ audioStream.getSampleRate());
 		try {
 			audioStream.calibrateAudioFileStream(bs);
 			bs.close();
@@ -147,6 +165,17 @@ public class Hearing implements Organ {
 		if (streamId != null) {
 			workspace.getAtlas().removeMapsByStreamId(streamId);
 		}
+		System.gc();
+		// Get current size of heap in bytes
+		long heapSize = Runtime.getRuntime().totalMemory();
+		// Get maximum size of heap in bytes. The heap cannot grow beyond this size.//
+		// Any attempt will result in an OutOfMemoryException.
+		long heapMaxSize = Runtime.getRuntime().maxMemory();
+		// Get amount of free memory within the heap in bytes. This size will increase
+		// // after garbage collection and decrease as new objects are created.
+		long heapFreeSize = Runtime.getRuntime().freeMemory();
+		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
+
 		streamId = UUID.randomUUID().toString();
 		LOG.severe(">>Start Audio Stream: " + streamId);
 		AudioStream audioStream = new AudioStream(streamId);
@@ -201,11 +230,32 @@ public class Hearing implements Organ {
 			}
 		}
 
+		public float getSampleRate() {
+			return sampleRate;
+		}
+
+		public int getBufferSize() {
+			return bufferSize;
+		}
+
+		public void setSampleRate(float sampleRate) {
+			this.sampleRate = sampleRate;
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE,
+					Float.toString(sampleRate));
+
+		}
+
+		public void setBufferSize(int bufferSize) {
+			this.bufferSize = bufferSize;
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW,
+					Integer.toString(bufferSize));
+		}
+
 		public AudioFeatureProcessor getAudioFeatureProcessor() {
 			return audioFeatureProcessor;
 		}
 
-		public void calibrateAudioFileStream(BufferedInputStream inputStream)
+		private void calibrateAudioFileStream(BufferedInputStream inputStream)
 				throws UnsupportedAudioFileException, IOException {
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
@@ -240,7 +290,7 @@ public class Hearing implements Organ {
 			LOG.severe(">>Calibrated audio file");
 		}
 
-		public void initialiseAudioFileStream(BufferedInputStream inputStream)
+		private void initialiseAudioFileStream(BufferedInputStream inputStream)
 				throws UnsupportedAudioFileException, IOException {
 			console.getVisor().clearView();
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
@@ -260,7 +310,7 @@ public class Hearing implements Organ {
 
 		}
 
-		public void initialiseMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
+		private void initialiseMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			console.getVisor().clearView();
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);

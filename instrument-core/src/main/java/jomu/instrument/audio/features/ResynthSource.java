@@ -60,7 +60,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW);
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		envelopeFollower = new EnvelopeFollower(samplerate, 0.005, 0.01);
 		this.followEnvelope = true;
 		this.usePureSine = true;

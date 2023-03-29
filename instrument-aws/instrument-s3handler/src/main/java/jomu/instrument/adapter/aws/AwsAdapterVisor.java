@@ -59,12 +59,6 @@ public class AwsAdapterVisor implements Visor {
 	}
 
 	@Override
-	public void resetToneMapView() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void updateBeatsView(ToneMap toneMap) {
 		// TODO Auto-generated method stub
 

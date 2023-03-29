@@ -47,7 +47,7 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW);
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		this.minimumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS);
 		this.maximumFrequencyInCents = parameterManager
@@ -157,6 +157,7 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
+		LOG.severe(">>CQS size: " + size + ", windowSize: " + windowSize);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - windowSize);
 		djp.setName("CQ");
 		dispatcher.addAudioProcessor(djp);

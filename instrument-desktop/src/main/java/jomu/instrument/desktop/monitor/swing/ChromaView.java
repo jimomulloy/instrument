@@ -72,6 +72,8 @@ public class ChromaView extends JComponent implements ComponentListener {
 
 	private ParameterManager parameterManager;
 
+	private boolean isPreview;
+
 	public ChromaView() {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.timeAxisStart = parameterManager
@@ -80,6 +82,11 @@ public class ChromaView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(512);
+	}
+
+	public ChromaView(boolean isPreview) {
+		this();
+		this.isPreview = isPreview;
 	}
 
 	public void clear() {
@@ -232,7 +239,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
-			if (showSynthesis) {
+			if (showSynthesis && !isPreview) {
 
 				Optional<ChordListElement> chord = toneMap.getTonePredictor().getChord(ttf.getStartTime());
 
@@ -276,7 +283,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 					}
 				}
-			} else if (showTracking) {
+			} else if (showTracking && !isPreview) {
 
 				ChordListElement chord = ttf.getChord();
 

@@ -118,7 +118,7 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 	public ResynthAudioSynthesizer(ParameterManager parameterManager) {
 		this.parameterManager = parameterManager;
 		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
-		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
 	public int getWindowSize() {

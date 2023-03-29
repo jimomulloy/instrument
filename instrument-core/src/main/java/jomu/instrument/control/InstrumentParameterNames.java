@@ -11,10 +11,6 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_RANGE = "perception.hearing.audioRange";
 	public static final String PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE = "perception.hearing.defaultSampleRate";
 	public static final String PERCEPTION_HEARING_DEFAULT_WINDOW = "perception.hearing.defaultWindow";
-	public static final String PERCEPTION_HEARING_AUDIO_PD_WINDOW = "perception.hearing.audio.pd.window";
-	public static final String PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW = "perception.hearing.audio.pd.low.window";
-	public static final String PERCEPTION_HEARING_AUDIO_CQ_WINDOW = "perception.hearing.audio.cq.window";
-	public static final String PERCEPTION_HEARING_AUDIO_SP_WINDOW = "perception.hearing.audio.sp.window";
 	public static final String PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH = "perception.hearing.noiseFloorMedianFilterLenth";
 	public static final String PERCEPTION_HEARING_NOISE_FLOOR_FACTOR = "perception.hearing.noiseFloorFactor";
 	public static final String PERCEPTION_HEARING_NUMBER_PEAKS = "perception.hearing.numberOfSpectralPeaks";

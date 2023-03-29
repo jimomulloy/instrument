@@ -29,9 +29,11 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 
 		console.getVisor().updateSpectrumView(cqToneMap.getTimeFrame(),
-				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW));
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
 
 		if (synthesisToneMap.getTimeFrame(sequence) != null) {
+			LOG.severe(">>AudioSinkProcessor VOICE SEND time: " + synthesisToneMap.getTimeFrame(sequence).getStartTime()
+					+ ", sequence: " + sequence + ", streamId: " + streamId);
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence);
 		}
 		if (workspace.getInstrumentSessionManager().getCurrentSession().isJob()) {
@@ -40,7 +42,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				ToneTimeFrame tf = cqToneMap.getTimeFrame(tmIndex);
 				if (tf != null) {
 					LOG.finer(">>AudioSinkProcessor isJob clear old maps: " + sequence + ", " + tf.getStartTime());
-					// workspace.getAtlas().clearOldMaps(streamId, tf.getStartTime());
+					workspace.getAtlas().clearOldMaps(streamId, tf.getStartTime());
 				}
 			}
 		}

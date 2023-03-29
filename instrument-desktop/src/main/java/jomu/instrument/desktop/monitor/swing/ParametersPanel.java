@@ -115,12 +115,8 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal" };
-	private JComboBox cqWindowComboBox;
-	private JComboBox pdWindowComboBox;
-	private JComboBox spWindowComboBox;
 	private JTextField cqMinFreqCentsInput;
 	private JTextField cqMaxFreqCentsInput;
-	private JComboBox pdLowWindowComboBox;
 	private JSlider hpsHarmonicWeightingSlider;
 	private JSlider hpsPercussionWeightingSlider;
 	private JSlider hpsHarmonicMedianSlider;
@@ -330,70 +326,6 @@ public class ParametersPanel extends JPanel {
 		audioComboPanel.setLayout(new GridLayout(0, 4));
 		audioComboPanel
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
-
-		pdWindowComboBox = new JComboBox<>(fftSizes);
-		pdWindowComboBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW,
-						Integer.toString(value));
-			}
-		});
-
-		pdWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW)));
-		audioComboPanel.add(new JLabel("Pitch Detector Window Size:  "));
-		audioComboPanel.add(pdWindowComboBox);
-
-		pdLowWindowComboBox = new JComboBox<>(fftSizes);
-		pdLowWindowComboBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW,
-						Integer.toString(value));
-			}
-		});
-
-		pdLowWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW)));
-		audioComboPanel.add(new JLabel("Pitch Detector Low Window Size:  "));
-		audioComboPanel.add(pdLowWindowComboBox);
-
-		cqWindowComboBox = new JComboBox<>(fftSizes);
-		cqWindowComboBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW,
-						Integer.toString(value));
-			}
-		});
-
-		cqWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW)));
-		audioComboPanel.add(new JLabel("CQ Window Size:  "));
-		audioComboPanel.add(cqWindowComboBox);
-
-		spWindowComboBox = new JComboBox<>(fftSizes);
-		spWindowComboBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				Integer value = (Integer) ((JComboBox<Integer>) e.getSource()).getSelectedItem();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW,
-						Integer.toString(value));
-			}
-		});
-
-		spWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW)));
-		audioComboPanel.add(new JLabel("Spectral Peaks Window Size:  "));
-		audioComboPanel.add(spWindowComboBox);
 
 		JLabel cqMinFreqCentsLabel = new JLabel("CQ Min Cents: ");
 		cqMinFreqCentsInput = new JTextField(4);
@@ -3093,14 +3025,6 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI));
 		pdTarsosSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS));
-		pdWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_WINDOW)));
-		pdLowWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PD_LOW_WINDOW)));
-		cqWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_CQ_WINDOW)));
-		spWindowComboBox.setSelectedIndex(getFFTWindowIndex(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW)));
 		cqMaxFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
 		cqMinFreqCentsInput.setText(

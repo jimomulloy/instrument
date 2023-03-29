@@ -49,7 +49,7 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 		this.dispatcher = dispatcher;
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW);
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		this.isPowerSquared = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);
 	}
@@ -154,10 +154,10 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 
 		LOG.finer(">>SP binWidth: " + binWidth);
 
-		int stepsize = 512;
+		int stepsize = windowSize / 2; // 512;
 		int overlap = windowSize - stepsize;
 		if (overlap < 1) {
-			overlap = 128;
+			overlap = stepsize / 4; // 128;
 		}
 
 		spectralPeakProcesser = new SpectralPeakProcessor(windowSize, overlap, (int) sampleRate);

@@ -23,8 +23,6 @@ public interface Visor extends AudioFeatureFrameObserver {
 
 	void updateToneMapView(ToneMap toneMap, ToneTimeFrame ttf, String toneMapViewType);
 
-	void resetToneMapView();
-
 	void updateBeatsView(ToneMap toneMap);
 
 	void updatePercussionView(ToneMap toneMap);

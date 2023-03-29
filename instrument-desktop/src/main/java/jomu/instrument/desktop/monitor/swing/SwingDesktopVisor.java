@@ -130,8 +130,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	String fileName;
 
-	static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 192000 };
+	static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192 };
+	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 48000, 192000 };
 
 	File inputFile;
 
@@ -476,12 +476,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		JTabbedPane chromaTabbedPane = new JTabbedPane();
 		chromaTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		chromaPreView = new ChromaView();
+		chromaPreView = new ChromaView(true);
 		JPanel chromaPrePanel = new JPanel(new BorderLayout());
 		chromaPrePanel.add(chromaPreView, BorderLayout.CENTER);
 		chromaPrePanel.setBackground(Color.BLACK);
 		chromaTabbedPane.addTab("Chroma Pre", chromaPrePanel);
-		chromaPostView = new ChromaView();
+		chromaPostView = new ChromaView(false);
 		JPanel chromaPostPanel = new JPanel(new BorderLayout());
 		chromaPostPanel.add(chromaPostView, BorderLayout.CENTER);
 		chromaPostPanel.setBackground(Color.BLACK);
@@ -581,7 +581,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				String value = String.valueOf(toneMapViewComboBox.getSelectedItem());
 				if (value != null) {
 					currentToneMapViewType = value;
-					resetToneMapView();
+					switchToneMapView();
 				}
 			}
 		});
@@ -597,7 +597,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				if (parseIntegerTextField((JTextField) e.getSource(), 0, 60000,
 						InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET)) {
 					refreshMapViews();
-					resetToneMapView();
+					switchToneMapView();
 				}
 			}
 		});
@@ -607,7 +607,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				if (parseIntegerTextField((JTextField) e.getSource(), 0, 60000,
 						InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET)) {
 					refreshMapViews();
-					resetToneMapView();
+					switchToneMapView();
 				}
 			}
 
@@ -1722,7 +1722,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					timeAxisOffsetInput.setText(Integer.toString(timeOffset));
 					refreshMapViews();
 					updateSpectrumView(toneTimeFrame, parameterManager
-							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW));
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
 				}
 			}
 		}
@@ -1778,8 +1778,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 	}
 
-	@Override
-	public void resetToneMapView() {
+	private void switchToneMapView() {
+		if (toneMapViews.containsKey(currentToneMapViewType)) {
+			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			updateTimeFrameView(toneMapViews.get(currentToneMapViewType).getTimeFrame());
+		}
+	}
+
+	private void resetToneMapView() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
 			LOG.severe(">>!! chosen file reset TM views: " + currentToneMapViewType);
 			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
@@ -1895,7 +1901,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		cs.setMax(Axis.X, 4800);
 		cs.setMax(Axis.X, 13200);
 		spectrumLayer = new SpectrumLayer(cs,
-				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SP_WINDOW),
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW),
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE),
 				Color.black);
 		// noiseFloorLayer = new SpectrumLayer(cs,
