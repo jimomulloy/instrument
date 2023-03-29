@@ -78,6 +78,10 @@ public class Hearing implements Organ {
 		audioStream.close();
 		console.getVisor().audioStopped();
 		console.getVisor().updateStatusMessage("Ready");
+		if (streamId != null) {
+			//workspace.getAtlas().removeMapsByStreamId(streamId);
+			LOG.severe(">>Clear MAPS in Audio Stream: " + streamId);
+		}
 		LOG.severe(">>Closed Audio Stream: " + streamId);
 	}
 
@@ -235,7 +239,9 @@ public class Hearing implements Organ {
 		if (bs != null) {
 			try {
 				bs.close();
+				LOG.severe(">>Close Audio Stream: " + streamId);				
 			} catch (IOException e) {
+				LOG.log(Level.SEVERE, "Exception closig " + streamId, e);
 			}
 		}
 	}
