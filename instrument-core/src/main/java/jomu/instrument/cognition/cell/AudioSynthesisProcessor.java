@@ -21,7 +21,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		boolean synthesisSwitchChords = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH);

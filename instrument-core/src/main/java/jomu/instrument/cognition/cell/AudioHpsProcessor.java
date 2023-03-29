@@ -84,6 +84,9 @@ public class AudioHpsProcessor extends ProcessorCommon {
 		}
 
 		if (isClosing(streamId, sequence)) {
+			if (tmIndex < 0) {
+				tmIndex = 0;
+			}
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(i);
 				if (hpsHarmonicTimeFrame != null) {

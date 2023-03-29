@@ -36,7 +36,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	private TarsosFeatureSource tarsosFeatures;
 	private AudioFeatureFrameState state = AudioFeatureFrameState.INITIALISED;
 	private ParameterManager parameterManager;
-	private int offset;
 	private int range;
 	private Hearing hearing;
 
@@ -47,7 +46,6 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
 		this.interval = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
-		this.offset = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET);
 		this.range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
 	}
 
@@ -117,12 +115,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	public boolean process(AudioEvent audioEvent) {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
 		LOG.finer(">>process startTimeMS: " + startTimeMS);
-		if (startTimeMS < offset) {
-			LOG.finer(">>process startTimeMS < offset: " + offset);
-			// TODO return true;
-		}
-		if (startTimeMS > offset + range) {
-			LOG.finer(">>process startTimeMS > range: " + offset + ", " + range);
+		if (startTimeMS > range) {
+			LOG.finer(">>Stop processing at range: " + range);
 			hearing.stopAudioStream();
 			return false;
 		}
@@ -155,7 +149,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		frameSequence++;
 		state = AudioFeatureFrameState.CLOSED;
 		lastSequence = frameSequence;
-		LOG.severe(">>SET LAST SEQ: " + frameSequence);
+		LOG.finer(">>SET LAST SEQ: " + frameSequence);
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
 		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);

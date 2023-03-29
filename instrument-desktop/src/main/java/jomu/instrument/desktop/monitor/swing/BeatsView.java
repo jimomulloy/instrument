@@ -66,6 +66,7 @@ public class BeatsView extends JComponent implements ComponentListener {
 	private Color[] rainbow;
 
 	private ParameterManager parameterManager;
+	private boolean isPreview;
 
 	public BeatsView() {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -75,6 +76,11 @@ public class BeatsView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(512);
+	}
+
+	public BeatsView(boolean isPreview) {
+		this();
+		this.isPreview = isPreview;
 	}
 
 	public void clear() {
@@ -218,7 +224,7 @@ public class BeatsView extends JComponent implements ComponentListener {
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
-			if (showTracking) {
+			if (showTracking && !isPreview) {
 
 				BeatListElement beat = ttf.getBeat();
 

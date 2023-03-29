@@ -1,6 +1,7 @@
 package jomu.instrument.perception;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -161,6 +163,38 @@ public class Hearing implements Organ {
 		audioStream.start();
 	}
 
+	public static void skipFromBeginning(AudioInputStream audioStream, double secondsToSkip)
+			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		AudioFormat format = audioStream.getFormat();
+
+		// find out how many bytes you have to skip, this depends on bytes per frame
+		// (a.k.a. frameSize)
+		long bytesToSkip = (long) (format.getFrameSize() * format.getFrameRate() * secondsToSkip);
+
+		// now skip until the correct number of bytes have been skipped
+		long justSkipped = 0;
+		while (bytesToSkip > 0 && (justSkipped = audioStream.skip(bytesToSkip)) > 0) {
+			bytesToSkip -= justSkipped;
+		}
+	}
+
+	/**
+	 * Invoke this function to convert to a playable file.
+	 */
+	public static void mp3ToWav(File mp3Data) throws UnsupportedAudioFileException, IOException {
+		// open stream
+		AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(mp3Data);
+		AudioFormat sourceFormat = mp3Stream.getFormat();
+		// create audio format object for the desired stream/audio format
+		// this is *not* the same as the file format (wav)
+		AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16,
+				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
+		// create stream that delivers the desired format
+		AudioInputStream converted = AudioSystem.getAudioInputStream(convertFormat, mp3Stream);
+		// write stream into a file with file format wav
+		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, new File("/tmp/out.wav"));
+	}
+
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
 		if (streamId != null) {
 			workspace.getAtlas().removeMapsByStreamId(streamId);
@@ -256,8 +290,15 @@ public class Hearing implements Organ {
 		}
 
 		private void calibrateAudioFileStream(BufferedInputStream inputStream)
-				throws UnsupportedAudioFileException, IOException {
+				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
+
+			double audioOffset = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET);
+			if (audioOffset > 0) {
+				skipFromBeginning(stream, audioOffset / 1000.0);
+			}
+
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
@@ -291,9 +332,15 @@ public class Hearing implements Organ {
 		}
 
 		private void initialiseAudioFileStream(BufferedInputStream inputStream)
-				throws UnsupportedAudioFileException, IOException {
+				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 			console.getVisor().clearView();
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
+			double audioOffset = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET);
+			if (audioOffset > 0) {
+				skipFromBeginning(stream, audioOffset / 1000.0);
+			}
+			LOG.severe(">>initialiseAudioFileStream skip from secs: " + audioOffset / 1000.0);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			float audioHighPass = parameterManager
@@ -388,7 +435,7 @@ public class Hearing implements Organ {
 
 		try {
 			audioStream.initialiseAudioFileStream(new BufferedInputStream(is));
-		} catch (UnsupportedAudioFileException | IOException e) {
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

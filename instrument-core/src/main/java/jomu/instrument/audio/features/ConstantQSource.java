@@ -164,7 +164,7 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
 		LOG.finer(">>CQ size: " + size);
-		LOG.finer(">>CQ lag: " + constantQLag);
+		LOG.severe(">>CQ lag: " + constantQLag);
 
 		djp.addAudioProcessor(constantQ);
 		djp.addAudioProcessor(new AudioProcessor() {
@@ -172,7 +172,12 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				float[] values = constantQ.getMagnitudes().clone();
-				putFeature(audioEvent.getTimeStamp() - binWidth /* - constantQLag */, values);
+				putFeature(audioEvent.getTimeStamp(), values);
+				if (audioEvent.getTimeStamp() >= (binWidth / 2)) {
+					putFeature(audioEvent.getTimeStamp() - (binWidth / 2), values);
+				} else {
+					putFeature(audioEvent.getTimeStamp(), values);
+				}
 				return true;
 			}
 

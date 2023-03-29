@@ -59,6 +59,9 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		}
 
 		if (isClosing(streamId, sequence)) {
+			if (tmIndex < 0) {
+				tmIndex = 0;
+			}
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				timeFrame = postChromaToneMap.getTimeFrame(i);
 				if (timeFrame != null) { // TODO or make fake on here?
