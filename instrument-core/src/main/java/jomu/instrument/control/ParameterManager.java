@@ -39,6 +39,10 @@ public class ParameterManager {
 		this.parameters = parameters;
 	}
 
+	public void overrideParameters(Properties overides) {
+		parameters.putAll(overides);
+	}
+
 	public Properties getParameters() {
 		return parameters;
 	}

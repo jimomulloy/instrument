@@ -1,5 +1,6 @@
 package jomu.instrument.aws.s3handler;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -24,14 +25,17 @@ public class S3ObjectCreateListener implements RequestHandler<S3Event, OutputObj
 		LOG.severe(">>S3ObjectCreateListener handleRequest: " + (service == null));
 		try {
 			S3EventNotificationRecord record = event.getRecords().get(0);
-			String srcBucket = record.getS3().getBucket().getName();
 			String srcKey = record.getS3().getObject().getUrlDecodedKey();
 			InputObject input = new InputObject();
 			input.setName(srcKey);
 			LOG.severe(">>S3ObjectCreateListener S3 key: " + srcKey);
 			return service.process(input).setRequestId(context.getAwsRequestId());
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			LOG.log(Level.SEVERE, ">>S3ObjectCreateListener error", e);
+			String result = "error";
+			OutputObject out = new OutputObject();
+			out.setResult(result);
+			return out;
 		}
 
 	}

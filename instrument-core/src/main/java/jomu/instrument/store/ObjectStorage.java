@@ -10,6 +10,8 @@ public interface ObjectStorage {
 
 	void write(String name, File file);
 
+	void writeString(String name, String contents);
+
 	String getBasePath();
 
 	Map<String, String> getMetaData(String name);

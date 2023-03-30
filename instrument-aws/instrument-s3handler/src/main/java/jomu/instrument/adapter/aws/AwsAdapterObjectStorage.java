@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -70,9 +71,20 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 	}
 
 	@Override
+	public void writeString(String name, String contents) {
+		PutObjectRequest request = buildPutRequest(name.startsWith("/") ? name.substring(1) : name);
+		RequestBody body = RequestBody.fromString(contents);
+		s3Client.putObject(request, body);
+	}
+
+	@Override
 	public InputStream read(String name) {
 		GetObjectRequest request = buildGetRequest(name);
-		return s3Client.getObject(request);
+		try {
+			return s3Client.getObject(request);
+		} catch (NoSuchKeyException ex) {
+			return null;
+		}
 	}
 
 	private boolean initEnvironment() {
