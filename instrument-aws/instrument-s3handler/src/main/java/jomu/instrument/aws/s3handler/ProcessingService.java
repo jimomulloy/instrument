@@ -81,12 +81,34 @@ public class ProcessingService {
 		String offset = metaData.containsKey("instrument-offset") ? metaData.get("instrument-offset") : null;
 		String range = metaData.containsKey("instrument-range") ? metaData.get("instrument-range") : null;
 		if (offset != null) {
-			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET, offset);
+			int offsetValue = 0;
+			try {
+				offsetValue = Integer.parseInt(offset) * 1000;
+			} catch (Exception ex) {
+				//
+			}
+			if (offsetValue > 0) {
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET,
+						Integer.toString(offsetValue));
+			}
 		}
 		if (range != null) {
-			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE, range);
+			int rangeValue = 0;
+			try {
+				rangeValue = Integer.parseInt(range) * 1000;
+			} catch (Exception ex) {
+				//
+			}
+			if (rangeValue > 0) {
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE,
+						Integer.toString(rangeValue));
+			}
 		}
 		LOG.severe(">>ProcessingService process style: " + style + ", " + metaData);
+		LOG.severe(">>ProcessingService process offset: "
+				+ parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET));
+		LOG.severe(">>ProcessingService process range: "
+				+ parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
 		storage.getObjectStorage().clearStore("private/" + userId + "/output");
 		storage.getObjectStorage().writeString(stateKey, "processing");
 
