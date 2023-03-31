@@ -559,13 +559,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		toneMapViewComboBox = new JComboBox<>();
 
 		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
-				Cell.CellTypes.AUDIO_TUNER_PEAKS.name(), Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(),
-				Cell.CellTypes.AUDIO_PITCH.name(), Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(),
-				Cell.CellTypes.AUDIO_MFCC.name(), Cell.CellTypes.AUDIO_CEPSTRUM.name(),
-				Cell.CellTypes.AUDIO_SYNTHESIS.name(), Cell.CellTypes.AUDIO_NOTATE.name(),
-				Cell.CellTypes.AUDIO_INTEGRATE.name(), Cell.CellTypes.AUDIO_ONSET.name(),
-				Cell.CellTypes.AUDIO_PERCUSSION.name(), Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
-				Cell.CellTypes.AUDIO_HPS.name(), Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
+				Cell.CellTypes.AUDIO_CQ_MICRO_TONE.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
+				Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(), Cell.CellTypes.AUDIO_PITCH.name(),
+				Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(), Cell.CellTypes.AUDIO_MFCC.name(),
+				Cell.CellTypes.AUDIO_CEPSTRUM.name(), Cell.CellTypes.AUDIO_SYNTHESIS.name(),
+				Cell.CellTypes.AUDIO_NOTATE.name(), Cell.CellTypes.AUDIO_INTEGRATE.name(),
+				Cell.CellTypes.AUDIO_ONSET.name(), Cell.CellTypes.AUDIO_PERCUSSION.name(),
+				Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", Cell.CellTypes.AUDIO_HPS.name(),
+				Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
 				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC",
 				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION" }).stream()
 				.forEach(entry -> toneMapViewComboBox.addItem(entry));
