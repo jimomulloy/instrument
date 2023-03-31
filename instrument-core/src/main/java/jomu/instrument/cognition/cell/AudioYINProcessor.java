@@ -114,7 +114,9 @@ public class AudioYINProcessor extends ProcessorCommon {
 			if (note == -1) {
 				note = 0;
 			}
-			elements[note].amplitude = f0salience;
+			if (note < elements.length - 1) {
+				elements[note + 1].amplitude = f0salience;
+			}
 		}
 	}
 
@@ -123,11 +125,9 @@ public class AudioYINProcessor extends ProcessorCommon {
 		for (ToneMapElement element : elements) {
 			element.amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
 		}
-		for (int i = 0; i < fzeros.length; i++) {
+		for (int i = 0; i < fzeros.length && i < elements.length - 1; i++) {
 			if (fzeros[i] > 0) {
-				// int note = PitchSet.freqToMidiNote(fzeros[i]);
-				elements[i].amplitude = fzeroSaliences[i];
-				// elements[note].amplitude = 1.0; // fzeroSaliences[i];
+				elements[i + 1].amplitude = fzeroSaliences[i];
 			}
 		}
 	}

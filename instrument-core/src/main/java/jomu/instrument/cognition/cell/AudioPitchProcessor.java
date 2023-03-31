@@ -30,7 +30,7 @@ public class AudioPitchProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
 		int harmonics = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS);
 		float compression = parameterManager
@@ -116,7 +116,9 @@ public class AudioPitchProcessor extends ProcessorCommon {
 			if (note == -1) {
 				note = 0;
 			}
-			elements[note].amplitude = f0salience;
+			if (note < elements.length - 1) {
+				elements[note + 1].amplitude = f0salience;
+			}
 		}
 	}
 
@@ -125,11 +127,9 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		for (ToneMapElement element : elements) {
 			element.amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
 		}
-		for (int i = 0; i < fzeros.length; i++) {
+		for (int i = 0; i < fzeros.length && i < elements.length - 1; i++) {
 			if (fzeros[i] > 0) {
-				// int note = PitchSet.freqToMidiNote(fzeros[i]);
-				elements[i].amplitude = fzeroSaliences[i];
-				// elements[note].amplitude = 1.0; // fzeroSaliences[i];
+				elements[i + 1].amplitude = fzeroSaliences[i];
 			}
 		}
 	}

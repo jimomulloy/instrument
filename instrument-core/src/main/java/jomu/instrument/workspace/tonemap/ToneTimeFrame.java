@@ -346,12 +346,12 @@ public class ToneTimeFrame {
 	}
 
 	public ToneTimeFrame loadFFTSpectrum(FFTSpectrum fftSpectrum) {
-		int elementIndex = 0;
+		int elementIndex = 1;
 		for (int i = 0; i < elements.length; i++) {
 			elements[i].amplitude = AMPLITUDE_FLOOR;
 		}
-		double binStartFreq = pitchSet.getFreq(elementIndex);
-		double binEndFreq = pitchSet.getFreq(elementIndex + 1);
+		double binStartFreq = pitchSet.getFreq(elementIndex - 1);
+		double binEndFreq = pitchSet.getFreq(elementIndex);
 		elements[elementIndex].amplitude = 0;
 		double maxfft = 0, maxampl = 0;
 		int maxffti = 0, maxampli = 0;
@@ -367,7 +367,7 @@ public class ToneTimeFrame {
 					break;
 				}
 				elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
-				binEndFreq = pitchSet.getFreq(elementIndex + 1);
+				binEndFreq = pitchSet.getFreq(elementIndex);
 				if (binEndFreq == -1)
 					break;
 			}

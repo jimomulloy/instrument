@@ -79,7 +79,7 @@ public class ProcessingService {
 		LOG.severe(">>ProcessingService process metaData: " + metaData);
 		String style = metaData.containsKey("instrument-style") ? metaData.get("instrument-style") : "default";
 		String offset = metaData.containsKey("instrument-offset") ? metaData.get("instrument-offset") : null;
-		String range = metaData.containsKey("instrument-range") ? metaData.get("instrument-offset") : null;
+		String range = metaData.containsKey("instrument-range") ? metaData.get("instrument-range") : null;
 		if (offset != null) {
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET, offset);
 		}
