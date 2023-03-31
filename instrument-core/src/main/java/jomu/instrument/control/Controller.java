@@ -76,9 +76,6 @@ public class Controller implements Organ {
 
 	public void run(String userId, String fileName, String paramStyle) {
 		LOG.severe(">>INSTRUMENT Run started userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
-		getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE, "true");
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		setCountDownLatch(countDownLatch);
 		try {
@@ -91,11 +88,14 @@ public class Controller implements Organ {
 			if (paramStyle != null && !paramStyle.equals("default")) {
 				parameterManager.loadStyle(paramStyle);
 			}
+			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
+			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
+			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE, "true");
 			coordinator.getHearing().startAudioFileStream(fileName);
-			LOG.severe(">>INSTRUMENT Run userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
+			LOG.finer(">>INSTRUMENT Run userId: " + userId + ", fileName: " + fileName + ", style: " + paramStyle);
 			countDownLatch.await(TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			LOG.severe(">>Controller run completed for fileName: " + fileName);
+			LOG.finer(">>Controller run completed for fileName: " + fileName);
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, ">>Controller run error for fileName: " + fileName, e);
 		}
@@ -114,32 +114,32 @@ public class Controller implements Organ {
 		if (!new File(audioDirectory).isAbsolute()) {
 			audioDirectory = FileUtils.combine(baseDir, audioDirectory);
 		}
-		LOG.severe("Creating directory: " + audioDirectory);
+		LOG.finer("Creating directory: " + audioDirectory);
 		if (FileUtils.mkdirs(audioDirectory)) {
-			LOG.severe("Created directory: " + audioDirectory);
+			LOG.finer("Created directory: " + audioDirectory);
 		}
 		// Check if the directory is writable
 		if (!new File(audioDirectory).canWrite()) {
 			String message = "Required directory " + audioDirectory
 					+ " is not writable!\n Please configure another directory for '"
 					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY + "'.";
-			LOG.severe(message);
+			LOG.finer(message);
 			System.exit(-1);
 		}
 
 		String audioRecordDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY);
 		audioRecordDirectory = FileUtils.combine(audioDirectory, audioRecordDirectory);
-		LOG.severe("Creating directory: " + audioRecordDirectory);
+		LOG.finer("Creating directory: " + audioRecordDirectory);
 		if (FileUtils.mkdirs(audioRecordDirectory)) {
-			LOG.severe("Created directory: " + audioRecordDirectory);
+			LOG.finer("Created directory: " + audioRecordDirectory);
 		}
 		// Check if the directory is writable
 		if (!new File(audioRecordDirectory).canWrite()) {
 			String message = "Required directory " + audioRecordDirectory
 					+ " is not writable!\n Please configure another directory for '"
 					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY + "'.";
-			LOG.severe(message);
+			LOG.finer(message);
 			System.exit(-1);
 		}
 

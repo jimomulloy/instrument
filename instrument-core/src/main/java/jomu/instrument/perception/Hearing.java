@@ -80,9 +80,9 @@ public class Hearing implements Organ {
 		console.getVisor().updateStatusMessage("Ready");
 		if (streamId != null) {
 			// workspace.getAtlas().removeMapsByStreamId(streamId);
-			LOG.severe(">>Clear MAPS in Audio Stream: " + streamId);
+			LOG.finer(">>Clear MAPS in Audio Stream: " + streamId);
 		}
-		LOG.severe(">>Closed Audio Stream: " + streamId);
+		LOG.finer(">>Closed Audio Stream: " + streamId);
 	}
 
 	public void removeAudioStream(String streamId) {
@@ -122,7 +122,7 @@ public class Hearing implements Organ {
 		// Get amount of free memory within the heap in bytes. This size will increase
 		// // after garbage collection and decrease as new objects are created.
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
-		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
+		LOG.finer(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
 
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
@@ -136,14 +136,14 @@ public class Hearing implements Organ {
 		InputStream stream = storage.getObjectStorage().read(fileName);
 		bs = new BufferedInputStream(stream);
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
-		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format);
+		LOG.finer(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format);
 
 		if (format.getSampleRate() != audioStream.getSampleRate()) {
 			audioStream.setSampleRate(format.getSampleRate());
-			LOG.severe(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
+			LOG.finer(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
 		}
 
-		LOG.severe(">>Start Audio file processing buffer size: " + audioStream.getBufferSize() + ", sampelRate: "
+		LOG.finer(">>Start Audio file processing buffer size: " + audioStream.getBufferSize() + ", sampelRate: "
 				+ audioStream.getSampleRate());
 		try {
 			audioStream.calibrateAudioFileStream(bs);
@@ -212,10 +212,10 @@ public class Hearing implements Organ {
 		// Get amount of free memory within the heap in bytes. This size will increase
 		// // after garbage collection and decrease as new objects are created.
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
-		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
+		LOG.finer(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
 
 		streamId = UUID.randomUUID().toString();
-		LOG.severe(">>Start Audio Stream: " + streamId);
+		LOG.finer(">>Start Audio Stream: " + streamId);
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 
@@ -227,7 +227,7 @@ public class Hearing implements Organ {
 	}
 
 	public void stopAudioStream() {
-		LOG.severe(">>Stop Audio Stream: " + streamId);
+		LOG.finer(">>Stop Audio Stream: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream != null) {
 			audioStream.stop();
@@ -239,7 +239,7 @@ public class Hearing implements Organ {
 		if (bs != null) {
 			try {
 				bs.close();
-				LOG.severe(">>Close Audio Stream: " + streamId);
+				LOG.finer(">>Close Audio Stream: " + streamId);
 			} catch (IOException e) {
 				LOG.log(Level.SEVERE, "Exception closig " + streamId, e);
 			}
@@ -332,9 +332,9 @@ public class Hearing implements Organ {
 
 				}
 			});
-			LOG.severe(">>Calibrate audio file");
+			LOG.finer(">>Calibrate audio file");
 			dispatcher.run();
-			LOG.severe(">>Calibrated audio file");
+			LOG.finer(">>Calibrated audio file");
 		}
 
 		private void initialiseAudioFileStream(BufferedInputStream inputStream)
@@ -346,7 +346,7 @@ public class Hearing implements Organ {
 			if (audioOffset > 0) {
 				skipFromBeginning(stream, audioOffset / 1000.0);
 			}
-			LOG.severe(">>initialiseAudioFileStream skip from secs: " + audioOffset / 1000.0);
+			LOG.finer(">>initialiseAudioFileStream skip from secs: " + audioOffset / 1000.0);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			float audioHighPass = parameterManager

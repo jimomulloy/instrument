@@ -55,7 +55,7 @@ public class Voice implements Organ {
 	public MidiSynthesizer buildMidiSynthesizer() {
 		// midiSynthesizer = new MidiSynthesizer(workspace, parameterManager,
 		// controller);
-		LOG.severe(">>Voice buildMidiSynthesizer");
+		LOG.finer(">>Voice buildMidiSynthesizer");
 		midiSynthesizer.open();
 		return this.midiSynthesizer;
 	}
@@ -63,11 +63,11 @@ public class Voice implements Organ {
 	public void close(String streamId) {
 		resynthSynthesizer.close(streamId);
 		audioSynthesizer.close(streamId);
-		LOG.severe(">>Voice CLOSE!!");
+		LOG.finer(">>Voice CLOSE!!");
 		midiSynthesizer.close(streamId);
 		if (!parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
 			if (controller.isCountDownLatch()) {
-				LOG.severe(">>Voice job close");
+				LOG.finer(">>Voice job close");
 				controller.getCountDownLatch().countDown();
 			}
 		}
@@ -87,7 +87,7 @@ public class Voice implements Organ {
 
 	@Override
 	public void initialise() {
-		LOG.severe(">>Voice initialise");
+		LOG.finer(">>Voice initialise");
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
 		resynthSynthesizer = buildResynthAudioSynthesizer();

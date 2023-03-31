@@ -580,6 +580,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 						break;
 					}
 
+					LOG.finer(">>MidiQueueConsumer running: " + toneTimeFrame.getStartTime());
+
 					boolean midiPlayVoice1Switch = parameterManager
 							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH);
 					boolean midiPlayVoice2Switch = parameterManager
@@ -679,7 +681,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
-			LOG.finer(">>MidiQueueConsumer run exit");
+			LOG.severe(">>MidiQueueConsumer run exit");
 			clearChannels();
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
@@ -707,7 +709,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							+ ".midi";
 					// String fileName = "/tmp/instrument_recording_" + System.currentTimeMillis() +
 					// ".midi";
-					LOG.severe(">>Writing MIDI file name: " + trackFileName);
+					LOG.finer(">>Writing MIDI file name: " + trackFileName);
 					file = new File(trackFileName);
 					saveMidiFile(file, tracks[i]);
 					sequence.deleteTrack(tracks[i]);

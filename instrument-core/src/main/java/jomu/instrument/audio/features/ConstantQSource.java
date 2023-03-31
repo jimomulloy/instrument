@@ -137,7 +137,7 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 	void initialise() {
 		float minimumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(minimumFrequencyInCents);
 		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(maximumFrequencyInCents);
-		LOG.severe(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
+		LOG.finer(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
 		LOG.finer(">>CQS window increment: " + windowSize);
 
 		constantQ = new ConstantQ(sampleRate, minimumFrequencyInHertz, maximumFrequencyInHertz, binsPerOctave);
@@ -146,25 +146,25 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		binHeight = 1200F / (float) binsPerOctave;
 
 		startingPointsInHertz = constantQ.getFreqencies();
-		LOG.severe(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
+		LOG.finer(">>CQS startingPointsInHertz: " + startingPointsInHertz[0]);
 		binStartingPointsInCents = new float[startingPointsInHertz.length];
 		for (int i = 0; i < binStartingPointsInCents.length; i++) {
 			binStartingPointsInCents[i] = (float) PitchConverter.hertzToAbsoluteCent(startingPointsInHertz[i]);
 		}
-		LOG.severe(">>CQS endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
-		LOG.severe(">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
-		LOG.severe(">>CQS endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
+		LOG.finer(">>CQS endPointsInHertz: " + startingPointsInHertz[startingPointsInHertz.length - 1]);
+		LOG.finer(">>CQS startingPointsInCents: " + binStartingPointsInCents[0]);
+		LOG.finer(">>CQS endPointsInCents: " + binStartingPointsInCents[binStartingPointsInCents.length - 1]);
 
 		size = constantQ.getFFTlength();
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
-		LOG.severe(">>CQS size: " + size + ", windowSize: " + windowSize);
+		LOG.finer(">>CQS size: " + size + ", windowSize: " + windowSize);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, size, size - windowSize);
 		djp.setName("CQ");
 		dispatcher.addAudioProcessor(djp);
 
 		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
 		LOG.finer(">>CQ size: " + size);
-		LOG.severe(">>CQ lag: " + constantQLag);
+		LOG.finer(">>CQ lag: " + constantQLag);
 
 		djp.addAudioProcessor(constantQ);
 		djp.addAudioProcessor(new AudioProcessor() {

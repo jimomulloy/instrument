@@ -61,9 +61,9 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				}
 			}
 
-			LOG.severe(">>CQ Features: " + this.audioFeatureFrame.getStart() + " ," + this.audioFeatureFrame.getEnd()
+			LOG.finer(">>CQ Features: " + this.audioFeatureFrame.getStart() + " ," + this.audioFeatureFrame.getEnd()
 					+ ", " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
-			LOG.severe(">>CQ Features lowPitch: " + lowPitch + ", highPitch: " + highPitch);
+			LOG.finer(">>CQ Features lowPitch: " + lowPitch + ", highPitch: " + highPitch);
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 

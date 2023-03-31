@@ -88,16 +88,16 @@ public class ParameterManager {
 		Properties styleParameters = new Properties();
 		InputStream is = null;
 		if (paramStyle != null && !paramStyle.equals("default")) {
-			LOG.severe(">>Loading :" + paramStyle);
+			LOG.finer(">>Loading :" + paramStyle);
 			is = getClass().getClassLoader().getResourceAsStream(
 					PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 			styleParameters.load(is);
 			parameters.putAll(styleParameters);
 			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
-			LOG.severe(">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
+			LOG.finer(">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
 					+ PARAMETER_CONFIG_FILE_POSTFIX);
 		} else {
-			LOG.severe(">>ReLoaded :" + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+			LOG.finer(">>ReLoaded :" + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 		}
 	}
 }

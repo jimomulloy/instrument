@@ -1232,7 +1232,7 @@ public class ToneTimeFrame {
 						&& attackWhitenFactor > 0) {
 					double attackWhitenValue = previousFrame.getElement(elementIndex).amplitude * attackWhitenFactor;
 					if (elements[elementIndex].amplitude > attackWhitenValue) {
-						LOG.severe(">>ATTACK " + getStartTime() + ", " + elementIndex + ", " + attackWhitenValue);
+						LOG.finer(">>ATTACK " + getStartTime() + ", " + elementIndex + ", " + attackWhitenValue);
 						elements[elementIndex].amplitude = attackWhitenValue;
 					}
 				}

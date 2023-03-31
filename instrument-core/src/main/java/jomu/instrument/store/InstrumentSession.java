@@ -121,7 +121,7 @@ public class InstrumentSession {
 		if (this.inputAudioFileName.lastIndexOf(".") > -1) {
 			this.inputAudioFileName = this.inputAudioFileName.substring(0, this.inputAudioFileName.lastIndexOf("."));
 		}
-		LOG.severe(">>SET inputAudioFileName: " + this.inputAudioFileName);
+		LOG.finer(">>SET inputAudioFileName: " + this.inputAudioFileName);
 	}
 
 	public String getOutputMidiFileName() {
