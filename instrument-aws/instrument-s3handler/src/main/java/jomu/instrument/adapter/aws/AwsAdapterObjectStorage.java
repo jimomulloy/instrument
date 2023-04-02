@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -17,10 +18,14 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.store.ObjectStorage;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
@@ -78,6 +83,18 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 	}
 
 	@Override
+	public String readString(String name) {
+		String contents = null;
+		GetObjectRequest request = buildGetRequest(name);
+		try (ResponseInputStream<GetObjectResponse> response = s3Client.getObject(request)) {
+			contents = new String(response.readAllBytes(), StandardCharsets.UTF_8);
+		} catch (AwsServiceException | SdkClientException | IOException ex) {
+			return null;
+		}
+		return contents;
+	}
+
+	@Override
 	public InputStream read(String name) {
 		GetObjectRequest request = buildGetRequest(name);
 		try {
@@ -122,6 +139,12 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 					.key(objectSummary.key()).build();
 			s3Client.deleteObject(deleteObjectRequest);
 		}
+	}
+
+	@Override
+	public void delete(String name) {
+		DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(name).build();
+		s3Client.deleteObject(deleteObjectRequest);
 	}
 
 }

@@ -88,10 +88,14 @@ public class ParameterManager {
 		Properties styleParameters = new Properties();
 		InputStream is = null;
 		if (paramStyle != null && !paramStyle.equals("default")) {
-			LOG.finer(">>Loading :" + paramStyle);
 			is = getClass().getClassLoader().getResourceAsStream(
 					PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
-			styleParameters.load(is);
+			try {
+				styleParameters.load(is);
+			} catch (IOException e) {
+				LOG.finer(">>Error loading parameter styles :" + paramStyle);
+				return;
+			}
 			parameters.putAll(styleParameters);
 			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
 			LOG.finer(">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."

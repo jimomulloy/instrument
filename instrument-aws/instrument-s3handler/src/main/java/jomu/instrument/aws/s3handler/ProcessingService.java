@@ -15,6 +15,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import com.google.gson.Gson;
+
 import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.Instrument;
 import jomu.instrument.control.Controller;
@@ -58,8 +60,8 @@ public class ProcessingService {
 		LOG.severe(">>ProcessingService process: " + input);
 		String s3Key = input.getName();
 		String userId = s3Key.substring("private/".length(), s3Key.indexOf("/input/"));
-		String propsKey = s3Key.substring(0, s3Key.lastIndexOf("/") + 1) + "parameter.properties";
-		String stateKey = s3Key.substring(0, s3Key.lastIndexOf("/") + 1) + "state.txt";
+		String propsKey = "private/" + userId + "/input/parameter.properties";
+		String stateKey = "private/" + userId + "/state.json";
 
 		LOG.severe(">>ProcessingService propsKey: " + propsKey);
 		LOG.severe(">>ProcessingService stateKey: " + stateKey);
@@ -110,9 +112,15 @@ public class ProcessingService {
 		LOG.severe(">>ProcessingService process range: "
 				+ parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
 		storage.getObjectStorage().clearStore("private/" + userId + "/output");
-		storage.getObjectStorage().writeString(stateKey, "processing");
 
-		controller.run(userId, input.getName(), style);
+		boolean instrumentRun = controller.run(userId, input.getName(), style);
+
+		if (!instrumentRun) {
+			String result = "error";
+			OutputObject out = new OutputObject();
+			out.setResult(result);
+			return out;
+		}
 
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 		String midiFilePath = instrumentSession.getOutputMidiFilePath();
@@ -135,10 +143,16 @@ public class ProcessingService {
 				}
 			}
 		}
+		String stateContent = storage.getObjectStorage().readString(stateKey);
+		if (stateContent != null) {
+			Gson gson = new Gson();
+			State state = gson.fromJson(stateContent, State.class);
+			state.status = "READY";
+			storage.getObjectStorage().writeString(stateKey, gson.toJson(state));
+		}
 		String result = "done";
 		OutputObject out = new OutputObject();
 		out.setResult(result);
-		storage.getObjectStorage().writeString(stateKey, "processed");
 		return out;
 	}
 

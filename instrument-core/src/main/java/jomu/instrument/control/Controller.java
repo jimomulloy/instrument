@@ -74,7 +74,7 @@ public class Controller implements Organ {
 		this.countDownLatch = countDownLatch;
 	}
 
-	public void run(String userId, String fileName, String paramStyle) {
+	public boolean run(String userId, String fileName, String paramStyle) {
 		LOG.severe(">>INSTRUMENT Run started userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		setCountDownLatch(countDownLatch);
@@ -98,9 +98,11 @@ public class Controller implements Organ {
 			LOG.finer(">>Controller run completed for fileName: " + fileName);
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, ">>Controller run error for fileName: " + fileName, e);
+			return false;
 		}
 		clearCountDownLatch();
 		LOG.severe(">>INSTRUMENT Run ended");
+		return true;
 	}
 
 	/**

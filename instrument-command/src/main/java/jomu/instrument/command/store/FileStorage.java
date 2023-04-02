@@ -76,4 +76,16 @@ public class FileStorage implements ObjectStorage {
 
 	}
 
+	@Override
+	public String readString(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(String name) {
+		// TODO Auto-generated method stub
+
+	}
+
 }
