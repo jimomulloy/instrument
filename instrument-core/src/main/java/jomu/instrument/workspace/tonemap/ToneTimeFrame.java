@@ -459,12 +459,6 @@ public class ToneTimeFrame {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			spectralCentroid += elementIndex * (elements[elementIndex].amplitude / totalAmplitude);
 		}
-		if (spectralCentroid > 0) {
-			LOG.severe(">>SC: " + spectralCentroid + ", " + meanFreqs.size());
-		}
-		if (spectralMean > 0) {
-			LOG.severe(">>SM: " + spectralMean);
-		}
 		return this;
 	}
 

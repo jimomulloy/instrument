@@ -167,7 +167,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (sequencer != null && sequencer.isOpen()) {
 			sequencer.close();
 		}
-		LOG.severe(">>MIDI close: ");
+		LOG.severe(">>MIDI close");
 		sequence = null;
 		sequencer = null;
 		synthesizer = null;
@@ -184,7 +184,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	public void reset() {
-		LOG.severe(">>MIDI reset: ");
+		LOG.severe(">>MIDI reset");
 		close();
 		open();
 	}
@@ -393,25 +393,20 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	private Instrument initChannel(ChannelData channelData, String instrumentName) {
-		LOG.severe(">>MidiSynth initChannel: " + instrumentName);
 		Instrument channelInstrument = instruments[0];
 		if (instrumentName != null) {
 			try {
 				int cn = Integer.parseInt(instrumentName);
 				channelInstrument = instruments[cn - 1];
-				LOG.severe(">>MidiSynth initChannel set numeric: " + cn);
-
 			} catch (NumberFormatException ex) {
 				for (Instrument instrument : instruments) {
 					if (instrument.getName().toLowerCase().contains(instrumentName.toLowerCase())) {
 						channelInstrument = instrument;
-						LOG.severe(">>MidiSynth initChannel set name: " + instrumentName.toLowerCase());
 						break;
 					}
 				}
 			}
 		}
-		LOG.severe(">>MidiSynth initChannel inst: " + channelInstrument);
 		if (channelInstrument == null) {
 			channelInstrument = instruments[0];
 		}
@@ -501,7 +496,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (fileTypes.length > 1) {
 					fileType = fileTypes[1];
 				}
-				LOG.severe(">>saveMidiFile file type: " + fileType);
 				if (MidiSystem.write(sequence, fileType, file) == -1) {
 					throw new IOException("Problems writing file to MIDI System");
 				}
@@ -586,7 +580,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			try {
 				while (running) {
-					LOG.severe(">>MidiQueueConsumer running");
+					LOG.finer(">>MidiQueueConsumer running");
 					if (midiStream.isClosed()) {
 						stop();
 						break;

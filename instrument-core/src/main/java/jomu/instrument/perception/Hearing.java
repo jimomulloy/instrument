@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -68,7 +69,7 @@ public class Hearing implements Organ {
 	@Inject
 	Storage storage;
 
-	private BufferedInputStream bs;
+	BufferedInputStream bs;
 
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
@@ -109,7 +110,8 @@ public class Hearing implements Organ {
 	public void start() {
 	}
 
-	public void startAudioFileStream(String fileName) throws Exception {
+	public void startAudioFileStream(String inputFileName) throws Exception {
+		String fileName = inputFileName;
 		if (streamId != null) {
 			workspace.getAtlas().removeMapsByStreamId(streamId);
 		}
@@ -127,6 +129,11 @@ public class Hearing implements Organ {
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
+
+		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
+			fileName = convertToWav(new File(fileName));
+			LOG.severe(">>MP3/OGG file converted: " + fileName);
+		}
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 		instrumentSession.setInputAudioFilePath(fileName);
 		instrumentSession.setStreamId(streamId);
@@ -156,7 +163,7 @@ public class Hearing implements Organ {
 		stream = storage.getObjectStorage().read(fileName);
 		bs = new BufferedInputStream(stream);
 		try {
-			audioStream.initialiseAudioFileStream(bs);
+			audioStream.processAudioFileStream(bs);
 		} catch (UnsupportedAudioFileException | IOException ex) {
 			LOG.log(Level.SEVERE, "Audio file init error:" + fileName, ex);
 			throw new Exception("Audio file init error: " + ex.getMessage());
@@ -185,9 +192,9 @@ public class Hearing implements Organ {
 	/**
 	 * Invoke this function to convert to a playable file.
 	 */
-	public static void mp3ToWav(File mp3Data) throws UnsupportedAudioFileException, IOException {
+	public String convertToWav(File audioFile) throws UnsupportedAudioFileException, IOException {
 		// open stream
-		AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(mp3Data);
+		AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(audioFile);
 		AudioFormat sourceFormat = mp3Stream.getFormat();
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
@@ -196,7 +203,15 @@ public class Hearing implements Organ {
 		// create stream that delivers the desired format
 		AudioInputStream converted = AudioSystem.getAudioInputStream(convertFormat, mp3Stream);
 		// write stream into a file with file format wav
-		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, new File("/tmp/out.wav"));
+		String baseDir = storage.getObjectStorage().getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
+				.toString();
+		String wavFileName = folder + System.getProperty("file.separator")
+				+ audioFile.getName().substring(0, audioFile.getName().indexOf(".")) + ".wav";
+		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, new File(wavFileName));
+		return wavFileName;
 	}
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
@@ -219,7 +234,7 @@ public class Hearing implements Organ {
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 
-		audioStream.initialiseMicrophoneStream(recordFile);
+		audioStream.processMicrophoneStream(recordFile);
 
 		audioStream.getAudioFeatureProcessor().addObserver(cortex);
 		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
@@ -337,7 +352,7 @@ public class Hearing implements Organ {
 			LOG.finer(">>Calibrated audio file");
 		}
 
-		private void initialiseAudioFileStream(BufferedInputStream inputStream)
+		private void processAudioFileStream(BufferedInputStream inputStream)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 			console.getVisor().clearView();
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
@@ -363,7 +378,7 @@ public class Hearing implements Organ {
 
 		}
 
-		private void initialiseMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
+		private void processMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			console.getVisor().clearView();
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
@@ -440,7 +455,7 @@ public class Hearing implements Organ {
 		audioStreams.put(streamId, audioStream);
 
 		try {
-			audioStream.initialiseAudioFileStream(new BufferedInputStream(is));
+			audioStream.processAudioFileStream(new BufferedInputStream(is));
 		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
