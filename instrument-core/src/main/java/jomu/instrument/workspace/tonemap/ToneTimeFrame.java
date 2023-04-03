@@ -459,6 +459,12 @@ public class ToneTimeFrame {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			spectralCentroid += elementIndex * (elements[elementIndex].amplitude / totalAmplitude);
 		}
+		if (spectralCentroid > 0) {
+			LOG.severe(">>SC: " + spectralCentroid + ", " + meanFreqs.size());
+		}
+		if (spectralMean > 0) {
+			LOG.severe(">>SM: " + spectralMean);
+		}
 		return this;
 	}
 
@@ -1324,6 +1330,9 @@ public class ToneTimeFrame {
 		ChordListElement chordListElement = null;
 		if (chordNotes.size() > 1) {
 			int octave = pitchSet.getOctave(this.getSpectralCentroid());
+			if (this.getSpectralCentroid() > 0) {
+				LOG.severe(">>getChord SC: " + octave + " ," + this.getSpectralCentroid());
+			}
 			chordListElement = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
 					getStartTime(), getTimeSet().getEndTime(), octave);
 		}

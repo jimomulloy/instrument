@@ -1446,6 +1446,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					octaveAdjust = chord.getOctave();
 				}
 
+				octaveAdjust = 4;
 				if (amplitude > 0.1) {
 					if (!chordsChannel2LastNotes.contains(note)) {
 						midiMessage = new ShortMessage();

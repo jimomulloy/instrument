@@ -85,7 +85,8 @@ public class TonePredictor {
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), targetFrame.getStartTime(),
 					targetFrame.getEndTime(), octave);
 			chords.add(chords.indexOf(previousChord.get()) + 1, newChord);
-			LOG.finer(">>Predict Chord added: " + targetFrame.getStartTime() + ", " + chord + ",  " + previousChord);
+			LOG.severe(">>Predict Chord added: " + targetFrame.getStartTime() + ", " + chord + ",  " + previousChord
+					+ ", " + octave + ", " + targetFrame.getSpectralCentroid());
 		}
 	}
 
