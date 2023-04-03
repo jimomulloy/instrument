@@ -1,1 +1,4 @@
-jpackage --type exe --name InstrumentApp --input target --dest target\packed --main-jar instrument-0.0.1-SNAPSHOT.jar --main-class jomu.instrument.QuarkusInstrument
+jpackage --type exe --name InstrumentApp --input target --dest target\packed --main-jar instrument-desktop-0.0.1-SNAPSHOT.jar --main-class jomu.instrument.desktop.monitor.QuarkusInstrument --description "The Instrument Desktop App by Jim O'Mulloy" --app-version 0.0.1 --icon src/main/resources/instrument.ico --win-shortcut --win-menu --win-menu-group "jomu"
+
+
+gu install native-image
