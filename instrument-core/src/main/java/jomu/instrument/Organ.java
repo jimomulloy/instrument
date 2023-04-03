@@ -2,10 +2,10 @@ package jomu.instrument;
 
 public interface Organ {
 
-	void initialise();
+	void initialise() throws InstrumentException;
 
-	void start();
+	void start() throws InstrumentException;
 
-	void stop();
+	void stop() throws InstrumentException;
 
 }

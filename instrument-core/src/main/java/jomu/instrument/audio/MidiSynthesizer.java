@@ -83,15 +83,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	private static final int PAD_2_CHANNEL = 7;
 
-	private static final int BEAT_1_CHANNEL = 8;
+	private static final int BASE_1_CHANNEL = 8;
 
-	private static final int BEAT_2_CHANNEL = 9;
+	private static final int BEAT_1_CHANNEL = 10;
 
-	private static final int BEAT_3_CHANNEL = 10;
+	private static final int BEAT_2_CHANNEL = 11;
 
-	private static final int BEAT_4_CHANNEL = 11;
+	private static final int BEAT_3_CHANNEL = 12;
 
-	private static final int BASE_1_CHANNEL = 12;
+	private static final int BEAT_4_CHANNEL = 13;
 
 	private int bpmSetting = INIT_BPM_SETTING;
 
@@ -167,6 +167,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (sequencer != null && sequencer.isOpen()) {
 			sequencer.close();
 		}
+		LOG.severe(">>MIDI close: ");
 		sequence = null;
 		sequencer = null;
 		synthesizer = null;
@@ -183,6 +184,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	public void reset() {
+		LOG.severe(">>MIDI reset: ");
 		close();
 		open();
 	}
@@ -286,12 +288,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 
 			try {
-				File file = new File(
-						parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
-				if (file.exists()) {
-					sb = MidiSystem.getSoundbank(file);
-					synthesizer.loadAllInstruments(sb);
-					instruments = synthesizer.getLoadedInstruments();
+				if (parameterManager.hasParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)) {
+					File file = new File(
+							parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
+					if (file.exists()) {
+						sb = MidiSystem.getSoundbank(file);
+						synthesizer.loadAllInstruments(sb);
+						instruments = synthesizer.getLoadedInstruments();
+						LOG.severe(">>MidiSynth CustomSoundbank!!");
+					}
+				} else {
+					LOG.severe(">>MidiSynth Default Soundbank!!");
 				}
 			} catch (Exception e) {
 				LOG.log(Level.SEVERE, ">>MidiSynth open error", e);
@@ -301,13 +308,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (instruments == null || instruments.length == 0) {
 				sb = synthesizer.getDefaultSoundbank();
 				if (sb != null) {
+					LOG.severe(">>MidiSynth DefaultSoundbank!!");
 					instruments = synthesizer.getDefaultSoundbank().getInstruments();
 				} else {
+					LOG.severe(">>MidiSynth AvailableSoundbank!!");
 					instruments = synthesizer.getAvailableInstruments();
 				}
 			}
 			if (instruments == null || instruments.length == 0) {
-				LOG.finer(">>MidiSynth MISSING INSTRUMENTS!!");
+				LOG.severe(">>MidiSynth MISSING INSTRUMENTS!!");
 				return false;
 			}
 
@@ -323,7 +332,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (int i = 0; i < channels.length; i++) {
 				channels[i] = new ChannelData(midiChannels[i], i);
 			}
-
+			LOG.severe(">>MidiSynth CHANNELS: " + channels.length);
 			initChannels();
 
 			sequencer = MidiSystem.getSequencer(false);
@@ -348,6 +357,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			});
 		} catch (Exception ex) {
+			LOG.log(Level.SEVERE, ">>MIDI Synthesiser open exception", ex);
 			return false;
 		}
 		return true;
@@ -383,17 +393,31 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	private Instrument initChannel(ChannelData channelData, String instrumentName) {
-
+		LOG.severe(">>MidiSynth initChannel: " + instrumentName);
 		Instrument channelInstrument = instruments[0];
-		for (Instrument instrument : instruments) {
-			if (instrument.getName().toLowerCase().contains(instrumentName.toLowerCase())) {
-				channelInstrument = instrument;
-				break;
+		if (instrumentName != null) {
+			try {
+				int cn = Integer.parseInt(instrumentName);
+				channelInstrument = instruments[cn - 1];
+				LOG.severe(">>MidiSynth initChannel set numeric: " + cn);
+
+			} catch (NumberFormatException ex) {
+				for (Instrument instrument : instruments) {
+					if (instrument.getName().toLowerCase().contains(instrumentName.toLowerCase())) {
+						channelInstrument = instrument;
+						LOG.severe(">>MidiSynth initChannel set name: " + instrumentName.toLowerCase());
+						break;
+					}
+				}
 			}
+		}
+		LOG.severe(">>MidiSynth initChannel inst: " + channelInstrument);
+		if (channelInstrument == null) {
+			channelInstrument = instruments[0];
 		}
 
 		if (synthesizer != null) {
-			synthesizer.loadInstrument(channelInstrument);
+			// TODO NO NEED?? synthesizer.loadInstrument(channelInstrument);
 		}
 
 		channelData.channel.allNotesOff();
@@ -473,7 +497,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (fileTypes.length == 0) {
 				return false;
 			} else {
-				if (MidiSystem.write(sequence, fileTypes[0], file) == -1) {
+				int fileType = fileTypes[0];
+				if (fileTypes.length > 1) {
+					fileType = fileTypes[1];
+				}
+				LOG.severe(">>saveMidiFile file type: " + fileType);
+				if (MidiSystem.write(sequence, fileType, file) == -1) {
 					throw new IOException("Problems writing file to MIDI System");
 				}
 				return true;
@@ -557,7 +586,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			try {
 				while (running) {
-					LOG.finer(">>MidiQueueConsumer running");
+					LOG.severe(">>MidiQueueConsumer running");
 					if (midiStream.isClosed()) {
 						stop();
 						break;
@@ -718,6 +747,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						masterFileName.substring(masterFileName.lastIndexOf(System.getProperty("file.separator"))));
 				instrumentSession.setOutputMidiFilePath(masterFileName);
 			}
+			LOG.severe(">>MidiQueueConsumer close stream");
 			this.midiStream.close();
 		}
 
@@ -2139,7 +2169,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			bq.drainTo(new ArrayList<Object>());
 			closed = true;
 			consumer.stop();
-			LOG.finer(">>MidiStream close stop");
+			LOG.severe(">>MidiStream close stop and reset!!");
 			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 			instrumentSession.setState(InstrumentSessionState.STOPPED);
 			MidiSynthesizer.this.reset();

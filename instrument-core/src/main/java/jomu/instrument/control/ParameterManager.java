@@ -31,6 +31,10 @@ public class ParameterManager {
 		return parameters.getProperty(key);
 	}
 
+	public boolean hasParameter(String key) {
+		return parameters.getProperty(key) != null;
+	}
+
 	public void setParameter(String key, String value) {
 		parameters.setProperty(key, value);
 	}

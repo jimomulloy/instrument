@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
@@ -56,7 +57,10 @@ public class Voice implements Organ {
 		// midiSynthesizer = new MidiSynthesizer(workspace, parameterManager,
 		// controller);
 		LOG.finer(">>Voice buildMidiSynthesizer");
-		midiSynthesizer.open();
+		if (!midiSynthesizer.open()) {
+			LOG.severe(">>Voice Open MidiSynthesizer error");
+			throw new InstrumentException(">>Voice Open MidiSynthesizer error");
+		}
 		return this.midiSynthesizer;
 	}
 
@@ -141,6 +145,7 @@ public class Voice implements Organ {
 	}
 
 	public void clear() {
+		LOG.severe(">>VOICE clear: ");
 		resynthSynthesizer.clear();
 		audioSynthesizer.clear();
 		midiSynthesizer.clear();
