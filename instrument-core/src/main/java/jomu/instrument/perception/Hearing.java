@@ -2,6 +2,7 @@ package jomu.instrument.perception;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
@@ -130,27 +131,29 @@ public class Hearing implements Organ {
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
 
-		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
-			fileName = convertToWav(fileName);
-			LOG.severe(">>MP3/OGG file converted: " + fileName);
-		}
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 		instrumentSession.setInputAudioFilePath(fileName);
 		instrumentSession.setStreamId(streamId);
 		instrumentSession.setState(InstrumentSessionState.RUNNING);
 
-		// File file = new File(fileName);
-		InputStream stream = storage.getObjectStorage().read(fileName);
+		InputStream stream = null;
+		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
+			String wavFilePath = convertToWav(fileName);
+			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
+			stream = new FileInputStream(wavFilePath);
+		} else {
+			stream = storage.getObjectStorage().read(fileName);
+		}
 		bs = new BufferedInputStream(stream);
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
-		LOG.finer(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format);
+		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format);
 
 		if (format.getSampleRate() != audioStream.getSampleRate()) {
 			audioStream.setSampleRate(format.getSampleRate());
 			LOG.finer(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
 		}
 
-		LOG.finer(">>Start Audio file processing buffer size: " + audioStream.getBufferSize() + ", sampelRate: "
+		LOG.severe(">>Start Audio file processing buffer size: " + audioStream.getBufferSize() + ", sampelRate: "
 				+ audioStream.getSampleRate());
 		try {
 			audioStream.calibrateAudioFileStream(bs);
@@ -160,7 +163,14 @@ public class Hearing implements Organ {
 			LOG.log(Level.SEVERE, "Audio file calibrate error:" + fileName, ex);
 			throw new Exception("Audio file calibrate error: " + ex.getMessage());
 		}
-		stream = storage.getObjectStorage().read(fileName);
+
+		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
+			String wavFilePath = convertToWav(fileName);
+			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
+			stream = new FileInputStream(wavFilePath);
+		} else {
+			stream = storage.getObjectStorage().read(fileName);
+		}
 		bs = new BufferedInputStream(stream);
 		try {
 			audioStream.processAudioFileStream(bs);
@@ -194,14 +204,14 @@ public class Hearing implements Organ {
 	 */
 	public String convertToWav(String fileName) throws UnsupportedAudioFileException, IOException {
 		// open stream
-		AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(storage.getObjectStorage().read(fileName));
-		AudioFormat sourceFormat = mp3Stream.getFormat();
+		AudioInputStream stream = AudioSystem.getAudioInputStream(storage.getObjectStorage().read(fileName));
+		AudioFormat sourceFormat = stream.getFormat();
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
 		AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16,
 				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
 		// create stream that delivers the desired format
-		AudioInputStream converted = AudioSystem.getAudioInputStream(convertFormat, mp3Stream);
+		AudioInputStream converted = AudioSystem.getAudioInputStream(convertFormat, stream);
 		// write stream into a file with file format wav
 		String baseDir = storage.getObjectStorage().getBasePath();
 		String folder = Paths
@@ -365,8 +375,9 @@ public class Hearing implements Organ {
 			if (audioOffset > 0) {
 				skipFromBeginning(stream, audioOffset / 1000.0);
 			}
-			LOG.finer(">>initialiseAudioFileStream skip from secs: " + audioOffset / 1000.0);
+			LOG.severe(">>processAudioFileStream skip from secs: " + audioOffset / 1000.0);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
+			LOG.severe(">>processAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			float audioHighPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
