@@ -1324,9 +1324,6 @@ public class ToneTimeFrame {
 		ChordListElement chordListElement = null;
 		if (chordNotes.size() > 1) {
 			int octave = pitchSet.getOctave(this.getSpectralCentroid());
-			if (this.getSpectralCentroid() > 0) {
-				LOG.severe(">>getChord SC: " + octave + " ," + this.getSpectralCentroid());
-			}
 			chordListElement = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
 					getStartTime(), getTimeSet().getEndTime(), octave);
 		}

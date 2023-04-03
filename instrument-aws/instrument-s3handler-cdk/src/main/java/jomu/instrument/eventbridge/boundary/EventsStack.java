@@ -27,8 +27,12 @@ public class EventsStack extends Stack {
 		var bucket = s3Bucket.getBucket();
 		bucket.grantReadWrite(s3Listener.getFunction());
 		var destination = new LambdaDestination(s3Listener.getFunction());
-		NotificationKeyFilter nkf = new NotificationKeyFilter.Builder().prefix("private/").suffix("wav").build();
-		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkf });
+		NotificationKeyFilter nkfwav = new NotificationKeyFilter.Builder().prefix("private/").suffix("wav").build();
+		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfwav });
+		NotificationKeyFilter nkfmp3 = new NotificationKeyFilter.Builder().prefix("private/").suffix("mp3").build();
+		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfmp3 });
+		NotificationKeyFilter nkfogg = new NotificationKeyFilter.Builder().prefix("private/").suffix("ogg").build();
+		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfogg });
 		var eventBridgeRouting = new EventBridgeRouting(this, logGroup, eventBridgeListener);
 		CfnOutput.Builder.create(this, "BucketOutput").value(bucket.getBucketArn()).build();
 	}

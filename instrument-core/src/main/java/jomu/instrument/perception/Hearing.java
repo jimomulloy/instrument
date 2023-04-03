@@ -131,7 +131,7 @@ public class Hearing implements Organ {
 		audioStreams.put(streamId, audioStream);
 
 		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
-			fileName = convertToWav(new File(fileName));
+			fileName = convertToWav(fileName);
 			LOG.severe(">>MP3/OGG file converted: " + fileName);
 		}
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
@@ -192,9 +192,9 @@ public class Hearing implements Organ {
 	/**
 	 * Invoke this function to convert to a playable file.
 	 */
-	public String convertToWav(File audioFile) throws UnsupportedAudioFileException, IOException {
+	public String convertToWav(String fileName) throws UnsupportedAudioFileException, IOException {
 		// open stream
-		AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(audioFile);
+		AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(storage.getObjectStorage().read(fileName));
 		AudioFormat sourceFormat = mp3Stream.getFormat();
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
@@ -208,10 +208,15 @@ public class Hearing implements Organ {
 				.get(baseDir,
 						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
 				.toString();
-		String wavFileName = folder + System.getProperty("file.separator")
-				+ audioFile.getName().substring(0, audioFile.getName().indexOf(".")) + ".wav";
-		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, new File(wavFileName));
-		return wavFileName;
+		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
+				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
+				: 0;
+		String wavFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + ".wav";
+		String wavFilePath = folder + System.getProperty("file.separator") + wavFileName;
+		File wavFile = new File(wavFilePath);
+		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, wavFile);
+		storage.getObjectStorage().write(wavFileName, wavFile);
+		return wavFilePath;
 	}
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
