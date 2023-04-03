@@ -215,7 +215,6 @@ public class Hearing implements Organ {
 		String wavFilePath = folder + System.getProperty("file.separator") + wavFileName;
 		File wavFile = new File(wavFilePath);
 		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, wavFile);
-		storage.getObjectStorage().write(wavFileName, wavFile);
 		return wavFilePath;
 	}
 
