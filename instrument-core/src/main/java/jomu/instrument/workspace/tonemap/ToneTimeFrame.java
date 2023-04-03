@@ -193,6 +193,16 @@ public class ToneTimeFrame {
 		reset();
 	}
 
+	public void filter(double minFrequency, double maxFrequency) {
+		for (int i = 0; i < elements.length; i++) {
+			double freq = pitchSet.getFreq(i);
+			if (freq < minFrequency || freq > maxFrequency) {
+				elements[i].amplitude = AMPLITUDE_FLOOR;
+			}
+		}
+		reset();
+	}
+
 	public void deNoise(double threshold) {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null && elements[i].amplitude < threshold) {

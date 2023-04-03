@@ -94,6 +94,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
 		double cqCalibrateRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
 		double lowCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
@@ -196,6 +200,8 @@ public class AudioCQProcessor extends ProcessorCommon {
 		if (previousTimeFrame != null) {
 			ttf.updateSpectralFlux(previousTimeFrame);
 		}
+
+		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		LOG.finer(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
 				+ ", " + ttf.getSpectralCentroid());

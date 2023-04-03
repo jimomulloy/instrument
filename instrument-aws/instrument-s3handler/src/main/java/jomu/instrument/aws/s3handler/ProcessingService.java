@@ -116,6 +116,16 @@ public class ProcessingService {
 		boolean instrumentRun = controller.run(userId, input.getName(), style);
 
 		if (!instrumentRun) {
+			ClassLoader classLoader = getClass().getClassLoader();
+			File errorMidi = new File(classLoader.getResource("error.midi").getFile());
+			storage.getObjectStorage().write("private/" + userId + "/output/" + errorMidi, errorMidi);
+			String stateContent = storage.getObjectStorage().readString(stateKey);
+			if (stateContent != null) {
+				Gson gson = new Gson();
+				State state = gson.fromJson(stateContent, State.class);
+				state.status = "ERROR";
+				storage.getObjectStorage().writeString(stateKey, gson.toJson(state));
+			}
 			String result = "error";
 			OutputObject out = new OutputObject();
 			out.setResult(result);

@@ -73,6 +73,10 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN);
 		boolean cqSwitchSharpenHarmonic = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC);
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
 		double lowCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
@@ -116,6 +120,9 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		if (cqSwitchPostSharpen) {
 			toneMap.getTimeFrame().sharpen(cqSharpenThreshold);
 		}
+
+		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 

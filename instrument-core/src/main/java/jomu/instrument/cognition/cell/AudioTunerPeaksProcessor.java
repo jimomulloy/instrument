@@ -36,6 +36,10 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_TUNER);
 		boolean tpSwitchPeaks = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS);
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
 
 		ToneMap integrateToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
@@ -63,6 +67,9 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 				tuner.processPeaks(tpToneMap, peaks);
 			}
 		}
+
+		tpToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+
 		console.getVisor().updateToneMapView(tpToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}

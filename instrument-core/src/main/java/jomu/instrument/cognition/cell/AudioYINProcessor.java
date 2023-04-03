@@ -45,6 +45,10 @@ public class AudioYINProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI);
 		boolean pdSwitchTarsos = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS);
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
 
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
@@ -97,6 +101,8 @@ public class AudioYINProcessor extends ProcessorCommon {
 					toneMap.getTimeFrame().getElements());
 			toneMap.getTimeFrame().reset();
 		}
+
+		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

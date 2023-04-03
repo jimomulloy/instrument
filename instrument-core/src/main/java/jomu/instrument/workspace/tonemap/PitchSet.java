@@ -35,7 +35,6 @@ public class PitchSet implements Serializable {
 
 	public static final int CENTS_HALFSTEP = 50;
 	public static final int CENTS_OCTAVE = 1200;
-	// public static final int MAX_MIDI_NOTE = 155;
 	public static final int MAX_MIDI_NOTE = 127;
 	public static final int MIN_MIDI_NOTE = 12;
 	public static char[][] NOTE_SYMBOLS = { { 'C', ' ' }, { 'C', '#' }, { 'D', ' ' }, { 'D', '#' }, { 'E', ' ' },

@@ -43,6 +43,10 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_NORMALISE);
 		boolean tpSwitchPeaks = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS);
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
 
 		LOG.finer(">>AudioSpectralPeaksProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
@@ -67,6 +71,8 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		if (switchDecibel) {
 			toneMap.getTimeFrame().decibel(decibelLevel);
 		}
+
+		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

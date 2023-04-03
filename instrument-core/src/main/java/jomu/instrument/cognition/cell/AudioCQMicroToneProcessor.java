@@ -53,6 +53,10 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD);
 		boolean cqSwitchDecibel = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL);
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
 		double lowCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
@@ -87,6 +91,8 @@ public class AudioCQMicroToneProcessor extends ProcessorCommon {
 			LOG.finer(">>CQ MAX/MIN AMP 3: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 					+ toneMap.getTimeFrame().getMinAmplitude());
 		}
+
+		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		LOG.finer(">>CQ MAX/MIN AMP X: " + toneMap.getTimeFrame().getMaxAmplitude() + ", "
 				+ toneMap.getTimeFrame().getMinAmplitude());

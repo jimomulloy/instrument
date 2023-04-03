@@ -23,6 +23,10 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 
 		boolean integrateSwitchHps = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH);
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
 
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		ToneMap hpsMaskToneMap = workspace.getAtlas()
@@ -36,6 +40,8 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 			LOG.finer(">>AudioIntegrateProcessor use cqToneMap");
 			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		}
+
+		integrateToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		console.getVisor().updateToneMapView(integrateToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
