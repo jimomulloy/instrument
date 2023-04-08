@@ -7,7 +7,9 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.SACFFeatures;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioSACFProcessor extends ProcessorCommon {
 
@@ -27,6 +29,12 @@ public class AudioSACFProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
 		double toneMapMaxFrequency = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
+		boolean cqCalibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
+		double cqCalibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
+		double lowThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
@@ -36,6 +44,16 @@ public class AudioSACFProcessor extends ProcessorCommon {
 		features.buildToneMapFrame(toneMap);
 
 		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+
+		ToneTimeFrame ttf = toneMap.getTimeFrame();
+
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			double cmPower = cm.get(ttf.getStartTime());
+			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
+					ttf.getStartTime() + cqCalibrateRange / 2);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

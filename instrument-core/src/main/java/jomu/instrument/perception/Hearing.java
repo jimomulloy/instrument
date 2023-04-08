@@ -285,6 +285,7 @@ public class Hearing implements Organ {
 		private int overlap = 0;
 		private AudioDispatcher dispatcher;
 		private TargetDataLine line;
+		private boolean isFile = true;
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
@@ -369,6 +370,7 @@ public class Hearing implements Organ {
 		private void processAudioFileStream(BufferedInputStream inputStream)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 			console.getVisor().clearView();
+			this.setIsFile(true);
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
 			double audioOffset = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET);
@@ -395,6 +397,7 @@ public class Hearing implements Organ {
 
 		private void processMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			console.getVisor().clearView();
+			this.setIsFile(false);
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
@@ -424,6 +427,32 @@ public class Hearing implements Organ {
 				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
 			}
 
+			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
+			dispatcher.addAudioProcessor(new AudioProcessor() {
+
+				@Override
+				public boolean process(AudioEvent audioEvent) {
+					double max = 0;
+					float[] values = audioEvent.getFloatBuffer();
+					int numSamples = values.length;
+					double total = 0;
+					for (var cur = 0; cur < numSamples; cur++) {
+						total += values[cur] * values[cur];
+						if (max < total) {
+							max = total;
+						}
+					}
+					double result = Math.sqrt(total / numSamples);
+					calibrationMap.put(audioEvent.getTimeStamp(), result);
+					return true;
+				}
+
+				@Override
+				public void processingFinished() {
+
+				}
+			});
+
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
@@ -447,6 +476,14 @@ public class Hearing implements Organ {
 				line.close();
 				line = null;
 			}
+		}
+
+		public boolean isFile() {
+			return isFile;
+		}
+
+		public void setIsFile(boolean isFile) {
+			this.isFile = isFile;
 		}
 
 	}

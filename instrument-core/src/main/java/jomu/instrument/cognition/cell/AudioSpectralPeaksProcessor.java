@@ -7,7 +7,9 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.SpectralPeaksFeatures;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 
@@ -47,6 +49,10 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
 		double toneMapMaxFrequency = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
+		boolean cqCalibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
+		double cqCalibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
 
 		LOG.finer(">>AudioSpectralPeaksProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
@@ -73,6 +79,16 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		}
 
 		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+
+		ToneTimeFrame ttf = toneMap.getTimeFrame();
+
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			double cmPower = cm.get(ttf.getStartTime());
+			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
+					ttf.getStartTime() + cqCalibrateRange / 2);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

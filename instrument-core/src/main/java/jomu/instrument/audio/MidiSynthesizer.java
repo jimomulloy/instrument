@@ -411,8 +411,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			channelInstrument = instruments[0];
 		}
 
+		LOG.severe(">>Load MIDI Instrument: " + instrumentName + ", " + channelInstrument.getName());
 		if (synthesizer != null) {
-			// TODO NO NEED?? synthesizer.loadInstrument(channelInstrument);
+			synthesizer.loadInstrument(channelInstrument);
 		}
 
 		channelData.channel.allNotesOff();

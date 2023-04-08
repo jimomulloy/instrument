@@ -9,6 +9,8 @@ public class CalibrationMap {
 	ConcurrentSkipListMap<Double, Double> audioFilePowerMap = new ConcurrentSkipListMap<>();
 	String key;
 
+	private static double DEFAULT_MEAN_POWER = 1.0;
+
 	public CalibrationMap(String key) {
 		this.key = key;
 	}

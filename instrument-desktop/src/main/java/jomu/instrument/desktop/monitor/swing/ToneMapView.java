@@ -252,6 +252,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
 			ToneMapElement[] elements = ttf.getElements();
+
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 
 				ToneMapElement toneMapElement = elements[elementIndex];

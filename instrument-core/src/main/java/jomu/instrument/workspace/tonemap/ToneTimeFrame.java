@@ -47,7 +47,7 @@ public class ToneTimeFrame {
 	double rawSpectralFlux = 0;
 	double totalAmplitude;
 	double totalRawAmplitude;
-	int spectralCentroid;
+	int spectralCentrsoid;
 	int spectralMean;
 
 	TimeSet timeSet;
@@ -132,6 +132,10 @@ public class ToneTimeFrame {
 	}
 
 	public int getSpectralCentroid() {
+		int spectralCentroid = 0;
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			spectralCentroid += elementIndex * (elements[elementIndex].amplitude / totalAmplitude);
+		}
 		return spectralCentroid;
 	}
 
@@ -403,7 +407,6 @@ public class ToneTimeFrame {
 		maxAmplitude = 0;
 		minAmplitude = 1000000;
 		avgAmplitude = 0;
-		spectralCentroid = 0;
 		totalAmplitude = 0;
 		totalRawAmplitude = 0;
 		double sumRawSquareAmplitude = 0;
@@ -455,10 +458,6 @@ public class ToneTimeFrame {
 		}
 		Collections.sort(meanFreqs);
 		spectralMean = meanFreqs.get(meanFreqs.size() / 2);
-		spectralCentroid = 0;
-		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			spectralCentroid += elementIndex * (elements[elementIndex].amplitude / totalAmplitude);
-		}
 		return this;
 	}
 
