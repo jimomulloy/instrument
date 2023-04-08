@@ -1,12 +1,18 @@
 package jomu.instrument.audio.features;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.beatroot.Agent;
+import be.tarsos.dsp.beatroot.AgentList;
+import be.tarsos.dsp.beatroot.Event;
+import be.tarsos.dsp.beatroot.EventList;
+import be.tarsos.dsp.beatroot.Induction;
 import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import be.tarsos.dsp.onsets.OnsetHandler;
@@ -27,6 +33,8 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 	private AudioDispatcher dispatcher;
 	private ParameterManager parameterManager;
 
+	private final EventList onsetList = new EventList();
+
 	public BeatSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
@@ -45,7 +53,48 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 
 	@Override
 	public void handleOnset(double time, double salience) {
-		onsetInfos.add(new OnsetInfo(time, salience));
+		onsetInfos.add(new OnsetInfo(time, salience, onsetList));
+		double roundedTime = Math.round(time * 100) / 100.0;
+		Event e = newEvent(roundedTime, 0);
+		e.salience = salience;
+		onsetList.add(e);
+	}
+
+	/**
+	 * Guess the beats using the populated list of onsets.
+	 * 
+	 * @param beatHandler Use this handler to get the time of the beats. The
+	 *                    salience of the beat is not calculated: -1 is returned.
+	 */
+	public void trackBeats(OnsetHandler beatHandler) {
+		AgentList agents = null;
+		// tempo not given; use tempo induction
+		agents = Induction.beatInduction(onsetList);
+		agents.beatTrack(onsetList, -1);
+		Agent best = agents.bestAgent();
+		if (best != null) {
+			best.fillBeats(-1.0);
+			EventList beats = best.events;
+			Iterator<Event> eventIterator = beats.iterator();
+			while (eventIterator.hasNext()) {
+				Event beat = eventIterator.next();
+				double time = beat.keyDown;
+				beatHandler.handleOnset(time, -1);
+			}
+		} else {
+			System.err.println("No best agent");
+		}
+	}
+
+	/**
+	 * Creates a new Event object representing an onset or beat.
+	 * 
+	 * @param time    The time of the beat in seconds
+	 * @param beatNum The index of the beat or onset.
+	 * @return The Event object representing the beat or onset.
+	 */
+	private Event newEvent(double time, int beatNum) {
+		return new Event(time, time, time, 56, 64, beatNum, 0, 1);
 	}
 
 	void initialise() {

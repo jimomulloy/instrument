@@ -432,9 +432,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 		channelData.channel.setOmni(omniState);
 		channelData.channel.setMono(monoState);
 		channelData.channel.localControl(localControlState);
-
 		channelData.channel.programChange(channelInstrument.getPatch().getBank(),
 				channelInstrument.getPatch().getProgram());
+		LOG.severe(">> instrumentName: " + instrumentName + ", " + channelInstrument.getPatch().getProgram() + ", "
+				+ channelInstrument.getPatch().getBank());
+		programChange(channelData, channelInstrument.getPatch().getProgram());
 		return channelInstrument;
 
 	}
@@ -804,6 +806,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (writeTrack && voice1Track == null) {
 				voice1Track = sequence.createTrack();
+				LOG.severe(">>MIDI VOICE1 progream: " + (voice1Channel.program + 1));
 				createEvent(voice1Track, voice1Channel, PROGRAM, voice1Channel.program + 1, 1L, 127);
 			}
 
@@ -1159,6 +1162,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (writeTrack && voice4Track == null) {
 				voice4Track = sequence.createTrack();
+				LOG.severe(">>MIDI VOICE4 progream: " + (voice4Channel.program + 1));
 				createEvent(voice4Track, voice4Channel, PROGRAM, voice4Channel.program + 1, 1L, 127);
 			}
 

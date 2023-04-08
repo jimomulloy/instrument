@@ -23,9 +23,17 @@
 
 package jomu.instrument.audio.features;
 
+import be.tarsos.dsp.beatroot.EventList;
+
 public class OnsetInfo {
 	double salience;
 	double time;
+	EventList onsetList;
+
+	public OnsetInfo(double time, double salience, EventList onsetList) {
+		this(time, salience);
+		this.onsetList = new EventList(onsetList);
+	}
 
 	public OnsetInfo(double time, double salience) {
 		super();
@@ -35,7 +43,7 @@ public class OnsetInfo {
 
 	@Override
 	public OnsetInfo clone() {
-		return new OnsetInfo(time, salience);
+		return new OnsetInfo(time, salience, new EventList(onsetList));
 	}
 
 	public double getSalience() {
@@ -44,5 +52,9 @@ public class OnsetInfo {
 
 	public double getTime() {
 		return time;
+	}
+
+	public EventList getOnsetList() {
+		return onsetList;
 	}
 }
