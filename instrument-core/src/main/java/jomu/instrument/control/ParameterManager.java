@@ -15,8 +15,10 @@ public class ParameterManager {
 
 	private static String PARAMETER_CONFIG_FILE_PREFIX = "instrument";
 	private static String PARAMETER_CONFIG_FILE_POSTFIX = "properties";
+	private static String PARAMETER_CONFIG_VALIDATION_FILE = "parameter-validation.properties";
 
 	Properties parameters = new Properties();
+	ParameterValidator parameterValidator = new ParameterValidator();
 
 	public void initialise() {
 	}
@@ -25,6 +27,8 @@ public class ParameterManager {
 		InputStream is = getClass().getClassLoader()
 				.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 		parameters.load(is);
+		InputStream isv = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
+		parameterValidator.load(isv);
 	}
 
 	public String getParameter(String key) {
@@ -36,7 +40,9 @@ public class ParameterManager {
 	}
 
 	public void setParameter(String key, String value) {
-		parameters.setProperty(key, value);
+		if (parameterValidator.validate(key)) {
+			parameters.setProperty(key, value);
+		}
 	}
 
 	public void setParameters(Properties parameters) {
@@ -52,37 +58,53 @@ public class ParameterManager {
 	}
 
 	public int getIntParameter(String key) {
-		String value = getParameter(key).trim();
-		try {
-			return Integer.parseInt(value);
-		} catch (Exception e) {
+		String value = getParameter(key);
+		if (value != null) {
+			try {
+				return Integer.parseInt(value.trim());
+			} catch (Exception e) {
+				return 0;
+			}
+		} else {
 			return 0;
 		}
 	}
 
 	public boolean getBooleanParameter(String key) {
-		String value = getParameter(key).trim();
-		try {
-			return Boolean.parseBoolean(value);
-		} catch (Exception e) {
+		String value = getParameter(key);
+		if (value != null) {
+			try {
+				return Boolean.parseBoolean(value.trim());
+			} catch (Exception e) {
+				return false;
+			}
+		} else {
 			return false;
 		}
 	}
 
 	public float getFloatParameter(String key) {
 		String value = getParameter(key);
-		try {
-			return Float.parseFloat(value);
-		} catch (Exception e) {
+		if (value != null) {
+			try {
+				return Float.parseFloat(value);
+			} catch (Exception e) {
+				return 0;
+			}
+		} else {
 			return 0;
 		}
 	}
 
 	public double getDoubleParameter(String key) {
 		String value = getParameter(key);
-		try {
-			return Double.parseDouble(value);
-		} catch (Exception e) {
+		if (value != null) {
+			try {
+				return Double.parseDouble(value.trim());
+			} catch (Exception e) {
+				return 0;
+			}
+		} else {
 			return 0;
 		}
 	}
@@ -106,6 +128,33 @@ public class ParameterManager {
 					+ PARAMETER_CONFIG_FILE_POSTFIX);
 		} else {
 			LOG.finer(">>ReLoaded :" + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+		}
+	}
+
+	static class ParameterValidator {
+
+		Properties validatorProperties = new Properties();
+
+		public boolean validate(String name) {
+			String value = validatorProperties.getProperty(name);
+			if (value != null) {
+				try {
+					return true;
+				} catch (Exception e) {
+					return true;
+				}
+			} else {
+				return true;
+			}
+		}
+
+		public void load(InputStream is) {
+			try {
+				validatorProperties.load(is);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }
