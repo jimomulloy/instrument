@@ -80,13 +80,12 @@ public class TonePredictor {
 				}
 			}
 		} else {
-			int octave = targetFrame.getPitchSet().getOctave(targetFrame.getSpectralCentroid());
 			ChordListElement newChord = new ChordListElement(
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), targetFrame.getStartTime(),
-					targetFrame.getEndTime(), octave);
+					targetFrame.getEndTime());
 			chords.add(chords.indexOf(previousChord.get()) + 1, newChord);
 			LOG.severe(">>Predict Chord added: " + targetFrame.getStartTime() + ", " + chord + ",  " + previousChord
-					+ ", " + octave + ", " + targetFrame.getSpectralCentroid());
+					+ ", " + targetFrame.getSpectralCentroid());
 		}
 	}
 

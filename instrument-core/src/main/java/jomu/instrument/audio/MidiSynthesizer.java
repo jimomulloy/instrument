@@ -1344,7 +1344,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, chord1Channel.num, (note + 12 * octaveAdjust),
 									volume);
 							if (writeTrack) {
-								createEvent(chord1Track, chord1Channel, NOTEON, note, tick, volume);
+								createEvent(chord1Track, chord1Channel, NOTEON, (note + 12 * octaveAdjust), tick,
+										volume);
 							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1360,7 +1361,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, chord1Channel.num, (note + 12 * octaveAdjust),
 									0);
 							if (writeTrack) {
-								createEvent(chord1Track, chord1Channel, NOTEOFF, note, tick, volume);
+								createEvent(chord1Track, chord1Channel, NOTEOFF, (note + 12 * octaveAdjust), tick,
+										volume);
 							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1400,8 +1402,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			ToneMap chromaToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, midiStream.getStreamId()));
+			ToneMap cqToneMap = workspace.getAtlas()
+					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, midiStream.getStreamId()));
 
 			ToneTimeFrame chromaTimeFrame = chromaToneMap.getTimeFrame(mqm.sequence);
+			ToneTimeFrame cqTimeFrame = cqToneMap.getTimeFrame(mqm.sequence);
 
 			if (chromaTimeFrame == null) {
 				return false;
@@ -1442,18 +1447,19 @@ public class MidiSynthesizer implements ToneMapConstants {
 							volume = (int) (((amplitude - 0.1) / (1.0 - 0.1)) * 120);
 						}
 					}
-					octaveAdjust = chord.getOctave();
 				}
 
-				octaveAdjust = 4;
 				if (amplitude > 0.1) {
+					octaveAdjust = cqTimeFrame.getOctave();
+					LOG.severe(">>CC2 octave adjust: " + octaveAdjust);
 					if (!chordsChannel2LastNotes.contains(note)) {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, chord2Channel.num, (note + 12 * octaveAdjust),
 									volume);
 							if (writeTrack) {
-								createEvent(chord2Track, chord2Channel, NOTEON, note, tick, volume);
+								createEvent(chord2Track, chord2Channel, NOTEON, (note + 12 * octaveAdjust), tick,
+										volume);
 							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1469,7 +1475,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, chord2Channel.num, (note + 12 * octaveAdjust),
 									0);
 							if (writeTrack) {
-								createEvent(chord2Track, chord2Channel, NOTEOFF, note, tick, volume);
+								createEvent(chord2Track, chord2Channel, NOTEOFF, (note + 12 * octaveAdjust), tick,
+										volume);
 							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1576,7 +1583,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, pad1Channel.num, (note + 12 * octaveAdjust),
 									volume);
 							if (writeTrack) {
-								createEvent(pad1Track, pad1Channel, NOTEON, note, tick, volume);
+								createEvent(pad1Track, pad1Channel, NOTEON, (note + 12 * octaveAdjust), tick, volume);
 							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
@@ -1592,7 +1599,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, pad1Channel.num, (note + 12 * octaveAdjust),
 									0);
 							if (writeTrack) {
-								createEvent(pad1Track, pad1Channel, NOTEOFF, note, tick, volume);
+								createEvent(pad1Track, pad1Channel, NOTEOFF, (note + 12 * octaveAdjust), tick, volume);
 							}
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
