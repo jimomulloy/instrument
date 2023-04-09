@@ -87,7 +87,7 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 						getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
 				for (SpectralPeak peak : spectralPeaks) {
 					int index = pitchSet.getIndex(peak.getFrequencyInHertz());
-					if (index < ttf.getElements().length) {
+					if (index > 0 && index < ttf.getElements().length) {
 						ttf.getElement(index).isPeak = true;
 					}
 				}

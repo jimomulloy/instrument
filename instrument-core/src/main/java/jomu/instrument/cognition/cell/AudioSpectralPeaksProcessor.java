@@ -60,7 +60,6 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 
 		SpectralPeaksFeatures spf = aff.getSpectralPeaksFeatures();
-		float[] spectrum = spf.getSpectrum();
 		spf.buildToneMapFrame(toneMap, tpSwitchPeaks);
 
 		if (switchCompress) {

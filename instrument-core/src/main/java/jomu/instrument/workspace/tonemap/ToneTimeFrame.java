@@ -486,9 +486,15 @@ public class ToneTimeFrame {
 	public ToneTimeFrame calibrate(double calibrateWindowThreshold, double calibrateThreshold, double lowThreshold) {
 		reset();
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] != null && elements[i].amplitude > lowThreshold) {
-				elements[i].amplitude = (calibrateThreshold / calibrateWindowThreshold)
-						* (elements[i].amplitude / maxAmplitude);
+			if (elements[i] != null) {
+				if (elements[i].amplitude > lowThreshold) {
+					elements[i].amplitude = (calibrateThreshold / calibrateWindowThreshold)
+							* (elements[i].amplitude / maxAmplitude);
+				}
+				if (elements[i].amplitude <= lowThreshold) {
+					// elements[i].amplitude = AMPLITUDE_FLOOR;
+					elements[i].isPeak = false;
+				}
 			}
 		}
 		reset();
@@ -1363,6 +1369,15 @@ public class ToneTimeFrame {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			element.amplitude = AMPLITUDE_FLOOR;
+		}
+		reset();
+	}
+
+	public void merge(ToneTimeFrame sourceTimeFrame) {
+		ToneMapElement[] ses = sourceTimeFrame.getElements();
+		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
+			ToneMapElement element = elements[elementIndex];
+			element.amplitude += ses[elementIndex].amplitude;
 		}
 		reset();
 	}

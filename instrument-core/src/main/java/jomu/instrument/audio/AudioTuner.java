@@ -318,12 +318,16 @@ public class AudioTuner implements ToneMapConstants {
 			}
 		}).limit(n1Setting).map(t1 -> t1).collect(Collectors.toList());
 
+		LOG.severe(">># PEAKS: " + topPeaks.size() + ", " + n1Setting);
+
 		if (n3Switch) {
 			toneTimeFrame.reset();
 			for (ToneMapElement toneMapElement : ttfElements) {
 				if (!topPeaks.contains(toneMapElement)) {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
+					toneMapElement.isPeak = false;
 				} else {
+					toneMapElement.isPeak = true;
 					LOG.finer(">>PEAK found: " + toneMapElement);
 				}
 			}

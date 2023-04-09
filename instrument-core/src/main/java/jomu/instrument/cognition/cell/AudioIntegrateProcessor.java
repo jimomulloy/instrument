@@ -48,36 +48,29 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		ToneMap integrateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap integratePeaksToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_PEAKS", streamId));
+		ToneMap integrateSpectralToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SPECTRAL", streamId));
 
 		if (integrateSwitchHps) {
 			LOG.finer(">>AudioIntegrateProcessor use hpsMaskToneMap");
 			integrateToneMap.addTimeFrame(hpsMaskToneMap.getTimeFrame(sequence).clone());
 			integratePeaksToneMap.addTimeFrame(hpsMaskToneMap.getTimeFrame(sequence).clone());
+			integrateSpectralToneMap.addTimeFrame(hpsMaskToneMap.getTimeFrame(sequence).clone());
 		} else {
 			LOG.finer(">>AudioIntegrateProcessor use cqToneMap");
 			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 			integratePeaksToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			integrateSpectralToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		}
-		integratePeaksToneMap.getTimeFrame().clear();
-		LOG.severe(">>IP target: " + integratePeaksToneMap.getTimeFrame().getPitchLow() + ", "
-				+ integratePeaksToneMap.getTimeFrame().getPitchHigh());
-		LOG.severe(">>IP source Pitch: " + pitchToneMap.getTimeFrame(sequence).getPitchLow() + ", "
-				+ pitchToneMap.getTimeFrame(sequence).getPitchHigh());
-		integratePeaksToneMap.getTimeFrame().integratePeaks(pitchToneMap.getTimeFrame(sequence));
-		LOG.severe(">>IP source sacfToneMap: " + sacfToneMap.getTimeFrame(sequence).getPitchLow() + ", "
-				+ sacfToneMap.getTimeFrame(sequence).getPitchHigh());
-		integratePeaksToneMap.getTimeFrame().integratePeaks(sacfToneMap.getTimeFrame(sequence));
-		LOG.severe(">>IP source sp: " + spToneMap.getTimeFrame(sequence).getPitchLow() + ", "
-				+ spToneMap.getTimeFrame(sequence).getPitchHigh());
-		integratePeaksToneMap.getTimeFrame().integratePeaks(spToneMap.getTimeFrame(sequence));
-		LOG.severe(">>IP source tp: " + tpToneMap.getTimeFrame(sequence).getPitchLow() + ", "
-				+ tpToneMap.getTimeFrame(sequence).getPitchHigh());
-		integratePeaksToneMap.getTimeFrame().integratePeaks(tpToneMap.getTimeFrame(sequence));
-		LOG.severe(">>IP source yin: " + yinToneMap.getTimeFrame(sequence).getPitchLow() + ", "
-				+ yinToneMap.getTimeFrame(sequence).getPitchHigh());
-		integratePeaksToneMap.getTimeFrame().integratePeaks(yinToneMap.getTimeFrame(sequence));
 
 		integrateToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+
+		integratePeaksToneMap.getTimeFrame().clear();
+		integratePeaksToneMap.getTimeFrame().integratePeaks(sacfToneMap.getTimeFrame(sequence));
+		integratePeaksToneMap.getTimeFrame().integratePeaks(tpToneMap.getTimeFrame(sequence));
+		integratePeaksToneMap.getTimeFrame().integratePeaks(yinToneMap.getTimeFrame(sequence));
+
+		integratePeaksToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		ToneTimeFrame ipttf = integratePeaksToneMap.getTimeFrame();
 
@@ -88,8 +81,30 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 					ipttf.getStartTime() + cqCalibrateRange / 2);
 			ipttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
 		}
+
+		integrateSpectralToneMap.getTimeFrame().clear();
+		integrateSpectralToneMap.getTimeFrame().merge(pitchToneMap.getTimeFrame(sequence));
+		integrateSpectralToneMap.getTimeFrame().merge(sacfToneMap.getTimeFrame(sequence));
+		integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
+		integrateSpectralToneMap.getTimeFrame().merge(tpToneMap.getTimeFrame(sequence));
+		integrateSpectralToneMap.getTimeFrame().merge(yinToneMap.getTimeFrame(sequence));
+
+		integrateSpectralToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+
+		ToneTimeFrame isttf = integrateSpectralToneMap.getTimeFrame();
+
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			double cmPower = cm.get(isttf.getStartTime());
+			double cmMaxWindowPower = cm.getMaxPower(isttf.getStartTime() - cqCalibrateRange / 2,
+					isttf.getStartTime() + cqCalibrateRange / 2);
+			isttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+		}
+
 		console.getVisor().updateToneMapView(integrateToneMap, this.cell.getCellType().toString());
 		console.getVisor().updateToneMapView(integratePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
+		console.getVisor().updateToneMapView(integrateSpectralToneMap,
+				this.cell.getCellType().toString() + "_SPECTRAL");
 		cell.send(streamId, sequence);
 	}
 }
