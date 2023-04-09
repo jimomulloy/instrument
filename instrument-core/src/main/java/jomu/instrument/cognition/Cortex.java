@@ -88,6 +88,7 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioCQOriginCell, audioHpsCell);
 		Weaver.connect(audioCQCell, audioOnsetCell);
 		Weaver.connect(audioCQOriginCell, audioOnsetCell);
+		Weaver.connect(audioCQCell, audioTunerPeaksCell);
 		//
 		Weaver.connect(audioCQCell, audioIntegrateCell);
 		Weaver.connect(audioOnsetCell, audioIntegrateCell);
@@ -99,10 +100,9 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 		Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
 		Weaver.connect(audioSACFCell, audioIntegrateCell);
 		Weaver.connect(audioCepstrumCell, audioIntegrateCell);
+		Weaver.connect(audioTunerPeaksCell, audioIntegrateCell);
 		//
-		Weaver.connect(audioIntegrateCell, audioTunerPeaksCell);
-		//
-		Weaver.connect(audioTunerPeaksCell, audioNotateCell);
+		Weaver.connect(audioIntegrateCell, audioNotateCell);
 		//
 		Weaver.connect(audioNotateCell, audioSynthesisCell);
 		//

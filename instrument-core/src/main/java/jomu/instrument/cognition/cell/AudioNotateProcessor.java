@@ -34,10 +34,10 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS);
 		int noteMaxDuration = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION);
 
-		ToneMap tunerPeaksToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
+		ToneMap integrateToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		ToneTimeFrame timeFrame = tunerPeaksToneMap.getTimeFrame(sequence).clone();
+		ToneTimeFrame timeFrame = integrateToneMap.getTimeFrame(sequence).clone();
 		notateToneMap.addTimeFrame(timeFrame);
 
 		AudioTuner tuner = new AudioTuner();

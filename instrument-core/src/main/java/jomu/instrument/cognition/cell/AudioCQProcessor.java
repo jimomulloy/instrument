@@ -123,14 +123,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
 				+ ", " + ttf.getRmsPower());
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-			double cmPower = cm.get(ttf.getStartTime());
-			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
-					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
-		}
-
 		if (cqEnvelopeWhitenPreSwitch && previousTimeFrame != null) {
 			ttf.envelopeWhiten(previousTimeFrame, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
 					cqEnvelopeWhitenAttackFactor);
@@ -202,6 +194,14 @@ public class AudioCQProcessor extends ProcessorCommon {
 		}
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
+
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			double cmPower = cm.get(ttf.getStartTime());
+			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
+					ttf.getStartTime() + cqCalibrateRange / 2);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+		}
 
 		LOG.finer(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
 				+ ", " + ttf.getSpectralCentroid());

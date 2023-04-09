@@ -925,10 +925,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
 
-			ToneMap pitchToneMap = workspace.getAtlas()
-					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_PITCH, midiStream.getStreamId()));
+			ToneMap ipToneMap = workspace.getAtlas().getToneMap(
+					ToneMap.buildToneMapKey(CellTypes.AUDIO_INTEGRATE.toString() + "_PEAKS", midiStream.getStreamId()));
 
-			ToneTimeFrame toneTimeFrame = pitchToneMap.getTimeFrame(mqm.sequence);
+			ToneTimeFrame toneTimeFrame = ipToneMap.getTimeFrame(mqm.sequence);
 
 			if (toneTimeFrame == null) {
 				return false;

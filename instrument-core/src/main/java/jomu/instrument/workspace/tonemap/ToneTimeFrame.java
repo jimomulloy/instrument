@@ -989,7 +989,7 @@ public class ToneTimeFrame {
 			timeSet = new TimeSet(tfStart.getTimeSet().getStartTime(), tfEnd.getTimeSet().getEndTime(),
 					timeSet.getSampleRate(), timeSet.getSampleTimeSize());
 
-			pitchSet = new PitchSet();
+			pitchSet = new PitchSet(getPitchLow(), getPitchHigh());
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 
@@ -1345,6 +1345,26 @@ public class ToneTimeFrame {
 			beatListElement = new BeatListElement(beatAmplitude, getStartTime(), getTimeSet().getEndTime());
 		}
 		return beatListElement;
+	}
+
+	public void integratePeaks(ToneTimeFrame sourceTimeFrame) {
+		ToneMapElement[] ses = sourceTimeFrame.getElements();
+		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
+			ToneMapElement element = elements[elementIndex];
+			if (ses[elementIndex].isPeak) {
+				element.amplitude += ses[elementIndex].amplitude;
+				element.isPeak = true;
+			}
+		}
+		reset();
+	}
+
+	public void clear() {
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			ToneMapElement element = elements[elementIndex];
+			element.amplitude = AMPLITUDE_FLOOR;
+		}
+		reset();
 	}
 
 }

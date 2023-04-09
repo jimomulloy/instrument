@@ -59,6 +59,10 @@ public class ToneMap {
 		return cellType + ":" + streamId;
 	}
 
+	public final static String buildToneMapKey(String tmType, String streamId) {
+		return tmType + ":" + streamId;
+	}
+
 	public String getKey() {
 		return key;
 	}

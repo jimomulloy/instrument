@@ -25,10 +25,12 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.beatroot.BeatRootOnsetEventHandler;
 import be.tarsos.dsp.filters.BandPass;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
+import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
@@ -362,9 +364,18 @@ public class Hearing implements Organ {
 
 				}
 			});
+
+			ComplexOnsetDetector detector = new ComplexOnsetDetector(bufferSize);
+			BeatRootOnsetEventHandler handler = new BeatRootOnsetEventHandler();
+			detector.setHandler(handler);
+
+			dispatcher.addAudioProcessor(detector);
+			dispatcher.run();
 			LOG.finer(">>Calibrate audio file");
 			dispatcher.run();
 			LOG.finer(">>Calibrated audio file");
+			handler.trackBeats(calibrationMap);
+
 		}
 
 		private void processAudioFileStream(BufferedInputStream inputStream)

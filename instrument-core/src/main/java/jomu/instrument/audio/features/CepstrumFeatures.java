@@ -62,7 +62,11 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
-			PitchSet pitchSet = new PitchSet();
+			// TODO !!
+			int lowPitch = 36;
+			int highPitch = 120;
+
+			PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
@@ -84,7 +88,11 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
 			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
-			PitchSet pitchSet = new PitchSet();
+			// TODO !!
+			int lowPitch = 36;
+			int highPitch = 120;
+
+			PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);

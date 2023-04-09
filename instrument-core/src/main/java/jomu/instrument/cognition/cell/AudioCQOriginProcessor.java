@@ -7,7 +7,9 @@ import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.ConstantQFeatures;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioCQOriginProcessor extends ProcessorCommon {
 
@@ -81,6 +83,10 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
+		boolean cqCalibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
+		double cqCalibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		ConstantQFeatures cqf = aff.getConstantQFeatures();
@@ -122,6 +128,16 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		}
 
 		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+
+		ToneTimeFrame ttf = toneMap.getTimeFrame();
+
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			double cmPower = cm.get(ttf.getStartTime());
+			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
+					ttf.getStartTime() + cqCalibrateRange / 2);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

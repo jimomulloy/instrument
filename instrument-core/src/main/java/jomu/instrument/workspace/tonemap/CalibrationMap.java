@@ -3,10 +3,16 @@ package jomu.instrument.workspace.tonemap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.logging.Logger;
 
-public class CalibrationMap {
+import be.tarsos.dsp.onsets.OnsetHandler;
+
+public class CalibrationMap implements OnsetHandler {
+
+	private static final Logger LOG = Logger.getLogger(CalibrationMap.class.getName());
 
 	ConcurrentSkipListMap<Double, Double> audioFilePowerMap = new ConcurrentSkipListMap<>();
+	ConcurrentSkipListMap<Double, Double> beatMap = new ConcurrentSkipListMap<>();
 	String key;
 
 	private static double DEFAULT_MEAN_POWER = 1.0;
@@ -73,6 +79,12 @@ public class CalibrationMap {
 			}
 		}
 		return max;
+	}
+
+	@Override
+	public void handleOnset(double time, double salience) {
+		beatMap.put(time, salience);
+		LOG.severe(">>Calibrate beat: " + time + ", " + salience);
 	}
 
 }
