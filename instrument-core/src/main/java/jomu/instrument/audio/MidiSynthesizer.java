@@ -86,13 +86,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	private static final int BASE_1_CHANNEL = 8;
 
-	private static final int BEAT_1_CHANNEL = 10;
-
-	private static final int BEAT_2_CHANNEL = 11;
-
-	private static final int BEAT_3_CHANNEL = 12;
-
-	private static final int BEAT_4_CHANNEL = 13;
+	private static final int BEATS_CHANNEL = 9;
 
 	private int bpmSetting = INIT_BPM_SETTING;
 
@@ -381,24 +375,19 @@ public class MidiSynthesizer implements ToneMapConstants {
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_1));
 		initChannel(channels[PAD_2_CHANNEL],
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_2));
-		initChannel(channels[BEAT_1_CHANNEL],
-				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1));
-		initChannel(channels[BEAT_2_CHANNEL],
-				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_2));
-		initChannel(channels[BEAT_3_CHANNEL],
-				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3));
-		initChannel(channels[BEAT_4_CHANNEL],
-				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4));
 		initChannel(channels[BASE_1_CHANNEL],
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1));
+		initDrumChannel(channels[BEATS_CHANNEL]);
 	}
 
-	private Instrument initChannel(ChannelData channelData, String instrumentName) {
-		Instrument channelInstrument = instruments[0];
+	private void initChannel(ChannelData channelData, String instrumentName) {
+		Instrument channelInstrument = null;
+		int instumentNumber = 0;
+		channelInstrument = instruments[0];
 		if (instrumentName != null) {
 			try {
-				int cn = Integer.parseInt(instrumentName);
-				channelInstrument = instruments[cn - 1];
+				instumentNumber = Integer.parseInt(instrumentName);
+				channelInstrument = instruments[instumentNumber - 1];
 			} catch (NumberFormatException ex) {
 				for (Instrument instrument : instruments) {
 					if (instrument.getName().toLowerCase().contains(instrumentName.toLowerCase())) {
@@ -428,8 +417,19 @@ public class MidiSynthesizer implements ToneMapConstants {
 		channelData.channel.programChange(channelInstrument.getPatch().getBank(),
 				channelInstrument.getPatch().getProgram());
 		programChange(channelData, channelInstrument.getPatch().getProgram());
-		return channelInstrument;
+	}
 
+	private void initDrumChannel(ChannelData channelData) {
+		channelData.channel.allNotesOff();
+		channelData.channel.allSoundOff();
+		channelData.channel.resetAllControllers();
+		boolean soloState = false, muteState = false, omniState = false, monoState = false, localControlState = true;
+		channelData.channel.setSolo(soloState);
+		channelData.channel.setMute(muteState);
+		channelData.channel.setOmni(omniState);
+		channelData.channel.setMono(monoState);
+		channelData.channel.localControl(localControlState);
+		channelData.channel.programChange(0, 1);
 	}
 
 	private File getFileFromResource(String fileName) throws URISyntaxException {
@@ -1810,6 +1810,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			int drum = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1);
 
 			ToneMap beatToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_BEAT, midiStream.getStreamId()));
@@ -1820,11 +1822,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 				return false;
 			}
 
-			ChannelData beat1Channel = channels[BEAT_1_CHANNEL];
+			ChannelData beat1Channel = channels[BEATS_CHANNEL];
 
 			if (writeTrack && beat1Track == null) {
 				beat1Track = sequence.createTrack();
-				createEvent(beat1Track, beat1Channel, PROGRAM, beat1Channel.program + 1, 1L, 127);
+				createEvent(beat1Track, beat1Channel, PROGRAM, 1, 1L, 127);
 			}
 
 			long tick = getTrackTick(beatTimeFrame);
@@ -1856,7 +1858,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
 			}
 
-			int beat1Note = beat1Channel.program + 1;
+			int beat1Note = drum;
 
 			if (maxAmp > lowVoiceThreshold) {
 				if (!beatsChannel1LastNotes.contains(beat1Note)) {
@@ -1916,6 +1918,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			int drum = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_2);
 
 			ToneMap onsetToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_ONSET, midiStream.getStreamId()));
@@ -1931,11 +1935,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			ShortMessage midiMessage = null;
 
-			ChannelData beat2Channel = channels[BEAT_2_CHANNEL];
+			ChannelData beat2Channel = channels[BEATS_CHANNEL];
 
 			if (writeTrack && beat2Track == null) {
 				beat2Track = sequence.createTrack();
-				createEvent(beat2Track, beat2Channel, PROGRAM, beat2Channel.program + 1, 1L, 127);
+				createEvent(beat2Track, beat2Channel, PROGRAM, 1, 1L, 127);
 			}
 
 			long tick = getTrackTick(onsetTimeFrame);
@@ -1955,7 +1959,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			int beat2Note = beat2Channel.program + 1;
+			int beat2Note = drum;
 
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -2029,6 +2033,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			int drum = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3);
 
 			ToneMap beatToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_PERCUSSION, midiStream.getStreamId()));
@@ -2039,11 +2045,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 				return false;
 			}
 
-			ChannelData beat3Channel = channels[BEAT_3_CHANNEL];
+			ChannelData beat3Channel = channels[BEATS_CHANNEL];
 
 			if (writeTrack && beat3Track == null) {
 				beat3Track = sequence.createTrack();
-				createEvent(beat3Track, beat3Channel, PROGRAM, beat3Channel.program + 1, 1L, 127);
+				createEvent(beat3Track, beat3Channel, PROGRAM, 1, 1L, 127);
 			}
 
 			long tick = getTrackTick(beatTimeFrame);
@@ -2075,7 +2081,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
 			}
 
-			int beat3Note = beat3Channel.program + 1;
+			int beat3Note = drum;
 
 			if (maxAmp > lowVoiceThreshold) {
 				if (!beatsChannel3LastNotes.contains(beat3Note)) {
@@ -2134,6 +2140,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			int drum = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4);
 
 			ToneMap beatToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_BEAT, midiStream.getStreamId()));
@@ -2144,11 +2152,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 				return false;
 			}
 
-			ChannelData beat4Channel = channels[BEAT_4_CHANNEL];
+			ChannelData beat4Channel = channels[BEATS_CHANNEL];
 
 			if (writeTrack && beat4Track == null) {
 				beat4Track = sequence.createTrack();
-				createEvent(beat4Track, beat4Channel, PROGRAM, beat4Channel.program + 1, 1L, 127);
+				createEvent(beat4Track, beat4Channel, PROGRAM, 1, 1L, 127);
 			}
 
 			long tick = getTrackTick(beatTimeFrame);
@@ -2184,7 +2192,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
 			}
 
-			int beat4Note = beat4Channel.program + 1;
+			int beat4Note = drum;
 			boolean hasBeat = false;
 
 			if (cm.getBeat(beatTimeFrame.getStartTime(), 0.1) != 0) {
@@ -2358,10 +2366,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 				clearChannel(channels[CHORD_2_CHANNEL]);
 				clearChannel(channels[PAD_1_CHANNEL]);
 				clearChannel(channels[PAD_2_CHANNEL]);
-				clearChannel(channels[BEAT_1_CHANNEL]);
-				clearChannel(channels[BEAT_2_CHANNEL]);
-				clearChannel(channels[BEAT_3_CHANNEL]);
-				clearChannel(channels[BEAT_4_CHANNEL]);
+				clearChannel(channels[BEATS_CHANNEL]);
+				;
 				clearChannel(channels[BASE_1_CHANNEL]);
 			}
 			voiceChannel1LastNotes = new HashSet<>();
@@ -2512,6 +2518,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		int num, program;
 		boolean solo, mono, mute, sustain;
 		int velocity, pressure, bend, reverb;
+		int drum;
 
 		public ChannelData(MidiChannel channel, int num) {
 			this.channel = channel;
