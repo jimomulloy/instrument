@@ -48,6 +48,7 @@ import jomu.instrument.store.InstrumentSession;
 import jomu.instrument.store.InstrumentSession.InstrumentSessionState;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ChordListElement;
 import jomu.instrument.workspace.tonemap.ChordNote;
 import jomu.instrument.workspace.tonemap.NoteListElement;
@@ -1126,7 +1127,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					maxAmp = amp;
 				}
 			}
-			LOG.severe(">>MIDI V3 maxAmp:" + maxAmp + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				if ((note > 120 || note < 12)) {
@@ -1151,7 +1151,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (writeTrack) {
 								createEvent(voice3Track, voice3Channel, NOTEON, note, tick, volume);
 							}
-							LOG.severe(">>MIDI V3 added note:" + note + ", " + volume);
 						} catch (InvalidMidiDataException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1756,7 +1755,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						LOG.severe(">>PAD2 note vol: " + note + ", " + volume);
 						midiMessages.add(midiMessage);
 						padsChannel2LastNotes.add(note);
 					} else {
@@ -1767,7 +1765,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						LOG.severe(">>PAD2 note CHANGE vol: " + note + ", " + volume);
 						midiMessages.add(midiMessage);
 					}
 				} else {
@@ -1783,7 +1780,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							e.printStackTrace();
 						}
 						midiMessages.add(midiMessage);
-						LOG.severe(">>PAD2 note STOP vol: " + note + ", " + volume);
 						padsChannel2LastNotes.remove(note);
 					}
 				}
@@ -1860,7 +1856,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
 			}
 
-			int beat1Note = 60;
+			int beat1Note = beat1Channel.program + 1;
 
 			if (maxAmp > lowVoiceThreshold) {
 				if (!beatsChannel1LastNotes.contains(beat1Note)) {
@@ -1959,7 +1955,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			int beat2Note = 50;
+			int beat2Note = beat2Channel.program + 1;
 
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -2079,7 +2075,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
 			}
 
-			int beat3Note = 60;
+			int beat3Note = beat3Channel.program + 1;
 
 			if (maxAmp > lowVoiceThreshold) {
 				if (!beatsChannel3LastNotes.contains(beat3Note)) {
@@ -2128,6 +2124,116 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playBeatChannel4(MidiQueueMessage mqm) {
+			LOG.finer(">>MIDI CHANNEL playBeatChannel1");
+
+			double lowVoiceThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
+			double highVoiceThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			boolean writeTrack = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
+			boolean silentWrite = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+
+			ToneMap beatToneMap = workspace.getAtlas()
+					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_BEAT, midiStream.getStreamId()));
+
+			ToneTimeFrame beatTimeFrame = beatToneMap.getTimeFrame(mqm.sequence);
+
+			if (beatTimeFrame == null) {
+				return false;
+			}
+
+			ChannelData beat4Channel = channels[BEAT_4_CHANNEL];
+
+			if (writeTrack && beat4Track == null) {
+				beat4Track = sequence.createTrack();
+				createEvent(beat4Track, beat4Channel, PROGRAM, beat4Channel.program + 1, 1L, 127);
+			}
+
+			long tick = getTrackTick(beatTimeFrame);
+
+			ShortMessage midiMessage = null;
+
+			List<ShortMessage> midiMessages = new ArrayList<>();
+			ToneMapElement[] ttfElements = beatTimeFrame.getElements();
+			if (beatsChannel4LastNotes == null) {
+				beatsChannel4LastNotes = new HashSet<>();
+			}
+
+			String tmKey = beatToneMap.getKey();
+			String streamId = tmKey.substring(tmKey.lastIndexOf(":") + 1);
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+
+			double maxAmp = -1;
+			for (ToneMapElement toneMapElement : ttfElements) {
+				double amp = toneMapElement.amplitude;
+				if (maxAmp < amp) {
+					maxAmp = amp;
+				}
+			}
+
+			double amplitude = maxAmp;
+
+			int volume = 0;
+			if (amplitude > highVoiceThreshold) {
+				volume = 127;
+			} else if (amplitude <= lowVoiceThreshold) {
+				volume = 0;
+			} else {
+				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
+			}
+
+			int beat4Note = beat4Channel.program + 1;
+			boolean hasBeat = false;
+
+			if (cm.getBeat(beatTimeFrame.getStartTime(), 0.1) != 0) {
+				hasBeat = true;
+			}
+
+			if (hasBeat) {
+				if (!beatsChannel4LastNotes.contains(beat4Note)) {
+					midiMessage = new ShortMessage();
+					try {
+						midiMessage.setMessage(ShortMessage.NOTE_ON, beat4Channel.num, beat4Note, volume);
+						if (writeTrack) {
+							createEvent(beat4Track, beat4Channel, NOTEON, beat4Note, tick, volume);
+						}
+					} catch (InvalidMidiDataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					midiMessages.add(midiMessage);
+					beatsChannel4LastNotes.add(beat4Note);
+				}
+			} else {
+				if (beatsChannel4LastNotes.contains(beat4Note)) {
+					midiMessage = new ShortMessage();
+					try {
+						midiMessage.setMessage(ShortMessage.NOTE_OFF, beat4Channel.num, beat4Note, 0);
+						if (writeTrack) {
+							createEvent(beat4Track, beat4Channel, NOTEOFF, beat4Note, tick, volume);
+						}
+					} catch (InvalidMidiDataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					midiMessages.add(midiMessage);
+					beatsChannel4LastNotes.remove(beat4Note);
+				}
+			}
+
+			if (!silentWrite && synthesizer != null && synthesizer.isOpen()) {
+				for (ShortMessage mm : midiMessages) {
+					try {
+						synthesizer.getReceiver().send(mm, -1);
+					} catch (MidiUnavailableException e) {
+						LOG.log(Level.SEVERE, "Send MIDI Beat Channel4 error ", e);
+						return false;
+					}
+				}
+			}
+
 			return true;
 
 		}
@@ -2268,6 +2374,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			padsChannel2LastNotes = new HashSet<>();
 			beatsChannel1LastNotes = new HashSet<>();
 			beatsChannel2LastNotes = new HashSet<>();
+			beatsChannel3LastNotes = new HashSet<>();
+			beatsChannel4LastNotes = new HashSet<>();
 			baseChannelLastNotes = new HashSet<>();
 
 		}

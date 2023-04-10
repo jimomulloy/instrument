@@ -29,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 
@@ -36,7 +37,9 @@ import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.ColorUtil;
+import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.BeatListElement;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -44,6 +47,8 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class BeatsView extends JComponent implements ComponentListener {
+
+	private static final Logger LOG = Logger.getLogger(BeatsView.class.getName());
 
 	private BufferedImage bufferedImage;
 	private Graphics2D bufferedGraphics;
@@ -67,9 +72,11 @@ public class BeatsView extends JComponent implements ComponentListener {
 
 	private ParameterManager parameterManager;
 	private boolean isPreview;
+	private Workspace workspace;
 
 	public BeatsView() {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.workspace = Instrument.getInstance().getWorkspace();
 		this.timeAxisStart = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
 		this.timeAxisEnd = this.timeAxisStart
@@ -201,6 +208,10 @@ public class BeatsView extends JComponent implements ComponentListener {
 		drawGrid();
 		if (ttf != null) {
 
+			String tmKey = this.toneMap.getKey();
+			String streamId = tmKey.substring(tmKey.lastIndexOf(":") + 1);
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+
 			double timeAxisRange = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 			TimeSet timeSet = ttf.getTimeSet();
@@ -271,7 +282,9 @@ public class BeatsView extends JComponent implements ComponentListener {
 								color = new Color(greyValue, greyValue, greyValue);
 							}
 						}
-
+						if (cm.getBeat(ttf.getStartTime(), 0.1) != 0) {
+							color = Color.MAGENTA;
+						}
 						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
 						bufferedGraphics.setColor(color);

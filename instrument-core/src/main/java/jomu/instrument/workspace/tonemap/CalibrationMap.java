@@ -34,6 +34,20 @@ public class CalibrationMap implements OnsetHandler {
 		}
 	}
 
+	public double getBeat(double time, double range) {
+		Entry<Double, Double> le = beatMap.floorEntry(time);
+		if (le != null && range >= (time - le.getKey())) {
+			return le.getValue();
+		} else {
+			Entry<Double, Double> he = beatMap.ceilingEntry(time);
+			if (he != null && range >= (he.getKey() - time)) {
+				return he.getValue();
+			} else {
+				return 0;
+			}
+		}
+	}
+
 	public double getStartTime() {
 		try {
 			return audioFilePowerMap.firstKey();

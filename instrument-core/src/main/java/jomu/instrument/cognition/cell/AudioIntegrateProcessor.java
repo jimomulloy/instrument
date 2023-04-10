@@ -69,6 +69,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		integratePeaksToneMap.getTimeFrame().integratePeaks(sacfToneMap.getTimeFrame(sequence));
 		integratePeaksToneMap.getTimeFrame().integratePeaks(tpToneMap.getTimeFrame(sequence));
 		integratePeaksToneMap.getTimeFrame().integratePeaks(yinToneMap.getTimeFrame(sequence));
+		// integratePeaksToneMap.getTimeFrame().integratePeaks(spToneMap.getTimeFrame(sequence))
 
 		integratePeaksToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
@@ -85,7 +86,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		integrateSpectralToneMap.getTimeFrame().clear();
 		integrateSpectralToneMap.getTimeFrame().merge(pitchToneMap.getTimeFrame(sequence));
 		integrateSpectralToneMap.getTimeFrame().merge(sacfToneMap.getTimeFrame(sequence));
-		integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
+		// integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
 		integrateSpectralToneMap.getTimeFrame().merge(tpToneMap.getTimeFrame(sequence));
 		integrateSpectralToneMap.getTimeFrame().merge(yinToneMap.getTimeFrame(sequence));
 

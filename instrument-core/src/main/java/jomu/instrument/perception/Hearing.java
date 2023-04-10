@@ -127,7 +127,7 @@ public class Hearing implements Organ {
 		// Get amount of free memory within the heap in bytes. This size will increase
 		// // after garbage collection and decrease as new objects are created.
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
-		LOG.finer(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
+		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
 
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
@@ -147,8 +147,18 @@ public class Hearing implements Organ {
 			stream = storage.getObjectStorage().read(fileName);
 		}
 		bs = new BufferedInputStream(stream);
+
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
-		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format);
+		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format.getEncoding() + ", "
+				+ format);
+		if (!format.getEncoding().toString().startsWith("PCM")) {
+			bs.close();
+			stream.close();
+			String wavFilePath = convertToWav(fileName);
+			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
+			stream = new FileInputStream(wavFilePath);
+			bs = new BufferedInputStream(stream);
+		}
 
 		if (format.getSampleRate() != audioStream.getSampleRate()) {
 			audioStream.setSampleRate(format.getSampleRate());
@@ -174,6 +184,15 @@ public class Hearing implements Organ {
 			stream = storage.getObjectStorage().read(fileName);
 		}
 		bs = new BufferedInputStream(stream);
+
+		if (!format.getEncoding().toString().startsWith("PCM")) {
+			bs.close();
+			stream.close();
+			String wavFilePath = convertToWav(fileName);
+			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
+			stream = new FileInputStream(wavFilePath);
+			bs = new BufferedInputStream(stream);
+		}
 		try {
 			audioStream.processAudioFileStream(bs);
 		} catch (UnsupportedAudioFileException | IOException ex) {
@@ -338,6 +357,7 @@ public class Hearing implements Organ {
 			}
 
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
+			LOG.severe(">>calibarteAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {

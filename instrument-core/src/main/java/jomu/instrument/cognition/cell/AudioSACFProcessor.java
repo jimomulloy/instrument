@@ -53,8 +53,6 @@ public class AudioSACFProcessor extends ProcessorCommon {
 			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
 					ttf.getStartTime() + cqCalibrateRange / 2);
 			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
-			LOG.severe(">>AudioSACFProcessor calib: " + ttf.getStartTime() + ", cmMaxWindowPower: " + cmMaxWindowPower
-					+ ", cmPower: " + cmPower + ", lowThreshold: " + lowThreshold);
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

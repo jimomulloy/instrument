@@ -256,7 +256,10 @@ public class ToneTimeFrame {
 
 	public ToneMapElement getElement(int index) {
 		if (index >= elements.length) {
-			return null;
+			return elements[elements.length - 1];
+		}
+		if (index < 0) {
+			return elements[0];
 		}
 		return elements[index];
 	}
