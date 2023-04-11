@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class TonePredictor {
 
@@ -21,6 +22,33 @@ public class TonePredictor {
 		this.key = key;
 	}
 
+	@Override
+	public TonePredictor clone() {
+		TonePredictor copy = new TonePredictor(key);
+		for (NoteListElement note : notes) {
+			copy.addNote(note);
+		}
+		for (ChordListElement chord : chords) {
+			copy.addChord(chord);
+		}
+		for (BeatListElement beat : beats) {
+			copy.addBeat(beat);
+		}
+		return copy;
+	}
+
+	public void load(TonePredictor fromTonePredictor) {
+		for (NoteListElement note : fromTonePredictor.notes) {
+			addNote(note);
+		}
+		for (ChordListElement chord : fromTonePredictor.chords) {
+			addChord(chord);
+		}
+		for (BeatListElement beat : fromTonePredictor.beats) {
+			addBeat(beat);
+		}
+	}
+
 	public String getKey() {
 		return key;
 	}
@@ -35,7 +63,18 @@ public class TonePredictor {
 		chords.add(chord);
 	}
 
-	public void predictChord(ToneTimeFrame targetFrame) {
+	public void predictNotes(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
+			double quantizePercent) {
+
+	}
+
+	public void predictBeats(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
+			double quantizePercent) {
+
+	}
+
+	public void predictChord(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
+			double quantizePercent) {
 		if (chords.isEmpty()) {
 			return;
 		}
@@ -103,6 +142,12 @@ public class TonePredictor {
 		return notes.stream()
 				.filter(noteListElement -> (noteListElement.startTime <= time && noteListElement.endTime >= time))
 				.findFirst();
+	}
+
+	public List<NoteListElement> getNotes(double time) {
+		return notes.stream()
+				.filter(noteListElement -> (noteListElement.startTime <= time && noteListElement.endTime >= time))
+				.collect(Collectors.toList());
 	}
 
 	public boolean hasBeat(double time) {

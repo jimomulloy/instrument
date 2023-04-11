@@ -23,6 +23,10 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+
+		boolean pausePlay = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH);
+
 		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
 		ToneMap synthesisToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
@@ -34,7 +38,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		if (synthesisToneMap.getTimeFrame(sequence) != null) {
 			LOG.severe(">>AudioSinkProcessor VOICE SEND time: " + synthesisToneMap.getTimeFrame(sequence).getStartTime()
 					+ ", sequence: " + sequence + ", streamId: " + streamId);
-			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence);
+			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence, pausePlay);
 		}
 		if (workspace.getInstrumentSessionManager().getCurrentSession().isJob()) {
 			int tmIndex = sequence - 20;

@@ -118,4 +118,16 @@ public class AwsAdapterVisor implements Visor {
 
 	}
 
+	@Override
+	public void updateBeatsView(ToneMap toneMap, ToneTimeFrame ttf) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updatePercussionView(ToneMap toneMap, ToneTimeFrame ttf) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

@@ -35,6 +35,7 @@ import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
 import jomu.instrument.cognition.Cortex;
+import jomu.instrument.control.Coordinator;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.Console;
@@ -71,6 +72,9 @@ public class Hearing implements Organ {
 
 	@Inject
 	Storage storage;
+
+	@Inject
+	Coordinator coordinator;
 
 	BufferedInputStream bs;
 
@@ -277,7 +281,7 @@ public class Hearing implements Organ {
 	}
 
 	public void stopAudioStream() {
-		LOG.finer(">>Stop Audio Stream: " + streamId);
+		LOG.severe(">>Stop Audio Stream: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream != null) {
 			audioStream.stop();
@@ -285,6 +289,7 @@ public class Hearing implements Organ {
 				audioStream.getAudioFeatureProcessor().removeObserver(cortex);
 			}
 			closeAudioStream(streamId);
+			coordinator.getVoice().clear(streamId);
 		}
 		if (bs != null) {
 			try {

@@ -178,6 +178,12 @@ public class BeatsView extends JComponent implements ComponentListener {
 		}
 	}
 
+	public void updateToneMap(ToneMap toneMap, ToneTimeFrame ttf) {
+		this.toneMap = toneMap;
+		renderToneMap(ttf);
+		repaint();
+	}
+
 	public void renderToneMap(ToneMap toneMap) {
 		this.toneMap = toneMap;
 		double timeStart = timeAxisStart / 1000;

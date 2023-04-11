@@ -195,6 +195,14 @@ public class ParametersPanel extends JPanel {
 	private JTextField cqCalibrateRangeInput;
 	private JComboBox<String> selectStyleComboBox;
 
+	private JTextField synthesisQuantizeRangeInput;
+
+	private JTextField synthesisQuantizePercentInput;
+
+	private JTextField harmonicLowNoteInput;
+
+	private JTextField harmonicHighNoteInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -2110,6 +2118,39 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(chromaChordifyThresholdLabel);
 		cqParamsPanel.add(chromaChordifyThresholdInput);
 
+		JLabel harmonicLowNoteLabel = new JLabel("Harmonic Low Note: ");
+		harmonicLowNoteInput = new JTextField(4);
+		harmonicLowNoteInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = harmonicLowNoteInput.getText();
+				harmonicLowNoteLabel.setText(String.format("Harmonic Low Note  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE, newValue);
+
+			}
+		});
+		harmonicLowNoteInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE));
+		cqParamsPanel.add(harmonicLowNoteLabel);
+		cqParamsPanel.add(harmonicLowNoteInput);
+
+		JLabel harmonicHighNoteLabel = new JLabel("Harmonic High Note: ");
+		harmonicHighNoteInput = new JTextField(4);
+		harmonicHighNoteInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = harmonicHighNoteInput.getText();
+				harmonicHighNoteLabel.setText(String.format("Harmonic High Note  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE,
+						newValue);
+
+			}
+		});
+		harmonicHighNoteInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
+		cqParamsPanel.add(harmonicHighNoteLabel);
+		cqParamsPanel.add(harmonicHighNoteInput);
+
 		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
 		cqLowThresholdInput = new JTextField(4);
 		cqLowThresholdInput.addActionListener(new ActionListener() {
@@ -2606,6 +2647,40 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(notateCompressionLevelLabel);
 		cqParamsPanel.add(notateCompressionLevelInput);
 
+		JLabel synthesisQuantizeRangeLabel = new JLabel("Synthesis Quantize Range: ");
+		synthesisQuantizeRangeInput = new JTextField(4);
+		synthesisQuantizeRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisQuantizeRangeInput.getText();
+				synthesisQuantizeRangeLabel.setText(String.format("Synthesis Quantize Range  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE,
+						newValue);
+
+			}
+		});
+		synthesisQuantizeRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE));
+		cqParamsPanel.add(synthesisQuantizeRangeLabel);
+		cqParamsPanel.add(synthesisQuantizeRangeInput);
+
+		JLabel synthesisQuantizePercentLabel = new JLabel("Synthesis Quantize Pecent: ");
+		synthesisQuantizePercentInput = new JTextField(4);
+		synthesisQuantizePercentInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisQuantizePercentInput.getText();
+				synthesisQuantizePercentLabel.setText(String.format("Synthesis Quantize Pecent  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT,
+						newValue);
+
+			}
+		});
+		synthesisQuantizePercentInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT));
+		cqParamsPanel.add(synthesisQuantizePercentLabel);
+		cqParamsPanel.add(synthesisQuantizePercentInput);
+
 		JLabel yinLowPassLabel = new JLabel("YIN Low Pass: ");
 		yinLowPassInput = new JTextField(4);
 		yinLowPassInput.addActionListener(new ActionListener() {
@@ -2982,8 +3057,18 @@ public class ParametersPanel extends JPanel {
 		cqLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
 
+		harmonicLowNoteInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE));
+		harmonicHighNoteInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
+
 		notateCompressionLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION));
+
+		synthesisQuantizeRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE));
+		synthesisQuantizePercentInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT));
 
 		yinLowPassInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS));

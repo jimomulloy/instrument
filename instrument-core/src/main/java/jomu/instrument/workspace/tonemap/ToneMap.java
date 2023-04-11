@@ -74,15 +74,6 @@ public class ToneMap {
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
 
-	@Override
-	public ToneMap clone() {
-		ToneMap copy = new ToneMap(key);
-		for (Entry<Double, ToneTimeFrame> tmf : toneMapStore.entrySet()) {
-			copy.addTimeFrame(tmf.getValue().clone());
-		}
-		return copy;
-	}
-
 	public void deleteTimeFrame() {
 		toneMapStore.remove(toneMapStore.firstKey());
 	}

@@ -126,7 +126,8 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
+		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW)
+				* 4;
 		this.lowPassFrequency = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS);
 		this.isPowerSquared = parameterManager

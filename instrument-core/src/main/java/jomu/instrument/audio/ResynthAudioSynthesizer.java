@@ -126,10 +126,10 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 	}
 
 	@Override
-	public void clear() {
-		for (Entry<String, AudioStream> entry : audioStreams.entrySet()) {
-			close(entry.getKey());
-			entry.getValue().close();
+	public void clear(String streamId) {
+		if (audioStreams.containsKey(streamId)) {
+			AudioStream as = audioStreams.get(streamId);
+			as.close();
 		}
 	}
 

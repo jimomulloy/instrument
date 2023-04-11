@@ -169,13 +169,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 		instruments = null;
 	}
 
-	public void clear() {
-		for (Entry<String, MidiStream> entry : midiStreams.entrySet()) {
-			close(entry.getKey());
-			entry.getValue().close();
+	public void clear(String streamId) {
+		if (midiStreams.containsKey(streamId)) {
+			MidiStream ms = midiStreams.get(streamId);
+			ms.close();
 		}
-		close();
-		open();
 	}
 
 	public void reset() {
@@ -2446,6 +2444,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		boolean closed = false;
 
+		boolean paused = false;
+
 		private MidiQueueConsumer consumer;
 
 		public MidiStream(String streamId) {
@@ -2456,10 +2456,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 			new Thread(new MidiQueueConsumer(bq, this)).start();
 		}
 
+		public void setPaused(boolean paused) {
+			this.paused = paused;
+		}
+
+		public boolean isPaused() {
+			return paused;
+		}
+
 		public void close() {
+			closed = true;
 			bq.clear();
 			bq.drainTo(new ArrayList<Object>());
-			closed = true;
 			consumer.stop();
 			LOG.severe(">>MidiStream close stop and reset!!");
 			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();

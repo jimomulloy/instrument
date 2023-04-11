@@ -23,6 +23,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_POWER_SQUARED_SWITCH = "perception.hearing.powerSquaredSwitch";
 	public static final String PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY = "perception.hearing.tonemap.minimumFrequency";
 	public static final String PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY = "perception.hearing.tonemap.maximumFrequency";
+	public static final String PERCEPTION_HEARING_HARMONIC_LOW_NOTE = "perception.hearing.harmonicLowNote";
+	public static final String PERCEPTION_HEARING_HARMONIC_HIGH_NOTE = "perception.hearing.harmonicHighNote";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 
@@ -128,6 +130,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitch";
 
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH = "perception.hearing.synthesis.chordsSwitch";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE = "perception.hearing.synthesis.quantizeRange";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT = "perception.hearing.synthesis.quantizePercent";
 
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
 	public static final String PERCEPTION_HEARING_ONSET_EDGE_FACTOR = "perception.hearing.onset.edgeFactor";
@@ -193,6 +197,7 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_SHOW_LOG = "monitor.view.showLog";
 	public static final String MONITOR_VIEW_SHOW_COLOUR = "monitor.view.showColour";
 
+	public static final String ACTUATION_VOICE_PAUSE_PLAY_SWITCH = "actuation.voice.pausePlaySwitch";
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";
 	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";

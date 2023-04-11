@@ -88,9 +88,12 @@ public class NoteTimbre {
 		if (this.frequency == 0 && other.frequency != 0) {
 			return false;
 		}
-		double ratio = this.frequency / other.frequency;
-		if (ratio > 0.8 && ratio < 1.2) {
-			return true;
+		double frequencyRatio = this.frequency / other.frequency;
+		if (frequencyRatio > 0.5 && frequencyRatio < 1.5) {
+			double medianRangeRatio = (this.range / this.median) / (other.range / other.median);
+			if (medianRangeRatio > 0.5 && medianRangeRatio < 1.5) {
+				return true;
+			}
 		}
 		return false;
 	}

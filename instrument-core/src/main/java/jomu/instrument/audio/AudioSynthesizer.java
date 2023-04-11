@@ -12,7 +12,7 @@ public interface AudioSynthesizer {
 	 * Clear current AudioModel objects after Reset
 	 */
 
-	void clear();
+	void clear(String streamId);
 
 	void close(String streamId);
 

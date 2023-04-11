@@ -2,7 +2,6 @@ package jomu.instrument.audio;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -98,10 +97,10 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	}
 
 	@Override
-	public void clear() {
-		for (Entry<String, AudioStream> entry : audioStreams.entrySet()) {
-			close(entry.getKey());
-			entry.getValue().close();
+	public void clear(String streamId) {
+		if (audioStreams.containsKey(streamId)) {
+			AudioStream as = audioStreams.get(streamId);
+			as.close();
 		}
 	}
 

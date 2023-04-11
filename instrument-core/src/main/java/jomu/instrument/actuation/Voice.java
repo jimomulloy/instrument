@@ -1,5 +1,7 @@
 package jomu.instrument.actuation;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -7,6 +9,7 @@ import javax.inject.Inject;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
+import io.vertx.core.impl.ConcurrentHashSet;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
@@ -43,6 +46,10 @@ public class Voice implements Organ {
 	@Inject
 	Workspace workspace;
 
+	ConcurrentLinkedQueue<SendMessage> smq = new ConcurrentLinkedQueue<>();
+
+	Set<String> deadStreams = new ConcurrentHashSet<>();
+
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new TarsosAudioSynthesizer(parameterManager);
 		return this.audioSynthesizer;
@@ -65,9 +72,19 @@ public class Voice implements Organ {
 	}
 
 	public void close(String streamId) {
+		if (!smq.isEmpty()) {
+			for (SendMessage sm : smq) {
+				sendMessage(sm);
+			}
+			smq.clear();
+		}
+		deadStreams.remove(streamId);
+
+		waitForPlayers();
+
 		resynthSynthesizer.close(streamId);
 		audioSynthesizer.close(streamId);
-		LOG.finer(">>Voice CLOSE!!");
+		LOG.severe(">>Voice CLOSE!!");
 		midiSynthesizer.close(streamId);
 		if (!parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
 			if (controller.isCountDownLatch()) {
@@ -75,6 +92,10 @@ public class Voice implements Organ {
 				controller.getCountDownLatch().countDown();
 			}
 		}
+	}
+
+	private void waitForPlayers() {
+		LOG.severe(">>Voice wait for players");
 	}
 
 	public MidiSynthesizer getAudioSequencer() {
@@ -97,15 +118,37 @@ public class Voice implements Organ {
 		resynthSynthesizer = buildResynthAudioSynthesizer();
 	}
 
-	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
+	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence, boolean pause) {
+		if (deadStreams.contains(streamId)) {
+			return;
+		}
+		if (pause) {
+			smq.add(new SendMessage(toneTimeFrame, streamId, sequence));
+		} else {
+			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
+				writeMidi(toneTimeFrame, streamId, sequence);
+			}
+			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
+				writeAudio(toneTimeFrame, streamId, sequence);
+			}
+			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
+				writeResynthAudio(toneTimeFrame, streamId, sequence);
+			}
+		}
+	}
+
+	public void sendMessage(SendMessage message) {
+		if (deadStreams.contains(message.streamId)) {
+			return;
+		}
 		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
-			writeMidi(toneTimeFrame, streamId, sequence);
+			writeMidi(message.toneTimeFrame, message.streamId, message.sequence);
 		}
 		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
-			writeAudio(toneTimeFrame, streamId, sequence);
+			writeAudio(message.toneTimeFrame, message.streamId, message.sequence);
 		}
 		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
-			writeResynthAudio(toneTimeFrame, streamId, sequence);
+			writeResynthAudio(message.toneTimeFrame, message.streamId, message.sequence);
 		}
 	}
 
@@ -144,10 +187,24 @@ public class Voice implements Organ {
 
 	}
 
-	public void clear() {
+	public void clear(String streamId) {
 		LOG.severe(">>VOICE clear: ");
-		resynthSynthesizer.clear();
-		audioSynthesizer.clear();
-		midiSynthesizer.clear();
+		deadStreams.add(streamId);
+		resynthSynthesizer.clear(streamId);
+		audioSynthesizer.clear(streamId);
+		midiSynthesizer.clear(streamId);
+	}
+
+	class SendMessage {
+
+		public ToneTimeFrame toneTimeFrame;
+		public String streamId;
+		public int sequence;
+
+		public SendMessage(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
+			this.toneTimeFrame = toneTimeFrame;
+			this.streamId = streamId;
+			this.sequence = sequence;
+		}
 	}
 }

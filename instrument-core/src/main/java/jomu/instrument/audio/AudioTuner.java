@@ -93,6 +93,9 @@ public class AudioTuner implements ToneMapConstants {
 	private OvertoneSet overtoneSet;
 	private ParameterManager parameterManager;
 
+	private int harmonicLowLimit;
+	private int harmonicHighLimit;
+
 	private static int thresholdHysteresisBaseNote = 12;
 	private static double[][] thresholdHysteresis = new double[][] { { 0.5, 0.3 }, { 0.6, 0.3 }, { 0.8, 0.4 },
 			{ 1.0, 0.5 }, { 0.8, 0.3 }, { 0.6, 0.2 }, { 0.5, 0.1 }, { 0.3, 0.05 }, { 0.2, 0.05 }, { 0.1, 0.01 },
@@ -111,6 +114,10 @@ public class AudioTuner implements ToneMapConstants {
 
 	private void initParameters() {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		harmonicLowLimit = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE);
+		harmonicHighLimit = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE);
 		formantFactor = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR);
 		formantHighSetting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH);
 		formantLowSetting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW);
@@ -973,9 +980,13 @@ public class AudioTuner implements ToneMapConstants {
 						semiTones.add(nle);
 					} else if ((processedNote.note - nle.note) == 12) {
 						underTones.add(nle);
-					} else if (isHarmonic(processedNote.note, nle.note)) {
+					} else if (processedNote.note >= harmonicLowLimit && nle.note <= harmonicHighLimit) {
 						LOG.finer(">>commitNote isHarmonic: " + processedNote.note);
 						harmonicTones.add(nle);
+						if (isHarmonic(processedNote.note, nle.note)) {
+							LOG.finer(">>commitNote isHarmonic: " + processedNote.note);
+							harmonicTones.add(nle);
+						}
 					}
 				}
 			}
@@ -1011,7 +1022,7 @@ public class AudioTuner implements ToneMapConstants {
 				// Should not happen
 				LOG.finer(">>SHOULD NOT HAPPEN: " + nle + ",  " + processedNote);
 			} else if (!isMatchingTimbre(timeFrames, processedNote, nle)) {
-				LOG.finer(">>attenuateHarmonics MatchingTimbre: " + nle.note + ", " + processedNote.note);
+				LOG.severe(">>attenuateHarmonics NON - MatchingTimbre: " + nle.note + ", " + processedNote.note);
 				noteHarmonics.remove(processedNote.note);
 				if (noteHarmonics.isEmpty()) {
 					LOG.finer(
@@ -1101,8 +1112,8 @@ public class AudioTuner implements ToneMapConstants {
 		}
 	}
 
-	private boolean isMatchingTimbre(ToneTimeFrame[] timeFrames, NoteListElement processedNote,
-			NoteListElement rootNote) {
+	private boolean isMatchingTimbre(ToneTimeFrame[] timeFrames, NoteListElement rootNote,
+			NoteListElement processedNote) {
 		processedNote.noteTimbre.buildTimbre(timeFrames);
 		rootNote.noteTimbre.buildTimbre(timeFrames);
 		return processedNote.noteTimbre.matches(rootNote.noteTimbre);
@@ -1285,10 +1296,16 @@ public class AudioTuner implements ToneMapConstants {
 	private void processOvertones(ToneTimeFrame toneTimeFrame, int pitchIndex) {
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 
+		ToneTimeFrame[] timeFrames = { toneTimeFrame };
+
 		double f0 = pitchSet.getFreq(pitchIndex);
+		int note = PitchSet.freqToMidiNote(f0);
+
+		if (note < harmonicLowLimit) {
+			return;
+		}
 
 		double freq;
-		int note;
 		int n = 2;
 
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
@@ -1302,16 +1319,19 @@ public class AudioTuner implements ToneMapConstants {
 		for (double harmonic : harmonics) {
 			freq = n * f0;
 			note = PitchSet.freqToMidiNote(freq);
-			if (note == -1 || note > pitchSet.getHighNote())
+
+			if (note == -1 || note > harmonicHighLimit || note > pitchSet.getHighNote())
 				break;
 			int index = pitchSet.getIndex(note);
 
 			ToneMapElement toneMapElement = ttfElements[index];
 			if (toneMapElement == null || toneMapElement.amplitude == -1)
 				continue;
-
+			// TODO !! if (isMatchingTimbre(timeFrames, f0Element.noteListElement,
+			// toneMapElement.noteListElement)) {
 			difference += attenuate(toneMapElement, f0Element.amplitude, harmonic);
 			toneMapElement.addHarmonicWieght(n, toneMapElement.amplitude);
+			// }
 			n++;
 		}
 

@@ -235,6 +235,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	JCheckBox silentWriteSwitchCB;
 
+	private JCheckBox pausePlaySwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.warning(">>Using SwingDesktopVisor");
@@ -1035,7 +1037,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				chooseFileButton.setEnabled(true);
 				frameNumberInput.setEnabled(true);
 				updateStatusMessage("Stopped");
-				coordinator.getVoice().clear();
 			}
 		});
 
@@ -1336,6 +1337,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		playPeaksSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS));
 		voicePanel.add(playPeaksSwitchCB);
+
+		pausePlaySwitchCB = new JCheckBox("pausePlaySwitchCB");
+		pausePlaySwitchCB.setText("Pause");
+		pausePlaySwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		pausePlaySwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH));
+		voicePanel.add(pausePlaySwitchCB);
 
 		JLabel spacer1Label = new JLabel("  ");
 		voicePanel.add(spacer1Label);
@@ -1810,8 +1827,18 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	}
 
 	@Override
+	public void updateBeatsView(ToneMap toneMap, ToneTimeFrame ttf) {
+		beatsView.updateToneMap(toneMap, ttf);
+	}
+
+	@Override
 	public void updatePercussionView(ToneMap toneMap) {
 		percussionView.updateToneMap(toneMap);
+	}
+
+	@Override
+	public void updatePercussionView(ToneMap toneMap, ToneTimeFrame ttf) {
+		percussionView.updateToneMap(toneMap, ttf);
 	}
 
 	@Override
@@ -2268,6 +2295,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY));
 		playPeaksSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS));
+		pausePlaySwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH));
 		voicePlayerDelayInput.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
 		voicePlayerLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD));
