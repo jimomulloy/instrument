@@ -158,6 +158,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 * Close MIDI Java Sound system objects
 	 */
 	public void close() {
+		setSynthesizerRunning(false);
 		if (synthesizer != null && synthesizer.isOpen()) {
 			synthesizer.close();
 		}
@@ -603,6 +604,34 @@ public class MidiSynthesizer implements ToneMapConstants {
 			boolean completed = false;
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			boolean midiPlayVoice1Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH);
+			boolean midiPlayVoice2Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH);
+			boolean midiPlayVoice3Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH);
+			boolean midiPlayVoice4Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH);
+			boolean midiPlayChord1Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH);
+			boolean midiPlayChord2Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH);
+			boolean midiPlayPad1Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH);
+			boolean midiPlayPad2Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH);
+			boolean midiPlayBeat1Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH);
+			boolean midiPlayBeat2Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH);
+			boolean midiPlayBeat3Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH);
+			boolean midiPlayBeat4Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH);
+			boolean midiPlayBaseSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH);
+			boolean midiSynthTracksSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH);
 
 			try {
 				while (running) {
@@ -630,33 +659,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					}
 
 					LOG.finer(">>MidiQueueConsumer running: " + toneTimeFrame.getStartTime());
-
-					boolean midiPlayVoice1Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH);
-					boolean midiPlayVoice2Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH);
-					boolean midiPlayVoice3Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH);
-					boolean midiPlayVoice4Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH);
-					boolean midiPlayChord1Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH);
-					boolean midiPlayChord2Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH);
-					boolean midiPlayPad1Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH);
-					boolean midiPlayPad2Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH);
-					boolean midiPlayBeat1Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH);
-					boolean midiPlayBeat2Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH);
-					boolean midiPlayBeat3Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH);
-					boolean midiPlayBeat4Switch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH);
-					boolean midiPlayBaseSwitch = parameterManager
-							.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH);
 
 					if (midiPlayVoice1Switch && !playVoiceChannel1(mqm)) {
 						stop();
@@ -749,69 +751,88 @@ public class MidiSynthesizer implements ToneMapConstants {
 				LOG.severe(">>Writing MIDI file name: " + masterFileName);
 				File file = new File(masterFileName);
 				saveMidiFile(file, sequence);
+				LOG.severe(">>Saved MIDI file name: " + masterFileName);
 
-				List<Track> trackList = new ArrayList<>();
-				trackList.add(voice1Track);
-				trackList.add(voice2Track);
-				trackList.add(voice3Track);
-				trackList.add(voice4Track);
-				String trackFileName = folder + System.getProperty("file.separator")
-						+ instrumentSession.getInputAudioFileName() + "_recording_track_voices.midi";
-				file = new File(trackFileName);
-				saveMidiFile(file, trackList);
+				if (midiSynthTracksSwitch) {
+					List<Track> trackList = new ArrayList<>();
+					trackList.add(voice1Track);
+					trackList.add(voice2Track);
+					trackList.add(voice3Track);
+					trackList.add(voice4Track);
+					String trackFileName = folder + System.getProperty("file.separator")
+							+ instrumentSession.getInputAudioFileName() + "_recording_track_voices.midi";
+					file = new File(trackFileName);
+					saveMidiFile(file, trackList);
+					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
-				trackList.clear();
-				trackList.add(voice1Track);
-				trackList.add(voice2Track);
-				trackList.add(voice3Track);
-				trackList.add(voice4Track);
-				trackList.add(chord1Track);
-				trackList.add(chord2Track);
-				trackList.add(pad1Track);
-				trackList.add(pad2Track);
-				trackList.add(baseTrack);
-				trackFileName = folder + System.getProperty("file.separator")
-						+ instrumentSession.getInputAudioFileName() + "_recording_track_ensemble_nobeat.midi";
-				file = new File(trackFileName);
-				saveMidiFile(file, trackList);
+					trackList.clear();
+					trackList.add(voice1Track);
+					trackList.add(voice2Track);
+					trackList.add(voice3Track);
+					trackList.add(voice4Track);
+					trackList.add(chord1Track);
+					trackList.add(chord2Track);
+					trackList.add(pad1Track);
+					trackList.add(pad2Track);
+					trackList.add(baseTrack);
+					trackFileName = folder + System.getProperty("file.separator")
+							+ instrumentSession.getInputAudioFileName() + "_recording_track_ensemble.midi";
+					// file = new File(trackFileName);
+					// TODO !! saveMidiFile(file, trackList);
+					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
-				trackList.clear();
-				trackList.add(beat1Track);
-				trackList.add(beat2Track);
-				trackList.add(beat3Track);
-				trackList.add(beat4Track);
-				trackFileName = folder + System.getProperty("file.separator")
-						+ instrumentSession.getInputAudioFileName() + "_recording_track_beats.midi";
-				file = new File(trackFileName);
-				saveMidiFile(file, trackList);
+					trackList.clear();
+					trackList.add(beat1Track);
+					trackList.add(beat2Track);
+					trackList.add(beat3Track);
+					trackList.add(beat4Track);
+					trackFileName = folder + System.getProperty("file.separator")
+							+ instrumentSession.getInputAudioFileName() + "_recording_track_beats.midi";
+					file = new File(trackFileName);
+					saveMidiFile(file, trackList);
+					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
-				trackList.clear();
-				trackList.add(chord1Track);
-				trackList.add(chord2Track);
-				trackList.add(pad1Track);
-				trackList.add(pad2Track);
-				trackFileName = folder + System.getProperty("file.separator")
-						+ instrumentSession.getInputAudioFileName() + "_recording_track_chords.midi";
-				file = new File(trackFileName);
-				saveMidiFile(file, trackList);
+					trackList.clear();
+					trackList.add(chord1Track);
+					trackList.add(chord2Track);
+					trackList.add(pad1Track);
+					trackList.add(pad2Track);
+					trackFileName = folder + System.getProperty("file.separator")
+							+ instrumentSession.getInputAudioFileName() + "_recording_track_chords.midi";
+					file = new File(trackFileName);
+					saveMidiFile(file, trackList);
+					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
+				} else {
+					Track[] tracks = sequence.getTracks();
+					for (int i = 0; i < tracks.length; i++) {
+						String trackFileName = folder + System.getProperty("file.separator")
+								+ instrumentSession.getInputAudioFileName() + "_recording_track_"
+								+ getTrackName(tracks[i]) + ".midi";
+						LOG.severe(">>Writing MIDI file name: " + trackFileName);
+						file = new File(trackFileName);
+						saveMidiFile(file, tracks[i]);
+					}
+				}
 
 				Track[] tracks = sequence.getTracks();
 				for (int i = 0; i < tracks.length; i++) {
-					trackFileName = folder + System.getProperty("file.separator")
-							+ instrumentSession.getInputAudioFileName() + "_recording_track_" + getTrackName(tracks[i])
-							+ ".midi";
-					LOG.severe(">>Writing MIDI file name: " + trackFileName);
-					file = new File(trackFileName);
-					saveMidiFile(file, tracks[i]);
 					sequence.deleteTrack(tracks[i]);
 				}
+
 				instrumentSession.setOutputMidiFileName(
 						masterFileName.substring(masterFileName.lastIndexOf(System.getProperty("file.separator"))));
 				instrumentSession.setOutputMidiFilePath(masterFileName);
+				try {
+					TimeUnit.SECONDS.sleep(2);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			LOG.severe(">>MidiQueueConsumer setSynthesizerRunning(false)");
+			MidiSynthesizer.this.setSynthesizerRunning(false);
 			LOG.severe(">>MidiQueueConsumer close and exit stream");
 			this.midiStream.close();
-			MidiSynthesizer.this.setSynthesizerRunning(false);
 		}
 
 		private String getTrackName(Track track) {
@@ -2485,7 +2506,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			LOG.severe(">>MidiStream close stop and reset!!");
 			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 			instrumentSession.setState(InstrumentSessionState.STOPPED);
-			MidiSynthesizer.this.reset();
+			// MidiSynthesizer.this.reset();
 			// if (controller.isCountDownLatch()) {
 			// LOG.finer(">>MidiStream close controller");
 			// controller.getCountDownLatch().countDown();

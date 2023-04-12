@@ -145,7 +145,7 @@ public class ProcessingService {
 			LOG.severe(">>ProcessingService midiFileFolder: " + midiFileFolder);
 			Set<String> fileNames = listFiles(midiFileFolder);
 			LOG.severe(">>ProcessingService midiFileFolder instrumentSession.getInputAudioFileName(): "
-					+ instrumentSession.getInputAudioFileName());
+					+ instrumentSession.getInputAudioFileName() + ", " + fileNames.size() + " ," + fileNames);
 			for (String fileName : fileNames) {
 				LOG.severe(">>ProcessingService midiFileFolder fileName: " + fileName);
 				if (fileName.startsWith(instrumentSession.getInputAudioFileName())) {
@@ -154,6 +154,7 @@ public class ProcessingService {
 							">>ProcessingService store: " + midiFileFolder + "/" + fileName + ", " + midiFile.length());
 					storage.getObjectStorage().write("private/" + userId + "/output/" + fileName, midiFile);
 					midiFile.delete();
+					LOG.severe(">>ProcessingService deleted: " + midiFileFolder + "/" + fileName);
 				}
 			}
 		}

@@ -70,8 +70,11 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 			RequestBody body = RequestBody.fromBytes(bytes);
 			LOG.severe(">>AwsAdapterObjectStorage body len: " + body.optionalContentLength() + ", " + bytes.length);
 			s3Client.putObject(request, body);
+			LOG.log(Level.SEVERE, ">>AwsAdapterObjectStorage writen");
 		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "", e);
+			LOG.log(Level.SEVERE, ">>AwsAdapterObjectStorage write IOException", e);
+		} catch (Throwable t) {
+			LOG.log(Level.SEVERE, ">>AwsAdapterObjectStorage write Exception", t);
 		}
 	}
 

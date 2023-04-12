@@ -289,7 +289,7 @@ public class Hearing implements Organ {
 				audioStream.getAudioFeatureProcessor().removeObserver(cortex);
 			}
 			closeAudioStream(streamId);
-			coordinator.getVoice().clear(streamId);
+			// coordinator.getVoice().clear(streamId);
 		}
 		if (bs != null) {
 			try {

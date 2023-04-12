@@ -222,6 +222,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH = "actuation.voice.midiPlayBeat3Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH = "actuation.voice.midiPlayBeat4Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH = "actuation.voice.midiPlayBaseSwitch";
+	public static final String ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH = "actuation.voice.midiSynthTracksSwitch";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1 = "actuation.voice.midiInstrumentVoice1";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2 = "actuation.voice.midiInstrumentVoice2";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_3 = "actuation.voice.midiInstrumentVoice3";

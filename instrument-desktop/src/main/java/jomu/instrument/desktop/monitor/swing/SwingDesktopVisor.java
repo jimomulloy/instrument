@@ -239,6 +239,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JCheckBox pausePlaySwitchCB;
 
+	private JCheckBox midiSynthTracksSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.warning(">>Using SwingDesktopVisor");
@@ -1456,6 +1458,26 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(voicePlayerHighThresholdLabel);
 		voicePanel.add(voicePlayerHighThresholdInput);
 
+		voicePanel.add(new JLabel(" "));
+
+		midiSynthTracksSwitchCB = new JCheckBox("midiSynthTracksSwitchCB");
+		midiSynthTracksSwitchCB.setText("Synth");
+		midiSynthTracksSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiSynthTracksSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH));
+		voicePanel.add(midiSynthTracksSwitchCB);
+
+		voicePanel.add(new JLabel(" "));
+
 		midiPlayVoice1SwitchCB = new JCheckBox("midiPlayVoice1SwitchCB");
 		midiPlayVoice1SwitchCB.setText("Voice1");
 		midiPlayVoice1SwitchCB.addItemListener(new ItemListener() {
@@ -2355,6 +2377,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH));
 		midiPlayBaseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH));
+		midiSynthTracksSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH));
 		silentWriteSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE));
 		trackWriteSwitchCB.setSelected(
