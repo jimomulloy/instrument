@@ -1342,10 +1342,12 @@ public class ToneTimeFrame {
 		return octave;
 	}
 
-	public void setChord(ChordListElement chord) {
+	public void setChord(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
 		chordNotes.clear();
+		ChordListElement chord = sourceTimeFrame.getChord();
 		if (chord != null) {
 			chordNotes.addAll(chord.getChordNotes());
+			toneMap.getChordTracker().trackChord(chord);
 		}
 	}
 
@@ -1386,13 +1388,14 @@ public class ToneTimeFrame {
 		reset();
 	}
 
-	public void addNotes(ToneTimeFrame sourceTimeFrame) {
+	public void addNotes(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
 		ToneMapElement[] ses = sourceTimeFrame.getElements();
 		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			NoteListElement nle = ses[elementIndex].noteListElement;
 			if (nle != null && nle.startTime == sourceTimeFrame.getStartTime()) {
 				element.noteListElement = nle.clone();
+				toneMap.getNoteTracker().trackNote(element.noteListElement);
 			}
 		}
 		reset();

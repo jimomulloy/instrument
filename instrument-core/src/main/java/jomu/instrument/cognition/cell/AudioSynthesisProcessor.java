@@ -24,8 +24,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		int sequence = getMessagesSequence(messages);
 		LOG.finer(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
 
-		boolean synthesisSwitchChords = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH);
 		double quantizeRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE);
 		double quantizePercent = parameterManager
@@ -41,15 +39,15 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		ToneTimeFrame notateFrame = notateToneMap.getTimeFrame(sequence);
 		ToneTimeFrame chromaFrame = chromaToneMap.getTimeFrame(sequence);
 
-		synthesisFrame.addNotes(notateFrame);
-		synthesisFrame.setChord(chromaFrame.getChord());
+		synthesisFrame.addNotes(synthesisToneMap, notateFrame);
+		synthesisFrame.setChord(synthesisToneMap, chromaFrame);
 
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
-		if (synthesisSwitchChords) {
-			TonePredictor predictor = synthesisToneMap.getTonePredictor();
-			predictor.predictChord(synthesisFrame, cm, quantizeRange, quantizePercent);
-		}
+		TonePredictor predictor = synthesisToneMap.getTonePredictor();
+		predictor.predictChord(synthesisFrame, cm, quantizeRange, quantizePercent);
+		predictor.predictNotes(synthesisFrame, cm, quantizeRange, quantizePercent);
+
 		console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);

@@ -920,14 +920,6 @@ public class AudioTuner implements ToneMapConstants {
 		processedNotes.add(noteListElement);
 		LOG.finer(">>PROCESS NOTE ADDED NOTE DONE: " + noteStatusElement + ", " + noteStatusElement.offTime);
 
-		toneMap.getNoteTracker().trackNote(noteListElement);
-		LOG.finer(">>PROCESS NOTE ADDED NOTE TRACKED");
-
-		// Add noteList element to noteList object
-		// noteList.add(noteListElement);
-
-		// }
-
 	}
 
 	private boolean hasPendingHarmonics(ToneMap toneMap, NoteListElement processedNote) {

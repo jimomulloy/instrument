@@ -84,23 +84,22 @@ public class Voice implements Organ {
 
 		resynthSynthesizer.close(streamId);
 		audioSynthesizer.close(streamId);
-		LOG.severe(">>Voice CLOSE!!");
+		LOG.severe(">>Voice CLOSE, midi running: " + midiSynthesizer.isSynthesizerRunning());
 		midiSynthesizer.close(streamId);
-		if (!parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
-			int counter = 60;
-			while (counter > 0 && midiSynthesizer.isSynthesizerRunning()) {
-				try {
-					counter--;
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		int counter = 60;
+		while (counter > 0 && midiSynthesizer.isSynthesizerRunning()) {
+			try {
+				counter--;
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			if (controller.isCountDownLatch()) {
-				LOG.finer(">>Voice job close");
-				controller.getCountDownLatch().countDown();
-			}
+		}
+		LOG.severe(">>Voice CLOSED, midi running: " + midiSynthesizer.isSynthesizerRunning());
+		if (controller.isCountDownLatch()) {
+			LOG.severe(">>Voice CLOSE JOB");
+			controller.getCountDownLatch().countDown();
 		}
 	}
 
