@@ -128,8 +128,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	Map<String, ToneMap> toneMapViews = new HashMap<>();
 
-	String fileName;
-
 	static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192 };
 	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 48000, 192000 };
 
@@ -224,6 +222,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JPanel contentPane;
 
 	JLabel statusLabel;
+
+	JLabel fileNameLabel;
 
 	JCheckBox showSynthesisSwitchCB;
 
@@ -936,7 +936,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				int returnVal = fileChooser.showOpenDialog(visorPanel);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					inputFile = fileChooser.getSelectedFile();
-					fileName = inputFile.getAbsolutePath();
+					String fileName = inputFile.getAbsolutePath();
+					fileNameLabel.setText(inputFile.getName());
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
 					stopListeningButton.setEnabled(true);
@@ -944,7 +945,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
-					LOG.severe(">>!! chosen file");
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
@@ -973,7 +973,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					inputFile = fileChooser.getSelectedFile();
-					fileName = inputFile.getAbsolutePath();
+					String fileName = inputFile.getAbsolutePath();
+					fileNameLabel.setText(inputFile.getName());
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
 					stopListeningButton.setEnabled(true);
@@ -1004,11 +1005,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String fileName = getAudioRecordFileFolder() + "/instrument_recording_" + System.currentTimeMillis()
-							+ ".wav";
-					LOG.finer(">>Recording Audio to fileName" + fileName);
+					String fileName = "instrument_recording_" + System.currentTimeMillis() + ".wav";
+					String filePath = getAudioRecordFileFolder() + "/" + fileName;
 					startListeningButton.setEnabled(false);
 					startFileProcessingButton.setEnabled(false);
+					fileNameLabel.setText(fileName);
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
 					frameNumberInput.setEnabled(false);
@@ -1017,7 +1018,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
-					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(fileName);
+					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(filePath);
 					updateStatusMessage("Started listener: " + fileName);
 
 				} catch (LineUnavailableException | IOException e) {
@@ -1275,6 +1276,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionPanel.add(new JLabel("  "));
 
 		actionPanel.add(parametersButton);
+
+		actionPanel.add(new JLabel("  "));
+
+		fileNameLabel = new JLabel("");
+
+		actionPanel.add(fileNameLabel);
 
 		panel.add(actionPanel, BorderLayout.CENTER);
 

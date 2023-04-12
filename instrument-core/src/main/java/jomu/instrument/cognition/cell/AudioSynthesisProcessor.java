@@ -33,7 +33,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
 		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
 
-		ToneTimeFrame synthesisFrame = chromaToneMap.getTimeFrame(sequence).clone();
+		ToneTimeFrame synthesisFrame = notateToneMap.getTimeFrame(sequence).clone();
 		synthesisToneMap.addTimeFrame(synthesisFrame);
 
 		ToneTimeFrame notateFrame = notateToneMap.getTimeFrame(sequence);

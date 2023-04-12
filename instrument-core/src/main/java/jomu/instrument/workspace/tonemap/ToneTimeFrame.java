@@ -1390,11 +1390,13 @@ public class ToneTimeFrame {
 
 	public void addNotes(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
 		ToneMapElement[] ses = sourceTimeFrame.getElements();
+		LOG.severe(">>TTF Add notes: " + ses.length);
 		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			NoteListElement nle = ses[elementIndex].noteListElement;
-			if (nle != null && nle.startTime == sourceTimeFrame.getStartTime()) {
+			if (nle != null && nle.startTime == sourceTimeFrame.getStartTime() * 1000) {
 				element.noteListElement = nle.clone();
+				LOG.severe(">>TTF Add note " + elementIndex + ", " + sourceTimeFrame.getStartTime());
 				toneMap.getNoteTracker().trackNote(element.noteListElement);
 			}
 		}
