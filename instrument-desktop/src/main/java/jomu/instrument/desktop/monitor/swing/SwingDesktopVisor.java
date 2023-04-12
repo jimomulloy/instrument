@@ -147,6 +147,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	ChromaView chromaPostView;
 
+	ChromaView chromaSynthView;
+
 	BeatsView beatsView;
 
 	BeatsView percussionView;
@@ -488,6 +490,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		chromaPostPanel.add(chromaPostView, BorderLayout.CENTER);
 		chromaPostPanel.setBackground(Color.BLACK);
 		chromaTabbedPane.addTab("Chroma Post", chromaPostPanel);
+		chromaSynthView = new ChromaView(false);
+		JPanel chromaSynthPanel = new JPanel(new BorderLayout());
+		chromaSynthPanel.add(chromaSynthView, BorderLayout.CENTER);
+		chromaSynthPanel.setBackground(Color.BLACK);
+		chromaTabbedPane.addTab("Chroma Synth", chromaSynthPanel);
 		panel.add(chromaTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -1811,12 +1818,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			updateTimeFrameView(toneMapViews.get(currentToneMapViewType).getTimeFrame());
 			chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			chromaSynthView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 		} else {
 			LOG.severe(">>Visor clear TM views: " + currentToneMapViewType);
 			toneMapView.clear();
 			chromaPreView.clear();
 			chromaPostView.clear();
+			chromaSynthView.clear();
 			beatsView.clear();
 		}
 	}
@@ -1859,6 +1868,16 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	@Override
 	public void updateChromaPostView(ToneMap toneMap) {
 		chromaPostView.updateToneMap(toneMap);
+	}
+
+	@Override
+	public void updateChromaSynthView(ToneMap toneMap) {
+		chromaSynthView.updateToneMap(toneMap);
+	}
+
+	@Override
+	public void updateChromaSynthView(ToneMap toneMap, ToneTimeFrame ttf) {
+		chromaSynthView.updateToneMap(toneMap, ttf);
 	}
 
 	@Override
@@ -2236,6 +2255,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			toneMapView.updateAxis();
 			chromaPreView.updateAxis();
 			chromaPostView.updateAxis();
+			chromaSynthView.updateAxis();
 			beatsView.updateAxis();
 			percussionView.updateAxis();
 		}

@@ -34,31 +34,23 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
 		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
-		ToneMap beatToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
 
-		ToneTimeFrame synthesisFrame = notateToneMap.getTimeFrame(sequence).clone();
+		ToneTimeFrame synthesisFrame = chromaToneMap.getTimeFrame(sequence).clone();
 		synthesisToneMap.addTimeFrame(synthesisFrame);
-		synthesisToneMap.getTonePredictor().load(notateToneMap.getTonePredictor());
-		synthesisToneMap.getTonePredictor().load(chromaToneMap.getTonePredictor());
-		synthesisToneMap.getTonePredictor().load(beatToneMap.getTonePredictor());
 
 		ToneTimeFrame notateFrame = notateToneMap.getTimeFrame(sequence);
 		ToneTimeFrame chromaFrame = chromaToneMap.getTimeFrame(sequence);
-		ToneTimeFrame beatFrame = beatToneMap.getTimeFrame(sequence);
+
+		synthesisFrame.addNotes(notateFrame);
+		synthesisFrame.setChord(chromaFrame.getChord());
 
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
 		if (synthesisSwitchChords) {
-			TonePredictor chordPredictor = chromaToneMap.getTonePredictor();
-			chordPredictor.predictChord(chromaFrame, cm, quantizeRange, quantizePercent);
-			TonePredictor notePredictor = notateToneMap.getTonePredictor();
-			notePredictor.predictChord(notateFrame, cm, quantizeRange, quantizePercent);
-			TonePredictor beatPredictor = beatToneMap.getTonePredictor();
-			beatPredictor.predictChord(beatFrame, cm, quantizeRange, quantizePercent);
+			TonePredictor predictor = synthesisToneMap.getTonePredictor();
+			predictor.predictChord(synthesisFrame, cm, quantizeRange, quantizePercent);
 		}
-		console.getVisor().updateChromaPostView(chromaToneMap, chromaFrame);
-		console.getVisor().updateBeatsView(beatToneMap, beatFrame);
-		console.getVisor().updateToneMapView(notateToneMap, notateFrame, CellTypes.AUDIO_NOTATE.toString());
+		console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}

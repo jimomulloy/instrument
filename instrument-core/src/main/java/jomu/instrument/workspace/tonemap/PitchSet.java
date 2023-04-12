@@ -37,6 +37,10 @@ public class PitchSet implements Serializable {
 	public static final int CENTS_OCTAVE = 1200;
 	public static final int MAX_MIDI_NOTE = 127;
 	public static final int MIN_MIDI_NOTE = 12;
+	public final static int INIT_PITCH_HIGH = 120;
+	public final static int INIT_PITCH_INC = 1;
+	public final static int INIT_PITCH_LOW = 36;
+
 	public static char[][] NOTE_SYMBOLS = { { 'C', ' ' }, { 'C', '#' }, { 'D', ' ' }, { 'D', '#' }, { 'E', ' ' },
 			{ 'F', ' ' }, { 'F', '#' }, { 'G', ' ' }, { 'G', '#' }, { 'A', ' ' }, { 'A', '#' }, { 'B', ' ' },
 			{ '?', ' ' } };
@@ -67,7 +71,7 @@ public class PitchSet implements Serializable {
 	private double note;
 
 	public PitchSet() {
-		this(MIN_MIDI_NOTE, MAX_MIDI_NOTE);
+		this(INIT_PITCH_LOW, INIT_PITCH_HIGH);
 	}
 
 	public PitchSet(int lowNote, int highNote) {
@@ -208,7 +212,7 @@ public class PitchSet implements Serializable {
 	}
 
 	public int getOctave(int index) {
-		return Math.floorDiv(index, 12);
+		return Math.floorDiv(index, 12) + 3;
 	}
 
 } // End PitchSet

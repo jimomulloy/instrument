@@ -130,4 +130,16 @@ public class CommandVisor implements Visor {
 
 	}
 
+	@Override
+	public void updateChromaSynthView(ToneMap toneMap, ToneTimeFrame ttf) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateChromaSynthView(ToneMap toneMap) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

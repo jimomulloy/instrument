@@ -1,19 +1,18 @@
 package jomu.instrument.workspace.tonemap;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class TonePredictor {
 
 	private static final Logger LOG = Logger.getLogger(TonePredictor.class.getName());
 
-	List<NoteListElement> notes = new CopyOnWriteArrayList<>();
-	List<ChordListElement> chords = new CopyOnWriteArrayList<>();
-	List<BeatListElement> beats = new CopyOnWriteArrayList<>();
+	ConcurrentSkipListMap<Double, Map<Integer, NoteListElement>> notes = new ConcurrentSkipListMap<>();
+	ConcurrentSkipListMap<Double, ChordListElement> chords = new ConcurrentSkipListMap<>();
 
 	private String key;
 
@@ -22,53 +21,25 @@ public class TonePredictor {
 		this.key = key;
 	}
 
-	@Override
-	public TonePredictor clone() {
-		TonePredictor copy = new TonePredictor(key);
-		for (NoteListElement note : notes) {
-			copy.addNote(note);
-		}
-		for (ChordListElement chord : chords) {
-			copy.addChord(chord);
-		}
-		for (BeatListElement beat : beats) {
-			copy.addBeat(beat);
-		}
-		return copy;
-	}
-
-	public void load(TonePredictor fromTonePredictor) {
-		for (NoteListElement note : fromTonePredictor.notes) {
-			addNote(note);
-		}
-		for (ChordListElement chord : fromTonePredictor.chords) {
-			addChord(chord);
-		}
-		for (BeatListElement beat : fromTonePredictor.beats) {
-			addBeat(beat);
-		}
-	}
-
 	public String getKey() {
 		return key;
 	}
 
-	public void addNote(NoteListElement note) {
-		LOG.finer(">>Tone Predictor add note: " + note);
-		notes.add(note);
+	public void addNote(NoteListElement nle) {
+		Map<Integer, NoteListElement> noteMap;
+		if (notes.containsKey(nle.startTime)) {
+			noteMap = notes.get(nle.startTime);
+		} else {
+			noteMap = new HashMap<>();
+		}
+		noteMap.put(nle.note, nle);
 	}
 
-	public void addChord(ChordListElement chord) {
-		LOG.finer(">>Tone Predictor add chord: " + chord);
-		chords.add(chord);
+	public void addChord(ChordListElement cle) {
+		chords.put(cle.startTime, cle);
 	}
 
 	public void predictNotes(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
-			double quantizePercent) {
-
-	}
-
-	public void predictBeats(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent) {
 
 	}
@@ -113,7 +84,7 @@ public class TonePredictor {
 					}
 				}
 				if (isChanged) {
-					chords.set(chords.indexOf(previousChord.get()), chord.get());
+					chords.put(previousChord.get().startTime, chord.get());
 					LOG.finer(">>Predict Chord changed: " + targetFrame.getStartTime() + ", " + chord + ",  "
 							+ previousChord);
 				}
@@ -122,59 +93,38 @@ public class TonePredictor {
 			ChordListElement newChord = new ChordListElement(
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), targetFrame.getStartTime(),
 					targetFrame.getEndTime());
-			chords.add(chords.indexOf(previousChord.get()) + 1, newChord);
+			addChord(newChord);
 			LOG.severe(">>Predict Chord added: " + targetFrame.getStartTime() + ", " + chord + ",  " + previousChord
 					+ ", " + targetFrame.getSpectralCentroid());
 		}
 	}
 
-	public void addBeat(BeatListElement beat) {
-		LOG.finer(">>Tone Predictor add beat: " + beat);
-		beats.add(beat);
-	}
-
 	public boolean hasNote(double time) {
-		return notes.stream()
-				.anyMatch(noteListElement -> (noteListElement.startTime <= time && noteListElement.endTime >= time));
+		return notes.containsKey(time);
 	}
 
-	public Optional<NoteListElement> getNote(double time) {
-		return notes.stream()
-				.filter(noteListElement -> (noteListElement.startTime <= time && noteListElement.endTime >= time))
-				.findFirst();
-	}
-
-	public List<NoteListElement> getNotes(double time) {
-		return notes.stream()
-				.filter(noteListElement -> (noteListElement.startTime <= time && noteListElement.endTime >= time))
-				.collect(Collectors.toList());
-	}
-
-	public boolean hasBeat(double time) {
-		return notes.stream()
-				.anyMatch(beatListElement -> (beatListElement.startTime <= time && beatListElement.endTime >= time));
-	}
-
-	public Optional<BeatListElement> getBeat(double time) {
-		return beats.stream()
-				.filter(beatListElement -> (beatListElement.startTime <= time && beatListElement.endTime >= time))
-				.findFirst();
+	public NoteListElement[] getNotes(double time) {
+		return notes.get(time).values().toArray(new NoteListElement[notes.get(time).values().size()]);
 	}
 
 	public boolean hasChord(double time) {
-		return chords.stream()
-				.anyMatch(chordListElement -> (chordListElement.startTime <= time && chordListElement.endTime >= time));
+		return chords.containsKey(time);
 	}
 
 	public Optional<ChordListElement> getChord(double time) {
-		return chords.stream()
-				.filter(chordListElement -> (chordListElement.startTime <= time && chordListElement.endTime >= time))
-				.findFirst();
+		Optional<ChordListElement> result = Optional.empty();
+		for (ChordListElement chord : chords.values()) {
+			if (chord.startTime >= time) {
+				result = Optional.of(chord);
+				break;
+			}
+		}
+		return result;
 	}
 
 	private Optional<ChordListElement> getPreviousChord(double time) {
 		Optional<ChordListElement> result = Optional.empty();
-		for (ChordListElement chord : chords) {
+		for (ChordListElement chord : chords.values()) {
 			if (chord.startTime >= time) {
 				break;
 			}

@@ -48,11 +48,7 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 			timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
-			// TODO !!
-			int lowPitch = 36;
-			int highPitch = 120;
-
-			PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
+			PitchSet pitchSet = new PitchSet();
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
@@ -87,11 +83,7 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 			timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
-			// TODO !!
-			int lowPitch = 36;
-			int highPitch = 120;
-
-			PitchSet pitchSet = new PitchSet(lowPitch, highPitch);
+			PitchSet pitchSet = new PitchSet();
 
 			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);

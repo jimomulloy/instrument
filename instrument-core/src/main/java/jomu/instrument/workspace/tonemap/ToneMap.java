@@ -149,22 +149,6 @@ public class ToneMap {
 		toneMapStore = new ConcurrentSkipListMap<>();
 	}
 
-	public void trackNote(NoteListElement noteListElement) {
-		LOG.finer(">>ToneMap trackNote: " + noteListElement);
-		noteTracker.trackNote(noteListElement);
-		tonePredictor.addNote(noteListElement);
-	}
-
-	public void trackChord(ChordListElement chordListElement) {
-		LOG.finer(">>ToneMap trackChord: " + chordListElement);
-		tonePredictor.addChord(chordListElement);
-	}
-
-	public void trackBeat(BeatListElement beatListElement) {
-		LOG.finer(">>ToneMap trackBeat: " + beatListElement);
-		tonePredictor.addBeat(beatListElement);
-	}
-
 	public void clearOldFrames(Double time) {
 		ToneTimeFrame[] ttfs = getTimeFramesTo(time);
 		for (ToneTimeFrame ttf : ttfs) {

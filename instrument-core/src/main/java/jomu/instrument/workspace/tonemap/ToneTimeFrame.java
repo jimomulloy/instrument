@@ -1331,7 +1331,6 @@ public class ToneTimeFrame {
 	public ChordListElement getChord() {
 		ChordListElement chordListElement = null;
 		if (chordNotes.size() > 1) {
-			int octave = pitchSet.getOctave(this.getSpectralCentroid());
 			chordListElement = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
 					getStartTime(), getTimeSet().getEndTime());
 		}
@@ -1345,7 +1344,9 @@ public class ToneTimeFrame {
 
 	public void setChord(ChordListElement chord) {
 		chordNotes.clear();
-		chordNotes.addAll(chord.getChordNotes());
+		if (chord != null) {
+			chordNotes.addAll(chord.getChordNotes());
+		}
 	}
 
 	public BeatListElement getBeat() {
@@ -1381,6 +1382,18 @@ public class ToneTimeFrame {
 		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			element.amplitude += ses[elementIndex].amplitude;
+		}
+		reset();
+	}
+
+	public void addNotes(ToneTimeFrame sourceTimeFrame) {
+		ToneMapElement[] ses = sourceTimeFrame.getElements();
+		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
+			ToneMapElement element = elements[elementIndex];
+			NoteListElement nle = ses[elementIndex].noteListElement;
+			if (nle != null && nle.startTime == sourceTimeFrame.getStartTime()) {
+				element.noteListElement = nle.clone();
+			}
 		}
 		reset();
 	}

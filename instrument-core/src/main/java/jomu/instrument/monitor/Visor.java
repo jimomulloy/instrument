@@ -39,6 +39,10 @@ public interface Visor extends AudioFeatureFrameObserver {
 
 	void updateChromaPostView(ToneMap toneMap);
 
+	void updateChromaSynthView(ToneMap toneMap, ToneTimeFrame ttf);
+
+	void updateChromaSynthView(ToneMap toneMap);
+
 	void updateSpectrumView(ToneTimeFrame toneTimeFrame, int windowSize);
 
 	void audioStopped();

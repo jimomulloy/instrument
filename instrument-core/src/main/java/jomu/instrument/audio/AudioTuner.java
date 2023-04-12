@@ -920,7 +920,7 @@ public class AudioTuner implements ToneMapConstants {
 		processedNotes.add(noteListElement);
 		LOG.finer(">>PROCESS NOTE ADDED NOTE DONE: " + noteStatusElement + ", " + noteStatusElement.offTime);
 
-		toneMap.trackNote(noteListElement);
+		toneMap.getNoteTracker().trackNote(noteListElement);
 		LOG.finer(">>PROCESS NOTE ADDED NOTE TRACKED");
 
 		// Add noteList element to noteList object

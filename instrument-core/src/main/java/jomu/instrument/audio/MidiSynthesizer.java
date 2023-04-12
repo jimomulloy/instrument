@@ -138,6 +138,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 	@Inject
 	Workspace workspace;
 
+	boolean synthesizerRunning = false;
+
 	public void onStartup(@Observes StartupEvent startupEvent) {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 
@@ -542,6 +544,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 		return saveMidiFile(file, trackSequence);
 	}
 
+	public boolean isSynthesizerRunning() {
+		return synthesizerRunning;
+	}
+
+	public void setSynthesizerRunning(boolean synthesizerRunning) {
+		LOG.severe(">>MidiSynthesizer running status: " + synthesizerRunning);
+		this.synthesizerRunning = synthesizerRunning;
+	}
+
 	private class MidiQueueConsumer implements Runnable {
 
 		private BlockingQueue<MidiQueueMessage> bq;
@@ -588,6 +599,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		@Override
 		public void run() {
+			MidiSynthesizer.this.setSynthesizerRunning(true);
 			boolean completed = false;
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
@@ -797,8 +809,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						masterFileName.substring(masterFileName.lastIndexOf(System.getProperty("file.separator"))));
 				instrumentSession.setOutputMidiFilePath(masterFileName);
 			}
-			LOG.severe(">>MidiQueueConsumer close stream");
+			LOG.severe(">>MidiQueueConsumer close and exit stream");
 			this.midiStream.close();
+			MidiSynthesizer.this.setSynthesizerRunning(false);
 		}
 
 		private String getTrackName(Track track) {
@@ -2473,10 +2486,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 			instrumentSession.setState(InstrumentSessionState.STOPPED);
 			MidiSynthesizer.this.reset();
-			if (controller.isCountDownLatch()) {
-				LOG.finer(">>MidiStream close controller");
-				controller.getCountDownLatch().countDown();
-			}
+			// if (controller.isCountDownLatch()) {
+			// LOG.finer(">>MidiStream close controller");
+			// controller.getCountDownLatch().countDown();
+			// }
 		}
 
 		public boolean isClosed() {

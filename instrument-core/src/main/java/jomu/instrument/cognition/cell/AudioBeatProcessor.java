@@ -28,9 +28,6 @@ public class AudioBeatProcessor extends ProcessorCommon {
 		BeatFeatures features = aff.getBeatFeatures();
 		features.buildToneMapFrame(toneMap);
 		BeatListElement beat = toneMap.getTimeFrame().getBeat();
-		if (beat != null) {
-			toneMap.trackBeat(beat);
-		}
 		console.getVisor().updateBeatsView(toneMap);
 		cell.send(streamId, sequence);
 	}
