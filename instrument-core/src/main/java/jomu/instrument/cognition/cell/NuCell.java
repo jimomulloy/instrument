@@ -8,6 +8,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
+
 public class NuCell extends Cell implements Serializable {
 
 	private static final Logger LOG = Logger.getLogger(NuCell.class.getName());
@@ -511,8 +513,7 @@ public class NuCell extends Cell implements Serializable {
 							processor.accept(entries);
 							LOG.finer(">>NuCell QueueConsumer processed: " + NuCell.this.getCellType());
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							throw new InstrumentException("NuCell QueueConsumer exception: " + e.getMessage(), e);
 						}
 						List<Integer> processed = new ArrayList<>();
 						for (int sequence : messageReceivedMap.get(qe.streamId)) {

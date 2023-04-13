@@ -241,7 +241,8 @@ public class Hearing implements Organ {
 		String baseDir = storage.getObjectStorage().getBasePath();
 		String folder = Paths
 				.get(baseDir,
-						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 				.toString();
 		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
 				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1

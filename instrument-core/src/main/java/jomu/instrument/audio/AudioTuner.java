@@ -19,6 +19,7 @@ import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.NoteListElement;
 import jomu.instrument.workspace.tonemap.NoteStatus;
 import jomu.instrument.workspace.tonemap.NoteStatusElement;
+import jomu.instrument.workspace.tonemap.NoteTimbre;
 import jomu.instrument.workspace.tonemap.OvertoneSet;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
@@ -1106,8 +1107,8 @@ public class AudioTuner implements ToneMapConstants {
 
 	private boolean isMatchingTimbre(ToneTimeFrame[] timeFrames, NoteListElement rootNote,
 			NoteListElement processedNote) {
-		processedNote.noteTimbre.buildTimbre(timeFrames);
-		rootNote.noteTimbre.buildTimbre(timeFrames);
+		processedNote.noteTimbre.buildTimbre(timeFrames, processedNote);
+		rootNote.noteTimbre.buildTimbre(timeFrames, rootNote);
 		return processedNote.noteTimbre.matches(rootNote.noteTimbre);
 	}
 
@@ -1319,17 +1320,24 @@ public class AudioTuner implements ToneMapConstants {
 			ToneMapElement toneMapElement = ttfElements[index];
 			if (toneMapElement == null || toneMapElement.amplitude == -1)
 				continue;
-			// TODO !! if (isMatchingTimbre(timeFrames, f0Element.noteListElement,
-			// toneMapElement.noteListElement)) {
-			difference += attenuate(toneMapElement, f0Element.amplitude, harmonic);
-			toneMapElement.addHarmonicWieght(n, toneMapElement.amplitude);
-			// }
+			if (isMatchingTimbre(toneMapElement, f0Element)) {
+				difference += attenuate(toneMapElement, f0Element.amplitude, harmonic);
+				toneMapElement.addHarmonicWieght(n, toneMapElement.amplitude);
+			}
 			n++;
 		}
 
 		if (harmonicAccumulateSwitch) {
 			f0Element.amplitude += difference;
 		}
+	}
+
+	private boolean isMatchingTimbre(ToneMapElement harmonicElement, ToneMapElement f0Element) {
+		NoteTimbre hnt = new NoteTimbre();
+		NoteTimbre rnt = new NoteTimbre();
+		hnt.buildTimbre(harmonicElement);
+		rnt.buildTimbre(f0Element);
+		return hnt.matches(rnt);
 	}
 
 	public void processOvertones(ToneTimeFrame toneTimeFrame, boolean peaks) {

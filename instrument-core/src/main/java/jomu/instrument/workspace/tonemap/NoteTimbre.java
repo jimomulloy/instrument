@@ -8,13 +8,8 @@ public class NoteTimbre {
 	public double frequency;
 	public double range;
 	public double median;
-	private NoteListElement noteListElement;
 
-	public NoteTimbre(NoteListElement noteListElement) {
-		this.noteListElement = noteListElement;
-	}
-
-	public void buildTimbre(ToneTimeFrame[] timeFrames) {
+	public void buildTimbre(ToneTimeFrame[] timeFrames, NoteListElement noteListElement) {
 		Map<Double, Double> microTones = new HashMap<>();
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
 			if (toneTimeFrame.getStartTime() > noteListElement.endTime / 1000.0) {
@@ -31,6 +26,26 @@ public class NoteTimbre {
 		frequency = buildFrequency(microTones);
 		range = buildRange(microTones);
 
+	}
+
+	public void buildTimbre(ToneTimeFrame timeFrames[], int pitchIndex) {
+		Map<Double, Double> microTones = new HashMap<>();
+		for (ToneTimeFrame toneTimeFrame : timeFrames) {
+			ToneMapElement toneMapElement = toneTimeFrame.getElement(pitchIndex);
+			microTones.putAll(toneMapElement.microTones.getMicroTones());
+		}
+		median = buildMedian(microTones);
+		frequency = buildFrequency(microTones);
+		range = buildRange(microTones);
+
+	}
+
+	public void buildTimbre(ToneMapElement toneMapElement) {
+		Map<Double, Double> microTones = new HashMap<>();
+		microTones.putAll(toneMapElement.microTones.getMicroTones());
+		median = buildMedian(microTones);
+		frequency = buildFrequency(microTones);
+		range = buildRange(microTones);
 	}
 
 	private double buildRange(Map<Double, Double> microTones) {
@@ -73,8 +88,8 @@ public class NoteTimbre {
 		return total / count;
 	}
 
-	public NoteTimbre clone(NoteListElement nleClone) {
-		NoteTimbre clone = new NoteTimbre(nleClone);
+	public NoteTimbre clone() {
+		NoteTimbre clone = new NoteTimbre();
 		return clone;
 	}
 

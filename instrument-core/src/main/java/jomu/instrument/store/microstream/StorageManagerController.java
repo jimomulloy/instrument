@@ -10,6 +10,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.Storage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
@@ -27,6 +28,9 @@ public class StorageManagerController {
 
 	@Inject
 	Storage instrumentStorage;
+
+	@Inject
+	ParameterManager parameterManager;
 
 	/**
 	 * Initialize storage manager on quarkus startup.

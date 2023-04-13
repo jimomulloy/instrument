@@ -1,5 +1,8 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * This class encapsulates an array of NoteStatusElements used by the TunerModel
  * execute function for processing the ToneMap and extracting a NoteList object
@@ -8,6 +11,8 @@ package jomu.instrument.workspace.tonemap;
  * @author Jim O'Mulloy
  */
 public class NoteStatus {
+
+	private static final Logger LOG = Logger.getLogger(NoteStatus.class.getName());
 
 	private int highNote;
 
@@ -45,7 +50,7 @@ public class NoteStatus {
 			index = note - lowNote;
 		} else {
 			// TODO !!
-			System.err.println(">> NoteStatus getNote error 1: " + lowNote + ", " + highNote + ", " + note + ", "
+			LOG.log(Level.SEVERE, ">> NoteStatus getNote error 1: " + lowNote + ", " + highNote + ", " + note + ", "
 					+ noteStatusElements.length + ", " + (note - lowNote));
 			return noteStatusElements[0];
 		}
@@ -54,7 +59,7 @@ public class NoteStatus {
 			return noteStatusElements[index];
 		} else {
 			// TODO !!
-			System.err.println(">> NoteStatus getNote error 2: " + lowNote + ", " + highNote + ", " + note + ", "
+			LOG.log(Level.SEVERE, ">> NoteStatus getNote error 2: " + lowNote + ", " + highNote + ", " + note + ", "
 					+ noteStatusElements.length + ", " + (note - lowNote));
 			return noteStatusElements[0];
 		}

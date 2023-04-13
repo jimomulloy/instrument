@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.store.InstrumentSession;
 import jomu.instrument.store.InstrumentSession.InstrumentSessionMode;
@@ -109,40 +110,23 @@ public class Controller implements Organ {
 	 * Checks the configured directories and creates them if they are not present.
 	 */
 	public void configureDirectories() {
-		String audioDirectory = parameterManager
-				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY);
-		String baseDir = storage.getObjectStorage().getBasePath();
 
-		if (!new File(audioDirectory).isAbsolute()) {
-			audioDirectory = FileUtils.combine(baseDir, audioDirectory);
-		}
-		LOG.finer("Creating directory: " + audioDirectory);
-		if (FileUtils.mkdirs(audioDirectory)) {
-			LOG.finer("Created directory: " + audioDirectory);
-		}
-		// Check if the directory is writable
-		if (!new File(audioDirectory).canWrite()) {
-			String message = "Required directory " + audioDirectory
-					+ " is not writable!\n Please configure another directory for '"
-					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY + "'.";
-			LOG.finer(message);
-			System.exit(-1);
-		}
+		String baseDir = storage.getObjectStorage().getBasePath();
 
 		String audioRecordDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY);
-		audioRecordDirectory = FileUtils.combine(audioDirectory, audioRecordDirectory);
-		LOG.finer("Creating directory: " + audioRecordDirectory);
+		audioRecordDirectory = FileUtils.combine(baseDir, audioRecordDirectory);
+		LOG.severe("Creating directory: " + audioRecordDirectory);
 		if (FileUtils.mkdirs(audioRecordDirectory)) {
-			LOG.finer("Created directory: " + audioRecordDirectory);
+			LOG.severe("Created directory: " + audioRecordDirectory);
 		}
 		// Check if the directory is writable
 		if (!new File(audioRecordDirectory).canWrite()) {
 			String message = "Required directory " + audioRecordDirectory
 					+ " is not writable!\n Please configure another directory for '"
 					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY + "'.";
-			LOG.finer(message);
-			System.exit(-1);
+			LOG.severe(message);
+			throw new InstrumentException(message);
 		}
 
 	}

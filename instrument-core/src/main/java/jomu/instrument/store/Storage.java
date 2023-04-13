@@ -6,6 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import jomu.instrument.Organ;
+import jomu.instrument.control.ParameterManager;
 
 @ApplicationScoped
 public class Storage implements Organ {
@@ -17,6 +18,9 @@ public class Storage implements Organ {
 
 	@Inject
 	ObjectStorage objectStorage;
+
+	@Inject
+	ParameterManager parameterManager;
 
 	@Override
 	public void initialise() {

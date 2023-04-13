@@ -7,6 +7,10 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+
+import io.quarkus.runtime.StartupEvent;
+import jomu.instrument.InstrumentException;
 
 @ApplicationScoped
 public class ParameterManager {
@@ -20,15 +24,25 @@ public class ParameterManager {
 	Properties parameters = new Properties();
 	ParameterValidator parameterValidator = new ParameterValidator();
 
+	public void onStartup(@Observes StartupEvent startupEvent) {
+		try {
+			reset();
+		} catch (IOException e) {
+			throw new InstrumentException("ParameterManager startup exception: " + e.getMessage(), e);
+		}
+	}
+
 	public void initialise() {
 	}
 
 	public void reset() throws FileNotFoundException, IOException {
+		LOG.severe("ParameterManager resetting..");
 		InputStream is = getClass().getClassLoader()
 				.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 		parameters.load(is);
 		InputStream isv = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
 		parameterValidator.load(isv);
+		LOG.severe("ParameterManager reset");
 	}
 
 	public String getParameter(String key) {

@@ -3,6 +3,7 @@ package jomu.instrument.cognition.cell;
 import java.util.List;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 
 public class Generator {
@@ -58,8 +59,7 @@ public class Generator {
 		case JUNCTION:
 			return createJunctionTypeCell();
 		default:
-			// TODO
-			return null;
+			throw new InstrumentException("NuCell createNuCell undefined type: " + cellType);
 		}
 	}
 

@@ -9,11 +9,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import one.microstream.storage.types.StorageManager;
 
 @ApplicationScoped
-//@Storage
 public class InstrumentStorage {
 
 	final List<ToneMap> toneMapList = new ArrayList<>();
@@ -74,8 +74,7 @@ public class InstrumentStorage {
 			try {
 				Instrument.getInstance().getController().getParameterManager().reset();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new InstrumentException("InstrumentStorage initialise exception: " + e.getMessage(), e);
 			}
 			this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
 			// getStorageManager().setRoot(root);

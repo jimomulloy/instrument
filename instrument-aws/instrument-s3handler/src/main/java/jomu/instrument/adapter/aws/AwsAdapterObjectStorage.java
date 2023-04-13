@@ -17,6 +17,8 @@ import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.StartupEvent;
+import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.ObjectStorage;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -46,6 +48,9 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 
 	@ConfigProperty(name = "instrument.bucket.name")
 	String bucketName;
+
+	@Inject
+	ParameterManager parameterManager;
 
 	private Map<String, String> environmentMap = new HashMap<String, String>();
 
@@ -123,6 +128,12 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 	@Override
 	public String getBasePath() {
 		return "/tmp";
+		//String basePath = parameterManager.getParameter(InstrumentParameterNames.STORAGE_OBJECT_STORE_BASE_PATH);
+		//if (basePath.equals("$user.home")) {
+		//	return System.getProperty("user.home");
+		//} else {
+		//	return basePath;
+		//}
 	}
 
 	protected PutObjectRequest buildPutRequest(String objectKey) {

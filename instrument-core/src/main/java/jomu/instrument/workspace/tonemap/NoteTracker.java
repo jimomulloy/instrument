@@ -134,24 +134,29 @@ public class NoteTracker {
 			if (noteListElement.isContinuation && noteListElement.note == lastNote.note) {
 				return track;
 			}
-			if (pitchProximity > noteListElement.note - lastNote.note) {
-				pitchProximity = noteListElement.note - lastNote.note;
-				pitchSalientTrack = track;
+			if (Math.abs(noteListElement.note - lastNote.note) <= 20) {
+				if (pitchProximity > noteListElement.note - lastNote.note) {
+					pitchProximity = noteListElement.note - lastNote.note;
+					pitchSalientTrack = track;
+				}
+				if (timeProximity > noteListElement.startTime - lastNote.endTime) {
+					timeProximity = noteListElement.startTime - lastNote.endTime;
+					timeSalientTrack = track;
+				}
+				// double timbreFactor = noteListElement.noteTimbre. - lastNote.endTime;
 			}
-			if (timeProximity > noteListElement.startTime - lastNote.endTime) {
-				timeProximity = noteListElement.startTime - lastNote.endTime;
-				timeSalientTrack = track;
+		}
+		if (pitchSalientTrack != null || timeSalientTrack != null) {
+			if (pitchSalientTrack == timeSalientTrack) {
+				return pitchSalientTrack;
 			}
-			// double timbreFactor = noteListElement.noteTimbre. - lastNote.endTime;
+			if ((noteListElement.note - timeSalientTrack.getLastNote().note) > 2
+					* (noteListElement.note - pitchSalientTrack.getLastNote().note)) {
+				return pitchSalientTrack;
+			}
+			return timeSalientTrack;
 		}
-		if (pitchSalientTrack == timeSalientTrack) {
-			return pitchSalientTrack;
-		}
-		if ((noteListElement.note - timeSalientTrack.getLastNote().note) > 2
-				* (noteListElement.note - pitchSalientTrack.getLastNote().note)) {
-			return pitchSalientTrack;
-		}
-		return timeSalientTrack;
+		return null;
 	}
 
 	private NoteTrack getPendingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
@@ -160,7 +165,7 @@ public class NoteTracker {
 		for (NoteTrack track : candidateTracks) {
 			NoteListElement lastNote = track.getLastNote();
 			NoteListElement penultimateNote = track.getPenultimateNote();
-			if (penultimateNote != null) {
+			if (penultimateNote != null && Math.abs(penultimateNote.note - noteListElement.note) <= 20) {
 				if (compareSalience(noteListElement, lastNote, penultimateNote)) {
 					salientTrack = track;
 				}

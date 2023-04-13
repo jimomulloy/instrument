@@ -740,9 +740,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (writeTrack && completed) {
 				InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 				String baseDir = storage.getObjectStorage().getBasePath();
-				String folder = Paths.get(baseDir,
-						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY),
-						parameterManager
+				String folder = Paths
+						.get(baseDir, parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 						.toString();
 				String masterFileName = folder + System.getProperty("file.separator")

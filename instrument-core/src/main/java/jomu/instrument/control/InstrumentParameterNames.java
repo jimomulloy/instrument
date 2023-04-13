@@ -4,6 +4,8 @@ public class InstrumentParameterNames {
 
 	public static final String CONTROL_PARAMETER_STYLE = "control.parameter.style";
 
+	public static final String STORAGE_OBJECT_STORE_BASE_PATH = "storage.objectStore.basePath";
+
 	public static final String PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS = "perception.hearing.minimumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS = "perception.hearing.maximumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL = "perception.hearing.audioFeatureInterval";
@@ -18,7 +20,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
-	public static final String PERCEPTION_HEARING_AUDIO_DIRECTORY = "perception.hearing.audioDirectory";
+	public static final String PERCEPTION_HEARING_AUDIO_SOURCE_DIRECTORY = "perception.hearing.audioSourceDirectory";
+	public static final String PERCEPTION_HEARING_AUDIO_DEFAULT_FILE = "perception.hearing.audioDefaultFile";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY = "perception.hearing.audioRecordDirectory";
 	public static final String PERCEPTION_HEARING_POWER_SQUARED_SWITCH = "perception.hearing.powerSquaredSwitch";
 	public static final String PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY = "perception.hearing.tonemap.minimumFrequency";

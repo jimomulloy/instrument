@@ -109,8 +109,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName());
 
-	private static String defaultAudioFile = "NOTETRACK49sec.wav";
-
 	LinkedPanel constantQPanel;
 
 	CQLayer cqLayer;
@@ -924,13 +922,13 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-		final JFileChooser fileChooser = new JFileChooser(new File(getAudioFileFolder()));
+		final JFileChooser fileChooser = new JFileChooser(new File(getAudioSourceFileFolder()));
 		chooseFileButton = new JButton("Open");
 		startFileProcessingButton = new JButton("Start");
 		startListeningButton = new JButton("Listen");
 		stopListeningButton = new JButton("Stop");
-
-		fileChooser.setSelectedFile(new File(getAudioFileFolder(), defaultAudioFile));
+		LOG.severe(">>Audio folder: " + getAudioSourceFileFolder());
+		fileChooser.setSelectedFile(new File(getAudioSourceFileFolder(), getDefaultAudioFile()));
 		chooseFileButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -1725,19 +1723,18 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		return panel;
 	}
 
-	private String getAudioFileFolder() {
-		String baseDir = storage.getObjectStorage().getBasePath();
-		return Paths
-				.get(baseDir,
-						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY))
-				.toString();
+	private String getAudioSourceFileFolder() {
+		return parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SOURCE_DIRECTORY);
+	}
+
+	private String getDefaultAudioFile() {
+		return parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DEFAULT_FILE);
 	}
 
 	private String getAudioRecordFileFolder() {
 		String baseDir = storage.getObjectStorage().getBasePath();
 		return Paths
 				.get(baseDir,
-						parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DIRECTORY),
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 				.toString();

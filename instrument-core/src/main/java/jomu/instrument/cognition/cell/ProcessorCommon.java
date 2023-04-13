@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.ParameterManager;
@@ -53,20 +54,18 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 		return (afp == null || (afp.isClosed() && afp.isLastSequence(sequence)));
 	}
 
-	final String getMessagesStreamId(List<NuMessage> messages) throws Exception {
+	final String getMessagesStreamId(List<NuMessage> messages) {
 		Optional<String> streamId = messages.stream().findAny().map(message -> message.streamId);
 		if (!streamId.isPresent()) {
-			// TODO exception handling in API
-			throw new Exception("Missing messages in: " + this.cell.getCellType());
+			throw new InstrumentException("Missing messages in: " + this.cell.getCellType());
 		}
 		return streamId.get();
 	}
 
-	final int getMessagesSequence(List<NuMessage> messages) throws Exception {
+	final int getMessagesSequence(List<NuMessage> messages) {
 		Optional<Integer> sequence = messages.stream().findAny().map(message -> message.sequence);
 		if (!sequence.isPresent()) {
-			// TODO exception handling in API
-			throw new Exception("Missing messages in: " + this.cell.getCellType());
+			throw new InstrumentException("Missing messages in: " + this.cell.getCellType());
 		}
 		return sequence.get();
 	}
