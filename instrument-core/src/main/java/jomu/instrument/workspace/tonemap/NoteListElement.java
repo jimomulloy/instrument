@@ -40,7 +40,6 @@ public class NoteListElement {
 		this.minAmp = minAmp;
 		this.percentMin = percentMin;
 		this.noteHarmonics = new NoteHarmonics();
-		this.noteTimbre = new NoteTimbre();
 		this.isContinuation = isContinuation;
 	}
 
@@ -48,8 +47,12 @@ public class NoteListElement {
 		NoteListElement clone = new NoteListElement(this.note, this.pitchIndex, this.startTime, this.endTime,
 				this.startTimeIndex, this.endTimeIndex, this.avgAmp, this.maxAmp, this.minAmp, this.percentMin,
 				this.isContinuation);
-		clone.noteHarmonics = noteHarmonics.clone();
-		clone.noteTimbre = noteTimbre.clone();
+		if (noteHarmonics != null) {
+			clone.noteHarmonics = noteHarmonics.clone();
+		}
+		if (noteTimbre != null) {
+			clone.noteTimbre = noteTimbre.clone();
+		}
 		return clone;
 	}
 

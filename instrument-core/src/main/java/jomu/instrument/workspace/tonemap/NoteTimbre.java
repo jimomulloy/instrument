@@ -9,6 +9,19 @@ public class NoteTimbre {
 	public double range;
 	public double median;
 
+	double frequencyRange = 1.0;
+	double frequencyRatio = 0.5;
+	double medianRange = 1.0;
+	double medianRatio = 0.5;
+
+	public NoteTimbre(double frequencyRange, double frequencyRatio, double medianRange, double medianRatio) {
+		super();
+		this.frequencyRange = frequencyRange;
+		this.frequencyRatio = frequencyRatio;
+		this.medianRange = medianRange;
+		this.medianRatio = medianRatio;
+	}
+
 	public void buildTimbre(ToneTimeFrame[] timeFrames, NoteListElement noteListElement) {
 		Map<Double, Double> microTones = new HashMap<>();
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
@@ -89,7 +102,10 @@ public class NoteTimbre {
 	}
 
 	public NoteTimbre clone() {
-		NoteTimbre clone = new NoteTimbre();
+		NoteTimbre clone = new NoteTimbre(frequencyRange, frequencyRatio, medianRange, medianRatio);
+		clone.median = median;
+		clone.frequency = frequency;
+		clone.range = range;
 		return clone;
 	}
 
@@ -103,10 +119,10 @@ public class NoteTimbre {
 		if (this.frequency == 0 && other.frequency != 0) {
 			return false;
 		}
-		double frequencyRatio = this.frequency / other.frequency;
-		if (frequencyRatio > 0.5 && frequencyRatio < 1.5) {
-			double medianRangeRatio = (this.range / this.median) / (other.range / other.median);
-			if (medianRangeRatio > 0.5 && medianRangeRatio < 1.5) {
+		double fr = this.frequency / other.frequency;
+		if (fr > frequencyRatio && fr < (frequencyRatio + frequencyRange)) {
+			double mr = (this.range / this.median) / (other.range / other.median);
+			if (mr > medianRatio && mr < (medianRatio + medianRange)) {
 				return true;
 			}
 		}

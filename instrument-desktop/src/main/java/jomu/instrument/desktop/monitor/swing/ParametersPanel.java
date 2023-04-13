@@ -203,6 +203,18 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField harmonicHighNoteInput;
 
+	private JTextField noteTimbreFrequencyRangeInput;
+
+	private JTextField noteTimbreFrequencyRatioInput;
+
+	private JTextField noteTimbreMedianRangeInput;
+
+	private JTextField noteTimbreMedianRatioInput;
+
+	private JCheckBox noteTimbreCQSwitchCB;
+
+	private JCheckBox noteTimbreNotateSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -626,6 +638,38 @@ public class ParametersPanel extends JPanel {
 		peakSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH));
 		tunerSwitchPanel.add(peakSwitchCB);
+
+		noteTimbreCQSwitchCB = new JCheckBox("noteTimbreCQSwitchCB");
+		noteTimbreCQSwitchCB.setText("Note Timbre CQ Switch");
+		noteTimbreCQSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		noteTimbreCQSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH));
+		tunerSwitchPanel.add(noteTimbreCQSwitchCB);
+
+		noteTimbreNotateSwitchCB = new JCheckBox("noteTimbreNotateSwitchCB");
+		noteTimbreNotateSwitchCB.setText("Note Timbre Notate Switch");
+		noteTimbreNotateSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		noteTimbreNotateSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH));
+		tunerSwitchPanel.add(noteTimbreNotateSwitchCB);
 
 		hpsMedianSwitchCB = new JCheckBox("hpsMedianSwitchCB");
 		hpsMedianSwitchCB.setText("HPS Median Switch");
@@ -2141,13 +2185,12 @@ public class ParametersPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				String newValue = harmonicHighNoteInput.getText();
 				harmonicHighNoteLabel.setText(String.format("Harmonic High Note  (%s):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE,
-						newValue);
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE, newValue);
 
 			}
 		});
-		harmonicHighNoteInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
+		harmonicHighNoteInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
 		cqParamsPanel.add(harmonicHighNoteLabel);
 		cqParamsPanel.add(harmonicHighNoteInput);
 
@@ -2631,6 +2674,72 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(tunerSignalMinimumLabel);
 		cqParamsPanel.add(tunerSignalMinimumInput);
 
+		JLabel noteTimbreFrequencyRangeLabel = new JLabel("Note Timbre Frequency Range: ");
+		noteTimbreFrequencyRangeInput = new JTextField(4);
+		noteTimbreFrequencyRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTimbreFrequencyRangeInput.getText();
+				noteTimbreFrequencyRangeLabel.setText(String.format("Note Timbre Frequency Range (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE,
+						newValue);
+
+			}
+		});
+		noteTimbreFrequencyRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE));
+		cqParamsPanel.add(noteTimbreFrequencyRangeLabel);
+		cqParamsPanel.add(noteTimbreFrequencyRangeInput);
+
+		JLabel noteTimbreFrequencyRatioLabel = new JLabel("Note Timbre Frequency Ratio: ");
+		noteTimbreFrequencyRatioInput = new JTextField(4);
+		noteTimbreFrequencyRatioInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTimbreFrequencyRatioInput.getText();
+				noteTimbreFrequencyRatioLabel.setText(String.format("Note Timbre Frequency Ratio (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RATIO,
+						newValue);
+
+			}
+		});
+		noteTimbreFrequencyRatioInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RATIO));
+		cqParamsPanel.add(noteTimbreFrequencyRatioLabel);
+		cqParamsPanel.add(noteTimbreFrequencyRatioInput);
+
+		JLabel noteTimbreMedianRangeLabel = new JLabel("Note Timbre Median Range: ");
+		noteTimbreMedianRangeInput = new JTextField(4);
+		noteTimbreMedianRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTimbreMedianRangeInput.getText();
+				noteTimbreMedianRangeLabel.setText(String.format("Note Timbre Median Range (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE, newValue);
+
+			}
+		});
+		noteTimbreMedianRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE));
+		cqParamsPanel.add(noteTimbreMedianRangeLabel);
+		cqParamsPanel.add(noteTimbreMedianRangeInput);
+
+		JLabel noteTimbreMedianRatioLabel = new JLabel("Note Timbre Median Ratio: ");
+		noteTimbreMedianRatioInput = new JTextField(4);
+		noteTimbreMedianRatioInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTimbreMedianRatioInput.getText();
+				noteTimbreMedianRatioLabel.setText(String.format("Note Timbre Median Ratio (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO, newValue);
+
+			}
+		});
+		noteTimbreMedianRatioInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO));
+		cqParamsPanel.add(noteTimbreMedianRatioLabel);
+		cqParamsPanel.add(noteTimbreMedianRatioInput);
+
 		JLabel notateCompressionLevelLabel = new JLabel("Notate Compression Level: ");
 		notateCompressionLevelInput = new JTextField(4);
 		notateCompressionLevelInput.addActionListener(new ActionListener() {
@@ -3059,8 +3168,8 @@ public class ParametersPanel extends JPanel {
 
 		harmonicLowNoteInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE));
-		harmonicHighNoteInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
+		harmonicHighNoteInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
 
 		notateCompressionLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION));
@@ -3182,5 +3291,17 @@ public class ParametersPanel extends JPanel {
 		selectStyleComboBox.setSelectedIndex(
 				getSelectStyleIndex(parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
 
+		noteTimbreFrequencyRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE));
+		noteTimbreFrequencyRatioInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RATIO));
+		noteTimbreMedianRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE));
+		noteTimbreMedianRatioInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO));
+		noteTimbreCQSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH));
+		noteTimbreNotateSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH));
 	}
 }

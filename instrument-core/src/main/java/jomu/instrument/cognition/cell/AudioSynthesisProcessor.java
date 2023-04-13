@@ -7,7 +7,7 @@ import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.TonePredictor;
+import jomu.instrument.workspace.tonemap.ToneSynthesiser;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioSynthesisProcessor extends ProcessorCommon {
@@ -44,9 +44,8 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
-		TonePredictor predictor = synthesisToneMap.getTonePredictor();
-		predictor.predictChord(synthesisFrame, cm, quantizeRange, quantizePercent);
-		predictor.predictNotes(synthesisFrame, cm, quantizeRange, quantizePercent);
+		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
+		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent);
 
 		console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());

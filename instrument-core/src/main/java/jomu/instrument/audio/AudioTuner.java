@@ -97,6 +97,18 @@ public class AudioTuner implements ToneMapConstants {
 	private int harmonicLowLimit;
 	private int harmonicHighLimit;
 
+	private double noteTimbreFrequencyRange;
+
+	private double noteTimbreFrequencyRatio;
+
+	private double noteTimbreMedianRange;
+
+	private double noteTimbreMedianRatio;
+
+	private boolean noteTimbreCQSwitch;
+
+	private boolean noteTimbreNotateSwitch;
+
 	private static int thresholdHysteresisBaseNote = 12;
 	private static double[][] thresholdHysteresis = new double[][] { { 0.5, 0.3 }, { 0.6, 0.3 }, { 0.8, 0.4 },
 			{ 1.0, 0.5 }, { 0.8, 0.3 }, { 0.6, 0.2 }, { 0.5, 0.1 }, { 0.3, 0.05 }, { 0.2, 0.05 }, { 0.1, 0.01 },
@@ -182,6 +194,19 @@ public class AudioTuner implements ToneMapConstants {
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW_FREQUENCY);
 		formantMidFreq = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY);
+
+		noteTimbreFrequencyRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE);
+		noteTimbreFrequencyRatio = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RATIO);
+		noteTimbreMedianRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE);
+		noteTimbreMedianRatio = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO);
+		noteTimbreCQSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH);
+		noteTimbreNotateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH);
 
 	}
 
@@ -1014,7 +1039,7 @@ public class AudioTuner implements ToneMapConstants {
 			if (!noteHarmonics.containsKey(processedNote.note)) {
 				// Should not happen
 				LOG.finer(">>SHOULD NOT HAPPEN: " + nle + ",  " + processedNote);
-			} else if (!isMatchingTimbre(timeFrames, processedNote, nle)) {
+			} else if (noteTimbreNotateSwitch && !isMatchingTimbre(timeFrames, processedNote, nle)) {
 				LOG.severe(">>attenuateHarmonics NON - MatchingTimbre: " + nle.note + ", " + processedNote.note);
 				noteHarmonics.remove(processedNote.note);
 				if (noteHarmonics.isEmpty()) {
@@ -1103,13 +1128,6 @@ public class AudioTuner implements ToneMapConstants {
 			// nle.percentMin = percentMin;
 			// }
 		}
-	}
-
-	private boolean isMatchingTimbre(ToneTimeFrame[] timeFrames, NoteListElement rootNote,
-			NoteListElement processedNote) {
-		processedNote.noteTimbre.buildTimbre(timeFrames, processedNote);
-		rootNote.noteTimbre.buildTimbre(timeFrames, rootNote);
-		return processedNote.noteTimbre.matches(rootNote.noteTimbre);
 	}
 
 	private void attenuateUndertones(ToneTimeFrame[] timeFrames, Set<NoteListElement> underTones,
@@ -1320,7 +1338,7 @@ public class AudioTuner implements ToneMapConstants {
 			ToneMapElement toneMapElement = ttfElements[index];
 			if (toneMapElement == null || toneMapElement.amplitude == -1)
 				continue;
-			if (isMatchingTimbre(toneMapElement, f0Element)) {
+			if (!noteTimbreCQSwitch || isMatchingTimbre(toneMapElement, f0Element)) {
 				difference += attenuate(toneMapElement, f0Element.amplitude, harmonic);
 				toneMapElement.addHarmonicWieght(n, toneMapElement.amplitude);
 			}
@@ -1333,11 +1351,26 @@ public class AudioTuner implements ToneMapConstants {
 	}
 
 	private boolean isMatchingTimbre(ToneMapElement harmonicElement, ToneMapElement f0Element) {
-		NoteTimbre hnt = new NoteTimbre();
-		NoteTimbre rnt = new NoteTimbre();
+		NoteTimbre hnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
+				noteTimbreMedianRatio);
+		NoteTimbre rnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
+				noteTimbreMedianRatio);
 		hnt.buildTimbre(harmonicElement);
 		rnt.buildTimbre(f0Element);
 		return hnt.matches(rnt);
+	}
+
+	private boolean isMatchingTimbre(ToneTimeFrame[] timeFrames, NoteListElement rootNote,
+			NoteListElement processedNote) {
+		NoteTimbre pnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
+				noteTimbreMedianRatio);
+		NoteTimbre rnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
+				noteTimbreMedianRatio);
+		processedNote.noteTimbre = pnt;
+		rootNote.noteTimbre = rnt;
+		processedNote.noteTimbre.buildTimbre(timeFrames, processedNote);
+		rootNote.noteTimbre.buildTimbre(timeFrames, rootNote);
+		return processedNote.noteTimbre.matches(rootNote.noteTimbre);
 	}
 
 	public void processOvertones(ToneTimeFrame toneTimeFrame, boolean peaks) {

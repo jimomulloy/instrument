@@ -241,7 +241,7 @@ public class ChromaView extends JComponent implements ComponentListener {
 
 			if (showSynthesis && !isPreview) {
 
-				Optional<ChordListElement> chord = toneMap.getTonePredictor().getChord(ttf.getStartTime());
+				Optional<ChordListElement> chord = toneMap.getToneSynthesiser().getChord(ttf.getStartTime());
 
 				Color color = Color.black;
 				if (chord.isPresent()) {

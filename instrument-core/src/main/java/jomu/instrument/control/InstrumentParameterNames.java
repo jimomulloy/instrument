@@ -189,6 +189,12 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS = "audio.tuner.noteScan.attenuateHarmonicsSwitch";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES = "audio.tuner.noteScan.attenuateUndertonesSwitch";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES = "audio.tuner.noteScan.attenuateSemitonesSwitch";
+	public static final String AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE = "audio.tuner.timbre.frequencyRange";
+	public static final String AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RATIO = "audio.tuner.timbre.frequencyRatio";
+	public static final String AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE = "audio.tuner.timbre.medianRange";
+	public static final String AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO = "audio.tuner.timbre.medianRatio";
+	public static final String AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH = "audio.tuner.timbre.cqSwitch";
+	public static final String AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH = "audio.tuner.timbre.notateSwitch";
 
 	public static final String MONITOR_VIEW_TIME_AXIS_OFFSET = "monitor.view.timeAxisOffset";
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";

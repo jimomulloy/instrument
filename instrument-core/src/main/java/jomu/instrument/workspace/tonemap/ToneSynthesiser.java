@@ -7,22 +7,17 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
-public class TonePredictor {
+public class ToneSynthesiser {
 
-	private static final Logger LOG = Logger.getLogger(TonePredictor.class.getName());
+	private static final Logger LOG = Logger.getLogger(ToneSynthesiser.class.getName());
 
 	ConcurrentSkipListMap<Double, Map<Integer, NoteListElement>> notes = new ConcurrentSkipListMap<>();
 	ConcurrentSkipListMap<Double, ChordListElement> chords = new ConcurrentSkipListMap<>();
 
-	private String key;
+	private ToneMap toneMap;
 
-	public TonePredictor(String key) {
-		LOG.finer(">>Tone Predictor create");
-		this.key = key;
-	}
-
-	public String getKey() {
-		return key;
+	public ToneSynthesiser(ToneMap toneMap) {
+		this.toneMap = toneMap;
 	}
 
 	public void addNote(NoteListElement nle) {
@@ -39,13 +34,28 @@ public class TonePredictor {
 		chords.put(cle.startTime, cle);
 	}
 
-	public void predictNotes(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
+	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
+			double quantizePercent) {
+		fillChord(targetFrame);
+		fillNotes(targetFrame);
+		quantizeChord(targetFrame, calibrationMap, quantizeRange, quantizePercent);
+		quantizeNotes(targetFrame, calibrationMap, quantizeRange, quantizePercent);
+	}
+
+	private void fillNotes(ToneTimeFrame targetFrame) {
+
+	}
+
+	private void quantizeNotes(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent) {
 
 	}
 
-	public void predictChord(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
+	private void quantizeChord(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent) {
+	}
+
+	private void fillChord(ToneTimeFrame targetFrame) {
 		if (chords.isEmpty()) {
 			return;
 		}
