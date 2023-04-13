@@ -83,6 +83,16 @@ public class NoteTracker {
 			return number == other.number;
 		}
 
+		public String printNotes() {
+			int i = 0;
+			for (NoteListElement note : notes) {
+				i++;
+				LOG.severe("NT track notes: " + number + ", " + i + ", " + note);
+			}
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	public NoteTracker(ToneMap toneMap) {
@@ -117,10 +127,14 @@ public class NoteTracker {
 	public NoteTrack getTrack(NoteListElement noteListElement) {
 		NoteTrack result = null;
 		for (NoteTrack track : tracks) {
+			track.printNotes();
+			LOG.severe("NT get track: " + track.number + ", " + noteListElement);
 			if (track.hasNote(noteListElement)) {
+				LOG.severe("NT HAS track: " + track.number);
 				return track;
 			}
 		}
+		LOG.severe("NT NO track: " + noteListElement);
 		return result;
 	}
 
@@ -218,6 +232,11 @@ public class NoteTracker {
 		NoteTrack track = new NoteTrack(tracks.size() + 1);
 		tracks.add(track);
 		return track;
+	}
+
+	public void moveNote(NoteListElement nle) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

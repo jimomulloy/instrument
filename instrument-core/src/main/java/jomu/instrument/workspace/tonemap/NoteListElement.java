@@ -1,6 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * This class defines the fields of the elements contained in the NoteList
@@ -11,6 +12,7 @@ import java.util.Objects;
  */
 public class NoteListElement {
 
+	public String id;
 	public double avgAmp;
 	public double endTime;
 	public int endTimeIndex;
@@ -29,6 +31,7 @@ public class NoteListElement {
 
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin, boolean isContinuation) {
+		this.id = UUID.randomUUID().toString();
 		this.note = note;
 		this.pitchIndex = pitchIndex;
 		this.startTime = startTime;
@@ -58,9 +61,9 @@ public class NoteListElement {
 
 	@Override
 	public String toString() {
-		return "NoteListElement [avgAmp=" + avgAmp + ", endTime=" + endTime + ", endTimeIndex=" + endTimeIndex
-				+ ", maxAmp=" + maxAmp + ", minAmp=" + minAmp + ", note=" + note + ", overTone=" + overTone
-				+ ", percentMin=" + percentMin + ", pitchIndex=" + pitchIndex + ", startTime=" + startTime
+		return "NoteListElement [id=" + id + ", avgAmp=" + avgAmp + ", endTime=" + endTime + ", endTimeIndex="
+				+ endTimeIndex + ", maxAmp=" + maxAmp + ", minAmp=" + minAmp + ", note=" + note + ", overTone="
+				+ overTone + ", percentMin=" + percentMin + ", pitchIndex=" + pitchIndex + ", startTime=" + startTime
 				+ ", startTimeIndex=" + startTimeIndex + ", underTone=" + underTone + "]";
 	}
 

@@ -1,5 +1,6 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,8 +27,18 @@ public class ToneSynthesiser {
 			noteMap = notes.get(nle.startTime);
 		} else {
 			noteMap = new HashMap<>();
+			notes.put(nle.startTime, noteMap);
 		}
 		noteMap.put(nle.note, nle);
+	}
+
+	public void removeNote(NoteListElement nle) {
+		Map<Integer, NoteListElement> noteMap;
+		if (notes.containsKey(nle.startTime)) {
+			noteMap = notes.get(nle.startTime);
+			noteMap.remove(nle.note);
+			LOG.severe("TS REMOVE NOTE: " + nle);
+		}
 	}
 
 	public void addChord(ChordListElement cle) {
@@ -36,19 +47,93 @@ public class ToneSynthesiser {
 
 	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent) {
+		ChordListElement chord = targetFrame.getChord();
+		if (chord != null) {
+			addChord(targetFrame.getChord());
+		}
+		addNotes(targetFrame);
 		fillChord(targetFrame);
 		fillNotes(targetFrame);
 		quantizeChord(targetFrame, calibrationMap, quantizeRange, quantizePercent);
 		quantizeNotes(targetFrame, calibrationMap, quantizeRange, quantizePercent);
 	}
 
+	private void addNotes(ToneTimeFrame targetFrame) {
+		ToneMapElement[] elements = targetFrame.getElements();
+		Double time = targetFrame.getStartTime();
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			ToneMapElement element = elements[elementIndex];
+			NoteListElement nle = element.noteListElement;
+			if (nle != null && time * 1000 == nle.startTime) {
+				addNote(nle);
+				toneMap.getNoteTracker().trackNote(nle);
+			}
+		}
+	}
+
 	private void fillNotes(ToneTimeFrame targetFrame) {
 
 	}
 
-	private void quantizeNotes(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
+	private void quantizeNotes(ToneTimeFrame sourceFrame, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent) {
+		Double time = sourceFrame.getStartTime();
+		NoteListElement[] sourceNotes = getNotes(time * 1000);
+		double beatTime = calibrationMap.getBeatTime(sourceFrame.getStartTime(), quantizeRange);
+		if (beatTime != 0) {
+			double targetTime = 0;
+			if (time > beatTime) {
+				targetTime = time - (time - beatTime) * (quantizePercent / 100.0);
+			} else {
+				targetTime = time + (beatTime - time) * (quantizePercent / 100.0);
+			}
+			if (Math.abs(time - targetTime) > 0.1) {
+				LOG.severe(">>TS Quant notes in range: " + sourceNotes.length + ", " + time + ", " + targetTime);
+				for (NoteListElement nle : sourceNotes) {
+					if (nle.endTime / 1000 > targetTime) {
+						quantizeNote(nle, targetTime, sourceFrame);
+					}
+				}
+			}
+		}
+	}
 
+	private void quantizeNote(NoteListElement nle, double targetTime, ToneTimeFrame sourceFrame) {
+		LOG.severe(">>TS Quant note restart: " + nle.startTime + ", " + targetTime * 1000);
+		removeNote(nle);
+		// nle.startTime = targetTime * 1000;
+		addNote(nle);
+		int index = nle.pitchIndex;
+		ToneTimeFrame frame = sourceFrame;
+		double time = frame.getStartTime();
+		ToneMapElement element = frame.getElement(index);
+		if (time < targetTime) {
+			while (time < targetTime && frame != null) {
+				element.noteListElement = null;
+				element.noteState = ToneMapConstants.OFF;
+				LOG.severe(">>TS Quant note clear UP: " + time + ", " + targetTime);
+				frame = toneMap.getNextTimeFrame(time);
+				if (frame != null) {
+					time = frame.getStartTime();
+					element = frame.getElement(index);
+					element.noteState = ToneMapConstants.START;
+				}
+			}
+		} else {
+			while (time > targetTime && frame != null) {
+				element.noteListElement = nle;
+				int state = element.noteState;
+				frame = toneMap.getPreviousTimeFrame(time);
+				LOG.severe(">>TS Quant note clear DOWN: " + time + ", " + targetTime);
+				if (frame != null) {
+					time = frame.getStartTime();
+					element = frame.getElement(index);
+					element.noteState = state;
+				}
+			}
+		}
+		element.noteState = ToneMapConstants.START;
+		toneMap.getNoteTracker().moveNote(nle);
 	}
 
 	private void quantizeChord(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
@@ -114,7 +199,14 @@ public class ToneSynthesiser {
 	}
 
 	public NoteListElement[] getNotes(double time) {
-		return notes.get(time).values().toArray(new NoteListElement[notes.get(time).values().size()]);
+		LOG.severe("TS GET NOTES : " + time + ", " + notes.size());
+		if (notes.containsKey(time)) {
+			Collection<NoteListElement> values = notes.get(time).values();
+			LOG.severe("TS GOT NOTES : " + time + ", " + values.size());
+			return values.toArray(new NoteListElement[values.size()]);
+		} else {
+			return new NoteListElement[0];
+		}
 	}
 
 	public boolean hasChord(double time) {

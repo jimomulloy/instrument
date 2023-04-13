@@ -1342,15 +1342,6 @@ public class ToneTimeFrame {
 		return octave;
 	}
 
-	public void setChord(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
-		chordNotes.clear();
-		ChordListElement chord = sourceTimeFrame.getChord();
-		if (chord != null) {
-			chordNotes.addAll(chord.getChordNotes());
-			toneMap.getChordTracker().trackChord(chord);
-		}
-	}
-
 	public BeatListElement getBeat() {
 		BeatListElement beatListElement = null;
 		if (beatAmplitude > AMPLITUDE_FLOOR) {
@@ -1386,19 +1377,15 @@ public class ToneTimeFrame {
 			element.amplitude += ses[elementIndex].amplitude;
 		}
 		reset();
+
 	}
 
-	public void addNotes(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
-		ToneMapElement[] ses = sourceTimeFrame.getElements();
-		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
-			ToneMapElement element = elements[elementIndex];
-			NoteListElement nle = ses[elementIndex].noteListElement;
-			if (nle != null && nle.startTime == sourceTimeFrame.getStartTime() * 1000) {
-				element.noteListElement = nle.clone();
-				toneMap.getNoteTracker().trackNote(element.noteListElement);
-			}
+	public void setChord(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
+		chordNotes.clear();
+		ChordListElement chord = sourceTimeFrame.getChord();
+		if (chord != null) {
+			chordNotes.addAll(chord.getChordNotes());
 		}
-		reset();
 	}
 
 }

@@ -41,7 +41,7 @@ public class ToneMapElement {
 		clone.noteState = this.noteState;
 		clone.isPeak = this.isPeak;
 		if (this.noteListElement != null) {
-			clone.noteListElement = this.noteListElement.clone();
+			clone.noteListElement = this.noteListElement;
 		}
 		clone.microTones = microTones.clone();
 		return clone;

@@ -33,24 +33,17 @@ public class ToneMap {
 
 	private NoteTracker noteTracker;
 
-	private ChordTracker chordTracker;
-
 	private ToneSynthesiser toneSynthesiser;
 
 	public ToneMap(String key) {
 		this.key = key;
 		toneMapStore = new ConcurrentSkipListMap<>();
 		noteTracker = new NoteTracker(this);
-		chordTracker = new ChordTracker(this);
 		toneSynthesiser = new ToneSynthesiser(this);
 	}
 
 	public NoteTracker getNoteTracker() {
 		return noteTracker;
-	}
-
-	public ChordTracker getChordTracker() {
-		return chordTracker;
 	}
 
 	public ToneSynthesiser getToneSynthesiser() {
