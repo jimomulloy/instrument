@@ -16,11 +16,7 @@ public class ToneTimeFrame {
 
 	private static final Logger LOG = Logger.getLogger(ToneTimeFrame.class.getName());
 
-	public final static int INIT_PITCH_HIGH = 72;
-	public final static int INIT_PITCH_LOW = 36;
 	public final static double AMPLITUDE_FLOOR = 1E-7;
-	public static final boolean LOGAMP = true;
-	public static final boolean POWERAMP = false;
 
 	private static AdaptiveWhitenConfig[] adaptiveWhitenConfigs = new AdaptiveWhitenConfig[] {
 			new AdaptiveWhitenConfig(0, 23, 50, 1.0, 1.0, 1.0), new AdaptiveWhitenConfig(24, 35, 50, 1.0, 1.0, 1.0),

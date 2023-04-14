@@ -15,8 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -557,8 +555,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					frameNumberInput.setText("1");
 				}
 				showFrame(Integer.valueOf(newValue));
-				// parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
-				// newValue);
 			}
 		});
 		frameNumberInput.setText("0");
@@ -605,27 +601,13 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		timeAxisOffsetInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (parseIntegerTextField((JTextField) e.getSource(), 0, 60000,
-						InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET)) {
-					refreshMapViews();
-					switchToneMapView();
-				}
-			}
-		});
-
-		timeAxisOffsetInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				if (parseIntegerTextField((JTextField) e.getSource(), 0, 60000,
-						InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET)) {
-					refreshMapViews();
-					switchToneMapView();
-				}
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
+						newValue);
+				textField.setText(newValue);
+				refreshMapViews();
+				switchToneMapView();
 			}
 		});
 
@@ -642,23 +624,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
+						newValue);
+				textField.setText(newValue);
 				refreshMapViews();
-			}
-		});
-
-		pitchAxisOffsetInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET, newValue);
-				refreshMapViews();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
 			}
 		});
 
@@ -674,23 +643,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE,
+						newValue);
+				textField.setText(newValue);
 				refreshMapViews();
 
-			}
-		});
-		timeAxisRangeInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, newValue);
-				refreshMapViews();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
 			}
 		});
 		timeAxisRangeInput
@@ -705,24 +662,13 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE,
+						newValue);
+				textField.setText(newValue);
 				refreshMapViews();
 			}
 		});
-		pitchAxisRangeInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, newValue);
-				refreshMapViews();
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		pitchAxisRangeInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
 		graphControlPanel.add(pitchAxisRangeLabel);
@@ -827,24 +773,13 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD,
+						newValue);
+				textField.setText(newValue);
 				refreshMapViews();
 			}
 		});
-		toneMapViewLowThresholdInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD, newValue);
-				refreshMapViews();
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		toneMapViewLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD));
 		graphControlPanel.add(toneMapViewLowThresholdLabel);
@@ -857,24 +792,13 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD,
+						newValue);
+				textField.setText(newValue);
 				refreshMapViews();
 			}
 		});
-		toneMapViewHighThresholdInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD, newValue);
-				refreshMapViews();
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		toneMapViewHighThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 		graphControlPanel.add(toneMapViewHighThresholdLabel);
@@ -898,7 +822,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		refreshMapViews();
 	}
 
-	protected boolean parseIntegerTextField(JTextField textField, int min, int max, String parameterName) {
+	protected boolean parseIntsegerTextField(JTextField textField, int min, int max, String parameterName) {
 		try {
 			int value = Integer.parseInt(textField.getText());
 			if (value >= min && value <= max) {
@@ -1108,24 +1032,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL,
-						newValue);
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL, newValue);
+				textField.setText(newValue);
 			}
 		});
-		audioFeatureIntervalInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL,
-						newValue);
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		audioFeatureIntervalInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL));
 		actionPanel.add(audioFeatureIntervalLabel);
@@ -1138,22 +1050,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET,
+						newValue);
+				textField.setText(newValue);
 			}
 		});
-		audioOffsetInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET, newValue);
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		audioOffsetInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET));
 		actionPanel.add(audioOffsetLabel);
@@ -1166,22 +1068,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE,
+						newValue);
+				textField.setText(newValue);
 			}
 		});
-		audioRangeInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE, newValue);
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
 		actionPanel.add(audioRangeLabel);
 		actionPanel.add(audioRangeInput);
@@ -1192,9 +1084,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = hearingMinFreqCentsInput.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS,
-						newValue);
-
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS, newValue);
+				hearingMinFreqCentsInput.setText(newValue);
 			}
 		});
 		hearingMinFreqCentsInput.setText(
@@ -1208,9 +1100,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = hearingMaxFreqCentsInput.getText();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS,
-						newValue);
-
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS, newValue);
+				hearingMaxFreqCentsInput.setText(newValue);
 			}
 		});
 		hearingMaxFreqCentsInput.setText(
@@ -1377,23 +1269,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = voicePlayerDelayInput.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY, newValue);
-
+				newValue = parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY, newValue);
+				voicePlayerDelayInput.setText(newValue);
 			}
 		});
-		voicePlayerDelayInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY, newValue);
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		voicePlayerDelayInput.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));
 		voicePanel.add(voicePlayerDelayLabel);
 		voicePanel.add(voicePlayerDelayInput);
@@ -1405,24 +1285,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD, newValue);
-
+				newValue = parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD,
+						newValue);
+				voicePlayerLowThresholdInput.setText(newValue);
 			}
 		});
 
-		voicePlayerLowThresholdInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD, newValue);
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		voicePlayerLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD));
 		voicePanel.add(voicePlayerLowThresholdLabel);
@@ -1435,22 +1303,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD,
+						newValue);
+				voicePlayerHighThresholdInput.setText(newValue);
 			}
 		});
-		voicePlayerHighThresholdInput.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				JTextField textField = (JTextField) e.getSource();
-				String newValue = textField.getText();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD, newValue);
-			}
 
-			public void keyTyped(KeyEvent e) {
-			}
-
-			public void keyPressed(KeyEvent e) {
-			}
-		});
 		voicePlayerHighThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD));
 		voicePanel.add(voicePlayerHighThresholdLabel);

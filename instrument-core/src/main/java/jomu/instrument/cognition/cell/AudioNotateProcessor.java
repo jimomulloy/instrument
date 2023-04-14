@@ -32,15 +32,20 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION);
 		boolean notateSwitchCompress = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS);
+		boolean notateApplyFormantsSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_APPLY_FORMANTS_SWITCH);
 		int noteMaxDuration = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION);
 
 		ToneMap integrateToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		ToneTimeFrame timeFrame = integrateToneMap.getTimeFrame(sequence).clone();
-		notateToneMap.addTimeFrame(timeFrame);
+		ToneTimeFrame timeFrame = notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
 
 		AudioTuner tuner = new AudioTuner();
+
+		if (notateApplyFormantsSwitch) {
+			tuner.applyFormants(timeFrame);
+		}
 
 		tuner.noteScan(notateToneMap, sequence);
 		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());

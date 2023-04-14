@@ -142,11 +142,8 @@ public class InstrumentParameterNames {
 
 	public static final String PERCEPTION_HEARING_NOTATE_COMPRESSION = "perception.hearing.notate.compression";
 	public static final String PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS = "perception.hearing.notate.compressionSwitch";
+	public static final String PERCEPTION_HEARING_NOTATE_APPLY_FORMANTS_SWITCH = "perception.hearing.notate.applyFormantsSwitch";
 
-	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
-	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHighSetting";
-	public static final String AUDIO_TUNER_FORMANT_LOW = "audio.tuner.formantLowSetting";
-	public static final String AUDIO_TUNER_FORMANT_MIDDLE = "audio.tuner.formantMiddleSetting";
 	public static final String AUDIO_TUNER_N1_SETTING = "audio.tuner.n1Setting";
 	public static final String AUDIO_TUNER_N2_SETTING = "audio.tuner.n2Setting";
 	public static final String AUDIO_TUNER_N3_SETTING = "audio.tuner.n3Setting";
@@ -184,6 +181,7 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_PEAK_SWITCH = "audio.tuner.peakSwitch";
 	public static final String AUDIO_TUNER_PITCH_HIGH = "audio.tuner.pitchHigh";
 	public static final String AUDIO_TUNER_PITCH_LOW = "audio.tuner.pitchLow";
+	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
 	public static final String AUDIO_TUNER_FORMANT_HIGH_FREQUENCY = "audio.tuner.formantHighFreq";
 	public static final String AUDIO_TUNER_FORMANT_LOW_FREQUENCY = "audio.tuner.formantLowFreq";
 	public static final String AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY = "audio.tuner.formantMidFreq";

@@ -34,10 +34,6 @@ public class AudioTuner implements ToneMapConstants {
 
 	private static final double MIN_AMPLITUDE = ToneTimeFrame.AMPLITUDE_FLOOR;
 	private static final double HARMONIC_VARIANCE = 10;
-	private int formantFactor = 0;
-	private int formantHighSetting = 100;
-	private int formantLowSetting = 0;
-	private int formantMiddleSetting = 50;
 
 	private int n1Setting = 10;
 	private boolean n1Switch;
@@ -87,9 +83,10 @@ public class AudioTuner implements ToneMapConstants {
 	private double formantHighFreq;
 	private double formantLowFreq;
 	private double formantMidFreq;
+	private double formantRange;
+	private double formantFactor;
 
 	// private NoteList noteList;
-	private double[][] formants;
 	private double[] harmonics;
 	private OvertoneSet overtoneSet;
 	private ParameterManager parameterManager;
@@ -121,8 +118,6 @@ public class AudioTuner implements ToneMapConstants {
 		initParameters();
 		initOvertoneSet();
 		harmonics = overtoneSet.getHarmonics();
-		formants = overtoneSet.getFormants();
-		initFormants();
 	}
 
 	private void initParameters() {
@@ -131,10 +126,6 @@ public class AudioTuner implements ToneMapConstants {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE);
 		harmonicHighLimit = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE);
-		formantFactor = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR);
-		formantHighSetting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH);
-		formantLowSetting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW);
-		formantMiddleSetting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE);
 		n1Setting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SETTING);
 		n2Setting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SETTING);
 		n3Setting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SETTING);
@@ -194,6 +185,8 @@ public class AudioTuner implements ToneMapConstants {
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW_FREQUENCY);
 		formantMidFreq = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY);
+		formantRange = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE);
+		formantFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR);
 
 		noteTimbreFrequencyRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE);
@@ -730,7 +723,10 @@ public class AudioTuner implements ToneMapConstants {
 	// Apply formant conversion to ToneMapMatrix element data
 	private void applyFormant(ToneMapElement element, int note) {
 
-		if (formantMidFreq < formantLowFreq || formantMidFreq > formantHighFreq)
+		if (formantLowFreq > formantMidFreq || formantLowFreq > formantHighFreq || formantMidFreq > formantHighFreq)
+			return;
+
+		if (formantMidFreq - formantRange / 2 < formantLowFreq || formantMidFreq + formantRange / 2 > formantHighFreq)
 			return;
 
 		double noteFreq = PitchSet.getMidiFreq(note);
@@ -738,13 +734,16 @@ public class AudioTuner implements ToneMapConstants {
 		if (noteFreq < formantLowFreq || noteFreq > formantHighFreq)
 			return;
 
-		if (noteFreq <= formantMidFreq) {
-			element.amplitude = element.amplitude * (1.0
-					- ((formantFactor / 100.0) * ((noteFreq - formantLowFreq) / (formantMidFreq - formantLowFreq))));
+		if (noteFreq <= (formantMidFreq - formantRange / 2)) {
+			element.amplitude = element.amplitude * (1.0 - ((formantFactor / 100.0)
+					* ((noteFreq - formantLowFreq) / ((formantMidFreq - formantRange / 2) - formantLowFreq))));
+
+		} else if (noteFreq >= (formantMidFreq + formantRange / 2)) {
+			element.amplitude = element.amplitude * (1.0 - ((formantFactor / 100.0)
+					* ((formantHighFreq - noteFreq) / (formantHighFreq - (formantMidFreq + formantRange / 2)))));
 
 		} else {
-			element.amplitude = element.amplitude * (1.0
-					- ((formantFactor / 100.0) * ((formantHighFreq - noteFreq) / (formantHighFreq - formantMidFreq))));
+			element.amplitude = element.amplitude * (1.0 - ((formantFactor / 100.0)));
 
 		}
 	}
@@ -766,18 +765,6 @@ public class AudioTuner implements ToneMapConstants {
 			difference = overToneData;
 		}
 		return difference;
-	}
-
-	private void initFormants() {
-
-		formantLowFreq = PitchSet.getMidiFreq(getLowPitch()) + (formantLowSetting / 100.0)
-				* (PitchSet.getMidiFreq(getHighPitch()) - PitchSet.getMidiFreq(getLowPitch()));
-
-		formantHighFreq = PitchSet.getMidiFreq(getLowPitch()) + (formantHighSetting / 100.0)
-				* (PitchSet.getMidiFreq(getHighPitch()) - PitchSet.getMidiFreq(getLowPitch()));
-		formantMidFreq = PitchSet.getMidiFreq(getLowPitch()) + (formantMiddleSetting / 100.0)
-				* (PitchSet.getMidiFreq(getHighPitch()) - PitchSet.getMidiFreq(getLowPitch()));
-
 	}
 
 	private void initOvertoneSet() {

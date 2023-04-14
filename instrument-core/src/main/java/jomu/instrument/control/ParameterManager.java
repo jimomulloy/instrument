@@ -53,9 +53,13 @@ public class ParameterManager {
 		return parameters.getProperty(key) != null;
 	}
 
-	public void setParameter(String key, String value) {
-		if (parameterValidator.validate(key)) {
+	public String setParameter(String key, String value) {
+		if (parameterValidator.validate(key, value)) {
 			parameters.setProperty(key, value);
+			return value;
+		} else {
+			LOG.severe("Invalid parameter: " + key + ", " + value);
+			return parameters.getProperty(key);
 		}
 	}
 
@@ -149,11 +153,17 @@ public class ParameterManager {
 
 		Properties validatorProperties = new Properties();
 
-		public boolean validate(String name) {
-			String value = validatorProperties.getProperty(name);
-			if (value != null) {
+		public boolean validate(String name, String value) {
+			String validateValue = validatorProperties.getProperty(name);
+			if (validateValue != null) {
 				try {
-					return true;
+					if (isRange(validateValue)) {
+						return validateRange(validateValue, value);
+					} else if (isOptions(validateValue)) {
+						return validateOptions(validateValue, value);
+					} else {
+						return validateSingleton(validateValue, value);
+					}
 				} catch (Exception e) {
 					return true;
 				}
@@ -162,12 +172,89 @@ public class ParameterManager {
 			}
 		}
 
+		private boolean isOptions(String validateValue) {
+			if (validateValue.contains(",")) {
+				return true;
+			}
+			return false;
+		}
+
+		private boolean validateSingleton(String validateValue, String value) {
+			if (validateValue.equals(value)) {
+				return true;
+			}
+			return false;
+		}
+
+		private boolean validateOptions(String validateValue, String value) {
+			String[] options = validateValue.split(",");
+			for (String option : options) {
+				if (option.equals(value)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private boolean validateRange(String validateValue, String value) {
+			String[] range = validateValue.split("-");
+			if (range.length != 2) {
+				return true;
+			}
+			if (!isNumber(range[0]) || !isNumber(range[1])) {
+				return true;
+			}
+			if (!isNumber(value)) {
+				return false;
+			}
+
+			double low = getNumber(range[0]);
+			double high = getNumber(range[1]);
+			double intValue = getNumber(value);
+			if (intValue >= low && intValue <= high) {
+				return true;
+			}
+			return false;
+		}
+
+		private boolean isRange(String validateValue) {
+			if (validateValue.contains("-")) {
+				return true;
+			}
+			return false;
+		}
+
 		public void load(InputStream is) {
 			try {
 				validatorProperties.load(is);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+		}
+
+		private boolean isNumber(String value) {
+			if (value != null) {
+				try {
+					Double.parseDouble(value.trim());
+					return true;
+				} catch (Exception e) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+
+		private double getNumber(String value) {
+			if (value != null) {
+				try {
+					return Double.parseDouble(value.trim());
+				} catch (Exception e) {
+					return 0;
+				}
+			} else {
+				return 0;
 			}
 		}
 	}
