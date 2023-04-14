@@ -241,63 +241,52 @@ public class BeatsView extends JComponent implements ComponentListener {
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
-			if (showTracking && !isPreview) {
+			ToneMapElement[] elements = ttf.getElements();
+			BeatListElement beat = ttf.getBeat();
+			Color color = Color.black;
+			double amplitude = ttf.getMaxAmplitude();
 
-				BeatListElement beat = ttf.getBeat();
+			int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+			int height = (int) ((double) getHeight() / 2.0);
 
-				Color color = Color.black;
-				if (beat != null) {
-					color = Color.WHITE;
-					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
-					width = 10;
-					int height = (int) ((double) getHeight() / 2.0);
-					bufferedGraphics.setColor(color);
-					bufferedGraphics.fillRect(timeCoordinate, (int) (height / 2.0), width, (int) (height / 10.0));
-				}
+			int greyValue = 0;
+			if (amplitude > highViewThreshold) {
+				greyValue = 255;
+				color = Color.WHITE;
+			} else if (amplitude <= lowViewThreshold) {
+				greyValue = 0;
+				color = Color.BLACK;
 			} else {
-				ToneMapElement[] elements = ttf.getElements();
-
-				for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-
-					ToneMapElement toneMapElement = elements[elementIndex];
-					Color color = Color.black;
-					if (toneMapElement != null) {
-						double amplitude = 0.0;
-						int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
-						int height = (int) ((double) getHeight() / 2.0);
-						amplitude = toneMapElement.amplitude;
-						int greyValue = 0;
-						if (amplitude > highViewThreshold) {
-							greyValue = 255;
-							color = Color.WHITE;
-						} else if (amplitude <= lowViewThreshold) {
-							greyValue = 0;
-							color = Color.BLACK;
-						} else {
-							if (showLog) {
-								greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001)
-										* 255);
-							} else {
-								greyValue = (int) ((amplitude / highViewThreshold) * 255);
-							}
-							greyValue = Math.max(0, greyValue);
-							if (showColour) {
-								color = rainbow[255 - greyValue];
-							} else {
-								color = new Color(greyValue, greyValue, greyValue);
-							}
-						}
-						if (cm.getBeat(ttf.getStartTime(), 0.1) != 0) {
-							color = Color.MAGENTA;
-						}
-						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-
-						bufferedGraphics.setColor(color);
-						bufferedGraphics.fillRect(timeCoordinate, (int) (height / 2.0), width, (int) (height / 10.0));
-					}
+				if (showLog) {
+					greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001) * 255);
+				} else {
+					greyValue = (int) ((amplitude / highViewThreshold) * 255);
+				}
+				greyValue = Math.max(0, greyValue);
+				if (showColour) {
+					color = rainbow[255 - greyValue];
+				} else {
+					color = new Color(greyValue, greyValue, greyValue);
 				}
 			}
+
+			int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+
+			bufferedGraphics.setColor(color);
+			bufferedGraphics.fillRect(timeCoordinate, (int) (height / 2.0), width, (int) (height / 10.0));
+
+			if (cm.getBeat(ttf.getStartTime(), 0.110) != 0) {
+				color = Color.RED;
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) (height / 4.0), 6, (int) 6);
+			}
+
+			if (beat != null) {
+				color = Color.CYAN;
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.0 / 5.0) * height), 6, 6);
+			}
+
 		}
 	}
 

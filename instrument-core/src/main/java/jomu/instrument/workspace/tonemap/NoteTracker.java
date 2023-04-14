@@ -22,7 +22,6 @@ public class NoteTracker {
 		LinkedList<NoteListElement> notes = new LinkedList<>();
 
 		public NoteTrack(int number) {
-			LOG.finer(">>Add Node Track: " + number);
 			this.number = number;
 		}
 
@@ -31,7 +30,6 @@ public class NoteTracker {
 		}
 
 		public void addNote(NoteListElement note) {
-			LOG.finer(">>Track Note: " + note);
 			notes.add(note);
 		}
 
@@ -82,17 +80,6 @@ public class NoteTracker {
 			NoteTrack other = (NoteTrack) obj;
 			return number == other.number;
 		}
-
-		public String printNotes() {
-			int i = 0;
-			for (NoteListElement note : notes) {
-				i++;
-				LOG.severe("NT track notes: " + number + ", " + i + ", " + note);
-			}
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 	}
 
 	public NoteTracker(ToneMap toneMap) {
@@ -104,17 +91,24 @@ public class NoteTracker {
 		if (tracks.isEmpty()) {
 			salientTrack = createTrack();
 		} else {
-			NoteTrack[] candidateTracks = getNonPendingTracks(noteListElement);
-			if (candidateTracks.length > 0) {
-				salientTrack = getSalientTrack(candidateTracks, noteListElement);
-			} else {
-				candidateTracks = getPendingTracks(noteListElement);
-				if (candidateTracks.length > 0) {
-					salientTrack = getPendingSalientTrack(candidateTracks, noteListElement);
-					if (salientTrack != null) {
-						NoteListElement disconnectedNote = salientTrack.getLastNote();
-						salientTrack.removeNote(disconnectedNote);
-					}
+			NoteTrack[] pendingTracks = getPendingTracks(noteListElement);
+			NoteTrack[] nonPendingTracks = getNonPendingTracks(noteListElement);
+
+			if (pendingTracks.length > 0) {
+				salientTrack = getPendingOverlappingSalientTrack(pendingTracks, noteListElement);
+				if (salientTrack != null) {
+					salientTrack.getLastNote().addOverlap(noteListElement);
+				}
+			}
+
+			if (salientTrack == null && nonPendingTracks.length > 0) {
+				salientTrack = getSalientTrack(nonPendingTracks, noteListElement);
+			}
+			if (salientTrack == null && pendingTracks.length > 0) {
+				salientTrack = getPendingSalientTrack(pendingTracks, noteListElement);
+				if (salientTrack != null) {
+					NoteListElement disconnectedNote = salientTrack.getLastNote();
+					salientTrack.removeNote(disconnectedNote);
 				}
 			}
 		}
@@ -124,17 +118,35 @@ public class NoteTracker {
 		salientTrack.addNote(noteListElement);
 	}
 
+	private NoteTrack getPendingOverlappingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
+		NoteTrack pitchSalientTrack = null;
+		int pitchProximity = Integer.MAX_VALUE;
+		for (NoteTrack track : candidateTracks) {
+			NoteListElement lastNote = track.getLastNote();
+			if (noteListElement.note == lastNote.note) {
+				return track;
+			}
+			if ((Math.abs(noteListElement.note - lastNote.note) <= 2)
+					&& ((lastNote.endTime - noteListElement.startTime < 201))) {
+				if (pitchProximity > noteListElement.note - lastNote.note) {
+					pitchProximity = noteListElement.note - lastNote.note;
+					pitchSalientTrack = track;
+				}
+			}
+		}
+		if (pitchSalientTrack != null) {
+			return pitchSalientTrack;
+		}
+		return null;
+	}
+
 	public NoteTrack getTrack(NoteListElement noteListElement) {
 		NoteTrack result = null;
 		for (NoteTrack track : tracks) {
-			track.printNotes();
-			LOG.severe("NT get track: " + track.number + ", " + noteListElement);
 			if (track.hasNote(noteListElement)) {
-				LOG.severe("NT HAS track: " + track.number);
 				return track;
 			}
 		}
-		LOG.severe("NT NO track: " + noteListElement);
 		return result;
 	}
 
@@ -232,11 +244,6 @@ public class NoteTracker {
 		NoteTrack track = new NoteTrack(tracks.size() + 1);
 		tracks.add(track);
 		return track;
-	}
-
-	public void moveNote(NoteListElement nle) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

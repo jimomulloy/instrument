@@ -14,9 +14,9 @@ import java.util.TreeSet;
  */
 public class ChordListElement {
 
-	TreeSet<ChordNote> chordNotes = new TreeSet<>();
-	double endTime;
-	double startTime;
+	private TreeSet<ChordNote> chordNotes = new TreeSet<>();
+	private double endTime;
+	private double startTime;
 
 	public ChordListElement(ChordNote[] chords, double startTime, double endTime) {
 		this.chordNotes = new TreeSet<>(Arrays.asList(chords));
@@ -48,6 +48,14 @@ public class ChordListElement {
 
 	public double getStartTime() {
 		return startTime;
+	}
+
+	public void setEndTime(double endTime) {
+		this.endTime = endTime;
+	}
+
+	public void setStartTime(double startTime) {
+		this.startTime = startTime;
 	}
 
 	@Override

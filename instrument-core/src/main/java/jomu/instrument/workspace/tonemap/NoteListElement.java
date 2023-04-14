@@ -1,6 +1,8 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -28,6 +30,7 @@ public class NoteListElement {
 	public NoteHarmonics noteHarmonics;
 	public NoteTimbre noteTimbre;
 	public boolean isContinuation;
+	public Set<Integer> overlaps = new HashSet<>();
 
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin, boolean isContinuation) {
@@ -56,6 +59,7 @@ public class NoteListElement {
 		if (noteTimbre != null) {
 			clone.noteTimbre = noteTimbre.clone();
 		}
+		clone.overlaps.addAll(overlaps);
 		return clone;
 	}
 
@@ -83,6 +87,11 @@ public class NoteListElement {
 		NoteListElement other = (NoteListElement) obj;
 		return note == other.note && pitchIndex == other.pitchIndex
 				&& Double.doubleToLongBits(startTime) == Double.doubleToLongBits(other.startTime);
+	}
+
+	public void addOverlap(NoteListElement overlappingElement) {
+		this.overlaps.add(overlappingElement.note);
+		overlappingElement.overlaps.add(this.note);
 	}
 
 }

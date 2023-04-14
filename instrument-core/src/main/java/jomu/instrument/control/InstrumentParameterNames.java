@@ -134,6 +134,7 @@ public class InstrumentParameterNames {
 
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH = "perception.hearing.synthesis.chordsSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE = "perception.hearing.synthesis.quantizeRange";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT = "perception.hearing.synthesis.quantizeBeat";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT = "perception.hearing.synthesis.quantizePercent";
 
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
@@ -186,6 +187,7 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_FORMANT_HIGH_FREQUENCY = "audio.tuner.formantHighFreq";
 	public static final String AUDIO_TUNER_FORMANT_LOW_FREQUENCY = "audio.tuner.formantLowFreq";
 	public static final String AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY = "audio.tuner.formantMidFreq";
+	public static final String AUDIO_TUNER_FORMANT_RANGE = "audio.tuner.formantRange";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS = "audio.tuner.noteScan.attenuateHarmonicsSwitch";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES = "audio.tuner.noteScan.attenuateUndertonesSwitch";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES = "audio.tuner.noteScan.attenuateSemitonesSwitch";

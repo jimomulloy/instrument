@@ -119,4 +119,21 @@ public class CalibrationMap implements OnsetHandler {
 		LOG.severe(">>Calibrate beat: " + time + ", " + salience + ", " + this);
 	}
 
+	public double getBeatBeforeTime(Double time, double range) {
+		Entry<Double, Double> le = beatMap.floorEntry(time);
+		if (le != null && range >= (time - le.getKey())) {
+			return le.getKey();
+		}
+		return -1;
+	}
+
+	public double getBeatAfterTime(Double time, double range) {
+		Entry<Double, Double> he = beatMap.ceilingEntry(time);
+		if (he != null && range >= (he.getKey() - time)) {
+			return he.getKey();
+		} else {
+			return -1;
+		}
+	}
+
 }

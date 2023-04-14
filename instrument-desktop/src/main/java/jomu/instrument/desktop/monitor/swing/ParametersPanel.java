@@ -215,6 +215,10 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox noteTimbreNotateSwitchCB;
 
+	private JTextField synthesisQuantizeBeatInput;
+
+	private JSlider formantRangeSlider;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1720,6 +1724,24 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantMiddleSettingLabel);
 		parameterPanel.add(formantMiddleSettingSlider);
 
+		formantRangeSlider = new JSlider(0, 100);
+		final JLabel formantRangeLabel = new JLabel("Audio Tuner Formant Range :");
+		formantHighSettingSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				formantRangeLabel.setText(String.format("Audio Tuner Formant Range  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE,
+						Integer.toString(newValue));
+			}
+		});
+		formantRangeSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE));
+		parameterPanel.add(formantRangeLabel);
+		parameterPanel.add(formantRangeSlider);
+
 		n1SettingSlider = new JSlider(0, 100);
 		final JLabel n1SettingLabel = new JLabel("Audio Tuner N1 Setting :");
 		n1SettingSlider.addChangeListener(new ChangeListener() {
@@ -2756,6 +2778,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(notateCompressionLevelLabel);
 		cqParamsPanel.add(notateCompressionLevelInput);
 
+		JLabel synthesisQuantizeBeatLabel = new JLabel("Synthesis Quantize Beat: ");
+		synthesisQuantizeBeatInput = new JTextField(4);
+		synthesisQuantizeBeatInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisQuantizeBeatInput.getText();
+				synthesisQuantizeBeatLabel.setText(String.format("Synthesis Quantize Beat  (%s):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT,
+						newValue);
+
+			}
+		});
+		synthesisQuantizeBeatInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT));
+		cqParamsPanel.add(synthesisQuantizeBeatLabel);
+		cqParamsPanel.add(synthesisQuantizeBeatInput);
+
 		JLabel synthesisQuantizeRangeLabel = new JLabel("Synthesis Quantize Range: ");
 		synthesisQuantizeRangeInput = new JTextField(4);
 		synthesisQuantizeRangeInput.addActionListener(new ActionListener() {
@@ -3102,6 +3141,9 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW));
 		formantMiddleSettingSlider
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE));
+		formantRangeSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE));
+
 		n1SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SETTING));
 		n2SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SETTING));
 		n3SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SETTING));
@@ -3178,6 +3220,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE));
 		synthesisQuantizePercentInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT));
+		synthesisQuantizeBeatInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT));
 
 		yinLowPassInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS));

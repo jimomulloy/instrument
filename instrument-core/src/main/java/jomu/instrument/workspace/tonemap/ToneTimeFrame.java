@@ -1388,4 +1388,10 @@ public class ToneTimeFrame {
 		}
 	}
 
+	public void setChord(ChordListElement chord) {
+		chordNotes.clear();
+		if (chord != null) {
+			chordNotes.addAll(chord.getChordNotes());
+		}
+	}
 }

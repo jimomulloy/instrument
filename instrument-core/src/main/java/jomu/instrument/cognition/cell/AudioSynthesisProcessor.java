@@ -28,6 +28,8 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE);
 		double quantizePercent = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT);
+		int quantizeBeat = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT);
 
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
@@ -42,7 +44,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
-		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent);
+		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat);
 
 		console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
