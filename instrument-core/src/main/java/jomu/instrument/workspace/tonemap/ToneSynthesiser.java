@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 
 public class ToneSynthesiser {
 
+	private static final double MIN_TIME_INCREMENT = 0.1;
+
 	private static final Logger LOG = Logger.getLogger(ToneSynthesiser.class.getName());
 
 	ConcurrentSkipListMap<Double, Map<Integer, NoteListElement>> notes = new ConcurrentSkipListMap<>();
@@ -105,20 +107,25 @@ public class ToneSynthesiser {
 		Double time = nles[0].startTime / 1000;
 		double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
 		double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
+		double beforeTimeDiff = 0;
+		double afterTimeDiff = 0;
 		if (beatBeforeTime != 0) {
-			double targetTime = 0;
-			double timeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
-			if (timeDiff > 0.1) {
-				targetTime = time - timeDiff;
-				for (NoteListElement nle : nles) {
-					quantizeNote(nle, targetTime);
-				}
+			beforeTimeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
+		}
+		if (beatAfterTime != 0) {
+			afterTimeDiff = ((beatAfterTime - time) / quantizeBeat) * (quantizePercent / 100.0);
+		}
+		if (beforeTimeDiff <= MIN_TIME_INCREMENT || afterTimeDiff <= MIN_TIME_INCREMENT) {
+			return;
+		}
+		if (beforeTimeDiff > MIN_TIME_INCREMENT) {
+			double targetTime = time - beforeTimeDiff;
+			for (NoteListElement nle : nles) {
+				quantizeNote(nle, targetTime);
 			}
-		} else if (beatAfterTime != 0) {
-			double targetTime = 0;
-			double timeDiff = ((beatAfterTime - time) / quantizeBeat) * (quantizePercent / 100.0);
-			if (timeDiff > 0.1) {
-				targetTime = time + timeDiff;
+		} else {
+			if (afterTimeDiff > MIN_TIME_INCREMENT) {
+				double targetTime = time + afterTimeDiff;
 				for (NoteListElement nle : nles) {
 					quantizeNote(nle, targetTime);
 				}
@@ -136,6 +143,7 @@ public class ToneSynthesiser {
 		double time = frame.getStartTime();
 		ToneMapElement element = frame.getElement(index);
 		if (time < targetTime) {
+			LOG.severe(">>SYNTH QUANT NOTE UP: " + time + ", " + targetTime + ", " + frameTime);
 			while (time < targetTime && frame != null) {
 				element.noteListElement = null;
 				element.noteState = ToneMapConstants.OFF;
@@ -147,6 +155,7 @@ public class ToneSynthesiser {
 				}
 			}
 		} else {
+			LOG.severe(">>SYNTH QUANT NOTE DOWN: " + time + ", " + targetTime + ", " + frameTime);
 			while (time > targetTime && frame != null) {
 				element.noteListElement = nle;
 				int state = element.noteState;
@@ -155,6 +164,7 @@ public class ToneSynthesiser {
 					time = frame.getStartTime();
 					element = frame.getElement(index);
 					element.noteState = state;
+					element.noteListElement = nle;
 				}
 			}
 		}
@@ -172,14 +182,14 @@ public class ToneSynthesiser {
 		if (beatBeforeTime != 0) {
 			double targetTime = 0;
 			double timeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
-			if (timeDiff > 0.1) {
+			if (timeDiff > MIN_TIME_INCREMENT) {
 				targetTime = time - timeDiff;
 				quantizeChord(chord, targetTime);
 			}
 		} else if (beatAfterTime != 0) {
 			double targetTime = 0;
 			double timeDiff = ((beatAfterTime - time) / quantizeBeat) * (quantizePercent / 100.0);
-			if (timeDiff > 0.1) {
+			if (timeDiff > MIN_TIME_INCREMENT) {
 				targetTime = time + timeDiff;
 				quantizeChord(chord, targetTime);
 			}
