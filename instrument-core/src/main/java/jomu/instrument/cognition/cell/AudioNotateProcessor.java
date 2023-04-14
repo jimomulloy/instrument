@@ -39,28 +39,75 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		ToneMap integrateToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		ToneTimeFrame timeFrame = notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
+		ToneTimeFrame notateTimeFrame = notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
 
-		AudioTuner tuner = new AudioTuner();
+		ToneMap integratePeaksToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_PEAKS", streamId));
+		ToneMap integrateSpectralToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_SPECTRAL", streamId));
+		ToneMap notatePeaksToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_PEAKS", streamId));
+		ToneMap notateSpectralToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SPECTRAL", streamId));
+		ToneTimeFrame notatePeaksTimeFrame = notatePeaksToneMap
+				.addTimeFrame(integratePeaksToneMap.getTimeFrame(sequence).clone());
+		ToneTimeFrame notateSpectralTimeFrame = notateSpectralToneMap
+				.addTimeFrame(integrateSpectralToneMap.getTimeFrame(sequence).clone());
+
+		AudioTuner notateTuner = new AudioTuner();
+		AudioTuner peaksTuner = new AudioTuner();
+		AudioTuner spTuner = new AudioTuner();
 
 		if (notateApplyFormantsSwitch) {
-			tuner.applyFormants(timeFrame);
+			notateTuner.applyFormants(notateTimeFrame);
+			peaksTuner.applyFormants(notatePeaksTimeFrame);
+			spTuner.applyFormants(notateSpectralTimeFrame);
 		}
 
-		tuner.noteScan(notateToneMap, sequence);
+		notateTuner.noteScan(notateToneMap, sequence);
 		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 
-		int tmIndex = sequence - 10 * (noteMaxDuration / 1000); // TODO !!
+		peaksTuner.noteScan(notatePeaksToneMap, sequence);
+		console.getVisor().updateToneMapView(notatePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
+
+		spTuner.noteScan(notateSpectralToneMap, sequence);
+		console.getVisor().updateToneMapView(notateSpectralToneMap, this.cell.getCellType().toString() + "_SPECTRAL");
+
+		int tmIndex = sequence - 12 * (noteMaxDuration / 1000); // TODO !!
 		if (tmIndex > 0) {
-			timeFrame = notateToneMap.getTimeFrame(tmIndex);
-			if (timeFrame != null) {
+			notateTimeFrame = notateToneMap.getTimeFrame(tmIndex);
+			if (notateTimeFrame != null) {
 
 				if (notateSwitchCompress) {
-					clearNotes(timeFrame);
-					timeFrame.compress(compression, false);
+					clearNotes(notateTimeFrame);
+					notateTimeFrame.compress(compression, false);
 				}
-				console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
+				console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
+						this.cell.getCellType().toString());
 			}
+
+			notatePeaksTimeFrame = notatePeaksToneMap.getTimeFrame(tmIndex);
+			if (notatePeaksTimeFrame != null) {
+
+				if (notateSwitchCompress) {
+					clearNotes(notatePeaksTimeFrame);
+					notatePeaksTimeFrame.compress(compression, false);
+				}
+				console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
+						this.cell.getCellType().toString() + "_PEAKS");
+			}
+
+			notateSpectralTimeFrame = notateSpectralToneMap.getTimeFrame(tmIndex);
+			if (notateSpectralTimeFrame != null) {
+
+				if (notateSwitchCompress) {
+					clearNotes(notateSpectralTimeFrame);
+					notateSpectralTimeFrame.compress(compression, false);
+				}
+				console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
+						this.cell.getCellType().toString() + "_SPECTRAL");
+			}
+
 			LOG.finer(">>AudioNotateProcessor send: " + tmIndex + ", streamId: " + streamId);
 			cell.send(streamId, tmIndex);
 		}
@@ -71,14 +118,37 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			}
 			LOG.finer(">>AudioNotateProcessor closing: " + sequence + ", streamId: " + streamId);
 			for (int i = tmIndex + 1; i <= sequence; i++) {
-				timeFrame = notateToneMap.getTimeFrame(i);
-				if (timeFrame != null) { // TODO or make fake on here?
+
+				notateTimeFrame = notateToneMap.getTimeFrame(i);
+				if (notateTimeFrame != null) { // TODO or make fake on here?
 					if (notateSwitchCompress) {
-						clearNotes(timeFrame);
-						timeFrame.compress(compression, false);
+						clearNotes(notateTimeFrame);
+						notateTimeFrame.compress(compression, false);
 					}
-					console.getVisor().updateToneMapView(notateToneMap, timeFrame, this.cell.getCellType().toString());
+					console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
+							this.cell.getCellType().toString());
 				}
+
+				notatePeaksTimeFrame = notatePeaksToneMap.getTimeFrame(i);
+				if (notatePeaksTimeFrame != null) { // TODO or make fake on here?
+					if (notateSwitchCompress) {
+						clearNotes(notatePeaksTimeFrame);
+						notatePeaksTimeFrame.compress(compression, false);
+					}
+					console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
+							this.cell.getCellType().toString() + "_PEAKS");
+				}
+
+				notateSpectralTimeFrame = notateSpectralToneMap.getTimeFrame(i);
+				if (notateSpectralTimeFrame != null) { // TODO or make fake on here?
+					if (notateSwitchCompress) {
+						clearNotes(notateSpectralTimeFrame);
+						notateSpectralTimeFrame.compress(compression, false);
+					}
+					console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
+							this.cell.getCellType().toString() + "_SPECTRAL");
+				}
+
 				LOG.finer(">>AudioNotateProcessor close send: " + i + ", streamId: " + streamId);
 				cell.send(streamId, i);
 			}
@@ -99,4 +169,5 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		}
 		ttf.reset();
 	}
+
 }
