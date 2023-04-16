@@ -79,7 +79,7 @@ public class QuarkusLambda extends Construct {
 		return Function.Builder.create(this, functionName).runtime(Runtime.PROVIDED_AL2).architecture(architecture)
 				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
 				.memorySize(memory).functionName(functionName).environment(configuration)
-				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store", "JAVA_TOOL_OPTIONS", "-Djavax.sound.config.file=sound.properties")).timeout(Duration.seconds(timeout))
+				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store")).timeout(Duration.seconds(timeout))
 				.build();
 	}
 

@@ -195,12 +195,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		ShortMessage message = new ShortMessage();
 		try {
-			if (levelSwitch) {
-				message.setMessage(type, cc.num, number, velocity);
-			} else {
-				message.setMessage(type, cc.num, number, velocity);
-			}
-
+			message.setMessage(type, cc.num, number, velocity);
 			MidiEvent event = new MidiEvent(message, tick);
 			track.add(event);
 			return true;
@@ -744,6 +739,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				LOG.severe(">>Saved MIDI file name: " + masterFileName);
 
 				if (midiSynthTracksSwitch) {
+					
 					List<Track> trackList = new ArrayList<>();
 					trackList.add(voice1Track);
 					trackList.add(voice2Track);
@@ -753,7 +749,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							+ instrumentSession.getInputAudioFileName() + "_recording_track_voices.midi";
 					file = new File(trackFileName);
 					saveMidiFile(file, trackList);
-					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
+					LOG.severe(">>Saved VOICE MIDI file track name: " + trackFileName+ ", " + voice1Track.size()+ ", " + voice2Track.size());
 
 					trackList.clear();
 					trackList.add(voice1Track);
@@ -783,15 +779,35 @@ public class MidiSynthesizer implements ToneMapConstants {
 					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
 					trackList.clear();
-					trackList.add(chord1Track);
-					trackList.add(chord2Track);
-					trackList.add(pad1Track);
-					trackList.add(pad2Track);
-					trackFileName = folder + System.getProperty("file.separator")
+					
+					if (chord1Track.size() > 2) {
+						trackList.add(chord1Track);
+					}
+					if (chord2Track.size() > 2) { 
+						trackList.add(chord2Track);
+					}	
+					if (trackList.size() > 0) {
+						trackFileName = folder + System.getProperty("file.separator")
 							+ instrumentSession.getInputAudioFileName() + "_recording_track_chords.midi";
-					file = new File(trackFileName);
-					saveMidiFile(file, trackList);
-					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
+						file = new File(trackFileName);
+						saveMidiFile(file, trackList);
+						LOG.severe(">>Saved CHORDS MIDI file track name: " + trackFileName + ", " + chord1Track.size()+ ", " + chord2Track.size());
+					}	
+					
+					trackList.clear();
+					if (pad1Track.size() > 2) {
+						trackList.add(pad1Track);
+					}
+					if (pad1Track.size() > 2) {
+						trackList.add(pad2Track);
+					}
+					if (trackList.size() > 0) {
+						trackFileName = folder + System.getProperty("file.separator")
+								+ instrumentSession.getInputAudioFileName() + "_recording_track_pads.midi";
+						file = new File(trackFileName);
+						saveMidiFile(file, trackList);
+						LOG.severe(">>Saved PADS MIDI file track name: " + trackFileName+ ", " + pad1Track.size()+ ", " + pad2Track.size());
+					}	
 				} else {
 					Track[] tracks = sequence.getTracks();
 					for (int i = 0; i < tracks.length; i++) {
@@ -881,7 +897,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (writeTrack && voice1Track == null) {
 				voice1Track = sequence.createTrack();
-				LOG.severe(">>MIDI VOICE1 progream: " + (voice1Channel.program + 1));
+				LOG.severe(">>!!MIDI VOICE 1 POGRAM");
 				createEvent(voice1Track, voice1Channel, PROGRAM, voice1Channel.program + 1, 1L, 127);
 			}
 
