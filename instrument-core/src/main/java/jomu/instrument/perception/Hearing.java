@@ -18,7 +18,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -133,6 +136,11 @@ public class Hearing implements Organ {
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
 		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
 
+		LOG.severe(">>Start Audio file isFileTypeSupported(AudioFileFormat.Type.WAVE): " + AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE));
+		if (!AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE)) {
+			throw new Exception("Audio system WAV file not supported");
+		}
+
 		streamId = UUID.randomUUID().toString();
 		AudioStream audioStream = new AudioStream(streamId);
 		audioStreams.put(streamId, audioStream);
@@ -151,7 +159,7 @@ public class Hearing implements Organ {
 			stream = storage.getObjectStorage().read(fileName);
 		}
 		bs = new BufferedInputStream(stream);
-
+		
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
 		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format.getEncoding() + ", "
 				+ format);
@@ -435,6 +443,21 @@ public class Hearing implements Organ {
 		private void processMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			console.getVisor().clearView();
 			this.setIsFile(false);
+			Info[] mixerInfo = AudioSystem.getMixerInfo();
+			for(Info info: mixerInfo) {
+				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
+				Mixer m = AudioSystem.getMixer(info);
+				LOG.severe(">>processMicrophoneStream mixer: " + m.getMixerInfo().toString());
+				Line[] sl = m.getSourceLines();
+				for (Line l: sl) {
+					LOG.severe(">>processMicrophoneStream source line: " + l.getLineInfo().toString());
+				}
+				Line[] tl = m.getTargetLines();
+				for (Line l: tl) {
+					LOG.severe(">>processMicrophoneStream target line: " + l.getLineInfo().toString());
+				}
+				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
+			}
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);

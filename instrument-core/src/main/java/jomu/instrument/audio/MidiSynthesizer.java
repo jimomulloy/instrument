@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +41,7 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 
 import io.quarkus.runtime.StartupEvent;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -108,19 +110,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private double timeEnd = INIT_TIME_END;
 	private double timeStart = INIT_TIME_START;
 
-	private String fisleName;
-	private boolean midiEOM;
-
 	private Map<String, MidiStream> midiStreams = new ConcurrentHashMap<>();
 
-	private NoteSequence noteSequence;
-
-	private NoteSequenceElement noteSequenceElement;
 	private int numChannels;
 
 	private int playState = STOPPED;
 	private Sequence sequence;
-	private Sequencer sequencer;
 
 	private Synthesizer synthesizer;
 
@@ -162,12 +157,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (synthesizer != null && synthesizer.isOpen()) {
 			synthesizer.close();
 		}
-		if (sequencer != null && sequencer.isOpen()) {
-			sequencer.close();
-		}
 		LOG.severe(">>MIDI close");
 		sequence = null;
-		sequencer = null;
 		synthesizer = null;
 		instruments = null;
 	}
@@ -214,7 +205,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			track.add(event);
 			return true;
 		} catch (Exception ex) {
-			return false;
+			throw new InstrumentException("Midi createEvent exception: " + ex.getMessage(), ex);
 		}
 	}
 
@@ -267,94 +258,82 @@ public class MidiSynthesizer implements ToneMapConstants {
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
 		try {
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
+			LOG.severe(">>MidiSynth dev searched");
 			for (Info midiDev : midiDevs) {
-				LOG.finer(">>MidiSynth dev: " + midiDev);
+				LOG.severe(">>MidiSynth dev: " + midiDev);
 			}
-
+				
+			MidiChannel[] midiChannels = new MidiChannel[0];
 			Soundbank sb = null;
-			if (synthesizer == null) {
-				if ((synthesizer = MidiSystem.getSynthesizer()) == null) {
-					LOG.finer(">>MidiSynth MISSING SYNTH!!");
-					return false;
-				}
-			}
-
 			if (useSynthesizer) {
-				synthesizer.open();
-			}
-
-			try {
-				if (parameterManager.hasParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)) {
-					File file = new File(
-							parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
-					if (file.exists()) {
-						sb = MidiSystem.getSoundbank(file);
-						synthesizer.loadAllInstruments(sb);
-						instruments = synthesizer.getLoadedInstruments();
-						LOG.severe(">>MidiSynth CustomSoundbank!!");
+				if (synthesizer == null) {
+					Properties ps = System.getProperties();
+					ps.setProperty("javax.sound.config.file", "sound.properties");
+					if ((synthesizer = MidiSystem.getSynthesizer()) == null) {
+						LOG.severe(">>MidiSynth MISSING SYNTH!!");
+						throw new InstrumentException("Midi open error, MISSING SYNTH");
 					}
-				} else {
-					LOG.severe(">>MidiSynth Default Soundbank!!");
 				}
-			} catch (Exception e) {
-				LOG.log(Level.SEVERE, ">>MidiSynth open error", e);
-				return false;
-			}
-
-			if (instruments == null || instruments.length == 0) {
-				sb = synthesizer.getDefaultSoundbank();
-				if (sb != null) {
-					LOG.severe(">>MidiSynth DefaultSoundbank!!");
-					instruments = synthesizer.getDefaultSoundbank().getInstruments();
-				} else {
-					LOG.severe(">>MidiSynth AvailableSoundbank!!");
-					instruments = synthesizer.getAvailableInstruments();
+	
+				synthesizer.open();
+				
+				try {
+					if (parameterManager.hasParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)) {
+						File file = new File(
+								parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
+						if (file.exists()) {
+							sb = MidiSystem.getSoundbank(file);
+							synthesizer.loadAllInstruments(sb);
+							instruments = synthesizer.getLoadedInstruments();
+							LOG.severe(">>MidiSynth CustomSoundbank!!");
+						}
+					} else {
+						LOG.severe(">>MidiSynth Default Soundbank!!");
+					}
+				} catch (Exception e) {
+					LOG.log(Level.SEVERE, ">>MidiSynth open error", e);
+					throw new InstrumentException("Midi open error: " + e.getMessage(), e);
 				}
+	
+				if (instruments == null || instruments.length == 0) {
+					sb = synthesizer.getDefaultSoundbank();
+					if (sb != null) {
+						LOG.severe(">>MidiSynth DefaultSoundbank!!");
+						instruments = synthesizer.getDefaultSoundbank().getInstruments();
+					} else {
+						LOG.severe(">>MidiSynth AvailableSoundbank!!");
+						instruments = synthesizer.getAvailableInstruments();
+					}
+				}
+				if (instruments == null || instruments.length == 0) {
+					LOG.severe(">>MidiSynth MISSING INSTRUMENTS!!");
+					throw new InstrumentException("Midi open error: MISSING INSTRUMENTS");
+				}
+	
+				midiChannels = synthesizer.getChannels();
 			}
-			if (instruments == null || instruments.length == 0) {
-				LOG.severe(">>MidiSynth MISSING INSTRUMENTS!!");
-				return false;
-			}
-
-			MidiChannel midiChannels[] = synthesizer.getChannels();
+			
 			numChannels = midiChannels.length;
 			if (numChannels == 0) {
 				LOG.finer(">>MidiSynth MISSING CHANNELS!!");
-				return false;
+				//return false;
+				channels = new ChannelData[16];
+				for (int i = 0; i < channels.length; i++) {
+					channels[i] = new ChannelData(null, i);
+				}
+			} else {
+				channels = new ChannelData[midiChannels.length];
+				for (int i = 0; i < channels.length; i++) {
+					channels[i] = new ChannelData(midiChannels[i], i);
+				}
 			}
-			channels = new ChannelData[midiChannels.length];
-			if (channels.length == 0)
-				return false;
-			for (int i = 0; i < channels.length; i++) {
-				channels[i] = new ChannelData(midiChannels[i], i);
-			}
+			
 			LOG.severe(">>MidiSynth CHANNELS: " + channels.length);
 			initChannels();
-
-			sequencer = MidiSystem.getSequencer(false);
-			sequencer.addMetaEventListener(new ProcessMeta());
 			sequence = new Sequence(Sequence.PPQ, 10);
-			/*
-			 * To free system resources, it is recommended to close the synthesizer and
-			 * sequencer properly. To accomplish this, we register a Listener to the
-			 * Sequencer. It is called when there are "meta" events. Meta event 47 is end of
-			 * track. Thanks to Espen Riskedal for finding this trick.
-			 */
-			sequencer.addMetaEventListener(new MetaEventListener() {
-				public void meta(final MetaMessage event) {
-					if (event.getType() == 47) {
-						if (sequencer != null && sequencer.isOpen()) {
-							sequencer.close();
-						}
-						if (synthesizer != null && synthesizer.isOpen()) {
-							synthesizer.close();
-						}
-					}
-				}
-			});
 		} catch (Exception ex) {
 			LOG.log(Level.SEVERE, ">>MIDI Synthesiser open exception", ex);
-			return false;
+			throw new InstrumentException("Midi open exception: " + ex.getMessage(), ex);
 		}
 		return true;
 	}
@@ -384,53 +363,64 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private void initChannel(ChannelData channelData, String instrumentName) {
 		Instrument channelInstrument = null;
 		int instumentNumber = 0;
-		channelInstrument = instruments[0];
+		
 		if (instrumentName != null) {
 			try {
 				instumentNumber = Integer.parseInt(instrumentName);
-				channelInstrument = instruments[instumentNumber - 1];
+				if (instruments != null && instruments.length > instumentNumber - 1) {
+					channelInstrument = instruments[instumentNumber - 1];
+				}	
 			} catch (NumberFormatException ex) {
-				for (Instrument instrument : instruments) {
-					if (instrument.getName().toLowerCase().contains(instrumentName.toLowerCase())) {
-						channelInstrument = instrument;
-						break;
+				if (instruments != null) {
+					for (Instrument instrument : instruments) {
+						if (instrument.getName().toLowerCase().contains(instrumentName.toLowerCase())) {
+							channelInstrument = instrument;
+							break;
+						}
 					}
-				}
+				}	
 			}
 		}
-		if (channelInstrument == null) {
+		if (channelInstrument == null && instruments != null && instruments.length > 0) {
 			channelInstrument = instruments[0];
 		}
 
 		if (synthesizer != null) {
 			synthesizer.loadInstrument(channelInstrument);
-		}
-
-		channelData.channel.allNotesOff();
-		channelData.channel.allSoundOff();
-		channelData.channel.resetAllControllers();
-		boolean soloState = false, muteState = false, omniState = false, monoState = false, localControlState = true;
-		channelData.channel.setSolo(soloState);
-		channelData.channel.setMute(muteState);
-		channelData.channel.setOmni(omniState);
-		channelData.channel.setMono(monoState);
-		channelData.channel.localControl(localControlState);
-		channelData.channel.programChange(channelInstrument.getPatch().getBank(),
-				channelInstrument.getPatch().getProgram());
-		programChange(channelData, channelInstrument.getPatch().getProgram());
+		}	
+		
+		if (channelData.channel != null) {
+			channelData.channel.allNotesOff();
+			channelData.channel.allSoundOff();
+			channelData.channel.resetAllControllers();
+			boolean soloState = false, muteState = false, omniState = false, monoState = false, localControlState = true;
+			channelData.channel.setSolo(soloState);
+			channelData.channel.setMute(muteState);
+			channelData.channel.setOmni(omniState);
+			channelData.channel.setMono(monoState);
+			channelData.channel.localControl(localControlState);
+			channelData.channel.programChange(channelInstrument.getPatch().getBank(),
+					channelInstrument.getPatch().getProgram());
+			programChange(channelData, channelInstrument.getPatch().getProgram());
+		} else {
+			channelData.program = instumentNumber;
+		}	
 	}
 
 	private void initDrumChannel(ChannelData channelData) {
-		channelData.channel.allNotesOff();
-		channelData.channel.allSoundOff();
-		channelData.channel.resetAllControllers();
-		boolean soloState = false, muteState = false, omniState = false, monoState = false, localControlState = true;
-		channelData.channel.setSolo(soloState);
-		channelData.channel.setMute(muteState);
-		channelData.channel.setOmni(omniState);
-		channelData.channel.setMono(monoState);
-		channelData.channel.localControl(localControlState);
-		channelData.channel.programChange(0, 1);
+		channelData.program = 1;
+		if (channelData.channel != null) {
+			channelData.channel.allNotesOff();
+			channelData.channel.allSoundOff();
+			channelData.channel.resetAllControllers();
+			boolean soloState = false, muteState = false, omniState = false, monoState = false, localControlState = true;
+			channelData.channel.setSolo(soloState);
+			channelData.channel.setMute(muteState);
+			channelData.channel.setOmni(omniState);
+			channelData.channel.setMono(monoState);
+			channelData.channel.localControl(localControlState);
+			channelData.channel.programChange(0, 1);
+		}	
 	}
 
 	private File getFileFromResource(String fileName) throws URISyntaxException {
@@ -471,11 +461,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	public void programChange(ChannelData channelData, int program) {
 		channelData.program = program;
+		if (channelData.channel != null) {
+			channelData.channel.programChange(program);
+		}
 		if (instruments != null && synthesizer != null) {
 			synthesizer.loadInstrument(instruments[program]);
 		}
-		channelData.channel.programChange(program);
-
 	}
 
 	/**
@@ -498,10 +489,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 		} catch (SecurityException ex) {
 			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing out stream", ex);
-			return false;
+			throw new InstrumentException("Midi saveMidiFile Exception writing out stream: " + ex.getMessage(), ex);
 		} catch (Exception ex) {
 			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing out stream", ex);
-			return false;
+			throw new InstrumentException("Midi saveMidiFile Exception writing out stream: " + ex.getMessage(), ex);
 		}
 	}
 
@@ -514,7 +505,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			trackSequence = new Sequence(Sequence.PPQ, 10);
 		} catch (InvalidMidiDataException ex) {
 			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing out track", ex);
-			return false;
+			throw new InstrumentException("Midi saveMidiFile Exception writing track: " + ex.getMessage(), ex);
 		}
 		Track newTrack = trackSequence.createTrack();
 		for (int i = 0; i < track.size(); i++) {
@@ -532,7 +523,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			trackSequence = new Sequence(Sequence.PPQ, 10);
 		} catch (InvalidMidiDataException ex) {
 			LOG.log(Level.SEVERE, ">>saveMidiFile Exception writing out track", ex);
-			return false;
+			throw new InstrumentException("Midi saveMidiFile Exception writing tracks: " + ex.getMessage(), ex);
 		}
 		for (Track track : tracks) {
 			if (track != null) {
@@ -2398,7 +2389,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				clearChannel(channels[PAD_1_CHANNEL]);
 				clearChannel(channels[PAD_2_CHANNEL]);
 				clearChannel(channels[BEATS_CHANNEL]);
-				;
 				clearChannel(channels[BASE_1_CHANNEL]);
 			}
 			voiceChannel1LastNotes = new HashSet<>();
@@ -2418,9 +2408,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private void clearChannel(ChannelData channelData) {
-			channelData.channel.allNotesOff();
-			channelData.channel.allSoundOff();
-			channelData.channel.resetAllControllers();
+			if (channelData.channel != null) {
+				channelData.channel.allNotesOff();
+				channelData.channel.allSoundOff();
+				channelData.channel.resetAllControllers();
+			}	
 		}
 	}
 
@@ -2580,10 +2572,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 		@Override
 		public void meta(MetaMessage message) {
 
-			if (message.getType() == 47 && playState != PAUSED && sequencer != null) {
-				midiEOM = true;
+			if (message.getType() == 47 && playState != PAUSED) {
 				if (playState != STOPPED) {
-					sequencer.stop();
 					playState = EOM;
 				}
 			}

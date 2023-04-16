@@ -2,3 +2,15 @@ jpackage --type exe --name InstrumentApp --input target --dest target\packed --m
 
 
 gu install native-image
+
+quarkus build --native --no-tests -Dquarkus.native.container-build=true
+
+mvn install -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=docker
+
+quarkus build --native -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:22.3-java17
+
+mvn clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java11
+
+mvn clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:22.3-java11
+
+java -jar -agentlib:native-image-agent=config-output-dir=/qa target/quarkus-app/quarkus-run.jar

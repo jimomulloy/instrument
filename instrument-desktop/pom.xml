@@ -42,7 +42,7 @@
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>	
 	    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
 	    <surefire-plugin.version>2.22.2</surefire-plugin.version>
-	   		
+	    <microstream.version>07.01.00-MS-GA</microstream.version>  		
 	</properties>
 	
 	<dependencyManagement>
@@ -77,6 +77,11 @@
 	      <artifactId>quarkus-junit5</artifactId>
 	      <scope>test</scope>
 	    </dependency>
+	    <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>microstream-storage-embedded-configuration</artifactId>
+            <version>${microstream.version}</version>
+        </dependency>
 	    <dependency>
 	      <groupId>io.rest-assured</groupId>
 	      <artifactId>rest-assured</artifactId>

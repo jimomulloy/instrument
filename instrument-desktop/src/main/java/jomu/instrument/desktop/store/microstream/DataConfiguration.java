@@ -1,4 +1,4 @@
-package jomu.instrument.store.microstream;
+package jomu.instrument.desktop.store.microstream;
 
 import one.microstream.afs.nio.types.NioFileSystem;
 import one.microstream.reflect.ClassLoaderProvider;

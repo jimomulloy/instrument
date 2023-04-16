@@ -1,4 +1,4 @@
-package jomu.instrument.store.microstream;
+package jomu.instrument.desktop.store.microstream;
 
 import java.nio.file.Paths;
 

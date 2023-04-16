@@ -29,6 +29,7 @@ public class QuarkusLambda extends Construct {
 	public QuarkusLambda(Construct scope, String functionName, boolean snapStart) {
 		super(scope, "QuarkusLambda");
 		this.function = createFunction(functionName, lambdaHandler, configuration, memory, timeout, snapStart);
+		//this.function = createNativeFunction(functionName, lambdaHandler, configuration, memory, timeout, snapStart);
 		if (snapStart) {
 			var version = setupSnapStart(this.function);
 			this.function = createAlias(version);
@@ -64,6 +65,21 @@ public class QuarkusLambda extends Construct {
 				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
 				.memorySize(memory).functionName(functionName).environment(configuration)
 				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store")).timeout(Duration.seconds(timeout))
+				.build();
+	}
+	
+	IFunction createNativeFunction(String functionName, String functionHandler, Map<String, String> configuration, int memory,
+			int timeout, boolean snapStart) {
+		var architecture = Architecture.X86_64;
+
+		// Create a layer from the layer module
+		// final LayerVersion layer = new LayerVersion(this, "InstrumentLayer",
+		// LayerVersionProps.builder().code(Code.fromAsset("../instrument-layer/target/bundle"))
+		// .compatibleRuntimes(Arrays.asList(Runtime.JAVA_11)).build());
+		return Function.Builder.create(this, functionName).runtime(Runtime.PROVIDED_AL2).architecture(architecture)
+				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
+				.memorySize(memory).functionName(functionName).environment(configuration)
+				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store", "JAVA_TOOL_OPTIONS", "-Djavax.sound.config.file=sound.properties")).timeout(Duration.seconds(timeout))
 				.build();
 	}
 
