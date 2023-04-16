@@ -28,6 +28,7 @@ public class QuarkusLambda extends Construct {
 
 	public QuarkusLambda(Construct scope, String functionName, boolean snapStart) {
 		super(scope, "QuarkusLambda");
+		System.out.println(">>snapstart: " + snapStart);
 		this.function = createFunction(functionName, lambdaHandler, configuration, memory, timeout, snapStart);
 		//this.function = createNativeFunction(functionName, lambdaHandler, configuration, memory, timeout, snapStart);
 		if (snapStart) {
@@ -55,8 +56,8 @@ public class QuarkusLambda extends Construct {
 
 	IFunction createFunction(String functionName, String functionHandler, Map<String, String> configuration, int memory,
 			int timeout, boolean snapStart) {
-		var architecture = snapStart ? Architecture.X86_64 : Architecture.ARM_64;
-
+		//var architecture = snapStart ? Architecture.X86_64 : Architecture.ARM_64;
+		var architecture = Architecture.X86_64;
 		// Create a layer from the layer module
 		// final LayerVersion layer = new LayerVersion(this, "InstrumentLayer",
 		// LayerVersionProps.builder().code(Code.fromAsset("../instrument-layer/target/bundle"))
@@ -64,7 +65,7 @@ public class QuarkusLambda extends Construct {
 		return Function.Builder.create(this, functionName).runtime(Runtime.JAVA_11).architecture(architecture)
 				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
 				.memorySize(memory).functionName(functionName).environment(configuration)
-				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store")).timeout(Duration.seconds(timeout))
+				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store", "JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1")).timeout(Duration.seconds(timeout))
 				.build();
 	}
 	

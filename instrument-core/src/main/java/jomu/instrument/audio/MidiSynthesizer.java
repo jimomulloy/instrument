@@ -763,8 +763,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					trackList.add(baseTrack);
 					trackFileName = folder + System.getProperty("file.separator")
 							+ instrumentSession.getInputAudioFileName() + "_recording_track_ensemble.midi";
-					// file = new File(trackFileName);
-					// TODO !! saveMidiFile(file, trackList);
+					file = new File(trackFileName);
+					saveMidiFile(file, trackList);
 					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
 					trackList.clear();

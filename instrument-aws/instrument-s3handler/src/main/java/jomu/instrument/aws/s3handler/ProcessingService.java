@@ -135,6 +135,7 @@ public class ProcessingService {
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 		String midiFilePath = instrumentSession.getOutputMidiFilePath();
 		String midiFileFolder = midiFilePath;
+		boolean retried = false;
 		LOG.severe(">>ProcessingService midiFilePath: " + midiFilePath);
 		if (midiFilePath != null && !midiFilePath.isEmpty()) {
 			if (midiFilePath.lastIndexOf("/") > -1) {
@@ -153,6 +154,10 @@ public class ProcessingService {
 					LOG.severe(
 							">>ProcessingService store: " + midiFileFolder + "/" + fileName + ", " + midiFile.length());
 					storage.getObjectStorage().write("private/" + userId + "/output/" + fileName, midiFile);
+					if (!retried) {
+						retried = true;
+						storage.getObjectStorage().write("private/" + userId + "/output/" + fileName, midiFile);
+					}
 					midiFile.delete();
 					LOG.severe(">>ProcessingService deleted: " + midiFileFolder + "/" + fileName);
 				}

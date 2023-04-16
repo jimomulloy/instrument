@@ -29,7 +29,7 @@ public class CDKApp {
 		Tags.of(app).add("application", appName);
 
 		var stackProps = createStackProperties();
-		var snapStart = false;
+		var snapStart = true;
 		new EventsStack(app, appName, snapStart);
 		app.synth();
 	}
