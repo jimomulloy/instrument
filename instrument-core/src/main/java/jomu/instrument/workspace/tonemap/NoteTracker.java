@@ -1,6 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,6 +80,19 @@ public class NoteTracker {
 				return false;
 			NoteTrack other = (NoteTrack) obj;
 			return number == other.number;
+		}
+
+		public List<Integer> getNoteList() {
+			List<Integer> noteList = new ArrayList<>();
+			for (NoteListElement nle : notes) {
+				noteList.add(nle.note);
+			}
+			Collections.sort(noteList);
+			return noteList;
+		}
+
+		public void insertNote(NoteListElement nle, NoteListElement previousNle) {
+			notes.add(notes.indexOf(previousNle) + 1, nle);
 		}
 	}
 

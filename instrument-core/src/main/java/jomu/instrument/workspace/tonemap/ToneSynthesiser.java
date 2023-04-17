@@ -10,6 +10,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
+import jomu.instrument.workspace.tonemap.NoteTracker.NoteTrack;
+
 public class ToneSynthesiser {
 
 	private static final double MIN_TIME_INCREMENT = 0.1;
@@ -56,7 +58,7 @@ public class ToneSynthesiser {
 
 	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent, int quantizeBeat) {
-		LOG.severe(">>SYNTH: " + targetFrame.getStartTime());
+		LOG.finer(">>SYNTH: " + targetFrame.getStartTime());
 		ChordListElement chord = targetFrame.getChord();
 		if (chord != null) {
 			addChord(targetFrame.getChord());
@@ -64,13 +66,13 @@ public class ToneSynthesiser {
 
 		chord = fillChord(targetFrame.getStartTime(), targetFrame.getEndTime(), chord);
 		quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
-		LOG.severe(">>SYNTH chord: " + targetFrame.getStartTime() + ", " + chord);
+		LOG.finer(">>SYNTH chord: " + targetFrame.getStartTime() + ", " + chord);
 
 		NoteListElement[] nles = addNotes(targetFrame);
 		quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		trackNotes(nles);
-		fillNotes(nles);
-		LOG.severe(">>SYNTH notes: " + targetFrame.getStartTime() + ", " + nles);
+		fillNotes(nles, calibrationMap, quantizeRange);
+		LOG.finer(">>SYNTH notes: " + targetFrame.getStartTime() + ", " + nles);
 
 	}
 
@@ -95,8 +97,43 @@ public class ToneSynthesiser {
 		return noteList.toArray(new NoteListElement[noteList.size()]);
 	}
 
-	private void fillNotes(NoteListElement[] nles) {
+	private void fillNotes(NoteListElement[] nles, CalibrationMap calibrationMap, double quantizeRange) {
+		for (NoteListElement nle : nles) {
+			NoteTrack track = toneMap.getNoteTracker().getTrack(nle);
+			double time = nle.endTime / 1000;
+			double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
+			double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
+			double beatRange = beatAfterTime - beatBeforeTime;
+			NoteListElement pnle = track.getPenultimateNote();
+			if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
+				synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange);
+			}
+		}
+	}
 
+	private void synthesiseNotes(NoteListElement pnle, NoteListElement nle, NoteTrack track,
+			CalibrationMap calibrationMap, double quantizeRange) {
+		List<Integer> noteList = track.getNoteList();
+		NoteListElement newNle = null;
+		ToneTimeFrame frame = toneMap.getNextTimeFrame(pnle.endTime / 1000);
+		double time = frame.getStartTime();
+		double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
+		double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
+		double beatRange = beatAfterTime - beatBeforeTime;
+		while (frame != null && time < (nle.startTime / 1000)) {
+			if (calibrationMap.getBeat(time, 0.1) != 0) {
+				int r = (int) (Math.random() * (noteList.size()));
+				newNle = nle.clone();
+				newNle.startTime = time * 1000;
+				newNle.endTime = newNle.startTime + beatRange * 1000;
+				newNle.note = noteList.get(r);
+				newNle.pitchIndex = newNle.pitchIndex + (nle.note - newNle.note);
+				frame.getElement(newNle.pitchIndex).noteListElement = newNle;
+				track.insertNote(nle, pnle);
+			}
+			frame = toneMap.getNextTimeFrame(time);
+			time = frame.getStartTime();
+		}
 	}
 
 	private void quantizeNotes(NoteListElement[] nles, CalibrationMap calibrationMap, double quantizeRange,
@@ -143,7 +180,7 @@ public class ToneSynthesiser {
 		double time = frame.getStartTime();
 		ToneMapElement element = frame.getElement(index);
 		if (time < targetTime) {
-			LOG.severe(">>SYNTH QUANT NOTE UP: " + time + ", " + targetTime + ", " + frameTime);
+			LOG.finer(">>SYNTH QUANT NOTE UP: " + time + ", " + targetTime + ", " + frameTime);
 			while (time < targetTime && frame != null) {
 				element.noteListElement = null;
 				element.noteState = ToneMapConstants.OFF;
@@ -155,7 +192,7 @@ public class ToneSynthesiser {
 				}
 			}
 		} else {
-			LOG.severe(">>SYNTH QUANT NOTE DOWN: " + time + ", " + targetTime + ", " + frameTime);
+			LOG.finer(">>SYNTH QUANT NOTE DOWN: " + time + ", " + targetTime + ", " + frameTime);
 			while (time > targetTime && frame != null) {
 				element.noteListElement = nle;
 				int state = element.noteState;
@@ -270,7 +307,7 @@ public class ToneSynthesiser {
 			ChordListElement newChord = new ChordListElement(
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), startTime, endTime);
 			addChord(newChord);
-			LOG.severe(">>Predict Chord added: " + newChord.getStartTime() + ", " + newChord + ",  " + previousChord);
+			LOG.finer(">>Predict Chord added: " + newChord.getStartTime() + ", " + newChord + ",  " + previousChord);
 			return newChord;
 		}
 	}

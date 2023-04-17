@@ -285,7 +285,7 @@ public class AudioTuner implements ToneMapConstants {
 				if (troughAmp <= normalizeTrough || (amplitude / troughAmp) > peakFactor) {
 					if (amplitude > lastAmp) {
 						if (startPeak != 0 && ((lastAmp / amplitude) < peakStepFactor)) {
-							LOG.finer(">>Process peaks 1: " + amplitude + ", " + lastAmp + ", " + startPeak + ", "
+							LOG.severe(">>Process peaks 1: " + amplitude + ", " + lastAmp + ", " + startPeak + ", "
 									+ endPeak);
 							processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 						}
@@ -304,7 +304,7 @@ public class AudioTuner implements ToneMapConstants {
 
 			if (amplitude < lastAmp) {
 				if (startPeak != 0) {
-					LOG.finer(">>Process peaks 2: " + amplitude + ", " + lastAmp + ", " + startPeak + ", " + endPeak);
+					LOG.severe(">>Process peaks 2: " + amplitude + ", " + lastAmp + ", " + startPeak + ", " + endPeak);
 					processPeak(toneTimeFrame, startPeak, endPeak, troughAmp, thresholdElement, maxAmp);
 					if ((amplitude / lastAmp) < peakStepFactor) {
 						startPeak = index;
@@ -326,7 +326,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		if (startPeak != 0) {
 			if (lastAmp <= normalizeTrough || (lastPeakAmp / lastAmp) > peakFactor) {
-				LOG.finer(">>Process peaks 3: " + lastPeakAmp + ", " + lastAmp + ", " + startPeak + ", " + endPeak);
+				LOG.severe(">>Process peaks 3: " + lastPeakAmp + ", " + lastAmp + ", " + startPeak + ", " + endPeak);
 				// TODO Produces invalid peak at end ?? processPeak(toneTimeFrame, startPeak,
 				// endPeak, troughAmp, thresholdElement, maxAmp);
 			}
@@ -352,7 +352,7 @@ public class AudioTuner implements ToneMapConstants {
 					toneMapElement.isPeak = false;
 				} else {
 					toneMapElement.isPeak = true;
-					LOG.finer(">>PEAK found: " + toneMapElement);
+					LOG.severe(">>PEAK found: " + toneMapElement);
 				}
 			}
 			toneTimeFrame.reset();

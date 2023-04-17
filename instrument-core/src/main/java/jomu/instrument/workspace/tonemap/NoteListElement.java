@@ -94,4 +94,12 @@ public class NoteListElement {
 		overlappingElement.overlaps.add(this.note);
 	}
 
+	public void merge(NoteListElement mergeNoteListElement) {
+		if (mergeNoteListElement.maxAmp > maxAmp) {
+			maxAmp = mergeNoteListElement.maxAmp;
+			avgAmp = mergeNoteListElement.avgAmp;
+			minAmp = mergeNoteListElement.minAmp;
+		}
+	}
+
 }

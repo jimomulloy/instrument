@@ -32,13 +32,46 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT);
 
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
 		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
 
+		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
+		ToneMap notatePeaksToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.toString() + "_PEAKS", streamId));
+		ToneMap notateSpectralToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.toString() + "_SPECTRAL", streamId));
+		double toneMapMinFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
+		double toneMapMaxFrequency = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
+		boolean cqCalibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
+		double cqCalibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
+		double lowThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
+
 		ToneTimeFrame notateFrame = notateToneMap.getTimeFrame(sequence);
+		ToneTimeFrame notatePeaksFrame = notatePeaksToneMap.getTimeFrame(sequence);
+		ToneTimeFrame notateSpectralFrame = notateSpectralToneMap.getTimeFrame(sequence);
+
 		ToneTimeFrame chromaFrame = chromaToneMap.getTimeFrame(sequence);
+
 		ToneTimeFrame synthesisFrame = notateFrame.clone();
 		synthesisToneMap.addTimeFrame(synthesisFrame);
+
+		synthesisFrame.merge(synthesisToneMap, notatePeaksToneMap, notatePeaksFrame);
+		synthesisFrame.merge(synthesisToneMap, notateSpectralToneMap, notateSpectralFrame);
+
+		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
+
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			double cmPower = cm.get(synthesisFrame.getStartTime());
+			double cmMaxWindowPower = cm.getMaxPower(synthesisFrame.getStartTime() - cqCalibrateRange / 2,
+					synthesisFrame.getStartTime() + cqCalibrateRange / 2);
+			synthesisFrame.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+		}
+
 		synthesisFrame.setChord(synthesisToneMap, chromaFrame);
 
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
