@@ -36,7 +36,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
 
 		if (synthesisToneMap.getTimeFrame(sequence) != null) {
-			LOG.finer(">>AudioSinkProcessor VOICE SEND time: " + synthesisToneMap.getTimeFrame(sequence).getStartTime()
+			LOG.severe(">>AudioSinkProcessor VOICE SEND time: " + synthesisToneMap.getTimeFrame(sequence).getStartTime()
 					+ ", sequence: " + sequence + ", streamId: " + streamId);
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence, pausePlay);
 		}

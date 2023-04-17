@@ -71,9 +71,23 @@ public class ToneSynthesiser {
 		NoteListElement[] nles = addNotes(targetFrame);
 		quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		trackNotes(nles);
-		fillNotes(nles, calibrationMap, quantizeRange);
+		fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+		NoteListElement[] discardedNotes = toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime());
+		discardNotes(discardedNotes);
 		LOG.finer(">>SYNTH notes: " + targetFrame.getStartTime() + ", " + nles);
 
+	}
+
+	private void discardNotes(NoteListElement[] discardedNotes) {
+		for (NoteListElement nle : discardedNotes) {
+			ToneTimeFrame frame = toneMap.getTimeFrame(nle.startTime / 1000);
+			while (frame != null && frame.getStartTime() < nle.endTime) {
+				if (frame.getElement(nle.pitchIndex).noteListElement.equals(nle)) {
+					frame.getElement(nle.pitchIndex).noteListElement = null;
+				}
+				frame = toneMap.getNextTimeFrame(frame.getStartTime());
+			}
+		}
 	}
 
 	private void trackNotes(NoteListElement[] nles) {
@@ -97,7 +111,8 @@ public class ToneSynthesiser {
 		return noteList.toArray(new NoteListElement[noteList.size()]);
 	}
 
-	private void fillNotes(NoteListElement[] nles, CalibrationMap calibrationMap, double quantizeRange) {
+	private void fillNotes(NoteListElement[] nles, CalibrationMap calibrationMap, double quantizeRange,
+			double quantizePercent, int quantizeBeat) {
 		for (NoteListElement nle : nles) {
 			NoteTrack track = toneMap.getNoteTracker().getTrack(nle);
 			double time = nle.endTime / 1000;
@@ -106,33 +121,63 @@ public class ToneSynthesiser {
 			double beatRange = beatAfterTime - beatBeforeTime;
 			NoteListElement pnle = track.getPenultimateNote();
 			if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
-				synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange);
+				synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 			}
 		}
 	}
 
 	private void synthesiseNotes(NoteListElement pnle, NoteListElement nle, NoteTrack track,
-			CalibrationMap calibrationMap, double quantizeRange) {
+			CalibrationMap calibrationMap, double quantizeRange, double quantizePercent, int quantizeBeat) {
 		List<Integer> noteList = track.getNoteList();
 		NoteListElement newNle = null;
 		ToneTimeFrame frame = toneMap.getNextTimeFrame(pnle.endTime / 1000);
+		if (frame == null) {
+			LOG.severe(">>synthesiseNotes null frame: " + pnle.endTime);
+			return;
+		}
 		double time = frame.getStartTime();
 		double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
 		double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
-		double beatRange = beatAfterTime - beatBeforeTime;
+		double beatRange = ((beatAfterTime - beatBeforeTime) / quantizeBeat) * 1000;
 		while (frame != null && time < (nle.startTime / 1000)) {
 			if (calibrationMap.getBeat(time, 0.1) != 0) {
-				int r = (int) (Math.random() * (noteList.size()));
-				newNle = nle.clone();
-				newNle.startTime = time * 1000;
-				newNle.endTime = newNle.startTime + beatRange * 1000;
-				newNle.note = noteList.get(r);
-				newNle.pitchIndex = newNle.pitchIndex + (nle.note - newNle.note);
-				frame.getElement(newNle.pitchIndex).noteListElement = newNle;
-				track.insertNote(nle, pnle);
+				int counter = quantizeBeat;
+				while (counter > 0 && frame != null && time < (nle.startTime / 1000)) {
+					int r = (int) (Math.random() * (noteList.size()));
+					newNle = nle.clone();
+					newNle.startTime = time * 1000;
+
+					double length = beatRange < ((nle.startTime - 100) - newNle.startTime) ? beatRange
+							: beatRange - ((nle.startTime - 100) - newNle.startTime);
+					if (length < 100) {
+						frame = toneMap.getNextTimeFrame(time);
+						if (frame != null) {
+							time = frame.getStartTime();
+						}
+						break;
+					}
+					newNle.endTime = newNle.startTime + length;
+					newNle.note = noteList.get(r);
+					newNle.pitchIndex = newNle.pitchIndex + (newNle.note - nle.note);
+					frame.getElement(newNle.pitchIndex).noteListElement = newNle;
+					track.insertNote(newNle, pnle);
+					frame = toneMap.getNextTimeFrame(time);
+					time = frame.getStartTime();
+					while (frame != null && time <= (newNle.endTime / 1000)) {
+						frame.getElement(newNle.pitchIndex).noteListElement = newNle;
+						frame = toneMap.getNextTimeFrame(time);
+						if (frame != null) {
+							time = frame.getStartTime();
+						}
+					}
+					counter--;
+				}
+			} else {
+				frame = toneMap.getNextTimeFrame(time);
+				if (frame != null) {
+					time = frame.getStartTime();
+				}
 			}
-			frame = toneMap.getNextTimeFrame(time);
-			time = frame.getStartTime();
 		}
 	}
 

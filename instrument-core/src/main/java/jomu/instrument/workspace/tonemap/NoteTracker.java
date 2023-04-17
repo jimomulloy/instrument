@@ -92,7 +92,8 @@ public class NoteTracker {
 		}
 
 		public void insertNote(NoteListElement nle, NoteListElement previousNle) {
-			notes.add(notes.indexOf(previousNle) + 1, nle);
+			int addIndex = notes.indexOf(previousNle) + 1;
+			notes.add(addIndex, nle);
 		}
 	}
 
@@ -127,7 +128,11 @@ public class NoteTracker {
 			}
 		}
 		if (salientTrack == null) {
-			salientTrack = createTrack();
+			if (tracks.size() > 6 && ((noteListElement.endTime - noteListElement.startTime) < 200)) {
+				return;
+			} else {
+				salientTrack = createTrack();
+			}
 		}
 		salientTrack.addNote(noteListElement);
 	}
@@ -258,6 +263,40 @@ public class NoteTracker {
 		NoteTrack track = new NoteTrack(tracks.size() + 1);
 		tracks.add(track);
 		return track;
+	}
+
+	public NoteListElement[] cleanTracks(Double startTime) {
+		Set<NoteListElement> discardedNotes = new HashSet<>();
+		Set<NoteTrack> discardedTracks = new HashSet<>();
+		if (tracks.size() > 5) {
+			for (NoteTrack track : tracks) {
+				LinkedList<NoteListElement> notes = track.getNotes();
+				NoteListElement lastNote = null;
+				for (NoteListElement nle : notes) {
+					double lastTime = 0;
+					if (lastNote != null) {
+						lastTime = lastNote.endTime;
+					}
+					if (((nle.endTime - nle.startTime) < 200) && (nle.startTime - lastTime) > 2000) {
+						discardedNotes.add(nle);
+						track.removeNote(nle);
+						if (track.getNotes().size() == 0) {
+							discardedTracks.add(track);
+							break;
+						}
+					}
+					lastNote = nle;
+				}
+			}
+		}
+		for (NoteTrack track : discardedTracks) {
+			removeTrack(track);
+		}
+		return discardedNotes.toArray(new NoteListElement[discardedNotes.size()]);
+	}
+
+	private void removeTrack(NoteTrack track) {
+		tracks.remove(track);
 	}
 
 }
