@@ -39,6 +39,10 @@ To deploy this project run
 [Documentation](https://linktodocumentation)
 
 
+## Demo
+
+Insert gif or link to demo
+
 ## Features
 
 - Light/dark mode toggle
