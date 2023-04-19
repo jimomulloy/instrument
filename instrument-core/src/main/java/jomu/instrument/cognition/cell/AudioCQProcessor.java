@@ -167,7 +167,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		}
 
 		if (cqSwitchWhiten) {
-			ttf.whiten(48, cqWhitenFactor);
+			ttf.whiten(cqWhitenFactor);
 		}
 
 		if (cqSwitchDecibel) {

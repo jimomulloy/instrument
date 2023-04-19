@@ -80,9 +80,9 @@ public class AudioTuner implements ToneMapConstants {
 	private int pitchHigh = INIT_PITCH_HIGH;
 	private int pitchLow = INIT_PITCH_LOW;
 
-	private double formantHighFreq;
-	private double formantLowFreq;
-	private double formantMidFreq;
+	private int formantHigh;
+	private int formantLow;
+	private int formantMid;
 	private double formantRange;
 	private double formantFactor;
 
@@ -179,12 +179,9 @@ public class AudioTuner implements ToneMapConstants {
 		peakSwitch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH);
 		pitchHigh = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_HIGH);
 		pitchLow = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_LOW);
-		formantHighFreq = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH_FREQUENCY);
-		formantLowFreq = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW_FREQUENCY);
-		formantMidFreq = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY);
+		formantHigh = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH);
+		formantLow = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW);
+		formantMid = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE);
 		formantRange = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE);
 		formantFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR);
 
@@ -210,6 +207,9 @@ public class AudioTuner implements ToneMapConstants {
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+
+		LOG.severe(">>Tuner apply formant C: " + formantRange + ", " + formantLow + ", " + formantMid + ", "
+				+ formantHigh + ", " + formantFactor);
 
 		for (ToneMapElement toneMapElement : ttfElements) {
 			int note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -723,29 +723,30 @@ public class AudioTuner implements ToneMapConstants {
 	// Apply formant conversion to ToneMapMatrix element data
 	private void applyFormant(ToneMapElement element, int note) {
 
-		if (formantLowFreq > formantMidFreq || formantLowFreq > formantHighFreq || formantMidFreq > formantHighFreq)
+		if (formantLow > formantMid || formantLow > formantHigh || formantMid > formantHigh)
 			return;
 
-		if (formantMidFreq - formantRange / 2 < formantLowFreq || formantMidFreq + formantRange / 2 > formantHighFreq)
+		double formantMidStart = (formantMid - formantRange / 2) < formantLow ? formantLow
+				: formantMid - formantRange / 2;
+		double formantMidEnd = (formantMid + formantRange / 2) > formantHigh ? formantHigh
+				: formantMid + formantRange / 2;
+
+		if (note < formantLow || note > formantHigh)
 			return;
 
-		double noteFreq = PitchSet.getMidiFreq(note);
+		if (note <= formantMidStart && formantMidStart > formantLow) {
+			double factor = (1.0 - ((formantFactor / 100.0) * ((note - formantLow) / (formantMidStart - formantLow))));
+			element.amplitude *= factor;
 
-		if (noteFreq < formantLowFreq || noteFreq > formantHighFreq)
-			return;
-
-		if (noteFreq <= (formantMidFreq - formantRange / 2)) {
-			element.amplitude = element.amplitude * (1.0 - ((formantFactor / 100.0)
-					* ((noteFreq - formantLowFreq) / ((formantMidFreq - formantRange / 2) - formantLowFreq))));
-
-		} else if (noteFreq >= (formantMidFreq + formantRange / 2)) {
-			element.amplitude = element.amplitude * (1.0 - ((formantFactor / 100.0)
-					* ((formantHighFreq - noteFreq) / (formantHighFreq - (formantMidFreq + formantRange / 2)))));
+		} else if (note >= formantMidEnd && formantMidEnd < formantHigh) {
+			double factor = (1.0 - ((formantFactor / 100.0) * ((formantHigh - note) / (formantHigh - formantMidEnd))));
+			element.amplitude *= factor;
 
 		} else {
-			element.amplitude = element.amplitude * (1.0 - ((formantFactor / 100.0)));
-
+			double factor = (1.0 - ((formantFactor / 100.0)));
+			element.amplitude *= factor;
 		}
+
 	}
 
 	// Attenuate audio data power values for given Harmonic overtone

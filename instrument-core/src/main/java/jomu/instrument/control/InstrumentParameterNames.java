@@ -184,9 +184,9 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_PITCH_HIGH = "audio.tuner.pitchHigh";
 	public static final String AUDIO_TUNER_PITCH_LOW = "audio.tuner.pitchLow";
 	public static final String AUDIO_TUNER_FORMANT_FACTOR = "audio.tuner.formantFactor";
-	public static final String AUDIO_TUNER_FORMANT_HIGH_FREQUENCY = "audio.tuner.formantHighFreq";
-	public static final String AUDIO_TUNER_FORMANT_LOW_FREQUENCY = "audio.tuner.formantLowFreq";
-	public static final String AUDIO_TUNER_FORMANT_MIDDLE_FREQUENCY = "audio.tuner.formantMidFreq";
+	public static final String AUDIO_TUNER_FORMANT_HIGH = "audio.tuner.formantHigh";
+	public static final String AUDIO_TUNER_FORMANT_LOW = "audio.tuner.formantLow";
+	public static final String AUDIO_TUNER_FORMANT_MIDDLE = "audio.tuner.formantMid";
 	public static final String AUDIO_TUNER_FORMANT_RANGE = "audio.tuner.formantRange";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS = "audio.tuner.noteScan.attenuateHarmonicsSwitch";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES = "audio.tuner.noteScan.attenuateUndertonesSwitch";

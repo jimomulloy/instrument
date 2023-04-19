@@ -172,7 +172,7 @@ public class ToneMap {
 
 	public void updateStatistics(ToneTimeFrame frame) {
 
-		LOG.severe(">>TM Update stats: " + frame.getStartTime());
+		LOG.finer(">>TM Update stats: " + frame.getStartTime());
 
 		ToneTimeFrame prevFrame = getPreviousTimeFrame(frame.getStartTime());
 		ToneTimeFrame[] prevFrames = new ToneTimeFrame[0];
@@ -199,7 +199,7 @@ public class ToneMap {
 		}
 
 		if (!frameIsSilent) {
-			LOG.severe(">>TM Update stats NON SILENT FRAME: " + frame.getStartTime() + ", " + frameSum + ", "
+			LOG.finer(">>TM Update stats NON SILENT FRAME: " + frame.getStartTime() + ", " + frameSum + ", "
 					+ statistics.mean);
 			double sum = 0;
 			double mean = 0;
@@ -224,7 +224,7 @@ public class ToneMap {
 
 			statistics.variance = sum / count;
 
-			LOG.severe(">>TM Update stats NON SILENT FRAME variance: " + statistics.variance);
+			LOG.finer(">>TM Update stats NON SILENT FRAME variance: " + statistics.variance);
 		}
 
 		ToneMapStatistics statisticsBand = null;
@@ -234,7 +234,7 @@ public class ToneMap {
 			if (!statisticsBands.containsKey(bandIndex)) {
 				statisticsBand = new ToneMapStatistics();
 				statisticsBands.put(bandIndex, statisticsBand);
-				LOG.severe(">>TM Update stats PUT stats band: " + frame.getStartTime());
+				LOG.finer(">>TM Update stats PUT stats band: " + frame.getStartTime());
 			} else {
 				statisticsBand = statisticsBands.get(bandIndex);
 			}
@@ -275,12 +275,12 @@ public class ToneMap {
 				sum += (frameStatisticsBand.sum - mean) * (frameStatisticsBand.sum - mean);
 
 				statisticsBand.variance = sum / count;
-				LOG.severe(">>TM Update BAND stats NON SILENT FRAME variance: " + statisticsBand.variance + ", "
+				LOG.finer(">>TM Update BAND stats NON SILENT FRAME variance: " + statisticsBand.variance + ", "
 						+ bandIndex);
 			}
 		}
 
-		LOG.severe(">>TM Updated stats: " + frame.getStartTime());
+		LOG.finer(">>TM Updated stats: " + frame.getStartTime());
 
 	}
 }

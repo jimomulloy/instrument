@@ -343,6 +343,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				Map<Integer, ToneMapStatistics> bands = toneMap.getStatisticsBands();
 				double maxVariance = 0;
 				double maxSum = 0;
+				double maxMean = 0;
 				for (Entry<Integer, ToneMapStatistics> band : bands.entrySet()) {
 					ToneMapStatistics bandStatistics = band.getValue();
 					if (maxVariance < bandStatistics.variance) {
@@ -351,13 +352,15 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					if (maxSum < bandStatistics.sum) {
 						maxSum = bandStatistics.sum;
 					}
+					if (maxMean < bandStatistics.mean) {
+						maxMean = bandStatistics.mean;
+					}
 				}
 
 				for (Entry<Integer, ToneMapStatistics> band : bands.entrySet()) {
 					int note = band.getKey();
 					ToneMapStatistics bandStatistics = band.getValue();
 					int centsCoordinate = getCentsCoordinate(note * 100);
-					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 					Color color = new Color(0x14ff14); // green-ish
 
 					double variance = bandStatistics.variance;
@@ -382,9 +385,8 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 
-					centsCoordinate = getCentsCoordinate((note) * 100);
 					bufferedGraphics.setColor(color);
-					bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height, 6, 6);
+					bufferedGraphics.fillRect(0, centsCoordinate - height, 20, 6);
 
 					double sum = bandStatistics.sum;
 					greyValue = 0;
@@ -407,9 +409,33 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							color = new Color(greyValue, greyValue, greyValue);
 						}
 					}
-					centsCoordinate = getCentsCoordinate((note + 2) * 100);
+
 					bufferedGraphics.setColor(color);
-					bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height, 6, 6);
+					bufferedGraphics.fillRect(30, centsCoordinate - height, 20, 6);
+
+					double mean = bandStatistics.mean;
+					greyValue = 0;
+					if (maxMean == 0) {
+						greyValue = 0;
+						color = Color.BLACK;
+					} else if (mean == maxMean) {
+						greyValue = 255;
+						color = Color.WHITE;
+					} else {
+						if (showLog) {
+							greyValue = (int) (Math.log1p((mean) / (maxMean)) / Math.log1p(1.0000001) * 255);
+						} else {
+							greyValue = (int) (((mean) / (maxMean)) * 255);
+						}
+						greyValue = Math.max(0, greyValue);
+						if (showColour) {
+							color = rainbow[255 - greyValue];
+						} else {
+							color = new Color(greyValue, greyValue, greyValue);
+						}
+					}
+					bufferedGraphics.setColor(color);
+					bufferedGraphics.fillRect(60, centsCoordinate - height, 20, 6);
 				}
 			}
 		}

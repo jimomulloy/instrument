@@ -1355,16 +1355,32 @@ public class ToneTimeFrame {
 
 	public ToneTimeFrame whiten(int centroid, double whitenFactor) {
 		reset();
+		LOG.severe(">>CQ WHITEN: " + getStartTime() + ", " + whitenFactor);
+
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			if (element.amplitude > AMPLITUDE_FLOOR) {
 				int note = pitchSet.getNote(element.pitchIndex);
-				double whitening = 1 + (((note - centroid) * (note - centroid)) / (4 * whitenFactor));
+				double whitening = 1 + ((double) ((note - centroid) * (note - centroid)) / (4.0 * whitenFactor));
+				if (element.amplitude > 0.1) {
+					LOG.severe(">>CQ WHITENED note : " + getStartTime() + ", " + note + ", " + whitening);
+				}
 				element.amplitude *= whitening;
 			}
 		}
 		reset();
 		return this;
+	}
+
+	public ToneTimeFrame whiten(double whitenFactor) {
+		int centroidIndex = getSpectralCentroid();
+		int centroid = pitchSet.getNote(centroidIndex);
+		LOG.severe(">>CQ WHITEN centroid: " + centroid + ", " + getStartTime() + ", " + whitenFactor);
+		return whiten(centroid, whitenFactor);
+	}
+
+	public int getNote(int pitchIndex) {
+		return pitchSet.getNote(pitchIndex);
 	}
 
 	@Override
