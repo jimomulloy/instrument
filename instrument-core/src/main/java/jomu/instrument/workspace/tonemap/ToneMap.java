@@ -1,7 +1,9 @@
 package jomu.instrument.workspace.tonemap;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -35,6 +37,10 @@ public class ToneMap {
 
 	private ToneSynthesiser toneSynthesiser;
 
+	private ToneMapStatistics statistics = new ToneMapStatistics();
+
+	private Map<Integer, ToneMapStatistics> statisticsBands = new HashMap<>();
+
 	public ToneMap(String key) {
 		this.key = key;
 		toneMapStore = new ConcurrentSkipListMap<>();
@@ -48,6 +54,14 @@ public class ToneMap {
 
 	public ToneSynthesiser getToneSynthesiser() {
 		return toneSynthesiser;
+	}
+
+	public ToneMapStatistics getStatistics() {
+		return statistics;
+	}
+
+	public Map<Integer, ToneMapStatistics> getStatisticsBands() {
+		return statisticsBands;
 	}
 
 	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
@@ -156,4 +170,117 @@ public class ToneMap {
 		}
 	}
 
+	public void updateStatistics(ToneTimeFrame frame) {
+
+		LOG.severe(">>TM Update stats: " + frame.getStartTime());
+
+		ToneTimeFrame prevFrame = getPreviousTimeFrame(frame.getStartTime());
+		ToneTimeFrame[] prevFrames = new ToneTimeFrame[0];
+		if (prevFrame != null) {
+			prevFrames = getTimeFramesTo(prevFrame.getStartTime());
+		}
+		double frameMax = frame.getStatistics().max;
+		double frameMin = frame.getStatistics().min;
+		double frameSum = frame.getStatistics().sum;
+		boolean frameIsSilent = frame.isSilent();
+
+		statistics.sum += frameSum;
+		if (statistics.max < frameMax) {
+			statistics.max = frameMax;
+		}
+		if (statistics.min > frameMin) {
+			statistics.min = frameMin;
+		}
+
+		if (prevFrames.length > 0) {
+			statistics.mean = ((statistics.mean * prevFrames.length) + frameSum) / (prevFrames.length + 1);
+		} else {
+			statistics.mean = frameSum;
+		}
+
+		if (!frameIsSilent) {
+			LOG.severe(">>TM Update stats NON SILENT FRAME: " + frame.getStartTime() + ", " + frameSum + ", "
+					+ statistics.mean);
+			double sum = 0;
+			double mean = 0;
+			int count = 0;
+			for (ToneTimeFrame pf : prevFrames) {
+				if (!pf.isSilent) {
+					sum += pf.getStatistics().sum;
+					count++;
+				}
+			}
+			sum += frame.getStatistics().sum;
+			count++;
+			mean = sum / count;
+
+			sum = 0;
+			for (ToneTimeFrame pf : prevFrames) {
+				if (!pf.isSilent) {
+					sum += (pf.getStatistics().sum - mean) * (pf.getStatistics().sum - mean);
+				}
+			}
+			sum += (frame.getStatistics().sum - mean) * (frame.getStatistics().sum - mean);
+
+			statistics.variance = sum / count;
+
+			LOG.severe(">>TM Update stats NON SILENT FRAME variance: " + statistics.variance);
+		}
+
+		ToneMapStatistics statisticsBand = null;
+		for (Entry<Integer, ToneMapStatistics> entry : frame.getStatisticsBands().entrySet()) {
+			int bandIndex = entry.getKey();
+			ToneMapStatistics frameStatisticsBand = entry.getValue();
+			if (!statisticsBands.containsKey(bandIndex)) {
+				statisticsBand = new ToneMapStatistics();
+				statisticsBands.put(bandIndex, statisticsBand);
+				LOG.severe(">>TM Update stats PUT stats band: " + frame.getStartTime());
+			} else {
+				statisticsBand = statisticsBands.get(bandIndex);
+			}
+			if (statisticsBand.max < frameStatisticsBand.max) {
+				statisticsBand.max = frameStatisticsBand.max;
+			}
+			if (statisticsBand.min > frameStatisticsBand.min) {
+				statisticsBand.min = frameStatisticsBand.min;
+			}
+			statisticsBand.mean = ((statisticsBand.mean * prevFrames.length) + frameStatisticsBand.sum)
+					/ (prevFrames.length + 1);
+
+			statisticsBand.sum += frameStatisticsBand.sum;
+
+			if (!frameIsSilent) {
+				double sum = 0;
+				double mean = 0;
+				int count = 0;
+				ToneMapStatistics pfStatisticsBand = null;
+				for (ToneTimeFrame pf : prevFrames) {
+					if (!pf.isSilent) {
+						pfStatisticsBand = pf.getStatisticsBands().get(bandIndex);
+						sum += pfStatisticsBand.sum;
+						count++;
+					}
+				}
+				sum += frameStatisticsBand.sum;
+				count++;
+				mean = sum / count;
+
+				sum = 0;
+				for (ToneTimeFrame pf : prevFrames) {
+					if (!pf.isSilent) {
+						pfStatisticsBand = pf.getStatisticsBands().get(bandIndex);
+						sum += (pfStatisticsBand.sum - mean) * (pfStatisticsBand.sum - mean);
+					}
+				}
+				sum += (frameStatisticsBand.sum - mean) * (frameStatisticsBand.sum - mean);
+
+				statisticsBand.variance = sum / count;
+				LOG.severe(">>TM Update BAND stats NON SILENT FRAME variance: " + statisticsBand.variance + ", "
+						+ bandIndex);
+			}
+		}
+
+		LOG.severe(">>TM Updated stats: " + frame.getStartTime());
+
+	}
 }

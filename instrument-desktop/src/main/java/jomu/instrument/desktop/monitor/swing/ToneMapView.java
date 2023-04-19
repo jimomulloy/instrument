@@ -29,6 +29,8 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -43,6 +45,7 @@ import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
+import jomu.instrument.workspace.tonemap.ToneMapStatistics;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class ToneMapView extends JComponent implements ComponentListener, ToneMapConstants {
@@ -253,14 +256,18 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 			ToneMapElement[] elements = ttf.getElements();
 
+			int spectralCentroid = ttf.getSpectralCentroid();
+
+			int spectralMean = ttf.getSpectralMean();
+			int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+			int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
+
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 
 				ToneMapElement toneMapElement = elements[elementIndex];
 				Color color = Color.black;
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
-					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
-					int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
 					amplitude = toneMapElement.amplitude;
 					if (maxAmplitude < amplitude) {
 						maxAmplitude = amplitude;
@@ -307,6 +314,19 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							} else if (toneMapElement.noteState == START) {
 								color = Color.RED;
 							}
+						} else {
+							if (ttf.getMaxAmplitude() > lowViewThreshold) {
+								if (spectralCentroid != -1 && elementIndex == spectralCentroid) {
+									color = new Color(0x53868b); // cadetblue4
+								}
+								if (spectralMean != -1 && elementIndex == spectralMean) {
+									color = new Color(0xff7f50); // coral
+								}
+								if ((spectralCentroid != -1 && elementIndex == spectralCentroid)
+										&& (spectralMean != -1 && elementIndex == spectralMean)) {
+									color = new Color(0x6e4272); // dark purple
+								}
+							}
 						}
 					}
 
@@ -315,6 +335,81 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 					bufferedGraphics.setColor(color);
 					bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+
+				}
+			}
+
+			if (showTracking) {
+				Map<Integer, ToneMapStatistics> bands = toneMap.getStatisticsBands();
+				double maxVariance = 0;
+				double maxSum = 0;
+				for (Entry<Integer, ToneMapStatistics> band : bands.entrySet()) {
+					ToneMapStatistics bandStatistics = band.getValue();
+					if (maxVariance < bandStatistics.variance) {
+						maxVariance = bandStatistics.variance;
+					}
+					if (maxSum < bandStatistics.sum) {
+						maxSum = bandStatistics.sum;
+					}
+				}
+
+				for (Entry<Integer, ToneMapStatistics> band : bands.entrySet()) {
+					int note = band.getKey();
+					ToneMapStatistics bandStatistics = band.getValue();
+					int centsCoordinate = getCentsCoordinate(note * 100);
+					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+					Color color = new Color(0x14ff14); // green-ish
+
+					double variance = bandStatistics.variance;
+					int greyValue = 0;
+					if (maxVariance == 0) {
+						greyValue = 0;
+						color = Color.BLACK;
+					} else if (variance == maxVariance) {
+						greyValue = 255;
+						color = Color.WHITE;
+					} else {
+						if (showLog) {
+							greyValue = (int) (Math.log1p((variance) / (maxVariance)) / Math.log1p(1.0000001) * 255);
+						} else {
+							greyValue = (int) (((variance) / (maxVariance)) * 255);
+						}
+						greyValue = Math.max(0, greyValue);
+						if (showColour) {
+							color = rainbow[255 - greyValue];
+						} else {
+							color = new Color(greyValue, greyValue, greyValue);
+						}
+					}
+
+					centsCoordinate = getCentsCoordinate((note) * 100);
+					bufferedGraphics.setColor(color);
+					bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height, 6, 6);
+
+					double sum = bandStatistics.sum;
+					greyValue = 0;
+					if (maxSum == 0) {
+						greyValue = 0;
+						color = Color.BLACK;
+					} else if (sum == maxSum) {
+						greyValue = 255;
+						color = Color.WHITE;
+					} else {
+						if (showLog) {
+							greyValue = (int) (Math.log1p((sum) / (maxSum)) / Math.log1p(1.0000001) * 255);
+						} else {
+							greyValue = (int) (((sum) / (maxSum)) * 255);
+						}
+						greyValue = Math.max(0, greyValue);
+						if (showColour) {
+							color = rainbow[255 - greyValue];
+						} else {
+							color = new Color(greyValue, greyValue, greyValue);
+						}
+					}
+					centsCoordinate = getCentsCoordinate((note + 2) * 100);
+					bufferedGraphics.setColor(color);
+					bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height, 6, 6);
 				}
 			}
 		}

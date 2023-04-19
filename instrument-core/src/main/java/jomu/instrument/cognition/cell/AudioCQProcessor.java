@@ -60,12 +60,16 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SCALE);
 		boolean cqSwitchWhiten = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
+		boolean cqSwitchAdaptiveWhiten = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
 		boolean cqSwitchWhitenCompensate = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE);
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_ADAPTIVE_WHITEN);
 		double cqWhitenFactor = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_FACTOR);
-		double cqWhitenThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD);
+		double cqAdaptiveWhitenFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_FACTOR);
+		double cqAdaptiveWhitenThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_THRESHOLD);
 		boolean cqSwitchPreHarmonics = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS);
 		boolean cqSwitchPostHarmonics = parameterManager
@@ -76,8 +80,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN);
 		boolean cqSwitchSharpenHarmonic = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC);
-		boolean cqWhiten = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
 		double cqSharpenThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD);
 		double cqEnvelopeWhitenThreshold = parameterManager
@@ -159,9 +161,13 @@ public class AudioCQProcessor extends ProcessorCommon {
 			ttf.scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
 		}
 
-		if (cqSwitchWhiten) {
+		if (cqSwitchAdaptiveWhiten) {
 			ttf.adaptiveWhiten(cqAdaptiveWhitenControlMap, toneMap.getPreviousTimeFrame(ttf.getStartTime()),
-					cqWhitenFactor, cqWhitenThreshold, cqSwitchWhitenCompensate);
+					cqAdaptiveWhitenFactor, cqAdaptiveWhitenThreshold, cqSwitchWhitenCompensate);
+		}
+
+		if (cqSwitchWhiten) {
+			ttf.whiten(48, cqWhitenFactor);
 		}
 
 		if (cqSwitchDecibel) {
@@ -202,6 +208,8 @@ public class AudioCQProcessor extends ProcessorCommon {
 					ttf.getStartTime() + cqCalibrateRange / 2);
 			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
 		}
+
+		toneMap.updateStatistics(ttf);
 
 		LOG.finer(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
 				+ ", " + ttf.getSpectralCentroid());

@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -121,46 +120,43 @@ public class Hearing implements Organ {
 	@Override
 	public void start() {
 	}
-	
-	static void showLineInfoFormats(final Line.Info lineInfo) {
-	  if (lineInfo instanceof DataLine.Info)
-	   {
-	     final DataLine.Info dataLineInfo = (DataLine.Info)lineInfo;
 
-	     Arrays.stream(dataLineInfo.getFormats())
-	           .forEach(format -> LOG.severe("    " + format.toString()));
-	   }
+	static void showLineInfoFormats(final Line.Info lineInfo) {
+		if (lineInfo instanceof DataLine.Info) {
+			final DataLine.Info dataLineInfo = (DataLine.Info) lineInfo;
+
+			Arrays.stream(dataLineInfo.getFormats()).forEach(format -> LOG.finer("    " + format.toString()));
+		}
 	}
-	
+
 	static void showAudioMixerInfo() {
 		try {
-            Mixer.Info [] mixers = AudioSystem.getMixerInfo();
-            for(int i = 0 ; i< mixers.length; i ++) {
-            	LOG.severe((i+1)+". " + mixers[i].getName() + " --> " + mixers[i].getDescription() );
+			Mixer.Info[] mixers = AudioSystem.getMixerInfo();
+			for (int i = 0; i < mixers.length; i++) {
+				LOG.finer((i + 1) + ". " + mixers[i].getName() + " --> " + mixers[i].getDescription());
 
-                Line.Info [] sourceLines = AudioSystem.getMixer(mixers[i]).getSourceLineInfo();
-                LOG.severe("\tSource Lines:" );
-                for(int j = 0; j< sourceLines.length; j++) {
-                	LOG.severe("\t" + (j+1) + ". " + sourceLines[j].toString() );
-                	showLineInfoFormats(sourceLines[j]);
-                }
-                LOG.severe("\n");
-                
-                Line.Info [] targetLines = AudioSystem.getMixer(mixers[i]).getTargetLineInfo();                 
-                LOG.severe("\tTarget Lines:" );
-                for(int j = 0; j< targetLines.length; j++) {
-                	LOG.severe("\t" + (j+1) + ". " + targetLines[j].toString() );
-                	showLineInfoFormats(targetLines[j]);
-                }       
-                LOG.severe("\n");
-            }           
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-		
+				Line.Info[] sourceLines = AudioSystem.getMixer(mixers[i]).getSourceLineInfo();
+				LOG.finer("\tSource Lines:");
+				for (int j = 0; j < sourceLines.length; j++) {
+					LOG.finer("\t" + (j + 1) + ". " + sourceLines[j].toString());
+					showLineInfoFormats(sourceLines[j]);
+				}
+				LOG.finer("\n");
+
+				Line.Info[] targetLines = AudioSystem.getMixer(mixers[i]).getTargetLineInfo();
+				LOG.finer("\tTarget Lines:");
+				for (int j = 0; j < targetLines.length; j++) {
+					LOG.finer("\t" + (j + 1) + ". " + targetLines[j].toString());
+					showLineInfoFormats(targetLines[j]);
+				}
+				LOG.finer("\n");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
-	
+
 	public void startAudioFileStream(String inputFileName) throws Exception {
 		String fileName = inputFileName;
 		if (streamId != null) {
@@ -175,11 +171,12 @@ public class Hearing implements Organ {
 		// Get amount of free memory within the heap in bytes. This size will increase
 		// // after garbage collection and decrease as new objects are created.
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
-		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);	
-		
+		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
+
 		showAudioMixerInfo();
-		
-		LOG.severe(">>Start Audio file isFileTypeSupported(AudioFileFormat.Type.WAVE): " + AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE));
+
+		LOG.severe(">>Start Audio file isFileTypeSupported(AudioFileFormat.Type.WAVE): "
+				+ AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE));
 		if (!AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE)) {
 			throw new Exception("Audio system WAV file not supported");
 		}
@@ -202,7 +199,7 @@ public class Hearing implements Organ {
 			stream = storage.getObjectStorage().read(fileName);
 		}
 		bs = new BufferedInputStream(stream);
-		
+
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
 		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format.getEncoding() + ", "
 				+ format);
@@ -487,16 +484,16 @@ public class Hearing implements Organ {
 			console.getVisor().clearView();
 			this.setIsFile(false);
 			Info[] mixerInfo = AudioSystem.getMixerInfo();
-			for(Info info: mixerInfo) {
+			for (Info info : mixerInfo) {
 				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
 				Mixer m = AudioSystem.getMixer(info);
 				LOG.severe(">>processMicrophoneStream mixer: " + m.getMixerInfo().toString());
 				Line[] sl = m.getSourceLines();
-				for (Line l: sl) {
+				for (Line l : sl) {
 					LOG.severe(">>processMicrophoneStream source line: " + l.getLineInfo().toString());
 				}
 				Line[] tl = m.getTargetLines();
-				for (Line l: tl) {
+				for (Line l : tl) {
 					LOG.severe(">>processMicrophoneStream target line: " + l.getLineInfo().toString());
 				}
 				LOG.severe(">>processMicrophoneStream: " + info.getDescription());

@@ -63,9 +63,11 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_POST_SHARPEN = "perception.hearing.cq.postSharpenSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_SHARPEN_HARMONIC = "perception.hearing.cq.sharpenHarmonicSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_WHITEN = "perception.hearing.cq.whitenSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_ADAPTIVE_WHITEN = "perception.hearing.cq.adaptiveWhitenSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE = "perception.hearing.cq.whitenCompensateSwitch";
 	public static final String PERCEPTION_HEARING_CQ_WHITEN_FACTOR = "perception.hearing.cq.whitenFactor";
-	public static final String PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD = "perception.hearing.cq.whitenThreshold";
+	public static final String PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_FACTOR = "perception.hearing.cq.adaptiveWhitenFactor";
+	public static final String PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_THRESHOLD = "perception.hearing.cq.adaptiveWhitenThreshold";
 	public static final String PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS = "perception.hearing.cq.minimumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS = "perception.hearing.cq.maximumFrequencyInCents";
 

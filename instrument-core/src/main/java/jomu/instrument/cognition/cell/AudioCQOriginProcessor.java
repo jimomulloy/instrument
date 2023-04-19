@@ -59,12 +59,16 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL);
 		boolean cqSwitchWhiten = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
+		boolean cqSwitchAdaptiveWhiten = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_ADAPTIVE_WHITEN);
 		boolean cqSwitchWhitenCompensate = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE);
 		double cqWhitenFactor = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_FACTOR);
-		double cqWhitenThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_WHITEN_THRESHOLD);
+		double cqAdaptiveWhitenFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_FACTOR);
+		double cqAdaptiveWhitenThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_THRESHOLD);
 		boolean cqSwitchPreHarmonics = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS);
 		boolean cqSwitchPostHarmonics = parameterManager
@@ -113,10 +117,14 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		if (cqSwitchScale) {
 			toneMap.getTimeFrame().scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
 		}
-		if (cqSwitchWhiten) {
+		if (cqSwitchAdaptiveWhiten) {
 			toneMap.getTimeFrame().adaptiveWhiten(cqAdaptiveWhitenControlMap,
-					toneMap.getPreviousTimeFrame(toneMap.getTimeFrame().getStartTime()), cqWhitenFactor,
-					cqWhitenThreshold, cqSwitchWhitenCompensate);
+					toneMap.getPreviousTimeFrame(toneMap.getTimeFrame().getStartTime()), cqAdaptiveWhitenFactor,
+					cqAdaptiveWhitenThreshold, cqSwitchWhitenCompensate);
+		}
+
+		if (cqSwitchWhiten) {
+			toneMap.getTimeFrame().whiten(48, cqWhitenFactor);
 		}
 
 		if (cqSwitchDecibel) {

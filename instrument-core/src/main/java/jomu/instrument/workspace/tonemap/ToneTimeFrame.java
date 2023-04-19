@@ -41,10 +41,12 @@ public class ToneTimeFrame {
 	double rawRmsPower = 0;
 	double spectralFlux = 0;
 	double rawSpectralFlux = 0;
-	double totalAmplitude;
+	double totalAmplitude = 0;
 	double totalRawAmplitude;
-	int spectralCentrsoid;
-	int spectralMean;
+	int spectralMean = -1;
+	boolean isSilent = true;
+	ToneMapStatistics statistics = new ToneMapStatistics();
+	Map<Integer, ToneMapStatistics> statisticsBands = new HashMap<>();
 
 	TimeSet timeSet;
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
@@ -128,11 +130,17 @@ public class ToneTimeFrame {
 	}
 
 	public int getSpectralCentroid() {
-		int spectralCentroid = 0;
-		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			spectralCentroid += elementIndex * (elements[elementIndex].amplitude / totalAmplitude);
+		int spectralCentroid = -1;
+		if (!isSilent && totalAmplitude > 0) {
+			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				spectralCentroid += elementIndex * (elements[elementIndex].amplitude / totalAmplitude);
+			}
 		}
 		return spectralCentroid;
+	}
+
+	public int getSpectralMean() {
+		return spectralMean;
 	}
 
 	public double getBeatAmplitude() {
@@ -401,6 +409,14 @@ public class ToneTimeFrame {
 		return this;
 	}
 
+	public ToneMapStatistics getStatistics() {
+		return statistics;
+	}
+
+	public Map<Integer, ToneMapStatistics> getStatisticsBands() {
+		return statisticsBands;
+	}
+
 	public ToneTimeFrame reset() {
 		maxPitch = 0;
 		maxAmplitude = 0;
@@ -421,7 +437,6 @@ public class ToneTimeFrame {
 					elements[i].amplitude = AMPLITUDE_FLOOR;
 				}
 				elements[i].noteState = 0;
-				// elements[i].noteListElement = null;
 				avgAmplitude += elements[i].amplitude;
 				count++;
 				if (maxAmplitude < elements[i].amplitude) {
@@ -437,26 +452,108 @@ public class ToneTimeFrame {
 				sumSquareAmplitude += elements[i].amplitude * elements[i].amplitude;
 			}
 		}
-		avgAmplitude = avgAmplitude / count;
-		rawRmsPower = Math.sqrt(sumRawSquareAmplitude / count);
-		rmsPower = Math.sqrt(sumSquareAmplitude / count);
-		List<Integer> meanFreqs = new ArrayList<Integer>();
-		double minAmp = Double.MAX_VALUE;
-		int minIndex = 0;
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i].amplitude == avgAmplitude) {
-				meanFreqs.add(i);
-			} else {
-				if (elements[i].amplitude > avgAmplitude && elements[i].amplitude < minAmp) {
-					minIndex = i;
+
+		int bandIndex = pitchSet.getNote(0);
+		int elementIndex = 0;
+		int note = 0;
+		double amplitude = 0;
+		ToneMapStatistics statisticsBand = null;
+		int bandCount = 0;
+		double bandSum = 0;
+		for (elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			if (elements[elementIndex] != null) {
+				ToneMapElement element = elements[elementIndex];
+				note = pitchSet.getNote(element.pitchIndex);
+				amplitude = element.amplitude;
+				bandCount++;
+				bandSum += amplitude;
+				if (!statisticsBands.containsKey(bandIndex)) {
+					statisticsBand = new ToneMapStatistics();
+					statisticsBands.put(bandIndex, statisticsBand);
+				} else {
+					statisticsBand = statisticsBands.get(bandIndex);
+				}
+
+				if ((note - bandIndex) < 24) {
+					if (statisticsBand.max < amplitude) {
+						statisticsBand.max = amplitude;
+					}
+					if (statisticsBand.min > amplitude) {
+						statisticsBand.min = amplitude;
+					}
+					statisticsBand.mean = bandSum / bandCount;
+				} else {
+					if (statisticsBand.max < amplitude) {
+						statisticsBand.max = amplitude;
+					}
+					if (statisticsBand.min > amplitude) {
+						statisticsBand.min = amplitude;
+					}
+					statisticsBand.mean = bandSum / bandCount;
+					statisticsBand.sum = bandSum;
+					bandIndex += 12;
+					elementIndex -= 12;
+					bandCount = 0;
+					bandSum = 0;
+
 				}
 			}
 		}
-		if (meanFreqs.isEmpty()) {
-			meanFreqs.add(minIndex);
+
+		if (maxAmplitude <= AMPLITUDE_FLOOR) {
+			isSilent = true;
+			avgAmplitude = AMPLITUDE_FLOOR;
+			rawRmsPower = 0;
+			rmsPower = 0;
+			spectralMean = -1;
+			spectralFlux = 0;
+		} else {
+			isSilent = false;
+			avgAmplitude = avgAmplitude / count;
+			rawRmsPower = Math.sqrt(sumRawSquareAmplitude / count);
+			rmsPower = Math.sqrt(sumSquareAmplitude / count);
+			List<Integer> meanFreqs = new ArrayList<Integer>();
+			double minAmp = Double.MAX_VALUE;
+			double maxAmp = 0;
+			int minIndex = 0;
+			int maxIndex = 0;
+			for (int i = 0; i < elements.length; i++) {
+				if (elements[i].amplitude == avgAmplitude) {
+					meanFreqs.add(i);
+				} else {
+					if (elements[i].amplitude > avgAmplitude && elements[i].amplitude < minAmp) {
+						minIndex = i;
+						minAmp = elements[i].amplitude;
+					}
+					if (elements[i].amplitude < avgAmplitude && elements[i].amplitude > maxAmp) {
+						maxIndex = i;
+						maxAmp = elements[i].amplitude;
+					}
+				}
+			}
+			if (meanFreqs.isEmpty()) {
+				if (maxIndex > 0 && minIndex > 0) {
+					spectralMean = (maxIndex + minIndex) / 2;
+				} else {
+					spectralMean = minIndex;
+				}
+			} else {
+				Collections.sort(meanFreqs);
+				if (meanFreqs.size() % 2 == 0 && meanFreqs.size() > 1) {
+					int lowMean = meanFreqs.size() / 2;
+					int highMean = meanFreqs.size() / 2 + 1;
+					spectralMean = meanFreqs.get((highMean + lowMean) / 2);
+				} else {
+					spectralMean = meanFreqs.get(meanFreqs.size() / 2);
+				}
+			}
 		}
-		Collections.sort(meanFreqs);
-		spectralMean = meanFreqs.get(meanFreqs.size() / 2);
+
+		statistics.max = maxAmplitude;
+		statistics.min = minAmplitude;
+		statistics.mean = avgAmplitude;
+		statistics.sum = totalAmplitude;
+
 		return this;
 	}
 
@@ -1256,6 +1353,20 @@ public class ToneTimeFrame {
 		return this;
 	}
 
+	public ToneTimeFrame whiten(int centroid, double whitenFactor) {
+		reset();
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			ToneMapElement element = elements[elementIndex];
+			if (element.amplitude > AMPLITUDE_FLOOR) {
+				int note = pitchSet.getNote(element.pitchIndex);
+				double whitening = 1 + (((note - centroid) * (note - centroid)) / (4 * whitenFactor));
+				element.amplitude *= whitening;
+			}
+		}
+		reset();
+		return this;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(pitchSet, timeSet);
@@ -1466,5 +1577,9 @@ public class ToneTimeFrame {
 		if (chord != null) {
 			chordNotes.addAll(chord.getChordNotes());
 		}
+	}
+
+	public boolean isSilent() {
+		return isSilent;
 	}
 }

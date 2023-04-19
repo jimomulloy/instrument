@@ -22,13 +22,22 @@ A brief description of what this project does and who it's for
  - [Awesome README](https://github.com/matiassingers/awesome-readme)
  - [How to write a Good readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
 
+## Installation
+
+Install my-project with npm
+
+```bash
+  cd instrument
+  mvn clean install
+```
 
 ## Deployment
 
 To deploy this project run
 
 ```bash
-  npm run deploy
+  cd instrument
+  mvn clean install
 ```
 
 
@@ -50,15 +59,6 @@ Insert gif or link to demo
 - Fullscreen mode
 - Cross platform
 
-
-## Installation
-
-Install my-project with npm
-
-```bash
-  npm install my-project
-  cd my-project
-```
     
 ## Usage/Examples
 
