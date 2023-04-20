@@ -279,13 +279,13 @@ public class NoteTracker {
 					if (lastNote != null) {
 						lastTime = lastNote.endTime;
 					}
-					if (((nle.endTime - nle.startTime) < 200) && (nle.startTime - lastTime) > 2000) {
-						discardedNotes.add(nle);
-						notesToDelete.add(nle);
-						if (track.getNotes().size() == notesToDelete.size()) {
-							break;
-						}
-					}
+//					if (((nle.endTime - nle.startTime) < 200) && (nle.startTime - lastTime) > 2000) {
+//						discardedNotes.add(nle);
+//						notesToDelete.add(nle);
+//						if (track.getNotes().size() == notesToDelete.size()) {
+//							break;
+//						}
+//					}
 					lastNote = nle;
 				}
 				for (NoteListElement nle : notesToDelete) {

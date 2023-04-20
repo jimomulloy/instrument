@@ -748,8 +748,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							+ instrumentSession.getInputAudioFileName() + "_recording_track_voices.midi";
 					file = new File(trackFileName);
 					saveMidiFile(file, trackList);
-					LOG.severe(">>Saved VOICE MIDI file track name: " + trackFileName + ", " + voice1Track.size() + ", "
-							+ voice2Track.size());
 
 					trackList.clear();
 					trackList.add(voice1Track);
@@ -765,7 +763,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							+ instrumentSession.getInputAudioFileName() + "_recording_track_ensemble.midi";
 					file = new File(trackFileName);
 					saveMidiFile(file, trackList);
-					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
 					trackList.clear();
 					trackList.add(beat1Track);
@@ -776,7 +773,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							+ instrumentSession.getInputAudioFileName() + "_recording_track_beats.midi";
 					file = new File(trackFileName);
 					saveMidiFile(file, trackList);
-					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
 					trackList.clear();
 
@@ -791,8 +787,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 								+ instrumentSession.getInputAudioFileName() + "_recording_track_chords.midi";
 						file = new File(trackFileName);
 						saveMidiFile(file, trackList);
-						LOG.severe(">>Saved CHORDS MIDI file track name: " + trackFileName + ", " + chord1Track.size()
-								+ ", " + chord2Track.size());
 					}
 
 					trackList.clear();
@@ -807,8 +801,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 								+ instrumentSession.getInputAudioFileName() + "_recording_track_pads.midi";
 						file = new File(trackFileName);
 						saveMidiFile(file, trackList);
-						LOG.severe(">>Saved PADS MIDI file track name: " + trackFileName + ", " + pad1Track.size()
-								+ ", " + pad2Track.size());
 					}
 				} else {
 					Track[] tracks = sequence.getTracks();
@@ -1291,12 +1283,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				double amplitude = toneMapElement.amplitude;
+				double amplitude2 = toneMapElement.amplitude;
 				NoteListElement noteListElement = toneMapElement.noteListElement;
 
 				int volume = 0;
 				amplitude = 0;
 				if (noteListElement != null) {
 					amplitude = noteListElement.avgAmp;
+					amplitude2 = noteListElement.maxAmp;
+					amplitude = noteListElement.maxAmp;
 
 					if (amplitude > highVoiceThreshold) {
 						volume = 127;
@@ -1306,7 +1301,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
 								* 127);
 					}
-
+					// volume = 127;
 				}
 
 				if (volume > 0) {
@@ -1314,6 +1309,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
+							LOG.severe(">>MIDI V4 NOTEON: " + toneTimeFrame.getStartTime() + ", " + note + ", "
+									+ amplitude + ", " + amplitude2);
 							if (writeTrack) {
 								createEvent(voice4Track, voice4Channel, NOTEON, note, tick, volume);
 							}
@@ -1338,6 +1335,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice4Channel.num, note, 0);
+							LOG.severe(">>MIDI V4 NOTEOFF: " + toneTimeFrame.getStartTime() + ", " + note);
 							if (writeTrack) {
 								createEvent(voice4Track, voice4Channel, NOTEOFF, note, tick, volume);
 							}

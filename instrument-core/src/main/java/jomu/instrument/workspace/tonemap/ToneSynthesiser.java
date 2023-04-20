@@ -82,7 +82,7 @@ public class ToneSynthesiser {
 		for (NoteListElement nle : discardedNotes) {
 			ToneTimeFrame frame = toneMap.getTimeFrame(nle.startTime / 1000);
 			while (frame != null && frame.getStartTime() < nle.endTime) {
-				if (frame.getElement(nle.pitchIndex).noteListElement.equals(nle)) {
+				if (nle.equals(frame.getElement(nle.pitchIndex).noteListElement)) {
 					frame.getElement(nle.pitchIndex).noteListElement = null;
 				}
 				frame = toneMap.getNextTimeFrame(frame.getStartTime());
@@ -115,13 +115,15 @@ public class ToneSynthesiser {
 			double quantizePercent, int quantizeBeat) {
 		for (NoteListElement nle : nles) {
 			NoteTrack track = toneMap.getNoteTracker().getTrack(nle);
-			double time = nle.endTime / 1000;
-			double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
-			double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
-			double beatRange = beatAfterTime - beatBeforeTime;
-			NoteListElement pnle = track.getPenultimateNote();
-			if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
-				synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+			if (track != null) {
+				double time = nle.endTime / 1000;
+				double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
+				double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
+				double beatRange = beatAfterTime - beatBeforeTime;
+				NoteListElement pnle = track.getPenultimateNote();
+				if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
+					synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+				}
 			}
 		}
 	}

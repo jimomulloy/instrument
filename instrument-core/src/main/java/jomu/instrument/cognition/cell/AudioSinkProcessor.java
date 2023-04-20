@@ -22,7 +22,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		boolean pausePlay = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH);
@@ -36,7 +36,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
 
 		if (synthesisToneMap.getTimeFrame(sequence) != null) {
-			LOG.severe(">>AudioSinkProcessor VOICE SEND time: " + synthesisToneMap.getTimeFrame(sequence).getStartTime()
+			LOG.finer(">>AudioSinkProcessor VOICE SEND time: " + synthesisToneMap.getTimeFrame(sequence).getStartTime()
 					+ ", sequence: " + sequence + ", streamId: " + streamId);
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence, pausePlay);
 		}
