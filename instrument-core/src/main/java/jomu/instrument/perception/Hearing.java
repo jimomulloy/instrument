@@ -36,6 +36,7 @@ import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import jomu.instrument.Organ;
+import jomu.instrument.audio.PidProcessor;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
 import jomu.instrument.cognition.Cortex;
@@ -412,7 +413,26 @@ public class Hearing implements Organ {
 
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			LOG.severe(">>calibarteAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
+
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+			float audioHighPass = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
+			float audioLowPass = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
+			if (audioLowPass - audioHighPass > 0) {
+				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
+			}
+			float pidPFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
+			float pidDFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_D_FACTOR);
+			float pidIFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_I_FACTOR);
+
+			if (pidPFactor > 0 || pidDFactor > 0 || pidIFactor > 0) {
+				dispatcher.addAudioProcessor(new PidProcessor(pidPFactor, pidDFactor, pidIFactor));
+			}
+
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 
@@ -473,6 +493,17 @@ public class Hearing implements Organ {
 			if (audioLowPass - audioHighPass > 0) {
 				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
 			}
+			float pidPFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
+			float pidDFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_D_FACTOR);
+			float pidIFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_I_FACTOR);
+
+			if (pidPFactor > 0 || pidDFactor > 0 || pidIFactor > 0) {
+				dispatcher.addAudioProcessor(new PidProcessor(pidPFactor, pidDFactor, pidIFactor));
+			}
+
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
@@ -526,6 +557,18 @@ public class Hearing implements Organ {
 			if (audioLowPass - audioHighPass > 0) {
 				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
 			}
+			float pidPFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
+			float pidDFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_D_FACTOR);
+			float pidIFactor = parameterManager
+					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_I_FACTOR);
+
+			if (pidPFactor > 0 || pidDFactor > 0 || pidIFactor > 0) {
+				dispatcher.addAudioProcessor(new PidProcessor(pidPFactor, pidDFactor, pidIFactor));
+			}
+
+			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {

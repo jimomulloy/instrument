@@ -28,6 +28,9 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY = "perception.hearing.tonemap.maximumFrequency";
 	public static final String PERCEPTION_HEARING_HARMONIC_LOW_NOTE = "perception.hearing.harmonicLowNote";
 	public static final String PERCEPTION_HEARING_HARMONIC_HIGH_NOTE = "perception.hearing.harmonicHighNote";
+	public static final String PERCEPTION_HEARING_PID_P_FACTOR = "perception.hearing.pidPFactor";
+	public static final String PERCEPTION_HEARING_PID_D_FACTOR = "perception.hearing.pidDFactor";
+	public static final String PERCEPTION_HEARING_PID_I_FACTOR = "perception.hearing.pidIFactor";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 
@@ -188,6 +191,16 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_FORMANT_LOW = "audio.tuner.formantLow";
 	public static final String AUDIO_TUNER_FORMANT_MIDDLE = "audio.tuner.formantMid";
 	public static final String AUDIO_TUNER_FORMANT_RANGE = "audio.tuner.formantRange";
+	public static final String AUDIO_TUNER_TOP_FORMANT_FACTOR = "audio.tuner.topFormantFactor";
+	public static final String AUDIO_TUNER_TOP_FORMANT_HIGH = "audio.tuner.topFormantHigh";
+	public static final String AUDIO_TUNER_TOP_FORMANT_LOW = "audio.tuner.topFormantLow";
+	public static final String AUDIO_TUNER_TOP_FORMANT_MIDDLE = "audio.tuner.topFormantMid";
+	public static final String AUDIO_TUNER_TOP_FORMANT_RANGE = "audio.tuner.topFormantRange";
+	public static final String AUDIO_TUNER_BOTTOM_FORMANT_FACTOR = "audio.tuner.bottomFormantFactor";
+	public static final String AUDIO_TUNER_BOTTOM_FORMANT_HIGH = "audio.tuner.bottomFormantHigh";
+	public static final String AUDIO_TUNER_BOTTOM_FORMANT_LOW = "audio.tuner.bottomFormantLow";
+	public static final String AUDIO_TUNER_BOTTOM_FORMANT_MIDDLE = "audio.tuner.bottomFormantMid";
+	public static final String AUDIO_TUNER_BOTTOM_FORMANT_RANGE = "audio.tuner.bottomFormantRange";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS = "audio.tuner.noteScan.attenuateHarmonicsSwitch";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_UNDERTONES = "audio.tuner.noteScan.attenuateUndertonesSwitch";
 	public static final String AUDIO_TUNER_NOTE_SCAN_ATTENUATE_SEMITONES = "audio.tuner.noteScan.attenuateSemitonesSwitch";

@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.ObjectStorage;
 
@@ -59,12 +58,13 @@ public class FileStorage implements ObjectStorage {
 	@Override
 	public String getBasePath() {
 		return System.getProperty("user.home");
-		//String basePath = parameterManager.getParameter(InstrumentParameterNames.STORAGE_OBJECT_STORE_BASE_PATH);
-		//if (basePath.equals("user.home")) {
-		//	return System.getProperty("user.home");
-		//} else {
-		//	return basePath;
-		//}
+		// String basePath =
+		// parameterManager.getParameter(InstrumentParameterNames.STORAGE_OBJECT_STORE_BASE_PATH);
+		// if (basePath.equals("user.home")) {
+		// return System.getProperty("user.home");
+		// } else {
+		// return basePath;
+		// }
 	}
 
 	@Override
@@ -92,5 +92,11 @@ public class FileStorage implements ObjectStorage {
 	public void delete(String name) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public String[] listStore(String string) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

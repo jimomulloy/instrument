@@ -80,11 +80,9 @@ public class AudioTuner implements ToneMapConstants {
 	private int pitchHigh = INIT_PITCH_HIGH;
 	private int pitchLow = INIT_PITCH_LOW;
 
-	private int formantHigh;
-	private int formantLow;
-	private int formantMid;
-	private double formantRange;
-	private double formantFactor;
+	private FormantSettings formantSettings = new FormantSettings();
+	private FormantSettings formantSettingsBottom = new FormantSettings();
+	private FormantSettings formantSettingsTop = new FormantSettings();
 
 	// private NoteList noteList;
 	private double[] harmonics;
@@ -179,11 +177,38 @@ public class AudioTuner implements ToneMapConstants {
 		peakSwitch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH);
 		pitchHigh = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_HIGH);
 		pitchLow = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_LOW);
-		formantHigh = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH);
-		formantLow = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW);
-		formantMid = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE);
-		formantRange = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE);
-		formantFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR);
+
+		formantSettings.formantHigh = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH);
+		formantSettings.formantLow = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW);
+		formantSettings.formantMid = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE);
+		formantSettings.formantRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE);
+		formantSettings.formantFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR);
+
+		formantSettingsTop.formantHigh = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_HIGH);
+		formantSettingsTop.formantLow = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_LOW);
+		formantSettingsTop.formantMid = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_MIDDLE);
+		formantSettingsTop.formantRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_RANGE);
+		formantSettingsTop.formantFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_FACTOR);
+
+		formantSettingsBottom.formantHigh = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_HIGH);
+		formantSettingsBottom.formantLow = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_LOW);
+		formantSettingsBottom.formantMid = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_MIDDLE);
+		formantSettingsBottom.formantRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_RANGE);
+		formantSettingsBottom.formantFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_FACTOR);
 
 		noteTimbreFrequencyRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE);
@@ -208,14 +233,13 @@ public class AudioTuner implements ToneMapConstants {
 
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 
-		LOG.severe(">>Tuner apply formant C: " + formantRange + ", " + formantLow + ", " + formantMid + ", "
-				+ formantHigh + ", " + formantFactor);
-
 		for (ToneMapElement toneMapElement : ttfElements) {
 			int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 			if (toneMapElement == null || toneMapElement.amplitude == -1)
 				continue;
-			applyFormant(toneMapElement, note);
+			applyFormant(formantSettings, toneMapElement, note);
+			applyFormant(formantSettingsBottom, toneMapElement, note);
+			applyFormant(formantSettingsTop, toneMapElement, note);
 		}
 		return;
 	}
@@ -720,30 +744,34 @@ public class AudioTuner implements ToneMapConstants {
 
 	}
 
-	// Apply formant conversion to ToneMapMatrix element data
-	private void applyFormant(ToneMapElement element, int note) {
+	private void applyFormant(FormantSettings settings, ToneMapElement element, int note) {
 
-		if (formantLow > formantMid || formantLow > formantHigh || formantMid > formantHigh)
+		if (settings.formantLow > settings.formantMid || settings.formantLow >= settings.formantHigh
+				|| settings.formantMid > settings.formantHigh)
 			return;
 
-		double formantMidStart = (formantMid - formantRange / 2) < formantLow ? formantLow
-				: formantMid - formantRange / 2;
-		double formantMidEnd = (formantMid + formantRange / 2) > formantHigh ? formantHigh
-				: formantMid + formantRange / 2;
+		double formantMidStart = (settings.formantMid - settings.formantRange / 2) < settings.formantLow
+				? settings.formantLow
+				: settings.formantMid - settings.formantRange / 2;
+		double formantMidEnd = (settings.formantMid + settings.formantRange / 2) > settings.formantHigh
+				? settings.formantHigh
+				: settings.formantMid + settings.formantRange / 2;
 
-		if (note < formantLow || note > formantHigh)
+		if (note < settings.formantLow || note > settings.formantHigh)
 			return;
 
-		if (note <= formantMidStart && formantMidStart > formantLow) {
-			double factor = (1.0 - ((formantFactor / 100.0) * ((note - formantLow) / (formantMidStart - formantLow))));
+		if (note <= formantMidStart && formantMidStart > settings.formantLow) {
+			double factor = (1.0 - ((settings.formantFactor / 100.0)
+					* ((note - settings.formantLow) / (formantMidStart - settings.formantLow))));
 			element.amplitude *= factor;
 
-		} else if (note >= formantMidEnd && formantMidEnd < formantHigh) {
-			double factor = (1.0 - ((formantFactor / 100.0) * ((formantHigh - note) / (formantHigh - formantMidEnd))));
+		} else if (note >= formantMidEnd && formantMidEnd < settings.formantHigh) {
+			double factor = (1.0 - ((settings.formantFactor / 100.0)
+					* ((settings.formantHigh - note) / (settings.formantHigh - formantMidEnd))));
 			element.amplitude *= factor;
 
 		} else {
-			double factor = (1.0 - ((formantFactor / 100.0)));
+			double factor = (1.0 - ((settings.formantFactor / 100.0)));
 			element.amplitude *= factor;
 		}
 
@@ -1456,6 +1484,16 @@ public class AudioTuner implements ToneMapConstants {
 			min = Math.min(min, bin[Math.round(h5th[h] * freq_idx)]);
 		}
 		return min;
+	}
+
+	class FormantSettings {
+
+		public int formantHigh;
+		public int formantLow;
+		public int formantMid;
+		public double formantRange;
+		public double formantFactor;
+
 	}
 
 }

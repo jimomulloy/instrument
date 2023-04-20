@@ -21,4 +21,6 @@ public interface ObjectStorage {
 	void clearStore(String name);
 
 	void delete(String name);
+
+	String[] listStore(String string);
 }

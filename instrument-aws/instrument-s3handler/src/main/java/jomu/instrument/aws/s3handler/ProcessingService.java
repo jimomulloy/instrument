@@ -113,6 +113,26 @@ public class ProcessingService {
 				+ parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
 		storage.getObjectStorage().clearStore("private/" + userId + "/output");
 
+		if (!s3Key.startsWith("private/" + userId + "/input/recording/")) {
+			String[] storeKeys = storage.getObjectStorage().listStore("private/" + userId + "/input/");
+			for (String storeKey : storeKeys) {
+				LOG.severe(">>ProcessingService input storeKey: " + storeKey);
+				if (!storeKey.startsWith("private/" + userId + "/input/recording/") && !storeKey.equals(s3Key)) {
+					storage.getObjectStorage().delete(storeKey);
+					LOG.severe(">>ProcessingService delete old input files: " + storeKey);
+				}
+			}
+		} else {
+			String[] storeKeys = storage.getObjectStorage().listStore("private/" + userId + "/input/recording/");
+			for (String storeKey : storeKeys) {
+				LOG.severe(">>ProcessingService input storeKey: " + storeKey);
+				if (!storeKey.equals(s3Key)) {
+					storage.getObjectStorage().delete(storeKey);
+					LOG.severe(">>ProcessingService delete old input files: " + storeKey);
+				}
+			}
+		}
+
 		boolean instrumentRun = controller.run(userId, input.getName(), style);
 
 		if (!instrumentRun) {

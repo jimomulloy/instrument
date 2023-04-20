@@ -3,6 +3,7 @@ package jomu.instrument.control;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -25,25 +26,35 @@ public class ParameterManager {
 	ParameterValidator parameterValidator = new ParameterValidator();
 
 	public void onStartup(@Observes StartupEvent startupEvent) {
-		try {
-			reset();
-		} catch (IOException e) {
-			throw new InstrumentException("ParameterManager startup exception: " + e.getMessage(), e);
-		}
+		reset();
 	}
 
 	public void initialise() {
 	}
 
-	public void reset() throws FileNotFoundException, IOException {
-		LOG.severe("ParameterManager resetting..");
-		InputStream is = getClass().getClassLoader()
-				.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
-		LOG.severe(">>ParameterManager is: " + is);
-		parameters.load(is);
-		InputStream isv = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
-		parameterValidator.load(isv);
-		LOG.severe("ParameterManager reset");
+	public void reset() {
+		try {
+			LOG.severe("ParameterManager resetting..");
+			InputStream is = getClass().getClassLoader()
+					.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+			LOG.severe(">>ParameterManager is: " + is);
+			parameters.load(is);
+			InputStream isv = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
+			parameterValidator.load(isv);
+			validateAll();
+			LOG.severe("ParameterManager reset");
+		} catch (Exception ex) {
+			throw new InstrumentException("ParameterManager reset exception: " + ex.getMessage(), ex);
+		}
+	}
+
+	private void validateAll() {
+		for (Entry<Object, Object> entry : parameters.entrySet()) {
+			if (!parameterValidator.validate((String) entry.getKey(), (String) entry.getValue())) {
+				throw new InstrumentException("ParameterManager validateAll invalid parameter, key: " + entry.getKey()
+						+ ", value: " + entry.getValue());
+			}
+		}
 	}
 
 	public String getParameter(String key) {
@@ -198,7 +209,7 @@ public class ParameterManager {
 		}
 
 		private boolean validateRange(String validateValue, String value) {
-			String[] range = validateValue.split("-");
+			String[] range = validateValue.split(">");
 			if (range.length != 2) {
 				return true;
 			}
@@ -208,18 +219,17 @@ public class ParameterManager {
 			if (!isNumber(value)) {
 				return false;
 			}
-
 			double low = getNumber(range[0]);
 			double high = getNumber(range[1]);
-			double intValue = getNumber(value);
-			if (intValue >= low && intValue <= high) {
+			double nValue = getNumber(value);
+			if (nValue >= low && nValue <= high) {
 				return true;
 			}
 			return false;
 		}
 
 		private boolean isRange(String validateValue) {
-			if (validateValue.contains("-")) {
+			if (validateValue.contains(">")) {
 				return true;
 			}
 			return false;
@@ -229,8 +239,7 @@ public class ParameterManager {
 			try {
 				validatorProperties.load(is);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new InstrumentException("ParameterManager validatorProperties load: " + e.getMessage(), e);
 			}
 		}
 

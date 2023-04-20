@@ -82,7 +82,7 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 				beatHandler.handleOnset(time, -1);
 			}
 		} else {
-			System.err.println("No best agent");
+			LOG.severe(">> BeatSource trackBeats - no best agent");
 		}
 	}
 

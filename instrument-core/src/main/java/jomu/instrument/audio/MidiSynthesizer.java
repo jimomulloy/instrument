@@ -34,7 +34,6 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
@@ -54,8 +53,6 @@ import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ChordListElement;
 import jomu.instrument.workspace.tonemap.ChordNote;
 import jomu.instrument.workspace.tonemap.NoteListElement;
-import jomu.instrument.workspace.tonemap.NoteSequence;
-import jomu.instrument.workspace.tonemap.NoteSequenceElement;
 import jomu.instrument.workspace.tonemap.NoteStatus;
 import jomu.instrument.workspace.tonemap.NoteStatusElement;
 import jomu.instrument.workspace.tonemap.PitchSet;
@@ -257,7 +254,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (Info midiDev : midiDevs) {
 				LOG.severe(">>MidiSynth dev: " + midiDev);
 			}
-				
+
 			MidiChannel[] midiChannels = new MidiChannel[0];
 			Soundbank sb = null;
 			if (useSynthesizer) {
@@ -269,13 +266,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 						throw new InstrumentException("Midi open error, MISSING SYNTH");
 					}
 				}
-	
+
 				synthesizer.open();
-				
+
 				try {
 					if (parameterManager.hasParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)) {
-						File file = new File(
-								parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
+						File file = new File(parameterManager
+								.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
 						if (file.exists()) {
 							sb = MidiSystem.getSoundbank(file);
 							synthesizer.loadAllInstruments(sb);
@@ -289,7 +286,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					LOG.log(Level.SEVERE, ">>MidiSynth open error", e);
 					throw new InstrumentException("Midi open error: " + e.getMessage(), e);
 				}
-	
+
 				if (instruments == null || instruments.length == 0) {
 					sb = synthesizer.getDefaultSoundbank();
 					if (sb != null) {
@@ -304,14 +301,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 					LOG.severe(">>MidiSynth MISSING INSTRUMENTS!!");
 					throw new InstrumentException("Midi open error: MISSING INSTRUMENTS");
 				}
-	
+
 				midiChannels = synthesizer.getChannels();
 			}
-			
+
 			numChannels = midiChannels.length;
 			if (numChannels == 0) {
 				LOG.finer(">>MidiSynth MISSING CHANNELS!!");
-				//return false;
+				// return false;
 				channels = new ChannelData[16];
 				for (int i = 0; i < channels.length; i++) {
 					channels[i] = new ChannelData(null, i);
@@ -322,7 +319,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					channels[i] = new ChannelData(midiChannels[i], i);
 				}
 			}
-			
+
 			LOG.severe(">>MidiSynth CHANNELS: " + channels.length);
 			initChannels();
 			sequence = new Sequence(Sequence.PPQ, 10);
@@ -358,13 +355,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private void initChannel(ChannelData channelData, String instrumentName) {
 		Instrument channelInstrument = null;
 		int instumentNumber = 0;
-		
+
 		if (instrumentName != null) {
 			try {
 				instumentNumber = Integer.parseInt(instrumentName);
 				if (instruments != null && instruments.length > instumentNumber - 1) {
 					channelInstrument = instruments[instumentNumber - 1];
-				}	
+				}
 			} catch (NumberFormatException ex) {
 				if (instruments != null) {
 					for (Instrument instrument : instruments) {
@@ -373,7 +370,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							break;
 						}
 					}
-				}	
+				}
 			}
 		}
 		if (channelInstrument == null && instruments != null && instruments.length > 0) {
@@ -382,13 +379,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		if (synthesizer != null) {
 			synthesizer.loadInstrument(channelInstrument);
-		}	
-		
+		}
+
 		if (channelData.channel != null) {
 			channelData.channel.allNotesOff();
 			channelData.channel.allSoundOff();
 			channelData.channel.resetAllControllers();
-			boolean soloState = false, muteState = false, omniState = false, monoState = false, localControlState = true;
+			boolean soloState = false, muteState = false, omniState = false, monoState = false,
+					localControlState = true;
 			channelData.channel.setSolo(soloState);
 			channelData.channel.setMute(muteState);
 			channelData.channel.setOmni(omniState);
@@ -399,7 +397,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			programChange(channelData, channelInstrument.getPatch().getProgram());
 		} else {
 			channelData.program = instumentNumber;
-		}	
+		}
 	}
 
 	private void initDrumChannel(ChannelData channelData) {
@@ -408,14 +406,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 			channelData.channel.allNotesOff();
 			channelData.channel.allSoundOff();
 			channelData.channel.resetAllControllers();
-			boolean soloState = false, muteState = false, omniState = false, monoState = false, localControlState = true;
+			boolean soloState = false, muteState = false, omniState = false, monoState = false,
+					localControlState = true;
 			channelData.channel.setSolo(soloState);
 			channelData.channel.setMute(muteState);
 			channelData.channel.setOmni(omniState);
 			channelData.channel.setMono(monoState);
 			channelData.channel.localControl(localControlState);
 			channelData.channel.programChange(0, 1);
-		}	
+		}
 	}
 
 	private File getFileFromResource(String fileName) throws URISyntaxException {
@@ -739,7 +738,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				LOG.severe(">>Saved MIDI file name: " + masterFileName);
 
 				if (midiSynthTracksSwitch) {
-					
+
 					List<Track> trackList = new ArrayList<>();
 					trackList.add(voice1Track);
 					trackList.add(voice2Track);
@@ -749,7 +748,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 							+ instrumentSession.getInputAudioFileName() + "_recording_track_voices.midi";
 					file = new File(trackFileName);
 					saveMidiFile(file, trackList);
-					LOG.severe(">>Saved VOICE MIDI file track name: " + trackFileName+ ", " + voice1Track.size()+ ", " + voice2Track.size());
+					LOG.severe(">>Saved VOICE MIDI file track name: " + trackFileName + ", " + voice1Track.size() + ", "
+							+ voice2Track.size());
 
 					trackList.clear();
 					trackList.add(voice1Track);
@@ -779,21 +779,22 @@ public class MidiSynthesizer implements ToneMapConstants {
 					LOG.severe(">>Saved MIDI file track name: " + trackFileName);
 
 					trackList.clear();
-					
+
 					if (chord1Track.size() > 2) {
 						trackList.add(chord1Track);
 					}
-					if (chord2Track.size() > 2) { 
+					if (chord2Track.size() > 2) {
 						trackList.add(chord2Track);
-					}	
+					}
 					if (trackList.size() > 0) {
 						trackFileName = folder + System.getProperty("file.separator")
-							+ instrumentSession.getInputAudioFileName() + "_recording_track_chords.midi";
+								+ instrumentSession.getInputAudioFileName() + "_recording_track_chords.midi";
 						file = new File(trackFileName);
 						saveMidiFile(file, trackList);
-						LOG.severe(">>Saved CHORDS MIDI file track name: " + trackFileName + ", " + chord1Track.size()+ ", " + chord2Track.size());
-					}	
-					
+						LOG.severe(">>Saved CHORDS MIDI file track name: " + trackFileName + ", " + chord1Track.size()
+								+ ", " + chord2Track.size());
+					}
+
 					trackList.clear();
 					if (pad1Track.size() > 2) {
 						trackList.add(pad1Track);
@@ -806,8 +807,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 								+ instrumentSession.getInputAudioFileName() + "_recording_track_pads.midi";
 						file = new File(trackFileName);
 						saveMidiFile(file, trackList);
-						LOG.severe(">>Saved PADS MIDI file track name: " + trackFileName+ ", " + pad1Track.size()+ ", " + pad2Track.size());
-					}	
+						LOG.severe(">>Saved PADS MIDI file track name: " + trackFileName + ", " + pad1Track.size()
+								+ ", " + pad2Track.size());
+					}
 				} else {
 					Track[] tracks = sequence.getTracks();
 					for (int i = 0; i < tracks.length; i++) {
@@ -2428,7 +2430,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				channelData.channel.allNotesOff();
 				channelData.channel.allSoundOff();
 				channelData.channel.resetAllControllers();
-			}	
+			}
 		}
 	}
 

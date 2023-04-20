@@ -7,13 +7,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class NoteTracker {
 
 	private static final Logger LOG = Logger.getLogger(NoteTracker.class.getName());
 
-	Set<NoteTrack> tracks = new HashSet<>();
+	Set<NoteTrack> tracks = ConcurrentHashMap.newKeySet();
 	ToneMap toneMap;
 
 	public class NoteTrack {
@@ -271,6 +272,7 @@ public class NoteTracker {
 		if (tracks.size() > 5) {
 			for (NoteTrack track : tracks) {
 				LinkedList<NoteListElement> notes = track.getNotes();
+				Set<NoteListElement> notesToDelete = new HashSet<>();
 				NoteListElement lastNote = null;
 				for (NoteListElement nle : notes) {
 					double lastTime = 0;
@@ -279,13 +281,18 @@ public class NoteTracker {
 					}
 					if (((nle.endTime - nle.startTime) < 200) && (nle.startTime - lastTime) > 2000) {
 						discardedNotes.add(nle);
-						track.removeNote(nle);
-						if (track.getNotes().size() == 0) {
-							discardedTracks.add(track);
+						notesToDelete.add(nle);
+						if (track.getNotes().size() == notesToDelete.size()) {
 							break;
 						}
 					}
 					lastNote = nle;
+				}
+				for (NoteListElement nle : notesToDelete) {
+					track.removeNote(nle);
+					if (track.getNotes().size() == 0) {
+						discardedTracks.add(track);
+					}
 				}
 			}
 		}

@@ -1,6 +1,5 @@
 package jomu.instrument.desktop.store.microstream;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -9,7 +8,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.InstrumentException;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import one.microstream.storage.types.StorageManager;
 
@@ -71,11 +69,7 @@ public class InstrumentStorage {
 
 	public void initialise() {
 		if (isInitRequired()) {
-			try {
-				Instrument.getInstance().getController().getParameterManager().reset();
-			} catch (IOException e) {
-				throw new InstrumentException("InstrumentStorage initialise exception: " + e.getMessage(), e);
-			}
+			Instrument.getInstance().getController().getParameterManager().reset();
 			this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
 			// getStorageManager().setRoot(root);
 			// getStorageManager().setRoot(this);

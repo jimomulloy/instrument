@@ -10,7 +10,6 @@ import jomu.instrument.desktop.store.microstream.InstrumentStorage;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
-
 @ApplicationScoped
 public class DesktopInstrumentStoreService implements InstrumentStoreService {
 

@@ -210,6 +210,32 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField cqAdaptiveWhitenThresholdInput;
 
+	private JTextField pidPFactorInput;
+
+	private JTextField pidDFactorInput;
+
+	private JTextField pidIFactorInput;
+
+	private JSlider bottomFormantFactorSlider;
+
+	private JSlider topFormantFactorSlider;
+
+	private JSlider bottomFormantRangeSlider;
+
+	private JSlider topFormantRangeSlider;
+
+	private JSlider bottomFormantHighSlider;
+
+	private JSlider topFormantHighSlider;
+
+	private JSlider bottomFormantLowSlider;
+
+	private JSlider topFormantLowSlider;
+
+	private JSlider topFormantMidSlider;
+
+	private JSlider bottomFormantMidSlider;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -225,17 +251,9 @@ public class ParametersPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					parameterManager.reset();
-					updateParameters();
-					console.getVisor().updateParameters();
-
-				} catch (IOException e1) {
-					LOG.log(Level.SEVERE, "Reset Parameter exception", e);
-					parameterManager.setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, "default");
-					selectStyleComboBox.setSelectedIndex(getSelectStyleIndex(
-							parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
-				}
+				parameterManager.reset();
+				updateParameters();
+				console.getVisor().updateParameters();
 			}
 		});
 		actionPanel.add(resetButton);
@@ -1692,6 +1710,42 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantFactorLabel);
 		parameterPanel.add(formantFactorSlider);
 
+		bottomFormantFactorSlider = new JSlider(1, 100);
+		final JLabel bottomFormantFactorLabel = new JLabel("Audio Tuner Bottom Formant Factor :");
+		bottomFormantFactorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				bottomFormantFactorLabel.setText(String.format("Audio Tuner Bottom Formant Factor   (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_FACTOR,
+						Integer.toString(newValue));
+			}
+		});
+		bottomFormantFactorSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_FACTOR));
+		parameterPanel.add(bottomFormantFactorLabel);
+		parameterPanel.add(bottomFormantFactorSlider);
+
+		topFormantFactorSlider = new JSlider(1, 100);
+		final JLabel topFormantFactorLabel = new JLabel("Audio Tuner Top Formant Factor :");
+		topFormantFactorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				topFormantFactorLabel.setText(String.format("Audio Tuner Top Formant Factor   (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_FACTOR,
+						Integer.toString(newValue));
+			}
+		});
+		topFormantFactorSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_FACTOR));
+		parameterPanel.add(topFormantFactorLabel);
+		parameterPanel.add(topFormantFactorSlider);
+
 		formantRangeSlider = new JSlider(0, 120);
 		final JLabel formantRangeLabel = new JLabel("Audio Tuner Formant Range :");
 		formantRangeSlider.addChangeListener(new ChangeListener() {
@@ -1710,6 +1764,42 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantRangeLabel);
 		parameterPanel.add(formantRangeSlider);
 
+		bottomFormantRangeSlider = new JSlider(0, 120);
+		final JLabel bottomFormantRangeLabel = new JLabel("Audio Tuner Bottom Formant Range :");
+		bottomFormantRangeSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				bottomFormantRangeLabel.setText(String.format("Audio Tuner Bottom Formant Range  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_RANGE,
+						Integer.toString(newValue));
+			}
+		});
+		bottomFormantRangeSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_RANGE));
+		parameterPanel.add(bottomFormantRangeLabel);
+		parameterPanel.add(bottomFormantRangeSlider);
+
+		topFormantRangeSlider = new JSlider(0, 120);
+		final JLabel topFormantRangeLabel = new JLabel("Audio Tuner Top Formant Range :");
+		topFormantRangeSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				topFormantRangeLabel.setText(String.format("Audio Tuner Top Formant Range  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_RANGE,
+						Integer.toString(newValue));
+			}
+		});
+		topFormantRangeSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_RANGE));
+		parameterPanel.add(topFormantRangeLabel);
+		parameterPanel.add(topFormantRangeSlider);
+
 		formantHighSlider = new JSlider(0, 120);
 		final JLabel formantHighLabel = new JLabel("Audio Tuner Formant High Note :");
 		formantHighSlider.addChangeListener(new ChangeListener() {
@@ -1727,6 +1817,42 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(formantHighLabel);
 		parameterPanel.add(formantHighSlider);
 
+		bottomFormantHighSlider = new JSlider(0, 120);
+		final JLabel bottomFormantHighLabel = new JLabel("Audio Tuner Bottom Formant High Note :");
+		bottomFormantHighSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				bottomFormantHighLabel.setText(String.format("Audio Tuner Bottom Formant High Note  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_HIGH,
+						Integer.toString(newValue));
+			}
+		});
+		bottomFormantHighSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_HIGH));
+		parameterPanel.add(bottomFormantHighLabel);
+		parameterPanel.add(bottomFormantHighSlider);
+
+		topFormantHighSlider = new JSlider(0, 120);
+		final JLabel topFormantHighLabel = new JLabel("Audio Tuner Top Formant High Note :");
+		topFormantHighSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				topFormantHighLabel.setText(String.format("Audio Tuner Top Formant High Note  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_HIGH,
+						Integer.toString(newValue));
+			}
+		});
+		topFormantHighSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_HIGH));
+		parameterPanel.add(topFormantHighLabel);
+		parameterPanel.add(topFormantHighSlider);
+
 		formantLowSlider = new JSlider(0, 120);
 		final JLabel formantLowLabel = new JLabel("Audio Tuner Formant Low Note :");
 		formantLowSlider.addChangeListener(new ChangeListener() {
@@ -1742,6 +1868,40 @@ public class ParametersPanel extends JPanel {
 		formantLowSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW));
 		parameterPanel.add(formantLowLabel);
 		parameterPanel.add(formantLowSlider);
+
+		bottomFormantLowSlider = new JSlider(0, 120);
+		final JLabel bottomFormantLowLabel = new JLabel("Audio Tuner Bottom Formant Low Note :");
+		bottomFormantLowSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				bottomFormantLowLabel.setText(String.format("Audio Tuner Bottom Formant Low Note  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_LOW,
+						Integer.toString(newValue));
+			}
+		});
+		bottomFormantLowSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_LOW));
+		parameterPanel.add(bottomFormantLowLabel);
+		parameterPanel.add(bottomFormantLowSlider);
+
+		topFormantLowSlider = new JSlider(0, 120);
+		final JLabel topFormantLowLabel = new JLabel("Audio Tuner Top Formant Low Note :");
+		topFormantLowSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				topFormantLowLabel.setText(String.format("Audio Tuner Top Formant Low Note  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_LOW,
+						Integer.toString(newValue));
+			}
+		});
+		topFormantLowSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_LOW));
+		parameterPanel.add(topFormantLowLabel);
+		parameterPanel.add(topFormantLowSlider);
 
 		formantMidSlider = new JSlider(0, 120);
 		final JLabel formantMidLabel = new JLabel("Audio Tuner Formant Middle Note :");
@@ -1760,6 +1920,42 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE));
 		parameterPanel.add(formantMidLabel);
 		parameterPanel.add(formantMidSlider);
+
+		bottomFormantMidSlider = new JSlider(0, 120);
+		final JLabel bottomFormantMidLabel = new JLabel("Audio Tuner Bottom Formant Middle Note :");
+		bottomFormantMidSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				bottomFormantMidLabel.setText(String.format("Audio Tuner Bottom Formant Middle Note  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_MIDDLE,
+						Integer.toString(newValue));
+			}
+		});
+		bottomFormantMidSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_MIDDLE));
+		parameterPanel.add(bottomFormantMidLabel);
+		parameterPanel.add(bottomFormantMidSlider);
+
+		topFormantMidSlider = new JSlider(0, 120);
+		final JLabel topFormantMidLabel = new JLabel("Audio Tuner Top Formant Middle Note :");
+		topFormantMidSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				topFormantMidLabel.setText(String.format("Audio Tuner Top Formant Middle Note  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_MIDDLE,
+						Integer.toString(newValue));
+			}
+		});
+		topFormantMidSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_MIDDLE));
+		parameterPanel.add(topFormantMidLabel);
+		parameterPanel.add(topFormantMidSlider);
 
 		n1SettingSlider = new JSlider(0, 100);
 		final JLabel n1SettingLabel = new JLabel("Audio Tuner N1 Setting :");
@@ -2182,6 +2378,57 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
 		cqParamsPanel.add(harmonicHighNoteLabel);
 		cqParamsPanel.add(harmonicHighNoteInput);
+
+		JLabel pidPFactorLabel = new JLabel("PID P Factor: ");
+		pidPFactorInput = new JTextField(4);
+		pidPFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = pidPFactorInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR,
+						newValue);
+				pidPFactorLabel.setText(String.format("PID P Factor  (%s):", newValue));
+				pidPFactorInput.setText(newValue);
+			}
+		});
+		pidPFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR));
+		cqParamsPanel.add(pidPFactorLabel);
+		cqParamsPanel.add(pidPFactorInput);
+
+		JLabel pidDFactorLabel = new JLabel("PID D Factor: ");
+		pidDFactorInput = new JTextField(4);
+		pidDFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = pidDFactorInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_D_FACTOR,
+						newValue);
+				pidDFactorLabel.setText(String.format("PID D Factor  (%s):", newValue));
+				pidDFactorInput.setText(newValue);
+			}
+		});
+		pidDFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_D_FACTOR));
+		cqParamsPanel.add(pidDFactorLabel);
+		cqParamsPanel.add(pidDFactorInput);
+
+		JLabel pidIFactorLabel = new JLabel("PID I Factor: ");
+		pidIFactorInput = new JTextField(4);
+		pidIFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = pidIFactorInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_I_FACTOR,
+						newValue);
+				pidIFactorLabel.setText(String.format("PID I Factor  (%s):", newValue));
+				pidIFactorInput.setText(newValue);
+			}
+		});
+		pidIFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_I_FACTOR));
+		cqParamsPanel.add(pidIFactorLabel);
+		cqParamsPanel.add(pidIFactorInput);
 
 		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
 		cqLowThresholdInput = new JTextField(4);
@@ -3147,12 +3394,31 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS));
 		formantFactorSlider
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_FACTOR));
+		bottomFormantFactorSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_FACTOR));
+		topFormantFactorSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_FACTOR));
 		formantRangeSlider
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_RANGE));
-		formantLowSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_LOW));
+		bottomFormantRangeSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_RANGE));
+		topFormantRangeSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_RANGE));
+		bottomFormantLowSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_LOW));
+		topFormantLowSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_LOW));
 		formantMidSlider
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_MIDDLE));
+		bottomFormantMidSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_MIDDLE));
+		topFormantMidSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_MIDDLE));
 		formantHighSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_FORMANT_HIGH));
+		bottomFormantHighSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_BOTTOM_FORMANT_HIGH));
+		topFormantHighSlider
+				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_TOP_FORMANT_HIGH));
 
 		n1SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SETTING));
 		n2SettingSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SETTING));
@@ -3218,6 +3484,13 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE));
 		harmonicHighNoteInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_HIGH_NOTE));
+
+		pidPFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR));
+		pidDFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_D_FACTOR));
+		pidIFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_I_FACTOR));
 
 		notateCompressionLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION));

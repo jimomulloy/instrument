@@ -88,4 +88,10 @@ public class FileStorage implements ObjectStorage {
 
 	}
 
+	@Override
+	public String[] listStore(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

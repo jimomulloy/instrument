@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +19,6 @@ import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.StartupEvent;
-import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.ObjectStorage;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -128,12 +129,13 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 	@Override
 	public String getBasePath() {
 		return "/tmp";
-		//String basePath = parameterManager.getParameter(InstrumentParameterNames.STORAGE_OBJECT_STORE_BASE_PATH);
-		//if (basePath.equals("$user.home")) {
-		//	return System.getProperty("user.home");
-		//} else {
-		//	return basePath;
-		//}
+		// String basePath =
+		// parameterManager.getParameter(InstrumentParameterNames.STORAGE_OBJECT_STORE_BASE_PATH);
+		// if (basePath.equals("$user.home")) {
+		// return System.getProperty("user.home");
+		// } else {
+		// return basePath;
+		// }
 	}
 
 	protected PutObjectRequest buildPutRequest(String objectKey) {
@@ -153,6 +155,17 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 					.key(objectSummary.key()).build();
 			s3Client.deleteObject(deleteObjectRequest);
 		}
+	}
+
+	@Override
+	public String[] listStore(String name) {
+		List<String> keys = new ArrayList<>();
+		ListObjectsRequest listObjectsRequest = ListObjectsRequest.builder().bucket(bucketName).prefix(name).build();
+		ListObjectsResponse objectListing = s3Client.listObjects(listObjectsRequest);
+		for (S3Object objectSummary : objectListing.contents()) {
+			keys.add(objectSummary.key());
+		}
+		return keys.toArray(new String[keys.size()]);
 	}
 
 	@Override
