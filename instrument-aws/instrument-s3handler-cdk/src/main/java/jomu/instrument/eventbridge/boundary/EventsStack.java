@@ -33,6 +33,12 @@ public class EventsStack extends Stack {
 		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfmp3 });
 		NotificationKeyFilter nkfogg = new NotificationKeyFilter.Builder().prefix("private/").suffix("ogg").build();
 		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfogg });
+		NotificationKeyFilter nkfwavc = new NotificationKeyFilter.Builder().prefix("private/").suffix("WAV").build();
+		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfwavc });
+		NotificationKeyFilter nkfmp3c = new NotificationKeyFilter.Builder().prefix("private/").suffix("MP3").build();
+		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfmp3c });
+		NotificationKeyFilter nkfoggc = new NotificationKeyFilter.Builder().prefix("private/").suffix("OGG").build();
+		bucket.addObjectCreatedNotification(destination, new NotificationKeyFilter[] { nkfoggc });
 		var eventBridgeRouting = new EventBridgeRouting(this, logGroup, eventBridgeListener);
 		CfnOutput.Builder.create(this, "BucketOutput").value(bucket.getBucketArn()).build();
 	}
