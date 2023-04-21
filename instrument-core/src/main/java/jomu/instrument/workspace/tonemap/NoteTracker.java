@@ -3,11 +3,11 @@ package jomu.instrument.workspace.tonemap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 public class NoteTracker {
@@ -21,7 +21,7 @@ public class NoteTracker {
 
 		int number;
 		double salience;
-		LinkedList<NoteListElement> notes = new LinkedList<>();
+		List<NoteListElement> notes = new CopyOnWriteArrayList<>();
 
 		public NoteTrack(int number) {
 			this.number = number;
@@ -36,10 +36,13 @@ public class NoteTracker {
 		}
 
 		public NoteListElement getLastNote() {
-			return notes.getLast();
+			if (notes.size() > 0) {
+				return notes.get(notes.size() - 1);
+			}
+			return null;
 		}
 
-		public LinkedList<NoteListElement> getNotes() {
+		public List<NoteListElement> getNotes() {
 			return notes;
 		}
 
@@ -49,7 +52,7 @@ public class NoteTracker {
 
 		public NoteListElement getPenultimateNote() {
 			if (notes.size() > 1) {
-				return notes.get(notes.indexOf(notes.getLast()) - 1);
+				return notes.get(notes.size() - 2);
 			}
 			return null;
 		}
@@ -271,7 +274,7 @@ public class NoteTracker {
 		Set<NoteTrack> discardedTracks = new HashSet<>();
 		if (tracks.size() > 5) {
 			for (NoteTrack track : tracks) {
-				LinkedList<NoteListElement> notes = track.getNotes();
+				List<NoteListElement> notes = track.getNotes();
 				Set<NoteListElement> notesToDelete = new HashSet<>();
 				NoteListElement lastNote = null;
 				for (NoteListElement nle : notes) {
@@ -279,13 +282,13 @@ public class NoteTracker {
 					if (lastNote != null) {
 						lastTime = lastNote.endTime;
 					}
-//					if (((nle.endTime - nle.startTime) < 200) && (nle.startTime - lastTime) > 2000) {
-//						discardedNotes.add(nle);
-//						notesToDelete.add(nle);
-//						if (track.getNotes().size() == notesToDelete.size()) {
-//							break;
-//						}
-//					}
+					if (((nle.endTime - nle.startTime) < 200) && (nle.startTime - lastTime) > 2000) {
+						discardedNotes.add(nle);
+						notesToDelete.add(nle);
+						if (track.getNotes().size() == notesToDelete.size()) {
+							break;
+						}
+					}
 					lastNote = nle;
 				}
 				for (NoteListElement nle : notesToDelete) {

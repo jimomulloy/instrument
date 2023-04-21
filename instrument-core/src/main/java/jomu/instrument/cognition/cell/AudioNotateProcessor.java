@@ -26,7 +26,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws Exception {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.severe(">>AudioNotateProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioNotateProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		float compression = parameterManager
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION);
@@ -64,13 +64,17 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			spTuner.applyFormants(notateSpectralTimeFrame);
 		}
 
+		notateTimeFrame.reset();
+		LOG.finer(">>NOTATE TTF: " + notateTimeFrame.getStartTime() + ", " + notateTimeFrame.getMaxAmplitude() + ", "
+				+ notateTimeFrame.getMinAmplitude() + ", " + notateTimeFrame.getRmsPower());
+
 		notateTuner.noteScan(notateToneMap, sequence);
 		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 
-		peaksTuner.noteScan(notatePeaksToneMap, sequence);
+		// peaksTuner.noteScan(notatePeaksToneMap, sequence);
 		console.getVisor().updateToneMapView(notatePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
 
-		spTuner.noteScan(notateSpectralToneMap, sequence);
+		// spTuner.noteScan(notateSpectralToneMap, sequence);
 		console.getVisor().updateToneMapView(notateSpectralToneMap, this.cell.getCellType().toString() + "_SPECTRAL");
 
 		int tmIndex = sequence - 12 * (noteMaxDuration / 1000); // TODO !!

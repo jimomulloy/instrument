@@ -86,7 +86,7 @@ public class NoteStatus {
 		for (int note = lowNote, index = 0; index < noteStatusElements.length && note <= highNote; note++, index++) {
 			// if (copy.noteStatus.length > (note - lowNote)) {
 			// noteStatus[note - lowNote] = copy.getNoteStatusElement(note);
-			copy.noteStatusElements[index] = getNoteStatusElement(note);
+			copy.noteStatusElements[index] = getNoteStatusElement(note).clone();
 			// } else {
 			// System.err.println(">> NoteStatus clone error: " + index + ", " + lowNote +
 			// ", " + highNote + ", "

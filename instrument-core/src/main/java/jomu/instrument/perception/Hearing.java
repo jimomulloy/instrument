@@ -433,6 +433,8 @@ public class Hearing implements Organ {
 				dispatcher.addAudioProcessor(new PidProcessor(pidPFactor, pidDFactor, pidIFactor));
 			}
 
+			int range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
+
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 
@@ -450,6 +452,13 @@ public class Hearing implements Organ {
 					}
 					double result = Math.sqrt(total / numSamples);
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
+					LOG.severe(">>Calibrate : " + audioEvent.getTimeStamp() + ", " + result);
+
+					double startTimeMS = audioEvent.getTimeStamp() * 1000;
+					if (startTimeMS > range) {
+						dispatcher.stop();
+						return false;
+					}
 					return true;
 				}
 
@@ -568,6 +577,8 @@ public class Hearing implements Organ {
 				dispatcher.addAudioProcessor(new PidProcessor(pidPFactor, pidDFactor, pidIFactor));
 			}
 
+			int range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
+
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
@@ -587,6 +598,13 @@ public class Hearing implements Organ {
 					}
 					double result = Math.sqrt(total / numSamples);
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
+					LOG.severe(">>Calibrate : " + audioEvent.getTimeStamp() + ", " + result);
+
+					double startTimeMS = audioEvent.getTimeStamp() * 1000;
+					if (startTimeMS > range) {
+						dispatcher.stop();
+						return false;
+					}
 					return true;
 				}
 

@@ -219,12 +219,14 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_SHOW_TRACKING = "monitor.view.showTracking";
 	public static final String MONITOR_VIEW_SHOW_SYNTHESIS = "monitor.view.showSynthesis";
 	public static final String MONITOR_VIEW_SHOW_LOG = "monitor.view.showLog";
+	public static final String MONITOR_VIEW_SHOW_STATS = "monitor.view.showStats";
 	public static final String MONITOR_VIEW_SHOW_COLOUR = "monitor.view.showColour";
 
 	public static final String ACTUATION_VOICE_PAUSE_PLAY_SWITCH = "actuation.voice.pausePlaySwitch";
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";
 	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";
+	public static final String ACTUATION_VOICE_LOG_FACTOR = "actuation.voice.logFactor";
 	public static final String ACTUATION_VOICE_PLAY_PEAKS = "actuation.voice.playPeaks";
 	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";
 	public static final String ACTUATION_VOICE_SILENT_WRITE = "actuation.voice.silentWrite";
@@ -233,6 +235,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH = "actuation.voice.useSynthesizer";
 	public static final String ACTUATION_VOICE_RESYNTH_PLAY = "actuation.voice.playResynth";
 	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH = "actuation.voice.midiPlayLogSwitch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH = "actuation.voice.midiPlayVoice1Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH = "actuation.voice.midiPlayVoice2Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH = "actuation.voice.midiPlayVoice3Switch";

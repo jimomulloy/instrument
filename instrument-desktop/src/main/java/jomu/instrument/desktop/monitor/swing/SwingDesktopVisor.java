@@ -237,6 +237,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JCheckBox midiSynthTracksSwitchCB;
 
+	private JCheckBox showStatsSwitchCB;
+
+	private JCheckBox midiPlayLogSwitchCB;
+
+	private JTextField voicePlayerLogFactorInput;
+
 	@Override
 	public void startUp() {
 		LOG.warning(">>Using SwingDesktopVisor");
@@ -604,7 +610,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
+				newValue = parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET,
 						newValue);
 				textField.setText(newValue);
 				refreshMapViews();
@@ -722,6 +728,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		showTrackingSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING));
 		graphControlPanel.add(showTrackingSwitchCB);
+
+		showStatsSwitchCB = new JCheckBox("showStatsSwitchCB");
+		showStatsSwitchCB.setText("Stats");
+		showStatsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		showStatsSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS));
+		graphControlPanel.add(showStatsSwitchCB);
 
 		showSynthesisSwitchCB = new JCheckBox("showSynthesisSwitchCB");
 		showSynthesisSwitchCB.setText("Synth");
@@ -1315,6 +1337,23 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(voicePlayerHighThresholdLabel);
 		voicePanel.add(voicePlayerHighThresholdInput);
 
+		JLabel voicePlayerLogFactorLabel = new JLabel("Log Factor: ");
+		voicePlayerLogFactorInput = new JTextField(4);
+		voicePlayerLogFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR, newValue);
+				voicePlayerLogFactorInput.setText(newValue);
+			}
+		});
+
+		voicePlayerLogFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR));
+		voicePanel.add(voicePlayerLogFactorLabel);
+		voicePanel.add(voicePlayerLogFactorInput);
+
 		voicePanel.add(new JLabel(" "));
 
 		midiSynthTracksSwitchCB = new JCheckBox("midiSynthTracksSwitchCB");
@@ -1334,6 +1373,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(midiSynthTracksSwitchCB);
 
 		voicePanel.add(new JLabel(" "));
+
+		midiPlayLogSwitchCB = new JCheckBox("midiPlayLogSwitchCB");
+		midiPlayLogSwitchCB.setText("Log");
+		midiPlayLogSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayLogSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH));
+		voicePanel.add(midiPlayLogSwitchCB);
 
 		midiPlayVoice1SwitchCB = new JCheckBox("midiPlayVoice1SwitchCB");
 		midiPlayVoice1SwitchCB.setText("Voice1");
@@ -2173,6 +2228,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS));
 		showTrackingSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING));
+		showStatsSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS));
 		showSynthesisSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS));
 		showLogSwitchCB
@@ -2207,6 +2264,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD));
 		voicePlayerHighThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD));
+		voicePlayerLogFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR));
+		midiPlayLogSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH));
 		midiPlayVoice1SwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH));
 		midiPlayVoice2SwitchCB.setSelected(

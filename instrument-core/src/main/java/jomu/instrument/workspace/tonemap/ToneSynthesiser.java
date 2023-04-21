@@ -119,10 +119,18 @@ public class ToneSynthesiser {
 				double time = nle.endTime / 1000;
 				double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
 				double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
+				if (beatBeforeTime <= 0) {
+					beatBeforeTime = time;
+				}
+				if (beatAfterTime <= 0) {
+					beatAfterTime = time;
+				}
 				double beatRange = beatAfterTime - beatBeforeTime;
-				NoteListElement pnle = track.getPenultimateNote();
-				if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
-					synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+				if (beatRange > 0) {
+					NoteListElement pnle = track.getPenultimateNote();
+					if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
+						synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+					}
 				}
 			}
 		}
@@ -140,6 +148,12 @@ public class ToneSynthesiser {
 		double time = frame.getStartTime();
 		double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
 		double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
+		if (beatBeforeTime <= 0) {
+			beatBeforeTime = time;
+		}
+		if (beatAfterTime <= 0) {
+			beatAfterTime = time;
+		}
 		double beatRange = ((beatAfterTime - beatBeforeTime) / quantizeBeat) * 1000;
 		while (frame != null && time < (nle.startTime / 1000)) {
 			if (calibrationMap.getBeat(time, 0.1) != 0) {
@@ -193,10 +207,10 @@ public class ToneSynthesiser {
 		double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
 		double beforeTimeDiff = 0;
 		double afterTimeDiff = 0;
-		if (beatBeforeTime != 0) {
+		if (beatBeforeTime > 0) {
 			beforeTimeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
 		}
-		if (beatAfterTime != 0) {
+		if (beatAfterTime > 0) {
 			afterTimeDiff = ((beatAfterTime - time) / quantizeBeat) * (quantizePercent / 100.0);
 		}
 		if (beforeTimeDiff <= MIN_TIME_INCREMENT || afterTimeDiff <= MIN_TIME_INCREMENT) {
@@ -263,14 +277,14 @@ public class ToneSynthesiser {
 		double time = chord.getStartTime();
 		double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
 		double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
-		if (beatBeforeTime != 0) {
+		if (beatBeforeTime > 0) {
 			double targetTime = 0;
 			double timeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
 			if (timeDiff > MIN_TIME_INCREMENT) {
 				targetTime = time - timeDiff;
 				quantizeChord(chord, targetTime);
 			}
-		} else if (beatAfterTime != 0) {
+		} else if (beatAfterTime > 0) {
 			double targetTime = 0;
 			double timeDiff = ((beatAfterTime - time) / quantizeBeat) * (quantizePercent / 100.0);
 			if (timeDiff > MIN_TIME_INCREMENT) {

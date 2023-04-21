@@ -926,7 +926,8 @@ public class AudioTuner implements ToneMapConstants {
 
 		startElement.noteState = START;
 
-		LOG.finer(">>PROCESS NOTE START: " + startElement.getIndex());
+		// LOG.severe(">>PROCESS NOTE START: " + startTime + ", " +
+		// startElement.getIndex());
 
 		pitchIndex = startElement.getPitchIndex();
 
@@ -960,7 +961,9 @@ public class AudioTuner implements ToneMapConstants {
 			LOG.finer(">>PROCESS NOTE ADDED NOTE TO: " + toneTimeFrame.getStartTime() + ", " + noteStatusElement);
 		}
 		processedNotes.add(noteListElement);
-		LOG.finer(">>PROCESS NOTE ADDED NOTE DONE: " + noteStatusElement + ", " + noteStatusElement.offTime);
+		LOG.severe(">>PROCESS NOTE ADDED NOTE DONE " + noteStatusElement.onTime + ", " + noteStatusElement.note
+				+ ", max in note: " + maxAmp + ", tm max: " + toneMap.getStatistics().max + ", " + noteStatusElement
+				+ ", " + noteStatusElement.offTime);
 
 	}
 

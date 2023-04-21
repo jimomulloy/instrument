@@ -253,7 +253,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			boolean showTracking = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
-			boolean showStats = false;
+			boolean showStats = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS);
 
 			ToneMapElement[] elements = ttf.getElements();
 
@@ -307,27 +307,29 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 								LOG.finer(">>ToneMapView showTacking ON");
 								color = Color.WHITE;
 								NoteTrack track = toneMap.getNoteTracker().getTrack(toneMapElement.noteListElement);
-								// if (track != null) {
-								// color = COLORS[track.getNumber() < COLORS.length ? track.getNumber() - 1
-								// : COLORS.length - 1];
-								// }
+								if (track != null) {
+									color = COLORS[track.getNumber() < COLORS.length ? track.getNumber() - 1
+											: COLORS.length - 1];
+								}
 
 							} else if (toneMapElement.noteState == START) {
 								color = Color.RED;
 							}
-						} else {
-//							if (ttf.getMaxAmplitude() > lowViewThreshold) {
-//								if (spectralCentroid != -1 && elementIndex == spectralCentroid) {
-//									color = new Color(0x53868b); // cadetblue4
-//								}
-//								if (spectralMean != -1 && elementIndex == spectralMean) {
-//									color = new Color(0xff7f50); // coral
-//								}
-//								if ((spectralCentroid != -1 && elementIndex == spectralCentroid)
-//										&& (spectralMean != -1 && elementIndex == spectralMean)) {
-//									color = new Color(0x6e4272); // dark purple
-//								}
-//							}
+						}
+
+						if (showStats) {
+							if (ttf.getMaxAmplitude() > lowViewThreshold) {
+								if (spectralCentroid != -1 && elementIndex == spectralCentroid) {
+									color = new Color(0x53868b); // cadetblue4
+								}
+								if (spectralMean != -1 && elementIndex == spectralMean) {
+									color = new Color(0xff7f50); // coral
+								}
+								if ((spectralCentroid != -1 && elementIndex == spectralCentroid)
+										&& (spectralMean != -1 && elementIndex == spectralMean)) {
+									color = new Color(0x6e4272); // dark purple
+								}
+							}
 						}
 					}
 

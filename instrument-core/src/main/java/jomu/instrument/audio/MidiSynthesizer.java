@@ -1238,12 +1238,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
 			boolean playPeaks = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			boolean playLog = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH);
 
 			ToneMap notateToneMap = workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
@@ -1280,28 +1283,43 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
+			double logAmplitude = 0;
+			double highLogThreshold = 0;
+			double lowLogThreshold = 0;
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 				double amplitude = toneMapElement.amplitude;
-				double amplitude2 = toneMapElement.amplitude;
 				NoteListElement noteListElement = toneMapElement.noteListElement;
 
 				int volume = 0;
 				amplitude = 0;
-				if (noteListElement != null) {
-					amplitude = noteListElement.avgAmp;
-					amplitude2 = noteListElement.maxAmp;
-					amplitude = noteListElement.maxAmp;
 
-					if (amplitude > highVoiceThreshold) {
-						volume = 127;
-					} else if (amplitude <= lowVoiceThreshold) {
-						volume = 0;
+				if (noteListElement != null) {
+
+					amplitude = noteListElement.maxAmp;
+					if (playLog) {
+						highLogThreshold = (float) Math.log10(1 + (logFactor * highVoiceThreshold));
+						lowLogThreshold = (float) Math.log10(1 + (logFactor * lowVoiceThreshold));
+						logAmplitude = (float) Math.log10(1 + (logFactor * amplitude));
+						volume = (int) (((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold))
+								* 127);
+						if (volume > highLogThreshold) {
+							volume = 127;
+						} else if (volume < lowLogThreshold) {
+							volume = 0;
+						}
 					} else {
 						volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
 								* 127);
+						if (amplitude > highVoiceThreshold) {
+							volume = 127;
+						} else if (amplitude <= lowVoiceThreshold) {
+							volume = 0;
+						} else {
+							volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+									* 127);
+						}
 					}
-					// volume = 127;
 				}
 
 				if (volume > 0) {
@@ -1309,8 +1327,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
-							LOG.severe(">>MIDI V4 NOTEON: " + toneTimeFrame.getStartTime() + ", " + note + ", "
-									+ amplitude + ", " + amplitude2);
+							LOG.severe(">>MIDI V4 NOTEON: " + toneTimeFrame.getStartTime() + ", " + note + ", " + volume
+									+ ", " + logAmplitude + ", " + amplitude + ", " + highLogThreshold + ", "
+									+ lowLogThreshold);
 							if (writeTrack) {
 								createEvent(voice4Track, voice4Channel, NOTEON, note, tick, volume);
 							}
@@ -1335,7 +1354,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice4Channel.num, note, 0);
-							LOG.severe(">>MIDI V4 NOTEOFF: " + toneTimeFrame.getStartTime() + ", " + note);
 							if (writeTrack) {
 								createEvent(voice4Track, voice4Channel, NOTEOFF, note, tick, volume);
 							}

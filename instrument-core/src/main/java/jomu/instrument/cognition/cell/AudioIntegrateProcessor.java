@@ -64,6 +64,10 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		}
 
 		integrateToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+		ToneTimeFrame ttf = integrateToneMap.getTimeFrame();
+		ttf.reset();
+		LOG.finer(">>INT TTF: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+				+ ", " + ttf.getRmsPower());
 
 		integratePeaksToneMap.getTimeFrame().clear();
 		integratePeaksToneMap.getTimeFrame().integratePeaks(sacfToneMap.getTimeFrame(sequence));
