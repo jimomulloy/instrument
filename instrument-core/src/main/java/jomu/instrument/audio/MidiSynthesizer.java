@@ -617,9 +617,20 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH);
 			boolean midiSynthTracksSwitch = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH);
+			int playDelay = parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY);
+
+			boolean doneDelay = false;
 
 			try {
 				while (running) {
+
+					if (playDelay > 0 && !doneDelay) {
+						LOG.severe(">>MidiStream IN PLAY DELAY: " + System.currentTimeMillis());
+						TimeUnit.MILLISECONDS.sleep((long) playDelay);
+						LOG.severe(">>MidiStream AFTER PLAY DELAY: " + System.currentTimeMillis());
+						doneDelay = true;
+					}
+
 					LOG.severe(">>MidiQueueConsumer running");
 					if (midiStream.isClosed()) {
 						stop();
@@ -715,6 +726,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				}
 			} catch (InterruptedException e) {
+				LOG.severe(">>MidiStream Interrupted: " + System.currentTimeMillis());
 				Thread.currentThread().interrupt();
 			}
 			LOG.severe(">>MidiQueueConsumer run exit");
