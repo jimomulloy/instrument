@@ -210,7 +210,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 			double cmPower = cm.get(ttf.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
 					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, false);
 			ttf.reset();
 			LOG.severe(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 					+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());

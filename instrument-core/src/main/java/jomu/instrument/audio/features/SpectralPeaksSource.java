@@ -136,11 +136,6 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NUMBER_PEAKS);
 		minPeakSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_PEAK_SIZE);
 
-		LOG.finer(">>SP noiseFloorMedianFilterLenth: " + noiseFloorMedianFilterLength);
-		LOG.finer(">>SP noiseFloorFactor: " + noiseFloorFactor);
-		LOG.finer(">>SP numberOfSpectralPeaks: " + numberOfSpectralPeaks);
-		LOG.finer(">>SP minPeakSize: " + minPeakSize);
-
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];
 		FFT fft = new FFT(windowSize);

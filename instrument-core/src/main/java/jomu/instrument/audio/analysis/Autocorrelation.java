@@ -35,6 +35,8 @@ public class Autocorrelation {
 
 	private int undertoneThreshold = 10;
 
+	private double lowFFTThreshold = 2;
+
 	private boolean isRemoveUndertones = true;
 
 	private boolean isSacf = false;
@@ -63,6 +65,10 @@ public class Autocorrelation {
 
 	public void setMaxLag(int lag) {
 		maxLag = lag;
+	}
+
+	public void setLowFFTThreshold(double lowFFTThreshold) {
+		this.lowFFTThreshold = lowFFTThreshold;
 	}
 
 	public void setCorrelationThreshold(double thresh) {
@@ -102,11 +108,32 @@ public class Autocorrelation {
 	/* Calculate autocorrelation for the given list of Datum */
 	public void evaluate(double[] data) {
 		double[] values = formatData(data);
+		correlations = new double[maxLag];
 		length = values.length;
 		// FFT
 		fft = fftTran.transform(values, TransformType.FORWARD);
+
+		double max = 0;
+		for (int i = 0; i < fft.length; i++) {
+			double magnitude = fft[i].getReal() * fft[i].getReal() + fft[i].getImaginary() * fft[i].getImaginary();
+			if (magnitude <= lowFFTThreshold) {
+				fft[i] = Complex.ZERO;
+			}
+			if (max < magnitude) {
+				max = magnitude;
+			}
+		}
+
+		if (max <= lowFFTThreshold) {
+			return;
+		}
+
 		// Multiply by complex conjugate
 		for (int i = 0; i < fft.length; i++) {
+			double magnitude = fft[i].getReal() * fft[i].getReal() + fft[i].getImaginary() * fft[i].getImaginary();
+			if (magnitude < lowFFTThreshold) {
+				fft[i] = Complex.ZERO;
+			}
 			if (isCepstrum) {
 				fft[i] = new Complex(Math.log10(1 + (1000 * (fft[i].abs()))));
 			} else {
@@ -116,7 +143,6 @@ public class Autocorrelation {
 		// Inverse transform
 		fft = fftTran.transform(fft, TransformType.INVERSE);
 
-		correlations = new double[maxLag];
 		for (int i = 1; i < maxLag && i < fft.length; i++) {
 			correlations[i] = fft[i].getReal() / fft[0].getReal();
 		}

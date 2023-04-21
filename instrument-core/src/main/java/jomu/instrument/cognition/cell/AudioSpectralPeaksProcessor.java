@@ -27,6 +27,8 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 		double signalMinimum = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SIGNAL_MINIMUM);
+		float pdLowThreshold = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD);
 		double normaliseThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_NORMALISE_THRESHOLD);
 		double decibelLevel = parameterManager
@@ -60,7 +62,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 
 		SpectralPeaksFeatures spf = aff.getSpectralPeaksFeatures();
-		spf.buildToneMapFrame(toneMap, tpSwitchPeaks);
+		spf.buildToneMapFrame(toneMap, tpSwitchPeaks, pdLowThreshold);
 
 		if (switchCompress) {
 			toneMap.getTimeFrame().compress(compression, false);
@@ -86,7 +88,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 			double cmPower = cm.get(ttf.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
 					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, true);
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

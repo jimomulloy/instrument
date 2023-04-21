@@ -42,6 +42,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		ToneMap spToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
 		ToneMap tpToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
 		ToneMap yinToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId));
+		ToneMap mfccToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId));
 		ToneMap hpsMaskToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_HARMONIC_MASK", streamId));
 
@@ -70,9 +71,11 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 				+ ", " + ttf.getRmsPower());
 
 		integratePeaksToneMap.getTimeFrame().clear();
+		integratePeaksToneMap.getTimeFrame().integratePeaks(pitchToneMap.getTimeFrame(sequence));
 		integratePeaksToneMap.getTimeFrame().integratePeaks(sacfToneMap.getTimeFrame(sequence));
 		integratePeaksToneMap.getTimeFrame().integratePeaks(tpToneMap.getTimeFrame(sequence));
 		integratePeaksToneMap.getTimeFrame().integratePeaks(yinToneMap.getTimeFrame(sequence));
+		integratePeaksToneMap.getTimeFrame().integratePeaks(mfccToneMap.getTimeFrame(sequence));
 		// integratePeaksToneMap.getTimeFrame().integratePeaks(spToneMap.getTimeFrame(sequence))
 
 		integratePeaksToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
@@ -84,7 +87,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 			double cmPower = cm.get(ipttf.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(ipttf.getStartTime() - cqCalibrateRange / 2,
 					ipttf.getStartTime() + cqCalibrateRange / 2);
-			ipttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			ipttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, true);
 		}
 
 		integrateSpectralToneMap.getTimeFrame().clear();
@@ -93,6 +96,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		// integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
 		integrateSpectralToneMap.getTimeFrame().merge(tpToneMap.getTimeFrame(sequence));
 		integrateSpectralToneMap.getTimeFrame().merge(yinToneMap.getTimeFrame(sequence));
+		integrateSpectralToneMap.getTimeFrame().merge(mfccToneMap.getTimeFrame(sequence));
 
 		integrateSpectralToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
@@ -103,7 +107,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 			double cmPower = cm.get(isttf.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(isttf.getStartTime() - cqCalibrateRange / 2,
 					isttf.getStartTime() + cqCalibrateRange / 2);
-			isttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			isttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, true);
 		}
 
 		console.getVisor().updateToneMapView(integrateToneMap, this.cell.getCellType().toString());

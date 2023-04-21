@@ -1,6 +1,7 @@
 package jomu.instrument.audio.analysis;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * This is a robust polyphonic multi-pitch detector. The algorithm is described
@@ -9,6 +10,9 @@ import java.util.Map;
  */
 
 public class PitchDetect {
+
+	private static final Logger LOG = Logger.getLogger(PitchDetect.class.getName());
+
 	/** array to hold fzeros info, 1 := positive, 0 := negative */
 	public float[] fzeros;
 	public float[] fzeroSaliences;
@@ -53,6 +57,7 @@ public class PitchDetect {
 		for (int i = 0; i < spectrum.length; i++) {
 			spec[i] = spectrum[i];
 		}
+
 		// for (int i = 0; i < spec.length; i++)
 		// spec[i] *= 1000;
 		// sw.whiten(spec);

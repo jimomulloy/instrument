@@ -579,7 +579,8 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame calibrate(double calibrateWindowThreshold, double calibrateThreshold, double lowThreshold) {
+	public ToneTimeFrame calibrate(double calibrateWindowThreshold, double calibrateThreshold, double lowThreshold,
+			boolean keepPeaks) {
 		reset();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
@@ -588,8 +589,10 @@ public class ToneTimeFrame {
 							* (elements[i].amplitude / maxAmplitude);
 				}
 				if (elements[i].amplitude <= lowThreshold) {
-					// elements[i].amplitude = AMPLITUDE_FLOOR;
-					elements[i].isPeak = false;
+					elements[i].amplitude = AMPLITUDE_FLOOR; // TODO ??
+					if (!keepPeaks) {
+						elements[i].isPeak = false;
+					}
 				}
 			}
 		}

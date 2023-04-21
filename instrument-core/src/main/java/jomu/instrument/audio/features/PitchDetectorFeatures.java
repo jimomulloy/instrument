@@ -23,7 +23,7 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 
 	private ParameterManager parameterManager;
 
-	public float[] getSpectrum() {
+	public float[] getSpectrum(double lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
 			float[] spectralEnergy = entry.getValue().getAmplitudes();
@@ -40,6 +40,11 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 		}
 		if (spectrum == null) {
 			spectrum = new float[0];
+		}
+		for (int i = 0; i < spectrum.length; i++) {
+			if (spectrum[i] < lowThreshold) {
+				spectrum[i] = 0;
+			}
 		}
 		return spectrum;
 	}
@@ -70,8 +75,10 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
 				float pitch = pitchDetect.getPitch();
 				if (pitch > -1) {
-					int index = pitchSet.getIndex(pitch);
-					ttf.getElement(index).isPeak = true;
+					int tmIndex = pitchSet.getIndex(pitch);
+					if (tmIndex > -1) {
+						ttf.getElement(tmIndex).isPeak = true;
+					}
 				}
 			}
 		} else {

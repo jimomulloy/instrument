@@ -55,8 +55,10 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 						if (peak == feature.getMaxACFIndex()) {
 							float frequency = getSource().getSampleRate() / peak;
 							int tmIndex = pitchSet.getIndex(frequency);
-							ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
-							ttf.getElement(tmIndex).isPeak = true;
+							if (tmIndex > -1) {
+								ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+								ttf.getElement(tmIndex).isPeak = true;
+							}
 						}
 					}
 				}

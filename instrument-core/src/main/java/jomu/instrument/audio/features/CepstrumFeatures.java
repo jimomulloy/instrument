@@ -27,7 +27,7 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 		this.features = getSource().getAndClearFeatures();
 	}
 
-	public float[] getSpectrum() {
+	public float[] getSpectrum(double lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, CepstrumInfo> entry : features.entrySet()) {
 			double[] spectralEnergy = entry.getValue().getMagnitudes();
@@ -40,6 +40,11 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 		}
 		if (spectrum == null) {
 			spectrum = new float[0];
+		}
+		for (int i = 0; i < spectrum.length; i++) {
+			if (spectrum[i] < lowThreshold) {
+				spectrum[i] = 0;
+			}
 		}
 		return spectrum;
 	}
@@ -69,10 +74,15 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 			if (features.size() > 0) {
 				for (CepstrumInfo feature : features.values()) {
 					for (int peak : feature.peaks) {
-						// float frequency = feature.getLength() / peak;
-						float frequency = getSource().getSampleRate() / peak;
-						int tmIndex = pitchSet.getIndex(frequency);
-						// TODO ?? ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+						if (peak == feature.getMaxACFIndex()) {
+							// float frequency = feature.getLength() / peak;
+							float frequency = getSource().getSampleRate() / peak;
+							int tmIndex = pitchSet.getIndex(frequency);
+							if (tmIndex > -1) {
+								ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+								ttf.getElement(tmIndex).isPeak = true;
+							}
+						}
 					}
 				}
 				ttf.reset();

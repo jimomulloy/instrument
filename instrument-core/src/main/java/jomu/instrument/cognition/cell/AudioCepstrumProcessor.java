@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.CepstrumFeatures;
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
@@ -22,6 +23,9 @@ public class AudioCepstrumProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 
+		float pdLowThreshold = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD);
+
 		LOG.finer(">>AudioCepstrumProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
@@ -29,16 +33,7 @@ public class AudioCepstrumProcessor extends ProcessorCommon {
 
 		CepstrumFeatures features = aff.getCepstrumFeatures();
 		features.buildToneMapFrame(toneMap);
-		float[] spectrum = features.getSpectrum();
-
-		float maxs = 0;
-		int maxi = 0;
-		for (int i = 0; i < spectrum.length; i++) {
-			if (maxs < spectrum[i]) {
-				maxs = spectrum[i];
-				maxi = i;
-			}
-		}
+		float[] spectrum = features.getSpectrum(pdLowThreshold);
 
 		FFTSpectrum fftSpectrum = new FFTSpectrum(features.getSource().getSampleRate(),
 				features.getSource().getBufferSize(), spectrum);

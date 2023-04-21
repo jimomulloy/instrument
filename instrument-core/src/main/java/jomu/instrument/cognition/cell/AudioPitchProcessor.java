@@ -64,22 +64,13 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
 
 		pdf.buildToneMapFrame(toneMap);
-		float[] spectrum = pdf.getSpectrum();
-
-		float maxs = 0;
-		int maxi = 0;
-		for (int i = 0; i < spectrum.length; i++) {
-			if (maxs < spectrum[i]) {
-				maxs = spectrum[i];
-				maxi = i;
-			}
-		}
+		float[] spectrum = pdf.getSpectrum(pdLowThreshold);
 
 		FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getSource().getSampleRate(), pdf.getSource().getBufferSize(),
 				spectrum);
 
 		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-
+		ToneTimeFrame ttf = toneMap.getTimeFrame();
 		if (pdSwitchWhitener) {
 			Whitener whitener = new Whitener(fftSpectrum);
 			whitener.whiten();
@@ -113,14 +104,12 @@ public class AudioPitchProcessor extends ProcessorCommon {
 
 		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		ToneTimeFrame ttf = toneMap.getTimeFrame();
-
 		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 			double cmPower = cm.get(ttf.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
 					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, true);
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

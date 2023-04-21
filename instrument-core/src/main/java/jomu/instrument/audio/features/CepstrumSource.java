@@ -106,6 +106,8 @@ public class CepstrumSource extends AudioEventSource<CepstrumInfo> {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD);
 		int undertoneRange = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE);
+		float pdLowThreshold = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD);
 
 		Autocorrelation ac = new Autocorrelation(maxLag);
 		ac.setCorrelationThreshold(correlationThreshold);
@@ -115,7 +117,7 @@ public class CepstrumSource extends AudioEventSource<CepstrumInfo> {
 		ac.setIsSacf(sacfSwitch);
 		ac.setMaxLag(maxLag);
 		ac.setIsRemoveUndertones(undertoneRemove);
-		LOG.finer(">>SACF params: " + ac);
+		ac.setLowFFTThreshold(pdLowThreshold);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];

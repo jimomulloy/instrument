@@ -106,6 +106,8 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_THRESHOLD);
 		int undertoneRange = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE);
+		float pdLowThreshold = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD);
 
 		Autocorrelation ac = new Autocorrelation(maxLag);
 		ac.setCorrelationThreshold(correlationThreshold);
@@ -113,8 +115,8 @@ public class SACFSource extends AudioEventSource<SACFInfo> {
 		ac.setUndertoneThreshold(undertoneThreshold);
 		ac.setIsSacf(sacfSwitch);
 		ac.setMaxLag(maxLag);
+		ac.setLowFFTThreshold(pdLowThreshold);
 		ac.setIsRemoveUndertones(undertoneRemove);
-		LOG.finer(">>SACF params: " + ac);
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];

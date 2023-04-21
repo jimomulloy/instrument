@@ -188,7 +188,7 @@ public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 	}
 
 	void initialise() {
-		PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_YIN;
+		PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_PITCH;
 
 		binStartingPointsInCents = new float[windowSize];
 		binHeightsInCents = new float[windowSize];

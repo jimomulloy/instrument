@@ -452,7 +452,6 @@ public class Hearing implements Organ {
 					}
 					double result = Math.sqrt(total / numSamples);
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
-					LOG.severe(">>Calibrate : " + audioEvent.getTimeStamp() + ", " + result);
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {
@@ -598,7 +597,6 @@ public class Hearing implements Organ {
 					}
 					double result = Math.sqrt(total / numSamples);
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
-					LOG.severe(">>Calibrate : " + audioEvent.getTimeStamp() + ", " + result);
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {

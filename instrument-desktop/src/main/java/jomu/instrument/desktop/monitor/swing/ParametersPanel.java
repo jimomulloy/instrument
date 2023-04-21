@@ -1430,7 +1430,7 @@ public class ParametersPanel extends JPanel {
 
 		parameterPanel.add(cqSwitchPanel);
 
-		noiseFloorSlider = new JSlider(100, 500);
+		noiseFloorSlider = new JSlider(100, 1000);
 		final JLabel noiseFloorFactorLabel = new JLabel("Noise floor factor    :");
 		noiseFloorSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -1453,7 +1453,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noiseFloorFactorLabel);
 		parameterPanel.add(noiseFloorSlider);
 
-		medianFilterSizeSlider = new JSlider(3, 255);
+		medianFilterSizeSlider = new JSlider(1, 255);
 		final JLabel medianFilterSizeLabel = new JLabel("Median Filter Size   :");
 		medianFilterSizeSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -1471,7 +1471,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(medianFilterSizeLabel);
 		parameterPanel.add(medianFilterSizeSlider);
 
-		minPeakSizeSlider = new JSlider(5, 255);
+		minPeakSizeSlider = new JSlider(1, 255);
 		final JLabel minPeakSizeLabel = new JLabel("Min Peak Size   :");
 		minPeakSizeSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -1489,7 +1489,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(minPeakSizeLabel);
 		parameterPanel.add(minPeakSizeSlider);
 
-		numberOfPeaksSlider = new JSlider(1, 40);
+		numberOfPeaksSlider = new JSlider(1, 10);
 		final JLabel numberOfPeaksLabel = new JLabel("Number of peaks  :");
 		numberOfPeaksSlider.addChangeListener(new ChangeListener() {
 			@Override

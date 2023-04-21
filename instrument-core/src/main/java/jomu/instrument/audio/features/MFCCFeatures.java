@@ -27,6 +27,28 @@ public class MFCCFeatures extends AudioEventFeatures<MFCCInfo> implements ToneMa
 		this.features = getSource().getAndClearFeatures();
 	}
 
+	public float[] getSpectrum(double lowThreshold) {
+		float[] spectrum = null;
+		for (Entry<Double, MFCCInfo> entry : features.entrySet()) {
+			double[] spectralEnergy = entry.getValue().getMagnitudes();
+			if (spectrum == null) {
+				spectrum = new float[spectralEnergy.length];
+			}
+			for (int i = 0; i < spectralEnergy.length; i++) {
+				spectrum[i] += spectralEnergy[i];
+			}
+		}
+		if (spectrum == null) {
+			spectrum = new float[0];
+		}
+		for (int i = 0; i < spectrum.length; i++) {
+			if (spectrum[i] < lowThreshold) {
+				spectrum[i] = 0;
+			}
+		}
+		return spectrum;
+	}
+
 	public void buildToneMapFrame(ToneMap toneMap) {
 
 		if (features.size() > 0) {
@@ -52,10 +74,15 @@ public class MFCCFeatures extends AudioEventFeatures<MFCCInfo> implements ToneMa
 			if (features.size() > 0) {
 				for (MFCCInfo feature : features.values()) {
 					for (int peak : feature.peaks) {
-						// float frequency = feature.getLength() / peak;
-						float frequency = getSource().getSampleRate() / peak;
-						int tmIndex = pitchSet.getIndex(frequency);
-						ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+						if (peak == feature.getMaxACFIndex()) {
+							// float frequency = feature.getLength() / peak;
+							float frequency = getSource().getSampleRate() / peak;
+							int tmIndex = pitchSet.getIndex(frequency);
+							if (tmIndex > -1) {
+								ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+								ttf.getElement(tmIndex).isPeak = true;
+							}
+						}
 					}
 				}
 				ttf.reset();

@@ -84,7 +84,7 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 			double cmPower = cm.get(ttf.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
 					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, true);
 		}
 
 		console.getVisor().updateToneMapView(tpToneMap, this.cell.getCellType().toString());

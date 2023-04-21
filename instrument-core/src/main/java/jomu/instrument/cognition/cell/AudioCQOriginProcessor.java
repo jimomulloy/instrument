@@ -144,7 +144,7 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 			double cmPower = cm.get(ttf.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
 					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, false);
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

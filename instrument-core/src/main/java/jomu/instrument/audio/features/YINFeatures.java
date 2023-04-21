@@ -19,7 +19,7 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 	public int powerLow = 0;
 	private AudioFeatureFrame audioFeatureFrame;
 
-	public float[] getSpectrum() {
+	public float[] getSpectrum(float lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
 			PitchDetectionResult pdr = entry.getValue().getPitchDetectionResult();
@@ -37,6 +37,11 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 		}
 		if (spectrum == null) {
 			spectrum = new float[0];
+		}
+		for (int i = 0; i < spectrum.length; i++) {
+			if (spectrum[i] < lowThreshold) {
+				spectrum[i] = 0;
+			}
 		}
 		return spectrum;
 	}
@@ -66,9 +71,14 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
 				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
 				float pitch = pitchDetect.getPitch();
+				LOG.severe("YIN pd: " + timeStart + ", " + pitch + ", " + pitchDetect.getProbability());
 				if (pitch > -1) {
-					int index = pitchSet.getIndex(pitch);
-					ttf.getElement(index).isPeak = true;
+					LOG.severe("YIN pd PITCH !!");
+					int tmIndex = pitchSet.getIndex(pitch);
+					if (tmIndex > -1) {
+						LOG.severe("YIN pd PITCH index: " + tmIndex);
+						ttf.getElement(tmIndex).isPeak = true;
+					}
 				}
 			}
 		} else {

@@ -69,7 +69,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			double cmPower = cm.get(synthesisFrame.getStartTime());
 			double cmMaxWindowPower = cm.getMaxPower(synthesisFrame.getStartTime() - cqCalibrateRange / 2,
 					synthesisFrame.getStartTime() + cqCalibrateRange / 2);
-			synthesisFrame.calibrate(cmMaxWindowPower, cmPower, lowThreshold);
+			synthesisFrame.calibrate(cmMaxWindowPower, cmPower, lowThreshold, false);
 		}
 
 		synthesisFrame.setChord(synthesisToneMap, chromaFrame);

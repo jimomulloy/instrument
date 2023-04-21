@@ -71,10 +71,10 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		notateTuner.noteScan(notateToneMap, sequence);
 		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 
-		// peaksTuner.noteScan(notatePeaksToneMap, sequence);
+		peaksTuner.noteScan(notatePeaksToneMap, sequence);
 		console.getVisor().updateToneMapView(notatePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
 
-		// spTuner.noteScan(notateSpectralToneMap, sequence);
+		spTuner.noteScan(notateSpectralToneMap, sequence);
 		console.getVisor().updateToneMapView(notateSpectralToneMap, this.cell.getCellType().toString() + "_SPECTRAL");
 
 		int tmIndex = sequence - 12 * (noteMaxDuration / 1000); // TODO !!

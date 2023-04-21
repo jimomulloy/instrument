@@ -205,7 +205,7 @@ public class PitchSet implements Serializable {
 	public int getIndex(float frequencyInHertz) {
 		int note = PitchSet.freqToMidiNote(frequencyInHertz);
 		if (note == -1) {
-			return 0;
+			return -1;
 		} else {
 			return getIndex(note);
 		}

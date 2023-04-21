@@ -34,7 +34,7 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 		features = getSource().getAndClearFeatures();
 	}
 
-	public float[] getSpectrum() {
+	public float[] getSpectrum(double lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
 			float[] spectralEnergy = entry.getValue().getMagnitudes();
@@ -49,10 +49,18 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 				}
 			}
 		}
+		if (spectrum == null) {
+			spectrum = new float[0];
+		}
+		for (int i = 0; i < spectrum.length; i++) {
+			if (spectrum[i] < lowThreshold) {
+				spectrum[i] = 0;
+			}
+		}
 		return spectrum;
 	}
 
-	public void buildToneMapFrame(ToneMap toneMap, boolean usePeaks) {
+	public void buildToneMapFrame(ToneMap toneMap, boolean usePeaks, double lowThreshold) {
 
 		this.toneMap = toneMap;
 
@@ -88,7 +96,7 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 				}
 			}
 
-			float[] spectrum = usePeaks ? processPeaks(getSpectrum()) : getSpectrum();
+			float[] spectrum = usePeaks ? processPeaks(getSpectrum(lowThreshold)) : getSpectrum(lowThreshold);
 
 			FFTSpectrum fftSpectrum = new FFTSpectrum(getSource().getSampleRate(), getSource().getBufferSize(),
 					spectrum);
