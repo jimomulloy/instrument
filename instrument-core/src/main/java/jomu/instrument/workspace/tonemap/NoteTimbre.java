@@ -2,8 +2,11 @@ package jomu.instrument.workspace.tonemap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class NoteTimbre {
+
+	private static final Logger LOG = Logger.getLogger(NoteTimbre.class.getName());
 
 	public double frequency;
 	public double range;
@@ -127,6 +130,35 @@ public class NoteTimbre {
 			}
 		}
 		return false;
+	}
+
+	public boolean matches2(NoteTimbre other) {
+		if (this.frequency == 0 && other.frequency == 0) {
+			return true;
+		}
+		if (this.frequency != 0 && other.frequency == 0) {
+			return false;
+		}
+		if (this.frequency == 0 && other.frequency != 0) {
+			return false;
+		}
+		double fr = this.frequency / other.frequency;
+		LOG.severe(">>!!TIMBRE fr: " + fr);
+		if (fr > frequencyRatio && fr < (frequencyRatio + frequencyRange)) {
+			double mr = (this.range / this.median) / (other.range / other.median);
+			LOG.severe(">>!!TIMBRE mr: " + mr);
+			if (mr > medianRatio && mr < (medianRatio + medianRange)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "NoteTimbre [frequency=" + frequency + ", range=" + range + ", median=" + median + ", frequencyRange="
+				+ frequencyRange + ", frequencyRatio=" + frequencyRatio + ", medianRange=" + medianRange
+				+ ", medianRatio=" + medianRatio + "]";
 	}
 
 }
