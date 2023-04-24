@@ -14,7 +14,7 @@ import jomu.instrument.perception.Hearing;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.Workspace;
 
-public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage>, Exception> {
+public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage>, InstrumentException> {
 
 	private static final Logger LOG = Logger.getLogger(ProcessorCommon.class.getName());
 
@@ -37,7 +37,7 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 	}
 
 	@Override
-	abstract public void accept(List<NuMessage> messages) throws Exception;
+	abstract public void accept(List<NuMessage> messages) throws InstrumentException;
 
 	final static String buildToneMapKey(CellTypes cellType, String streamId) {
 		return cellType + ":" + streamId;

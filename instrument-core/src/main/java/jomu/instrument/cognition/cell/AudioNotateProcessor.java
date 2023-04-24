@@ -3,6 +3,7 @@ package jomu.instrument.cognition.cell;
 import java.util.List;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -23,7 +24,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 	}
 
 	@Override
-	public void accept(List<NuMessage> messages) throws Exception {
+	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.finer(">>AudioNotateProcessor accept: " + sequence + ", streamId: " + streamId);
@@ -35,6 +36,15 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		boolean notateApplyFormantsSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_APPLY_FORMANTS_SWITCH);
 		int noteMaxDuration = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION);
+		int noteMinDuration = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MIN_DURATION);
+		int notePeaksMaxDuration = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MAX_DURATION);
+		int notePeaksMinDuration = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MIN_DURATION);
+		int noteSpectralMaxDuration = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MAX_DURATION);
+		int noteSpectralMinDuration = parameterManager
+				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MIN_DURATION);
 
 		ToneMap integrateToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
@@ -68,13 +78,13 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		LOG.finer(">>NOTATE TTF: " + notateTimeFrame.getStartTime() + ", " + notateTimeFrame.getMaxAmplitude() + ", "
 				+ notateTimeFrame.getMinAmplitude() + ", " + notateTimeFrame.getRmsPower());
 
-		notateTuner.noteScan(notateToneMap, sequence);
+		notateTuner.noteScan(notateToneMap, sequence, noteMinDuration, noteMaxDuration);
 		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 
-		peaksTuner.noteScan(notatePeaksToneMap, sequence);
+		peaksTuner.noteScan(notatePeaksToneMap, sequence, notePeaksMinDuration, notePeaksMaxDuration);
 		console.getVisor().updateToneMapView(notatePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
 
-		spTuner.noteScan(notateSpectralToneMap, sequence);
+		spTuner.noteScan(notateSpectralToneMap, sequence, noteSpectralMinDuration, noteSpectralMaxDuration);
 		console.getVisor().updateToneMapView(notateSpectralToneMap, this.cell.getCellType().toString() + "_SPECTRAL");
 
 		int tmIndex = sequence - 12 * (noteMaxDuration / 1000); // TODO !!

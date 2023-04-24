@@ -3,6 +3,7 @@ package jomu.instrument.cognition.cell;
 import java.util.List;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
@@ -18,9 +19,12 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 	}
 
 	@Override
-	public void accept(List<NuMessage> messages) throws Exception {
+	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
+		if (sequence == 20) {
+			// throw new InstrumentException(">>TEST EXCEPTION AudioIntegrateProcessor");
+		}
 		LOG.severe(">>AudioIntegrateProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		boolean integrateSwitchHps = parameterManager
@@ -75,7 +79,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		integratePeaksToneMap.getTimeFrame().integratePeaks(sacfToneMap.getTimeFrame(sequence));
 		integratePeaksToneMap.getTimeFrame().integratePeaks(tpToneMap.getTimeFrame(sequence));
 		integratePeaksToneMap.getTimeFrame().integratePeaks(yinToneMap.getTimeFrame(sequence));
-		integratePeaksToneMap.getTimeFrame().integratePeaks(mfccToneMap.getTimeFrame(sequence));
+		// integratePeaksToneMap.getTimeFrame().integratePeaks(mfccToneMap.getTimeFrame(sequence));
 		// integratePeaksToneMap.getTimeFrame().integratePeaks(spToneMap.getTimeFrame(sequence))
 
 		integratePeaksToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
@@ -93,10 +97,9 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		integrateSpectralToneMap.getTimeFrame().clear();
 		integrateSpectralToneMap.getTimeFrame().merge(pitchToneMap.getTimeFrame(sequence));
 		integrateSpectralToneMap.getTimeFrame().merge(sacfToneMap.getTimeFrame(sequence));
-		// integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
-		integrateSpectralToneMap.getTimeFrame().merge(tpToneMap.getTimeFrame(sequence));
+		integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
 		integrateSpectralToneMap.getTimeFrame().merge(yinToneMap.getTimeFrame(sequence));
-		integrateSpectralToneMap.getTimeFrame().merge(mfccToneMap.getTimeFrame(sequence));
+		// integrateSpectralToneMap.getTimeFrame().merge(mfccToneMap.getTimeFrame(sequence));
 
 		integrateSpectralToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 

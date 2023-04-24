@@ -71,12 +71,9 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
 				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
 				float pitch = pitchDetect.getPitch();
-				LOG.severe("YIN pd: " + timeStart + ", " + pitch + ", " + pitchDetect.getProbability());
 				if (pitch > -1) {
-					LOG.severe("YIN pd PITCH !!");
 					int tmIndex = pitchSet.getIndex(pitch);
 					if (tmIndex > -1) {
-						LOG.severe("YIN pd PITCH index: " + tmIndex);
 						ttf.getElement(tmIndex).isPeak = true;
 					}
 				}

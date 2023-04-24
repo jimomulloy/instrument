@@ -72,8 +72,6 @@ public class AudioTuner implements ToneMapConstants {
 
 	private int noteHigh = INIT_NOTE_HIGH;
 	private int noteLow = INIT_NOTE_LOW;
-	private int noteMaxDuration = INIT_NOTE_MAX_DURATION;
-	private int noteMinDuration = INIT_NOTE_MIN_DURATION;
 
 	private int noteSustain = INIT_NOTE_SUSTAIN;
 	private boolean peakSwitch;
@@ -171,8 +169,6 @@ public class AudioTuner implements ToneMapConstants {
 		normalizeSetting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_SETTING);
 		noteHigh = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_HIGH);
 		noteLow = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_LOW);
-		noteMaxDuration = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION);
-		noteMinDuration = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MIN_DURATION);
 		noteSustain = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SUSTAIN);
 		peakSwitch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH);
 		pitchHigh = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_HIGH);
@@ -348,14 +344,6 @@ public class AudioTuner implements ToneMapConstants {
 
 		}
 
-		if (startPeak != 0) {
-			if (lastAmp <= normalizeTrough || (lastPeakAmp / lastAmp) > peakFactor) {
-				LOG.finer(">>Process peaks 3: " + lastPeakAmp + ", " + lastAmp + ", " + startPeak + ", " + endPeak);
-				// TODO Produces invalid peak at end ?? processPeak(toneTimeFrame, startPeak,
-				// endPeak, troughAmp, thresholdElement, maxAmp);
-			}
-		}
-
 		if (n6Switch) {
 			processOvertones(toneTimeFrame, true);
 		}
@@ -391,7 +379,7 @@ public class AudioTuner implements ToneMapConstants {
 	 * Apply filtering and conversion processing on basis of Tuner Parameters
 	 *
 	 */
-	public boolean noteScan(ToneMap toneMap, int sequence) {
+	public boolean noteScan(ToneMap toneMap, int sequence, int noteMinDuration, int noteMaxDuration) {
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 		ToneTimeFrame previousToneTimeFrame = null;
 		NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
@@ -531,7 +519,8 @@ public class AudioTuner implements ToneMapConstants {
 						}
 						toneMapElement.noteState = ON;
 						LOG.finer(">>NOTE ON 3: " + toneMapElement + ", " + timeSet.getStartTime());
-					} else if (shortNote(noteStatusElement, timeIncrement) && !noteStatusElement.isContinuation) {
+					} else if (shortNote(noteStatusElement, timeIncrement, noteMinDuration)
+							&& !noteStatusElement.isContinuation) {
 						// back fill set notes OFF
 						LOG.finer(">>>Note scan PENDING high - PROCESS BACK FILL OFF seq: " + sequence + ", " + note
 								+ ", " + noteStatusElement.onTime + ", " + noteStatusElement.offTime + ", "
@@ -578,7 +567,8 @@ public class AudioTuner implements ToneMapConstants {
 							+ noteStatusElement.offTime + ", onTime: " + noteStatusElement.onTime);
 					if ((time - noteStatusElement.offTime) >= (noteSustain)
 							|| (noteStatusElement.offTime - noteStatusElement.onTime) > noteMaxDuration) {
-						if (shortNote(noteStatusElement, timeIncrement) && !noteStatusElement.isContinuation) {
+						if (shortNote(noteStatusElement, timeIncrement, noteMinDuration)
+								&& !noteStatusElement.isContinuation) {
 							LOG.finer(
 									">>>Note scan PENDING low - PROCESS BACK FILL OFF seq: " + sequence + ", " + note);
 							// back fill set notes OFF
@@ -654,7 +644,7 @@ public class AudioTuner implements ToneMapConstants {
 		return true;
 	}
 
-	private boolean shortNote(NoteStatusElement noteStatusElement, double timeIncrement) {
+	private boolean shortNote(NoteStatusElement noteStatusElement, double timeIncrement, int noteMinDuration) {
 		if ((noteStatusElement.offTime - noteStatusElement.onTime) <= (noteMinDuration)) {
 			return true;
 		}
@@ -851,16 +841,8 @@ public class AudioTuner implements ToneMapConstants {
 		return threshold;
 	}
 
-	// Process individual Note across sequence of ToneMapMatrix elements
 	private void processNote(ToneMap toneMap, NoteStatusElement noteStatusElement,
 			List<NoteListElement> processedNotes) {
-
-		// if (!noteStatusElement.highFlag || ((noteStatusElement.offTime -
-		// noteStatusElement.onTime) < noteMinDuration)) {
-		// LOG.finer(">>PROCESS NOTE DISCARD!!: " + noteStatusElement + ", "
-		// + noteMinDuration);
-		// return;
-		// }
 
 		LOG.finer(">>PROCESS NOTE: " + noteStatusElement + ", " + noteStatusElement.onTime);
 

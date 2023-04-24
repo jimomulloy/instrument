@@ -3,6 +3,7 @@ package jomu.instrument.cognition.cell;
 import java.util.List;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.SpectralPeaksFeatures;
@@ -20,7 +21,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 	}
 
 	@Override
-	public void accept(List<NuMessage> messages) throws Exception {
+	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		double lowThreshold = parameterManager

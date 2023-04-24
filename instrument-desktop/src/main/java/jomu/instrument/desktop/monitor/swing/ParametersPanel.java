@@ -236,6 +236,14 @@ public class ParametersPanel extends JPanel {
 
 	private JSlider bottomFormantMidSlider;
 
+	private JSlider notePeaksMaxDurationSlider;
+
+	private JSlider notePeaksMinDurationSlider;
+
+	private JSlider noteSpectralMaxDurationSlider;
+
+	private JSlider noteSpectralMinDurationSlider;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -2219,7 +2227,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteLowLabel);
 		parameterPanel.add(noteLowSlider);
 
-		noteMaxDurationSlider = new JSlider(0, 10000);
+		noteMaxDurationSlider = new JSlider(100, 10000);
 		final JLabel noteMaxDurationLabel = new JLabel("Audio Tuner Max Note Duration :");
 		noteMaxDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2237,7 +2245,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteMaxDurationLabel);
 		parameterPanel.add(noteMaxDurationSlider);
 
-		noteMinDurationSlider = new JSlider(0, 1000);
+		noteMinDurationSlider = new JSlider(10, 1000);
 		final JLabel noteMinDurationLabel = new JLabel("Audio Tuner Min Note Duration :");
 		noteMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2254,6 +2262,78 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MIN_DURATION));
 		parameterPanel.add(noteMinDurationLabel);
 		parameterPanel.add(noteMinDurationSlider);
+
+		notePeaksMaxDurationSlider = new JSlider(100, 10000);
+		final JLabel notePeaksMaxDurationLabel = new JLabel("Audio Tuner Max Note Peaks Duration :");
+		notePeaksMaxDurationSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				notePeaksMaxDurationLabel
+						.setText(String.format("Audio Tuner Max Note Peaks Duration  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MAX_DURATION,
+						Integer.toString(newValue));
+			}
+		});
+		notePeaksMaxDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MAX_DURATION));
+		parameterPanel.add(notePeaksMaxDurationLabel);
+		parameterPanel.add(notePeaksMaxDurationSlider);
+
+		notePeaksMinDurationSlider = new JSlider(10, 1000);
+		final JLabel notePeaksMinDurationLabel = new JLabel("Audio Tuner Min Note Peaks Duration :");
+		notePeaksMinDurationSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				notePeaksMinDurationLabel.setText(String.format("Audio Tuner Min Note PeaksDuration  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MIN_DURATION,
+						Integer.toString(newValue));
+			}
+		});
+		notePeaksMinDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MIN_DURATION));
+		parameterPanel.add(notePeaksMinDurationLabel);
+		parameterPanel.add(notePeaksMinDurationSlider);
+
+		noteSpectralMaxDurationSlider = new JSlider(100, 10000);
+		final JLabel noteSpectralMaxDurationLabel = new JLabel("Audio Tuner Max Note Spectral Duration :");
+		noteSpectralMaxDurationSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				noteSpectralMaxDurationLabel
+						.setText(String.format("Audio Tuner Max Note Spectral Duration  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MAX_DURATION,
+						Integer.toString(newValue));
+			}
+		});
+		noteSpectralMaxDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MAX_DURATION));
+		parameterPanel.add(noteSpectralMaxDurationLabel);
+		parameterPanel.add(noteSpectralMaxDurationSlider);
+
+		noteSpectralMinDurationSlider = new JSlider(10, 1000);
+		final JLabel noteSpectralMinDurationLabel = new JLabel("Audio Tuner Min Note Spectral Duration :");
+		noteSpectralMinDurationSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				noteSpectralMinDurationLabel
+						.setText(String.format("Audio Tuner Min Note Spectral Duration  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MIN_DURATION,
+						Integer.toString(newValue));
+			}
+		});
+		noteSpectralMinDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MIN_DURATION));
+		parameterPanel.add(noteSpectralMinDurationLabel);
+		parameterPanel.add(noteSpectralMinDurationSlider);
 
 		noteSustainSlider = new JSlider(0, 1000);
 		final JLabel noteSustainLabel = new JLabel("Audio Tuner Min Note Sustain :");
@@ -3446,6 +3526,14 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MAX_DURATION));
 		noteMinDurationSlider
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_MIN_DURATION));
+		notePeaksMaxDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MAX_DURATION));
+		notePeaksMinDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_PEAKS_MIN_DURATION));
+		noteSpectralMaxDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MAX_DURATION));
+		noteSpectralMinDurationSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MIN_DURATION));
 		noteSustainSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SUSTAIN));
 		pitchHighSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_HIGH));
 		pitchLowSlider.setValue(parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_PITCH_LOW));

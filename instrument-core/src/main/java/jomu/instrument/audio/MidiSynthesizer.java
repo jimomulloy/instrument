@@ -55,6 +55,7 @@ import jomu.instrument.workspace.tonemap.ChordNote;
 import jomu.instrument.workspace.tonemap.NoteListElement;
 import jomu.instrument.workspace.tonemap.NoteStatus;
 import jomu.instrument.workspace.tonemap.NoteStatusElement;
+import jomu.instrument.workspace.tonemap.NoteTracker.NoteTrack;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -889,12 +890,25 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			boolean midiSynthTracksSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH);
+			boolean playLog = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH);
+			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
+			boolean playPeaks = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 
-			ToneMap notateToneMap = workspace.getAtlas()
-					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
+			ToneMap toneMap = null;
+			ToneTimeFrame toneTimeFrame = null;
 
-			ToneTimeFrame toneTimeFrame = notateToneMap.getTimeFrame(mqm.sequence);
-
+			if (midiSynthTracksSwitch) {
+				toneMap = workspace.getAtlas()
+						.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, midiStream.getStreamId()));
+			} else {
+				toneMap = workspace.getAtlas()
+						.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
+			}
+			toneTimeFrame = toneMap.getTimeFrame(mqm.sequence);
 			if (toneTimeFrame == null) {
 				return false;
 			}
@@ -903,7 +917,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (writeTrack && voice1Track == null) {
 				voice1Track = sequence.createTrack();
-				LOG.severe(">>!!MIDI VOICE 1 POGRAM");
 				createEvent(voice1Track, voice1Channel, PROGRAM, voice1Channel.program + 1, 1L, 127);
 			}
 
@@ -914,7 +927,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 			NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
 			NoteStatusElement noteStatusElement = null;
 			ShortMessage midiMessage = null;
-
 			List<ShortMessage> midiMessages = new ArrayList<>();
 			ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 			if (voiceChannel1LastNotes == null) {
@@ -928,69 +940,128 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			for (ToneMapElement toneMapElement : ttfElements) {
-				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
-				noteStatusElement = noteStatus.getNoteStatusElement(note);
-				double amplitude = toneMapElement.amplitude;
-
-				int volume = 0;
-				if (amplitude > highVoiceThreshold) {
-					volume = 127;
-				} else if (amplitude <= lowVoiceThreshold) {
-					volume = 0;
-				} else {
-					volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
-				}
-
-				switch (noteStatusElement.state) {
-				case ON:
-				case PENDING:
-				case CONTINUING:
-					LOG.finer(">>V1 MIDI NOTE CANDIDATE...: " + mqm.getSequence() + ", " + note + ", " + volume + ", "
-							+ amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
-					if (!voiceChannel1LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
-							if (writeTrack) {
-								createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+			if (midiSynthTracksSwitch) {
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					NoteListElement noteListElement = toneMapElement.noteListElement;
+					int volume = 0;
+					if (noteListElement != null) {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								toneMapElement, noteListElement);
+						NoteTrack track = toneMap.getNoteTracker().getTrack(noteListElement);
+						if (track == null || track.getNumber() < 1 || ((track.getNumber() - 1) % 4 != 0)) {
+							volume = 0;
 						}
-						midiMessages.add(midiMessage);
-						voiceChannel1LastNotes.add(note);
+					}
+
+					if (volume > 0) {
+						if (!voiceChannel1LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel1LastNotes.add(note);
+						} else {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice1Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// midiMessages.add(midiMessage);
+						}
 					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice1Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						// midiMessages.add(midiMessage);
-					}
-					break;
-				case OFF:
-					if (voiceChannel1LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice1Channel.num, note, 0);
-							if (writeTrack) {
-								createEvent(voice1Track, voice1Channel, NOTEOFF, note, tick, volume);
+						if (voiceChannel1LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice1Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice1Track, voice1Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							midiMessages.add(midiMessage);
+							voiceChannel1LastNotes.remove(note);
 						}
-						midiMessages.add(midiMessage);
-						voiceChannel1LastNotes.remove(note);
 					}
-					break;
-				default:
-					voiceChannel1LastNotes.remove(note);
-					break;
+				}
+			} else {
+
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					noteStatusElement = noteStatus.getNoteStatusElement(note);
+					double amplitude = toneMapElement.amplitude;
+
+					int volume = 0;
+					if (amplitude > highVoiceThreshold) {
+						volume = 127;
+					} else if (amplitude <= lowVoiceThreshold) {
+						volume = 0;
+					} else {
+						volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+								* 127);
+					}
+
+					switch (noteStatusElement.state) {
+					case ON:
+					case PENDING:
+					case CONTINUING:
+						LOG.finer(">>V1 MIDI NOTE CANDIDATE...: " + mqm.getSequence() + ", " + note + ", " + volume
+								+ ", " + amplitude + ", " + highVoiceThreshold + ", " + lowVoiceThreshold);
+						if (!voiceChannel1LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel1LastNotes.add(note);
+						} else {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice1Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// midiMessages.add(midiMessage);
+						}
+						break;
+					case OFF:
+						if (voiceChannel1LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice1Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice1Track, voice1Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel1LastNotes.remove(note);
+						}
+						break;
+					default:
+						voiceChannel1LastNotes.remove(note);
+						break;
+					}
 				}
 			}
 
@@ -1009,18 +1080,69 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		}
 
+		private int getNoteVolume(double lowVoiceThreshold, double highVoiceThreshold, boolean playLog,
+				double logFactor, boolean playPeaks, ToneMapElement toneMapElement, NoteListElement noteListElement) {
+			double logAmplitude;
+			double highLogThreshold;
+			double lowLogThreshold;
+			double amplitude;
+			int volume;
+			amplitude = noteListElement.maxAmp;
+			if (playPeaks && !toneMapElement.isPeak) {
+				amplitude = 0;
+			}
+			if (playLog) {
+				highLogThreshold = (float) Math.log10(1 + (logFactor * highVoiceThreshold));
+				lowLogThreshold = (float) Math.log10(1 + (logFactor * lowVoiceThreshold));
+				logAmplitude = (float) Math.log10(1 + (logFactor * amplitude));
+				volume = (int) (((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold)) * 127);
+				if (volume > highLogThreshold) {
+					volume = 127;
+				} else if (volume < lowLogThreshold) {
+					volume = 0;
+				}
+			} else {
+				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
+				if (amplitude > highVoiceThreshold) {
+					volume = 127;
+				} else if (amplitude <= lowVoiceThreshold) {
+					volume = 0;
+				} else {
+					volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
+				}
+			}
+			return volume;
+		}
+
 		private boolean playVoiceChannel2(MidiQueueMessage mqm) {
 			LOG.finer(">>MIDI CHANNEL playVoiceChannel2");
+			double lowVoiceThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
+			double highVoiceThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			boolean midiSynthTracksSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH);
+			boolean playLog = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH);
+			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
+			boolean playPeaks = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 
-			ToneMap ipToneMap = workspace.getAtlas().getToneMap(
-					ToneMap.buildToneMapKey(CellTypes.AUDIO_INTEGRATE.toString() + "_PEAKS", midiStream.getStreamId()));
+			ToneMap toneMap = null;
+			ToneTimeFrame toneTimeFrame = null;
 
-			ToneTimeFrame toneTimeFrame = ipToneMap.getTimeFrame(mqm.sequence);
-
+			if (midiSynthTracksSwitch) {
+				toneMap = workspace.getAtlas()
+						.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, midiStream.getStreamId()));
+			} else {
+				toneMap = workspace.getAtlas().getToneMap(ToneMap
+						.buildToneMapKey(CellTypes.AUDIO_INTEGRATE.toString() + "_PEAKS", midiStream.getStreamId()));
+			}
+			toneTimeFrame = toneMap.getTimeFrame(mqm.sequence);
 			if (toneTimeFrame == null) {
 				return false;
 			}
@@ -1051,62 +1173,119 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			for (ToneMapElement toneMapElement : ttfElements) {
-				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
-				if ((note > 120 || note < 12)) {
-					continue;
-				}
-				double amplitude = toneMapElement.amplitude;
-				boolean isPeak = toneMapElement.isPeak;
-
-				int volume = 0;
-				if (isPeak) {
-					if (amplitude > 1.0) {
-						volume = 127;
-					} else if (amplitude < 0.1) {
-						volume = 0;
-					} else {
-						volume = (int) (((amplitude - 0.1) / (1.0 - 0.1)) * 127);
-					}
-				}
-
-				if (volume > 0) {
-					if (!voiceChannel2LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, voice2Channel.num, note, volume);
-							if (writeTrack) {
-								createEvent(voice2Track, voice2Channel, NOTEON, note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						midiMessages.add(midiMessage);
-						voiceChannel2LastNotes.add(note);
-					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice2Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+			if (midiSynthTracksSwitch) {
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					NoteListElement noteListElement = toneMapElement.noteListElement;
+					int volume = 0;
+					if (noteListElement != null) {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								toneMapElement, noteListElement);
+						NoteTrack track = toneMap.getNoteTracker().getTrack(noteListElement);
+						if (track == null || track.getNumber() < 2 || ((track.getNumber() - 2) % 4 != 0)) {
+							volume = 0;
 						}
 					}
-				} else {
-					if (voiceChannel2LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice2Channel.num, note, 0);
-							if (writeTrack) {
-								createEvent(voice2Track, voice2Channel, NOTEOFF, note, tick, volume);
+
+					if (volume > 0) {
+						if (!voiceChannel2LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice2Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(voice1Track, voice2Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							midiMessages.add(midiMessage);
+							voiceChannel2LastNotes.add(note);
+						} else {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice2Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// midiMessages.add(midiMessage);
 						}
-						midiMessages.add(midiMessage);
-						voiceChannel2LastNotes.remove(note);
+					} else {
+						if (voiceChannel2LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice2Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice1Track, voice2Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel2LastNotes.remove(note);
+						}
+					}
+				}
+			} else {
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					if ((note > 120 || note < 12)) {
+						continue;
+					}
+					double amplitude = toneMapElement.amplitude;
+					boolean isPeak = toneMapElement.isPeak;
+
+					int volume = 0;
+					if (isPeak) {
+						if (amplitude > 1.0) {
+							volume = 127;
+						} else if (amplitude < 0.1) {
+							volume = 0;
+						} else {
+							volume = (int) (((amplitude - 0.1) / (1.0 - 0.1)) * 127);
+						}
+					}
+
+					if (volume > 0) {
+						if (!voiceChannel2LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice2Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(voice2Track, voice2Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel2LastNotes.add(note);
+						} else {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice2Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					} else {
+						if (voiceChannel2LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice2Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice2Track, voice2Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel2LastNotes.remove(note);
+						}
 					}
 				}
 			}
@@ -1136,16 +1315,28 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			boolean midiSynthTracksSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH);
+			boolean playLog = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH);
+			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
+			boolean playPeaks = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 
-			ToneMap isToneMap = workspace.getAtlas().getToneMap(ToneMap
-					.buildToneMapKey(CellTypes.AUDIO_INTEGRATE.toString() + "_SPECTRAL", midiStream.getStreamId()));
+			ToneMap toneMap = null;
+			ToneTimeFrame toneTimeFrame = null;
 
-			ToneTimeFrame toneTimeFrame = isToneMap.getTimeFrame(mqm.sequence);
-
+			if (midiSynthTracksSwitch) {
+				toneMap = workspace.getAtlas()
+						.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, midiStream.getStreamId()));
+			} else {
+				toneMap = workspace.getAtlas()
+						.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_INTEGRATE, midiStream.getStreamId()));
+			}
+			toneTimeFrame = toneMap.getTimeFrame(mqm.sequence);
 			if (toneTimeFrame == null) {
 				return false;
 			}
-
 			ChannelData voice3Channel = channels[VOICE_3_CHANNEL];
 
 			if (writeTrack && voice3Track == null) {
@@ -1171,60 +1362,118 @@ public class MidiSynthesizer implements ToneMapConstants {
 					maxAmp = amp;
 				}
 			}
-			for (ToneMapElement toneMapElement : ttfElements) {
-				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
-				if ((note > 120 || note < 12)) {
-					continue;
-				}
-				double amplitude = toneMapElement.amplitude;
-
-				int volume = 0;
-				if (amplitude > highVoiceThreshold) {
-					volume = 127;
-				} else if (amplitude <= lowVoiceThreshold) {
-					volume = 0;
-				} else {
-					volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
-				}
-
-				if (volume > 0) {
-					if (!voiceChannel3LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, voice3Channel.num, note, volume);
-							if (writeTrack) {
-								createEvent(voice3Track, voice3Channel, NOTEON, note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+			if (midiSynthTracksSwitch) {
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					NoteListElement noteListElement = toneMapElement.noteListElement;
+					int volume = 0;
+					if (noteListElement != null) {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								toneMapElement, noteListElement);
+						NoteTrack track = toneMap.getNoteTracker().getTrack(noteListElement);
+						if (track == null || track.getNumber() < 3 || ((track.getNumber() - 3) % 4 != 0)) {
+							volume = 0;
 						}
-						midiMessages.add(midiMessage);
-						voiceChannel3LastNotes.add(note);
-					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice3Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						// midiMessages.add(midiMessage);
 					}
-				} else {
-					if (voiceChannel3LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice3Channel.num, note, 0);
-							if (writeTrack) {
-								createEvent(voice3Track, voice3Channel, NOTEOFF, note, tick, volume);
+
+					if (volume > 0) {
+						if (!voiceChannel3LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice3Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(voice1Track, voice3Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							midiMessages.add(midiMessage);
+							voiceChannel3LastNotes.add(note);
+						} else {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice3Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// midiMessages.add(midiMessage);
 						}
-						midiMessages.add(midiMessage);
-						voiceChannel3LastNotes.remove(note);
+					} else {
+						if (voiceChannel3LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice3Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice1Track, voice3Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel3LastNotes.remove(note);
+						}
+					}
+				}
+			} else {
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					if ((note > 120 || note < 12)) {
+						continue;
+					}
+					double amplitude = toneMapElement.amplitude;
+
+					int volume = 0;
+					if (amplitude > highVoiceThreshold) {
+						volume = 127;
+					} else if (amplitude <= lowVoiceThreshold) {
+						volume = 0;
+					} else {
+						volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+								* 127);
+					}
+
+					if (volume > 0) {
+						if (!voiceChannel3LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice3Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(voice3Track, voice3Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel3LastNotes.add(note);
+						} else {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice3Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// midiMessages.add(midiMessage);
+						}
+					} else {
+						if (voiceChannel3LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice3Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice3Track, voice3Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel3LastNotes.remove(note);
+						}
 					}
 				}
 			}
@@ -1259,12 +1508,20 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
 			boolean playLog = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH);
+			boolean midiSynthTracksSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH);
 
-			ToneMap notateToneMap = workspace.getAtlas()
-					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
+			ToneMap toneMap = null;
+			ToneTimeFrame toneTimeFrame = null;
 
-			ToneTimeFrame toneTimeFrame = notateToneMap.getTimeFrame(mqm.sequence);
-
+			if (midiSynthTracksSwitch) {
+				toneMap = workspace.getAtlas()
+						.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, midiStream.getStreamId()));
+			} else {
+				toneMap = workspace.getAtlas()
+						.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_NOTATE, midiStream.getStreamId()));
+			}
+			toneTimeFrame = toneMap.getTimeFrame(mqm.sequence);
 			if (toneTimeFrame == null) {
 				return false;
 			}
@@ -1273,7 +1530,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (writeTrack && voice4Track == null) {
 				voice4Track = sequence.createTrack();
-				LOG.severe(">>MIDI VOICE4 progream: " + (voice4Channel.program + 1));
 				createEvent(voice4Track, voice4Channel, PROGRAM, voice4Channel.program + 1, 1L, 127);
 			}
 
@@ -1295,86 +1551,143 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			double logAmplitude = 0;
-			double highLogThreshold = 0;
-			double lowLogThreshold = 0;
-			for (ToneMapElement toneMapElement : ttfElements) {
-				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
-				double amplitude = toneMapElement.amplitude;
-				NoteListElement noteListElement = toneMapElement.noteListElement;
-
-				int volume = 0;
-				amplitude = 0;
-
-				if (noteListElement != null) {
-
-					amplitude = noteListElement.maxAmp;
-					if (playLog) {
-						highLogThreshold = (float) Math.log10(1 + (logFactor * highVoiceThreshold));
-						lowLogThreshold = (float) Math.log10(1 + (logFactor * lowVoiceThreshold));
-						logAmplitude = (float) Math.log10(1 + (logFactor * amplitude));
-						volume = (int) (((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold))
-								* 127);
-						if (volume > highLogThreshold) {
-							volume = 127;
-						} else if (volume < lowLogThreshold) {
+			if (midiSynthTracksSwitch) {
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					NoteListElement noteListElement = toneMapElement.noteListElement;
+					int volume = 0;
+					if (noteListElement != null) {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								toneMapElement, noteListElement);
+						NoteTrack track = toneMap.getNoteTracker().getTrack(noteListElement);
+						if (track == null || track.getNumber() < 4 || ((track.getNumber() - 4) % 4 != 0)) {
 							volume = 0;
 						}
-					} else {
-						volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
-								* 127);
-						if (amplitude > highVoiceThreshold) {
-							volume = 127;
-						} else if (amplitude <= lowVoiceThreshold) {
-							volume = 0;
+					}
+
+					if (volume > 0) {
+						if (!voiceChannel4LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(voice1Track, voice4Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel4LastNotes.add(note);
 						} else {
-							volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
-									* 127);
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice4Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// midiMessages.add(midiMessage);
+						}
+					} else {
+						if (voiceChannel4LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice4Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice1Track, voice4Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel4LastNotes.remove(note);
 						}
 					}
 				}
+			} else {
+				double logAmplitude = 0;
+				double highLogThreshold = 0;
+				double lowLogThreshold = 0;
+				for (ToneMapElement toneMapElement : ttfElements) {
+					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
+					double amplitude = toneMapElement.amplitude;
+					NoteListElement noteListElement = toneMapElement.noteListElement;
 
-				if (volume > 0) {
-					if (!voiceChannel4LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
-							LOG.severe(">>MIDI V4 NOTEON: " + toneTimeFrame.getStartTime() + ", " + note + ", " + volume
-									+ ", " + logAmplitude + ", " + amplitude + ", " + highLogThreshold + ", "
-									+ lowLogThreshold);
-							if (writeTrack) {
-								createEvent(voice4Track, voice4Channel, NOTEON, note, tick, volume);
+					int volume = 0;
+					amplitude = 0;
+
+					if (noteListElement != null) {
+
+						amplitude = noteListElement.maxAmp;
+						if (playLog) {
+							highLogThreshold = (float) Math.log10(1 + (logFactor * highVoiceThreshold));
+							lowLogThreshold = (float) Math.log10(1 + (logFactor * lowVoiceThreshold));
+							logAmplitude = (float) Math.log10(1 + (logFactor * amplitude));
+							volume = (int) (((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold))
+									* 127);
+							if (volume > highLogThreshold) {
+								volume = 127;
+							} else if (volume < lowLogThreshold) {
+								volume = 0;
 							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						} else {
+							volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold))
+									* 127);
+							if (amplitude > highVoiceThreshold) {
+								volume = 127;
+							} else if (amplitude <= lowVoiceThreshold) {
+								volume = 0;
+							} else {
+								volume = (int) (((amplitude - lowVoiceThreshold)
+										/ (highVoiceThreshold - lowVoiceThreshold)) * 127);
+							}
 						}
-						midiMessages.add(midiMessage);
-						voiceChannel4LastNotes.add(note);
-					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice4Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						// midiMessages.add(midiMessage);
 					}
-				} else {
-					if (voiceChannel4LastNotes.contains(note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, voice4Channel.num, note, 0);
-							if (writeTrack) {
-								createEvent(voice4Track, voice4Channel, NOTEOFF, note, tick, volume);
+
+					if (volume > 0) {
+						if (!voiceChannel4LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
+								LOG.severe(">>MIDI V4 NOTEON: " + toneTimeFrame.getStartTime() + ", " + note + ", "
+										+ volume + ", " + logAmplitude + ", " + amplitude + ", " + highLogThreshold
+										+ ", " + lowLogThreshold);
+								if (writeTrack) {
+									createEvent(voice4Track, voice4Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							midiMessages.add(midiMessage);
+							voiceChannel4LastNotes.add(note);
+						} else {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice4Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// midiMessages.add(midiMessage);
 						}
-						midiMessages.add(midiMessage);
-						voiceChannel4LastNotes.remove(note);
+					} else {
+						if (voiceChannel4LastNotes.contains(note)) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice4Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(voice4Track, voice4Channel, NOTEOFF, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							voiceChannel4LastNotes.remove(note);
+						}
 					}
 				}
 			}

@@ -3,6 +3,7 @@ package jomu.instrument.cognition.cell;
 import java.util.List;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.AudioTuner;
 import jomu.instrument.audio.features.PeakInfo;
 import jomu.instrument.audio.features.SpectralPeakDetector;
@@ -22,7 +23,7 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 	}
 
 	@Override
-	public void accept(List<NuMessage> messages) throws Exception {
+	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.finer(">>AudioTunerPeaksProcessor accept: " + sequence + ", streamId: " + streamId);

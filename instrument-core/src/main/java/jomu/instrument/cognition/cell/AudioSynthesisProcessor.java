@@ -3,6 +3,7 @@ package jomu.instrument.cognition.cell;
 import java.util.List;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
@@ -19,7 +20,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 	}
 
 	@Override
-	public void accept(List<NuMessage> messages) throws Exception {
+	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.severe(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
@@ -59,7 +60,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		ToneTimeFrame synthesisFrame = notateFrame.clone();
 		synthesisToneMap.addTimeFrame(synthesisFrame);
 
-		synthesisFrame.merge(synthesisToneMap, notatePeaksToneMap, notatePeaksFrame);
+		synthesisFrame.integratePeaks(notatePeaksFrame);
 		synthesisFrame.merge(synthesisToneMap, notateSpectralToneMap, notateSpectralFrame);
 
 		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
@@ -78,6 +79,19 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat);
+
+		int tmIndex = sequence - 30;
+		ToneTimeFrame timeFrame;
+		if (tmIndex < 0) {
+			tmIndex = 0;
+		}
+		for (int i = tmIndex + 1; i <= sequence; i++) {
+			timeFrame = synthesisToneMap.getTimeFrame(i);
+			if (timeFrame != null) {
+				console.getVisor().updateChromaSynthView(synthesisToneMap, timeFrame);
+				console.getVisor().updateToneMapView(synthesisToneMap, timeFrame, this.cell.getCellType().toString());
+			}
+		}
 
 		console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());

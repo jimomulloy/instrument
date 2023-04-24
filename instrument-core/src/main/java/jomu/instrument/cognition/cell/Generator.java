@@ -201,87 +201,87 @@ public class Generator {
 		return cell;
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioCQProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioCQProcessor(NuCell cell) {
 		return new AudioCQProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioCQOriginProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioCQOriginProcessor(NuCell cell) {
 		return new AudioCQOriginProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioCQMicroToneProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioCQMicroToneProcessor(NuCell cell) {
 		return new AudioCQMicroToneProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioIntegrateProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioIntegrateProcessor(NuCell cell) {
 		return new AudioIntegrateProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioNotateProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioNotateProcessor(NuCell cell) {
 		return new AudioNotateProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioPitchProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioPitchProcessor(NuCell cell) {
 		return new AudioPitchProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioYINProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioYINProcessor(NuCell cell) {
 		return new AudioYINProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSACFProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioSACFProcessor(NuCell cell) {
 		return new AudioSACFProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioMFCCProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioMFCCProcessor(NuCell cell) {
 		return new AudioMFCCProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioCepstrumProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioCepstrumProcessor(NuCell cell) {
 		return new AudioCepstrumProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSynthesisProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioSynthesisProcessor(NuCell cell) {
 		return new AudioSynthesisProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSpectralPeaksProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioSpectralPeaksProcessor(NuCell cell) {
 		return new AudioSpectralPeaksProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioTunerPeaksProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioTunerPeaksProcessor(NuCell cell) {
 		return new AudioTunerPeaksProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioChromaPreProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioChromaPreProcessor(NuCell cell) {
 		return new AudioChromaPreProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioChromaPostProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioChromaPostProcessor(NuCell cell) {
 		return new AudioChromaPostProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioBeatProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioBeatProcessor(NuCell cell) {
 		return new AudioBeatProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioOnsetProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioOnsetProcessor(NuCell cell) {
 		return new AudioOnsetProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioPercussionProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioPercussionProcessor(NuCell cell) {
 		return new AudioPercussionProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioHpsProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioHpsProcessor(NuCell cell) {
 		return new AudioHpsProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getAudioSinkProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioSinkProcessor(NuCell cell) {
 		return new AudioSinkProcessor(cell);
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getJunctionProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getJunctionProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
 				cell.send(message);
@@ -289,7 +289,7 @@ public class Generator {
 		};
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getSinkProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getSinkProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
 				LOG.finer(">>SinkProcessor process message: " + message);
@@ -297,7 +297,7 @@ public class Generator {
 		};
 	}
 
-	private static ThrowingConsumer<List<NuMessage>, Exception> getSourceProcessor(NuCell cell) {
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getSourceProcessor(NuCell cell) {
 		return (List<NuMessage> messages) -> {
 			for (NuMessage message : messages) {
 				cell.send(message.streamId, message.sequence);

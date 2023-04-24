@@ -182,6 +182,10 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_NOTE_LOW = "audio.tuner.noteLow";
 	public static final String AUDIO_TUNER_NOTE_MAX_DURATION = "audio.tuner.noteMaxDuration";
 	public static final String AUDIO_TUNER_NOTE_MIN_DURATION = "audio.tuner.noteMinDuration";
+	public static final String AUDIO_TUNER_NOTE_PEAKS_MAX_DURATION = "audio.tuner.notePeaksMaxDuration";
+	public static final String AUDIO_TUNER_NOTE_PEAKS_MIN_DURATION = "audio.tuner.notePeaksMinDuration";
+	public static final String AUDIO_TUNER_NOTE_SPECTRAL_MAX_DURATION = "audio.tuner.noteSpectralMaxDuration";
+	public static final String AUDIO_TUNER_NOTE_SPECTRAL_MIN_DURATION = "audio.tuner.noteSpectralMinDuration";
 	public static final String AUDIO_TUNER_NOTE_SUSTAIN = "audio.tuner.noteSustain";
 	public static final String AUDIO_TUNER_PEAK_SWITCH = "audio.tuner.peakSwitch";
 	public static final String AUDIO_TUNER_PITCH_HIGH = "audio.tuner.pitchHigh";

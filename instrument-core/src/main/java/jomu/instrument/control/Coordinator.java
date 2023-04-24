@@ -1,15 +1,22 @@
 package jomu.instrument.control;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import jomu.instrument.InstrumentException;
+import jomu.instrument.InstrumentExceptionHandler;
 import jomu.instrument.Organ;
 import jomu.instrument.actuation.Voice;
 import jomu.instrument.cognition.Cortex;
 import jomu.instrument.perception.Hearing;
 
 @ApplicationScoped
-public class Coordinator implements Organ {
+public class Coordinator implements Organ, InstrumentExceptionHandler {
+
+	private static final Logger LOG = Logger.getLogger(Coordinator.class.getName());
 
 	@Inject
 	Cortex cortex;
@@ -51,4 +58,10 @@ public class Coordinator implements Organ {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void handleException(InstrumentException exception) {
+		LOG.log(Level.SEVERE, "CortexExceptionHandler handling exception: " + exception.getMessage(), exception);
+	}
+
 }

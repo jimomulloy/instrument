@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.actuation.Voice;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
@@ -19,7 +20,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	}
 
 	@Override
-	public void accept(List<NuMessage> messages) throws Exception {
+	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);

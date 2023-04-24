@@ -1,17 +1,28 @@
 package jomu.instrument.cognition;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.logging.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.cognition.cell.Generator;
 import jomu.instrument.cognition.cell.NuCell;
+import jomu.instrument.cognition.cell.ProcessorExceptionHandler;
 import jomu.instrument.cognition.cell.Weaver;
+import jomu.instrument.control.Coordinator;
 
 @ApplicationScoped
-public class Cortex implements Organ, AudioFeatureFrameObserver {
+public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExceptionHandler<InstrumentException> {
+
+	private static final Logger LOG = Logger.getLogger(Cortex.class.getName());
+
+	@Inject
+	Coordinator coordinator;
 
 	NuCell sourceAddCell;
 	NuCell sourceUpdateCell;
@@ -52,26 +63,47 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 	@Override
 	public void initialise() {
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
+		sourceAddCell.setProcessorExceptionHandler(this);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
+		sourceUpdateCell.setProcessorExceptionHandler(this);
 		audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
+		audioCQCell.setProcessorExceptionHandler(this);
 		audioCQOriginCell = Generator.createNuCell(CellTypes.AUDIO_CQ_ORIGIN);
+		audioCQOriginCell.setProcessorExceptionHandler(this);
 		audioBeatCell = Generator.createNuCell(CellTypes.AUDIO_BEAT);
+		audioBeatCell.setProcessorExceptionHandler(this);
 		audioOnsetCell = Generator.createNuCell(CellTypes.AUDIO_ONSET);
+		audioOnsetCell.setProcessorExceptionHandler(this);
 		audioPercussionCell = Generator.createNuCell(CellTypes.AUDIO_PERCUSSION);
+		audioPercussionCell.setProcessorExceptionHandler(this);
 		audioHpsCell = Generator.createNuCell(CellTypes.AUDIO_HPS);
+		audioHpsCell.setProcessorExceptionHandler(this);
 		audioPitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
+		audioPitchCell.setProcessorExceptionHandler(this);
 		audioSpectralPeaksCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
+		audioSpectralPeaksCell.setProcessorExceptionHandler(this);
 		audioPreChromaCell = Generator.createNuCell(CellTypes.AUDIO_PRE_CHROMA);
+		audioPreChromaCell.setProcessorExceptionHandler(this);
 		audioPostChromaCell = Generator.createNuCell(CellTypes.AUDIO_POST_CHROMA);
+		audioPostChromaCell.setProcessorExceptionHandler(this);
 		audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
+		audioIntegrateCell.setProcessorExceptionHandler(this);
 		audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
+		audioNotateCell.setProcessorExceptionHandler(this);
 		audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
+		audioSinkCell.setProcessorExceptionHandler(this);
 		audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
+		audioTunerPeaksCell.setProcessorExceptionHandler(this);
 		audioYINCell = Generator.createNuCell(CellTypes.AUDIO_YIN);
+		audioYINCell.setProcessorExceptionHandler(this);
 		audioSACFCell = Generator.createNuCell(CellTypes.AUDIO_SACF);
+		audioSACFCell.setProcessorExceptionHandler(this);
 		audioMFCCCell = Generator.createNuCell(CellTypes.AUDIO_MFCC);
+		audioMFCCCell.setProcessorExceptionHandler(this);
 		audioCepstrumCell = Generator.createNuCell(CellTypes.AUDIO_CEPSTRUM);
+		audioCepstrumCell.setProcessorExceptionHandler(this);
 		audioSynthesisCell = Generator.createNuCell(CellTypes.AUDIO_SYNTHESIS);
+		audioSynthesisCell.setProcessorExceptionHandler(this);
 		//
 		Weaver.connect(sourceUpdateCell, audioBeatCell);
 		Weaver.connect(sourceUpdateCell, audioPercussionCell);
@@ -125,5 +157,10 @@ public class Cortex implements Organ, AudioFeatureFrameObserver {
 	public void stop() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void handleException(InstrumentException exception) {
+		coordinator.handleException(exception);
 	}
 }

@@ -143,10 +143,8 @@ public class NoteTimbre {
 			return false;
 		}
 		double fr = this.frequency / other.frequency;
-		LOG.severe(">>!!TIMBRE fr: " + fr);
 		if (fr > frequencyRatio && fr < (frequencyRatio + frequencyRange)) {
 			double mr = (this.range / this.median) / (other.range / other.median);
-			LOG.severe(">>!!TIMBRE mr: " + mr);
 			if (mr > medianRatio && mr < (medianRatio + medianRange)) {
 				return true;
 			}

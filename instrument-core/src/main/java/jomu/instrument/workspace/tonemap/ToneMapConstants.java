@@ -69,7 +69,7 @@ public interface ToneMapConstants {
 	public static final int INIT_NOTE_HIGH = 100;
 	public static final int INIT_NOTE_LOW = 50;
 	public static final int INIT_NOTE_MAX_DURATION = 10000;
-	public static final int INIT_NOTE_MIN_DURATION = 0;
+	public static final int INIT_NOTE_MIN_DURATION = 100;
 
 	public static final int INIT_NOTE_SUSTAIN = 100;
 	public static final int INIT_PAN_SETTING = 50;

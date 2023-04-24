@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jomu.instrument.InstrumentException;
@@ -53,7 +54,10 @@ public class NuCell extends Cell implements Serializable {
 	protected MorphologyEnum morphology;
 
 	// Processor
-	protected ThrowingConsumer<List<NuMessage>, Exception> processor;
+	protected ThrowingConsumer<List<NuMessage>, InstrumentException> processor;
+
+	// Processor ExceptioHandler
+	protected ProcessorExceptionHandler<InstrumentException> processorExceptionHandler;
 
 	// Most NuCells receive many input signals throughout their dendritic trees.
 	// A single NuCell may have more than one set of dendrites, and may receive
@@ -282,8 +286,12 @@ public class NuCell extends Cell implements Serializable {
 		return axon.getConnections();
 	}
 
-	public ThrowingConsumer<List<NuMessage>, Exception> getProcessor() {
+	public ThrowingConsumer<List<NuMessage>, InstrumentException> getProcessor() {
 		return processor;
+	}
+
+	public ProcessorExceptionHandler<InstrumentException> getProcessorExceptionHandler() {
+		return processorExceptionHandler;
 	}
 
 	/**
@@ -446,8 +454,12 @@ public class NuCell extends Cell implements Serializable {
 		this.morphology = morphology;
 	}
 
-	public void setProcessor(ThrowingConsumer<List<NuMessage>, Exception> processor) {
+	public void setProcessor(ThrowingConsumer<List<NuMessage>, InstrumentException> processor) {
 		this.processor = processor;
+	}
+
+	public void setProcessorExceptionHandler(ProcessorExceptionHandler<InstrumentException> processorExceptionHandler) {
+		this.processorExceptionHandler = processorExceptionHandler;
 	}
 
 	// ==========================================
@@ -512,7 +524,9 @@ public class NuCell extends Cell implements Serializable {
 							LOG.finer(">>NuCell QueueConsumer processor: " + NuCell.this.getCellType());
 							processor.accept(entries);
 							LOG.finer(">>NuCell QueueConsumer processed: " + NuCell.this.getCellType());
-						} catch (Exception e) {
+						} catch (InstrumentException e) {
+							processorExceptionHandler.handleException(e);
+							LOG.log(Level.SEVERE, "NuCell QueueConsumer exception: " + e.getMessage(), e);
 							throw new InstrumentException("NuCell QueueConsumer exception: " + e.getMessage(), e);
 						}
 						List<Integer> processed = new ArrayList<>();
