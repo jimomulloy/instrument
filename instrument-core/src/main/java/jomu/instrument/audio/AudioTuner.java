@@ -639,18 +639,18 @@ public class AudioTuner implements ToneMapConstants {
 
 			}
 
-			LOG.severe(">>NOTESCAN POST PROCESS");
+			LOG.finer(">>NOTESCAN POST PROCESS");
 			for (NoteListElement processedNote : processedNotes) {
 				LOG.finer(">>NOTESCAN POST PROCESS hasPendingHarmonics?: " + processedNote);
 				if (!hasPendingHarmonics(toneMap, processedNote)) {
-					LOG.severe(">>NOTESCAN POST PROCESS hasPendingHarmonics commitNote: " + processedNote);
+					LOG.finer(">>NOTESCAN POST PROCESS hasPendingHarmonics commitNote: " + processedNote);
 					ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom((processedNote.startTime / 1000.0));
 					commitNote(timeFrames, processedNote);
-					LOG.severe(">>NOTESCAN POST PROCESS hasPendingHarmonics commitNote AFTER: " + processedNote);
+					LOG.finer(">>NOTESCAN POST PROCESS hasPendingHarmonics commitNote AFTER: " + processedNote);
 				}
 			}
 		}
-		LOG.severe(">>NOTESCAN EXIT");
+		LOG.finer(">>NOTESCAN EXIT");
 		return true;
 	}
 
@@ -1021,6 +1021,7 @@ public class AudioTuner implements ToneMapConstants {
 		Set<NoteListElement> harmonicTones = new HashSet<NoteListElement>();
 		Set<NoteListElement> noteListElements = new HashSet<NoteListElement>();
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
+			PitchSet pitchSet = toneTimeFrame.getPitchSet();
 			if (toneTimeFrame.getStartTime() > processedNote.endTime / 1000.0) {
 				break;
 			}
@@ -1056,7 +1057,7 @@ public class AudioTuner implements ToneMapConstants {
 				NoteListElement nle = null;
 				double rootFreq = PitchSet.getMidiFreq(processedNote.note);
 				double noteFreq = (harmonic + 1) * rootFreq;
-				int index = PitchSet.freqToMidiNote(noteFreq);
+				int index = pitchSet.getIndex((float) noteFreq);
 				int note = 0;
 				do {
 					if (index < length - 1) {
@@ -1072,10 +1073,11 @@ public class AudioTuner implements ToneMapConstants {
 					}
 					harmonic++;
 					noteFreq = (harmonic + 1) * rootFreq;
-					index = PitchSet.freqToMidiNote(noteFreq);
+					index = pitchSet.getIndex((float) noteFreq);
 				} while (index < length - 1 && harmonic < 7 && note <= harmonicHighLimit && index < length - 1);
 			}
 		}
+
 		LOG.finer(">>commitNote AFTER: " + processedNote.note + ", " + processedNote.pitchIndex);
 
 		if (noteScanAttenuateHarmonics && harmonicTones.size() > 0) {
@@ -1115,7 +1117,6 @@ public class AudioTuner implements ToneMapConstants {
 			double maxAmp = 0;
 			double avgAmp = 0;
 			double percentMin = 0;
-			boolean hasWeight = false;
 			for (ToneTimeFrame toneTimeFrame : timeFrames) {
 				if (toneTimeFrame.getStartTime() > nle.endTime / 1000.0) {
 					break;
@@ -1138,15 +1139,15 @@ public class AudioTuner implements ToneMapConstants {
 				ToneMapElement rootToneMapElement = toneTimeFrame.getElement(processedNote.pitchIndex);
 
 				double amplitudeFactor = rootToneMapElement.amplitude * harmonics[harmonic - 1];
-				if ((toneMapElement.amplitude + MIN_AMPLITUDE) <= amplitudeFactor) {
+				LOG.finer(">>attenuateHarmonics ATTENUATE C: " + toneMapElement.amplitude + ", " + amplitudeFactor);
+				if (!harmonicsWeighting || (toneMapElement.amplitude + MIN_AMPLITUDE) <= amplitudeFactor) {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
+					LOG.finer(">>attenuateHarmonics ATTENUATE A: " + nle.note + ", " + processedNote.note + ", "
+							+ harmonicsWeighting);
 				} else {
-					toneMapElement.amplitude -= amplitudeFactor; // !!TODO Remove all note;
-					LOG.finer(">>attenuateHarmonics ATTENUATE: " + nle.note + ", " + processedNote.note);
-					if (!harmonicsWeighting) {
+					toneMapElement.amplitude -= amplitudeFactor;
+					if (toneMapElement.amplitude < MIN_AMPLITUDE) {
 						toneMapElement.amplitude = MIN_AMPLITUDE;
-					} else {
-						hasWeight = true;
 					}
 				}
 
@@ -1167,24 +1168,20 @@ public class AudioTuner implements ToneMapConstants {
 			avgAmp = ampSum / numSlots;
 			percentMin = numLowSlots / numSlots;
 
-			if (hasWeight) {
-				Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
-				if (!noteHarmonics.containsKey(processedNote.note)) {
-					// Should not happen
-					LOG.finer(">>SHOULD NOT HAPPEN: " + nle + ",  " + processedNote);
-					return;
-				} else {
-					LOG.finer(">>attenuateHarmonics NON - MatchingTimbre: " + nle.note + ", " + processedNote.note);
-					noteHarmonics.remove(processedNote.note);
-					if (noteHarmonics.isEmpty()) {
-						LOG.finer(">>attenuateHarmonics RECURSIVE!! commitNote MatchingTimbre: " + nle.note + ", "
-								+ processedNote.note);
-						commitNote(timeFrames, nle);
-					}
+			Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
+			LOG.finer(">>attenuateHarmonics nle: " + nle);
+			if (noteHarmonics.containsKey(processedNote.note)) {
+				LOG.finer(">>attenuateHarmonics PROCESS X not with pending harmonics: " + nle.note + ", "
+						+ processedNote.note);
+				noteHarmonics.remove(processedNote.note);
+				if (noteHarmonics.isEmpty()) {
+					LOG.finer(">>attenuateHarmonics Y RECURSIVE!! commitNote MatchingTimbre: " + nle.note + ", "
+							+ processedNote.note);
+					commitNote(timeFrames, nle);
 				}
-			} else {
+			}
 
-				LOG.finer(">>attenuateHarmonics nle: " + nle);
+			if (maxAmp <= MIN_AMPLITUDE) {
 				for (ToneMapElement toneMapElement : tmElements) {
 					toneMapElement.noteListElement = null;
 					toneMapElement.noteState = OFF;
@@ -1197,13 +1194,12 @@ public class AudioTuner implements ToneMapConstants {
 					noteStatusElement.highFlag = false;
 					LOG.finer(">>attenuateHarmonics noteStatusElement: " + noteStatusElement);
 				}
+			} else {
+				nle.avgAmp = avgAmp;
+				nle.maxAmp = maxAmp;
+				nle.minAmp = minAmp;
+				nle.percentMin = percentMin;
 			}
-			// } else {
-			// nle.avgAmp = avgAmp;
-			// nle.maxAmp = maxAmp;
-			// nle.minAmp = minAmp;
-			// nle.percentMin = percentMin;
-			// }
 		}
 	}
 
@@ -1241,6 +1237,9 @@ public class AudioTuner implements ToneMapConstants {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
 				} else {
 					toneMapElement.amplitude -= rootToneMapElement.amplitude;
+					if (toneMapElement.amplitude < MIN_AMPLITUDE) {
+						toneMapElement.amplitude = MIN_AMPLITUDE;
+					}
 				}
 
 				numSlots++;
@@ -1316,6 +1315,9 @@ public class AudioTuner implements ToneMapConstants {
 					toneMapElement.amplitude = MIN_AMPLITUDE;
 				} else {
 					toneMapElement.amplitude -= rootToneMapElement.amplitude;
+					if (toneMapElement.amplitude < MIN_AMPLITUDE) {
+						toneMapElement.amplitude = MIN_AMPLITUDE;
+					}
 				}
 
 				numSlots++;

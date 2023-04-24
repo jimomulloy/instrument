@@ -869,6 +869,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
+		JPanel instrumentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
 		final JFileChooser fileChooser = new JFileChooser(new File(getAudioSourceFileFolder()));
 		chooseFileButton = new JButton("Open");
 		startFileProcessingButton = new JButton("Start");
@@ -1198,10 +1200,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		actionPanel.add(fileNameLabel);
 
-		panel.add(actionPanel, BorderLayout.CENTER);
-
-		JLabel playerTitleLabel = new JLabel(" Play ");
-		voicePanel.add(playerTitleLabel);
+		panel.add(actionPanel, BorderLayout.NORTH);
 
 		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");
 		playMidiSwitchCB.setText("MIDI");
@@ -1337,6 +1336,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(voicePlayerHighThresholdLabel);
 		voicePanel.add(voicePlayerHighThresholdInput);
 
+		midiPlayLogSwitchCB = new JCheckBox("midiPlayLogSwitchCB");
+		midiPlayLogSwitchCB.setText("Log");
+		midiPlayLogSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayLogSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH));
+		voicePanel.add(midiPlayLogSwitchCB);
+
 		JLabel voicePlayerLogFactorLabel = new JLabel("Log Factor: ");
 		voicePlayerLogFactorInput = new JTextField(4);
 		voicePlayerLogFactorInput.addActionListener(new ActionListener() {
@@ -1372,234 +1387,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH));
 		voicePanel.add(midiSynthTracksSwitchCB);
 
-		voicePanel.add(new JLabel(" "));
-
-		midiPlayLogSwitchCB = new JCheckBox("midiPlayLogSwitchCB");
-		midiPlayLogSwitchCB.setText("Log");
-		midiPlayLogSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayLogSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH));
-		voicePanel.add(midiPlayLogSwitchCB);
-
-		midiPlayVoice1SwitchCB = new JCheckBox("midiPlayVoice1SwitchCB");
-		midiPlayVoice1SwitchCB.setText("Voice1");
-		midiPlayVoice1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH));
-		voicePanel.add(midiPlayVoice1SwitchCB);
-
-		midiPlayVoice2SwitchCB = new JCheckBox("midiPlayVoice2SwitchCB");
-		midiPlayVoice2SwitchCB.setText("Voice2");
-		midiPlayVoice2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH));
-		voicePanel.add(midiPlayVoice2SwitchCB);
-
-		midiPlayVoice3SwitchCB = new JCheckBox("midiPlayVoice3SwitchCB");
-		midiPlayVoice3SwitchCB.setText("Voice3");
-		midiPlayVoice3SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice3SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH));
-		voicePanel.add(midiPlayVoice3SwitchCB);
-
-		midiPlayVoice4SwitchCB = new JCheckBox("midiPlayVoice4SwitchCB");
-		midiPlayVoice4SwitchCB.setText("Voice4");
-		midiPlayVoice4SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice4SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH));
-		voicePanel.add(midiPlayVoice4SwitchCB);
-
-		midiPlayChord1SwitchCB = new JCheckBox("midiPlayChord1SwitchCB");
-		midiPlayChord1SwitchCB.setText("Chord1");
-		midiPlayChord1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayChord1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH));
-		voicePanel.add(midiPlayChord1SwitchCB);
-
-		midiPlayChord2SwitchCB = new JCheckBox("midiPlayChord2SwitchCB");
-		midiPlayChord2SwitchCB.setText("Chord2");
-		midiPlayChord2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayChord2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH));
-		voicePanel.add(midiPlayChord2SwitchCB);
-
-		midiPlayPad1SwitchCB = new JCheckBox("midiPlayPad1SwitchCB");
-		midiPlayPad1SwitchCB.setText("Pad1");
-		midiPlayPad1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayPad1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH));
-		voicePanel.add(midiPlayPad1SwitchCB);
-
-		midiPlayPad2SwitchCB = new JCheckBox("midiPlayPad2SwitchCB");
-		midiPlayPad2SwitchCB.setText("Pad2");
-		midiPlayPad2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayPad2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH));
-		voicePanel.add(midiPlayPad2SwitchCB);
-
-		midiPlayBeat1SwitchCB = new JCheckBox("midiPlayBeat1SwitchCB");
-		midiPlayBeat1SwitchCB.setText("Beat1");
-		midiPlayBeat1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH));
-		voicePanel.add(midiPlayBeat1SwitchCB);
-
-		midiPlayBeat2SwitchCB = new JCheckBox("midiPlayBeat2SwitchCB");
-		midiPlayBeat2SwitchCB.setText("Beat2");
-		midiPlayBeat2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH));
-		voicePanel.add(midiPlayBeat2SwitchCB);
-
-		midiPlayBeat3SwitchCB = new JCheckBox("midiPlayBeat3SwitchCB");
-		midiPlayBeat3SwitchCB.setText("Beat3");
-		midiPlayBeat3SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat3SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH));
-		voicePanel.add(midiPlayBeat3SwitchCB);
-
-		midiPlayBeat4SwitchCB = new JCheckBox("midiPlayBeat4SwitchCB");
-		midiPlayBeat4SwitchCB.setText("Beat4");
-		midiPlayBeat4SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat4SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH));
-		voicePanel.add(midiPlayBeat4SwitchCB);
-
-		midiPlayBaseSwitchCB = new JCheckBox("midiPlayBaseSwitchCB");
-		midiPlayBaseSwitchCB.setText("Base");
-		midiPlayBaseSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBaseSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH));
-		voicePanel.add(midiPlayBaseSwitchCB);
-
-		voicePanel.add(new JLabel("  "));
-
 		silentWriteSwitchCB = new JCheckBox("silentWriteCB");
 		silentWriteSwitchCB.setText("Silent Write");
 		silentWriteSwitchCB.addItemListener(new ItemListener() {
@@ -1632,7 +1419,219 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH));
 		voicePanel.add(trackWriteSwitchCB);
 
-		panel.add(voicePanel, BorderLayout.SOUTH);
+		panel.add(voicePanel, BorderLayout.CENTER);
+
+		midiPlayVoice1SwitchCB = new JCheckBox("midiPlayVoice1SwitchCB");
+		midiPlayVoice1SwitchCB.setText("Voice1");
+		midiPlayVoice1SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayVoice1SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH));
+		instrumentPanel.add(midiPlayVoice1SwitchCB);
+
+		midiPlayVoice2SwitchCB = new JCheckBox("midiPlayVoice2SwitchCB");
+		midiPlayVoice2SwitchCB.setText("Voice2");
+		midiPlayVoice2SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayVoice2SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH));
+		instrumentPanel.add(midiPlayVoice2SwitchCB);
+
+		midiPlayVoice3SwitchCB = new JCheckBox("midiPlayVoice3SwitchCB");
+		midiPlayVoice3SwitchCB.setText("Voice3");
+		midiPlayVoice3SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayVoice3SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH));
+		instrumentPanel.add(midiPlayVoice3SwitchCB);
+
+		midiPlayVoice4SwitchCB = new JCheckBox("midiPlayVoice4SwitchCB");
+		midiPlayVoice4SwitchCB.setText("Voice4");
+		midiPlayVoice4SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayVoice4SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH));
+		instrumentPanel.add(midiPlayVoice4SwitchCB);
+
+		midiPlayChord1SwitchCB = new JCheckBox("midiPlayChord1SwitchCB");
+		midiPlayChord1SwitchCB.setText("Chord1");
+		midiPlayChord1SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayChord1SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH));
+		instrumentPanel.add(midiPlayChord1SwitchCB);
+
+		midiPlayChord2SwitchCB = new JCheckBox("midiPlayChord2SwitchCB");
+		midiPlayChord2SwitchCB.setText("Chord2");
+		midiPlayChord2SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayChord2SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH));
+		instrumentPanel.add(midiPlayChord2SwitchCB);
+
+		midiPlayPad1SwitchCB = new JCheckBox("midiPlayPad1SwitchCB");
+		midiPlayPad1SwitchCB.setText("Pad1");
+		midiPlayPad1SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayPad1SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH));
+		instrumentPanel.add(midiPlayPad1SwitchCB);
+
+		midiPlayPad2SwitchCB = new JCheckBox("midiPlayPad2SwitchCB");
+		midiPlayPad2SwitchCB.setText("Pad2");
+		midiPlayPad2SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayPad2SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH));
+		instrumentPanel.add(midiPlayPad2SwitchCB);
+
+		midiPlayBeat1SwitchCB = new JCheckBox("midiPlayBeat1SwitchCB");
+		midiPlayBeat1SwitchCB.setText("Beat1");
+		midiPlayBeat1SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayBeat1SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH));
+		instrumentPanel.add(midiPlayBeat1SwitchCB);
+
+		midiPlayBeat2SwitchCB = new JCheckBox("midiPlayBeat2SwitchCB");
+		midiPlayBeat2SwitchCB.setText("Beat2");
+		midiPlayBeat2SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayBeat2SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH));
+		instrumentPanel.add(midiPlayBeat2SwitchCB);
+
+		midiPlayBeat3SwitchCB = new JCheckBox("midiPlayBeat3SwitchCB");
+		midiPlayBeat3SwitchCB.setText("Beat3");
+		midiPlayBeat3SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayBeat3SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH));
+		instrumentPanel.add(midiPlayBeat3SwitchCB);
+
+		midiPlayBeat4SwitchCB = new JCheckBox("midiPlayBeat4SwitchCB");
+		midiPlayBeat4SwitchCB.setText("Beat4");
+		midiPlayBeat4SwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayBeat4SwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH));
+		instrumentPanel.add(midiPlayBeat4SwitchCB);
+
+		midiPlayBaseSwitchCB = new JCheckBox("midiPlayBaseSwitchCB");
+		midiPlayBaseSwitchCB.setText("Base");
+		midiPlayBaseSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayBaseSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH));
+		instrumentPanel.add(midiPlayBaseSwitchCB);
+
+		instrumentPanel.add(new JLabel("  "));
+
+		panel.add(instrumentPanel, BorderLayout.SOUTH);
 
 		return panel;
 	}
