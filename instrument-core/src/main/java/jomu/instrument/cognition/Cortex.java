@@ -1,5 +1,7 @@
 package jomu.instrument.cognition;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -46,6 +48,8 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 	NuCell audioCepstrumCell;
 	NuCell audioSynthesisCell;
 
+	NuCell[] cells;
+
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
 		sourceAddCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
@@ -62,48 +66,53 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 
 	@Override
 	public void initialise() {
+		List<NuCell> cellList = new ArrayList<>();
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
-		sourceAddCell.setProcessorExceptionHandler(this);
+		cellList.add(sourceAddCell);
 		sourceUpdateCell = Generator.createNuCell(CellTypes.SOURCE);
-		sourceUpdateCell.setProcessorExceptionHandler(this);
+		cellList.add(sourceUpdateCell);
 		audioCQCell = Generator.createNuCell(CellTypes.AUDIO_CQ);
-		audioCQCell.setProcessorExceptionHandler(this);
+		cellList.add(audioCQCell);
 		audioCQOriginCell = Generator.createNuCell(CellTypes.AUDIO_CQ_ORIGIN);
-		audioCQOriginCell.setProcessorExceptionHandler(this);
+		cellList.add(audioCQOriginCell);
 		audioBeatCell = Generator.createNuCell(CellTypes.AUDIO_BEAT);
-		audioBeatCell.setProcessorExceptionHandler(this);
+		cellList.add(audioBeatCell);
 		audioOnsetCell = Generator.createNuCell(CellTypes.AUDIO_ONSET);
-		audioOnsetCell.setProcessorExceptionHandler(this);
+		cellList.add(audioOnsetCell);
 		audioPercussionCell = Generator.createNuCell(CellTypes.AUDIO_PERCUSSION);
-		audioPercussionCell.setProcessorExceptionHandler(this);
+		cellList.add(audioPercussionCell);
 		audioHpsCell = Generator.createNuCell(CellTypes.AUDIO_HPS);
-		audioHpsCell.setProcessorExceptionHandler(this);
+		cellList.add(audioHpsCell);
 		audioPitchCell = Generator.createNuCell(CellTypes.AUDIO_PITCH);
-		audioPitchCell.setProcessorExceptionHandler(this);
+		cellList.add(audioPitchCell);
 		audioSpectralPeaksCell = Generator.createNuCell(CellTypes.AUDIO_SPECTRAL_PEAKS);
-		audioSpectralPeaksCell.setProcessorExceptionHandler(this);
+		cellList.add(audioSpectralPeaksCell);
 		audioPreChromaCell = Generator.createNuCell(CellTypes.AUDIO_PRE_CHROMA);
-		audioPreChromaCell.setProcessorExceptionHandler(this);
+		cellList.add(audioPreChromaCell);
 		audioPostChromaCell = Generator.createNuCell(CellTypes.AUDIO_POST_CHROMA);
-		audioPostChromaCell.setProcessorExceptionHandler(this);
+		cellList.add(audioPostChromaCell);
 		audioIntegrateCell = Generator.createNuCell(CellTypes.AUDIO_INTEGRATE);
-		audioIntegrateCell.setProcessorExceptionHandler(this);
+		cellList.add(audioIntegrateCell);
 		audioNotateCell = Generator.createNuCell(CellTypes.AUDIO_NOTATE);
-		audioNotateCell.setProcessorExceptionHandler(this);
+		cellList.add(audioNotateCell);
 		audioSinkCell = Generator.createNuCell(CellTypes.AUDIO_SINK);
-		audioSinkCell.setProcessorExceptionHandler(this);
+		cellList.add(audioSinkCell);
 		audioTunerPeaksCell = Generator.createNuCell(CellTypes.AUDIO_TUNER_PEAKS);
-		audioTunerPeaksCell.setProcessorExceptionHandler(this);
+		cellList.add(audioTunerPeaksCell);
 		audioYINCell = Generator.createNuCell(CellTypes.AUDIO_YIN);
-		audioYINCell.setProcessorExceptionHandler(this);
+		cellList.add(audioYINCell);
 		audioSACFCell = Generator.createNuCell(CellTypes.AUDIO_SACF);
-		audioSACFCell.setProcessorExceptionHandler(this);
+		cellList.add(audioSACFCell);
 		audioMFCCCell = Generator.createNuCell(CellTypes.AUDIO_MFCC);
-		audioMFCCCell.setProcessorExceptionHandler(this);
+		cellList.add(audioMFCCCell);
 		audioCepstrumCell = Generator.createNuCell(CellTypes.AUDIO_CEPSTRUM);
-		audioCepstrumCell.setProcessorExceptionHandler(this);
+		cellList.add(audioCepstrumCell);
 		audioSynthesisCell = Generator.createNuCell(CellTypes.AUDIO_SYNTHESIS);
-		audioSynthesisCell.setProcessorExceptionHandler(this);
+		cellList.add(audioSynthesisCell);
+		//
+		cells = cellList.toArray(new NuCell[cellList.size()]);
+		setProcessorExceptionHandlers();
+
 		//
 		Weaver.connect(sourceUpdateCell, audioBeatCell);
 		Weaver.connect(sourceUpdateCell, audioPercussionCell);
@@ -148,6 +157,12 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 		Weaver.connect(audioSynthesisCell, audioSinkCell);
 	}
 
+	private void setProcessorExceptionHandlers() {
+		for (NuCell cell : cells) {
+			cell.setProcessorExceptionHandler(this);
+		}
+	}
+
 	@Override
 	public void start() {
 
@@ -162,5 +177,12 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 	@Override
 	public void handleException(InstrumentException exception) {
 		coordinator.handleException(exception);
+	}
+
+	public void clear() {
+		for (NuCell cell : cells) {
+			cell.clear();
+		}
+
 	}
 }

@@ -2245,7 +2245,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteMaxDurationLabel);
 		parameterPanel.add(noteMaxDurationSlider);
 
-		noteMinDurationSlider = new JSlider(10, 1000);
+		noteMinDurationSlider = new JSlider(10, 10000);
 		final JLabel noteMinDurationLabel = new JLabel("Audio Tuner Min Note Duration :");
 		noteMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2281,7 +2281,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(notePeaksMaxDurationLabel);
 		parameterPanel.add(notePeaksMaxDurationSlider);
 
-		notePeaksMinDurationSlider = new JSlider(10, 1000);
+		notePeaksMinDurationSlider = new JSlider(10, 10000);
 		final JLabel notePeaksMinDurationLabel = new JLabel("Audio Tuner Min Note Peaks Duration :");
 		notePeaksMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2317,7 +2317,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteSpectralMaxDurationLabel);
 		parameterPanel.add(noteSpectralMaxDurationSlider);
 
-		noteSpectralMinDurationSlider = new JSlider(10, 1000);
+		noteSpectralMinDurationSlider = new JSlider(10, 10000);
 		final JLabel noteSpectralMinDurationLabel = new JLabel("Audio Tuner Min Note Spectral Duration :");
 		noteSpectralMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2335,7 +2335,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteSpectralMinDurationLabel);
 		parameterPanel.add(noteSpectralMinDurationSlider);
 
-		noteSustainSlider = new JSlider(0, 1000);
+		noteSustainSlider = new JSlider(0, 10000);
 		final JLabel noteSustainLabel = new JLabel("Audio Tuner Min Note Sustain :");
 		noteSustainSlider.addChangeListener(new ChangeListener() {
 			@Override

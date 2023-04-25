@@ -22,10 +22,8 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		if (sequence == 20) {
-			// throw new InstrumentException(">>TEST EXCEPTION AudioIntegrateProcessor");
-		}
-		LOG.severe(">>AudioIntegrateProcessor accept: " + sequence + ", streamId: " + streamId);
+
+		LOG.finer(">>AudioIntegrateProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		boolean integrateSwitchHps = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH);

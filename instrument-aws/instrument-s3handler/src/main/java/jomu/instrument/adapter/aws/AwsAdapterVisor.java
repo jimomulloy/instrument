@@ -2,6 +2,7 @@ package jomu.instrument.adapter.aws;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.monitor.Visor;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -138,6 +139,12 @@ public class AwsAdapterVisor implements Visor {
 
 	@Override
 	public void updateChromaSynthView(ToneMap toneMap) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void showException(InstrumentException exception) {
 		// TODO Auto-generated method stub
 
 	}

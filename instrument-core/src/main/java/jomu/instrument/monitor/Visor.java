@@ -1,5 +1,6 @@
 package jomu.instrument.monitor;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -50,5 +51,7 @@ public interface Visor extends AudioFeatureFrameObserver {
 	void updateParameters();
 
 	void updateStatusMessage(String string);
+
+	void showException(InstrumentException exception);
 
 }

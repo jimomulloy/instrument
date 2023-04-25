@@ -82,6 +82,7 @@ import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.audio.features.ConstantQSource;
@@ -2303,6 +2304,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	public JPanel getContentPanel() {
 		return visorPanel;
+	}
+
+	@Override
+	public void showException(InstrumentException exception) {
+		updateStatusMessage("Instument System Error: " + exception.getMessage());
 	}
 
 }

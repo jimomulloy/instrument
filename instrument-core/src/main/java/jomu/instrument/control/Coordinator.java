@@ -11,6 +11,7 @@ import jomu.instrument.InstrumentExceptionHandler;
 import jomu.instrument.Organ;
 import jomu.instrument.actuation.Voice;
 import jomu.instrument.cognition.Cortex;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.perception.Hearing;
 
 @ApplicationScoped
@@ -26,6 +27,9 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 
 	@Inject
 	Voice voice;
+
+	@Inject
+	Console console;
 
 	public Cortex getCortex() {
 		return cortex;
@@ -62,6 +66,10 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 	@Override
 	public void handleException(InstrumentException exception) {
 		LOG.log(Level.SEVERE, "CortexExceptionHandler handling exception: " + exception.getMessage(), exception);
+		cortex.clear();
+		hearing.stopAudioStream();
+		console.getVisor().showException(exception);
+
 	}
 
 }

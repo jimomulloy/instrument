@@ -3,9 +3,11 @@ package jomu.instrument.workspace.tonemap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
@@ -67,32 +69,35 @@ public class ToneSynthesiser {
 		chord = fillChord(targetFrame.getStartTime(), targetFrame.getEndTime(), chord);
 		quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		LOG.finer(">>SYNTH chord: " + targetFrame.getStartTime() + ", " + chord);
-
+		Set<NoteListElement> discardedNotes = new HashSet<>();
 		NoteListElement[] nles = addNotes(targetFrame);
-		quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
-		trackNotes(nles);
+		// quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent,
+		// quantizeBeat);
+		trackNotes(nles, discardedNotes);
 		fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
-		NoteListElement[] discardedNotes = toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime());
+		discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime()));
 		discardNotes(discardedNotes);
-		LOG.finer(">>SYNTH notes: " + targetFrame.getStartTime() + ", " + nles);
+		LOG.severe(">>SYNTH discarded notes: " + targetFrame.getStartTime() + ", " + discardedNotes.size());
 
 	}
 
-	private void discardNotes(NoteListElement[] discardedNotes) {
+	private void discardNotes(Set<NoteListElement> discardedNotes) {
 		for (NoteListElement nle : discardedNotes) {
 			ToneTimeFrame frame = toneMap.getTimeFrame(nle.startTime / 1000);
 			while (frame != null && frame.getStartTime() < nle.endTime) {
 				if (nle.equals(frame.getElement(nle.pitchIndex).noteListElement)) {
 					frame.getElement(nle.pitchIndex).noteListElement = null;
+					frame.getElement(nle.pitchIndex).noteState = ToneMapConstants.OFF;
+					frame.getElement(nle.pitchIndex).amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
 				}
 				frame = toneMap.getNextTimeFrame(frame.getStartTime());
 			}
 		}
 	}
 
-	private void trackNotes(NoteListElement[] nles) {
+	private void trackNotes(NoteListElement[] nles, Set<NoteListElement> discardedNotes) {
 		for (NoteListElement nle : nles) {
-			toneMap.getNoteTracker().trackNote(nle);
+			toneMap.getNoteTracker().trackNote(nle, discardedNotes);
 		}
 	}
 
@@ -241,9 +246,10 @@ public class ToneSynthesiser {
 		double time = frame.getStartTime();
 		ToneMapElement element = frame.getElement(index);
 		if (time < targetTime) {
-			LOG.finer(">>SYNTH QUANT NOTE UP: " + time + ", " + targetTime + ", " + frameTime);
+			LOG.severe(">>SYNTH QUANT NOTE UP: " + time + ", " + targetTime + ", " + frameTime);
 			while (time < targetTime && frame != null) {
 				element.noteListElement = null;
+				element.amplitude = ToneTimeFrame.AMPLITUDE_FLOOR;
 				element.noteState = ToneMapConstants.OFF;
 				frame = toneMap.getNextTimeFrame(time);
 				if (frame != null) {
@@ -253,7 +259,7 @@ public class ToneSynthesiser {
 				}
 			}
 		} else {
-			LOG.finer(">>SYNTH QUANT NOTE DOWN: " + time + ", " + targetTime + ", " + frameTime);
+			LOG.severe(">>SYNTH QUANT NOTE DOWN: " + time + ", " + targetTime + ", " + frameTime);
 			while (time > targetTime && frame != null) {
 				element.noteListElement = nle;
 				int state = element.noteState;

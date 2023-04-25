@@ -106,6 +106,10 @@ public class Hearing implements Organ {
 		audioStreams.remove(streamId);
 	}
 
+	public void clearStream() {
+
+	}
+
 	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
 		if (audioStreams.containsKey(streamId)) {
 			return audioStreams.get(streamId).getAudioFeatureProcessor();

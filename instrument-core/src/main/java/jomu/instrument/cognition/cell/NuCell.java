@@ -2,9 +2,9 @@ package jomu.instrument.cognition.cell;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,9 +19,9 @@ public class NuCell extends Cell implements Serializable {
 
 	private BlockingQueue<Object> bq;
 
-	private HashMap<String, List<NuMessage>> messageMap = new HashMap<>();
+	private ConcurrentHashMap<String, List<NuMessage>> messageMap = new ConcurrentHashMap<>();
 
-	private HashMap<String, List<Integer>> messageReceivedMap = new HashMap<>();
+	private ConcurrentHashMap<String, List<Integer>> messageReceivedMap = new ConcurrentHashMap<>();
 
 	// Create ActivationFunction object
 	protected ActivationFunction activationFunction = new ActivationFunction();
@@ -59,6 +59,8 @@ public class NuCell extends Cell implements Serializable {
 	// Processor ExceptioHandler
 	protected ProcessorExceptionHandler<InstrumentException> processorExceptionHandler;
 
+	protected Thread queueConsumerThread;
+
 	// Most NuCells receive many input signals throughout their dendritic trees.
 	// A single NuCell may have more than one set of dendrites, and may receive
 	// many thousands of input signals. Whether or not a NuCell is excited into
@@ -73,7 +75,8 @@ public class NuCell extends Cell implements Serializable {
 		axon = new Axon(this);
 		bq = new LinkedBlockingQueue<>();
 		// TODO LOOM Thread.startVirtualThread(new QueueConsumer());
-		new Thread(new QueueConsumer()).start();
+		queueConsumerThread = new Thread(new QueueConsumer());
+		queueConsumerThread.start();
 	}
 
 	/**
@@ -548,5 +551,13 @@ public class NuCell extends Cell implements Serializable {
 				Thread.currentThread().interrupt();
 			}
 		}
+	}
+
+	public void clear() {
+		bq.clear();
+		messageMap.clear();
+		messageReceivedMap.clear();
+		queueConsumerThread = new Thread(new QueueConsumer());
+		queueConsumerThread.start();
 	}
 } // end NuCell

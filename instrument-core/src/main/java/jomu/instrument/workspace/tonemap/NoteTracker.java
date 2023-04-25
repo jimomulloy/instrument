@@ -105,10 +105,13 @@ public class NoteTracker {
 		this.toneMap = toneMap;
 	}
 
-	public void trackNote(NoteListElement noteListElement) {
+	public void trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes) {
+		LOG.finer(">>NoteTracker trackNote: " + noteListElement.note);
 		NoteTrack salientTrack = null;
+		NoteListElement disconnectedNote = null;
 		if (tracks.isEmpty()) {
 			salientTrack = createTrack();
+			LOG.finer(">>NoteTracker trackNote create track A: " + noteListElement.note);
 		} else {
 			NoteTrack[] pendingTracks = getPendingTracks(noteListElement);
 			NoteTrack[] nonPendingTracks = getNonPendingTracks(noteListElement);
@@ -124,21 +127,29 @@ public class NoteTracker {
 				salientTrack = getSalientTrack(nonPendingTracks, noteListElement);
 			}
 			if (salientTrack == null && pendingTracks.length > 0) {
+				LOG.finer(">>NoteTracker trackNote getPendingSalientTrack note: " + noteListElement.note);
 				salientTrack = getPendingSalientTrack(pendingTracks, noteListElement);
 				if (salientTrack != null) {
-					NoteListElement disconnectedNote = salientTrack.getLastNote();
+					LOG.finer(">>NoteTracker trackNote gotPendingSalientTrack note: " + noteListElement.note);
+					disconnectedNote = salientTrack.getLastNote();
 					salientTrack.removeNote(disconnectedNote);
 				}
 			}
 		}
 		if (salientTrack == null) {
-			if (tracks.size() > 6 && ((noteListElement.endTime - noteListElement.startTime) < 200)) {
+			if (tracks.size() > 20 && ((noteListElement.endTime - noteListElement.startTime) <= 100)) {
+				discardedNotes.add(noteListElement);
 				return;
 			} else {
 				salientTrack = createTrack();
+				LOG.finer(">>NoteTracker trackNote create track B: " + noteListElement.note);
 			}
 		}
 		salientTrack.addNote(noteListElement);
+		if (disconnectedNote != null) {
+			LOG.finer(">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
+			trackNote(disconnectedNote, discardedNotes);
+		}
 	}
 
 	private NoteTrack getPendingOverlappingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
@@ -229,16 +240,18 @@ public class NoteTracker {
 		double timeProximity = Double.MAX_VALUE;
 		pitchProximity = newNote.note - penultimateNote.note;
 		timeProximity = newNote.startTime - penultimateNote.endTime;
-		if (pitchProximity >= lastNote.note - penultimateNote.note) {
+		if (pitchProximity >= Math.abs(lastNote.note - penultimateNote.note)) {
 			if (timeProximity >= lastNote.startTime - penultimateNote.endTime) {
 				return false;
+			} else {
+				return true;
 			}
 		} else {
 			if (timeProximity < lastNote.startTime - penultimateNote.endTime) {
 				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	private NoteTrack[] getPendingTracks(NoteListElement noteListElement) {
@@ -269,7 +282,7 @@ public class NoteTracker {
 		return track;
 	}
 
-	public NoteListElement[] cleanTracks(Double startTime) {
+	public Set<NoteListElement> cleanTracks(Double startTime) {
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteTrack> discardedTracks = new HashSet<>();
 		if (tracks.size() > 5) {
@@ -302,7 +315,7 @@ public class NoteTracker {
 		for (NoteTrack track : discardedTracks) {
 			removeTrack(track);
 		}
-		return discardedNotes.toArray(new NoteListElement[discardedNotes.size()]);
+		return discardedNotes;
 	}
 
 	private void removeTrack(NoteTrack track) {
