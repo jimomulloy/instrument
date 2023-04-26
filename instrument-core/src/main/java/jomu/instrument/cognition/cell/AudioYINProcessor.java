@@ -104,7 +104,7 @@ public class AudioYINProcessor extends ProcessorCommon {
 
 		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		LOG.severe(">>YIN TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+		LOG.finer(">>YIN TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
 				+ ", " + ttf.getRmsPower());
 		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);

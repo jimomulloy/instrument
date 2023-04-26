@@ -32,7 +32,7 @@ public class CQMicroToneSource extends AudioEventSource<float[]> {
 	private double constantQLag;
 	private int windowSize = 1024;
 	private int maximumFrequencyInCents = 12000;
-	private int minimumFrequencyInCents = 3600;
+	private int minimumFrequencyInCents = 1200;
 	private float sampleRate = 44100;
 	private AudioDispatcher dispatcher;
 	private ParameterManager parameterManager;

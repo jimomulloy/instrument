@@ -23,7 +23,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.severe(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		double quantizeRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE);
@@ -48,6 +48,8 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH);
 		boolean synthFillChords = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH);
+		boolean synthChordFirstSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH);
 		boolean cqCalibrateSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
 		double cqCalibrateRange = parameterManager
@@ -84,7 +86,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat, synthFillChords,
-				synthFillNotes);
+				synthFillNotes, synthChordFirstSwitch);
 
 		int tmIndex = sequence - 30;
 		ToneTimeFrame timeFrame;

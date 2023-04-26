@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -38,6 +38,8 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
  * @author Jim O'Mulloy
  */
 public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesizer {
+
+	private static final Logger LOG = Logger.getLogger(TarsosAudioSynthesizer.class.getName());
 
 	public int gainSetting = INIT_VOLUME_SETTING;
 
@@ -318,7 +320,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					}
 
 					if (sampleTime != -1) {
-						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
+						// TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
 					}
 
 					if (audioStream.isClosed()) {
@@ -367,7 +369,8 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						}
 
 						if (noteStatusElement.state != OFF) {
-							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(gain);
+							LOG.severe(">>Audio gen: " + time + ", " + toneMapElement.getIndex());
+							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.1); // GAIN
 							lastAmps[toneMapElement.getIndex()] = gain;
 						} else {
 							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0);
@@ -377,6 +380,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					AudioEvent audioEvent = this.audioStream.getGenerator().getAudioEvent();
 					while (audioEvent.getEndTimeStamp() < time) {
 						this.audioStream.getGenerator().process();
+						LOG.severe(">>Audio gen process: " + time + ", " + audioEvent.getTimeStamp());
 						audioEvent = this.audioStream.getGenerator().getAudioEvent();
 					}
 

@@ -246,6 +246,8 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox synthesisNotesSwitchCB;
 
+	private JCheckBox synthesisChordFirstSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1421,6 +1423,22 @@ public class ParametersPanel extends JPanel {
 		synthesisNotesSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH));
 		cqSwitchPanel.add(synthesisNotesSwitchCB);
+
+		synthesisChordFirstSwitchCB = new JCheckBox("synthesisChordFirstSwitchCB");
+		synthesisChordFirstSwitchCB.setText("Synthesis Chord First");
+		synthesisChordFirstSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisChordFirstSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH));
+		cqSwitchPanel.add(synthesisChordFirstSwitchCB);
 
 		notateCompressionSwitchCB = new JCheckBox("notateCompressionSwitchCB");
 		notateCompressionSwitchCB.setText("Notate Compression");
@@ -3704,6 +3722,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH));
 		synthesisNotesSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH));
+		synthesisChordFirstSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH));
 
 		beatsThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD));

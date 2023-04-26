@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.SpectralPeakDetector.SpectralPeak;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
@@ -104,8 +105,8 @@ public class AudioTuner implements ToneMapConstants {
 
 	private static int thresholdHysteresisBaseNote = 12;
 	private static double[][] thresholdHysteresis = new double[][] { { 0.5, 0.3 }, { 0.6, 0.3 }, { 0.8, 0.4 },
-			{ 1.0, 0.5 }, { 0.8, 0.3 }, { 0.6, 0.2 }, { 0.5, 0.1 }, { 0.3, 0.05 }, { 0.2, 0.05 }, { 0.1, 0.01 },
-			{ 0.1, 0.01 }, { 0.05, 0.01 }, { 0.05, 0.01 } };
+		{ 1.0, 0.5 }, { 0.8, 0.3 }, { 0.6, 0.2 }, { 0.5, 0.1 }, { 0.3, 0.05 }, { 0.2, 0.05 }, { 0.1, 0.01 },
+		{ 0.1, 0.01 }, { 0.05, 0.01 }, { 0.05, 0.01 } };
 
 	/**
 	 * TunerModel constructor. Instantiate TunerPanel
@@ -411,15 +412,20 @@ public class AudioTuner implements ToneMapConstants {
 		for (ToneMapElement toneMapElement : ttfElements) {
 			note = pitchSet.getNote(toneMapElement.getPitchIndex());
 
-			int thresholdHysteresisIndex = (note - thresholdHysteresisBaseNote) / 12;
+			double noteOnThresholdWithHysteresis = noteLow;
+			double noteOffThresholdhWithHysteresis = noteLow;
+			double noteHighThresholdhWithHysteresis = noteHigh;
 
-			if (thresholdHysteresisIndex >= thresholdHysteresis.length) {
-				LOG.finer(">>NOTE SCAN ERROR: " + note + ", " + toneTimeFrame.getStartTime());
-				continue;
+			if (n2Switch) {
+				int thresholdHysteresisIndex = (note - thresholdHysteresisBaseNote) / 12;
+				if (thresholdHysteresisIndex >= thresholdHysteresis.length) {
+					throw new InstrumentException(
+							"AudioTuner NoteSacn error thresholdHysteresisIndex: " + thresholdHysteresisIndex);
+				}
+				noteOnThresholdWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][0];
+				noteOffThresholdhWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][1];
+				noteHighThresholdhWithHysteresis = noteHigh * thresholdHysteresis[thresholdHysteresisIndex][0];
 			}
-			double noteOnThresholdWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][0];
-			double noteOffThresholdhWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][1];
-			double noteHighThresholdhWithHysteresis = noteHigh * thresholdHysteresis[thresholdHysteresisIndex][0];
 
 			previousNoteStatusElement = previousNoteStatus.getNoteStatusElement(note);
 			noteStatusElement = noteStatus.getNoteStatusElement(note);
@@ -803,42 +809,6 @@ public class AudioTuner implements ToneMapConstants {
 					harmonic4Setting / 100.0, harmonic5Setting / 100.0, harmonic6Setting / 100.0 };
 			overtoneSet.setHarmonics(initHarmonics);
 		}
-	}
-
-	private double normalThreshold(ToneTimeFrame toneTimeFrame, ToneMapElement toneMapElement,
-			ToneMapElement thresholdElement) {
-
-		TimeSet timeSet = toneTimeFrame.getTimeSet();
-		PitchSet pitchSet = toneTimeFrame.getPitchSet();
-
-		double thresholdAmp;
-		double thresholdFreq, normalFreq;
-		int thresholdNote, normalNote;
-
-		if (thresholdElement == null || toneMapElement.getIndex() < thresholdElement.getIndex()) {
-			thresholdAmp = 1.0;
-			thresholdFreq = pitchSet.getFreq(pitchSet.pitchToIndex(getLowPitch()));
-			thresholdNote = pitchSet.getNote(pitchSet.pitchToIndex(getLowPitch()));
-
-		} else {
-
-			thresholdAmp = thresholdElement.amplitude;
-			thresholdFreq = pitchSet.getFreq(thresholdElement.getPitchIndex());
-			thresholdNote = pitchSet.getNote(thresholdElement.getPitchIndex());
-		}
-
-		normalFreq = pitchSet.getFreq(toneMapElement.getPitchIndex());
-		normalNote = pitchSet.getNote(toneMapElement.getPitchIndex());
-		double threshold = 0;
-		if (n2Switch) {
-			threshold = (noteHigh / 100.0) * (thresholdAmp) / (n5Setting / 10.0
-					+ (((double) n4Setting / (double) normalizeSetting) * (normalNote - thresholdNote)));
-		} else {
-			threshold = (noteHigh / 100.0) * (thresholdAmp) / (n5Setting / 10.0
-					+ (((double) n4Setting / (double) normalizeSetting) * (normalFreq - thresholdFreq)));
-		}
-
-		return threshold;
 	}
 
 	private void processNote(ToneMap toneMap, NoteStatusElement noteStatusElement,
