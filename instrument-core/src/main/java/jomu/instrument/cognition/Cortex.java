@@ -179,10 +179,10 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 		coordinator.handleException(exception);
 	}
 
-	public void clear() {
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
 		for (NuCell cell : cells) {
 			cell.clear();
 		}
-
 	}
 }

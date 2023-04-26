@@ -45,7 +45,7 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean n4Switch;
 	private boolean n5Switch;
 	private boolean n6Switch;
-	private boolean n7Switch;
+	private boolean nSwitch;
 	private int n5Setting = 100;
 	private int n6Setting = 80;
 	private int normalizeSetting = 100;
@@ -53,7 +53,7 @@ public class AudioTuner implements ToneMapConstants {
 	private double normalizeTrough = 0.05;
 	private double normalizePeak = 0.1;
 
-	private int harmonic1Setting = 70;
+	private int harmonic1Setting = 0;
 	private int harmonic2Setting = 50;
 	private int harmonic3Setting = 40;
 	private int harmonic4Setting = 30;
@@ -134,7 +134,7 @@ public class AudioTuner implements ToneMapConstants {
 		n4Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N4_SWITCH);
 		n5Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH);
 		n6Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH);
-		n7Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N7_SWITCH);
+		nSwitch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N7_SWITCH);
 
 		noteScanAttenuateHarmonics = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS);
@@ -581,7 +581,7 @@ public class AudioTuner implements ToneMapConstants {
 							noteStatusElement.highFlag = false;
 							toneMapElement.noteState = OFF;
 						} else {
-							previousToneMapElement.noteState = OFF;
+							previousToneMapElement.noteState = ON; // ?? TODO OFF
 							previousNoteStatusElement.state = OFF;
 							// Process candidate note
 							LOG.finer(">>>PROCESS NEW NOTE Z - Note scan PENDING low - PROCESS NEW NOTE OFF seq: "
@@ -608,7 +608,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		}
 
-		if (n7Switch) {
+		if (nSwitch) {
 
 			for (int i = 0; i < ttfElements.length; i++) {
 				ToneMapElement toneMapElement = ttfElements[i];
@@ -968,7 +968,7 @@ public class AudioTuner implements ToneMapConstants {
 		if (processedNote.note >= harmonicHighLimit) {
 			return result;
 		}
-		for (int harmonic = 1; harmonic < 7; harmonic++) {
+		for (int harmonic = 1; harmonic < harmonics.length; harmonic++) {
 			double rootFreq = noteFreq / (harmonic + 1);
 			int rootIndex = pitchSet.getIndex((float) rootFreq);
 			int rootNote = pitchSet.getNote(rootIndex);
@@ -1056,7 +1056,7 @@ public class AudioTuner implements ToneMapConstants {
 					harmonic++;
 					noteFreq = (harmonic + 1) * rootFreq;
 					index = pitchSet.getIndex((float) noteFreq);
-				} while (index < length - 1 && harmonic < 7 && note <= harmonicHighLimit && index < length - 1);
+				} while (index < length - 1 && harmonic < harmonics.length && note <= harmonicHighLimit);
 			}
 		}
 

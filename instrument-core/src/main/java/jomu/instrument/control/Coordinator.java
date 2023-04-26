@@ -13,6 +13,7 @@ import jomu.instrument.actuation.Voice;
 import jomu.instrument.cognition.Cortex;
 import jomu.instrument.monitor.Console;
 import jomu.instrument.perception.Hearing;
+import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
 public class Coordinator implements Organ, InstrumentExceptionHandler {
@@ -30,6 +31,9 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 
 	@Inject
 	Console console;
+
+	@Inject
+	Workspace workspace;
 
 	public Cortex getCortex() {
 		return cortex;
@@ -66,9 +70,16 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 	@Override
 	public void handleException(InstrumentException exception) {
 		LOG.log(Level.SEVERE, "CortexExceptionHandler handling exception: " + exception.getMessage(), exception);
-		cortex.clear();
-		hearing.stopAudioStream();
-		console.getVisor().showException(exception);
+		workspace.processException(exception);
+		cortex.processException(exception);
+		hearing.processException(exception);
+		console.processException(exception);
+
+	}
+
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
+		// TODO Auto-generated method stub
 
 	}
 

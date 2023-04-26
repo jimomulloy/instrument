@@ -436,7 +436,7 @@ public class ToneTimeFrame {
 				if (elements[i].amplitude < AMPLITUDE_FLOOR) {
 					elements[i].amplitude = AMPLITUDE_FLOOR;
 				}
-				elements[i].noteState = 0;
+				// !! ?? !! TODO elements[i].noteState = 0;
 				avgAmplitude += elements[i].amplitude;
 				count++;
 				if (maxAmplitude < elements[i].amplitude) {
@@ -1506,14 +1506,14 @@ public class ToneTimeFrame {
 
 	}
 
-	public void merge(ToneMap toneMap, ToneMap sourceToneMap, ToneTimeFrame sourceTimeFrame) {
+	public void merge(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
 		merge(sourceTimeFrame);
 		ToneMapElement[] ses = sourceTimeFrame.getElements();
 		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
 			ToneMapElement sourceElement = ses[elementIndex];
 			ToneMapElement element = elements[elementIndex];
 			if (sourceElement.noteListElement != null) {
-				merge(toneMap, sourceToneMap, sourceElement.noteListElement);
+				merge(toneMap, sourceElement.noteListElement);
 			}
 			element.amplitude += ses[elementIndex].amplitude;
 		}
@@ -1521,13 +1521,25 @@ public class ToneTimeFrame {
 
 	}
 
-	public void merge(ToneMap toneMap, ToneMap sourceToneMap, NoteListElement sourceNoteListElement) {
+	public void mergeNotes(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
+		ToneMapElement[] ses = sourceTimeFrame.getElements();
+		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
+			ToneMapElement sourceElement = ses[elementIndex];
+			if (sourceElement.noteListElement != null) {
+				merge(toneMap, sourceElement.noteListElement);
+			}
+		}
+		reset();
+
+	}
+
+	public void merge(ToneMap toneMap, NoteListElement sourceNoteListElement) {
 		int elementIndex = sourceNoteListElement.pitchIndex;
 		double startTime = sourceNoteListElement.startTime / 1000;
 		double endTime = sourceNoteListElement.endTime / 1000;
 		NoteListElement newNoteListElement = sourceNoteListElement.clone();
+		LOG.severe(">>TTF merge:  " + getStartTime() + ", " + startTime + ", " + newNoteListElement.note);
 		ToneTimeFrame ttf = toneMap.getPreviousTimeFrame(startTime);
-		List<NoteListElement> existingNles = new ArrayList<>();
 		List<ToneTimeFrame> ttfs = new ArrayList<>();
 		NoteListElement firstNoteListElement = null;
 		NoteListElement lastNoteListElement = null;
@@ -1535,7 +1547,6 @@ public class ToneTimeFrame {
 			ttfs.add(ttf);
 			ToneMapElement element = ttf.getElement(elementIndex);
 			if (element.noteListElement != null) {
-				existingNles.add(element.noteListElement);
 				if (firstNoteListElement == null) {
 					firstNoteListElement = element.noteListElement;
 				}
@@ -1543,12 +1554,22 @@ public class ToneTimeFrame {
 			}
 			ttf = toneMap.getNextTimeFrame(ttf.getStartTime());
 		}
+		if (firstNoteListElement != null && firstNoteListElement.equals(lastNoteListElement)
+				&& firstNoteListElement.startTime == newNoteListElement.startTime
+				&& firstNoteListElement.endTime == newNoteListElement.endTime) {
+			ToneMapElement element = getElement(elementIndex);
+			element.noteListElement = firstNoteListElement;
+			LOG.severe(">>TTF merge found:  " + getStartTime() + ", " + firstNoteListElement.startTime + ", "
+					+ newNoteListElement.note);
+			return;
 
+		}
 		if (firstNoteListElement == null) {
 			ttf = toneMap.getTimeFrame(startTime);
 			while (ttf != null && ttf.getStartTime() <= endTime) {
 				ToneMapElement element = ttf.getElement(elementIndex);
 				element.noteListElement = newNoteListElement;
+				LOG.severe(">>TTF merge Add:  " + ttf.getStartTime() + ", " + newNoteListElement.note);
 				ttf = toneMap.getNextTimeFrame(ttf.getStartTime());
 			}
 		} else {
@@ -1566,6 +1587,8 @@ public class ToneTimeFrame {
 				ttf = toneMap.getNextTimeFrame(startTime);
 			}
 			if (lastNoteListElement.endTime > endTime) {
+				newNoteListElement.endTime = lastNoteListElement.endTime;
+				// TODO newNoteListElement.endTimeIndex = lastNoteListElement.endTimeIndex;
 				while (ttf != null && ttf.getStartTime() <= (lastNoteListElement.endTime / 1000)) {
 					startTime = ttf.getStartTime();
 					endTime = ttf.getEndTime();

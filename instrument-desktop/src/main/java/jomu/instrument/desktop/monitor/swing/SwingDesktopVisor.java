@@ -2,23 +2,34 @@ package jomu.instrument.desktop.monitor.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.DefaultKeyboardFocusManager;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -48,10 +59,12 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -279,6 +292,193 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		mainFrame.setExtendedState(mainFrame.getExtendedState() | Frame.MAXIMIZED_BOTH);
 	}
 
+	private void showStackTraceDialog(Throwable throwable, String title) {/* from w w w . j av a2s . co m */
+		String message = throwable.getMessage() == null ? throwable.toString() : throwable.getMessage();
+		showStackTraceDialog(throwable, title, message);
+	}
+
+	private void showStackTraceDialog(Throwable throwable, String title, String message) {
+		Window window = DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+		showStackTraceDialog(throwable, window, title, message);
+	}
+
+	private void showStatusInfoDialog(String title, String message) {
+		Window window = DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+		showStatusInfoDialog(window, title, message);
+	}
+
+	/**
+	 * show stack trace dialog when exception throws
+	 * 
+	 * @param throwable
+	 * @param parentComponent
+	 * @param title
+	 * @param message
+	 */
+	private void showStackTraceDialog(Throwable throwable, Component parentComponent, String title, String message) {
+		final String more = "More";
+		// create stack strace panel
+		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JLabel label = new JLabel(more + ">>");
+		labelPanel.add(label);
+
+		JTextArea straceTa = new JTextArea();
+		final JScrollPane taPane = new JScrollPane(straceTa);
+		taPane.setPreferredSize(new Dimension(360, 240));
+		taPane.setVisible(false);
+		// print stack trace into textarea
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		throwable.printStackTrace(new PrintStream(out));
+		straceTa.setForeground(Color.RED);
+		straceTa.setText(new String(out.toByteArray()));
+
+		final JPanel stracePanel = new JPanel(new BorderLayout());
+		stracePanel.add(labelPanel, BorderLayout.NORTH);
+		stracePanel.add(taPane, BorderLayout.CENTER);
+
+		label.setForeground(Color.BLUE);
+		label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		label.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				JLabel tmpLab = (JLabel) e.getSource();
+				if (tmpLab.getText().equals(more + ">>")) {
+					tmpLab.setText("<<" + more);
+					taPane.setVisible(true);
+				} else {
+					tmpLab.setText(more + ">>");
+					taPane.setVisible(false);
+				}
+				SwingUtilities.getWindowAncestor(taPane).pack();
+			};
+		});
+
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(new JLabel(message), BorderLayout.NORTH);
+		panel.add(stracePanel, BorderLayout.CENTER);
+
+		JOptionPane pane = new JOptionPane(panel, JOptionPane.ERROR_MESSAGE);
+		JDialog dialog = pane.createDialog(parentComponent, title);
+		int maxWidth = Toolkit.getDefaultToolkit().getScreenSize().width * 2 / 3;
+		if (dialog.getWidth() > maxWidth) {
+			dialog.setSize(new Dimension(maxWidth, dialog.getHeight()));
+			setLocationRelativeTo(dialog, parentComponent);
+		}
+		dialog.setResizable(true);
+		dialog.setVisible(true);
+		dialog.dispose();
+	}
+
+	private void showStatusInfoDialog(Component parentComponent, String title, String message) {
+		final String more = "More";
+		// create stack strace panel
+		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JLabel label = new JLabel(more + ">>");
+		labelPanel.add(label);
+
+		JTextArea straceTa = new JTextArea();
+		final JScrollPane taPane = new JScrollPane(straceTa);
+		taPane.setPreferredSize(new Dimension(360, 240));
+		taPane.setVisible(false);
+		straceTa.setForeground(Color.RED);
+		straceTa.setText("Status Info");
+
+		final JPanel stracePanel = new JPanel(new BorderLayout());
+		stracePanel.add(labelPanel, BorderLayout.NORTH);
+		stracePanel.add(taPane, BorderLayout.CENTER);
+
+		label.setForeground(Color.BLUE);
+		label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		label.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				JLabel tmpLab = (JLabel) e.getSource();
+				if (tmpLab.getText().equals(more + ">>")) {
+					tmpLab.setText("<<" + more);
+					taPane.setVisible(true);
+				} else {
+					tmpLab.setText(more + ">>");
+					taPane.setVisible(false);
+				}
+				SwingUtilities.getWindowAncestor(taPane).pack();
+			};
+		});
+
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(new JLabel(message), BorderLayout.NORTH);
+		panel.add(stracePanel, BorderLayout.CENTER);
+
+		JOptionPane pane = new JOptionPane(panel, JOptionPane.ERROR_MESSAGE);
+		JDialog dialog = pane.createDialog(parentComponent, title);
+		int maxWidth = Toolkit.getDefaultToolkit().getScreenSize().width * 2 / 3;
+		if (dialog.getWidth() > maxWidth) {
+			dialog.setSize(new Dimension(maxWidth, dialog.getHeight()));
+			setLocationRelativeTo(dialog, parentComponent);
+		}
+		dialog.setResizable(true);
+		dialog.setVisible(true);
+		dialog.dispose();
+	}
+
+	/**
+	 * set c1 location relative to c2
+	 * 
+	 * @param c1
+	 * @param c2
+	 */
+	private void setLocationRelativeTo(Component c1, Component c2) {
+		Container root = null;
+
+		if (c2 != null) {
+			if (c2 instanceof Window) {
+				root = (Container) c2;
+			} else {
+				Container parent;
+				for (parent = c2.getParent(); parent != null; parent = parent.getParent()) {
+					if (parent instanceof Window) {
+						root = parent;
+						break;
+					}
+				}
+			}
+		}
+
+		if ((c2 != null && !c2.isShowing()) || root == null || !root.isShowing()) {
+			Dimension paneSize = c1.getSize();
+
+			Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+			c1.setLocation(centerPoint.x - paneSize.width / 2, centerPoint.y - paneSize.height / 2);
+		} else {
+			Dimension invokerSize = c2.getSize();
+			Point invokerScreenLocation = c2.getLocation(); // by longrm:
+			// c2.getLocationOnScreen();
+
+			Rectangle windowBounds = c1.getBounds();
+			int dx = invokerScreenLocation.x + ((invokerSize.width - windowBounds.width) >> 1);
+			int dy = invokerScreenLocation.y + ((invokerSize.height - windowBounds.height) >> 1);
+			Rectangle ss = root.getGraphicsConfiguration().getBounds();
+
+			// Adjust for bottom edge being offscreen
+			if (dy + windowBounds.height > ss.y + ss.height) {
+				dy = ss.y + ss.height - windowBounds.height;
+				if (invokerScreenLocation.x - ss.x + invokerSize.width / 2 < ss.width / 2) {
+					dx = invokerScreenLocation.x + invokerSize.width;
+				} else {
+					dx = invokerScreenLocation.x - windowBounds.width;
+				}
+			}
+
+			// Avoid being placed off the edge of the screen
+			if (dx + windowBounds.width > ss.x + ss.width) {
+				dx = ss.x + ss.width - windowBounds.width;
+			}
+			if (dx < ss.x)
+				dx = ss.x;
+			if (dy < ss.y)
+				dy = ss.y;
+
+			c1.setLocation(dx, dy);
+		}
+	}
+
 	private void buildContent() {
 
 		contentPane = new JPanel();
@@ -286,7 +486,23 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		upperPane = new JPanel();
 		JPanel statusPane = new JPanel();
 		JPanel lowerPane = new JPanel();
+
 		statusLabel = new JLabel("Ready");
+		JButton showStatusInfoButton = new JButton("Show Status Info");
+
+		showStatusInfoButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String s = e.getActionCommand();
+				Throwable t = workspace.getInstrumentSessionManager().getCurrentSession().getException();
+				if (t != null) {
+					showStackTraceDialog(t, "StatusInfo", "Instrument Exception");
+				} else {
+					showStatusInfoDialog("StatusInfo", "Instrument OK");
+				}
+			}
+		});
 
 		contentPane.setLayout(new BorderLayout());
 
@@ -300,6 +516,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		contentPane.setBorder(cb);
 
 		statusPane.add(statusLabel, BorderLayout.CENTER);
+		statusPane.add(showStatusInfoButton, BorderLayout.EAST);
+
 		EmptyBorder eb1 = new EmptyBorder(2, 2, 2, 2);
 		BevelBorder bb1 = new BevelBorder(BevelBorder.LOWERED);
 		CompoundBorder cb1 = new CompoundBorder(eb1, bb1);
@@ -894,6 +1112,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					chooseFileButton.setEnabled(false);
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
+					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
@@ -931,6 +1150,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					chooseFileButton.setEnabled(false);
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
+					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
@@ -964,6 +1184,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					chooseFileButton.setEnabled(false);
 					frameNumberInput.setEnabled(false);
 					timeAxisOffsetInput.setText("0");
+					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();

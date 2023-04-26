@@ -35,6 +35,7 @@ import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.PidProcessor;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -104,10 +105,6 @@ public class Hearing implements Organ {
 			return;
 		}
 		audioStreams.remove(streamId);
-	}
-
-	public void clearStream() {
-
 	}
 
 	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
@@ -680,5 +677,10 @@ public class Hearing implements Organ {
 		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
 		audioStream.start();
 
+	}
+
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
+		stopAudioStream();
 	}
 }

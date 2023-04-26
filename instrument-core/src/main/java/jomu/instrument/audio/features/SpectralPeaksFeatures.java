@@ -132,7 +132,6 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 
 	private float[] processPeaks(float[] spectrum) {
 		float[] peakSpectrum = new float[spectrum.length];
-		LOG.finer(">>AA processPeaks");
 		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
 			List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(
 					getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),

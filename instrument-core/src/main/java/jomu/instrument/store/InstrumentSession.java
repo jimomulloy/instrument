@@ -5,6 +5,8 @@ import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import jomu.instrument.InstrumentException;
+
 public class InstrumentSession {
 
 	private static final Logger LOG = Logger.getLogger(InstrumentSession.class.getName());
@@ -28,6 +30,7 @@ public class InstrumentSession {
 	String outputMidiFilePath;
 	String statusCode;
 	String statusMessage;
+	InstrumentException exception;
 
 	transient final ReentrantLock lock = new ReentrantLock();
 	InstrumentSessionState state = InstrumentSessionState.INIT;
@@ -55,6 +58,14 @@ public class InstrumentSession {
 
 	public void setStatusCode(String statusCode) {
 		this.statusCode = statusCode;
+	}
+
+	public void setException(InstrumentException exception) {
+		this.exception = exception;
+	}
+
+	public InstrumentException getException() {
+		return exception;
 	}
 
 	public String getStatusMessage() {
@@ -197,6 +208,10 @@ public class InstrumentSession {
 				+ ", inputAudioFilePath=" + inputAudioFilePath + ", outputMidiFileName=" + outputMidiFileName
 				+ ", outputMidiFilePath=" + outputMidiFilePath + ", statusCode=" + statusCode + ", statusMessage="
 				+ statusMessage + ", state=" + state + ", mode=" + mode + "]";
+	}
+
+	public void clearException() {
+		this.exception = null;
 	}
 
 }

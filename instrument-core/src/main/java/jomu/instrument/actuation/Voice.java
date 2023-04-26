@@ -216,4 +216,10 @@ public class Voice implements Organ {
 			this.sequence = sequence;
 		}
 	}
+
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
+		// TODO Auto-generated method stub
+
+	}
 }

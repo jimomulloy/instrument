@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.control.ParameterManager;
 
@@ -43,6 +44,12 @@ public class Storage implements Organ {
 
 	@Override
 	public void stop() {
+	}
+
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
+		// TODO Auto-generated method stub
+
 	}
 
 }

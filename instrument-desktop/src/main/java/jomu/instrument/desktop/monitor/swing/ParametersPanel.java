@@ -244,6 +244,8 @@ public class ParametersPanel extends JPanel {
 
 	private JSlider noteSpectralMinDurationSlider;
 
+	private JCheckBox synthesisNotesSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1389,20 +1391,36 @@ public class ParametersPanel extends JPanel {
 		cqSwitchPanel.add(integrateHpsSwitchCB);
 
 		synthesisChordsSwitchCB = new JCheckBox("synthesisChordsSwitchCB");
-		synthesisChordsSwitchCB.setText("Synthesis Chords");
+		synthesisChordsSwitchCB.setText("Synthesis Fill Chords");
 		synthesisChordsSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
 				JCheckBox cb = (JCheckBox) e.getSource();
 				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH,
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH,
 						Boolean.toString(newValue));
 			}
 		});
 
 		synthesisChordsSwitchCB.setSelected(parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH));
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH));
 		cqSwitchPanel.add(synthesisChordsSwitchCB);
+
+		synthesisNotesSwitchCB = new JCheckBox("synthesisNotesSwitchCB");
+		synthesisNotesSwitchCB.setText("Synthesis Fill Notes");
+		synthesisNotesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisNotesSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH));
+		cqSwitchPanel.add(synthesisNotesSwitchCB);
 
 		notateCompressionSwitchCB = new JCheckBox("notateCompressionSwitchCB");
 		notateCompressionSwitchCB.setText("Notate Compression");
@@ -3683,7 +3701,9 @@ public class ParametersPanel extends JPanel {
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
 		synthesisChordsSwitchCB.setSelected(parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORDS_SWITCH));
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH));
+		synthesisNotesSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH));
 
 		beatsThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD));

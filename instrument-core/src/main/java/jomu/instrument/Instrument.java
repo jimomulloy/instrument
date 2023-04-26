@@ -91,4 +91,10 @@ public class Instrument implements Organ, InstrumentFactory {
 		instrument = injectedInstrument;
 	}
 
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
+		// TODO Auto-generated method stub
+
+	}
+
 }

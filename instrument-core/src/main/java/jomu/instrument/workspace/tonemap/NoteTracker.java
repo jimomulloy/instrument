@@ -194,17 +194,17 @@ public class NoteTracker {
 			if (noteListElement.isContinuation && noteListElement.note == lastNote.note) {
 				return track;
 			}
-			if (Math.abs(noteListElement.note - lastNote.note) <= 20) {
-				if (pitchProximity > noteListElement.note - lastNote.note) {
-					pitchProximity = noteListElement.note - lastNote.note;
-					pitchSalientTrack = track;
-				}
-				if (timeProximity > noteListElement.startTime - lastNote.endTime) {
-					timeProximity = noteListElement.startTime - lastNote.endTime;
-					timeSalientTrack = track;
-				}
-				// double timbreFactor = noteListElement.noteTimbre. - lastNote.endTime;
+			// if (Math.abs(noteListElement.note - lastNote.note) <= 20) {
+			if (pitchProximity > noteListElement.note - lastNote.note) {
+				pitchProximity = noteListElement.note - lastNote.note;
+				pitchSalientTrack = track;
 			}
+			if (timeProximity > noteListElement.startTime - lastNote.endTime) {
+				timeProximity = noteListElement.startTime - lastNote.endTime;
+				timeSalientTrack = track;
+			}
+			// double timbreFactor = noteListElement.noteTimbre. - lastNote.endTime;
+			// }
 		}
 		if (pitchSalientTrack != null || timeSalientTrack != null) {
 			if (pitchSalientTrack == timeSalientTrack) {

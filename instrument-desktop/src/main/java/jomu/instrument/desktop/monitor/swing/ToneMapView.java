@@ -303,17 +303,11 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					if (showTracking) {
 						color = Color.BLACK;
 						if (toneMapElement.noteListElement != null) {
-							if (toneMapElement.noteState != ON) {
-								LOG.finer(">>ToneMapView showTacking ON");
-								color = Color.WHITE;
-								NoteTrack track = toneMap.getNoteTracker().getTrack(toneMapElement.noteListElement);
-								if (track != null) {
-									color = COLORS[track.getNumber() < COLORS.length ? track.getNumber() - 1
-											: COLORS.length - 1];
-								}
-
-							} else if (toneMapElement.noteState == START) {
-								color = Color.RED;
+							color = Color.WHITE;
+							NoteTrack track = toneMap.getNoteTracker().getTrack(toneMapElement.noteListElement);
+							if (track != null) {
+								color = COLORS[track.getNumber() < COLORS.length ? track.getNumber() - 1
+										: COLORS.length - 1];
 							}
 						}
 

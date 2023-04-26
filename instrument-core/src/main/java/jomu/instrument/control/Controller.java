@@ -130,4 +130,10 @@ public class Controller implements Organ {
 		}
 
 	}
+
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
+		// TODO Auto-generated method stub
+
+	}
 }

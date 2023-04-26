@@ -3,6 +3,7 @@ package jomu.instrument.monitor;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 
 @ApplicationScoped
@@ -10,10 +11,6 @@ public class Console implements Organ {
 
 	@Inject
 	Visor visor;
-
-	// public OscilloscopeEventHandler getOscilloscopeHandler() {
-	// return visor;
-	// }
 
 	public Visor getVisor() {
 		return visor;
@@ -32,5 +29,10 @@ public class Console implements Organ {
 	@Override
 	public void stop() {
 		System.exit(0);
+	}
+
+	@Override
+	public void processException(InstrumentException exception) throws InstrumentException {
+		visor.showException(exception);
 	}
 }

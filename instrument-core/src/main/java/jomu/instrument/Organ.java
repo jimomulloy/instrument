@@ -8,4 +8,6 @@ public interface Organ {
 
 	void stop() throws InstrumentException;
 
+	void processException(InstrumentException exception) throws InstrumentException;
+
 }

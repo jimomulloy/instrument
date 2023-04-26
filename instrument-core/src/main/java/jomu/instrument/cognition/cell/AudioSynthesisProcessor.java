@@ -44,6 +44,10 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
 		double toneMapMaxFrequency = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
+		boolean synthFillNotes = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH);
+		boolean synthFillChords = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH);
 		boolean cqCalibrateSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
 		double cqCalibrateRange = parameterManager
@@ -59,9 +63,10 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneTimeFrame synthesisFrame = notateFrame.clone();
 		synthesisToneMap.addTimeFrame(synthesisFrame);
+		synthesisFrame.mergeNotes(synthesisToneMap, notateFrame);
 
 		synthesisFrame.integratePeaks(notatePeaksFrame);
-		synthesisFrame.merge(synthesisToneMap, notateSpectralToneMap, notateSpectralFrame);
+		synthesisFrame.merge(synthesisToneMap, notateSpectralFrame);
 
 		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
@@ -78,7 +83,8 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
-		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat);
+		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat, synthFillChords,
+				synthFillNotes);
 
 		int tmIndex = sequence - 30;
 		ToneTimeFrame timeFrame;

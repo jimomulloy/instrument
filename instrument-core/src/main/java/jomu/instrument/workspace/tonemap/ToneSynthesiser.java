@@ -59,22 +59,25 @@ public class ToneSynthesiser {
 	}
 
 	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
-			double quantizePercent, int quantizeBeat) {
+			double quantizePercent, int quantizeBeat, boolean synthFillChords, boolean synthFillNotes) {
 		LOG.finer(">>SYNTH: " + targetFrame.getStartTime());
 		ChordListElement chord = targetFrame.getChord();
 		if (chord != null) {
 			addChord(targetFrame.getChord());
 		}
-
-		chord = fillChord(targetFrame.getStartTime(), targetFrame.getEndTime(), chord);
-		quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
-		LOG.finer(">>SYNTH chord: " + targetFrame.getStartTime() + ", " + chord);
+		if (synthFillChords) {
+			chord = fillChord(targetFrame.getStartTime(), targetFrame.getEndTime(), chord);
+		}
+		if (chord != null) {
+			quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+		}
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		NoteListElement[] nles = addNotes(targetFrame);
-		// quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent,
-		// quantizeBeat);
+		quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		trackNotes(nles, discardedNotes);
-		fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+		if (synthFillNotes) {
+			fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
+		}
 		discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime()));
 		discardNotes(discardedNotes);
 		LOG.severe(">>SYNTH discarded notes: " + targetFrame.getStartTime() + ", " + discardedNotes.size());
@@ -259,9 +262,11 @@ public class ToneSynthesiser {
 				}
 			}
 		} else {
-			LOG.severe(">>SYNTH QUANT NOTE DOWN: " + time + ", " + targetTime + ", " + frameTime);
+			LOG.severe(">>SYNTH QUANT NOTE DOWN: " + (element.noteListElement.equals(nle)) + ", " + time + ", "
+					+ targetTime + ", " + frameTime);
 			while (time > targetTime && frame != null) {
 				element.noteListElement = nle;
+				element.noteState = ToneMapConstants.ON;
 				int state = element.noteState;
 				frame = toneMap.getPreviousTimeFrame(time);
 				if (frame != null) {
@@ -272,6 +277,7 @@ public class ToneSynthesiser {
 				}
 			}
 		}
+		LOG.severe(">>SYNTH QUANT NOTE: " + time + ", " + targetTime + ", " + frameTime);
 		element.noteState = ToneMapConstants.START;
 	}
 
