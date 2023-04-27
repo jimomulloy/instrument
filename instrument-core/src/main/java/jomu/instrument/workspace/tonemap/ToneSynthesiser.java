@@ -68,12 +68,10 @@ public class ToneSynthesiser {
 				addChord(targetFrame.getChord());
 			}
 			if (synthFillChords) {
-				// chord = fillChord(targetFrame.getStartTime(), targetFrame.getEndTime(),
-				// chord);
+				chord = fillChord(targetFrame, chord);
 			}
 			if (chord != null) {
-				// quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent,
-				// quantizeBeat);
+				quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 			}
 		}
 		Set<NoteListElement> discardedNotes = new HashSet<>();
@@ -88,10 +86,13 @@ public class ToneSynthesiser {
 		if (!chordFirst) {
 			ChordListElement chord = targetFrame.getChord();
 			if (chord != null) {
-				addChord(targetFrame.getChord());
+				addChord(chord);
 			}
 			if (synthFillChords) {
-				chord = fillChord(targetFrame.getStartTime(), targetFrame.getEndTime(), chord);
+				chord = fillChord(targetFrame, chord);
+			}
+			if (targetFrame.getChord() == null) {
+				targetFrame.setChord(chord);
 			}
 			if (chord != null) {
 				quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
@@ -151,7 +152,8 @@ public class ToneSynthesiser {
 				double beatRange = beatAfterTime - beatBeforeTime;
 				if (beatRange > 0) {
 					NoteListElement pnle = track.getPenultimateNote();
-					if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
+					if (pnle != null && nle.startTime - pnle.endTime > beatRange) {
+						// if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
 						synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 					}
 				}
@@ -348,7 +350,9 @@ public class ToneSynthesiser {
 		}
 	}
 
-	private ChordListElement fillChord(double startTime, double endTime, ChordListElement chord) {
+	private ChordListElement fillChord(ToneTimeFrame targetFrame, ChordListElement chord) {
+		double startTime = targetFrame.getStartTime();
+		double endTime = targetFrame.getEndTime();
 		if (chords.isEmpty()) {
 			return chord;
 		}
@@ -395,6 +399,7 @@ public class ToneSynthesiser {
 			ChordListElement newChord = new ChordListElement(
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), startTime, endTime);
 			addChord(newChord);
+			targetFrame.setChord(newChord);
 			LOG.finer(">>Predict Chord added: " + newChord.getStartTime() + ", " + newChord + ",  " + previousChord);
 			return newChord;
 		}

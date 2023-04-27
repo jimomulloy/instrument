@@ -18,8 +18,8 @@ public class ChordListElement {
 	private double endTime;
 	private double startTime;
 
-	public ChordListElement(ChordNote[] chords, double startTime, double endTime) {
-		this.chordNotes = new TreeSet<>(Arrays.asList(chords));
+	public ChordListElement(ChordNote[] chord, double startTime, double endTime) {
+		this.chordNotes = new TreeSet<>(Arrays.asList(chord));
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}

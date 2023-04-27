@@ -275,7 +275,7 @@ public class BeatsView extends JComponent implements ComponentListener {
 			bufferedGraphics.setColor(color);
 			bufferedGraphics.fillRect(timeCoordinate, (int) (height / 2.0), width, (int) (height / 10.0));
 
-			if (cm.getBeat(ttf.getStartTime(), 0.110) != 0) {
+			if (cm.getBeatBeforeTime(ttf.getStartTime(), 110) != -1) {
 				color = Color.RED;
 				bufferedGraphics.setColor(color);
 				bufferedGraphics.fillOval(timeCoordinate, (int) (height / 4.0), 6, (int) 6);
