@@ -117,6 +117,9 @@ public class AudioCQProcessor extends ProcessorCommon {
 		ToneMap cqAdaptiveWhitenControlMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_WHITENER", streamId));
 		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
+		ToneMap cqEnvelopeWhitenControlMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_ENVELOPE", streamId));
+		cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 
 		AudioTuner tuner = new AudioTuner();
 
@@ -126,9 +129,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
 				+ ", " + ttf.getRmsPower());
 
-		if (cqEnvelopeWhitenPreSwitch && previousTimeFrame != null) {
-			ttf.envelopeWhiten(previousTimeFrame, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
-					cqEnvelopeWhitenAttackFactor);
+		if (cqEnvelopeWhitenPreSwitch) {
+			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
+			ttf.envelopeWhiten(cqEnvelopeWhitenControlMap, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
+					cqEnvelopeWhitenAttackFactor, lowThreshold);
 		}
 
 		if (cqSwitchSharpenHarmonic) {
@@ -191,9 +195,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 			}
 		}
 
-		if (cqEnvelopeWhitenPostSwitch && previousTimeFrame != null) {
-			ttf.envelopeWhiten(previousTimeFrame, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
-					cqEnvelopeWhitenAttackFactor);
+		if (cqEnvelopeWhitenPostSwitch && !cqEnvelopeWhitenPreSwitch) {
+			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
+			ttf.envelopeWhiten(cqEnvelopeWhitenControlMap, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
+					cqEnvelopeWhitenAttackFactor, lowThreshold);
 		}
 
 		if (previousTimeFrame != null) {

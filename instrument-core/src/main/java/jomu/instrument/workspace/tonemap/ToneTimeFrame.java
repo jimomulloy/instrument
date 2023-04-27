@@ -1329,28 +1329,46 @@ public class ToneTimeFrame {
 		return this;
 	}
 
-	public ToneTimeFrame envelopeWhiten(ToneTimeFrame previousFrame, double whitenThreshold, double decayWhitenFactor,
-			double attackWhitenFactor) {
-		LOG.severe(">>TTF envelopeWhiten: " + whitenThreshold + ", " + decayWhitenFactor);
+	public ToneTimeFrame envelopeWhiten(ToneMap envelopeToneMap, double whitenThreshold, double decayWhitenFactor,
+			double attackWhitenFactor, double lowThreshold) {
+		LOG.severe(">>TTF envelopeWhiten: " + getStartTime() + ", " + whitenThreshold + ", " + decayWhitenFactor);
 		reset();
+		ToneTimeFrame envelopeFrame = envelopeToneMap.getTimeFrame(getStartTime());
+		ToneTimeFrame previousFrame = envelopeToneMap.getPreviousTimeFrame(getStartTime());
 		if (previousFrame != null) {
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-				double currentPower = elements[elementIndex].microTones.getPowerFloor();
-				double previousPower = previousFrame.getElement(elementIndex).microTones.getPowerCeiling();
-				if (currentPower < previousPower && ((previousPower - currentPower) > whitenThreshold)
-						&& decayWhitenFactor > 0) {
-					double decayWhitenValue = previousFrame.getElement(elementIndex).amplitude * decayWhitenFactor;
-					if (elements[elementIndex].amplitude < decayWhitenValue) {
-						LOG.severe(">>TTF envelopeWhiten decayWhitenValue: " + decayWhitenValue);
-						elements[elementIndex].amplitude = decayWhitenValue;
+				double currentPower = elements[elementIndex].amplitude;
+				double previousPower = previousFrame.getElement(elementIndex).amplitude;
+				if (previousPower > lowThreshold) {
+					if (currentPower < previousPower
+							&& (((previousPower - currentPower) / previousPower) > whitenThreshold)
+							&& decayWhitenFactor > 0) {
+						double decayWhitenValue = (previousFrame.getElement(elementIndex).amplitude
+								- elements[elementIndex].amplitude) * decayWhitenFactor;
+						if (elements[elementIndex].amplitude < previousFrame.getElement(elementIndex).amplitude
+								- decayWhitenValue) {
+							LOG.severe(">>TTF envelopeWhiten decayWhitenValue before: " + getStartTime() + ", "
+									+ previousFrame.getStartTime() + ", " + elementIndex + ", " + decayWhitenValue
+									+ ", " + elements[elementIndex].amplitude + ", "
+									+ previousFrame.getElement(elementIndex).amplitude);
+							elements[elementIndex].amplitude = previousFrame.getElement(elementIndex).amplitude
+									- decayWhitenValue;
+							LOG.severe(">>TTF envelopeWhiten decayWhitenValue after: " + decayWhitenValue + ", "
+									+ elements[elementIndex].amplitude);
+						}
+					} else if (currentPower > previousPower
+							&& (((currentPower - previousPower) / previousPower) > whitenThreshold)
+							&& attackWhitenFactor > 0) {
+						double attackWhitenValue = (elements[elementIndex].amplitude
+								- previousFrame.getElement(elementIndex).amplitude) * attackWhitenFactor;
+						if (elements[elementIndex].amplitude > previousFrame.getElement(elementIndex).amplitude
+								+ attackWhitenValue) {
+							LOG.finer(">>ATTACK " + getStartTime() + ", " + elementIndex + ", " + attackWhitenValue);
+							elements[elementIndex].amplitude = previousFrame.getElement(elementIndex).amplitude
+									+ attackWhitenValue;
+						}
 					}
-				} else if (currentPower > previousPower && ((currentPower - previousPower) > whitenThreshold)
-						&& attackWhitenFactor > 0) {
-					double attackWhitenValue = previousFrame.getElement(elementIndex).amplitude * attackWhitenFactor;
-					if (elements[elementIndex].amplitude > attackWhitenValue) {
-						LOG.finer(">>ATTACK " + getStartTime() + ", " + elementIndex + ", " + attackWhitenValue);
-						elements[elementIndex].amplitude = attackWhitenValue;
-					}
+					envelopeFrame.getElement(elementIndex).amplitude = elements[elementIndex].amplitude;
 				}
 			}
 			reset();
@@ -1622,4 +1640,5 @@ public class ToneTimeFrame {
 	public boolean isSilent() {
 		return isSilent;
 	}
+
 }

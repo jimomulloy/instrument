@@ -31,6 +31,8 @@ import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.beatroot.BeatRootOnsetEventHandler;
 import be.tarsos.dsp.filters.BandPass;
+import be.tarsos.dsp.filters.HighPass;
+import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
@@ -392,12 +394,6 @@ public class Hearing implements Organ {
 
 		}
 
-		public void setBufferSize(int bufferSize) {
-			this.bufferSize = bufferSize;
-			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW,
-					Integer.toString(bufferSize));
-		}
-
 		public AudioFeatureProcessor getAudioFeatureProcessor() {
 			return audioFeatureProcessor;
 		}
@@ -495,12 +491,19 @@ public class Hearing implements Organ {
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			LOG.severe(">>processAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
-			float audioHighPass = parameterManager
-					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
-			float audioLowPass = parameterManager
-					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
+			int audioHighPass = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
+			int audioLowPass = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
 			if (audioLowPass - audioHighPass > 0) {
-				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
+				// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
+				// audioHighPass, sampleRate));
+			}
+			if (audioHighPass > 0) {
+				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+				if (audioLowPass > 0 && audioLowPass > audioHighPass) {
+					dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
+				}
 			}
 			float pidPFactor = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
@@ -512,6 +515,9 @@ public class Hearing implements Organ {
 			if (pidPFactor > 0 || pidDFactor > 0 || pidIFactor > 0) {
 				dispatcher.addAudioProcessor(new PidProcessor(pidPFactor, pidDFactor, pidIFactor));
 			}
+
+			// dispatcher.addAudioProcessor(new PitchShifter(pidIFactor, sampleRate,
+			// bufferSize, overlap));
 
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
@@ -564,7 +570,14 @@ public class Hearing implements Organ {
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
 			if (audioLowPass - audioHighPass > 0) {
-				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
+				// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
+				// audioHighPass, sampleRate));
+			}
+			if (audioHighPass > 0) {
+				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+				if (audioLowPass > 0 && audioLowPass > audioHighPass) {
+					dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
+				}
 			}
 			float pidPFactor = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
