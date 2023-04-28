@@ -88,10 +88,12 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 		double highCQThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
-		boolean cqCalibrateSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
-		double cqCalibrateRange = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
+		boolean calibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
+		boolean calibrateForwardSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
+		double calibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		ConstantQFeatures cqf = aff.getConstantQFeatures();
@@ -140,12 +142,9 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-			double cmPower = cm.get(ttf.getStartTime());
-			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
-					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, false);
+			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

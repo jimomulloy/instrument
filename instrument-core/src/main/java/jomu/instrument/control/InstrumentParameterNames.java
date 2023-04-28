@@ -31,6 +31,9 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_PID_P_FACTOR = "perception.hearing.pidPFactor";
 	public static final String PERCEPTION_HEARING_PID_D_FACTOR = "perception.hearing.pidDFactor";
 	public static final String PERCEPTION_HEARING_PID_I_FACTOR = "perception.hearing.pidIFactor";
+	public static final String PERCEPTION_HEARING_CALIBRATE_SWITCH = "perception.hearing.calibrateSwitch";
+	public static final String PERCEPTION_HEARING_CALIBRATE_RANGE = "perception.hearing.calibrateRange";
+	public static final String PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH = "perception.hearing.calibrateForwardSwitch";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 
@@ -44,8 +47,6 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR = "perception.hearing.cq.envelopeWhitenDecayFactor";
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH = "perception.hearing.cq.envelopeWhitenPreSwitch";
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH = "perception.hearing.cq.envelopeWhitenPostSwitch";
-	public static final String PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH = "perception.hearing.cq.calibrateSwitch";
-	public static final String PERCEPTION_HEARING_CQ_CALIBRATE_RANGE = "perception.hearing.cq.calibrateRange";
 	public static final String PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM = "perception.hearing.cq.signalMinimum";
 	public static final String PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD = "perception.hearing.cq.normaliseThreshold";
 	public static final String PERCEPTION_HEARING_CQ_SHARPEN_THRESHOLD = "perception.hearing.cq.sharpenThreshold";

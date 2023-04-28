@@ -248,6 +248,8 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox synthesisChordFirstSwitchCB;
 
+	private JCheckBox cqCalibrateForwardSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -960,20 +962,36 @@ public class ParametersPanel extends JPanel {
 		cqSwitchPanel.add(cqEnvelopeWhitenPostSwitchCB);
 
 		cqCalibrateSwitchCB = new JCheckBox("cqCalibrateSwitchCB");
-		cqCalibrateSwitchCB.setText("CQ Calibrate");
+		cqCalibrateSwitchCB.setText("Calibrate Switch");
 		cqCalibrateSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
 				JCheckBox cb = (JCheckBox) e.getSource();
 				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH,
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH,
 						Boolean.toString(newValue));
 			}
 		});
 
 		cqCalibrateSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH));
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH));
 		cqSwitchPanel.add(cqCalibrateSwitchCB);
+
+		cqCalibrateForwardSwitchCB = new JCheckBox("cqCalibrateForwardSwitchCB");
+		cqCalibrateForwardSwitchCB.setText("Calibrate Forward Switch");
+		cqCalibrateForwardSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqCalibrateForwardSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH));
+		cqSwitchPanel.add(cqCalibrateForwardSwitchCB);
 
 		cqPreSharpenSwitchCB = new JCheckBox("cqPreSharpenSwitchCB");
 		cqPreSharpenSwitchCB.setText("CQ Pre Sharpen");
@@ -2650,20 +2668,20 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqSignalMinimumLabel);
 		cqParamsPanel.add(cqSignalMinimumInput);
 
-		JLabel cqCalibrateRangeLabel = new JLabel("CQ Calibrate Range: ");
+		JLabel cqCalibrateRangeLabel = new JLabel("Calibrate Range: ");
 		cqCalibrateRangeInput = new JTextField(4);
 		cqCalibrateRangeInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = cqCalibrateRangeInput.getText();
-				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE,
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE,
 						newValue);
-				cqCalibrateRangeLabel.setText(String.format("CQ Calibrate Range  (%s):", newValue));
+				cqCalibrateRangeLabel.setText(String.format("Calibrate Range  (%s):", newValue));
 				cqCalibrateRangeInput.setText(newValue);
 			}
 		});
 		cqCalibrateRangeInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE));
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE));
 		cqParamsPanel.add(cqCalibrateRangeLabel);
 		cqParamsPanel.add(cqCalibrateRangeInput);
 
@@ -3453,7 +3471,9 @@ public class ParametersPanel extends JPanel {
 		cqEnvelopeWhitenPostSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH));
 		cqCalibrateSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH));
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH));
+		cqCalibrateForwardSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH));
 		cqPreSharpenSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN));
 		cqPostSharpenSwitchCB.setSelected(parameterManager
@@ -3586,7 +3606,7 @@ public class ParametersPanel extends JPanel {
 		cqSignalMinimumInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM));
 		cqCalibrateRangeInput
-				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE));
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE));
 		cqNormaliseThresholdInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD));
 		cqSharpenThresholdInput.setText(

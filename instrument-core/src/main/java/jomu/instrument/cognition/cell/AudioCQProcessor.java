@@ -93,10 +93,12 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH);
 		boolean cqEnvelopeWhitenPostSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH);
-		boolean cqCalibrateSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
-		double cqCalibrateRange = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
+		boolean calibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
+		boolean calibrateForwardSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
+		double calibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
 		double toneMapMinFrequency = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
 		double toneMapMaxFrequency = parameterManager
@@ -207,20 +209,13 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		ttf.reset();
-		LOG.finer(">>CQ Before calibarte: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+		LOG.severe(">>CQ Before calibarte: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 				+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
-
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-			double cmPower = cm.get(ttf.getStartTime());
-			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
-					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, false);
-			ttf.reset();
-			LOG.finer(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
+			LOG.severe(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 					+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
-
 		}
 
 		toneMap.updateStatistics(ttf);

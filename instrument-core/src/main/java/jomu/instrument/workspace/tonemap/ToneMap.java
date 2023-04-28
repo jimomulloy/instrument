@@ -39,6 +39,8 @@ public class ToneMap {
 
 	private ToneMapStatistics statistics = new ToneMapStatistics();
 
+	private double amplitudeThreshold = 0;
+
 	private Map<Integer, ToneMapStatistics> statisticsBands = new HashMap<>();
 
 	public ToneMap(String key) {
@@ -282,5 +284,13 @@ public class ToneMap {
 
 		LOG.finer(">>TM Updated stats: " + frame.getStartTime());
 
+	}
+
+	public double getAmplitudeThreshold() {
+		return amplitudeThreshold;
+	}
+
+	public void setAmplitudeThreshold(double amplitudeThreshold) {
+		this.amplitudeThreshold = amplitudeThreshold;
 	}
 }

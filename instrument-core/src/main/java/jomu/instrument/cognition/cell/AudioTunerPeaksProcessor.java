@@ -43,10 +43,12 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
 		double toneMapMaxFrequency = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
-		boolean cqCalibrateSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
-		double cqCalibrateRange = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
+		boolean calibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
+		boolean calibrateForwardSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
+		double calibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_LOW_THRESHOLD);
 
@@ -80,12 +82,9 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 
 		ToneTimeFrame ttf = tpToneMap.getTimeFrame();
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-			double cmPower = cm.get(ttf.getStartTime());
-			double cmMaxWindowPower = cm.getMaxPower(ttf.getStartTime() - cqCalibrateRange / 2,
-					ttf.getStartTime() + cqCalibrateRange / 2);
-			ttf.calibrate(cmMaxWindowPower, cmPower, lowThreshold, true);
+			ttf.calibrate(tpToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
 		console.getVisor().updateToneMapView(tpToneMap, this.cell.getCellType().toString());

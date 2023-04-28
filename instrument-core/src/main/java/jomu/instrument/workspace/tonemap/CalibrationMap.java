@@ -22,6 +22,7 @@ public class CalibrationMap implements OnsetHandler {
 	}
 
 	public void put(double time, double power) {
+		LOG.severe(">>CM put power: " + time + ", " + power);
 		audioFilePowerMap.put(time, power);
 	}
 
@@ -111,6 +112,15 @@ public class CalibrationMap implements OnsetHandler {
 			}
 		}
 		return max;
+	}
+
+	public double getPower(double time) {
+		Double power = audioFilePowerMap.get(time);
+		if (power != null) {
+			return power.doubleValue();
+		} else {
+			return 0;
+		}
 	}
 
 	@Override

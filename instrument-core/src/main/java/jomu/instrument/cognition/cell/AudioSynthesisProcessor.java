@@ -50,10 +50,12 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH);
 		boolean synthChordFirstSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH);
-		boolean cqCalibrateSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_SWITCH);
-		double cqCalibrateRange = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CALIBRATE_RANGE);
+		boolean calibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
+		boolean calibrateForwardSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
+		double calibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 
@@ -72,12 +74,9 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && cqCalibrateSwitch) {
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-			double cmPower = cm.get(synthesisFrame.getStartTime());
-			double cmMaxWindowPower = cm.getMaxPower(synthesisFrame.getStartTime() - cqCalibrateRange / 2,
-					synthesisFrame.getStartTime() + cqCalibrateRange / 2);
-			synthesisFrame.calibrate(cmMaxWindowPower, cmPower, lowThreshold, false);
+			synthesisFrame.calibrate(synthesisToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
 		synthesisFrame.setChord(synthesisToneMap, chromaFrame);
