@@ -20,6 +20,7 @@
     	<module>instrument-command</module>
   		<module>instrument-server</module>
   		<module>instrument-aws</module>
+  		<module>instrument-st</module>
     </modules>
   	
   	<properties>
