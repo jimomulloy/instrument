@@ -250,6 +250,8 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox cqCalibrateForwardSwitchCB;
 
+	private JCheckBox synthesisLegatoSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1441,6 +1443,22 @@ public class ParametersPanel extends JPanel {
 		synthesisNotesSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH));
 		cqSwitchPanel.add(synthesisNotesSwitchCB);
+
+		synthesisLegatoSwitchCB = new JCheckBox("synthesisLegatoSwitchCB");
+		synthesisLegatoSwitchCB.setText("Synthesis Fill Legato");
+		synthesisLegatoSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisLegatoSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH));
+		cqSwitchPanel.add(synthesisLegatoSwitchCB);
 
 		synthesisChordFirstSwitchCB = new JCheckBox("synthesisChordFirstSwitchCB");
 		synthesisChordFirstSwitchCB.setText("Synthesis Chord First");
@@ -3740,6 +3758,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
 		synthesisChordsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH));
+		synthesisLegatoSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH));
 		synthesisNotesSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH));
 		synthesisChordFirstSwitchCB.setSelected(parameterManager

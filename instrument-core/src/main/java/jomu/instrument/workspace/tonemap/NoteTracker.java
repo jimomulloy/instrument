@@ -105,7 +105,7 @@ public class NoteTracker {
 		this.toneMap = toneMap;
 	}
 
-	public void trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes) {
+	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes) {
 		LOG.finer(">>NoteTracker trackNote: " + noteListElement.note);
 		NoteTrack salientTrack = null;
 		NoteListElement disconnectedNote = null;
@@ -139,7 +139,7 @@ public class NoteTracker {
 		if (salientTrack == null) {
 			if (tracks.size() > 20 && ((noteListElement.endTime - noteListElement.startTime) <= 100)) {
 				discardedNotes.add(noteListElement);
-				return;
+				return null;
 			} else {
 				salientTrack = createTrack();
 				LOG.finer(">>NoteTracker trackNote create track B: " + noteListElement.note);
@@ -150,6 +150,7 @@ public class NoteTracker {
 			LOG.finer(">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
 			trackNote(disconnectedNote, discardedNotes);
 		}
+		return salientTrack;
 	}
 
 	private NoteTrack getPendingOverlappingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
@@ -161,7 +162,7 @@ public class NoteTracker {
 				return track;
 			}
 			if ((Math.abs(noteListElement.note - lastNote.note) <= 2)
-					&& ((lastNote.endTime - noteListElement.startTime < 201))) {
+					&& ((lastNote.endTime - noteListElement.startTime) < 201)) {
 				if (pitchProximity > noteListElement.note - lastNote.note) {
 					pitchProximity = noteListElement.note - lastNote.note;
 					pitchSalientTrack = track;

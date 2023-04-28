@@ -60,7 +60,7 @@ public class ToneSynthesiser {
 
 	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent, int quantizeBeat, boolean synthFillChords, boolean synthFillNotes,
-			boolean chordFirst) {
+			boolean chordFirst, boolean legato) {
 		LOG.finer(">>SYNTH: " + targetFrame.getStartTime());
 		if (chordFirst) {
 			ChordListElement chord = targetFrame.getChord();
@@ -77,7 +77,7 @@ public class ToneSynthesiser {
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		NoteListElement[] nles = addNotes(targetFrame);
 		quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
-		trackNotes(nles, discardedNotes);
+		trackNotes(nles, discardedNotes, legato);
 		if (synthFillNotes) {
 			fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		}
@@ -114,9 +114,34 @@ public class ToneSynthesiser {
 		}
 	}
 
-	private void trackNotes(NoteListElement[] nles, Set<NoteListElement> discardedNotes) {
+	private void trackNotes(NoteListElement[] nles, Set<NoteListElement> discardedNotes, boolean legato) {
 		for (NoteListElement nle : nles) {
-			toneMap.getNoteTracker().trackNote(nle, discardedNotes);
+			NoteTrack track = toneMap.getNoteTracker().trackNote(nle, discardedNotes);
+			if (track != null && legato) {
+				addLegato(track, nle);
+			}
+		}
+	}
+
+	private void addLegato(NoteTrack track, NoteListElement nle) {
+		NoteListElement pnle = track.getPenultimateNote();
+		if (pnle != null) {
+			if ((Math.abs(pnle.note - nle.note) <= 4) && ((pnle.endTime - nle.startTime) < 300)
+					&& (pnle.endTime < nle.startTime)) {
+				ToneTimeFrame frame = toneMap.getNextTimeFrame(pnle.endTime / 1000);
+				if (frame != null) {
+					double time = frame.getStartTime();
+					while (frame != null && time < nle.startTime) {
+						frame.getElement(pnle.pitchIndex).noteListElement = pnle;
+						pnle.endTime = frame.getStartTime();
+						frame = toneMap.getNextTimeFrame(time);
+						if (frame != null) {
+							time = frame.getStartTime();
+						}
+					}
+				}
+			}
+			pnle.addLegato(nle);
 		}
 	}
 

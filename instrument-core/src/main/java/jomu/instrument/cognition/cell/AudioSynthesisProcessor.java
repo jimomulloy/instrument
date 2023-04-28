@@ -48,6 +48,8 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH);
 		boolean synthFillChords = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH);
+		boolean synthFillLegatoSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH);
 		boolean synthChordFirstSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH);
 		boolean calibrateSwitch = parameterManager
@@ -85,7 +87,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat, synthFillChords,
-				synthFillNotes, synthChordFirstSwitch);
+				synthFillNotes, synthChordFirstSwitch, synthFillLegatoSwitch);
 
 		int tmIndex = sequence - 30;
 		ToneTimeFrame timeFrame;

@@ -143,6 +143,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT = "perception.hearing.synthesis.quantizePercent";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH = "perception.hearing.synthesis.fillNotesSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH = "perception.hearing.synthesis.fillChordsSwitch";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH = "perception.hearing.synthesis.fillLegatoSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH = "perception.hearing.synthesis.chordFirstSwitch";
 
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";

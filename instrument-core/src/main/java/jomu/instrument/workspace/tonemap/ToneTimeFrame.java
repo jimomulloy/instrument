@@ -595,7 +595,6 @@ public class ToneTimeFrame {
 			}
 		}
 		reset();
-		LOG.severe(">>TTF calibrate A1: " + getStartTime() + ", " + this);
 
 		if (hasPower) {
 			ToneTimeFrame tf = this;
@@ -610,7 +609,6 @@ public class ToneTimeFrame {
 				if (maxAmp < toneMap.getAmplitudeThreshold()) {
 					maxAmp = toneMap.getAmplitudeThreshold();
 					maxAmpTime = tf.getStartTime();
-					LOG.severe(">>TTF calibrate A0: " + getStartTime() + ", " + tf.getMaxAmplitude() + ", " + maxAmp);
 				}
 				tf = toneMap.getPreviousTimeFrame(tf.getStartTime());
 				if (tf != null) {
@@ -620,14 +618,10 @@ public class ToneTimeFrame {
 
 			double maxFutureAmp = 0;
 			double maxFuturePower = cm.getMaxPower(getStartTime(), lastTime);
-			LOG.severe(">>TTF calibrate A: " + getStartTime() + ", " + getMaxAmplitude() + ", " + maxAmp + ", "
-					+ maxFuturePower + ", " + firstTime + ", " + +lastTime);
 			if (maxAmp > lowThreshold && calibrateFuture) {
 				double maxPastPower = cm.getPower(maxAmpTime);
-				LOG.severe(">>TTF calibrate B: " + getStartTime() + ", " + maxAmpTime + ", " + maxPastPower);
 				if (maxPastPower > 0) {
 					maxFutureAmp = maxFuturePower * maxAmp / maxPastPower;
-					LOG.severe(">>TTF calibrate C: " + getStartTime() + ", " + maxPastPower + ", " + maxFutureAmp);
 					if (maxAmp < maxFutureAmp) {
 						maxAmp = maxFutureAmp;
 					}
@@ -638,7 +632,6 @@ public class ToneTimeFrame {
 					if (elements[i].amplitude > lowThreshold && maxAmp > lowThreshold) {
 						elements[i].amplitude = elements[i].amplitude / maxAmp;
 						if (elements[i].amplitude > 1.0) {
-							LOG.severe(">>TTF calibrate D: " + getStartTime() + ", " + elements[i].amplitude);
 							elements[i].amplitude = 1.0;
 						}
 					} else {
