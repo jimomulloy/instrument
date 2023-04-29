@@ -37,7 +37,7 @@ public class ParameterManager {
 			LOG.severe("ParameterManager resetting..");
 			InputStream is = getClass().getClassLoader()
 					.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
-			LOG.severe(">>ParameterManager is: " + is);
+			LOG.severe(">>ParameterManager is: " + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 			parameters.load(is);
 			InputStream isv = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
 			parameterValidator.load(isv);

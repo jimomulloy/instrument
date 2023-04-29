@@ -30,8 +30,8 @@ public class NoteListElement {
 	public NoteHarmonics noteHarmonics;
 	public NoteTimbre noteTimbre;
 	public boolean isContinuation;
-	public Set<Integer> overlaps = new HashSet<>();
-	public Set<Integer> legatos = new HashSet<>();
+	public Set<NoteListElement> overlaps = new HashSet<>();
+	public Set<NoteListElement> legatos = new HashSet<>();
 
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin, boolean isContinuation) {
@@ -92,13 +92,13 @@ public class NoteListElement {
 	}
 
 	public void addOverlap(NoteListElement overlappingElement) {
-		this.overlaps.add(overlappingElement.note);
-		overlappingElement.overlaps.add(this.note);
+		this.overlaps.add(overlappingElement);
+		overlappingElement.overlaps.add(this);
 	}
 
 	public void addLegato(NoteListElement legatoElement) {
-		this.legatos.add(legatoElement.note);
-		legatoElement.legatos.add(this.note);
+		this.legatos.add(legatoElement);
+		legatoElement.legatos.add(this);
 	}
 
 	public void merge(NoteListElement mergeNoteListElement) {

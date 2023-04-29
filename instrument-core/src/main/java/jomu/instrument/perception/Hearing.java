@@ -180,7 +180,7 @@ public class Hearing implements Organ {
 		showAudioMixerInfo();
 
 		LOG.severe(">>Start Audio file isFileTypeSupported(AudioFileFormat.Type.WAVE): "
-				+ AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE));
+				+ AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE) + ", for file: " + inputFileName);
 		if (!AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE)) {
 			throw new Exception("Audio system WAV file not supported");
 		}

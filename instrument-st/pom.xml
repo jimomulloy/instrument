@@ -60,7 +60,7 @@
 	<dependencies>
 		<dependency>
 	      <groupId>jomu</groupId>
-	      <artifactId>instrument</artifactId>
+	      <artifactId>instrument-command</artifactId>
 	      <version>0.0.1-SNAPSHOT</version>
 	      <scope>compile</scope>
 	    </dependency>

@@ -52,7 +52,7 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 		public boolean process(AudioEvent audioEvent) {
 			fft = new FFT(windowSize, new HammingWindow());
 			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
-			float[] transformbuffer = new float[windowSize * 2];
+			float[] transformbuffer = new float[windowSize];
 
 			float[] amplitudes = new float[windowSize / 2];
 			currentPhaseOffsets = new float[windowSize / 2];

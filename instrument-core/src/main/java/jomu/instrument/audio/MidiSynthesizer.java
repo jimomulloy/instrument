@@ -960,12 +960,45 @@ public class MidiSynthesizer implements ToneMapConstants {
 					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 					NoteListElement noteListElement = toneMapElement.noteListElement;
 					int volume = 0;
+					double pitchBendFactor = 0;
+					MidiPitchBend pitchBend = null;
 					if (noteListElement != null) {
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 								toneMapElement.isPeak, noteListElement.maxAmp);
 						NoteTrack track = toneMap.getNoteTracker().getTrack(noteListElement);
 						if (track == null || track.getNumber() < 1 || ((track.getNumber() - 1) % 4 != 0)) {
 							volume = 0;
+						}
+						if (noteListElement.overlaps.size() > 0) {
+							NoteListElement nleo = noteListElement.overlaps.iterator().next();
+							double currentTimeRange;
+							double overlapTimeRange;
+							double overlapNoteRange;
+							if (noteListElement.endTime > nleo.startTime) {
+								currentTimeRange = noteListElement.endTime - toneTimeFrame.getStartTime() * 1000;
+								overlapTimeRange = nleo.startTime - noteListElement.endTime;
+								overlapNoteRange = (double) (nleo.note - noteListElement.note);
+							} else {
+								currentTimeRange = nleo.endTime - toneTimeFrame.getStartTime() * 1000;
+								overlapTimeRange = noteListElement.startTime - nleo.endTime;
+								overlapNoteRange = (double) (nleo.note - noteListElement.note);
+							}
+							pitchBendFactor = 10000 * ((double) overlapNoteRange / 2)
+									* ((overlapTimeRange - currentTimeRange) / overlapTimeRange);
+							pitchBend = new MidiPitchBend();
+							pitchBend.setBendAmount((int) pitchBendFactor);
+						} else if (noteListElement.legatos.size() > 0) {
+							NoteListElement nleo = noteListElement.legatos.iterator().next();
+							if (noteListElement.startTime < nleo.startTime) {
+								double nleTimeRange = noteListElement.endTime - noteListElement.startTime;
+								double currentTimeRange = noteListElement.endTime - toneTimeFrame.getStartTime() * 1000;
+								double legatoTimeRange = nleTimeRange / 3;
+								double legatoNoteRange = (double) (nleo.note - noteListElement.note);
+								pitchBendFactor = 10000 * ((double) legatoNoteRange / 2)
+										* ((legatoTimeRange - currentTimeRange) / legatoTimeRange);
+								pitchBend = new MidiPitchBend();
+								pitchBend.setBendAmount((int) pitchBendFactor);
+							}
 						}
 					}
 
@@ -992,6 +1025,22 @@ public class MidiSynthesizer implements ToneMapConstants {
 								e.printStackTrace();
 							}
 							// midiMessages.add(midiMessage);
+						}
+						if (pitchBend != null) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.PITCH_BEND, voice1Channel.num,
+										pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
+								if (writeTrack) {
+									createEvent(voice1Track, voice1Channel, ShortMessage.PITCH_BEND,
+											pitchBend.getLeastSignificantBits(), tick,
+											pitchBend.getMostSignificantBits());
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
 						}
 					} else {
 						if (voiceChannel1LastNotes.contains(note)) {
@@ -3053,6 +3102,43 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.name = name;
 			this.track = track;
 		}
+	}
+
+	class MidiPitchBend {
+
+		protected int mValue1;
+		protected int mValue2;
+
+		public int getLeastSignificantBits() {
+			return mValue1;
+		}
+
+		public int getMostSignificantBits() {
+			return mValue2;
+		}
+
+		public int getBendAmount() {
+			int y = (mValue2 & 0x7F) << 7;
+			int x = (mValue1);
+
+			return y + x;
+		}
+
+		public void setLeastSignificantBits(int p) {
+			mValue1 = p & 0x7F;
+		}
+
+		public void setMostSignificantBits(int p) {
+			mValue2 = p & 0x7F;
+		}
+
+		public void setBendAmount(int amount) {
+
+			amount = amount & 0x3FFF;
+			mValue1 = (amount & 0x7F);
+			mValue2 = amount >> 7;
+		}
+
 	}
 
 }
