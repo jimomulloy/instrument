@@ -30,9 +30,9 @@ public class InstrumentAppStack extends Stack {
              .synth(CodeBuildStep.Builder.create("SynthStep")
                 .input(CodePipelineSource.gitHub("jimomulloy/instrument", "main"))
                 .installCommands(List.of(
-                		"ls", "cd ./instrument-aws/instrument-s3handler-cdk", "ls", "npm install -g aws-cdk"  // Commands to run before build
+                		"mvn clean install", "cd ./instrument-aws/instrument-s3handler-cdk", "npm install -g aws-cdk"  // Commands to run before build
                 ))
-                .commands(List.of("ls", "cd instrument-aws/instrument-s3handler-cdk", "ls", "cdk synth", "cp -r cdk.out ../../cdk.out" ))
+                .commands(List.of("mvn clean package", "cdk synth", "cp -r cdk.out ../../cdk.out", "cd ../.." ))
                 .build())
              .build();
    
