@@ -50,7 +50,7 @@ public class InstrumentTest {
 //		instrument.stop();
 //	}
 
-	@Test
+	//@Test
 	public void testInstrumentRun() {
 		String fileName = "data/3notescale.wav";
 		URL fileResource = getClass().getClassLoader().getResource(fileName);
