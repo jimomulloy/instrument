@@ -1,6 +1,7 @@
 package jomu.instrument.pipeline;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +10,7 @@ import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.StageProps;
+import software.amazon.awscdk.pipelines.CodeBuildStep;
 import software.amazon.awscdk.pipelines.CodePipeline;
 import software.amazon.awscdk.pipelines.CodePipelineSource;
 import software.amazon.awscdk.pipelines.ManualApprovalStep;
@@ -25,13 +27,16 @@ public class InstrumentAppStack extends Stack {
 
         CodePipeline pipeline = CodePipeline.Builder.create(this, "pipeline")
              .pipelineName("InstrumentAppPipeline")
-             .synth(ShellStep.Builder.create("Synth")
+             .synth(CodeBuildStep.Builder.create("SynthStep")
                 .input(CodePipelineSource.gitHub("jimomulloy/instrument", "main"))
-                .commands(Arrays.asList("mvn clean install", "cd ./instrument-aws/instrument-s3handler-cdk", "npm install -g aws-cdk", "cdk synth"))
-                .primaryOutputDirectory("./instrument-aws/instrument-s3handler-cdk/cdk.out")
+                .installCommands(List.of(
+                		"cd ./instrument-aws/instrument-s3handler-cdk", "npm install -g aws-cdk"  // Commands to run before build
+                ))
+                .commands(List.of("mvn clean install", "cd instrument-aws/instrument-s3handler-cdk", "cdk synth"))
+                .primaryOutputDirectory("instrument-aws/instrument-s3handler-cdk/cdk.out")
                 .build())
              .build();
-        
+   
         @NotNull
 		StageDeployment testingStage = pipeline.addStage(new InstrumentAppStage(this, "test", StageProps.builder()
                 .env(Environment.builder()
