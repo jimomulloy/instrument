@@ -32,8 +32,7 @@ public class InstrumentAppStack extends Stack {
                 .installCommands(List.of(
                 		"cd ./instrument-aws/instrument-s3handler-cdk", "npm install -g aws-cdk"  // Commands to run before build
                 ))
-                .commands(List.of("mvn clean install", "cd instrument-aws/instrument-s3handler-cdk", "cdk synth"))
-                .primaryOutputDirectory("instrument-aws/instrument-s3handler-cdk/cdk.out")
+                .commands(List.of("mvn clean install", "cd instrument-aws/instrument-s3handler-cdk", "cdk synth", "cp -r cdk.out ../../cdk.out" ))
                 .build())
              .build();
    
