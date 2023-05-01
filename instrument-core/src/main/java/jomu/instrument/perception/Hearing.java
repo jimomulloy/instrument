@@ -26,6 +26,8 @@ import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.github.psambit9791.jdsp.filter.Butterworth;
+
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
@@ -500,11 +502,46 @@ public class Hearing implements Organ {
 				// audioHighPass, sampleRate));
 			}
 			if (audioHighPass > 0) {
-				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+				// dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
 				if (audioLowPass > 0 && audioLowPass > audioHighPass) {
-					dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
+					// dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
+					int order = 4; // order of the filter
+					Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
+					dispatcher.addAudioProcessor(new AudioProcessor() {
+
+						@Override
+						public boolean process(AudioEvent audioEvent) {
+							float[] values = audioEvent.getFloatBuffer();
+							double[] result = flt.highPassFilter(convertFloatsToDoubles(values), order, audioHighPass);
+							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+							return true;
+						}
+
+						@Override
+						public void processingFinished() {
+
+						}
+					});
+
+					dispatcher.addAudioProcessor(new AudioProcessor() {
+
+						@Override
+						public boolean process(AudioEvent audioEvent) {
+							float[] values = audioEvent.getFloatBuffer();
+							double[] result = flt.lowPassFilter(convertFloatsToDoubles(values), order, audioLowPass);
+							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+							return true;
+						}
+
+						@Override
+						public void processingFinished() {
+
+						}
+					});
+
 				}
 			}
+
 			float pidPFactor = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
 			float pidDFactor = parameterManager
@@ -696,4 +733,27 @@ public class Hearing implements Organ {
 	public void processException(InstrumentException exception) throws InstrumentException {
 		stopAudioStream();
 	}
+
+	final static double[] convertFloatsToDoubles(float[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		double[] output = new double[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = input[i];
+		}
+		return output;
+	}
+
+	final static float[] convertDoublesToFloat(double[] input) {
+		if (input == null) {
+			return null; // Or throw an exception - your choice
+		}
+		float[] output = new float[input.length];
+		for (int i = 0; i < input.length; i++) {
+			output[i] = (float) input[i];
+		}
+		return output;
+	}
+
 }
