@@ -32,7 +32,7 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: '14.x'
+        node-version: '18.x'
 
     - name: Cache Node.js modules
       uses: actions/cache@v2
@@ -43,21 +43,20 @@ jobs:
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
 
-    - name: Install CDK and Gatsby
+    - name: Install CDK
       run: |
         cd ./instrument-aws/instrument-s3handler-cdk
-        npm install -g aws-cdk@1.62.0 gatsby-cli
+        npm install -g aws-cdk@2.76.0
     
     - name: Deploy CDK
       run: |
         cd ./instrument-aws/instrument-s3handler-cdk
         cdk deploy --all --require-approval=never
-        if: github.ref == 'refs/heads/main'
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-   
+      if: github.ref == 'refs/heads/main'
+      env:
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}   
    
     #- run: mkdir staging && cp target/*.jar staging
     #- uses: actions/upload-artifact@v3
