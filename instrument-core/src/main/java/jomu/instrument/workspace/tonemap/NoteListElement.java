@@ -1,8 +1,6 @@
 package jomu.instrument.workspace.tonemap;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -30,8 +28,10 @@ public class NoteListElement {
 	public NoteHarmonics noteHarmonics;
 	public NoteTimbre noteTimbre;
 	public boolean isContinuation;
-	public Set<NoteListElement> overlaps = new HashSet<>();
-	public Set<NoteListElement> legatos = new HashSet<>();
+	public NoteListElement legatoAfter = null;
+	public NoteListElement legatoBefore = null;
+	public NoteListElement overlapAfter = null;
+	public NoteListElement overlapBefore = null;
 
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin, boolean isContinuation) {
@@ -60,8 +60,10 @@ public class NoteListElement {
 		if (noteTimbre != null) {
 			clone.noteTimbre = noteTimbre.clone();
 		}
-		clone.overlaps.addAll(overlaps);
-		clone.legatos.addAll(legatos);
+		clone.overlapAfter = overlapAfter;
+		clone.overlapBefore = overlapBefore;
+		clone.legatoAfter = legatoAfter;
+		clone.legatoBefore = legatoBefore;
 		return clone;
 	}
 
@@ -92,13 +94,13 @@ public class NoteListElement {
 	}
 
 	public void addOverlap(NoteListElement overlappingElement) {
-		this.overlaps.add(overlappingElement);
-		overlappingElement.overlaps.add(this);
+		this.overlapAfter = overlappingElement;
+		overlappingElement.overlapBefore = this;
 	}
 
 	public void addLegato(NoteListElement legatoElement) {
-		this.legatos.add(legatoElement);
-		legatoElement.legatos.add(this);
+		this.legatoAfter = legatoElement;
+		legatoElement.legatoBefore = this;
 	}
 
 	public void merge(NoteListElement mergeNoteListElement) {

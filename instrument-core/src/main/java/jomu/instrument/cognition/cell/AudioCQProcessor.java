@@ -209,12 +209,12 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		LOG.severe(">>CQ Before calibarte: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+		LOG.finer(">>CQ Before calibarte: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 				+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
 		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
-			LOG.severe(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+			LOG.finer(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 					+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
 		}
 

@@ -960,53 +960,49 @@ public class MidiSynthesizer implements ToneMapConstants {
 					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 					NoteListElement noteListElement = toneMapElement.noteListElement;
 					int volume = 0;
-					double pitchBendFactor = 0;
-					MidiPitchBend pitchBend = null;
+					MidiPitchBend pitchBend = new MidiPitchBend();
 					if (noteListElement != null) {
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 								toneMapElement.isPeak, noteListElement.maxAmp);
 						NoteTrack track = toneMap.getNoteTracker().getTrack(noteListElement);
 						if (track == null || track.getNumber() < 1 || ((track.getNumber() - 1) % 4 != 0)) {
 							volume = 0;
-						}
-						if (noteListElement.overlaps.size() > 0) {
-							NoteListElement nleo = noteListElement.overlaps.iterator().next();
-							double currentTimeRange;
-							double overlapTimeRange;
-							double overlapNoteRange;
-							if (noteListElement.endTime > nleo.startTime) {
-								currentTimeRange = noteListElement.endTime - toneTimeFrame.getStartTime() * 1000;
-								overlapTimeRange = nleo.startTime - noteListElement.endTime;
-								overlapNoteRange = (double) (nleo.note - noteListElement.note);
-							} else {
-								currentTimeRange = nleo.endTime - toneTimeFrame.getStartTime() * 1000;
-								overlapTimeRange = noteListElement.startTime - nleo.endTime;
-								overlapNoteRange = (double) (nleo.note - noteListElement.note);
-							}
-							pitchBendFactor = 10000 * ((double) overlapNoteRange / 2)
-									* ((overlapTimeRange - currentTimeRange) / overlapTimeRange);
-							pitchBend = new MidiPitchBend();
-							pitchBend.setBendAmount((int) pitchBendFactor);
-						} else if (noteListElement.legatos.size() > 0) {
-							NoteListElement nleo = noteListElement.legatos.iterator().next();
-							if (noteListElement.startTime < nleo.startTime) {
-								double nleTimeRange = noteListElement.endTime - noteListElement.startTime;
-								double currentTimeRange = noteListElement.endTime - toneTimeFrame.getStartTime() * 1000;
-								double legatoTimeRange = nleTimeRange / 3;
-								double legatoNoteRange = (double) (nleo.note - noteListElement.note);
-								pitchBendFactor = 10000 * ((double) legatoNoteRange / 2)
-										* ((legatoTimeRange - currentTimeRange) / legatoTimeRange);
+						} else {
+							double pitchBendAmount = glissando(toneTimeFrame, noteListElement);
+							LOG.severe(">>Midi glissando PitchBend amount: " + pitchBendAmount + ", "
+									+ track.getNumber() + ", " + volume);
+							if (pitchBendAmount == -100) {
+								volume = 0;
+							} else if (pitchBendAmount != 0) {
 								pitchBend = new MidiPitchBend();
-								pitchBend.setBendAmount((int) pitchBendFactor);
+								pitchBend.setBendAmount(pitchBendAmount);
 							}
 						}
 					}
 
 					if (volume > 0) {
+						if (pitchBend != null) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.PITCH_BEND, voice1Channel.num,
+										pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
+								LOG.severe(">>Midi PITCH_BEND: " + note + ", " + pitchBend.getAmount());
+								if (writeTrack) {
+									createEvent(voice1Track, voice1Channel, ShortMessage.PITCH_BEND,
+											pitchBend.getLeastSignificantBits(), tick,
+											pitchBend.getMostSignificantBits());
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+						}
 						if (!voiceChannel1LastNotes.contains(note)) {
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_ON, voice1Channel.num, note, volume);
+								LOG.severe(">>Midi NOTE_ON: " + note + ", " + volume);
 								if (writeTrack) {
 									createEvent(voice1Track, voice1Channel, NOTEON, note, tick, volume);
 								}
@@ -1026,27 +1022,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 							}
 							// midiMessages.add(midiMessage);
 						}
-						if (pitchBend != null) {
-							midiMessage = new ShortMessage();
-							try {
-								midiMessage.setMessage(ShortMessage.PITCH_BEND, voice1Channel.num,
-										pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
-								if (writeTrack) {
-									createEvent(voice1Track, voice1Channel, ShortMessage.PITCH_BEND,
-											pitchBend.getLeastSignificantBits(), tick,
-											pitchBend.getMostSignificantBits());
-								}
-							} catch (InvalidMidiDataException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							midiMessages.add(midiMessage);
-						}
 					} else {
 						if (voiceChannel1LastNotes.contains(note)) {
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_OFF, voice1Channel.num, note, 0);
+								LOG.severe(">>Midi NOTE_OFF: " + note);
 								if (writeTrack) {
 									createEvent(voice1Track, voice1Channel, NOTEOFF, note, tick, volume);
 								}
@@ -1059,7 +1040,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						}
 					}
 				}
-			} else {
+			} else
+
+			{
 
 				for (ToneMapElement toneMapElement : ttfElements) {
 					int note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -1142,6 +1125,99 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			return true;
 
+		}
+
+		private double glissando(ToneTimeFrame toneTimeFrame, NoteListElement noteListElement) {
+			double pitchBendAmount = 0;
+			double currentTime = toneTimeFrame.getStartTime() * 1000;
+			double glissandoNoteRange = 0;
+			double glissandoMidTime = 0;
+			double glissandoStartTime = 0;
+			double glissandoEndTime = 0;
+			double overlapTimeRange = 0;
+			if (noteListElement.overlapAfter != null || noteListElement.overlapBefore != null) {
+				if (noteListElement.overlapAfter != null) {
+					NoteListElement nleo = noteListElement.overlapAfter;
+					LOG.severe(">>Midi glissando A: " + ", " + currentTime + ", " + noteListElement.startTime + ", "
+							+ nleo.startTime + ", " + noteListElement.note + ", " + nleo.note);
+					overlapTimeRange = noteListElement.endTime - nleo.startTime;
+					glissandoMidTime = noteListElement.endTime - overlapTimeRange / 2;
+					if (currentTime > glissandoMidTime) {
+						return -100;
+					} else {
+						glissandoStartTime = glissandoMidTime - 500 > noteListElement.startTime ? glissandoMidTime - 500
+								: noteListElement.startTime;
+						if (currentTime >= glissandoStartTime) {
+							glissandoNoteRange = (double) (nleo.note - noteListElement.note);
+							pitchBendAmount += ((double) glissandoNoteRange / 4)
+									* ((currentTime - glissandoStartTime) / (glissandoMidTime - glissandoStartTime));
+						}
+					}
+				}
+				if (noteListElement.overlapBefore != null) {
+					NoteListElement nleo = noteListElement.overlapBefore;
+					LOG.severe(">>Midi glissando B: " + ", " + currentTime + ", " + noteListElement.startTime + ", "
+							+ nleo.startTime + ", " + noteListElement.note + ", " + nleo.note);
+					overlapTimeRange = nleo.endTime - noteListElement.startTime;
+					glissandoMidTime = nleo.endTime + overlapTimeRange / 2;
+					if (currentTime <= glissandoMidTime) {
+						return -100;
+					} else {
+						glissandoEndTime = glissandoMidTime + 500 < noteListElement.endTime ? glissandoMidTime + 500
+								: noteListElement.endTime;
+						if (currentTime <= glissandoEndTime) {
+							glissandoNoteRange = (double) (noteListElement.note - nleo.note);
+							pitchBendAmount += ((double) glissandoNoteRange / 4)
+									* ((glissandoEndTime - currentTime) / (glissandoEndTime - glissandoMidTime));
+						}
+					}
+				}
+			} else {
+
+				if (noteListElement.legatoAfter != null) {
+					NoteListElement nleo = noteListElement.legatoAfter;
+					glissandoMidTime = noteListElement.endTime;
+					LOG.severe(">>Midi glissando C: " + ", " + currentTime + ", " + glissandoMidTime + ", "
+							+ noteListElement.startTime + ", " + noteListElement.endTime + ", " + nleo.startTime + ", "
+							+ nleo.endTime + ", " + noteListElement.note + ", " + nleo.note);
+					if (currentTime >= glissandoMidTime) {
+						LOG.severe(">>Midi glissando C -1:");
+						return -100;
+					} else {
+						glissandoStartTime = glissandoMidTime - 500 > noteListElement.startTime ? glissandoMidTime - 500
+								: noteListElement.startTime;
+						if (currentTime >= glissandoStartTime) {
+							glissandoNoteRange = (double) (nleo.note - noteListElement.note);
+							pitchBendAmount += ((double) glissandoNoteRange / 4)
+									* ((currentTime - glissandoStartTime) / (glissandoMidTime - glissandoStartTime));
+							LOG.severe(">>Midi glissando C pitchBendAmount: " + pitchBendAmount + " ,"
+									+ glissandoNoteRange + ", " + glissandoStartTime);
+						}
+					}
+				}
+				if (noteListElement.legatoBefore != null) {
+					NoteListElement nleo = noteListElement.legatoBefore;
+					glissandoMidTime = noteListElement.startTime;
+					LOG.severe(">>Midi glissando D: " + ", " + currentTime + ", " + glissandoMidTime + ", "
+							+ noteListElement.startTime + ", " + nleo.startTime + ", " + noteListElement.note + ", "
+							+ nleo.note);
+					if (currentTime < glissandoMidTime) {
+						LOG.severe(">>Midi glissando D -1:");
+						return -100;
+					} else {
+						glissandoEndTime = glissandoMidTime + 500 < noteListElement.endTime ? glissandoMidTime + 500
+								: noteListElement.endTime;
+						if (currentTime <= glissandoEndTime) {
+							glissandoNoteRange = (double) (nleo.note - noteListElement.note);
+							pitchBendAmount += ((double) glissandoNoteRange / 4)
+									* ((glissandoEndTime - currentTime) / (glissandoEndTime - glissandoMidTime));
+							LOG.severe(">>Midi glissando D pitchBendAmount: " + pitchBendAmount + " ,"
+									+ glissandoNoteRange + ", " + glissandoStartTime);
+						}
+					}
+				}
+			}
+			return pitchBendAmount;
 		}
 
 		private int getNoteVolume(double lowVoiceThreshold, double highVoiceThreshold, boolean playLog,
@@ -3108,6 +3184,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		protected int mValue1;
 		protected int mValue2;
+		protected double amount;
 
 		public int getLeastSignificantBits() {
 			return mValue1;
@@ -3117,11 +3194,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 			return mValue2;
 		}
 
-		public int getBendAmount() {
+		public int getBendValue() {
 			int y = (mValue2 & 0x7F) << 7;
 			int x = (mValue1);
 
 			return y + x;
+		}
+
+		public double getAmount() {
+			return amount;
 		}
 
 		public void setLeastSignificantBits(int p) {
@@ -3132,11 +3213,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 			mValue2 = p & 0x7F;
 		}
 
-		public void setBendAmount(int amount) {
-
-			amount = amount & 0x3FFF;
-			mValue1 = (amount & 0x7F);
-			mValue2 = amount >> 7;
+		public void setBendAmount(double amount) {
+			this.amount = amount;
+			if (amount > 1 || amount < -1) {
+				LOG.severe(">>MidiPitchBend invalid amount: " + amount);
+				// new InstrumentException(">>MidiPitchBend invalid amount: " + amount);
+			}
+			double value = amount + 1;
+			value = (16383 * value) / 2;
+			value = (int) value & 0x3FFF;
+			mValue1 = ((int) value & 0x7F);
+			mValue2 = (int) value >> 7;
 		}
 
 	}

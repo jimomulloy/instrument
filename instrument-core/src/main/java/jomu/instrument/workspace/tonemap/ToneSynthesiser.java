@@ -126,14 +126,14 @@ public class ToneSynthesiser {
 	private void addLegato(NoteTrack track, NoteListElement nle) {
 		NoteListElement pnle = track.getPenultimateNote();
 		if (pnle != null) {
-			if ((Math.abs(pnle.note - nle.note) <= 4) && ((pnle.endTime - nle.startTime) < 300)
-					&& (pnle.endTime < nle.startTime)) {
-				ToneTimeFrame frame = toneMap.getNextTimeFrame(pnle.endTime / 1000);
+			if ((Math.abs(pnle.note - nle.note) <= 2) && ((pnle.endTime - nle.startTime) < 1000)
+					&& (pnle.endTime <= nle.startTime)) {
+				ToneTimeFrame frame = toneMap.getNextTimeFrame(pnle.startTime / 1000);
 				if (frame != null) {
 					double time = frame.getStartTime();
 					while (frame != null && time < nle.startTime) {
 						frame.getElement(pnle.pitchIndex).noteListElement = pnle;
-						pnle.endTime = frame.getStartTime();
+						pnle.endTime = frame.getStartTime() * 1000;
 						frame = toneMap.getNextTimeFrame(time);
 						if (frame != null) {
 							time = frame.getStartTime();
