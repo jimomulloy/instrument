@@ -503,10 +503,13 @@ public class Hearing implements Organ {
 			}
 			if (audioHighPass > 0) {
 				// dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-				if (audioLowPass > 0 && audioLowPass > audioHighPass) {
+				if (audioLowPass > 0) {
 					// dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
 					int order = 4; // order of the filter
 					Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
+
+					LOG.severe(">>Hearing add High pass: " + audioHighPass);
+
 					dispatcher.addAudioProcessor(new AudioProcessor() {
 
 						@Override
@@ -522,6 +525,8 @@ public class Hearing implements Organ {
 
 						}
 					});
+
+					LOG.severe(">>Hearing add Low pass: " + audioLowPass);
 
 					dispatcher.addAudioProcessor(new AudioProcessor() {
 

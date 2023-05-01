@@ -22,7 +22,6 @@ public class CalibrationMap implements OnsetHandler {
 	}
 
 	public void put(double time, double power) {
-		LOG.severe(">>CM put power: " + time + ", " + power);
 		audioFilePowerMap.put(time, power);
 	}
 
@@ -126,7 +125,6 @@ public class CalibrationMap implements OnsetHandler {
 	@Override
 	public void handleOnset(double time, double salience) {
 		beatMap.put(time, salience);
-		LOG.severe(">>Calibrate beat: " + time + ", " + salience + ", " + this);
 	}
 
 	public double getBeatBeforeTime(double time, double range) {
