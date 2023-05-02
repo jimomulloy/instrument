@@ -131,7 +131,7 @@ public class ToneSynthesiser {
 				ToneTimeFrame frame = toneMap.getNextTimeFrame(pnle.startTime / 1000);
 				if (frame != null) {
 					double time = frame.getStartTime();
-					while (frame != null && time < nle.startTime) {
+					while (frame != null && (time * 1000) < nle.startTime) {
 						frame.getElement(pnle.pitchIndex).noteListElement = pnle;
 						pnle.endTime = frame.getStartTime() * 1000;
 						frame = toneMap.getNextTimeFrame(time);
@@ -152,12 +152,18 @@ public class ToneSynthesiser {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			NoteListElement nle = element.noteListElement;
-			if (nle != null && time * 1000 == nle.startTime) {
+			if (nle != null && time * 1000 == nle.startTime && isNewNote(nle)) {
 				addNote(nle);
 				noteList.add(nle);
 			}
 		}
 		return noteList.toArray(new NoteListElement[noteList.size()]);
+
+	}
+
+	private boolean isNewNote(NoteListElement nle) {
+		Map<Integer, NoteListElement> nMap = notes.get(nle.startTime);
+		return (nMap == null || !nMap.containsKey(nle.note));
 	}
 
 	private void fillNotes(NoteListElement[] nles, CalibrationMap calibrationMap, double quantizeRange,
@@ -428,10 +434,6 @@ public class ToneSynthesiser {
 			LOG.finer(">>Predict Chord added: " + newChord.getStartTime() + ", " + newChord + ",  " + previousChord);
 			return newChord;
 		}
-	}
-
-	public boolean hasNote(double time) {
-		return notes.containsKey(time);
 	}
 
 	public NoteListElement[] getNotes(double time) {

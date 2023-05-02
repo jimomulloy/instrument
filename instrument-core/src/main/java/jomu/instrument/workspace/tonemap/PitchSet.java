@@ -39,7 +39,7 @@ public class PitchSet implements Serializable {
 	public static final int MIN_MIDI_NOTE = 12;
 	public final static int INIT_PITCH_HIGH = 120;
 	public final static int INIT_PITCH_INC = 1;
-	public final static int INIT_PITCH_LOW = 36;
+	public final static int INIT_PITCH_LOW = 24;
 
 	public static char[][] NOTE_SYMBOLS = { { 'C', ' ' }, { 'C', '#' }, { 'D', ' ' }, { 'D', '#' }, { 'E', ' ' },
 			{ 'F', ' ' }, { 'F', '#' }, { 'G', ' ' }, { 'G', '#' }, { 'A', ' ' }, { 'A', '#' }, { 'B', ' ' },

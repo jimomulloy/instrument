@@ -23,7 +23,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		double quantizeRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE);
@@ -86,24 +86,36 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
-		synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat, synthFillChords,
-				synthFillNotes, synthChordFirstSwitch, synthFillLegatoSwitch);
 
 		int tmIndex = sequence - 30;
-		ToneTimeFrame timeFrame;
-		if (tmIndex < 0) {
-			tmIndex = 0;
-		}
-		for (int i = tmIndex + 1; i <= sequence; i++) {
-			timeFrame = synthesisToneMap.getTimeFrame(i);
-			if (timeFrame != null) {
-				console.getVisor().updateChromaSynthView(synthesisToneMap, timeFrame);
-				console.getVisor().updateToneMapView(synthesisToneMap, timeFrame, this.cell.getCellType().toString());
+
+		if (tmIndex > 0) {
+			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
+			if (synthesisFrame != null) {
+				synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat,
+						synthFillChords, synthFillNotes, synthChordFirstSwitch, synthFillLegatoSwitch);
+				console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
+				console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
+						this.cell.getCellType().toString());
 			}
+			cell.send(streamId, tmIndex);
 		}
 
-		console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
-		console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
-		cell.send(streamId, sequence);
+		if (isClosing(streamId, sequence)) {
+			if (tmIndex < 0) {
+				tmIndex = 0;
+			}
+			for (int i = tmIndex + 1; i <= sequence; i++) {
+				synthesisFrame = synthesisToneMap.getTimeFrame(i);
+				if (synthesisFrame != null) {
+					synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat,
+							synthFillChords, synthFillNotes, synthChordFirstSwitch, synthFillLegatoSwitch);
+					console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
+					console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
+							this.cell.getCellType().toString());
+				}
+				cell.send(streamId, i);
+			}
+		}
 	}
 }

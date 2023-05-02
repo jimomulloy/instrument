@@ -18,7 +18,6 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 
 	private static final Logger LOG = Logger.getLogger(ProcessorCommon.class.getName());
 
-	static final int C4_NOTE = 36;
 	NuCell cell;
 	Workspace workspace;
 	ParameterManager parameterManager;

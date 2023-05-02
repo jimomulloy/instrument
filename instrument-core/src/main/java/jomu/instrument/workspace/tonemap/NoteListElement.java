@@ -30,8 +30,6 @@ public class NoteListElement {
 	public boolean isContinuation;
 	public NoteListElement legatoAfter = null;
 	public NoteListElement legatoBefore = null;
-	public NoteListElement overlapAfter = null;
-	public NoteListElement overlapBefore = null;
 
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin, boolean isContinuation) {
@@ -60,8 +58,6 @@ public class NoteListElement {
 		if (noteTimbre != null) {
 			clone.noteTimbre = noteTimbre.clone();
 		}
-		clone.overlapAfter = overlapAfter;
-		clone.overlapBefore = overlapBefore;
 		clone.legatoAfter = legatoAfter;
 		clone.legatoBefore = legatoBefore;
 		return clone;
@@ -91,11 +87,6 @@ public class NoteListElement {
 		NoteListElement other = (NoteListElement) obj;
 		return note == other.note && pitchIndex == other.pitchIndex
 				&& Double.doubleToLongBits(startTime) == Double.doubleToLongBits(other.startTime);
-	}
-
-	public void addOverlap(NoteListElement overlappingElement) {
-		this.overlapAfter = overlappingElement;
-		overlappingElement.overlapBefore = this;
 	}
 
 	public void addLegato(NoteListElement legatoElement) {

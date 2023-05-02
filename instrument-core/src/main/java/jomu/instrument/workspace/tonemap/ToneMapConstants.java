@@ -75,7 +75,7 @@ public interface ToneMapConstants {
 	public static final int INIT_PAN_SETTING = 50;
 	public final static int INIT_PITCH_HIGH = 72;
 	public final static int INIT_PITCH_INC = 1;
-	public final static int INIT_PITCH_LOW = 36;
+	public final static int INIT_PITCH_LOW = 24;
 
 	public final static int INIT_PITCH_MAX = 144;
 	public final static int INIT_PITCH_MIN = 12;
@@ -124,7 +124,7 @@ public interface ToneMapConstants {
 	public static final int SC_TONEMAP_LOADING = 1;
 	public static final int SC_TONEMAP_PROCESSED = 4;
 	public static final int SC_TONEMAP_PROCESSING = 3;
-	public static final int SC_TONEMAP_READY = 36;
+	public static final int SC_TONEMAP_READY = 24;
 	public static final int ST_ERROR = 2;
 	public static final int ST_INFO = 1;
 	public static final int STOPPED = 0;

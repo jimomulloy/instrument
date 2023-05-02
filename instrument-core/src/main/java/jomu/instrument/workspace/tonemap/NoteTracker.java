@@ -31,6 +31,44 @@ public class NoteTracker {
 			return this.number;
 		}
 
+		public NoteListElement getNote(double time) {
+			double startTime = Double.MAX_VALUE;
+			NoteListElement firstNote = null;
+			for (NoteListElement note : notes) {
+				if (note.startTime <= time && note.endTime >= time && note.startTime < startTime) {
+					startTime = note.startTime;
+					firstNote = note;
+				}
+			}
+			return firstNote;
+		}
+
+		public NoteListElement getStartNote(double time) {
+			for (NoteListElement note : notes) {
+				if (note.startTime == time) {
+					return note;
+				}
+			}
+			return null;
+		}
+
+		public NoteListElement getEndNote(double time) {
+			for (NoteListElement note : notes) {
+				if (note.endTime == time) {
+					return note;
+				}
+			}
+			return null;
+		}
+
+		public NoteListElement getPreviousNote(NoteListElement nle) {
+			int index = notes.indexOf(nle);
+			if (index > 0) {
+				return notes.get(index - 1);
+			}
+			return null;
+		}
+
 		public void addNote(NoteListElement note) {
 			notes.add(note);
 		}
@@ -119,7 +157,7 @@ public class NoteTracker {
 			if (pendingTracks.length > 0) {
 				salientTrack = getPendingOverlappingSalientTrack(pendingTracks, noteListElement);
 				if (salientTrack != null) {
-					salientTrack.getLastNote().addOverlap(noteListElement);
+					salientTrack.getLastNote().addLegato(noteListElement);
 				}
 			}
 
@@ -161,8 +199,8 @@ public class NoteTracker {
 			if (noteListElement.note == lastNote.note) {
 				return track;
 			}
-			if ((Math.abs(noteListElement.note - lastNote.note) <= 2)
-					&& ((lastNote.endTime - noteListElement.startTime) < 201)) {
+			if ((Math.abs(noteListElement.note - lastNote.note) <= 2) && (lastNote.endTime > noteListElement.startTime)
+					&& ((lastNote.endTime - noteListElement.startTime) < 1000)) {
 				if (pitchProximity > noteListElement.note - lastNote.note) {
 					pitchProximity = noteListElement.note - lastNote.note;
 					pitchSalientTrack = track;
@@ -183,6 +221,19 @@ public class NoteTracker {
 			}
 		}
 		return result;
+	}
+
+	public NoteTrack[] getTracks() {
+		return tracks.toArray(new NoteTrack[tracks.size()]);
+	}
+
+	public NoteTrack getTrack(int number) {
+		for (NoteTrack track : tracks) {
+			if (track.number == number) {
+				return track;
+			}
+		}
+		return null;
 	}
 
 	private NoteTrack getSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
