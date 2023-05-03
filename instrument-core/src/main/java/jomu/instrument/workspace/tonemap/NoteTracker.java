@@ -204,6 +204,7 @@ public class NoteTracker {
 				return track;
 			}
 			if ((Math.abs(noteListElement.note - lastNote.note) <= 2) && (lastNote.endTime > noteListElement.startTime)
+					&& (lastNote.endTime < noteListElement.endTime)
 					&& ((lastNote.endTime - noteListElement.startTime) < 1000)) {
 				if (pitchProximity > noteListElement.note - lastNote.note) {
 					pitchProximity = noteListElement.note - lastNote.note;
