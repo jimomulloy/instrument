@@ -98,6 +98,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
 						this.cell.getCellType().toString());
 			}
+			console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
 			cell.send(streamId, tmIndex);
 		}
 
@@ -116,6 +117,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				}
 				cell.send(streamId, i);
 			}
+			console.getVisor().updateToneMapView(synthesisToneMap, this.cell.getCellType().toString());
 		}
 	}
 }

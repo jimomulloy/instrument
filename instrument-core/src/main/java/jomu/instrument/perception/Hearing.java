@@ -32,7 +32,6 @@ import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.beatroot.BeatRootOnsetEventHandler;
-import be.tarsos.dsp.filters.BandPass;
 import be.tarsos.dsp.filters.HighPass;
 import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
@@ -419,8 +418,55 @@ public class Hearing implements Organ {
 			float audioLowPass = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
 			if (audioLowPass - audioHighPass > 0) {
-				dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass - audioHighPass, sampleRate));
+				// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
+				// audioHighPass, sampleRate));
 			}
+			if (audioHighPass > 0) {
+				// dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
+				if (audioLowPass > 0) {
+					// dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
+					int order = 4; // order of the filter
+					Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
+
+					LOG.severe(">>Hearing add High pass: " + audioHighPass);
+
+					dispatcher.addAudioProcessor(new AudioProcessor() {
+
+						@Override
+						public boolean process(AudioEvent audioEvent) {
+							float[] values = audioEvent.getFloatBuffer();
+							double[] result = flt.highPassFilter(convertFloatsToDoubles(values), order, audioHighPass);
+							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+							return true;
+						}
+
+						@Override
+						public void processingFinished() {
+
+						}
+					});
+
+					LOG.severe(">>Hearing add Low pass: " + audioLowPass);
+
+					dispatcher.addAudioProcessor(new AudioProcessor() {
+
+						@Override
+						public boolean process(AudioEvent audioEvent) {
+							float[] values = audioEvent.getFloatBuffer();
+							double[] result = flt.lowPassFilter(convertFloatsToDoubles(values), order, audioLowPass);
+							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+							return true;
+						}
+
+						@Override
+						public void processingFinished() {
+
+						}
+					});
+
+				}
+			}
+
 			float pidPFactor = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
 			float pidDFactor = parameterManager
