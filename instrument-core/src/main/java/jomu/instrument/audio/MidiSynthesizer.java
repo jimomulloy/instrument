@@ -163,7 +163,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (synthesizer != null && synthesizer.isOpen()) {
 			synthesizer.close();
 		}
-		LOG.severe(">>MIDI close");
+		LOG.finer(">>MIDI close");
 		sequence = null;
 		synthesizer = null;
 		instruments = null;
@@ -177,7 +177,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	public void reset() {
-		LOG.severe(">>MIDI reset");
+		LOG.finer(">>MIDI reset");
 		close();
 		open();
 	}
@@ -259,9 +259,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
 		try {
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
-			LOG.severe(">>MidiSynth dev searched");
+			LOG.finer(">>MidiSynth dev searched");
 			for (Info midiDev : midiDevs) {
-				LOG.severe(">>MidiSynth dev: " + midiDev);
+				LOG.finer(">>MidiSynth dev: " + midiDev);
 			}
 
 			MidiChannel[] midiChannels = new MidiChannel[0];
@@ -271,7 +271,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					Properties ps = System.getProperties();
 					ps.setProperty("javax.sound.config.file", "sound.properties");
 					if ((synthesizer = MidiSystem.getSynthesizer()) == null) {
-						LOG.severe(">>MidiSynth MISSING SYNTH!!");
+						LOG.finer(">>MidiSynth MISSING SYNTH!!");
 						throw new InstrumentException("Midi open error, MISSING SYNTH");
 					}
 				}
@@ -286,10 +286,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 							sb = MidiSystem.getSoundbank(file);
 							synthesizer.loadAllInstruments(sb);
 							instruments = synthesizer.getLoadedInstruments();
-							LOG.severe(">>MidiSynth CustomSoundbank!!");
+							LOG.finer(">>MidiSynth CustomSoundbank!!");
 						}
 					} else {
-						LOG.severe(">>MidiSynth Default Soundbank!!");
+						LOG.finer(">>MidiSynth Default Soundbank!!");
 					}
 				} catch (Exception e) {
 					LOG.log(Level.SEVERE, ">>MidiSynth open error", e);
@@ -299,15 +299,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (instruments == null || instruments.length == 0) {
 					sb = synthesizer.getDefaultSoundbank();
 					if (sb != null) {
-						LOG.severe(">>MidiSynth DefaultSoundbank!!");
+						LOG.finer(">>MidiSynth DefaultSoundbank!!");
 						instruments = synthesizer.getDefaultSoundbank().getInstruments();
 					} else {
-						LOG.severe(">>MidiSynth AvailableSoundbank!!");
+						LOG.finer(">>MidiSynth AvailableSoundbank!!");
 						instruments = synthesizer.getAvailableInstruments();
 					}
 				}
 				if (instruments == null || instruments.length == 0) {
-					LOG.severe(">>MidiSynth MISSING INSTRUMENTS!!");
+					LOG.finer(">>MidiSynth MISSING INSTRUMENTS!!");
 					throw new InstrumentException("Midi open error: MISSING INSTRUMENTS");
 				}
 
@@ -329,7 +329,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			LOG.severe(">>MidiSynth CHANNELS: " + channels.length);
+			LOG.finer(">>MidiSynth CHANNELS: " + channels.length);
 			initChannels();
 			sequence = new Sequence(Sequence.PPQ, 10);
 		} catch (Exception ex) {
@@ -544,7 +544,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	public void setSynthesizerRunning(boolean synthesizerRunning) {
-		LOG.severe(">>MidiSynthesizer running status: " + synthesizerRunning);
+		LOG.finer(">>MidiSynthesizer running status: " + synthesizerRunning);
 		this.synthesizerRunning = synthesizerRunning;
 	}
 
@@ -635,13 +635,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 					while (running) {
 
 						if (playDelay > 0 && !doneDelay) {
-							LOG.severe(">>MidiStream IN PLAY DELAY: " + System.currentTimeMillis());
+							LOG.finer(">>MidiStream IN PLAY DELAY: " + System.currentTimeMillis());
 							TimeUnit.MILLISECONDS.sleep((long) playDelay);
-							LOG.severe(">>MidiStream AFTER PLAY DELAY: " + System.currentTimeMillis());
+							LOG.finer(">>MidiStream AFTER PLAY DELAY: " + System.currentTimeMillis());
 							doneDelay = true;
 						}
 
-						LOG.severe(">>MidiQueueConsumer running");
+						LOG.finer(">>MidiQueueConsumer running");
 						if (midiStream.isClosed()) {
 							stop();
 							break;
@@ -743,10 +743,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 					}
 				} catch (InterruptedException e) {
-					LOG.severe(">>MidiStream Interrupted: " + System.currentTimeMillis());
+					LOG.finer(">>MidiStream Interrupted: " + System.currentTimeMillis());
 					Thread.currentThread().interrupt();
 				}
-				LOG.severe(">>MidiQueueConsumer run exit");
+				LOG.finer(">>MidiQueueConsumer run exit");
 				clearChannels();
 				boolean writeTrack = parameterManager
 						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
@@ -762,10 +762,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 					String masterFileName = folder + System.getProperty("file.separator")
 							+ instrumentSession.getInputAudioFileName() + "_recording_master.midi";
 
-					LOG.severe(">>Writing MIDI file name: " + masterFileName);
+					LOG.finer(">>Writing MIDI file name: " + masterFileName);
 					File file = new File(masterFileName);
 					saveMidiFile(file, sequence);
-					LOG.severe(">>Saved MIDI file name: " + masterFileName);
+					LOG.finer(">>Saved MIDI file name: " + masterFileName);
 
 					if (midiSynthTracksSwitch) {
 
@@ -838,7 +838,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							String trackFileName = folder + System.getProperty("file.separator")
 									+ instrumentSession.getInputAudioFileName() + "_recording_track_"
 									+ getTrackName(tracks[i]) + ".midi";
-							LOG.severe(">>Writing MIDI file name: " + trackFileName);
+							LOG.finer(">>Writing MIDI file name: " + trackFileName);
 							file = new File(trackFileName);
 							saveMidiFile(file, tracks[i]);
 						}
@@ -859,9 +859,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 						e.printStackTrace();
 					}
 				}
-				LOG.severe(">>MidiQueueConsumer setSynthesizerRunning(false)");
+				LOG.finer(">>MidiQueueConsumer setSynthesizerRunning(false)");
 				MidiSynthesizer.this.setSynthesizerRunning(false);
-				LOG.severe(">>MidiQueueConsumer close and exit stream");
+				LOG.finer(">>MidiQueueConsumer close and exit stream");
 				this.midiStream.close();
 			} catch (Exception ex) {
 				LOG.log(Level.SEVERE, ">>MidiQueueConsumer Thread run exception: " + ex.getMessage(), ex);
@@ -903,7 +903,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playSynthTracks(MidiQueueMessage mqm) {
-			LOG.severe(">>MIDI CHANNEL playSynthTracks");
+			LOG.finer(">>MIDI CHANNEL playSynthTracks");
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
 			boolean midiPlayVoice1Switch = parameterManager
@@ -929,11 +929,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			NoteTrack[] tracks = toneMap.getNoteTracker().getTracks();
 
 			for (NoteTrack track : tracks) {
-				LOG.severe(">>MIDI CHANNEL play SynthTrack: " + track.getNumber());
 				if ((track.getNumber() == 1 && midiPlayVoice1Switch) || (track.getNumber() == 2 && midiPlayVoice2Switch)
 						|| (track.getNumber() == 3 && midiPlayVoice3Switch)
 						|| (track.getNumber() == 4 && midiPlayVoice4Switch)) {
-					LOG.severe(">>MIDI CHANNEL playing SynthTrack: " + track.getNumber());
 					playSynthNoteTrack(track, toneTimeFrame, midiMessages);
 				}
 			}
@@ -954,7 +952,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private void playSynthNoteTrack(NoteTrack track, ToneTimeFrame toneTimeFrame, List<ShortMessage> midiMessages) {
-			LOG.severe(">>MIDI CHANNEL playTrack: " + track);
+			LOG.finer(">>MIDI CHANNEL playTrack: " + track);
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -1012,15 +1010,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (snle != null) {
 				note = snle.note;
-				LOG.severe(">>Midi got NLE START: " + toneTimeFrame.getStartTime() + ", " + playTime + ", " + snle);
+				LOG.finer(">>Midi got NLE START: " + toneTimeFrame.getStartTime() + ", " + playTime + ", " + snle);
 				volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
 						snle.maxAmp);
 				if (snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
-					LOG.severe(">>Midi NLE START LB: " + snle.legatoBefore);
+					LOG.finer(">>Midi NLE START LB: " + snle.legatoBefore);
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
-						LOG.severe(">>Midi Synth NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + note);
+						LOG.finer(">>Midi Synth NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + note);
 						if (writeTrack) {
 							createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 						}
@@ -1037,13 +1035,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 				note = nle.note;
 				pitchBend = glissando(toneTimeFrame, nle);
 				if (pitchBend != null) {
-					LOG.severe(">>Midi glissando PitchBend amount: " + toneTimeFrame.getStartTime() + ", "
+					LOG.finer(">>Midi glissando PitchBend amount: " + toneTimeFrame.getStartTime() + ", "
 							+ pitchBend.getAmount() + ", " + track.getNumber() + ", " + volume);
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.PITCH_BEND, voiceChannel.num,
 								pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
-						LOG.severe(">>Midi B PITCH_BEND: " + toneTimeFrame.getStartTime() + ", " + note + ", "
+						LOG.finer(">>Midi B PITCH_BEND: " + toneTimeFrame.getStartTime() + ", " + note + ", "
 								+ pitchBend.getAmount());
 						if (writeTrack) {
 							createEvent(voiceTrack, voiceChannel, ShortMessage.PITCH_BEND,
@@ -1062,7 +1060,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				midiMessage = new ShortMessage();
 				try {
 					midiMessage.setMessage(ShortMessage.NOTE_OFF, voiceChannel.num, note, 0);
-					LOG.severe(">>Midi Synth NOTE_OFF: " + toneTimeFrame.getStartTime() + ", " + note + ", " + 0);
+					LOG.finer(">>Midi Synth NOTE_OFF: " + toneTimeFrame.getStartTime() + ", " + note + ", " + 0);
 					if (writeTrack) {
 						createEvent(voiceTrack, voiceChannel, NOTEOFF, note, tick, 0);
 					}
@@ -1074,13 +1072,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				if (pitchBend != null) {
 					pitchBend.setBendAmount(0);
-					LOG.severe(">>Midi glissando PitchBend A amount: " + toneTimeFrame.getStartTime() + ", "
+					LOG.finer(">>Midi glissando PitchBend A amount: " + toneTimeFrame.getStartTime() + ", "
 							+ pitchBend.getAmount() + ", " + track.getNumber() + ", " + volume);
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.PITCH_BEND, voiceChannel.num,
 								pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
-						LOG.severe(">>Midi A PITCH_BEND: " + toneTimeFrame.getStartTime() + ", " + note + ", "
+						LOG.finer(">>Midi A PITCH_BEND: " + toneTimeFrame.getStartTime() + ", " + note + ", "
 								+ pitchBend.getAmount());
 						if (writeTrack) {
 							createEvent(voiceTrack, voiceChannel, ShortMessage.PITCH_BEND,
@@ -1100,7 +1098,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
-						LOG.severe(">>Midi Synth NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + note);
+						LOG.finer(">>Midi Synth NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + note);
 						if (writeTrack) {
 							createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 						}
@@ -1251,11 +1249,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (noteListElement.legatoAfter != null) {
 				NoteListElement nleo = noteListElement.legatoAfter;
 				glissandoMidTime = noteListElement.endTime;
-				LOG.severe(">>Midi glissando C: " + ", " + currentTime + ", " + glissandoMidTime + ", "
+				LOG.finer(">>Midi glissando C: " + ", " + currentTime + ", " + glissandoMidTime + ", "
 						+ noteListElement.startTime + ", " + noteListElement.endTime + ", " + nleo.startTime + ", "
 						+ nleo.endTime + ", " + noteListElement.note + ", " + nleo.note);
 				if (currentTime > glissandoMidTime) {
-					LOG.severe(">>Midi glissando C -1:");
+					LOG.finer(">>Midi glissando C -1:");
 					return pitchBend;
 				} else {
 					glissandoStartTime = glissandoMidTime - 1000 > noteListElement.startTime ? glissandoMidTime - 1000
@@ -1264,7 +1262,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						glissandoNoteRange = (double) (nleo.note - noteListElement.note);
 						pitchBendAmount += ((double) glissandoNoteRange / 2)
 								* ((currentTime - glissandoStartTime) / (glissandoMidTime - glissandoStartTime));
-						LOG.severe(">>Midi glissando C pitchBendAmount: " + pitchBendAmount + " ," + glissandoNoteRange
+						LOG.finer(">>Midi glissando C pitchBendAmount: " + pitchBendAmount + " ," + glissandoNoteRange
 								+ ", " + glissandoStartTime);
 						pitchBend = new MidiPitchBend();
 						pitchBend.setBendAmount(pitchBendAmount);
@@ -1638,7 +1636,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, voice4Channel.num, note, volume);
-							LOG.severe(">>MIDI V4 NOTEON: " + toneTimeFrame.getStartTime() + ", " + note + ", " + volume
+							LOG.finer(">>MIDI V4 NOTEON: " + toneTimeFrame.getStartTime() + ", " + note + ", " + volume
 									+ ", " + logAmplitude + ", " + amplitude + ", " + highLogThreshold + ", "
 									+ lowLogThreshold);
 							if (writeTrack) {
@@ -1932,13 +1930,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			LOG.severe(">>MIDI C4 PLAY: " + toneTimeFrame.getStartTime());
+			LOG.finer(">>MIDI C4 PLAY: " + toneTimeFrame.getStartTime());
 			if ((chord == null && !chordsChannel2LastNotes.isEmpty()) || hasNewChord) {
 				for (int note : chordsChannel2LastNotes) {
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.NOTE_OFF, chord2Channel.num, note, 0);
-						LOG.severe(">>MIDI C4 NOTE_OFF: " + note);
+						LOG.finer(">>MIDI C4 NOTE_OFF: " + note);
 						if (writeTrack) {
 							createEvent(chord2Track, chord2Channel, NOTEOFF, note, tick, 0);
 						}
@@ -1958,7 +1956,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.NOTE_ON, chord2Channel.num, note, volume);
-						LOG.severe(">>MIDI C4 NOTE_ON: " + note + ", " + volume);
+						LOG.finer(">>MIDI C4 NOTE_ON: " + note + ", " + volume);
 						if (writeTrack) {
 							createEvent(chord2Track, chord2Channel, NOTEON, note, tick, volume);
 						}
@@ -2655,7 +2653,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							ttf.getMaxAmplitude());
 				}
 				hasBeat = true;
-				LOG.severe(">>MIDI C4 has beat: " + beatTimeFrame.getStartTime() + ", " + volume);
+				LOG.finer(">>MIDI C4 has beat: " + beatTimeFrame.getStartTime() + ", " + volume);
 			}
 
 			if (hasBeat) {
@@ -2930,7 +2928,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			bq.clear();
 			bq.drainTo(new ArrayList<Object>());
 			consumer.stop();
-			LOG.severe(">>MidiStream close stop and reset!!");
+			LOG.finer(">>MidiStream close stop and reset!!");
 			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 			instrumentSession.setState(InstrumentSessionState.STOPPED);
 			// MidiSynthesizer.this.reset();
@@ -3064,7 +3062,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public void setBendAmount(double amount) {
 			this.amount = amount;
 			if (amount > 1 || amount < -1) {
-				LOG.severe(">>MidiPitchBend invalid amount: " + amount);
+				LOG.finer(">>MidiPitchBend invalid amount: " + amount);
 				// new InstrumentException(">>MidiPitchBend invalid amount: " + amount);
 			}
 			double value = amount + 1;
@@ -3077,12 +3075,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public void setBendAmountHighd(double amount) {
 			this.amount = amount;
 			if (amount > 1 || amount < -1) {
-				LOG.severe(">>MidiPitchBend invalid amount: " + amount);
+				LOG.finer(">>MidiPitchBend invalid amount: " + amount);
 				// new InstrumentException(">>MidiPitchBend invalid amount: " + amount);
 			}
 			double value = (amount + 1) / 2;
 			value = (126 * value);
-			LOG.severe(">>MidiPitchBend set amount high: " + value + ", " + amount);
+			LOG.finer(">>MidiPitchBend set amount high: " + value + ", " + amount);
 			mValue1 = 0;
 			mValue2 = (int) value;
 		}

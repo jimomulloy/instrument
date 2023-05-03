@@ -23,7 +23,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.severe(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		double quantizeRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE);
@@ -87,7 +87,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 
-		int tmIndex = sequence - 30;
+		int tmIndex = sequence - 60;
 
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
