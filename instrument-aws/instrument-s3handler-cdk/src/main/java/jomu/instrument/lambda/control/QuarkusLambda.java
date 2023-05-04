@@ -57,8 +57,8 @@ public class QuarkusLambda extends Construct {
 
 	IFunction createFunction(String functionName, String functionHandler, Map<String, String> configuration, int memory,
 			int timeout, boolean snapStart) {
-		var architecture = snapStart ? Architecture.X86_64 : Architecture.ARM_64;
-		// var architecture = Architecture.X86_64;
+		// var architecture = snapStart ? Architecture.X86_64 : Architecture.ARM_64;
+		var architecture = Architecture.X86_64;
 		// Create a layer from the layer module
 		// final LayerVersion layer = new LayerVersion(this, "InstrumentLayer",
 		// LayerVersionProps.builder().code(Code.fromAsset("../instrument-layer/target/bundle"))
