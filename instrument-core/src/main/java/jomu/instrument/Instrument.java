@@ -1,5 +1,6 @@
 package jomu.instrument;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -56,23 +57,33 @@ public class Instrument implements Organ, InstrumentFactory {
 	}
 
 	public void initialise() {
-		LOG.finer(">>Initialise INSTRUMENT");
-		controller.initialise();
-		storage.initialise();
-		workspace.initialise();
-		console.initialise();
-		coordinator.initialise();
-		LOG.finer(">>Initialised INSTRUMENT");
+		try {
+			LOG.severe(">>Initialise INSTRUMENT");
+			controller.initialise();
+			storage.initialise();
+			workspace.initialise();
+			console.initialise();
+			coordinator.initialise();
+			LOG.severe(">>Initialised INSTRUMENT");
+		} catch (Exception ex) {
+			LOG.log(Level.SEVERE, ">>Initialise INSTRUMENT exception: " + ex.getMessage(), ex);
+			throw ex;
+		}
 	}
 
 	public void start() {
-		LOG.finer(">>Start INSTRUMENT");
-		controller.start();
-		storage.start();
-		workspace.start();
-		console.start();
-		coordinator.start();
-		LOG.finer(">>Started INSTRUMENT");
+		try {
+			LOG.severe(">>Start INSTRUMENT");
+			controller.start();
+			storage.start();
+			workspace.start();
+			console.start();
+			coordinator.start();
+			LOG.severe(">>Started INSTRUMENT");
+		} catch (Exception ex) {
+			LOG.log(Level.SEVERE, ">>Start INSTRUMENT exception: " + ex.getMessage(), ex);
+			throw ex;
+		}
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package jomu.instrument.adapter.aws;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
@@ -16,14 +17,19 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 @io.quarkus.arc.Priority(1)
 public class AwsInstrumentStoreService implements InstrumentStoreService {
 
+	private static final Logger LOG = Logger.getLogger(AwsInstrumentStoreService.class.getName());
+
 	final List<ToneMap> toneMapList = new ArrayList<>();
 	Properties parameters = new Properties();
 
 	String root = "testing";
 
 	public void initialise() {
+		LOG.severe(">>AwsInstrumentStoreService initialise");
 		Instrument.getInstance().getController().getParameterManager().reset();
 		this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
+		LOG.severe(">>AwsInstrumentStoreService initialised");
+
 	}
 
 	public void addToneMap(ToneMap toneMap) {

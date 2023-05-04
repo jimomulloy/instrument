@@ -117,6 +117,7 @@ public class AwsAdapterObjectStorage implements ObjectStorage {
 	}
 
 	private boolean initEnvironment() {
+		LOG.severe(">>AwsAdapterObjectStorage initEnvironment");
 		if (System.getenv(INSTRUMENT_STORE) != null) {
 			environmentMap.put(INSTRUMENT_STORE, System.getenv(INSTRUMENT_STORE));
 			System.out.println("AwsAdapterObjectStorage initEnvironment INSTRUMENT_STORE: "

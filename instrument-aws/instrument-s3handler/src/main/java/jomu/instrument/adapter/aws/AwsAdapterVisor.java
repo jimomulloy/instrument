@@ -1,5 +1,7 @@
 package jomu.instrument.adapter.aws;
 
+import java.util.logging.Logger;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 
@@ -14,9 +16,12 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 @io.quarkus.arc.Priority(1)
 public class AwsAdapterVisor implements Visor {
 
+	private static final Logger LOG = Logger.getLogger(AwsAdapterVisor.class.getName());
+
 	@Override
 	public void startUp() {
 		// TODO Auto-generated method stub
+		LOG.severe(">>AwsAdapterVisor start up");
 
 	}
 
