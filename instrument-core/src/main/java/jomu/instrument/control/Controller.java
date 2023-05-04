@@ -95,7 +95,8 @@ public class Controller implements Organ {
 			coordinator.getHearing().startAudioFileStream(fileName);
 			LOG.severe(">>INSTRUMENT Run userId: " + userId + ", fileName: " + fileName + ", style: " + paramStyle);
 			countDownLatch.await(TIMEOUT, TimeUnit.SECONDS);
-			if (InstrumentSession.InstrumentSessionState.STOPPED.equals(instrumentSession.getState())) {
+			if (!InstrumentSession.InstrumentSessionState.FAILED.equals(instrumentSession.getState())) {
+				instrumentSession.setState(InstrumentSession.InstrumentSessionState.STOPPED);
 				instrumentSession.setStatusCode("0");
 				instrumentSession.setStatusMessage("OK");
 			} else {

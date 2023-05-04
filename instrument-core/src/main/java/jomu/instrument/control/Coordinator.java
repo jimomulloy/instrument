@@ -13,6 +13,8 @@ import jomu.instrument.actuation.Voice;
 import jomu.instrument.cognition.Cortex;
 import jomu.instrument.monitor.Console;
 import jomu.instrument.perception.Hearing;
+import jomu.instrument.store.InstrumentSession.InstrumentSessionState;
+import jomu.instrument.workspace.InstrumentSessionManager;
 import jomu.instrument.workspace.Workspace;
 
 @ApplicationScoped
@@ -33,7 +35,16 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 	Console console;
 
 	@Inject
+	Coordinator coordinator;
+
+	@Inject
+	Controller controller;
+
+	@Inject
 	Workspace workspace;
+
+	@Inject
+	InstrumentSessionManager instrumentSessionManager;
 
 	public Cortex getCortex() {
 		return cortex;
@@ -74,7 +85,10 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 		cortex.processException(exception);
 		hearing.processException(exception);
 		console.processException(exception);
-
+		instrumentSessionManager.getCurrentSession().setState(InstrumentSessionState.FAILED);
+		if (controller.isCountDownLatch()) {
+			controller.getCountDownLatch().countDown();
+		}
 	}
 
 	@Override

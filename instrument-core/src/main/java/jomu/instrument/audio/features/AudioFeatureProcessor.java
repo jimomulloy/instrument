@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioEvent;
@@ -38,6 +39,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	private ParameterManager parameterManager;
 	private int range;
 	private Hearing hearing;
+	final ReentrantLock lock = new ReentrantLock();
 
 	public AudioFeatureProcessor(String streamId, TarsosFeatureSource tarsosFeatures) {
 		this.streamId = streamId;
@@ -165,9 +167,15 @@ public class AudioFeatureProcessor implements AudioProcessor {
 
 	private AudioFeatureFrame createAudioFeatureFrame(int frameSequence, double firstTimeStamp, double endTimeStamp) {
 		AudioFeatureFrame audioFeatureFrame = new AudioFeatureFrame(this, frameSequence, firstTimeStamp, endTimeStamp);
-		audioFeatureFrame.initialise();
+		lock.lock();
+		try {
+			audioFeatureFrame.initialise();
+		} finally {
+			lock.unlock();
+		}
 		addAudioFeatureFrame(firstTimeStamp, audioFeatureFrame);
 		return audioFeatureFrame;
+
 	}
 
 }

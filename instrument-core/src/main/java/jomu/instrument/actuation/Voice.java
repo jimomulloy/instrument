@@ -204,6 +204,11 @@ public class Voice implements Organ {
 		midiSynthesizer.clear(streamId);
 	}
 
+	public void reset() {
+		LOG.severe(">>VOICE clear: ");
+		midiSynthesizer.reset();
+	}
+
 	class SendMessage {
 
 		public ToneTimeFrame toneTimeFrame;

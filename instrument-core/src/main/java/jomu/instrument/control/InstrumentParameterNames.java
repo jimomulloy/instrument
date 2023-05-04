@@ -145,6 +145,17 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH = "perception.hearing.synthesis.fillChordsSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH = "perception.hearing.synthesis.fillLegatoSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH = "perception.hearing.synthesis.chordFirstSwitch";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT = "perception.hearing.synthesis.minTimeIncrement";
+
+	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER = "perception.hearing.notetracker.maxTracksUpper";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER = "perception.hearing.notetracker.maxTracksLower";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_UPPER = "perception.hearing.notetracker.clearRangeUpper";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_LOWER = "perception.hearing.notetracker.clearRangeLower";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE = "perception.hearing.notetracker.discardTrackRange";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_NOTE_RANGE = "perception.hearing.notetracker.overlapSalientNoteRange";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_TIME_RANGE = "perception.hearing.notetracker.overlapSalientTimeRange";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE = "perception.hearing.notetracker.salientNoteRange";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR = "perception.hearing.notetracker.salientTimeNoteFactor";
 
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
 	public static final String PERCEPTION_HEARING_ONSET_EDGE_FACTOR = "perception.hearing.onset.edgeFactor";

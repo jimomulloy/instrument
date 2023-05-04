@@ -12,21 +12,48 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
+import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.NoteTracker.NoteTrack;
 
 public class ToneSynthesiser implements ToneMapConstants {
 
-	private static final double MIN_TIME_INCREMENT = 0.1;
+	private static final double MIN_TIME_INCREMENT = 0.11;
 
 	private static final Logger LOG = Logger.getLogger(ToneSynthesiser.class.getName());
 
 	ConcurrentSkipListMap<Double, Map<Integer, NoteListElement>> notes = new ConcurrentSkipListMap<>();
 	ConcurrentSkipListMap<Double, ChordListElement> chords = new ConcurrentSkipListMap<>();
 
+	double minTimeIncrement = MIN_TIME_INCREMENT;
+	double quantizeRange;
+	double quantizePercent;
+	int quantizeBeat;
+	boolean synthFillChords;
+	boolean synthFillNotes;
+	boolean synthChordFirstSwitch;
+	boolean synthFillLegatoSwitch;
+
 	private ToneMap toneMap;
 
 	public ToneSynthesiser(ToneMap toneMap) {
 		this.toneMap = toneMap;
+		minTimeIncrement = toneMap.getParameterManager()
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT);
+		quantizeRange = toneMap.getParameterManager()
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE);
+		quantizePercent = toneMap.getParameterManager()
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT);
+		quantizeBeat = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT);
+		synthFillChords = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH);
+		synthFillLegatoSwitch = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH);
+		synthFillNotes = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH);
+		synthChordFirstSwitch = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH);
+
 	}
 
 	public void addNote(NoteListElement nle) {
@@ -58,11 +85,9 @@ public class ToneSynthesiser implements ToneMapConstants {
 		chords.put(cle.getStartTime(), cle);
 	}
 
-	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap, double quantizeRange,
-			double quantizePercent, int quantizeBeat, boolean synthFillChords, boolean synthFillNotes,
-			boolean chordFirst, boolean legato) {
+	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap) {
 		LOG.severe(">>SYNTH: " + targetFrame.getStartTime());
-		if (chordFirst) {
+		if (synthChordFirstSwitch) {
 			ChordListElement chord = targetFrame.getChord();
 			if (chord != null) {
 				addChord(targetFrame.getChord());
@@ -77,13 +102,13 @@ public class ToneSynthesiser implements ToneMapConstants {
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		NoteListElement[] nles = addNotes(targetFrame);
 		quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
-		trackNotes(nles, discardedNotes, legato);
+		trackNotes(nles, discardedNotes, synthFillLegatoSwitch);
 		if (synthFillNotes) {
 			fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		}
 		discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime()));
 		discardNotes(discardedNotes);
-		if (!chordFirst) {
+		if (!synthChordFirstSwitch) {
 			ChordListElement chord = targetFrame.getChord();
 			if (chord != null) {
 				addChord(chord);
@@ -196,7 +221,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 					if (beatRange > 0) {
 						NoteListElement pnle = track.getPreviousNote(nle);
 						if (pnle != null && nle.startTime - pnle.endTime > beatRange) {
-							// if (pnle != null && nle.startTime - pnle.startTime > beatRange) {
 							synthesiseNotes(pnle, nle, track, calibrationMap, quantizeRange, quantizePercent,
 									quantizeBeat);
 						}
@@ -240,6 +264,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		List<Integer> noteList = track.getNoteList();
 		NoteListElement newNle = null;
 		ToneTimeFrame frame = toneMap.getNextTimeFrame(pnle.endTime / 1000);
+		ToneTimeFrame endFrame = toneMap.getPreviousTimeFrame(nle.startTime / 1000);
 		if (frame == null) {
 			LOG.severe(">>synthesiseNotes null frame: " + pnle.endTime);
 			return;
@@ -256,15 +281,15 @@ public class ToneSynthesiser implements ToneMapConstants {
 		double beatRange = ((beatAfterTime - beatBeforeTime) / quantizeBeat) * 1000;
 		ToneTimeFrame lastFrame = null;
 		while (frame != null && time < (nle.startTime / 1000)) {
-			if (calibrationMap.getBeat(time, 0.11) != 0) {
+			if (calibrationMap.getBeat(time, MIN_TIME_INCREMENT) != 0) {
 				int counter = quantizeBeat;
 				while (counter > 0 && frame != null && time < (nle.startTime / 1000)) {
 					int r = (int) (Math.random() * (noteList.size()));
 					newNle = nle.clone();
 					newNle.startTime = time * 1000;
 
-					double length = beatRange < ((nle.startTime - 100) - newNle.startTime) ? beatRange
-							: beatRange - ((nle.startTime - 100) - newNle.startTime);
+					double length = beatRange < ((endFrame.getStartTime() * 1000) - newNle.startTime) ? beatRange
+							: beatRange - ((endFrame.getStartTime() * 1000) - newNle.startTime);
 					if (length < 100) {
 						lastFrame = frame;
 						frame = toneMap.getNextTimeFrame(time);

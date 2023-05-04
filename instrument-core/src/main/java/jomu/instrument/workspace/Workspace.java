@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.store.InstrumentSession.InstrumentSessionState;
 
 @ApplicationScoped
 public class Workspace implements Organ {
@@ -42,6 +43,7 @@ public class Workspace implements Organ {
 	@Override
 	public void processException(InstrumentException exception) throws InstrumentException {
 		instrumentSessionManager.getCurrentSession().setException(exception);
+		instrumentSessionManager.getCurrentSession().setState(InstrumentSessionState.FAILED);
 	}
 
 }

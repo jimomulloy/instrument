@@ -252,6 +252,26 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox synthesisLegatoSwitchCB;
 
+	private JTextField synthesisMinTimeIncrementInput;
+
+	private JTextField noteTrackerMaxTracksUpperInput;
+
+	private JTextField noteTrackerMaxTracksLowerInput;
+
+	private JTextField noteTrackerClearRangeUpperInput;
+
+	private JTextField noteTrackerClearRangeLowerInput;
+
+	private JTextField noteTrackerDiscardTrackRangeInput;
+
+	private JTextField noteTrackerOverlapSalientNoteRangeInput;
+
+	private JTextField noteTrackerOverlapSalientTimeRangeInput;
+
+	private JTextField noteTrackerSalientNoteRangeInput;
+
+	private JTextField noteTrackerSalientTimeNoteFactorInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1551,7 +1571,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(medianFilterSizeLabel);
 		parameterPanel.add(medianFilterSizeSlider);
 
-		minPeakSizeSlider = new JSlider(1, 255);
+		minPeakSizeSlider = new JSlider(1, 10);
 		final JLabel minPeakSizeLabel = new JLabel("Min Peak Size   :");
 		minPeakSizeSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -1754,7 +1774,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(chromaDownSamplingFactorLabel);
 		parameterPanel.add(chromaDownSamplingFactorSlider);
 
-		chromaRootNoteSlider = new JSlider(12, 156);
+		chromaRootNoteSlider = new JSlider(24, 120);
 		final JLabel chromaRootNoteLabel = new JLabel("CHROMA Root Note :");
 		chromaRootNoteSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2424,7 +2444,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteSustainLabel);
 		parameterPanel.add(noteSustainSlider);
 
-		pitchHighSlider = new JSlider(36, 72);
+		pitchHighSlider = new JSlider(12, 120);
 		final JLabel pitchHighLabel = new JLabel("Audio Tuner High Pitch :");
 		pitchHighSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2441,7 +2461,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(pitchHighLabel);
 		parameterPanel.add(pitchHighSlider);
 
-		pitchLowSlider = new JSlider(36, 72);
+		pitchLowSlider = new JSlider(12, 120);
 		final JLabel pitchLowLabel = new JLabel("Audio Tuner Low Pitch :");
 		pitchLowSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -3230,6 +3250,185 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(synthesisQuantizePercentLabel);
 		cqParamsPanel.add(synthesisQuantizePercentInput);
 
+		JLabel synthesisMinTimeIncrementLabel = new JLabel("Synthesis Min Time Increment: ");
+		synthesisMinTimeIncrementInput = new JTextField(4);
+		synthesisMinTimeIncrementInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisMinTimeIncrementInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT, newValue);
+				synthesisMinTimeIncrementLabel.setText(String.format("Synthesis Min Time Increment  (%s):", newValue));
+				synthesisMinTimeIncrementInput.setText(newValue);
+			}
+		});
+		synthesisMinTimeIncrementInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT));
+		cqParamsPanel.add(synthesisMinTimeIncrementLabel);
+		cqParamsPanel.add(synthesisMinTimeIncrementInput);
+
+		JLabel noteTrackerMaxTracksUpperLabel = new JLabel("Note Tracker Max Tracks Upper Limit: ");
+		noteTrackerMaxTracksUpperInput = new JTextField(4);
+		noteTrackerMaxTracksUpperInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerMaxTracksUpperInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER, newValue);
+				noteTrackerMaxTracksUpperLabel
+						.setText(String.format("Note Tracker Max Tracks Upper Limit  (%s):", newValue));
+				noteTrackerMaxTracksUpperInput.setText(newValue);
+			}
+		});
+		noteTrackerMaxTracksUpperInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER));
+		cqParamsPanel.add(noteTrackerMaxTracksUpperLabel);
+		cqParamsPanel.add(noteTrackerMaxTracksUpperInput);
+
+		JLabel noteTrackerMaxTracksLowerLabel = new JLabel("Note Tracker Max Tracks Lower Limit: ");
+		noteTrackerMaxTracksLowerInput = new JTextField(4);
+		noteTrackerMaxTracksLowerInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerMaxTracksLowerInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER, newValue);
+				noteTrackerMaxTracksLowerLabel
+						.setText(String.format("Note Tracker Max Tracks Lower Limit  (%s):", newValue));
+				noteTrackerMaxTracksLowerInput.setText(newValue);
+			}
+		});
+		noteTrackerMaxTracksLowerInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER));
+		cqParamsPanel.add(noteTrackerMaxTracksLowerLabel);
+		cqParamsPanel.add(noteTrackerMaxTracksLowerInput);
+
+		JLabel noteTrackerClearRangeUpperLabel = new JLabel("Note Tracker Clear Range Upper Limit: ");
+		noteTrackerClearRangeUpperInput = new JTextField(4);
+		noteTrackerClearRangeUpperInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerClearRangeUpperInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_UPPER, newValue);
+				noteTrackerClearRangeUpperLabel
+						.setText(String.format("Note Tracker Clear Range Upper Limit  (%s):", newValue));
+				noteTrackerClearRangeUpperInput.setText(newValue);
+			}
+		});
+		noteTrackerClearRangeUpperInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_UPPER));
+		cqParamsPanel.add(noteTrackerClearRangeUpperLabel);
+		cqParamsPanel.add(noteTrackerClearRangeUpperInput);
+
+		JLabel noteTrackerClearRangeLowerLabel = new JLabel("Note Tracker Clear Range Lower Limit: ");
+		noteTrackerClearRangeLowerInput = new JTextField(4);
+		noteTrackerClearRangeLowerInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerClearRangeLowerInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_LOWER, newValue);
+				noteTrackerClearRangeLowerLabel
+						.setText(String.format("Note Tracker Clear Range Lower Limit  (%s):", newValue));
+				noteTrackerClearRangeLowerInput.setText(newValue);
+			}
+		});
+		noteTrackerClearRangeLowerInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_LOWER));
+		cqParamsPanel.add(noteTrackerClearRangeLowerLabel);
+		cqParamsPanel.add(noteTrackerClearRangeLowerInput);
+
+		JLabel noteTrackerDiscardTrackRangeLabel = new JLabel("Note Tracker Discard Track Range: ");
+		noteTrackerDiscardTrackRangeInput = new JTextField(4);
+		noteTrackerDiscardTrackRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerDiscardTrackRangeInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE, newValue);
+				noteTrackerDiscardTrackRangeLabel
+						.setText(String.format("Note Tracker Discard Track Range  (%s):", newValue));
+				noteTrackerDiscardTrackRangeInput.setText(newValue);
+			}
+		});
+		noteTrackerDiscardTrackRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE));
+		cqParamsPanel.add(noteTrackerDiscardTrackRangeLabel);
+		cqParamsPanel.add(noteTrackerDiscardTrackRangeInput);
+
+		JLabel noteTrackerOverlapSalientNoteRangeLabel = new JLabel("Note Tracker Overlap Salient Note Range: ");
+		noteTrackerOverlapSalientNoteRangeInput = new JTextField(4);
+		noteTrackerOverlapSalientNoteRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerOverlapSalientNoteRangeInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_NOTE_RANGE, newValue);
+				noteTrackerOverlapSalientNoteRangeLabel
+						.setText(String.format("Note Tracker Overlap Salient Note Range  (%s):", newValue));
+				noteTrackerOverlapSalientNoteRangeInput.setText(newValue);
+			}
+		});
+		noteTrackerOverlapSalientNoteRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_NOTE_RANGE));
+		cqParamsPanel.add(noteTrackerOverlapSalientNoteRangeLabel);
+		cqParamsPanel.add(noteTrackerOverlapSalientNoteRangeInput);
+
+		JLabel noteTrackerOverlapSalientTimeRangeLabel = new JLabel("Note Tracker Overlap Salient Time Range: ");
+		noteTrackerOverlapSalientTimeRangeInput = new JTextField(4);
+		noteTrackerOverlapSalientTimeRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerOverlapSalientTimeRangeInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_TIME_RANGE, newValue);
+				noteTrackerOverlapSalientTimeRangeLabel
+						.setText(String.format("Note Tracker Overlap Salient Time Range  (%s):", newValue));
+				noteTrackerOverlapSalientTimeRangeInput.setText(newValue);
+			}
+		});
+		noteTrackerOverlapSalientTimeRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_TIME_RANGE));
+		cqParamsPanel.add(noteTrackerOverlapSalientTimeRangeLabel);
+		cqParamsPanel.add(noteTrackerOverlapSalientTimeRangeInput);
+
+		JLabel noteTrackerSalientNoteRangeLabel = new JLabel("Note Tracker Salient Note Range: ");
+		noteTrackerSalientNoteRangeInput = new JTextField(4);
+		noteTrackerSalientNoteRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerSalientNoteRangeInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE, newValue);
+				noteTrackerSalientNoteRangeLabel
+						.setText(String.format("Note Tracker Salient Note Range  (%s):", newValue));
+				noteTrackerSalientNoteRangeInput.setText(newValue);
+			}
+		});
+		noteTrackerSalientNoteRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE));
+		cqParamsPanel.add(noteTrackerSalientNoteRangeLabel);
+		cqParamsPanel.add(noteTrackerSalientNoteRangeInput);
+
+		JLabel noteTrackerSalientTimeNoteFactorLabel = new JLabel("Note Tracker Salient Time Note Factor: ");
+		noteTrackerSalientTimeNoteFactorInput = new JTextField(4);
+		noteTrackerSalientTimeNoteFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerSalientNoteRangeInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR, newValue);
+				noteTrackerSalientTimeNoteFactorLabel
+						.setText(String.format("Note Tracker Salient Time Note Factor  (%s):", newValue));
+				noteTrackerSalientTimeNoteFactorInput.setText(newValue);
+			}
+		});
+		noteTrackerSalientTimeNoteFactorInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR));
+		cqParamsPanel.add(noteTrackerSalientTimeNoteFactorLabel);
+		cqParamsPanel.add(noteTrackerSalientTimeNoteFactorInput);
+
 		JLabel yinLowPassLabel = new JLabel("YIN Low Pass: ");
 		yinLowPassInput = new JTextField(4);
 		yinLowPassInput.addActionListener(new ActionListener() {
@@ -3663,6 +3862,27 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT));
 		synthesisQuantizeBeatInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT));
+		synthesisMinTimeIncrementInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT));
+
+		noteTrackerMaxTracksUpperInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT));
+		noteTrackerMaxTracksLowerInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER));
+		noteTrackerClearRangeUpperInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_UPPER));
+		noteTrackerClearRangeLowerInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_LOWER));
+		noteTrackerDiscardTrackRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE));
+		noteTrackerOverlapSalientNoteRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_NOTE_RANGE));
+		noteTrackerOverlapSalientTimeRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_TIME_RANGE));
+		noteTrackerSalientNoteRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE));
+		noteTrackerSalientTimeNoteFactorInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR));
 
 		yinLowPassInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS));

@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
+import jomu.instrument.control.ParameterManager;
 
 /**
  * This class is the main centre of control of program flow for the ToneMap.
@@ -26,28 +27,28 @@ public class ToneMap {
 
 	private static final Logger LOG = Logger.getLogger(ToneMap.class.getName());
 
-	public boolean audioSwitch = false;
+	ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
 
-	public boolean midiSwitch = false;
-	private ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
+	String key;
 
-	private String key;
+	NoteTracker noteTracker;
 
-	private NoteTracker noteTracker;
+	ToneSynthesiser toneSynthesiser;
 
-	private ToneSynthesiser toneSynthesiser;
+	ToneMapStatistics statistics = new ToneMapStatistics();
 
-	private ToneMapStatistics statistics = new ToneMapStatistics();
+	double amplitudeThreshold = 0;
 
-	private double amplitudeThreshold = 0;
+	Map<Integer, ToneMapStatistics> statisticsBands = new HashMap<>();
 
-	private Map<Integer, ToneMapStatistics> statisticsBands = new HashMap<>();
+	private ParameterManager parameterManager;
 
-	public ToneMap(String key) {
+	public ToneMap(String key, ParameterManager parameterManager) {
 		this.key = key;
-		toneMapStore = new ConcurrentSkipListMap<>();
-		noteTracker = new NoteTracker(this);
-		toneSynthesiser = new ToneSynthesiser(this);
+		this.parameterManager = parameterManager;
+		this.toneMapStore = new ConcurrentSkipListMap<>();
+		this.noteTracker = new NoteTracker(this);
+		this.toneSynthesiser = new ToneSynthesiser(this);
 	}
 
 	public NoteTracker getNoteTracker() {
@@ -56,6 +57,10 @@ public class ToneMap {
 
 	public ToneSynthesiser getToneSynthesiser() {
 		return toneSynthesiser;
+	}
+
+	public ParameterManager getParameterManager() {
+		return parameterManager;
 	}
 
 	public ToneMapStatistics getStatistics() {

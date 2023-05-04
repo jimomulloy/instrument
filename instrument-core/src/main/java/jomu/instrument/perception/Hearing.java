@@ -164,8 +164,10 @@ public class Hearing implements Organ {
 
 	public void startAudioFileStream(String inputFileName) throws Exception {
 		String fileName = inputFileName;
-		if (streamId != null) {
-			workspace.getAtlas().removeMapsByStreamId(streamId);
+		LOG.severe(">>HEARING startAudioFileStream: " + inputFileName);
+		if (getStreamId() != null) {
+			LOG.severe(">>HEARING startAudioFileStream clear old stream: " + getStreamId());
+			workspace.getAtlas().removeMapsByStreamId(getStreamId());
 		}
 		System.gc();
 		// Get current size of heap in bytes
@@ -187,12 +189,14 @@ public class Hearing implements Organ {
 		}
 
 		streamId = UUID.randomUUID().toString();
-		AudioStream audioStream = new AudioStream(streamId);
-		audioStreams.put(streamId, audioStream);
+		LOG.severe(">>HEARING startAudioFileStream new stream: " + getStreamId());
+
+		AudioStream audioStream = new AudioStream(getStreamId());
+		audioStreams.put(getStreamId(), audioStream);
 
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 		instrumentSession.setInputAudioFilePath(fileName);
-		instrumentSession.setStreamId(streamId);
+		instrumentSession.setStreamId(getStreamId());
 		instrumentSession.setState(InstrumentSessionState.RUNNING);
 
 		InputStream stream = null;
@@ -206,8 +210,8 @@ public class Hearing implements Organ {
 		bs = new BufferedInputStream(stream);
 
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
-		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + streamId + ", " + format.getEncoding() + ", "
-				+ format);
+		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + getStreamId() + ", " + format.getEncoding()
+				+ ", " + format);
 		if (!format.getEncoding().toString().startsWith("PCM")) {
 			bs.close();
 			stream.close();
@@ -308,8 +312,8 @@ public class Hearing implements Organ {
 	}
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
-		if (streamId != null) {
-			workspace.getAtlas().removeMapsByStreamId(streamId);
+		if (getStreamId() != null) {
+			workspace.getAtlas().removeMapsByStreamId(getStreamId());
 		}
 		System.gc();
 		// Get current size of heap in bytes
@@ -323,9 +327,9 @@ public class Hearing implements Organ {
 		LOG.finer(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
 
 		streamId = UUID.randomUUID().toString();
-		LOG.finer(">>Start Audio Stream: " + streamId);
-		AudioStream audioStream = new AudioStream(streamId);
-		audioStreams.put(streamId, audioStream);
+		LOG.finer(">>Start Audio Stream: " + getStreamId());
+		AudioStream audioStream = new AudioStream(getStreamId());
+		audioStreams.put(getStreamId(), audioStream);
 
 		audioStream.processMicrophoneStream(recordFile);
 
@@ -335,22 +339,22 @@ public class Hearing implements Organ {
 	}
 
 	public void stopAudioStream() {
-		LOG.severe(">>Stop Audio Stream: " + streamId);
-		AudioStream audioStream = audioStreams.get(streamId);
+		LOG.severe(">>Stop Audio Stream: " + getStreamId());
+		AudioStream audioStream = audioStreams.get(getStreamId());
 		if (audioStream != null) {
 			audioStream.stop();
 			if (audioStream.getAudioFeatureProcessor() != null) {
 				audioStream.getAudioFeatureProcessor().removeObserver(cortex);
 			}
-			closeAudioStream(streamId);
+			closeAudioStream(getStreamId());
 			// coordinator.getVoice().clear(streamId);
 		}
 		if (bs != null) {
 			try {
 				bs.close();
-				LOG.finer(">>Close Audio Stream: " + streamId);
+				LOG.finer(">>Close Audio Stream: " + getStreamId());
 			} catch (IOException e) {
-				LOG.log(Level.SEVERE, "Exception closig " + streamId, e);
+				LOG.log(Level.SEVERE, "Exception closig " + getStreamId(), e);
 			}
 		}
 	}
@@ -760,12 +764,12 @@ public class Hearing implements Organ {
 			throw new IllegalArgumentException("file not found!");
 		}
 
-		if (streamId != null) {
-			workspace.getAtlas().removeMapsByStreamId(streamId);
+		if (getStreamId() != null) {
+			workspace.getAtlas().removeMapsByStreamId(getStreamId());
 		}
 		streamId = UUID.randomUUID().toString();
-		AudioStream audioStream = new AudioStream(streamId);
-		audioStreams.put(streamId, audioStream);
+		AudioStream audioStream = new AudioStream(getStreamId());
+		audioStreams.put(getStreamId(), audioStream);
 
 		try {
 			audioStream.processAudioFileStream(new BufferedInputStream(is));
@@ -805,6 +809,10 @@ public class Hearing implements Organ {
 			output[i] = (float) input[i];
 		}
 		return output;
+	}
+
+	public String getStreamId() {
+		return streamId;
 	}
 
 }

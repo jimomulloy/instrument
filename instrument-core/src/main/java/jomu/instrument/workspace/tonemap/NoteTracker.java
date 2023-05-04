@@ -10,12 +10,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
+import jomu.instrument.control.InstrumentParameterNames;
+
 public class NoteTracker {
 
 	private static final Logger LOG = Logger.getLogger(NoteTracker.class.getName());
 
 	Set<NoteTrack> tracks = ConcurrentHashMap.newKeySet();
 	ToneMap toneMap;
+
+	int maxTracksUpper;
+	int maxTracksLower;
+	int clearRangeUpper;
+	int clearRangeLower;
+	int discardTrackRange;
+	int overlapSalientNoteRange;
+	int overlapSalientTimeRange;
+	int salientNoteRange;
+	int salientTimeNoteFactor;
 
 	public class NoteTrack {
 
@@ -141,6 +153,24 @@ public class NoteTracker {
 
 	public NoteTracker(ToneMap toneMap) {
 		this.toneMap = toneMap;
+		maxTracksUpper = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER);
+		maxTracksLower = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER);
+		clearRangeUpper = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_UPPER);
+		clearRangeLower = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_LOWER);
+		discardTrackRange = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE);
+		overlapSalientNoteRange = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE);
+		overlapSalientTimeRange = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE);
+		salientNoteRange = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE);
+		salientTimeNoteFactor = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR);
 	}
 
 	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes) {
@@ -177,7 +207,8 @@ public class NoteTracker {
 			}
 		}
 		if (salientTrack == null) {
-			if (tracks.size() > 20 && ((noteListElement.endTime - noteListElement.startTime) <= 100)) {
+			if (tracks.size() > maxTracksUpper
+					&& ((noteListElement.endTime - noteListElement.startTime) <= discardTrackRange)) {
 				discardedNotes.add(noteListElement);
 				LOG.severe(">>NoteTracker trackNote discard: " + noteListElement.note);
 				return null;
@@ -203,9 +234,9 @@ public class NoteTracker {
 			if (noteListElement.note == lastNote.note) {
 				return track;
 			}
-			if ((Math.abs(noteListElement.note - lastNote.note) <= 2) && (lastNote.endTime > noteListElement.startTime)
-					&& (lastNote.endTime < noteListElement.endTime)
-					&& ((lastNote.endTime - noteListElement.startTime) < 1000)) {
+			if ((Math.abs(noteListElement.note - lastNote.note) <= overlapSalientNoteRange)
+					&& (lastNote.endTime > noteListElement.startTime) && (lastNote.endTime < noteListElement.endTime)
+					&& ((lastNote.endTime - noteListElement.startTime) < overlapSalientTimeRange)) {
 				if (pitchProximity > noteListElement.note - lastNote.note) {
 					pitchProximity = noteListElement.note - lastNote.note;
 					pitchSalientTrack = track;
@@ -251,8 +282,7 @@ public class NoteTracker {
 			if (noteListElement.isContinuation && noteListElement.note == lastNote.note) {
 				return track;
 			}
-			// if (Math.abs(noteListElement.note - lastNote.note) <= 20) {
-			if (pitchProximity > noteListElement.note - lastNote.note) {
+			if (Math.abs(noteListElement.note - lastNote.note) <= salientNoteRange) {
 				pitchProximity = noteListElement.note - lastNote.note;
 				pitchSalientTrack = track;
 			}
@@ -267,7 +297,13 @@ public class NoteTracker {
 			if (pitchSalientTrack == timeSalientTrack) {
 				return pitchSalientTrack;
 			}
-			if ((noteListElement.note - timeSalientTrack.getLastNote().note) > 2
+			if (timeSalientTrack == null) {
+				return pitchSalientTrack;
+			}
+			if (pitchSalientTrack == null) {
+				return timeSalientTrack;
+			}
+			if ((noteListElement.note - timeSalientTrack.getLastNote().note) > salientTimeNoteFactor
 					* (noteListElement.note - pitchSalientTrack.getLastNote().note)) {
 				return pitchSalientTrack;
 			}
@@ -282,7 +318,7 @@ public class NoteTracker {
 		for (NoteTrack track : candidateTracks) {
 			NoteListElement lastNote = track.getLastNote();
 			NoteListElement penultimateNote = track.getPenultimateNote();
-			if (penultimateNote != null && Math.abs(penultimateNote.note - noteListElement.note) <= 20) {
+			if (penultimateNote != null && Math.abs(penultimateNote.note - noteListElement.note) <= salientNoteRange) {
 				if (compareSalience(noteListElement, lastNote, penultimateNote)) {
 					salientTrack = track;
 				}
@@ -342,7 +378,7 @@ public class NoteTracker {
 	public Set<NoteListElement> cleanTracks(Double startTime) {
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteTrack> discardedTracks = new HashSet<>();
-		if (tracks.size() > 4) {
+		if (tracks.size() > maxTracksLower) {
 			for (NoteTrack track : tracks) {
 				List<NoteListElement> notes = track.getNotes();
 				Set<NoteListElement> notesToDelete = new HashSet<>();
@@ -352,7 +388,8 @@ public class NoteTracker {
 					if (lastNote != null) {
 						lastTime = lastNote.endTime;
 					}
-					if (((nle.endTime - nle.startTime) < 200) && (nle.startTime - lastTime) > 2000) {
+					if (((nle.endTime - nle.startTime) < clearRangeLower)
+							&& (nle.startTime - lastTime) > clearRangeUpper) {
 						discardedNotes.add(nle);
 						notesToDelete.add(nle);
 						if (track.getNotes().size() == notesToDelete.size()) {

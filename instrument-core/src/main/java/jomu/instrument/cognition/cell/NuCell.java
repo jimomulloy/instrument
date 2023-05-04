@@ -527,10 +527,12 @@ public class NuCell extends Cell implements Serializable {
 							LOG.finer(">>NuCell QueueConsumer processor: " + NuCell.this.getCellType());
 							processor.accept(entries);
 							LOG.finer(">>NuCell QueueConsumer processed: " + NuCell.this.getCellType());
-						} catch (InstrumentException e) {
-							processorExceptionHandler.handleException(e);
+						} catch (Exception e) {
 							LOG.log(Level.SEVERE, "NuCell QueueConsumer exception: " + e.getMessage(), e);
-							throw new InstrumentException("NuCell QueueConsumer exception: " + e.getMessage(), e);
+							InstrumentException ie = new InstrumentException(
+									"NuCell QueueConsumer exception: " + e.getMessage(), e);
+							processorExceptionHandler.handleException(ie);
+							throw ie;
 						}
 						List<Integer> processed = new ArrayList<>();
 						for (int sequence : messageReceivedMap.get(qe.streamId)) {

@@ -23,7 +23,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		boolean pausePlay = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH);

@@ -5,12 +5,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
+import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
 public class Atlas {
+
+	@Inject
+	ParameterManager parameterManager;
 
 	private static final Logger LOG = Logger.getLogger(Atlas.class.getName());
 
@@ -24,7 +29,7 @@ public class Atlas {
 
 	public ToneMap getToneMap(String key) {
 		if (!toneMaps.containsKey(key)) {
-			putToneMap(key, new ToneMap(key));
+			putToneMap(key, new ToneMap(key, parameterManager));
 		}
 		return toneMaps.get(key);
 	}

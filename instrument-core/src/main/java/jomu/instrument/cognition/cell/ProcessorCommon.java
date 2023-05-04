@@ -48,7 +48,7 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 
 	final boolean isClosing(String streamId, int sequence) {
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
-		LOG.finer(">>Isclosing: " + sequence + ", " + this.cell.getCellType() + ", " + afp.isClosed() + ", "
+		LOG.severe(">>Isclosing: " + sequence + ", " + this.cell.getCellType() + ", " + afp.isClosed() + ", "
 				+ afp.isLastSequence(sequence));
 		return (afp == null || (afp.isClosed() && afp.isLastSequence(sequence)));
 	}

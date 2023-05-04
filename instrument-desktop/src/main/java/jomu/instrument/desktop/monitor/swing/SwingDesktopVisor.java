@@ -1125,7 +1125,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						updateStatusMessage("Choosen file: " + inputFile);
 					} catch (Exception e) {
 						LOG.log(Level.SEVERE, "Error choosing file :" + inputFile, e);
-						Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+						coordinator.getHearing().stopAudioStream();
+						coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
 						startFileProcessingButton.setEnabled(true);
 						startListeningButton.setEnabled(true);
 						// stopListeningButton.setEnabled(false);
@@ -1162,7 +1163,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					updateStatusMessage("Started file: " + inputFile);
 				} catch (Exception e) {
 					LOG.log(Level.SEVERE, "Error starting file :" + inputFile, e);
-					Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+					coordinator.getHearing().stopAudioStream();
+					coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
 					startFileProcessingButton.setEnabled(true);
 					startListeningButton.setEnabled(true);
 					// stopListeningButton.setEnabled(false);
@@ -1197,7 +1199,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 				} catch (LineUnavailableException | IOException e) {
 					LOG.log(Level.SEVERE, "Error starting listener", e);
-					Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+					coordinator.getHearing().stopAudioStream();
+					coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
 					startFileProcessingButton.setEnabled(true);
 					startListeningButton.setEnabled(true);
 					// stopListeningButton.setEnabled(false);
@@ -1212,7 +1215,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Instrument.getInstance().getCoordinator().getHearing().stopAudioStream();
+				coordinator.getHearing().stopAudioStream();
+				coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
 				startFileProcessingButton.setEnabled(true);
 				startListeningButton.setEnabled(true);
 				// stopListeningButton.setEnabled(false);

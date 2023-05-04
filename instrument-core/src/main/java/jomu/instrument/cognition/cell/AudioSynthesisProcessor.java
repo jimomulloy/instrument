@@ -23,14 +23,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
-
-		double quantizeRange = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE);
-		double quantizePercent = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT);
-		int quantizeBeat = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT);
+		LOG.severe(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
@@ -44,14 +37,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
 		double toneMapMaxFrequency = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
-		boolean synthFillNotes = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH);
-		boolean synthFillChords = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH);
-		boolean synthFillLegatoSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH);
-		boolean synthChordFirstSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH);
 		boolean calibrateSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
 		boolean calibrateForwardSwitch = parameterManager
@@ -87,13 +72,12 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 
-		int tmIndex = sequence - 60;
+		int tmIndex = sequence - 30;
 
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
 			if (synthesisFrame != null) {
-				synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat,
-						synthFillChords, synthFillNotes, synthChordFirstSwitch, synthFillLegatoSwitch);
+				synthesiser.synthesise(synthesisFrame, cm);
 				console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 				console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
 						this.cell.getCellType().toString());
@@ -103,14 +87,14 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		}
 
 		if (isClosing(streamId, sequence)) {
+			LOG.severe(">>AudioSynthesisProcessor CLOSE!!: " + sequence);
 			if (tmIndex < 0) {
 				tmIndex = 0;
 			}
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				synthesisFrame = synthesisToneMap.getTimeFrame(i);
 				if (synthesisFrame != null) {
-					synthesiser.synthesise(synthesisFrame, cm, quantizeRange, quantizePercent, quantizeBeat,
-							synthFillChords, synthFillNotes, synthChordFirstSwitch, synthFillLegatoSwitch);
+					synthesiser.synthesise(synthesisFrame, cm);
 					console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 					console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
 							this.cell.getCellType().toString());

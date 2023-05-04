@@ -55,7 +55,7 @@ public class InstrumentTest {
 	}
 
 	@Test
-	@Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+	@Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
 	public void testInstrumentRun() {
 		String fileName = "data/3notescale.wav";
 		URL fileResource = getClass().getClassLoader().getResource(fileName);

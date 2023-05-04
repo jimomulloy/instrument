@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jomu.instrument.Instrument;
-import jomu.instrument.InstrumentTestData;
+import jomu.instrument.workspace.Atlas;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @QuarkusTest
@@ -21,12 +21,15 @@ class AudioTunerTest {
 	@Inject
 	Instrument instrument;
 
+	@Inject
+	Atlas atlas;
+
 	@BeforeEach
 	public void init() {
 		Instrument.setInstance(instrument);
 		instrument.initialise();
 		instrument.start();
-		toneMap = InstrumentTestData.buildToneMap("test-streamId");
+		toneMap = atlas.getToneMap("test-streamId");
 	}
 
 	@AfterEach
