@@ -73,7 +73,7 @@ public class ProcessingService {
 				controller.getParameterManager().overrideParameters(props);
 				LOG.severe(">>ProcessingService overrideParameters");
 			} catch (IOException e) {
-				LOG.log(Level.SEVERE, ">>ProcessingService error overiding parameters", e);
+				LOG.log(Level.SEVERE, ">>ProcessingService error overriding parameters", e);
 			}
 		}
 

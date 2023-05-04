@@ -102,6 +102,9 @@ public class Controller implements Organ {
 			} else {
 				instrumentSession.setStatusMessage("Controller run failure");
 				instrumentSession.setStatusCode("9001");
+				clearCountDownLatch();
+				LOG.severe(">>INSTRUMENT Run FAILED");
+				return false;
 			}
 		} catch (InterruptedException e) {
 			LOG.severe(">>Controller run completed for fileName: " + fileName);
@@ -109,6 +112,7 @@ public class Controller implements Organ {
 			instrumentSession.setStatusCode("9001");
 			instrumentSession.setStatusMessage("Controller run exception: " + e.getMessage());
 			clearCountDownLatch();
+			LOG.severe(">>INSTRUMENT Run FAILED");
 			return false;
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, ">>Controller run error for fileName: " + fileName, e);
@@ -116,6 +120,7 @@ public class Controller implements Organ {
 			instrumentSession.setStatusCode("9002");
 			instrumentSession.setStatusMessage("Controller run exception: " + e.getMessage());
 			clearCountDownLatch();
+			LOG.severe(">>INSTRUMENT Run FAILED");
 			return false;
 		}
 		clearCountDownLatch();
