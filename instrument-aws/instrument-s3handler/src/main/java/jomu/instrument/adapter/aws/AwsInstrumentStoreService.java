@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
+@Alternative
+@io.quarkus.arc.Priority(1)
 public class AwsInstrumentStoreService implements InstrumentStoreService {
 
 	final List<ToneMap> toneMapList = new ArrayList<>();

@@ -79,9 +79,9 @@ public class Controller implements Organ {
 		LOG.severe(">>INSTRUMENT Run started userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		setCountDownLatch(countDownLatch);
+		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager()
+				.getInstrumentSession(UUID.randomUUID().toString());
 		try {
-			InstrumentSession instrumentSession = workspace.getInstrumentSessionManager()
-					.getInstrumentSession(UUID.randomUUID().toString());
 			instrumentSession.setUserId(userId);
 			instrumentSession.setDateTime(Instant.now());
 			instrumentSession.setParamStyle(paramStyle);
@@ -93,12 +93,28 @@ public class Controller implements Organ {
 			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
 			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE, "true");
 			coordinator.getHearing().startAudioFileStream(fileName);
-			LOG.finer(">>INSTRUMENT Run userId: " + userId + ", fileName: " + fileName + ", style: " + paramStyle);
+			LOG.severe(">>INSTRUMENT Run userId: " + userId + ", fileName: " + fileName + ", style: " + paramStyle);
 			countDownLatch.await(TIMEOUT, TimeUnit.SECONDS);
+			if (InstrumentSession.InstrumentSessionState.STOPPED.equals(instrumentSession.getState())) {
+				instrumentSession.setStatusCode("0");
+				instrumentSession.setStatusMessage("OK");
+			} else {
+				instrumentSession.setStatusMessage("Controller run failure");
+				instrumentSession.setStatusCode("9001");
+			}
 		} catch (InterruptedException e) {
-			LOG.finer(">>Controller run completed for fileName: " + fileName);
+			LOG.severe(">>Controller run completed for fileName: " + fileName);
+			instrumentSession.setState(InstrumentSession.InstrumentSessionState.FAILED);
+			instrumentSession.setStatusCode("9001");
+			instrumentSession.setStatusMessage("Controller run exception: " + e.getMessage());
+			clearCountDownLatch();
+			return false;
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, ">>Controller run error for fileName: " + fileName, e);
+			instrumentSession.setState(InstrumentSession.InstrumentSessionState.FAILED);
+			instrumentSession.setStatusCode("9002");
+			instrumentSession.setStatusMessage("Controller run exception: " + e.getMessage());
+			clearCountDownLatch();
 			return false;
 		}
 		clearCountDownLatch();

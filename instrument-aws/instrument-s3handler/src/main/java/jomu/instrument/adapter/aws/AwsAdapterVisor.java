@@ -1,6 +1,7 @@
 package jomu.instrument.adapter.aws;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 
 import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
@@ -9,6 +10,8 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
+@Alternative
+@io.quarkus.arc.Priority(1)
 public class AwsAdapterVisor implements Visor {
 
 	@Override

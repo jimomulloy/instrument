@@ -16,7 +16,7 @@ public class InstrumentSession {
 	};
 
 	public enum InstrumentSessionMode {
-		DESKTOP, JOB
+		DESKTOP, JOB, STATE
 	};
 
 	String id;

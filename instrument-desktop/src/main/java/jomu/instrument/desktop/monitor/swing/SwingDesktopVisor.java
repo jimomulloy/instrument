@@ -45,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.AbstractButton;
@@ -117,6 +118,8 @@ import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
+@Alternative
+@io.quarkus.arc.Priority(1)
 public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName());
@@ -259,7 +262,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Override
 	public void startUp() {
-		LOG.warning(">>Using SwingDesktopVisor");
+		LOG.severe(">>Using SwingDesktopVisor");
 		EventQueue.invokeLater(() -> {
 			buildMainFrame();
 		});

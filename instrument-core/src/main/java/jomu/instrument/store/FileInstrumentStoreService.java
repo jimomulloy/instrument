@@ -1,16 +1,18 @@
-package jomu.instrument.command.store;
+package jomu.instrument.store;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 
 import jomu.instrument.Instrument;
-import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
+@Alternative
+@io.quarkus.arc.Priority(0)
 public class FileInstrumentStoreService implements InstrumentStoreService {
 
 	final List<ToneMap> toneMapList = new ArrayList<>();

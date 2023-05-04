@@ -1,12 +1,18 @@
 package jomu.instrument.st;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jomu.instrument.Instrument;
@@ -38,46 +44,37 @@ public class InstrumentTest {
 
 	@BeforeEach
 	public void init() {
-		LOG.severe(">>ProcessingService Start up");
 		Instrument.setInstance(instrument);
 		instrument.initialise();
 		instrument.start();
-		LOG.severe(">>ProcessingService Started");
 	}
-//
-//	@AfterEach
-//	public void close() {
-//		instrument.stop();
-//	}
 
-	//@Test
+	@AfterEach
+	public void close() {
+		instrument.stop();
+	}
+
+	@Test
+	@Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
 	public void testInstrumentRun() {
 		String fileName = "data/3notescale.wav";
 		URL fileResource = getClass().getClassLoader().getResource(fileName);
 		String userId = "testUser";
 		String style = "default";
-		String propsKey = "instrument.properties";
-//		InputStream stream = storage.getObjectStorage().read(propsKey);
-//		if (stream != null) {
-//			Properties props = new Properties();
-//			try {
-//				props.load(stream);
-//				controller.getParameterManager().overrideParameters(props);
-//			} catch (IOException e) {
-//				// LOG.log(Level.SEVERE, ">>ProcessingService error overiding parameters", e);
-//			}
-//		}
-
 		boolean instrumentRun = controller.run(userId, fileResource.getPath(), style);
 
 		if (!instrumentRun) {
-			//
+			fail("Instrument run failed");
 		}
 
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 
-		LOG.severe(">>Instrument Test session: " + instrumentSession);
-		// assertThat(password).containsPattern("[0-9A-F-]+");
+		assertEquals("3notescale", instrumentSession.getInputAudioFileName(),
+				"instrumentSession.getInputAudioFileName invalid");
+		assertEquals(InstrumentSession.InstrumentSessionState.STOPPED, instrumentSession.getState(),
+				"instrumentSession.getState() invalid");
+		assertEquals("0", instrumentSession.getStatusCode(), "instrumentSession.getState() invalid");
+		assertEquals("OK", instrumentSession.getStatusMessage(), "instrumentSession.getStatusMessage() invalid");
 	}
 
 }

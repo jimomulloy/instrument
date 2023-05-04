@@ -974,20 +974,27 @@ public class MidiSynthesizer implements ToneMapConstants {
 			int note = 0;
 			int volume = 0;
 
+			LOG.severe(">>Midi Synth PLAY: " + track.getNumber());
+
 			if (track.getNumber() > 0 && (track.getNumber() - 1) % 4 == 0) {
 				voiceChannel = channels[VOICE_1_CHANNEL];
+				LOG.severe(">>Midi Synth PLAY 1: voice1Track NUMBER: " + track.getNumber());
 				if (writeTrack && voice1Track == null) {
 					voice1Track = sequence.createTrack();
-					voiceTrack = voice1Track;
+					LOG.severe(">>Midi Synth PLAY 1 NEW TRACK: " + voice1Track);
 					createEvent(voice1Track, voiceChannel, PROGRAM, voiceChannel.program + 1, 1L, 127);
 				}
+				voiceTrack = voice1Track;
 			} else if (track.getNumber() > 1 && (track.getNumber() - 2) % 4 == 0) {
 				voiceChannel = channels[VOICE_2_CHANNEL];
+				LOG.severe(">>Midi Synth PLAY 2: voice1Track NUMBER: " + track.getNumber());
 				if (writeTrack && voice2Track == null) {
 					voice2Track = sequence.createTrack();
 					voiceTrack = voice2Track;
+					LOG.severe(">>Midi Synth PLAY 2 NEW TRACK: " + voice2Track);
 					createEvent(voice2Track, voiceChannel, PROGRAM, voiceChannel.program + 1, 1L, 127);
 				}
+				voiceTrack = voice2Track;
 			} else if (track.getNumber() > 2 && (track.getNumber() - 3) % 4 == 0) {
 				voiceChannel = channels[VOICE_3_CHANNEL];
 				if (writeTrack && voice3Track == null) {
@@ -995,6 +1002,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					voiceTrack = voice3Track;
 					createEvent(voice3Track, voiceChannel, PROGRAM, voiceChannel.program + 1, 1L, 127);
 				}
+				voiceTrack = voice3Track;
 			} else if (track.getNumber() > 3 && (track.getNumber() - 4) % 4 == 0) {
 				voiceChannel = channels[VOICE_4_CHANNEL];
 				if (writeTrack && voice4Track == null) {
@@ -1002,6 +1010,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					voiceTrack = voice4Track;
 					createEvent(voice4Track, voiceChannel, PROGRAM, voiceChannel.program + 1, 1L, 127);
 				}
+				voiceTrack = voice4Track;
 			}
 
 			NoteListElement nle = track.getNote(playTime);
@@ -1020,6 +1029,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
 						LOG.finer(">>Midi Synth NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + note);
 						if (writeTrack) {
+							LOG.severe(">>Midi Synth voiceTrack: " + voiceTrack);
 							createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 						}
 					} catch (InvalidMidiDataException e) {

@@ -1,4 +1,4 @@
-package jomu.instrument.command.store;
+package jomu.instrument.store;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,12 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
 import jomu.instrument.control.ParameterManager;
-import jomu.instrument.store.ObjectStorage;
 
 @ApplicationScoped
+@Alternative
+@io.quarkus.arc.Priority(0)
 public class FileStorage implements ObjectStorage {
 
 	@Inject

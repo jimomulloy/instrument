@@ -32,8 +32,22 @@
    		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
    		<client.version>1.0.0</client.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
-   </properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>	
+	    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
+	</properties>
 	
+	<dependencyManagement>
+	    <dependencies>
+	      <dependency>
+	        <groupId>${quarkus.platform.group-id}</groupId>
+	        <artifactId>${quarkus.platform.artifact-id}</artifactId>
+	        <version>${quarkus.platform.version}</version>
+	        <type>pom</type>
+	        <scope>import</scope>
+	      </dependency>
+	    </dependencies>
+	 </dependencyManagement>
+	 
 	<dependencies>
 		<dependency>
 	      <groupId>io.quarkus</groupId>
