@@ -19,15 +19,15 @@ public class DataConfiguration {
 
 	private volatile EmbeddedStorageManager storageManager;
 
-	public DataConfiguration(String rootPath) {
-		defineStorageManager(rootPath);
+	public DataConfiguration(String rootPath, jomu.instrument.store.Storage instrumentStorage) {
+		defineStorageManager(rootPath, instrumentStorage);
 	}
 
-	public static void init(String rootPath) {
+	public static void init(String rootPath, jomu.instrument.store.Storage instrumentStorage) {
 		if (INSTANCE == null) {
 			synchronized (DataConfiguration.class) {
 				if (INSTANCE == null) {
-					INSTANCE = new DataConfiguration(rootPath);
+					INSTANCE = new DataConfiguration(rootPath, instrumentStorage);
 				}
 			}
 		}
@@ -55,7 +55,7 @@ public class DataConfiguration {
 		return this.storageManager;
 	}
 
-	public StorageManager defineStorageManager(String rootPath) {
+	public StorageManager defineStorageManager(String rootPath, jomu.instrument.store.Storage instrumentStorage) {
 
 		System.out.println(">>MS root: " + rootPath);
 		NioFileSystem fileSystem = NioFileSystem.New();
@@ -79,18 +79,8 @@ public class DataConfiguration {
 
 		// Check Root available within StorageManager
 		Object root = storageManager.root();
-		boolean initRequired = false;
 		if (root == null) {
-			root = new InstrumentStorage();
 			root = "Testing";
-			initRequired = true;
-		}
-		// Prep Root
-		// TODOroot.setStorageManager(storageManager);
-
-		// Init 'database' with some data
-		if (initRequired) {
-			// root.setInitRequired();
 			storageManager.setRoot(root);
 			storageManager.storeRoot();
 		}

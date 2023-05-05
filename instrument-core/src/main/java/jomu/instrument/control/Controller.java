@@ -151,6 +151,22 @@ public class Controller implements Organ {
 			throw new InstrumentException(message);
 		}
 
+		String audioProjectDirectory = parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PROJECT_DIRECTORY);
+		audioProjectDirectory = FileUtils.combine(baseDir, audioProjectDirectory);
+		LOG.severe("Creating directory: " + audioProjectDirectory);
+		if (FileUtils.mkdirs(audioProjectDirectory)) {
+			LOG.severe("Created directory: " + audioProjectDirectory);
+		}
+		// Check if the directory is writable
+		if (!new File(audioProjectDirectory).canWrite()) {
+			String message = "Required directory " + audioProjectDirectory
+					+ " is not writable!\n Please configure another directory for '"
+					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PROJECT_DIRECTORY + "'.";
+			LOG.severe(message);
+			throw new InstrumentException(message);
+		}
+
 	}
 
 	@Override

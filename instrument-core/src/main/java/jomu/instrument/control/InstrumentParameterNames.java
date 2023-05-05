@@ -24,6 +24,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_SOURCE_DIRECTORY = "perception.hearing.audioSourceDirectory";
 	public static final String PERCEPTION_HEARING_AUDIO_DEFAULT_FILE = "perception.hearing.audioDefaultFile";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY = "perception.hearing.audioRecordDirectory";
+	public static final String PERCEPTION_HEARING_AUDIO_PROJECT_DIRECTORY = "perception.hearing.audioProjectDirectory";
 	public static final String PERCEPTION_HEARING_POWER_SQUARED_SWITCH = "perception.hearing.powerSquaredSwitch";
 	public static final String PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY = "perception.hearing.tonemap.minimumFrequency";
 	public static final String PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY = "perception.hearing.tonemap.maximumFrequency";

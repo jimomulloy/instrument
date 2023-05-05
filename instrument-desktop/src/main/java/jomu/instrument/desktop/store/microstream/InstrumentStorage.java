@@ -3,6 +3,7 @@ package jomu.instrument.desktop.store.microstream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,6 +15,8 @@ import one.microstream.storage.types.StorageManager;
 @ApplicationScoped
 public class InstrumentStorage {
 
+	private static final Logger LOG = Logger.getLogger(InstrumentStorage.class.getName());
+
 	final List<ToneMap> toneMapList = new ArrayList<>();
 	Properties parameters = new Properties();
 
@@ -21,8 +24,6 @@ public class InstrumentStorage {
 
 	@Inject
 	transient StorageManagerController storageManagerController;
-
-	transient boolean initialiseRequired = false;
 
 	public List<ToneMap> findAllToneMaps() {
 		return this.toneMapList;
@@ -34,47 +35,39 @@ public class InstrumentStorage {
 
 	public void removeAllToneMaps() {
 		this.toneMapList.clear();
-		// getStorageManager().store(toneMapList);
-		// getStorageManager().storeRoot();
+		getStorageManager().store(toneMapList);
+		getStorageManager().storeRoot();
 	}
 
 	public void addToneMap(final ToneMap toneMap) {
 		this.toneMapList.add(toneMap);
-		// getStorageManager().store(toneMapList);
-		// getStorageManager().storeRoot();
+		getStorageManager().store(toneMapList);
+		getStorageManager().storeRoot();
 	}
 
 	public void setParameters(final Properties parameters) {
 		this.parameters = parameters;
-		// getStorageManager().store(this.parameters);
-		// getStorageManager().storeRoot();
+		getStorageManager().store(this.parameters);
+		getStorageManager().storeRoot();
+		LOG.severe(">>Store params");
 	}
 
 	public Properties getParameters() {
+		LOG.severe(">>Get params");
 		return parameters;
 	}
 
 	public void shutdown() {
-		// getStorageManager().shutdown();
+		getStorageManager().shutdown();
 	}
 
-	public void setInitRequired() {
-		this.initialiseRequired = true;
-	}
-
-	public boolean isInitRequired() {
-		// TODO return this.initialiseRequired;
-		return true;
-	}
-
-	public void initialise() {
-		if (isInitRequired()) {
+	public void initialise(boolean isInitRequired) {
+		if (isInitRequired) {
 			Instrument.getInstance().getController().getParameterManager().reset();
 			this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
-			// getStorageManager().setRoot(root);
-			// getStorageManager().setRoot(this);
-			System.out.println(">>IS init");
-			// getStorageManager().storeRoot();
+			getStorageManager().setRoot(parameters);
+			getStorageManager().storeRoot();
+			LOG.severe(">>Initialise Store");
 		} else {
 			Instrument.getInstance().getController().getParameterManager().setParameters(getParameters());
 		}

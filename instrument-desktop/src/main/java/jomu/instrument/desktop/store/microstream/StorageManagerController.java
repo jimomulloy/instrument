@@ -32,6 +32,8 @@ public class StorageManagerController {
 	@Inject
 	ParameterManager parameterManager;
 
+	transient boolean initialiseRequired = false;
+
 	/**
 	 * Initialize storage manager on quarkus startup.
 	 *
@@ -40,7 +42,15 @@ public class StorageManagerController {
 	public void onStartup(@Observes StartupEvent startupEvent) {
 		String baseDir = instrumentStorage.getObjectStorage().getBasePath();
 		String rootPath = Paths.get(baseDir, msdPath).toString();
-		DataConfiguration.init(rootPath);
+		DataConfiguration.init(rootPath, instrumentStorage);
+	}
+
+	public void setInitRequired() {
+		this.initialiseRequired = true;
+	}
+
+	public boolean isInitRequired() {
+		return this.initialiseRequired;
 	}
 
 	/**

@@ -20,7 +20,7 @@ public class DesktopInstrumentStoreService implements InstrumentStoreService {
 	InstrumentStorage instrumentStorage;
 
 	public void initialise() {
-		instrumentStorage.initialise();
+		instrumentStorage.initialise(true);
 	}
 
 	// @Store(root = true)

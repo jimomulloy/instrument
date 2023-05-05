@@ -8,7 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +37,7 @@ import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.Console;
 import jomu.instrument.store.InstrumentStoreService;
+import jomu.instrument.store.Storage;
 
 public class ParametersPanel extends JPanel {
 
@@ -274,11 +278,14 @@ public class ParametersPanel extends JPanel {
 
 	private JSlider audioSmoothFactorSlider;
 
+	Storage storage;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.console = Instrument.getInstance().getConsole();
 		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
+		this.storage = Instrument.getInstance().getStorage();
 
 		this.setBorder(new TitledBorder("Input Parameters"));
 
@@ -320,6 +327,53 @@ public class ParametersPanel extends JPanel {
 			}
 		});
 		actionPanel.add(saveButton);
+
+		final JButton exportButton = new JButton("Export");
+		exportButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String baseDir = storage.getObjectStorage().getBasePath();
+				String folder = Paths
+						.get(baseDir,
+								parameterManager.getParameter(
+										InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PROJECT_DIRECTORY))
+						.toString();
+				String exportFileName = folder + System.getProperty("file.separator") + "instrument-user.properties";
+				try (FileOutputStream fs = new FileOutputStream(exportFileName)) {
+					parameterManager.getParameters().store(fs, null);
+				} catch (IOException ex) {
+					LOG.log(Level.SEVERE, "Export Parameters exception", ex);
+				}
+			}
+		});
+		actionPanel.add(exportButton);
+
+		final JButton importButton = new JButton("Import");
+		importButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String baseDir = storage.getObjectStorage().getBasePath();
+				String folder = Paths
+						.get(baseDir,
+								parameterManager.getParameter(
+										InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PROJECT_DIRECTORY))
+						.toString();
+				String importFileName = folder + System.getProperty("file.separator") + "instrument-user.properties";
+				try (FileInputStream fi = new FileInputStream(importFileName)) {
+					LOG.severe("Import Parameters file: " + importFileName + ", " + fi);
+					Properties props = new Properties();
+					props.load(fi);
+					parameterManager.setParameters(props);
+					updateParameters();
+					console.getVisor().updateParameters();
+				} catch (IOException ex) {
+					LOG.log(Level.SEVERE, "Import Parameters exception", ex);
+				}
+			}
+		});
+		actionPanel.add(importButton);
 
 		selectStyleComboBox = new JComboBox<String>(styles);
 		selectStyleComboBox.addActionListener(new ActionListener() {
@@ -4021,8 +4075,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_SENSITIVITY));
 		percussionThresholdInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_THRESHOLD));
-		selectStyleComboBox.setSelectedIndex(
-				getSelectStyleIndex(parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
+		// TODO ?? selectStyleComboBox.setSelectedIndex(
+		// getSelectStyleIndex(parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
 
 		noteTimbreFrequencyRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RANGE));
