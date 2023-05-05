@@ -23,7 +23,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.severe(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioSynthesisProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
@@ -72,7 +72,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 
-		int tmIndex = sequence - 30;
+		int tmIndex = sequence - 80;
 
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
@@ -87,7 +87,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		}
 
 		if (isClosing(streamId, sequence)) {
-			LOG.severe(">>AudioSynthesisProcessor CLOSE!!: " + sequence);
+			LOG.finer(">>AudioSynthesisProcessor CLOSE!!: " + sequence);
 			if (tmIndex < 0) {
 				tmIndex = 0;
 			}

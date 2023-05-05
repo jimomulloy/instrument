@@ -23,7 +23,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		boolean pausePlay = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH);
@@ -52,7 +52,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			}
 		}
 		if (isClosing(streamId, sequence)) {
-			LOG.severe(">>AudioSinkProcessor CLOSE!!");
+			LOG.finer(">>AudioSinkProcessor CLOSE!!");
 			voice.close(streamId);
 			hearing.removeAudioStream(streamId);
 		}
