@@ -134,16 +134,19 @@ public class ProcessingService {
 		}
 
 		boolean instrumentRun = controller.run(userId, input.getName(), style);
+		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 
 		if (!instrumentRun) {
 			ClassLoader classLoader = getClass().getClassLoader();
 			File errorMidi = new File(classLoader.getResource("error.midi").getFile());
-			storage.getObjectStorage().write("private/" + userId + "/output/" + errorMidi, errorMidi);
+			storage.getObjectStorage().write("private/" + userId + "/output/" + errorMidi.getName(), errorMidi);
 			String stateContent = storage.getObjectStorage().readString(stateKey);
 			if (stateContent != null) {
 				Gson gson = new Gson();
 				State state = gson.fromJson(stateContent, State.class);
 				state.status = "ERROR";
+				state.message = instrumentSession.getStatusMessage();
+				state.code = instrumentSession.getStatusCode();
 				storage.getObjectStorage().writeString(stateKey, gson.toJson(state));
 			}
 			String result = "error";
@@ -152,7 +155,6 @@ public class ProcessingService {
 			return out;
 		}
 
-		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 		String midiFilePath = instrumentSession.getOutputMidiFilePath();
 		String midiFileFolder = midiFilePath;
 		boolean retried = false;
@@ -188,6 +190,8 @@ public class ProcessingService {
 			Gson gson = new Gson();
 			State state = gson.fromJson(stateContent, State.class);
 			state.status = "READY";
+			state.message = instrumentSession.getStatusMessage();
+			state.code = instrumentSession.getStatusCode();
 			storage.getObjectStorage().writeString(stateKey, gson.toJson(state));
 		}
 		String result = "done";
