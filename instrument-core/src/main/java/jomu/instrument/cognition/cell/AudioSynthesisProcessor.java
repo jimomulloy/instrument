@@ -72,7 +72,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 
-		int tmIndex = sequence - 80;
+		int tmIndex = sequence - 30;
 
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
