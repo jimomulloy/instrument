@@ -1,4 +1,4 @@
-package jomu;
+package jomu.instrument.aws.s3handler;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 

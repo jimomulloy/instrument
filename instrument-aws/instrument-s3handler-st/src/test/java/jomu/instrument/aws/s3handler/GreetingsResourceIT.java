@@ -1,4 +1,4 @@
-package airhacks.lambda.greetings.boundary;
+package jomu.instrument.aws.s3handler;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

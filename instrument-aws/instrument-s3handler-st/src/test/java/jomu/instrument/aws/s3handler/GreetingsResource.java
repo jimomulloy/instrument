@@ -1,4 +1,4 @@
-package airhacks.lambda.greetings.boundary;
+package jomu.instrument.aws.s3handler;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
