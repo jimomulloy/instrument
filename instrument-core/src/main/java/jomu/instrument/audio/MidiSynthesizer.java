@@ -1004,6 +1004,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
 			boolean playPeaks = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
+			int glissandoRange = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE);
 
 			double playTime = toneTimeFrame.getStartTime() * 1000;
 			long tick = getTrackTick(toneTimeFrame);
@@ -1053,17 +1055,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (snle != null) {
 				note = snle.note;
-				LOG.finer(">>Midi got NLE START: " + toneTimeFrame.getStartTime() + ", " + playTime + ", " + snle);
 				volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
 						snle.maxAmp);
 				if (snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
-					LOG.finer(">>Midi NLE START LB: " + snle.legatoBefore);
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
-						LOG.finer(">>Midi Synth NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + note);
 						if (writeTrack) {
-							LOG.severe(">>Midi Synth voiceTrack: " + voiceTrack);
 							createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 						}
 					} catch (InvalidMidiDataException e) {
@@ -1077,16 +1075,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 			MidiPitchBend pitchBend = null;
 			if (nle != null) {
 				note = nle.note;
-				pitchBend = glissando(toneTimeFrame, nle);
+				pitchBend = glissando(toneTimeFrame, nle, glissandoRange);
 				if (pitchBend != null) {
-					LOG.finer(">>Midi glissando PitchBend amount: " + toneTimeFrame.getStartTime() + ", "
-							+ pitchBend.getAmount() + ", " + track.getNumber() + ", " + volume);
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.PITCH_BEND, voiceChannel.num,
 								pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
-						LOG.finer(">>Midi B PITCH_BEND: " + toneTimeFrame.getStartTime() + ", " + note + ", "
-								+ pitchBend.getAmount());
 						if (writeTrack) {
 							createEvent(voiceTrack, voiceChannel, ShortMessage.PITCH_BEND,
 									pitchBend.getLeastSignificantBits(), tick, pitchBend.getMostSignificantBits());
@@ -1104,7 +1098,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				midiMessage = new ShortMessage();
 				try {
 					midiMessage.setMessage(ShortMessage.NOTE_OFF, voiceChannel.num, note, 0);
-					LOG.finer(">>Midi Synth NOTE_OFF: " + toneTimeFrame.getStartTime() + ", " + note + ", " + 0);
 					if (writeTrack) {
 						createEvent(voiceTrack, voiceChannel, NOTEOFF, note, tick, 0);
 					}
@@ -1116,14 +1109,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				if (pitchBend != null) {
 					pitchBend.setBendAmount(0);
-					LOG.finer(">>Midi glissando PitchBend A amount: " + toneTimeFrame.getStartTime() + ", "
-							+ pitchBend.getAmount() + ", " + track.getNumber() + ", " + volume);
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.PITCH_BEND, voiceChannel.num,
 								pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
-						LOG.finer(">>Midi A PITCH_BEND: " + toneTimeFrame.getStartTime() + ", " + note + ", "
-								+ pitchBend.getAmount());
 						if (writeTrack) {
 							createEvent(voiceTrack, voiceChannel, ShortMessage.PITCH_BEND,
 									pitchBend.getLeastSignificantBits(), tick, pitchBend.getMostSignificantBits());
@@ -1142,7 +1131,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
-						LOG.finer(">>Midi Synth NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + note);
 						if (writeTrack) {
 							createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 						}
@@ -1276,8 +1264,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		}
 
-		private MidiPitchBend glissando(ToneTimeFrame toneTimeFrame, NoteListElement noteListElement) {
+		private MidiPitchBend glissando(ToneTimeFrame toneTimeFrame, NoteListElement noteListElement,
+				int glissandoRange) {
 			MidiPitchBend pitchBend = null;
+			if (glissandoRange == 0) {
+				return pitchBend;
+			}
 			double pitchBendAmount = 0;
 			double currentTime = toneTimeFrame.getStartTime() * 1000;
 			double glissandoNoteRange = 0;
@@ -1294,7 +1286,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					LOG.finer(">>Midi glissando C -1:");
 					return pitchBend;
 				} else {
-					glissandoStartTime = glissandoMidTime - 1000 > noteListElement.startTime ? glissandoMidTime - 1000
+					glissandoStartTime = glissandoMidTime - glissandoRange > noteListElement.startTime
+							? glissandoMidTime - glissandoRange
 							: noteListElement.startTime;
 					if (currentTime >= glissandoStartTime) {
 						glissandoNoteRange = (double) (nleo.note - noteListElement.note);
@@ -1727,8 +1720,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			TimeSet timeSet = toneTimeFrame.getTimeSet();
 			PitchSet pitchSet = toneTimeFrame.getPitchSet();
-			NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
-			NoteStatusElement noteStatusElement = null;
 			ShortMessage midiMessage = null;
 
 			List<ShortMessage> midiMessages = new ArrayList<>();
@@ -1736,17 +1727,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (chordsChannel1LastNotes == null) {
 				chordsChannel1LastNotes = new HashSet<>();
 			}
-			double maxAmp = -1;
-			for (ToneMapElement toneMapElement : ttfElements) {
-				double amp = toneMapElement.amplitude;
-				if (maxAmp < amp) {
-					maxAmp = amp;
-				}
-			}
 
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
-				noteStatusElement = noteStatus.getNoteStatusElement(note);
 				double amplitude = toneMapElement.amplitude;
 				int volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 						toneMapElement.isPeak, toneMapElement.amplitude);
@@ -2021,8 +2004,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			TimeSet timeSet = chromaTimeFrame.getTimeSet();
 			PitchSet pitchSet = chromaTimeFrame.getPitchSet();
-			NoteStatus noteStatus = chromaTimeFrame.getNoteStatus();
-			NoteStatusElement noteStatusElement = null;
 			ShortMessage midiMessage = null;
 
 			List<ShortMessage> midiMessages = new ArrayList<>();
@@ -2030,17 +2011,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (padsChannel1LastNotes == null) {
 				padsChannel1LastNotes = new HashSet<>();
 			}
-			double maxAmp = -1;
-			for (ToneMapElement toneMapElement : ttfElements) {
-				double amp = toneMapElement.amplitude;
-				if (maxAmp < amp) {
-					maxAmp = amp;
-				}
-			}
 
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
-				noteStatusElement = noteStatus.getNoteStatusElement(note);
 				double amplitude = toneMapElement.amplitude;
 
 				int volume = 0;
@@ -2726,8 +2699,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			TimeSet timeSet = chromaTimeFrame.getTimeSet();
 			PitchSet pitchSet = chromaTimeFrame.getPitchSet();
-			NoteStatus noteStatus = chromaTimeFrame.getNoteStatus();
-			NoteStatusElement noteStatusElement = null;
 			ShortMessage midiMessage = null;
 
 			List<ShortMessage> midiMessages = new ArrayList<>();
@@ -2735,17 +2706,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (baseChannelLastNotes == null) {
 				baseChannelLastNotes = new HashSet<>();
 			}
-			double maxAmp = -1;
-			for (ToneMapElement toneMapElement : ttfElements) {
-				double amp = toneMapElement.amplitude;
-				if (maxAmp < amp) {
-					maxAmp = amp;
-				}
-			}
 
 			for (ToneMapElement toneMapElement : ttfElements) {
 				int note = pitchSet.getNote(toneMapElement.getPitchIndex());
-				noteStatusElement = noteStatus.getNoteStatusElement(note);
 				double amplitude = toneMapElement.amplitude;
 
 				int volume = 0;

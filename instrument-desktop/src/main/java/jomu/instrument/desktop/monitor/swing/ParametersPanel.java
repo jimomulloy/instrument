@@ -272,6 +272,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField noteTrackerSalientTimeNoteFactorInput;
 
+	private JSlider audioSmoothFactorSlider;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -388,6 +390,24 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS));
 		parameterPanel.add(audioHighPassLabel);
 		parameterPanel.add(audioHighPassSlider);
+
+		audioSmoothFactorSlider = new JSlider(0, 20);
+		final JLabel audioSmoothFactorLabel = new JLabel("Audio Smooth Factor :");
+		audioSmoothFactorSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+
+				audioSmoothFactorLabel.setText(String.format("Audio Smooth Factor  (%d):", newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR,
+						Integer.toString(newValue));
+			}
+		});
+		audioSmoothFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR));
+		parameterPanel.add(audioSmoothFactorLabel);
+		parameterPanel.add(audioSmoothFactorSlider);
 
 		JPanel audioComboPanel = new JPanel();
 		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
@@ -3639,6 +3659,8 @@ public class ParametersPanel extends JPanel {
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS));
 		audioHighPassSlider
 				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS));
+		audioSmoothFactorSlider.setValue(
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR));
 		n1SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N1_SWITCH));
 		n2SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N2_SWITCH));
 		n3SwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N3_SWITCH));

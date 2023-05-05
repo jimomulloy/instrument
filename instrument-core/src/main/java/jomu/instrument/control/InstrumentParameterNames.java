@@ -19,6 +19,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_MINIMUM_PEAK_SIZE = "perception.hearing.minPeakSize";
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
+	public static final String PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR = "perception.hearing.audioSmoothFactor";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
 	public static final String PERCEPTION_HEARING_AUDIO_SOURCE_DIRECTORY = "perception.hearing.audioSourceDirectory";
 	public static final String PERCEPTION_HEARING_AUDIO_DEFAULT_FILE = "perception.hearing.audioDefaultFile";
@@ -245,6 +246,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_DELAY = "actuation.voice.delay";
 	public static final String ACTUATION_VOICE_LOW_THRESHOLD = "actuation.voice.lowThreshold";
 	public static final String ACTUATION_VOICE_HIGH_THRESHOLD = "actuation.voice.highThreshold";
+	public static final String ACTUATION_VOICE_GLISSANDO_RANGE = "actuation.voice.glissandoRange";
 	public static final String ACTUATION_VOICE_LOG_FACTOR = "actuation.voice.logFactor";
 	public static final String ACTUATION_VOICE_PLAY_PEAKS = "actuation.voice.playPeaks";
 	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";

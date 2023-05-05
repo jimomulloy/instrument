@@ -260,6 +260,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField voicePlayerLogFactorInput;
 
+	private JTextField voicePlayerGlissandoRangeInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1598,6 +1600,24 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(voicePlayerLogFactorLabel);
 		voicePanel.add(voicePlayerLogFactorInput);
 
+		JLabel voicePlayerGlissandoRangeLabel = new JLabel("Glissando: ");
+		voicePlayerGlissandoRangeInput = new JTextField(4);
+		voicePlayerGlissandoRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE,
+						newValue);
+				voicePlayerGlissandoRangeInput.setText(newValue);
+			}
+		});
+
+		voicePlayerGlissandoRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE));
+		voicePanel.add(voicePlayerGlissandoRangeLabel);
+		voicePanel.add(voicePlayerGlissandoRangeInput);
+
 		voicePanel.add(new JLabel(" "));
 
 		midiSynthTracksSwitchCB = new JCheckBox("midiSynthTracksSwitchCB");
@@ -2494,6 +2514,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD));
 		voicePlayerLogFactorInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR));
+		voicePlayerGlissandoRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE));
 		midiPlayLogSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH));
 		midiPlayVoice1SwitchCB.setSelected(

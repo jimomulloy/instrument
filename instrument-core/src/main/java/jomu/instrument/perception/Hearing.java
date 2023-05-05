@@ -27,13 +27,12 @@ import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.github.psambit9791.jdsp.filter.Butterworth;
+import com.github.psambit9791.jdsp.signal.Smooth;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 import be.tarsos.dsp.beatroot.BeatRootOnsetEventHandler;
-import be.tarsos.dsp.filters.HighPass;
-import be.tarsos.dsp.filters.LowPassFS;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
@@ -417,58 +416,79 @@ public class Hearing implements Organ {
 			LOG.severe(">>calibarteAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 
 			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
-			float audioHighPass = parameterManager
-					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
-			float audioLowPass = parameterManager
-					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
-			if (audioLowPass - audioHighPass > 0) {
-				// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
-				// audioHighPass, sampleRate));
-			}
+			int audioHighPass = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
+			int audioLowPass = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
 			if (audioHighPass > 0) {
-				// dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-				if (audioLowPass > 0) {
-					// dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
-					int order = 4; // order of the filter
-					Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
+				int order = 1; // order of the filter
+				Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
 
-					LOG.severe(">>Hearing add High pass: " + audioHighPass);
+				LOG.severe(">>Hearing add High pass: " + audioHighPass);
 
-					dispatcher.addAudioProcessor(new AudioProcessor() {
+				dispatcher.addAudioProcessor(new AudioProcessor() {
 
-						@Override
-						public boolean process(AudioEvent audioEvent) {
-							float[] values = audioEvent.getFloatBuffer();
-							double[] result = flt.highPassFilter(convertFloatsToDoubles(values), order, audioHighPass);
-							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
-							return true;
-						}
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						double[] result = flt.highPassFilter(convertFloatsToDoubles(values), order, audioHighPass);
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
 
-						@Override
-						public void processingFinished() {
+					@Override
+					public void processingFinished() {
 
-						}
-					});
+					}
+				});
+			}
+			if (audioLowPass > 0) {
+				int order = 1; // order of the filter
+				Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
 
-					LOG.severe(">>Hearing add Low pass: " + audioLowPass);
+				LOG.severe(">>Hearing add Low pass: " + audioLowPass);
 
-					dispatcher.addAudioProcessor(new AudioProcessor() {
+				dispatcher.addAudioProcessor(new AudioProcessor() {
 
-						@Override
-						public boolean process(AudioEvent audioEvent) {
-							float[] values = audioEvent.getFloatBuffer();
-							double[] result = flt.lowPassFilter(convertFloatsToDoubles(values), order, audioLowPass);
-							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
-							return true;
-						}
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						double[] result = flt.lowPassFilter(convertFloatsToDoubles(values), order, audioLowPass);
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
 
-						@Override
-						public void processingFinished() {
+					@Override
+					public void processingFinished() {
 
-						}
-					});
+					}
+				});
 
-				}
+			}
+
+			int smoothFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR);
+			if (smoothFactor > 0) {
+				LOG.severe(">>Hearing add Smooth: " + audioHighPass);
+
+				dispatcher.addAudioProcessor(new AudioProcessor() {
+
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						String mode = "triangular";
+						Smooth s1 = new Smooth(convertFloatsToDoubles(values), smoothFactor, mode);
+						double[] result = s1.smoothSignal();
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
+
+					@Override
+					public void processingFinished() {
+
+					}
+				});
+
 			}
 
 			float pidPFactor = parameterManager
@@ -547,54 +567,75 @@ public class Hearing implements Organ {
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			int audioLowPass = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
-			if (audioLowPass - audioHighPass > 0) {
-				// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
-				// audioHighPass, sampleRate));
-			}
 			if (audioHighPass > 0) {
-				// dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-				if (audioLowPass > 0) {
-					// dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
-					int order = 4; // order of the filter
-					Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
+				int order = 1; // order of the filter
+				Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
 
-					LOG.severe(">>Hearing add High pass: " + audioHighPass);
+				LOG.severe(">>Hearing add High pass: " + audioHighPass);
 
-					dispatcher.addAudioProcessor(new AudioProcessor() {
+				dispatcher.addAudioProcessor(new AudioProcessor() {
 
-						@Override
-						public boolean process(AudioEvent audioEvent) {
-							float[] values = audioEvent.getFloatBuffer();
-							double[] result = flt.highPassFilter(convertFloatsToDoubles(values), order, audioHighPass);
-							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
-							return true;
-						}
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						double[] result = flt.highPassFilter(convertFloatsToDoubles(values), order, audioHighPass);
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
 
-						@Override
-						public void processingFinished() {
+					@Override
+					public void processingFinished() {
 
-						}
-					});
+					}
+				});
+			}
+			if (audioLowPass > 0) {
+				int order = 1; // order of the filter
+				Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
 
-					LOG.severe(">>Hearing add Low pass: " + audioLowPass);
+				LOG.severe(">>Hearing add Low pass: " + audioLowPass);
 
-					dispatcher.addAudioProcessor(new AudioProcessor() {
+				dispatcher.addAudioProcessor(new AudioProcessor() {
 
-						@Override
-						public boolean process(AudioEvent audioEvent) {
-							float[] values = audioEvent.getFloatBuffer();
-							double[] result = flt.lowPassFilter(convertFloatsToDoubles(values), order, audioLowPass);
-							audioEvent.setFloatBuffer(convertDoublesToFloat(result));
-							return true;
-						}
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						double[] result = flt.lowPassFilter(convertFloatsToDoubles(values), order, audioLowPass);
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
 
-						@Override
-						public void processingFinished() {
+					@Override
+					public void processingFinished() {
 
-						}
-					});
+					}
+				});
 
-				}
+			}
+
+			int smoothFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR);
+			if (smoothFactor > 0) {
+				LOG.severe(">>Hearing add Smooth: " + audioHighPass);
+
+				dispatcher.addAudioProcessor(new AudioProcessor() {
+
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						String mode = "triangular";
+						Smooth s1 = new Smooth(convertFloatsToDoubles(values), smoothFactor, mode);
+						double[] result = s1.smoothSignal();
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
+
+					@Override
+					public void processingFinished() {
+
+					}
+				});
+
 			}
 
 			float pidPFactor = parameterManager
@@ -657,20 +698,82 @@ public class Hearing implements Organ {
 				WaveformWriter writer = new WaveformWriter(recordFormat, recordFile);
 				dispatcher.addAudioProcessor(writer);
 			}
-			float audioHighPass = parameterManager
-					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
-			float audioLowPass = parameterManager
-					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
-			if (audioLowPass - audioHighPass > 0) {
-				// dispatcher.addAudioProcessor(new BandPass(audioHighPass, audioLowPass -
-				// audioHighPass, sampleRate));
-			}
+
+			int audioHighPass = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
+			int audioLowPass = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS);
 			if (audioHighPass > 0) {
-				dispatcher.addAudioProcessor(new HighPass(audioHighPass, sampleRate));
-				if (audioLowPass > 0 && audioLowPass > audioHighPass) {
-					dispatcher.addAudioProcessor(new LowPassFS(audioLowPass, sampleRate));
-				}
+				int order = 1; // order of the filter
+				Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
+
+				LOG.severe(">>Hearing add High pass: " + audioHighPass);
+
+				dispatcher.addAudioProcessor(new AudioProcessor() {
+
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						double[] result = flt.highPassFilter(convertFloatsToDoubles(values), order, audioHighPass);
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
+
+					@Override
+					public void processingFinished() {
+
+					}
+				});
 			}
+			if (audioLowPass > 0) {
+				int order = 1; // order of the filter
+				Butterworth flt = new Butterworth(sampleRate); // signal is of type double[]
+
+				LOG.severe(">>Hearing add Low pass: " + audioLowPass);
+
+				dispatcher.addAudioProcessor(new AudioProcessor() {
+
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						double[] result = flt.lowPassFilter(convertFloatsToDoubles(values), order, audioLowPass);
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
+
+					@Override
+					public void processingFinished() {
+
+					}
+				});
+
+			}
+
+			int smoothFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR);
+			if (smoothFactor > 0) {
+				LOG.severe(">>Hearing add Smooth: " + audioHighPass);
+
+				dispatcher.addAudioProcessor(new AudioProcessor() {
+
+					@Override
+					public boolean process(AudioEvent audioEvent) {
+						float[] values = audioEvent.getFloatBuffer();
+						String mode = "triangular";
+						Smooth s1 = new Smooth(convertFloatsToDoubles(values), smoothFactor, mode);
+						double[] result = s1.smoothSignal();
+						audioEvent.setFloatBuffer(convertDoublesToFloat(result));
+						return true;
+					}
+
+					@Override
+					public void processingFinished() {
+
+					}
+				});
+
+			}
+
 			float pidPFactor = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
 			float pidDFactor = parameterManager
