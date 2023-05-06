@@ -713,6 +713,7 @@ public class AudioTuner implements ToneMapConstants {
 				noteStatusElement.highFlag = false;
 				if (toneMapElement.noteListElement != null) {
 					processedNotes.remove(toneMapElement.noteListElement);
+					LOG.finer(">>BACKFILL REMOVE NLE: " + toneMapElement.noteListElement);
 					toneMapElement.noteListElement = null;
 				}
 				LOG.finer(">>BACKFILL OFF: " + toneMapElement + ", " + tf.getStartTime() + ", " + tooTime);
@@ -915,7 +916,7 @@ public class AudioTuner implements ToneMapConstants {
 
 		// Cross-Register NoteList element against ToneMapMatrix elements
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
-			if (toneTimeFrame.getStartTime() >= noteStatusElement.offTime / 1000.0) {
+			if (toneTimeFrame.getStartTime() > noteStatusElement.offTime / 1000.0) {
 				break;
 			}
 			ToneMapElement element = toneTimeFrame.getElement(noteStatusElement.index);
@@ -923,9 +924,9 @@ public class AudioTuner implements ToneMapConstants {
 			LOG.finer(">>PROCESS NOTE ADDED NOTE TO: " + toneTimeFrame.getStartTime() + ", " + noteStatusElement);
 		}
 		processedNotes.add(noteListElement);
-		LOG.severe(">>PROCESS NOTE ADDED NOTE DONE " + noteStatusElement.onTime + ", " + noteStatusElement.note
-				+ ", max in note: " + maxAmp + ", tm max: " + toneMap.getStatistics().max + ", " + noteStatusElement
-				+ ", " + noteStatusElement.offTime + ", " + noteListElement);
+		LOG.finer(">>PROCESS NOTE ADDED NOTE DONE " + noteStatusElement.onTime + ", " + noteStatusElement.note + ", "
+				+ noteStatusElement.offTime + ", max in note: " + maxAmp + ", tm max: " + toneMap.getStatistics().max
+				+ ", " + noteStatusElement + ", " + noteListElement);
 
 	}
 
@@ -1047,7 +1048,17 @@ public class AudioTuner implements ToneMapConstants {
 	private void attenuateHarmonics(ToneTimeFrame[] timeFrames, Set<NoteListElement> harmonicTones,
 			NoteListElement processedNote, ToneMapElement startElement, ToneMapElement endElement) {
 		for (NoteListElement nle : harmonicTones) {
-
+			if (nle.startTime < processedNote.startTime || nle.endTime > processedNote.endTime) {
+				// TODO - doesnt work with very long harmonics
+				Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
+				if (noteHarmonics.containsKey(processedNote.note)) {
+					noteHarmonics.remove(processedNote.note);
+					if (noteHarmonics.isEmpty()) {
+						commitNote(timeFrames, nle);
+					}
+				}
+				continue;
+			}
 			double rootFreq = PitchSet.getMidiFreq(processedNote.note);
 			double noteFreq = PitchSet.getMidiFreq(nle.note);
 			LOG.finer(">>attenuateHarmonics: " + noteFreq + ", " + rootFreq + ", " + nle.note + ", "
@@ -1135,6 +1146,7 @@ public class AudioTuner implements ToneMapConstants {
 
 			if (maxAmp <= MIN_AMPLITUDE) {
 				for (ToneMapElement toneMapElement : tmElements) {
+					// TODO - small root harmonic affects long over harmonics!
 					toneMapElement.noteListElement = null;
 					toneMapElement.noteState = OFF;
 					LOG.finer(">>attenuateHarmonics toneMapElement: " + toneMapElement);

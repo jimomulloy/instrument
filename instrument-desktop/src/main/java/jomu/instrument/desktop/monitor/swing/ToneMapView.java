@@ -303,16 +303,15 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					if (showTracking) {
 						color = Color.BLACK;
 						if (toneMapElement.noteListElement != null) {
+							LOG.finer("TM View nle: " + toneMapElement.noteListElement.note + ", "
+									+ toneMapElement.noteListElement.startTime + ", "
+									+ toneMapElement.noteListElement.endTime + ", " + elementIndex + ", " + elementIndex
+									+ ", " + ttf.getStartTime());
 							color = Color.WHITE;
 							NoteTrack track = toneMap.getNoteTracker().getTrack(toneMapElement.noteListElement);
 							if (track != null) {
 								color = COLORS[track.getNumber() < COLORS.length ? track.getNumber() - 1
 										: COLORS.length - 1];
-							}
-							if (toneMapElement.noteState == START) {
-								color = new Color(0x53868b); // cadetblue4
-							} else if (toneMapElement.noteState == END) {
-								color = new Color(0xff7f50); // coral
 							}
 						}
 
@@ -337,6 +336,20 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 					bufferedGraphics.setColor(color);
 					bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+
+					if (showTracking) {
+						if (toneMapElement.noteListElement != null) {
+							if (toneMapElement.noteState == START) {
+								color = new Color(0xff7f50); // coral
+								bufferedGraphics.setColor(color);
+								bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 3, 6, (int) 6);
+							} else if (toneMapElement.noteState == END) {
+								color = new Color(0x53868b); // cadetblue4
+								bufferedGraphics.setColor(color);
+								bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 3, 6, (int) 6);
+							}
+						}
+					}
 
 				}
 			}

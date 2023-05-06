@@ -157,6 +157,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_NOTE_RANGE = "perception.hearing.notetracker.overlapSalientNoteRange";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_TIME_RANGE = "perception.hearing.notetracker.overlapSalientTimeRange";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE = "perception.hearing.notetracker.salientNoteRange";
+	public static final String PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_RANGE = "perception.hearing.notetracker.salientTimeRange";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR = "perception.hearing.notetracker.salientTimeNoteFactor";
 
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";

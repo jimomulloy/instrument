@@ -106,7 +106,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 		if (synthFillNotes) {
 			fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		}
-		discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime()));
+		// discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime()
+		// * 1000));
 		discardNotes(discardedNotes);
 		if (!synthChordFirstSwitch) {
 			ChordListElement chord = targetFrame.getChord();
@@ -150,7 +151,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 
 	private void addLegato(NoteTrack track, NoteListElement nle) {
 		NoteListElement pnle = track.getPreviousNote(nle);
-		LOG.finer(">>ToneSynthesiser addLegato for nle A: " + nle.note + ", " + nle.startTime);
+		LOG.severe(">>ToneSynthesiser addLegato for nle A: " + nle.note + ", " + nle.startTime);
 		if (pnle != null) {
 			LOG.finer(">>ToneSynthesiser addLegato for nle B: " + nle.note + ", " + nle.startTime + ", " + pnle.note
 					+ ", " + pnle.startTime + ", " + pnle.endTime);
@@ -160,11 +161,12 @@ public class ToneSynthesiser implements ToneMapConstants {
 				if (frame != null) {
 					double time = frame.getStartTime();
 					while (frame != null && (time * 1000) <= nle.startTime) {
-						LOG.finer(">>ToneSynthesiser addLegato: " + time + ", " + nle.note + ", " + pnle.endTime);
+						LOG.severe(">>ToneSynthesiser addLegato: " + time + ", " + nle.note + ", " + pnle.endTime + ", "
+								+ track.getNumber());
 						frame.getElement(pnle.pitchIndex).noteListElement = pnle;
 						frame.getElement(pnle.pitchIndex).noteState = ON;
 						pnle.endTime = frame.getStartTime() * 1000;
-						LOG.finer(">>ToneSynthesiser addLegato ENDTIME: " + time + ", " + pnle.note + ", "
+						LOG.severe(">>ToneSynthesiser addLegato ENDTIME: " + time + ", " + pnle.note + ", "
 								+ pnle.endTime);
 						frame = toneMap.getNextTimeFrame(time);
 						lastFrame = frame;
@@ -176,6 +178,9 @@ public class ToneSynthesiser implements ToneMapConstants {
 						lastFrame.getElement(pnle.pitchIndex).noteState = END;
 					}
 					pnle.addLegato(nle);
+					LOG.severe(">>ToneSynthesiser addLegato for nle X: " + pnle.note + ", " + pnle.startTime + ", "
+							+ nle.note + ", " + nle.startTime + ", " + pnle.endTime);
+
 				}
 			}
 		}

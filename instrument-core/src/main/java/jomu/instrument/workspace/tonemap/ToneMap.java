@@ -137,6 +137,20 @@ public class ToneMap {
 		return null;
 	}
 
+	public ToneTimeFrame getFirstTimeFrame() {
+		if (!toneMapStore.isEmpty()) {
+			return toneMapStore.firstEntry().getValue();
+		}
+		return null;
+	}
+
+	public ToneTimeFrame getLastTimeFrame() {
+		if (!toneMapStore.isEmpty()) {
+			return toneMapStore.lastEntry().getValue();
+		}
+		return null;
+	}
+
 	public ToneTimeFrame getTimeFrame(Double key) {
 		return toneMapStore.get(key);
 	}

@@ -280,6 +280,8 @@ public class ParametersPanel extends JPanel {
 
 	Storage storage;
 
+	private JTextField noteTrackerSalientTimeRangeInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -3485,6 +3487,24 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(noteTrackerSalientNoteRangeLabel);
 		cqParamsPanel.add(noteTrackerSalientNoteRangeInput);
 
+		JLabel noteTrackerSalientTimeRangeLabel = new JLabel("Note Tracker Salient Time Range: ");
+		noteTrackerSalientTimeRangeInput = new JTextField(4);
+		noteTrackerSalientTimeRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTrackerSalientTimeRangeInput.getText();
+				newValue = parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_RANGE, newValue);
+				noteTrackerSalientTimeRangeLabel
+						.setText(String.format("Note Tracker Salient Time Range  (%s):", newValue));
+				noteTrackerSalientTimeRangeInput.setText(newValue);
+			}
+		});
+		noteTrackerSalientTimeRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_RANGE));
+		cqParamsPanel.add(noteTrackerSalientTimeRangeLabel);
+		cqParamsPanel.add(noteTrackerSalientTimeRangeInput);
+
 		JLabel noteTrackerSalientTimeNoteFactorLabel = new JLabel("Note Tracker Salient Time Note Factor: ");
 		noteTrackerSalientTimeNoteFactorInput = new JTextField(4);
 		noteTrackerSalientTimeNoteFactorInput.addActionListener(new ActionListener() {
@@ -3957,6 +3977,8 @@ public class ParametersPanel extends JPanel {
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_TIME_RANGE));
 		noteTrackerSalientNoteRangeInput.setText(parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE));
+		noteTrackerSalientTimeRangeInput.setText(parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_RANGE));
 		noteTrackerSalientTimeNoteFactorInput.setText(parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR));
 

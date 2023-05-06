@@ -27,7 +27,10 @@ public class NoteTracker {
 	int overlapSalientNoteRange;
 	int overlapSalientTimeRange;
 	int salientNoteRange;
+	int salientTimeRange;
 	int salientTimeNoteFactor;
+
+	private boolean synthFillLegatoSwitch;
 
 	public class NoteTrack {
 
@@ -69,6 +72,43 @@ public class NoteTracker {
 				if (note.endTime == time) {
 					return note;
 				}
+			}
+			return null;
+		}
+
+		public NoteListElement[] getEndNotes(double time) {
+			List<NoteListElement> noteList = new ArrayList<>();
+			for (NoteListElement note : notes) {
+				if (note.endTime == time) {
+					noteList.add(note);
+				}
+			}
+			return noteList.toArray(new NoteListElement[noteList.size()]);
+		}
+
+		public NoteListElement[] getStartNotes(double time) {
+			List<NoteListElement> noteList = new ArrayList<>();
+			for (NoteListElement note : notes) {
+				if (note.startTime == time) {
+					noteList.add(note);
+				}
+			}
+			return noteList.toArray(new NoteListElement[noteList.size()]);
+		}
+
+		public NoteListElement[] getNotes(double time) {
+			List<NoteListElement> noteList = new ArrayList<>();
+			for (NoteListElement note : notes) {
+				if (note.startTime <= time && note.endTime >= time) {
+					noteList.add(note);
+				}
+			}
+			return noteList.toArray(new NoteListElement[noteList.size()]);
+		}
+
+		public NoteListElement getFirstNote() {
+			if (notes.size() > 0) {
+				return notes.get(0);
 			}
 			return null;
 		}
@@ -149,6 +189,16 @@ public class NoteTracker {
 			int addIndex = notes.indexOf(previousNle) + 1;
 			notes.add(addIndex, nle);
 		}
+
+		public NoteListElement getNote(double startTime, double endTime) {
+			for (NoteListElement nle : notes) {
+				if ((nle.startTime <= startTime && nle.endTime >= endTime)
+						|| (nle.startTime > startTime && nle.endTime < endTime)) {
+					return nle;
+				}
+			}
+			return null;
+		}
 	}
 
 	public NoteTracker(ToneMap toneMap) {
@@ -164,43 +214,53 @@ public class NoteTracker {
 		discardTrackRange = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE);
 		overlapSalientNoteRange = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE);
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_NOTE_RANGE);
 		overlapSalientTimeRange = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_DISCARD_TRACK_RANGE);
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_OVERLAP_SALIENT_TIME_RANGE);
 		salientNoteRange = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_NOTE_RANGE);
+		salientTimeRange = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_RANGE);
 		salientTimeNoteFactor = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR);
+		synthFillLegatoSwitch = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH);
 	}
 
 	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes) {
-		LOG.severe(">>NoteTracker trackNote: " + noteListElement.note + ", " + noteListElement);
+		LOG.finer(">>NoteTracker trackNote: " + noteListElement.note + ", " + noteListElement);
+		NoteTrack pendingSalientTrack = null;
 		NoteTrack salientTrack = null;
 		NoteListElement disconnectedNote = null;
 		if (tracks.isEmpty()) {
 			salientTrack = createTrack();
-			LOG.severe(">>NoteTracker trackNote create track A: " + noteListElement.note);
+			LOG.finer(">>NoteTracker trackNote create track A: " + noteListElement.note);
 		} else {
 			NoteTrack[] pendingTracks = getPendingTracks(noteListElement);
+			if (pendingTracks.length > 0) {
+				pendingSalientTrack = getPendingOverlappingSalientTrack(pendingTracks, noteListElement);
+			}
+
 			NoteTrack[] nonPendingTracks = getNonPendingTracks(noteListElement);
 
-			if (pendingTracks.length > 0) {
-				salientTrack = getPendingOverlappingSalientTrack(pendingTracks, noteListElement);
-				if (salientTrack != null) {
-					LOG.severe(">>NoteTracker trackNote B: " + noteListElement.note);
-					salientTrack.getLastNote().addLegato(noteListElement);
+			if (nonPendingTracks.length > 0) {
+				salientTrack = getSalientTrack(nonPendingTracks, pendingSalientTrack, noteListElement);
+				if (pendingSalientTrack == salientTrack) {
+					LOG.finer(">>NoteTracker trackNote B: " + noteListElement.note);
+					if (synthFillLegatoSwitch) {
+						LOG.severe(">>NoteTracker addLegato for nle B: " + pendingSalientTrack.getLastNote().note + ", "
+								+ noteListElement + ", " + pendingSalientTrack.getLastNote());
+						pendingSalientTrack.getLastNote().addLegato(noteListElement);
+					}
 				}
+				LOG.finer(">>NoteTracker trackNote C: " + noteListElement.note + ", " + salientTrack);
 			}
 
-			if (salientTrack == null && nonPendingTracks.length > 0) {
-				salientTrack = getSalientTrack(nonPendingTracks, noteListElement);
-				LOG.severe(">>NoteTracker trackNote C: " + noteListElement.note + ", " + salientTrack);
-			}
 			if (salientTrack == null && pendingTracks.length > 0) {
-				LOG.severe(">>NoteTracker trackNote getPendingSalientTrack note: " + noteListElement.note);
+				LOG.finer(">>NoteTracker trackNote getPendingSalientTrack note: " + noteListElement.note);
 				salientTrack = getPendingSalientTrack(pendingTracks, noteListElement);
 				if (salientTrack != null) {
-					LOG.severe(">>NoteTracker trackNote gotPendingSalientTrack note: " + noteListElement.note);
+					LOG.finer(">>NoteTracker trackNote gotPendingSalientTrack note: " + noteListElement.note);
 					disconnectedNote = salientTrack.getLastNote();
 					salientTrack.removeNote(disconnectedNote);
 				}
@@ -210,17 +270,47 @@ public class NoteTracker {
 			if (tracks.size() > maxTracksUpper
 					&& ((noteListElement.endTime - noteListElement.startTime) <= discardTrackRange)) {
 				discardedNotes.add(noteListElement);
-				LOG.severe(">>NoteTracker trackNote discard: " + noteListElement.note);
+				LOG.finer(">>NoteTracker trackNote discard: " + noteListElement.note);
 				return null;
 			} else {
 				salientTrack = createTrack();
-				LOG.severe(">>NoteTracker trackNote create track B: " + noteListElement.note);
+				LOG.finer(">>NoteTracker trackNote create track B: " + noteListElement.note);
+			}
+		}
+		for (NoteTrack track : tracks) {
+			if (!track.equals(salientTrack)) {
+				NoteListElement noteInRange = track.getNote(noteListElement.startTime, noteListElement.endTime);
+				if (noteInRange != null && Math.abs(noteListElement.note - noteInRange.note) <= 1) {
+					if (noteListElement.startTime == noteInRange.startTime
+							&& noteListElement.endTime == noteInRange.endTime) {
+						if (noteListElement.maxAmp < noteInRange.maxAmp) {
+							discardedNotes.add(noteListElement);
+							removeTrack(salientTrack);
+							LOG.finer(">>NoteTracker trackNote DISCARD B: " + noteListElement);
+							return null;
+						} else {
+							track.removeNote(noteInRange);
+							discardedNotes.add(noteInRange);
+							LOG.finer(">>NoteTracker trackNote DISCARD E: " + noteInRange);
+						}
+					} else if ((noteListElement.startTime >= noteInRange.startTime
+							&& noteListElement.endTime <= noteInRange.endTime)) {
+						discardedNotes.add(noteListElement);
+						removeTrack(salientTrack);
+						LOG.finer(">>NoteTracker trackNote DISCARD C: " + noteListElement);
+						return null;
+					} else {
+						track.removeNote(noteInRange);
+						discardedNotes.add(noteInRange);
+						LOG.finer(">>NoteTracker trackNote DISCARD D: " + noteInRange);
+					}
+				}
 			}
 		}
 		salientTrack.addNote(noteListElement);
-		LOG.severe(">>NoteTracker trackNote ADDED note: " + noteListElement.note + ", " + salientTrack.number);
+		LOG.finer(">>NoteTracker trackNote ADDED note: " + noteListElement.note + ", " + salientTrack.number);
 		if (disconnectedNote != null) {
-			LOG.severe(">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
+			LOG.finer(">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
 			trackNote(disconnectedNote, discardedNotes);
 		}
 		return salientTrack;
@@ -234,11 +324,15 @@ public class NoteTracker {
 			if (noteListElement.note == lastNote.note) {
 				return track;
 			}
+			LOG.finer(">>NoteTracker getPendingOverlappingSalientTrack: " + noteListElement + ", " + lastNote);
+			LOG.finer(">>NoteTracker getPendingOverlappingSalientTrack: " + overlapSalientNoteRange + ", "
+					+ overlapSalientTimeRange);
 			if ((Math.abs(noteListElement.note - lastNote.note) <= overlapSalientNoteRange)
 					&& (lastNote.endTime > noteListElement.startTime) && (lastNote.endTime < noteListElement.endTime)
 					&& ((lastNote.endTime - noteListElement.startTime) < overlapSalientTimeRange)) {
 				if (pitchProximity > noteListElement.note - lastNote.note) {
 					pitchProximity = noteListElement.note - lastNote.note;
+					LOG.finer(">>NoteTracker getPendingOverlappingSalientTrack pitchProximity: " + pitchProximity);
 					pitchSalientTrack = track;
 				}
 			}
@@ -272,27 +366,52 @@ public class NoteTracker {
 		return null;
 	}
 
-	private NoteTrack getSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
+	private NoteTrack getSalientTrack(NoteTrack[] candidateTracks, NoteTrack pendingSalientTrack,
+			NoteListElement noteListElement) {
 		NoteTrack pitchSalientTrack = null;
 		NoteTrack timeSalientTrack = null;
+		int timeSalientTrackPitchProximity = Integer.MAX_VALUE;
+		double pitchSalientTrackTimeProximity = Double.MAX_VALUE;
 		int pitchProximity = Integer.MAX_VALUE;
 		double timeProximity = Double.MAX_VALUE;
 		for (NoteTrack track : candidateTracks) {
 			NoteListElement lastNote = track.getLastNote();
-			if (noteListElement.isContinuation && noteListElement.note == lastNote.note) {
+			LOG.finer(">>NoteTracker getSalientTrack candidateTrack: " + track + ", " + candidateTracks.length + ", "
+					+ lastNote);
+			if (lastNote == null) {
+				LOG.finer(">>NoteTracker getSalientTrack X");
 				return track;
 			}
-			if (Math.abs(noteListElement.note - lastNote.note) <= salientNoteRange) {
+			if (noteListElement.isContinuation && noteListElement.note == lastNote.note) {
+				LOG.finer(">>NoteTracker getSalientTrack Y");
+				return track;
+			}
+			if (Math.abs(noteListElement.note - lastNote.note) <= salientNoteRange
+					&& Math.abs(noteListElement.note - lastNote.note) < pitchProximity) {
 				pitchProximity = noteListElement.note - lastNote.note;
 				pitchSalientTrack = track;
+				pitchSalientTrackTimeProximity = noteListElement.startTime - lastNote.endTime;
+				LOG.finer(">>NoteTracker getSalientTrack PITCH A: " + pitchProximity + ", " + pitchSalientTrack + ", "
+						+ noteListElement + ", " + lastNote);
 			}
 			if (timeProximity > noteListElement.startTime - lastNote.endTime) {
 				timeProximity = noteListElement.startTime - lastNote.endTime;
 				timeSalientTrack = track;
+				timeSalientTrackPitchProximity = Math.abs(noteListElement.note - lastNote.note);
+				LOG.finer(">>NoteTracker getSalientTrack TIME B: " + timeProximity + ", " + timeSalientTrack + ", "
+						+ noteListElement + ", " + lastNote);
 			}
 			// double timbreFactor = noteListElement.noteTimbre. - lastNote.endTime;
 			// }
 		}
+		if (pendingSalientTrack != null) {
+			if (pitchProximity > 0 || timeProximity > 0) {
+				LOG.finer(">>NoteTracker use pendingSalientTrack: " + timeProximity + ", " + timeSalientTrack + ", "
+						+ noteListElement);
+				return pendingSalientTrack;
+			}
+		}
+
 		if (pitchSalientTrack != null || timeSalientTrack != null) {
 			if (pitchSalientTrack == timeSalientTrack) {
 				return pitchSalientTrack;
@@ -301,6 +420,12 @@ public class NoteTracker {
 				return pitchSalientTrack;
 			}
 			if (pitchSalientTrack == null) {
+				return timeSalientTrack;
+			}
+			if ((noteListElement.note - timeSalientTrack.getLastNote().note) > salientNoteRange) {
+				return pitchSalientTrack;
+			}
+			if (pitchSalientTrackTimeProximity > salientTimeRange) {
 				return timeSalientTrack;
 			}
 			if ((noteListElement.note - timeSalientTrack.getLastNote().note) > salientTimeNoteFactor
@@ -362,10 +487,14 @@ public class NoteTracker {
 		List<NoteTrack> result = new ArrayList<>();
 		for (NoteTrack track : tracks) {
 			NoteListElement lastNote = track.getLastNote();
+			LOG.finer(">>NoteTracker getNonPendingTracks: " + track + ", " + lastNote.endTime + ", "
+					+ noteListElement.startTime);
 			if (lastNote != null && (lastNote.endTime <= noteListElement.startTime)) {
+				LOG.finer(">>NoteTracker getNonPendingTracks ADD: " + track);
 				result.add(track);
 			}
 		}
+		LOG.finer(">>NoteTracker getNonPendingTracks size: " + result.size());
 		return result.toArray(new NoteTrack[result.size()]);
 	}
 
@@ -375,7 +504,8 @@ public class NoteTracker {
 		return track;
 	}
 
-	public Set<NoteListElement> cleanTracks(Double startTime) {
+	public Set<NoteListElement> cleanTracks(double fromTime) {
+		double lastTime = getNotesStartTime();
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteTrack> discardedTracks = new HashSet<>();
 		if (tracks.size() > maxTracksLower) {
@@ -383,33 +513,73 @@ public class NoteTracker {
 				List<NoteListElement> notes = track.getNotes();
 				Set<NoteListElement> notesToDelete = new HashSet<>();
 				NoteListElement lastNote = null;
-				for (NoteListElement nle : notes) {
-					double lastTime = 0;
-					if (lastNote != null) {
-						lastTime = lastNote.endTime;
+				boolean hasDiscarded = false;
+				do {
+					hasDiscarded = false;
+					for (NoteListElement nle : notes) {
+						if (lastNote != null) {
+							lastTime = lastNote.endTime;
+						}
+						if (((nle.endTime - nle.startTime) < clearRangeLower)
+								&& ((nle.startTime - lastTime) > clearRangeUpper)
+								|| ((fromTime - nle.endTime) > clearRangeUpper)) {
+							discardedNotes.add(nle);
+							notesToDelete.add(nle);
+							hasDiscarded = true;
+							LOG.finer(">>NoteTracker cleanTracks note A: " + nle);
+							if (track.getNotes().size() == notesToDelete.size()) {
+								break;
+							}
+						}
+						if (lastNote != null
+								&& ((nle.startTime == lastNote.startTime) || (nle.endTime == lastNote.endTime))) {
+							if ((nle.endTime - nle.startTime) > (lastNote.endTime - lastNote.startTime)) {
+								discardedNotes.add(lastNote);
+								notesToDelete.add(lastNote);
+								hasDiscarded = true;
+								LOG.finer(">>NoteTracker cleanTracks note B: " + nle);
+								if (track.getNotes().size() == notesToDelete.size()) {
+									break;
+								}
+							} else {
+								discardedNotes.add(nle);
+								notesToDelete.add(nle);
+								hasDiscarded = true;
+								LOG.finer(">>NoteTracker cleanTracks note C: " + nle);
+								if (track.getNotes().size() == notesToDelete.size()) {
+									break;
+								}
+							}
+						}
+						lastNote = nle;
 					}
-					if (((nle.endTime - nle.startTime) < clearRangeLower)
-							&& (nle.startTime - lastTime) > clearRangeUpper) {
-						discardedNotes.add(nle);
-						notesToDelete.add(nle);
-						if (track.getNotes().size() == notesToDelete.size()) {
-							break;
+					for (NoteListElement nle : notesToDelete) {
+						track.removeNote(nle);
+						if (track.getNotes().size() == 0) {
+							LOG.finer(">>NoteTracker cleanTracks track: " + track);
+							discardedTracks.add(track);
 						}
 					}
-					lastNote = nle;
-				}
-				for (NoteListElement nle : notesToDelete) {
-					track.removeNote(nle);
-					if (track.getNotes().size() == 0) {
-						discardedTracks.add(track);
-					}
-				}
+				} while (hasDiscarded && track.getNotes().size() > 0);
 			}
 		}
 		for (NoteTrack track : discardedTracks) {
 			removeTrack(track);
 		}
 		return discardedNotes;
+	}
+
+	private double getNotesStartTime() {
+		double startTime = 0;
+		for (NoteTrack track : tracks) {
+			NoteListElement note = track.getFirstNote();
+			if (note != null) {
+				if (startTime > note.startTime) {
+					startTime = note.startTime;
+				}
+			}
+		}
+		return startTime;
 	}
 
 	private void removeTrack(NoteTrack track) {
