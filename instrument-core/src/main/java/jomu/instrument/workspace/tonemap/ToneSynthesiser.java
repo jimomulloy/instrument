@@ -106,8 +106,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		if (synthFillNotes) {
 			fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 		}
-		// discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime()
-		// * 1000));
+		discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime() * 1000));
 		discardNotes(discardedNotes);
 		if (!synthChordFirstSwitch) {
 			ChordListElement chord = targetFrame.getChord();

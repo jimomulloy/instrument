@@ -965,6 +965,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH);
 			boolean midiPlayBaseSwitch = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH);
+			int maxTracksLower = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER);
 
 			ToneMap toneMap = null;
 			ToneTimeFrame toneTimeFrame = null;
@@ -981,16 +983,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			for (NoteTrack track : tracks) {
 				if ((track.getNumber() == 1 && midiPlayVoice1Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages);
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true);
 				}
 				if ((track.getNumber() == 2 && midiPlayVoice2Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages);
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true);
 				}
 				if ((track.getNumber() == 3 && midiPlayVoice3Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages);
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true);
 				}
-				if ((track.getNumber() == 4 && midiPlayVoice4Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages);
+				if ((track.getNumber() >= 4 && track.getNumber() <= maxTracksLower && midiPlayVoice4Switch)) {
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, false);
 				}
 			}
 
@@ -1485,7 +1487,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		}
 
-		private void playSynthNoteTrack(NoteTrack track, ToneTimeFrame toneTimeFrame, List<ShortMessage> midiMessages) {
+		private void playSynthNoteTrack(NoteTrack track, ToneTimeFrame toneTimeFrame, List<ShortMessage> midiMessages,
+				boolean playGlissando) {
 			LOG.finer(">>MIDI CHANNEL playTrack: " + track);
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -1569,7 +1572,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					note = snle.note;
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
 							snle.maxAmp);
-					if (snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
+					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
 						if (!voiceChannelLastNotes.contains(note)) {
 							midiMessage = new ShortMessage();
 							try {
@@ -1597,7 +1600,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 
 			}
-			if (pnle != null) {
+			if (playGlissando && pnle != null) {
 				note = pnle.note;
 				if (voiceChannelLastNotes.contains(note)) {
 					pitchBend = glissando(toneTimeFrame, pnle, glissandoRange);
@@ -1654,7 +1657,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessages.add(midiMessage);
 					}
 
-					if (enle.legatoAfter != null && enle.legatoAfter.startTime < playTime) {
+					if (playGlissando && enle.legatoAfter != null && enle.legatoAfter.startTime < playTime) {
 						note = enle.legatoAfter.note;
 						if (!voiceChannelLastNotes.contains(note)) {
 							volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
