@@ -280,7 +280,7 @@ public class AudioTuner implements ToneMapConstants {
 		}
 
 		if (n5Switch) {
-			processOvertones(toneTimeFrame, false);
+			processOvertones(toneTimeFrame, MIN_AMPLITUDE, false);
 		}
 
 		troughAmp = MIN_AMPLITUDE;
@@ -346,7 +346,7 @@ public class AudioTuner implements ToneMapConstants {
 		}
 
 		if (n6Switch) {
-			processOvertones(toneTimeFrame, true);
+			processOvertones(toneTimeFrame, MIN_AMPLITUDE, true);
 		}
 
 		Stream<ToneMapElement> ttfStream = Arrays.stream(ttfElements);
@@ -1048,8 +1048,10 @@ public class AudioTuner implements ToneMapConstants {
 	private void attenuateHarmonics(ToneTimeFrame[] timeFrames, Set<NoteListElement> harmonicTones,
 			NoteListElement processedNote, ToneMapElement startElement, ToneMapElement endElement) {
 		for (NoteListElement nle : harmonicTones) {
-			if (nle.startTime < processedNote.startTime || nle.endTime > processedNote.endTime) {
-				// TODO - doesnt work with very long harmonics
+			if ((nle.startTime < processedNote.startTime && !processedNote.isContinuation)
+					|| nle.endTime > processedNote.endTime) {
+				// TODO - doesnt work with very long harmonics - multiple root continuation
+				// notes??
 				Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
 				if (noteHarmonics.containsKey(processedNote.note)) {
 					noteHarmonics.remove(processedNote.note);
@@ -1347,7 +1349,7 @@ public class AudioTuner implements ToneMapConstants {
 	}
 
 	// Process Harmonic overtones
-	private void processOvertones(ToneTimeFrame toneTimeFrame, int pitchIndex) {
+	private void processOvertones(ToneTimeFrame toneTimeFrame, int pitchIndex, double lowThreshold) {
 		PitchSet pitchSet = toneTimeFrame.getPitchSet();
 
 		ToneTimeFrame[] timeFrames = { toneTimeFrame };
@@ -1370,6 +1372,9 @@ public class AudioTuner implements ToneMapConstants {
 
 		double difference = 0;
 
+		// LOG.finer(">>!!processOvertones: " + ", " + toneTimeFrame.getStartTime() +
+		// ", " + f0Element.getPitchIndex());
+
 		for (double harmonic : harmonics) {
 			freq = n * f0;
 			note = PitchSet.freqToMidiNote(freq);
@@ -1379,9 +1384,18 @@ public class AudioTuner implements ToneMapConstants {
 			int index = pitchSet.getIndex(note);
 
 			ToneMapElement toneMapElement = ttfElements[index];
-			if (toneMapElement == null || toneMapElement.amplitude == -1)
+			if (toneMapElement == null || toneMapElement.amplitude == -1 || toneMapElement.amplitude <= lowThreshold) {
 				continue;
-			if (!noteTimbreCQSwitch || isMatchingTimbre(toneMapElement, f0Element)) {
+			}
+			boolean isMatch = true;
+			if (noteTimbreCQSwitch) {
+				isMatch = isMatchingTimbre(toneMapElement, f0Element);
+				if (f0Element.getPitchIndex() == 36) {
+					LOG.finer(">>!!AT isMatching: " + isMatch + ", " + toneTimeFrame.getStartTime() + ", "
+							+ f0Element.getPitchIndex() + ", " + n + ", " + toneMapElement.amplitude);
+				}
+			}
+			if (isMatch) {
 				difference += attenuate(toneMapElement, f0Element.amplitude, harmonic);
 				toneMapElement.addHarmonicWieght(n, toneMapElement.amplitude);
 			}
@@ -1389,6 +1403,10 @@ public class AudioTuner implements ToneMapConstants {
 		}
 
 		if (harmonicAccumulateSwitch) {
+			if (difference > 0.1) {
+				LOG.finer(">>!!processOvertones difference: " + difference + ", " + toneTimeFrame.getStartTime() + ", "
+						+ f0Element.getPitchIndex());
+			}
 			f0Element.amplitude += difference;
 		}
 	}
@@ -1400,7 +1418,7 @@ public class AudioTuner implements ToneMapConstants {
 				noteTimbreMedianRatio);
 		hnt.buildTimbre(harmonicElement);
 		rnt.buildTimbre(f0Element);
-		if (f0Element.getPitchIndex() == 24) {
+		if (f0Element.getPitchIndex() == 36) {
 			boolean result = hnt.matches2(rnt);
 			LOG.finer(">>!!AT isMatchingTimbre A: " + result + ", " + harmonicElement + ", " + f0Element);
 			LOG.finer(">>!!AT isMatchingTimbre A TIMBRES: " + hnt + ", " + rnt);
@@ -1434,20 +1452,20 @@ public class AudioTuner implements ToneMapConstants {
 		return pnt.matches(rnt);
 	}
 
-	private void processOvertones(ToneTimeFrame toneTimeFrame, boolean peaks) {
+	private void processOvertones(ToneTimeFrame toneTimeFrame, double lowThreshold, boolean peaks) {
 		ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 
 		for (ToneMapElement toneMapElement : ttfElements) {
-			if (toneMapElement.amplitude > MIN_AMPLITUDE) {
+			if (toneMapElement.amplitude > lowThreshold) {
 				if (!peaks || toneMapElement.isPeak) {
-					processOvertones(toneTimeFrame, toneMapElement.getIndex());
+					processOvertones(toneTimeFrame, toneMapElement.getIndex(), lowThreshold);
 				}
 			}
 		}
 	}
 
-	public void processOvertones(ToneTimeFrame toneTimeFrame) {
-		processOvertones(toneTimeFrame, false);
+	public void processOvertones(ToneTimeFrame toneTimeFrame, double lowThreshold) {
+		processOvertones(toneTimeFrame, lowThreshold, false);
 	}
 
 	private void processPeak(ToneTimeFrame toneTimeFrame, int startPeak, int endPeak, double trough,

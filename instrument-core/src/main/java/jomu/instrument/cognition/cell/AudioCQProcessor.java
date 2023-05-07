@@ -139,7 +139,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		if (cqSwitchSharpenHarmonic) {
 			if (cqSwitchPreHarmonics) {
-				tuner.processOvertones(toneMap.getTimeFrame());
+				tuner.processOvertones(toneMap.getTimeFrame(), lowThreshold);
 			}
 			if (cqSwitchPreSharpen) {
 				ttf.sharpen(cqSharpenThreshold);
@@ -149,7 +149,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 				ttf.sharpen(cqSharpenThreshold);
 			}
 			if (cqSwitchPreHarmonics) {
-				tuner.processOvertones(toneMap.getTimeFrame());
+				tuner.processOvertones(toneMap.getTimeFrame(), lowThreshold);
 			}
 		}
 
@@ -183,7 +183,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		if (cqSwitchSharpenHarmonic) {
 			if (cqSwitchPostHarmonics) {
-				tuner.processOvertones(toneMap.getTimeFrame());
+				tuner.processOvertones(toneMap.getTimeFrame(), lowThreshold);
 			}
 			if (cqSwitchPostSharpen) {
 				ttf.sharpen(cqSharpenThreshold);
@@ -193,7 +193,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 				ttf.sharpen(cqSharpenThreshold);
 			}
 			if (cqSwitchPostHarmonics) {
-				tuner.processOvertones(toneMap.getTimeFrame());
+				tuner.processOvertones(toneMap.getTimeFrame(), lowThreshold);
 			}
 		}
 

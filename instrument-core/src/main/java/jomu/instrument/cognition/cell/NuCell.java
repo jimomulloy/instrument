@@ -535,17 +535,23 @@ public class NuCell extends Cell implements Serializable {
 							throw ie;
 						}
 						List<Integer> processed = new ArrayList<>();
-						for (int sequence : messageReceivedMap.get(qe.streamId)) {
-							if (sequence <= qe.sequence) {
-								messageMap.remove(qe.streamId + sequence);
-								processed.add(Integer.valueOf(sequence));
+						try {
+							for (int sequence : messageReceivedMap.get(qe.streamId)) {
+								if (sequence <= qe.sequence) {
+									messageMap.remove(qe.streamId + sequence);
+									processed.add(Integer.valueOf(sequence));
+								}
 							}
-						}
-						for (int sequence : processed) {
-							received.remove(Integer.valueOf(sequence));
-						}
-						if (received.isEmpty()) {
-							messageReceivedMap.remove(qe.streamId);
+							for (int sequence : processed) {
+								received.remove(Integer.valueOf(sequence));
+							}
+							if (received.isEmpty()) {
+								messageReceivedMap.remove(qe.streamId);
+							}
+						} catch (Throwable t) {
+							LOG.log(Level.SEVERE,
+									">>NuCell QueueConsumer processor ERROR: " + NuCell.this.getCellType(), t);
+							throw t;
 						}
 					}
 				}

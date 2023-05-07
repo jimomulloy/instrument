@@ -1507,6 +1507,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			double playTime = toneTimeFrame.getStartTime() * 1000;
 			long tick = getTrackTick(toneTimeFrame);
 
+			PitchSet pitchSet = toneTimeFrame.getPitchSet();
 			ChannelData voiceChannel = null;
 			Set<Integer> voiceChannelLastNotes = null;
 			Track voiceTrack = null;
@@ -1577,6 +1578,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
+								LOG.severe(">>MIDI NOTE_ON: " + volume + ", " + note + ", " + snle.maxAmp);
 								if (writeTrack) {
 									createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 								}
@@ -1619,6 +1621,28 @@ public class MidiSynthesizer implements ToneMapConstants {
 						}
 						midiMessages.add(midiMessage);
 					}
+				}
+			}
+
+			if (pnle != null) {
+				note = pnle.note;
+				if (voiceChannelLastNotes.contains(note)) {
+					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
+							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
+					midiMessage = new ShortMessage();
+					try {
+						midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voiceChannel.num, note, volume);
+						LOG.severe(">>MIDI VOL: " + volume + ", " + note + ", "
+								+ toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
+						if (writeTrack) {
+							// createEvent(voiceTrack, voiceChannel, ShortMessage.CONTROL_CHANGE, note,
+							// tick, volume);
+						}
+					} catch (InvalidMidiDataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					// midiMessages.add(midiMessage);
 				}
 			}
 
@@ -1851,20 +1875,26 @@ public class MidiSynthesizer implements ToneMapConstants {
 				amplitude = 0;
 			}
 			if (playLog) {
+				LOG.severe(">>MIDI GET VOL 1: " + highVoiceThreshold + ", " + lowVoiceThreshold);
 				highLogThreshold = (float) Math.log10(1 + (logFactor * highVoiceThreshold));
 				lowLogThreshold = (float) Math.log10(1 + (logFactor * lowVoiceThreshold));
 				logAmplitude = (float) Math.log10(1 + (logFactor * amplitude));
 				volume = (int) (((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold)) * 127);
-				if (volume > highLogThreshold) {
+				LOG.severe(">>MIDI GET VOL A: " + volume + ", " + logAmplitude + ", " + highLogThreshold + ", "
+						+ lowLogThreshold + ", "
+						+ ((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold)));
+				if (volume > highLogThreshold * 127) {
 					volume = 127;
-				} else if (volume < lowLogThreshold) {
+				} else if (volume < lowLogThreshold * 127) {
 					volume = 0;
 				}
+				LOG.severe(">>MIDI GET VOL B: " + volume + ", " + logAmplitude + ", " + highLogThreshold + ", "
+						+ lowLogThreshold);
 			} else {
 				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
-				if (amplitude > highVoiceThreshold) {
+				if (volume > highVoiceThreshold * 127) {
 					volume = 127;
-				} else if (amplitude <= lowVoiceThreshold) {
+				} else if (volume <= lowVoiceThreshold * 127) {
 					volume = 0;
 				} else {
 					volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
