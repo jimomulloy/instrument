@@ -550,29 +550,30 @@ public class AudioTuner implements ToneMapConstants {
 								">>!! HWY THIS NOT JUST BACK TO ON ?? PROCESS NEW NOTE Y - Note scan PENDING - PROCESS NEW NOTE ON seq: "
 										+ sequence + ", " + note);
 
-						noteStatusElement.state = ON;
-						noteStatusElement.onTime = time;
-						if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
-							noteStatusElement.highFlag = true;
-						}
-						toneMapElement.noteState = ON;
-//						previousToneMapElement.noteState = OFF;
-//						previousNoteStatusElement.state = OFF;
-//						previousNoteStatusElement.isContinuation = false;
-//						// Process PREVIOUS note candididate note
-//						LOG.finer(">> PROCESS NOTE: " + previousNoteStatusElement.note + ", B: "
-//								+ previousNoteStatusElement);
-//						processNote(toneMap, previousNoteStatusElement, processedNotes);
 //						noteStatusElement.state = ON;
-//						noteStatusElement.isContinuation = false;
 //						noteStatusElement.onTime = time;
-//						noteStatusElement.offTime = time;
 //						if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 //							noteStatusElement.highFlag = true;
 //						}
-//						toneMapElement.noteState = START;
-//						LOG.finer(">>NOTE START 3: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note
-//								+ ", " + noteStatusElement.onTime);
+//						toneMapElement.noteState = ON;
+						// er .. ?? !! WHY ??
+						previousToneMapElement.noteState = OFF;
+						previousNoteStatusElement.state = OFF;
+						previousNoteStatusElement.isContinuation = false;
+						// Process PREVIOUS note candididate note
+						LOG.finer(">> PROCESS NOTE: " + previousNoteStatusElement.note + ", B: "
+								+ previousNoteStatusElement);
+						processNote(toneMap, previousNoteStatusElement, processedNotes);
+						noteStatusElement.state = ON;
+						noteStatusElement.isContinuation = false;
+						noteStatusElement.onTime = time;
+						noteStatusElement.offTime = time;
+						if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
+							noteStatusElement.highFlag = true;
+						}
+						toneMapElement.noteState = START;
+						LOG.finer(">>NOTE START 3: " + toneMapElement + ", " + timeSet.getStartTime() + ", " + note
+								+ ", " + noteStatusElement.onTime);
 					}
 				} else {
 					LOG.finer(">>>Note scan PENDING low amp: " + sequence + ", " + note + ", " + time + ", " + amplitude
