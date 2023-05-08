@@ -1575,13 +1575,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
 							snle.maxAmp);
 
-					LOG.severe(">>MIDI NOTE_ON VOL: " + volume + ", " + note + ", " + snle.maxAmp);
+					LOG.finer(">>MIDI NOTE_ON VOL: " + volume + ", " + note + ", " + snle.maxAmp);
 					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
 						if (!voiceChannelLastNotes.contains(note)) {
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
-								LOG.severe(">>MIDI NOTE_ON: " + volume + ", " + note + ", " + snle.maxAmp);
+								LOG.finer(">>MIDI NOTE_ON: " + volume + ", " + note + ", " + snle.maxAmp);
 								if (writeTrack) {
 									createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 								}
@@ -1652,12 +1652,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (NoteListElement enle : enles) {
 				if (enle != null) {
 					note = enle.note;
-					LOG.severe(">>MIDI NOTE_ON END NOTE: " + volume + ", " + note);
+					LOG.finer(">>MIDI NOTE_ON END NOTE: " + volume + ", " + note);
 					if (voiceChannelLastNotes.contains(note)) {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, voiceChannel.num, note, 0);
-							LOG.severe(">>MIDI NOTE_ON END: " + volume + ", " + note);
+							LOG.finer(">>MIDI NOTE_ON END: " + volume + ", " + note);
 							if (writeTrack) {
 								createEvent(voiceTrack, voiceChannel, NOTEOFF, note, tick, 0);
 							}

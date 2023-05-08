@@ -83,11 +83,11 @@ public class NoteTracker {
 		public NoteListElement[] getEndNotes(double time) {
 			List<NoteListElement> noteList = new ArrayList<>();
 			for (NoteListElement note : notes) {
-				LOG.severe(">>NoteTracker getEndNotes: " + time + ", " + note.note + ", "
+				LOG.finer(">>NoteTracker getEndNotes: " + time + ", " + note.note + ", "
 						+ (note.endTime + note.incrementTime) + ", " + number + ", " + note.startTime + " ,"
 						+ note.endTime + " ," + note.incrementTime);
 				if (Math.floor(note.endTime + note.incrementTime) == Math.floor(time)) {
-					LOG.severe(">>NoteTracker GOT getEndNotes: " + time + ", " + note.note + ", " + number + ", "
+					LOG.finer(">>NoteTracker GOT getEndNotes: " + time + ", " + note.note + ", " + number + ", "
 							+ note.startTime + " ," + note.endTime);
 					noteList.add(note);
 				}
@@ -98,10 +98,10 @@ public class NoteTracker {
 		public NoteListElement[] getStartNotes(double time) {
 			List<NoteListElement> noteList = new ArrayList<>();
 			for (NoteListElement note : notes) {
-				LOG.severe(">>NoteTracker getStartNotes: " + time + ", " + note.note + ", " + number + ", "
+				LOG.finer(">>NoteTracker getStartNotes: " + time + ", " + note.note + ", " + number + ", "
 						+ note.startTime + " ," + note.endTime);
 				if (Math.floor(note.startTime) == Math.floor(time)) {
-					LOG.severe(">>NoteTracker GOT getStartNotes: " + time + ", " + note.note + ", " + number + ", "
+					LOG.finer(">>NoteTracker GOT getStartNotes: " + time + ", " + note.note + ", " + number + ", "
 							+ note.startTime + " ," + note.endTime);
 					noteList.add(note);
 				}
@@ -241,7 +241,7 @@ public class NoteTracker {
 	}
 
 	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes) {
-		LOG.severe(">>NoteTracker trackNote: " + noteListElement.note + ", " + noteListElement);
+		LOG.finer(">>NoteTracker trackNote: " + noteListElement.note + ", " + noteListElement);
 		NoteTrack pendingOverlappingSalientTrack = null;
 		NoteTrack salientTrack = null;
 		NoteListElement disconnectedNote = null;
@@ -269,7 +269,7 @@ public class NoteTracker {
 					}
 				}
 				if (salientTrack != null) {
-					LOG.severe(">>NoteTracker trackNote C: " + noteListElement.note + ", " + salientTrack);
+					LOG.finer(">>NoteTracker trackNote C: " + noteListElement.note + ", " + salientTrack);
 				}
 			}
 
@@ -277,7 +277,7 @@ public class NoteTracker {
 				LOG.finer(">>NoteTracker trackNote getPendingSalientTrack note: " + noteListElement.note);
 				salientTrack = getPendingSalientTrack(pendingTracks, noteListElement);
 				if (salientTrack != null) {
-					LOG.severe(">>NoteTracker trackNote gotPendingSalientTrack note: " + noteListElement.note);
+					LOG.finer(">>NoteTracker trackNote gotPendingSalientTrack note: " + noteListElement.note);
 					disconnectedNote = salientTrack.getLastNote();
 					salientTrack.removeNote(disconnectedNote);
 				}
@@ -346,7 +346,7 @@ public class NoteTracker {
 		}
 
 		salientTrack.addNote(noteListElement);
-		LOG.severe(">>NoteTracker addNote: " + noteListElement.note + ", " + salientTrack + ", "
+		LOG.finer(">>NoteTracker addNote: " + noteListElement.note + ", " + salientTrack + ", "
 				+ noteListElement.startTime + " ," + noteListElement.endTime);
 
 		for (NoteTrack track : tracks.values()) {
@@ -385,7 +385,7 @@ public class NoteTracker {
 			}
 		}
 		if (pitchSalientTrack != null) {
-			LOG.severe(">>NoteTracker getPendingOverlappingSalientTrack: " + noteListElement.note + ", "
+			LOG.finer(">>NoteTracker getPendingOverlappingSalientTrack: " + noteListElement.note + ", "
 					+ noteListElement.startTime + ", " + pitchSalientTrack);
 			return pitchSalientTrack;
 		}
@@ -455,7 +455,7 @@ public class NoteTracker {
 		}
 		if (pendingSalientTrack != null) {
 			if (pitchProximity > 0 || timeProximity > 0) {
-				LOG.severe(">>NoteTracker use pendingSalientTrack: " + timeProximity + ", " + timeSalientTrack + ", "
+				LOG.finer(">>NoteTracker use pendingSalientTrack: " + timeProximity + ", " + timeSalientTrack + ", "
 						+ noteListElement);
 				return pendingSalientTrack;
 			}
