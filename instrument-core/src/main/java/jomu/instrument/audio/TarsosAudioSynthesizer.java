@@ -369,7 +369,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						}
 
 						if (noteStatusElement.state != OFF) {
-							LOG.severe(">>Audio gen: " + time + ", " + toneMapElement.getIndex());
+							LOG.finer(">>Audio gen: " + time + ", " + toneMapElement.getIndex());
 							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.1); // GAIN
 							lastAmps[toneMapElement.getIndex()] = gain;
 						} else {
@@ -380,7 +380,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					AudioEvent audioEvent = this.audioStream.getGenerator().getAudioEvent();
 					while (audioEvent.getEndTimeStamp() < time) {
 						this.audioStream.getGenerator().process();
-						LOG.severe(">>Audio gen process: " + time + ", " + audioEvent.getTimeStamp());
+						LOG.finer(">>Audio gen process: " + time + ", " + audioEvent.getTimeStamp());
 						audioEvent = this.audioStream.getGenerator().getAudioEvent();
 					}
 

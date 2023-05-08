@@ -163,14 +163,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (synthesizer != null && synthesizer.isOpen()) {
 			synthesizer.close();
 		}
-		LOG.severe(">>MIDI close");
+		LOG.finer(">>MIDI close");
 		sequence = null;
 		synthesizer = null;
 		instruments = null;
 	}
 
 	public void clear(String streamId) {
-		LOG.severe(">>MIDI clear");
+		LOG.finer(">>MIDI clear");
 		if (midiStreams.containsKey(streamId)) {
 			MidiStream ms = midiStreams.get(streamId);
 			ms.close();
@@ -179,11 +179,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 		if (controller.isCountDownLatch()) {
 			controller.getCountDownLatch().countDown();
 		}
-		LOG.severe(">>MIDI cleared");
+		LOG.finer(">>MIDI cleared");
 	}
 
 	public void reset() {
-		LOG.severe(">>MIDI reset");
+		LOG.finer(">>MIDI reset");
 		close();
 		open();
 	}
@@ -1508,6 +1508,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			long tick = getTrackTick(toneTimeFrame);
 
 			PitchSet pitchSet = toneTimeFrame.getPitchSet();
+			double sampleTime = toneTimeFrame.getTimeSet().getSampleTimeSize();
 			ChannelData voiceChannel = null;
 			Set<Integer> voiceChannelLastNotes = null;
 			Track voiceTrack = null;
@@ -1573,6 +1574,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					note = snle.note;
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
 							snle.maxAmp);
+
+					LOG.severe(">>MIDI NOTE_ON VOL: " + volume + ", " + note + ", " + snle.maxAmp);
 					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
 						if (!voiceChannelLastNotes.contains(note)) {
 							midiMessage = new ShortMessage();
@@ -1632,7 +1635,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voiceChannel.num, note, volume);
-						LOG.severe(">>MIDI VOL: " + volume + ", " + note + ", "
+						LOG.finer(">>MIDI VOL: " + volume + ", " + note + ", "
 								+ toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
 						if (writeTrack) {
 							// createEvent(voiceTrack, voiceChannel, ShortMessage.CONTROL_CHANGE, note,
@@ -1649,10 +1652,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (NoteListElement enle : enles) {
 				if (enle != null) {
 					note = enle.note;
+					LOG.severe(">>MIDI NOTE_ON END NOTE: " + volume + ", " + note);
 					if (voiceChannelLastNotes.contains(note)) {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, voiceChannel.num, note, 0);
+							LOG.severe(">>MIDI NOTE_ON END: " + volume + ", " + note);
 							if (writeTrack) {
 								createEvent(voiceTrack, voiceChannel, NOTEOFF, note, tick, 0);
 							}
@@ -1875,21 +1880,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 				amplitude = 0;
 			}
 			if (playLog) {
-				LOG.severe(">>MIDI GET VOL 1: " + highVoiceThreshold + ", " + lowVoiceThreshold);
 				highLogThreshold = (float) Math.log10(1 + (logFactor * highVoiceThreshold));
 				lowLogThreshold = (float) Math.log10(1 + (logFactor * lowVoiceThreshold));
 				logAmplitude = (float) Math.log10(1 + (logFactor * amplitude));
 				volume = (int) (((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold)) * 127);
-				LOG.severe(">>MIDI GET VOL A: " + volume + ", " + logAmplitude + ", " + highLogThreshold + ", "
-						+ lowLogThreshold + ", "
-						+ ((logAmplitude - lowLogThreshold) / (highLogThreshold - lowLogThreshold)));
 				if (volume > highLogThreshold * 127) {
 					volume = 127;
 				} else if (volume < lowLogThreshold * 127) {
 					volume = 0;
 				}
-				LOG.severe(">>MIDI GET VOL B: " + volume + ", " + logAmplitude + ", " + highLogThreshold + ", "
-						+ lowLogThreshold);
 			} else {
 				volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
 				if (volume > highVoiceThreshold * 127) {
@@ -3456,7 +3455,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			bq.clear();
 			bq.drainTo(new ArrayList<Object>());
 			consumer.stop();
-			LOG.severe(">>MidiStream close stop and reset!!");
+			LOG.finer(">>MidiStream close stop and reset!!");
 		}
 
 		public boolean isClosed() {

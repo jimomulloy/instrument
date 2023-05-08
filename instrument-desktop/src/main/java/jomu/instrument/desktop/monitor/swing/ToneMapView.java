@@ -303,10 +303,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					if (showTracking) {
 						color = Color.BLACK;
 						if (toneMapElement.noteListElement != null) {
-							LOG.finer("TM View nle: " + toneMapElement.noteListElement.note + ", "
-									+ toneMapElement.noteListElement.startTime + ", "
-									+ toneMapElement.noteListElement.endTime + ", " + elementIndex + ", " + elementIndex
-									+ ", " + ttf.getStartTime());
 							color = Color.WHITE;
 							NoteTrack track = toneMap.getNoteTracker().getTrack(toneMapElement.noteListElement);
 							if (track != null) {
