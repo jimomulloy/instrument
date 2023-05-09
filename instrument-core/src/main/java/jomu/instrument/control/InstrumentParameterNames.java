@@ -232,6 +232,8 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO = "audio.tuner.timbre.medianRatio";
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH = "audio.tuner.timbre.cqSwitch";
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH = "audio.tuner.timbre.notateSwitch";
+	public static final String AUDIO_TUNER_HARMONIC_SWEEP = "audio.tuner.harmonicSweep";
+	public static final String AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR = "audio.tuner.clearNoteEdgeFactor";
 
 	public static final String MONITOR_VIEW_TIME_AXIS_OFFSET = "monitor.view.timeAxisOffset";
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";

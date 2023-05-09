@@ -282,6 +282,10 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField noteTrackerSalientTimeRangeInput;
 
+	private JTextField tunerHarmonicSweepInput;
+
+	private JTextField tunerClearNoteEdgeFactorInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -3190,6 +3194,39 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(tunerSignalMinimumLabel);
 		cqParamsPanel.add(tunerSignalMinimumInput);
 
+		JLabel tunerHarmonicSweepLabel = new JLabel("Tuner Harmonic Sweep: ");
+		tunerHarmonicSweepInput = new JTextField(4);
+		tunerHarmonicSweepInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerHarmonicSweepInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP, newValue);
+				tunerHarmonicSweepLabel.setText(String.format("Tuner Harmonic Sweep  (%s):", newValue));
+				tunerHarmonicSweepInput.setText(newValue);
+			}
+		});
+		tunerHarmonicSweepInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP));
+		cqParamsPanel.add(tunerHarmonicSweepLabel);
+		cqParamsPanel.add(tunerHarmonicSweepInput);
+
+		JLabel tunerClearNoteEdgeFactorLabel = new JLabel("Tuner Clear Note Edge Factor: ");
+		tunerClearNoteEdgeFactorInput = new JTextField(4);
+		tunerClearNoteEdgeFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerClearNoteEdgeFactorInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR,
+						newValue);
+				tunerClearNoteEdgeFactorLabel.setText(String.format("Tuner Clear Note Edge Factor (%s):", newValue));
+				tunerClearNoteEdgeFactorInput.setText(newValue);
+			}
+		});
+		tunerClearNoteEdgeFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR));
+		cqParamsPanel.add(tunerClearNoteEdgeFactorLabel);
+		cqParamsPanel.add(tunerClearNoteEdgeFactorInput);
+
 		JLabel noteTimbreFrequencyRangeLabel = new JLabel("Note Timbre Frequency Range: ");
 		noteTimbreFrequencyRangeInput = new JTextField(4);
 		noteTimbreFrequencyRangeInput.addActionListener(new ActionListener() {
@@ -4112,5 +4149,10 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH));
 		noteTimbreNotateSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH));
+
+		tunerHarmonicSweepInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP));
+		tunerClearNoteEdgeFactorInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR));
 	}
 }

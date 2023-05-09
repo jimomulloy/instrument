@@ -13,6 +13,7 @@ import java.util.Map;
 public class ToneMapElement {
 
 	public double amplitude;
+	public double harmonicAmplitude;
 	public NoteListElement noteListElement;
 	public int noteState;
 	public boolean isPeak;
