@@ -54,10 +54,10 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 	public static final Color[] COLORS = { new Color(0xff0000), // red
 			new Color(0x0000ff), // blue
-			new Color(0xffa500), // orange
+			new Color(0x00ff00), // green
 			new Color(0xcc02de), // purple
 			new Color(0x00aaaa), // cyan-ish
-			new Color(0x000000), // black
+			new Color(0xffa500), // orange
 			new Color(0x53868b), // cadetblue4
 			new Color(0xff7f50), // coral
 			new Color(0x45ab1f), // dark green-ish

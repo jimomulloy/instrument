@@ -157,9 +157,11 @@ public class ToneSynthesiser implements ToneMapConstants {
 			if ((Math.abs(pnle.note - nle.note) <= 2) && ((nle.startTime - pnle.endTime) < 1000)) {
 				ToneTimeFrame frame = toneMap.getTimeFrame(pnle.endTime / 1000);
 				ToneTimeFrame lastFrame = null;
+				LOG.finer(">>ToneSynthesiser addLegato for nle C: " + nle.note + ", " + nle.startTime + ", " + pnle.note
+						+ ", " + pnle.startTime + ", " + pnle.endTime + ", " + frame);
 				if (frame != null) {
 					double time = frame.getStartTime();
-					while (frame != null && (time * 1000) <= nle.startTime) {
+					while (frame != null && (time * 1000) < nle.startTime) {
 						LOG.finer(">>ToneSynthesiser addLegato: " + time + ", " + nle.note + ", " + pnle.endTime + ", "
 								+ track.getNumber());
 						frame.getElement(pnle.pitchIndex).noteListElement = pnle;

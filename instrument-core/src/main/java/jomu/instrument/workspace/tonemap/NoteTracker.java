@@ -88,7 +88,7 @@ public class NoteTracker {
 						+ note.endTime + " ," + note.incrementTime);
 				if (Math.floor(note.endTime + note.incrementTime) == Math.floor(time)) {
 					LOG.finer(">>NoteTracker GOT getEndNotes: " + time + ", " + note.note + ", " + number + ", "
-							+ note.startTime + " ," + note.endTime);
+							+ note.startTime + " ," + note.endTime + ", " + (note.endTime + note.incrementTime));
 					noteList.add(note);
 				}
 			}
