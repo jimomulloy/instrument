@@ -591,11 +591,11 @@ public class NoteTracker {
 		Set<NoteTrack> discardedTracks = new HashSet<>();
 		if (tracks.size() > maxTracksLower) {
 			for (NoteTrack track : tracks.values()) {
-				List<NoteListElement> notes = track.getNotes();
-				Set<NoteListElement> notesToDelete = new HashSet<>();
-				NoteListElement lastNote = null;
 				boolean hasDiscarded = false;
 				do {
+					List<NoteListElement> notes = track.getNotes();
+					Set<NoteListElement> notesToDelete = new HashSet<>();
+					NoteListElement lastNote = null;
 					hasDiscarded = false;
 					for (NoteListElement nle : notes) {
 						if (lastNote != null) {

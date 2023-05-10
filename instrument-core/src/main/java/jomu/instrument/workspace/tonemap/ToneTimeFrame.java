@@ -1491,7 +1491,11 @@ public class ToneTimeFrame {
 				// element.amplitude = originalAmplitude * 0.5 * originalAmplitude /
 				// lastAmplitude;
 				if (troughIndex > 0) {
-					element.amplitude = elements[troughIndex].amplitude;
+					if (element.amplitude < elements[troughIndex].amplitude) {
+						troughIndex = elementIndex;
+					} else {
+						element.amplitude = elements[troughIndex].amplitude;
+					}
 				} else {
 					element.amplitude = AMPLITUDE_FLOOR;
 				}
