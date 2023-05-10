@@ -39,6 +39,9 @@ public class AudioTuner implements ToneMapConstants {
 	double harmonicSweep = 110;
 	double clearNoteEdgeFactor = 2;
 
+	boolean clearHeadNotesSwitch;
+	boolean clearTailNotesSwitch;
+
 	private int n1Setting = 10;
 	private boolean n1Switch;
 	private int n2Setting = 100;
@@ -139,6 +142,11 @@ public class AudioTuner implements ToneMapConstants {
 		n5Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N5_SWITCH);
 		n6Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N6_SWITCH);
 		n7Switch = parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_N7_SWITCH);
+
+		clearHeadNotesSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_HEAD_NOTES_SWITCH);
+		clearTailNotesSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH);
 
 		noteScanAttenuateHarmonics = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS);
@@ -672,8 +680,98 @@ public class AudioTuner implements ToneMapConstants {
 				}
 			}
 		}
+
+		if (clearTailNotesSwitch) {
+			clearTailNotes(toneMap);
+		}
+
 		LOG.finer(">>NOTESCAN EXIT");
 		return true;
+	}
+
+	private void clearTailNotes(ToneMap toneMap) {
+		ToneTimeFrame toToneTimeFrame = toneMap.getTimeFrame();
+		ToneTimeFrame fromToneTimeFrame = toToneTimeFrame;
+		double toTime = fromToneTimeFrame.getStartTime() * 1000;
+		double fromTime = fromToneTimeFrame.getStartTime() * 1000;
+		Set<ToneTimeFrame> timeFrames = new HashSet<>();
+		while (fromTime >= toTime - harmonicSweep && fromToneTimeFrame != null) {
+			timeFrames.add(fromToneTimeFrame);
+			fromToneTimeFrame = toneMap.getPreviousTimeFrame(fromTime / 1000);
+			if (fromToneTimeFrame != null) {
+				fromTime = fromToneTimeFrame.getStartTime() * 1000;
+			}
+		}
+
+		Set<NoteListElement> candidateNotes = new HashSet<>();
+		for (ToneTimeFrame toneTimeFrame : timeFrames) {
+			ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+			for (ToneMapElement ttfElement : ttfElements) {
+				if (ttfElement.noteListElement != null && (ttfElement.noteListElement.endTime
+						- ttfElement.noteListElement.startTime) > (harmonicSweep * clearNoteEdgeFactor)) {
+					candidateNotes.add(ttfElement.noteListElement);
+				}
+			}
+		}
+
+		Set<NoteListElement> discardedNotes = new HashSet<>();
+
+		for (NoteListElement candidateNote : candidateNotes) {
+			for (ToneTimeFrame toneTimeFrame : timeFrames) {
+				ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+
+				int step = 0;
+				for (int index = candidateNote.pitchIndex + 1; index < ttfElements.length
+						|| index < candidateNote.pitchIndex + 12; index++) {
+					if (ttfElements[index].noteListElement != null) {
+						if (ttfElements[index].noteListElement != null && (ttfElements[index].noteListElement.endTime
+								- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
+							discardedNotes.add(ttfElements[index].noteListElement);
+							step = 0;
+						}
+					}
+					step++;
+					if (step > 4) {
+						break;
+					}
+				}
+				step = 0;
+				for (int index = candidateNote.pitchIndex - 1; index >= 0
+						|| index > candidateNote.pitchIndex - 12; index--) {
+					if (ttfElements[index].noteListElement != null) {
+						if (ttfElements[index].noteListElement != null && (ttfElements[index].noteListElement.endTime
+								- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
+							discardedNotes.add(ttfElements[index].noteListElement);
+							step = 0;
+						}
+					}
+					step++;
+					if (step > 4) {
+						break;
+					}
+				}
+			}
+		}
+
+		for (NoteListElement discardedNote : discardedNotes) {
+			ToneTimeFrame[] ttfs = toneMap.getTimeFramesFrom((discardedNote.startTime / 1000.0));
+
+			for (ToneTimeFrame toneTimeFrame : ttfs) {
+				if (toneTimeFrame.getStartTime() > (discardedNote.endTime / 1000.0)) {
+					break;
+				}
+				ToneMapElement toneMapElement = toneTimeFrame.getElement(discardedNote.pitchIndex);
+				NoteStatusElement noteStatusElement = toneTimeFrame.getNoteStatus()
+						.getNoteStatusElement(discardedNote.note);
+				toneMapElement.noteListElement = null;
+				toneMapElement.noteState = OFF;
+				noteStatusElement.state = OFF;
+				noteStatusElement.onTime = 0.0;
+				noteStatusElement.offTime = 0.0;
+				noteStatusElement.highFlag = false;
+			}
+		}
+
 	}
 
 	private boolean shortNote(NoteStatusElement noteStatusElement, double timeIncrement, int noteMinDuration) {
@@ -959,7 +1057,8 @@ public class AudioTuner implements ToneMapConstants {
 				+ noteStatusElement.offTime + ", max in note: " + maxAmp + ", tm max: " + toneMap.getStatistics().max
 				+ ", " + noteStatusElement + ", " + noteListElement);
 
-		if (noteListElement.endTime - noteListElement.startTime > (harmonicSweep * clearNoteEdgeFactor)) {
+		if (clearHeadNotesSwitch
+				&& noteListElement.endTime - noteListElement.startTime > (harmonicSweep * clearNoteEdgeFactor)) {
 			clearHeadNotes(toneMap, noteListElement);
 		}
 	}

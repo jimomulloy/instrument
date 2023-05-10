@@ -1573,19 +1573,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (snle != null) {
 					note = snle.note;
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
-							snle.maxAmp);
+							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
 
-					LOG.finer(">>MIDI NOTE_ON VOL: " + volume + ", " + note + ", " + snle.maxAmp);
 					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
 						if (!voiceChannelLastNotes.contains(note)) {
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
-								LOG.severe(">>MIDI NOTE_ON A: " + playTime + ", " + volume + ", " + note + ", "
-										+ snle.maxAmp);
 								if (writeTrack) {
 									createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 								}
+								LOG.severe(">>MIDI NOTE_ON: " + playTime + ", " + note + ", " + volume);
 							} catch (InvalidMidiDataException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -1609,16 +1607,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 			if (playGlissando && pnle != null) {
 				note = pnle.note;
 				if (voiceChannelLastNotes.contains(note)) {
-					LOG.severe(
-							">>MIDI PITCH_BEND X: " + playTime + ", " + volume + ", " + note + ", " + pnle.legatoAfter);
 					pitchBend = glissando(toneTimeFrame, pnle, glissandoRange);
 					if (pitchBend != null) {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.PITCH_BEND, voiceChannel.num,
 									pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
-							LOG.severe(">>MIDI PITCH_BEND A: " + playTime + ", " + volume + ", " + note + ", "
-									+ pitchBend.getAmount());
 							if (writeTrack) {
 								createEvent(voiceTrack, voiceChannel, ShortMessage.PITCH_BEND,
 										pitchBend.getLeastSignificantBits(), tick, pitchBend.getMostSignificantBits());
@@ -1634,30 +1628,31 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (pnle != null) {
 				note = pnle.note;
+				int increment = (int) ((playTime - pnle.startTime));
+				// if (increment >= 300 && increment % 300 < 100) {
 				if (voiceChannelLastNotes.contains(note)) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
 							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
 					midiMessage = new ShortMessage();
 					try {
-						midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voiceChannel.num, note, volume);
-						LOG.finer(">>MIDI VOL: " + volume + ", " + note + ", "
-								+ toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
+						midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voiceChannel.num, 7, volume);
 						if (writeTrack) {
-							// createEvent(voiceTrack, voiceChannel, ShortMessage.CONTROL_CHANGE, note,
-							// tick, volume);
+							createEvent(voiceTrack, voiceChannel, ShortMessage.CONTROL_CHANGE, 7, tick, volume);
 						}
 					} catch (InvalidMidiDataException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					// midiMessages.add(midiMessage);
+					LOG.severe(">>MIDI CONTROL_CHANGE: " + playTime + ", " + volume + ", " + note + ", " + volume);
+
+					midiMessages.add(midiMessage);
 				}
+				// }
 			}
 
 			for (NoteListElement enle : enles) {
 				if (enle != null) {
 					note = enle.note;
-					LOG.finer(">>MIDI NOTE_ON END NOTE: " + volume + ", " + note);
 					if (voiceChannelLastNotes.contains(note)) {
 						pitchBend = new MidiPitchBend();
 						pitchBend.setBendAmount(0);
@@ -1665,8 +1660,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 						try {
 							midiMessage.setMessage(ShortMessage.PITCH_BEND, voiceChannel.num,
 									pitchBend.getLeastSignificantBits(), pitchBend.getMostSignificantBits());
-							LOG.severe(">>MIDI PITCH_BEND B: " + playTime + ", " + volume + ", " + note + ", "
-									+ pitchBend.getAmount());
 							if (writeTrack) {
 								createEvent(voiceTrack, voiceChannel, ShortMessage.PITCH_BEND,
 										pitchBend.getLeastSignificantBits(), tick, pitchBend.getMostSignificantBits());
@@ -1680,7 +1673,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_OFF, voiceChannel.num, note, 0);
-							LOG.severe(">>MIDI NOTE_ON END: " + playTime + ", " + volume + ", " + note);
 							if (writeTrack) {
 								createEvent(voiceTrack, voiceChannel, NOTEOFF, note, tick, 0);
 							}
@@ -1700,8 +1692,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
-								LOG.severe(">>MIDI NOTE_ON B: " + playTime + ", " + volume + ", " + note + ", "
-										+ enle.maxAmp);
 								if (writeTrack) {
 									createEvent(voiceTrack, voiceChannel, NOTEON, note, tick, volume);
 								}

@@ -45,20 +45,59 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
+		boolean integrateCQSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH);
+		boolean integratePeaksSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH);
+		boolean integrateSpectralSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH);
+		int synthSweepRange = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE);
 
-		ToneTimeFrame notateFrame = notateToneMap.getTimeFrame(sequence);
-		ToneTimeFrame notatePeaksFrame = notatePeaksToneMap.getTimeFrame(sequence);
-		ToneTimeFrame notateSpectralFrame = notateSpectralToneMap.getTimeFrame(sequence);
+		ToneTimeFrame notateFrame = null;
+		ToneTimeFrame notatePeaksFrame = null;
+		ToneTimeFrame notateSpectralFrame = null;
+
+		if (integrateCQSwitch) {
+			notateFrame = notateToneMap.getTimeFrame(sequence);
+		}
+		if (integratePeaksSwitch) {
+			notatePeaksFrame = notatePeaksToneMap.getTimeFrame(sequence);
+		}
+		if (integrateSpectralSwitch) {
+			notateSpectralFrame = notateSpectralToneMap.getTimeFrame(sequence);
+		}
+
+		if (notateFrame == null && notatePeaksFrame == null && notateSpectralFrame == null) {
+			throw new InstrumentException("AudioSynthesisProcessor has no options");
+		}
 
 		ToneTimeFrame chromaFrame = chromaToneMap.getTimeFrame(sequence);
 
-		ToneTimeFrame synthesisFrame = notateFrame.clone();
-		synthesisToneMap.addTimeFrame(synthesisFrame);
-		synthesisFrame.mergeNotes(synthesisToneMap, notateFrame);
+		ToneTimeFrame synthesisFrame = null;
 
-		synthesisFrame.integratePeaks(notatePeaksFrame);
-		synthesisFrame.merge(synthesisToneMap, notateSpectralFrame);
+		if (integrateCQSwitch) {
+			synthesisFrame = notateFrame.clone();
+			synthesisToneMap.addTimeFrame(synthesisFrame);
+			synthesisFrame.mergeNotes(synthesisToneMap, notateFrame);
+		}
 
+		if (integratePeaksSwitch) {
+			if (synthesisFrame == null) {
+				synthesisFrame = notatePeaksFrame.clone();
+			}
+			synthesisFrame.integratePeaks(notatePeaksFrame);
+		}
+		if (integrateSpectralSwitch) {
+			if (synthesisFrame == null) {
+				synthesisFrame = notateSpectralFrame.clone();
+			}
+			synthesisFrame.merge(synthesisToneMap, notateSpectralFrame);
+		}
+
+		if (synthesisFrame == null) {
+			synthesisFrame = chromaFrame.clone();
+		}
 		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
@@ -72,7 +111,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
 
-		int tmIndex = sequence - 30;
+		int tmIndex = sequence - synthSweepRange;
 
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);

@@ -45,83 +45,123 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MAX_DURATION);
 		int noteSpectralMinDuration = parameterManager
 				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SPECTRAL_MIN_DURATION);
+		int notateSweepRange = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE);
+		boolean integrateCQSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH);
+		boolean integratePeaksSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH);
+		boolean integrateSpectralSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH);
 
 		ToneMap integrateToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
-		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		ToneTimeFrame notateTimeFrame = notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
 
-		ToneMap integratePeaksToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_PEAKS", streamId));
-		ToneMap integrateSpectralToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_SPECTRAL", streamId));
-		ToneMap notatePeaksToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_PEAKS", streamId));
-		ToneMap notateSpectralToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SPECTRAL", streamId));
-		ToneTimeFrame notatePeaksTimeFrame = notatePeaksToneMap
-				.addTimeFrame(integratePeaksToneMap.getTimeFrame(sequence).clone());
-		ToneTimeFrame notateSpectralTimeFrame = notateSpectralToneMap
-				.addTimeFrame(integrateSpectralToneMap.getTimeFrame(sequence).clone());
+		ToneMap notateToneMap = null;
+		ToneMap notatePeaksToneMap = null;
+		ToneMap notateSpectralToneMap = null;
+		ToneTimeFrame notateTimeFrame = null;
+		ToneTimeFrame notatePeaksTimeFrame = null;
+		ToneTimeFrame notateSpectralTimeFrame = null;
+		if (integrateCQSwitch) {
+			notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+			notateTimeFrame = notateToneMap.addTimeFrame(integrateToneMap.getTimeFrame(sequence).clone());
+		}
+
+		if (integratePeaksSwitch) {
+			ToneMap integratePeaksToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_PEAKS", streamId));
+			notatePeaksToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(this.cell.getCellType() + "_PEAKS", streamId));
+			notatePeaksTimeFrame = notatePeaksToneMap
+					.addTimeFrame(integratePeaksToneMap.getTimeFrame(sequence).clone());
+		}
+		if (integrateSpectralSwitch) {
+			ToneMap integrateSpectralToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_SPECTRAL", streamId));
+			notateSpectralToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SPECTRAL", streamId));
+			notateSpectralTimeFrame = notateSpectralToneMap
+					.addTimeFrame(integrateSpectralToneMap.getTimeFrame(sequence).clone());
+		}
+
+		if (notateTimeFrame == null && notatePeaksTimeFrame == null && notateSpectralTimeFrame == null) {
+			throw new InstrumentException("AudioNotateProcessor has no options");
+		}
 
 		AudioTuner notateTuner = new AudioTuner();
 		AudioTuner peaksTuner = new AudioTuner();
 		AudioTuner spTuner = new AudioTuner();
 
 		if (notateApplyFormantsSwitch) {
-			notateTuner.applyFormants(notateTimeFrame);
-			peaksTuner.applyFormants(notatePeaksTimeFrame);
-			spTuner.applyFormants(notateSpectralTimeFrame);
+			if (integrateCQSwitch) {
+				notateTuner.applyFormants(notateTimeFrame);
+			}
+			if (integratePeaksSwitch) {
+				peaksTuner.applyFormants(notatePeaksTimeFrame);
+			}
+			if (integrateSpectralSwitch) {
+				spTuner.applyFormants(notateSpectralTimeFrame);
+			}
 		}
 
 		notateTimeFrame.reset();
-		LOG.finer(">>NOTATE TTF: " + notateTimeFrame.getStartTime() + ", " + notateTimeFrame.getMaxAmplitude() + ", "
-				+ notateTimeFrame.getMinAmplitude() + ", " + notateTimeFrame.getRmsPower());
 
-		notateTuner.noteScan(notateToneMap, sequence, noteMinDuration, noteMaxDuration);
-		console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
+		if (integrateCQSwitch) {
+			notateTuner.noteScan(notateToneMap, sequence, noteMinDuration, noteMaxDuration);
+			console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
+		}
 
-		// peaksTuner.noteScan(notatePeaksToneMap, sequence, notePeaksMinDuration,
-		// notePeaksMaxDuration);
-		console.getVisor().updateToneMapView(notatePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
+		if (integratePeaksSwitch) {
+			peaksTuner.noteScan(notatePeaksToneMap, sequence, notePeaksMinDuration, notePeaksMaxDuration);
+			console.getVisor().updateToneMapView(notatePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
+		}
 
-		// spTuner.noteScan(notateSpectralToneMap, sequence, noteSpectralMinDuration,
-		// noteSpectralMaxDuration);
-		console.getVisor().updateToneMapView(notateSpectralToneMap, this.cell.getCellType().toString() + "_SPECTRAL");
+		if (integrateSpectralSwitch) {
+			spTuner.noteScan(notateSpectralToneMap, sequence, noteSpectralMinDuration, noteSpectralMaxDuration);
+			console.getVisor().updateToneMapView(notateSpectralToneMap,
+					this.cell.getCellType().toString() + "_SPECTRAL");
+		}
 
-		int tmIndex = sequence - 12 * (noteMaxDuration / 1000); // TODO !!
+		int tmIndex = sequence - notateSweepRange;
 		if (tmIndex > 0) {
-			notateTimeFrame = notateToneMap.getTimeFrame(tmIndex);
-			if (notateTimeFrame != null) {
+			if (integrateCQSwitch) {
+				notateTimeFrame = notateToneMap.getTimeFrame(tmIndex);
+				if (notateTimeFrame != null) {
 
-				if (notateSwitchCompress) {
-					clearNotes(notateTimeFrame);
-					notateTimeFrame.compress(compression, false);
+					if (notateSwitchCompress) {
+						clearNotes(notateTimeFrame);
+						notateTimeFrame.compress(compression, false);
+					}
+					console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
+							this.cell.getCellType().toString());
 				}
-				console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
-						this.cell.getCellType().toString());
 			}
 
-			notatePeaksTimeFrame = notatePeaksToneMap.getTimeFrame(tmIndex);
-			if (notatePeaksTimeFrame != null) {
+			if (integratePeaksSwitch) {
+				notatePeaksTimeFrame = notatePeaksToneMap.getTimeFrame(tmIndex);
+				if (notatePeaksTimeFrame != null) {
 
-				if (notateSwitchCompress) {
-					clearNotes(notatePeaksTimeFrame);
-					notatePeaksTimeFrame.compress(compression, false);
+					if (notateSwitchCompress) {
+						clearNotes(notatePeaksTimeFrame);
+						notatePeaksTimeFrame.compress(compression, false);
+					}
+					console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
+							this.cell.getCellType().toString() + "_PEAKS");
 				}
-				console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
-						this.cell.getCellType().toString() + "_PEAKS");
 			}
 
-			notateSpectralTimeFrame = notateSpectralToneMap.getTimeFrame(tmIndex);
-			if (notateSpectralTimeFrame != null) {
+			if (integrateSpectralSwitch) {
+				notateSpectralTimeFrame = notateSpectralToneMap.getTimeFrame(tmIndex);
+				if (notateSpectralTimeFrame != null) {
 
-				if (notateSwitchCompress) {
-					clearNotes(notateSpectralTimeFrame);
-					notateSpectralTimeFrame.compress(compression, false);
+					if (notateSwitchCompress) {
+						clearNotes(notateSpectralTimeFrame);
+						notateSpectralTimeFrame.compress(compression, false);
+					}
+					console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
+							this.cell.getCellType().toString() + "_SPECTRAL");
 				}
-				console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
-						this.cell.getCellType().toString() + "_SPECTRAL");
 			}
 
 			LOG.finer(">>AudioNotateProcessor send: " + tmIndex + ", streamId: " + streamId);
@@ -134,35 +174,40 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			}
 			LOG.finer(">>AudioNotateProcessor closing: " + sequence + ", streamId: " + streamId);
 			for (int i = tmIndex + 1; i <= sequence; i++) {
-
-				notateTimeFrame = notateToneMap.getTimeFrame(i);
-				if (notateTimeFrame != null) { // TODO or make fake on here?
-					if (notateSwitchCompress) {
-						clearNotes(notateTimeFrame);
-						notateTimeFrame.compress(compression, false);
+				if (integrateCQSwitch) {
+					notateTimeFrame = notateToneMap.getTimeFrame(i);
+					if (notateTimeFrame != null) { // TODO or make fake on here?
+						if (notateSwitchCompress) {
+							clearNotes(notateTimeFrame);
+							notateTimeFrame.compress(compression, false);
+						}
+						console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
+								this.cell.getCellType().toString());
 					}
-					console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
-							this.cell.getCellType().toString());
 				}
 
-				notatePeaksTimeFrame = notatePeaksToneMap.getTimeFrame(i);
-				if (notatePeaksTimeFrame != null) { // TODO or make fake on here?
-					if (notateSwitchCompress) {
-						clearNotes(notatePeaksTimeFrame);
-						notatePeaksTimeFrame.compress(compression, false);
+				if (integratePeaksSwitch) {
+					notatePeaksTimeFrame = notatePeaksToneMap.getTimeFrame(i);
+					if (notatePeaksTimeFrame != null) { // TODO or make fake on here?
+						if (notateSwitchCompress) {
+							clearNotes(notatePeaksTimeFrame);
+							notatePeaksTimeFrame.compress(compression, false);
+						}
+						console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
+								this.cell.getCellType().toString() + "_PEAKS");
 					}
-					console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
-							this.cell.getCellType().toString() + "_PEAKS");
 				}
 
-				notateSpectralTimeFrame = notateSpectralToneMap.getTimeFrame(i);
-				if (notateSpectralTimeFrame != null) { // TODO or make fake on here?
-					if (notateSwitchCompress) {
-						clearNotes(notateSpectralTimeFrame);
-						notateSpectralTimeFrame.compress(compression, false);
+				if (integrateSpectralSwitch) {
+					notateSpectralTimeFrame = notateSpectralToneMap.getTimeFrame(i);
+					if (notateSpectralTimeFrame != null) { // TODO or make fake on here?
+						if (notateSwitchCompress) {
+							clearNotes(notateSpectralTimeFrame);
+							notateSpectralTimeFrame.compress(compression, false);
+						}
+						console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
+								this.cell.getCellType().toString() + "_SPECTRAL");
 					}
-					console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
-							this.cell.getCellType().toString() + "_SPECTRAL");
 				}
 
 				LOG.finer(">>AudioNotateProcessor close send: " + i + ", streamId: " + streamId);

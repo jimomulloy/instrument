@@ -286,6 +286,32 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField tunerClearNoteEdgeFactorInput;
 
+	private JCheckBox tunerClearHeadNotesSwitchCB;
+
+	private JCheckBox tunerClearTailNotesSwitchCB;
+
+	private JCheckBox integrateCQSwitchCB;
+
+	private JCheckBox integratePeaksSwitchCB;
+
+	private JCheckBox integrateSpectralSwitchCB;
+
+	private JCheckBox integratePitchSwitchCB;
+
+	private AbstractButton integrateSPSwitchCB;
+
+	private JCheckBox integrateTPSwitchCB;
+
+	private JCheckBox integrateYINSwitchCB;
+
+	private JCheckBox integrateSACFSwitchCB;
+
+	private JCheckBox integrateMFCCSwitchCB;
+
+	private JTextField notateSweepRangeInput;
+
+	private JTextField synthesisSweepRangeInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -798,6 +824,38 @@ public class ParametersPanel extends JPanel {
 		noteTimbreNotateSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH));
 		tunerSwitchPanel.add(noteTimbreNotateSwitchCB);
+
+		tunerClearHeadNotesSwitchCB = new JCheckBox("tunerClearHeadNotesSwitchCB");
+		tunerClearHeadNotesSwitchCB.setText("Tuner Clear Head Notes Switch");
+		tunerClearHeadNotesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_HEAD_NOTES_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		tunerClearHeadNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_HEAD_NOTES_SWITCH));
+		tunerSwitchPanel.add(tunerClearHeadNotesSwitchCB);
+
+		tunerClearTailNotesSwitchCB = new JCheckBox("tunerClearTailNotesSwitchCB");
+		tunerClearTailNotesSwitchCB.setText("Tuner Clear Tail Notes Switch");
+		tunerClearTailNotesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		tunerClearTailNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH));
+		tunerSwitchPanel.add(tunerClearTailNotesSwitchCB);
 
 		hpsMedianSwitchCB = new JCheckBox("hpsMedianSwitchCB");
 		hpsMedianSwitchCB.setText("HPS Median Switch");
@@ -1511,6 +1569,150 @@ public class ParametersPanel extends JPanel {
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
 		cqSwitchPanel.add(integrateHpsSwitchCB);
+
+		integrateCQSwitchCB = new JCheckBox("integrateCQSwitchCB");
+		integrateCQSwitchCB.setText("Integrate CQ");
+		integrateCQSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateCQSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH));
+		cqSwitchPanel.add(integrateCQSwitchCB);
+
+		integratePeaksSwitchCB = new JCheckBox("integratePeaksSwitchCB");
+		integratePeaksSwitchCB.setText("Integrate Peaks");
+		integratePeaksSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integratePeaksSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH));
+		cqSwitchPanel.add(integratePeaksSwitchCB);
+
+		integrateSpectralSwitchCB = new JCheckBox("integrateSpectralSwitchCB");
+		integrateSpectralSwitchCB.setText("Integrate Spectral");
+		integrateSpectralSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateSpectralSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH));
+		cqSwitchPanel.add(integrateSpectralSwitchCB);
+
+		integratePitchSwitchCB = new JCheckBox("integratePitchSwitchCB");
+		integratePitchSwitchCB.setText("Integrate Pitch");
+		integratePitchSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PITCH_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integratePitchSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PITCH_SWITCH));
+		cqSwitchPanel.add(integratePitchSwitchCB);
+
+		integrateSPSwitchCB = new JCheckBox("integrateSPSwitchCB");
+		integrateSPSwitchCB.setText("Integrate SP");
+		integrateSPSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SP_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateSPSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SP_SWITCH));
+		cqSwitchPanel.add(integrateSPSwitchCB);
+
+		integrateTPSwitchCB = new JCheckBox("integrateTPSwitchCB");
+		integrateTPSwitchCB.setText("Integrate TP");
+		integrateTPSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_TP_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateTPSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_TP_SWITCH));
+		cqSwitchPanel.add(integrateTPSwitchCB);
+
+		integrateYINSwitchCB = new JCheckBox("integrateYINSwitchCB");
+		integrateYINSwitchCB.setText("Integrate YIN");
+		integrateYINSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_YIN_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateYINSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_YIN_SWITCH));
+		cqSwitchPanel.add(integrateYINSwitchCB);
+
+		integrateSACFSwitchCB = new JCheckBox("integrateSACFSwitchCB");
+		integrateSACFSwitchCB.setText("Integrate SACF");
+		integrateSACFSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateSACFSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH));
+		cqSwitchPanel.add(integrateSACFSwitchCB);
+
+		integrateMFCCSwitchCB = new JCheckBox("integrateMFCCSwitchCB");
+		integrateMFCCSwitchCB.setText("Integrate MFCC");
+		integrateMFCCSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrateMFCCSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH));
+		cqSwitchPanel.add(integrateMFCCSwitchCB);
 
 		synthesisChordsSwitchCB = new JCheckBox("synthesisChordsSwitchCB");
 		synthesisChordsSwitchCB.setText("Synthesis Fill Chords");
@@ -3312,6 +3514,40 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(notateCompressionLevelLabel);
 		cqParamsPanel.add(notateCompressionLevelInput);
 
+		JLabel notateSweepRangeLabel = new JLabel("Notate Sweep Range: ");
+		notateSweepRangeInput = new JTextField(4);
+		notateSweepRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = notateSweepRangeInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE,
+						newValue);
+				notateSweepRangeLabel.setText(String.format("Notate Sweep Range  (%s):", newValue));
+				notateSweepRangeInput.setText(newValue);
+			}
+		});
+		notateSweepRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE));
+		cqParamsPanel.add(notateSweepRangeLabel);
+		cqParamsPanel.add(notateSweepRangeInput);
+
+		JLabel synthesisSweepRangeLabel = new JLabel("Synthesis Sweep Range: ");
+		synthesisSweepRangeInput = new JTextField(4);
+		synthesisSweepRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisSweepRangeInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE, newValue);
+				synthesisSweepRangeLabel.setText(String.format("Synthesis Sweep Range  (%s):", newValue));
+				synthesisSweepRangeInput.setText(newValue);
+			}
+		});
+		synthesisSweepRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE));
+		cqParamsPanel.add(synthesisSweepRangeLabel);
+		cqParamsPanel.add(synthesisSweepRangeInput);
+
 		JLabel synthesisQuantizeBeatLabel = new JLabel("Synthesis Quantize Beat: ");
 		synthesisQuantizeBeatInput = new JTextField(4);
 		synthesisQuantizeBeatInput.addActionListener(new ActionListener() {
@@ -3988,6 +4224,10 @@ public class ParametersPanel extends JPanel {
 
 		notateCompressionLevelInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_COMPRESSION));
+		notateSweepRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE));
+		synthesisSweepRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE));
 
 		synthesisQuantizeRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE));
@@ -4111,6 +4351,25 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
+		integrateCQSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH));
+		integratePeaksSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH));
+		integrateSpectralSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH));
+		integratePitchSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PITCH_SWITCH));
+		integrateSPSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SP_SWITCH));
+		integrateTPSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_TP_SWITCH));
+		integrateYINSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_YIN_SWITCH));
+		integrateSACFSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH));
+		integrateMFCCSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH));
+
 		synthesisChordsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH));
 		synthesisLegatoSwitchCB.setSelected(parameterManager
@@ -4149,6 +4408,10 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH));
 		noteTimbreNotateSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH));
+		tunerClearHeadNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_HEAD_NOTES_SWITCH));
+		tunerClearTailNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH));
 
 		tunerHarmonicSweepInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP));

@@ -139,6 +139,15 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE = "perception.hearing.autocorrelation.undertoneRange";
 
 	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH = "perception.hearing.integration.cqSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH = "perception.hearing.integration.peaksSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH = "perception.hearing.integration.spectralSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_PITCH_SWITCH = "perception.hearing.integration.pitchSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_SP_SWITCH = "perception.hearing.integration.spSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_TP_SWITCH = "perception.hearing.integration.tpSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_YIN_SWITCH = "perception.hearing.integration.yinSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH = "perception.hearing.integration.sacfSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH = "perception.hearing.integration.mfccSwitch";
 
 	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE = "perception.hearing.synthesis.quantizeRange";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT = "perception.hearing.synthesis.quantizeBeat";
@@ -148,6 +157,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH = "perception.hearing.synthesis.fillLegatoSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH = "perception.hearing.synthesis.chordFirstSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT = "perception.hearing.synthesis.minTimeIncrement";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE = "perception.hearing.synthesis.sweepRange";
 
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER = "perception.hearing.notetracker.maxTracksUpper";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER = "perception.hearing.notetracker.maxTracksLower";
@@ -166,6 +176,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_NOTATE_COMPRESSION = "perception.hearing.notate.compression";
 	public static final String PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS = "perception.hearing.notate.compressionSwitch";
 	public static final String PERCEPTION_HEARING_NOTATE_APPLY_FORMANTS_SWITCH = "perception.hearing.notate.applyFormantsSwitch";
+	public static final String PERCEPTION_HEARING_NOTATE_SWEEP_RANGE = "perception.hearing.notate.sweepRange";
 
 	public static final String AUDIO_TUNER_N1_SETTING = "audio.tuner.n1Setting";
 	public static final String AUDIO_TUNER_N2_SETTING = "audio.tuner.n2Setting";
@@ -234,6 +245,8 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH = "audio.tuner.timbre.notateSwitch";
 	public static final String AUDIO_TUNER_HARMONIC_SWEEP = "audio.tuner.harmonicSweep";
 	public static final String AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR = "audio.tuner.clearNoteEdgeFactor";
+	public static final String AUDIO_TUNER_CLEAR_HEAD_NOTES_SWITCH = "audio.tuner.clearHeadNotesSwitch";
+	public static final String AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH = "audio.tuner.clearTailNotesSwitch";
 
 	public static final String MONITOR_VIEW_TIME_AXIS_OFFSET = "monitor.view.timeAxisOffset";
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";
