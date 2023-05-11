@@ -53,6 +53,8 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH);
 		boolean integrateSpectralSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH);
+		boolean notatePeaksSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_PEAKS_SWITCH);
 
 		ToneMap integrateToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
@@ -108,16 +110,25 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		notateTimeFrame.reset();
 
 		if (integrateCQSwitch) {
+			if (notatePeaksSwitch) {
+				notateTuner.processPeaks(notateToneMap, true);
+			}
 			notateTuner.noteScan(notateToneMap, sequence, noteMinDuration, noteMaxDuration);
 			console.getVisor().updateToneMapView(notateToneMap, this.cell.getCellType().toString());
 		}
 
 		if (integratePeaksSwitch) {
+			if (notatePeaksSwitch) {
+				peaksTuner.processPeaks(notatePeaksToneMap, true);
+			}
 			peaksTuner.noteScan(notatePeaksToneMap, sequence, notePeaksMinDuration, notePeaksMaxDuration);
 			console.getVisor().updateToneMapView(notatePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
 		}
 
 		if (integrateSpectralSwitch) {
+			if (notatePeaksSwitch) {
+				spTuner.processPeaks(notateSpectralToneMap, true);
+			}
 			spTuner.noteScan(notateSpectralToneMap, sequence, noteSpectralMinDuration, noteSpectralMaxDuration);
 			console.getVisor().updateToneMapView(notateSpectralToneMap,
 					this.cell.getCellType().toString() + "_SPECTRAL");

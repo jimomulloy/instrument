@@ -1507,7 +1507,8 @@ public class ToneTimeFrame {
 				}
 				if (elementIndex > 0) {
 					int lastElementIndex = elementIndex - 1;
-					while (lastElementIndex > troughIndex) {
+					while (lastElementIndex > troughIndex
+							&& elements[lastElementIndex].amplitude > elements[troughIndex].amplitude) {
 						ToneMapElement lastElement = elements[lastElementIndex];
 						// lastElement.amplitude = lastElement.amplitude * 0.5 * lastElement.amplitude /
 						// element.amplitude;

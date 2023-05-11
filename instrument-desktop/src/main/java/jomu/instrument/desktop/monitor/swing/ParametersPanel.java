@@ -312,6 +312,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField synthesisSweepRangeInput;
 
+	private JCheckBox notatePeaksSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1793,6 +1795,22 @@ public class ParametersPanel extends JPanel {
 		notateCompressionSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS));
 		cqSwitchPanel.add(notateCompressionSwitchCB);
+
+		notatePeaksSwitchCB = new JCheckBox("notatePeaksnSwitchCB");
+		notatePeaksSwitchCB.setText("Notate Peaks");
+		notatePeaksSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_PEAKS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		notatePeaksSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_PEAKS_SWITCH));
+		cqSwitchPanel.add(notatePeaksSwitchCB);
 
 		notateApplyFormantsSwitchCB = new JCheckBox("notateApplyFormantsSwitchCB");
 		notateApplyFormantsSwitchCB.setText("Notate Apply Formants");
@@ -4030,6 +4048,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
 		notateCompressionSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS));
+		notatePeaksSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_PEAKS_SWITCH));
 		notateApplyFormantsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_APPLY_FORMANTS_SWITCH));
 		squareSwitchCB.setSelected(

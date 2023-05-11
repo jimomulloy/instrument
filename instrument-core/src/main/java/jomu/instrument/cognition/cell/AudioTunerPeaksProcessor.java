@@ -59,7 +59,7 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 		AudioTuner tuner = new AudioTuner();
 
 		if (tpSwitchTuner) {
-			tuner.processPeaks(tpToneMap);
+			tuner.processPeaks(tpToneMap, true);
 		}
 
 		if (tpSwitchPeaks) {
