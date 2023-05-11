@@ -56,6 +56,8 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
 		this.hearingMaximumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS);
+		this.binsPerOctave = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_BINS_PER_OCTAVE);
 	}
 
 	public double getMaxMagnitudeThreshold() {
@@ -172,7 +174,6 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 			@Override
 			public boolean process(AudioEvent audioEvent) {
 				float[] values = constantQ.getMagnitudes().clone();
-				putFeature(audioEvent.getTimeStamp(), values);
 				if (audioEvent.getTimeStamp() >= (binWidth / 2)) {
 					putFeature(audioEvent.getTimeStamp() - (binWidth / 2), values);
 				} else {

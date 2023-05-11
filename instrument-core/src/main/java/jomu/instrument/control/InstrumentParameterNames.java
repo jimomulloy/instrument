@@ -76,6 +76,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_THRESHOLD = "perception.hearing.cq.adaptiveWhitenThreshold";
 	public static final String PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS = "perception.hearing.cq.minimumFrequencyInCents";
 	public static final String PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS = "perception.hearing.cq.maximumFrequencyInCents";
+	public static final String PERCEPTION_HEARING_CQ_BINS_PER_OCTAVE = "perception.hearing.cq.binsPerOctave";
 
 	public static final String PERCEPTION_HEARING_SP_LOW_THRESHOLD = "perception.hearing.sp.lowThreshold";
 	public static final String PERCEPTION_HEARING_SP_SIGNAL_MINIMUM = "perception.hearing.sp.signalMinimum";

@@ -314,6 +314,8 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox notatePeaksSwitchCB;
 
+	private JTextField cqBinsPerOctaveInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -2902,6 +2904,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(pidIFactorLabel);
 		cqParamsPanel.add(pidIFactorInput);
 
+		JLabel cqBinsPerOctaveLabel = new JLabel("CQ Bins Per Octave: ");
+		cqBinsPerOctaveInput = new JTextField(4);
+		cqBinsPerOctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqBinsPerOctaveInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_BINS_PER_OCTAVE,
+						newValue);
+				cqBinsPerOctaveLabel.setText(String.format("CQ Bins Per Octave  (%s):", newValue));
+				cqBinsPerOctaveInput.setText(newValue);
+			}
+		});
+		cqBinsPerOctaveInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_BINS_PER_OCTAVE));
+		cqParamsPanel.add(cqBinsPerOctaveLabel);
+		cqParamsPanel.add(cqBinsPerOctaveInput);
+
 		JLabel cqLowThresholdLabel = new JLabel("CQ Low Threshold: ");
 		cqLowThresholdInput = new JTextField(4);
 		cqLowThresholdInput.addActionListener(new ActionListener() {
@@ -4229,6 +4248,8 @@ public class ParametersPanel extends JPanel {
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_THRESHOLD));
 		cqLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
+		cqBinsPerOctaveInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_BINS_PER_OCTAVE));
 
 		harmonicLowNoteInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_HARMONIC_LOW_NOTE));

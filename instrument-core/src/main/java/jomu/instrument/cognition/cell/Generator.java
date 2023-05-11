@@ -38,8 +38,6 @@ public class Generator {
 			return createAudioCQTypeCell();
 		case AUDIO_CQ_ORIGIN:
 			return createAudioCQOriginTypeCell();
-		case AUDIO_CQ_MICRO_TONE:
-			return createAudioCQMicroToneTypeCell();
 		case AUDIO_BEAT:
 			return createAudioBeatTypeCell();
 		case AUDIO_ONSET:
@@ -72,12 +70,6 @@ public class Generator {
 	private static NuCell createAudioCQOriginTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_CQ_ORIGIN);
 		cell.setProcessor(getAudioCQOriginProcessor(cell));
-		return cell;
-	}
-
-	private static NuCell createAudioCQMicroToneTypeCell() {
-		NuCell cell = new NuCell(CellTypes.AUDIO_CQ_MICRO_TONE);
-		cell.setProcessor(getAudioCQMicroToneProcessor(cell));
 		return cell;
 	}
 
@@ -207,10 +199,6 @@ public class Generator {
 
 	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioCQOriginProcessor(NuCell cell) {
 		return new AudioCQOriginProcessor(cell);
-	}
-
-	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioCQMicroToneProcessor(NuCell cell) {
-		return new AudioCQMicroToneProcessor(cell);
 	}
 
 	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioIntegrateProcessor(NuCell cell) {

@@ -131,6 +131,11 @@ public class AudioCQProcessor extends ProcessorCommon {
 		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
 				+ ", " + ttf.getRmsPower());
 
+		ttf.reset();
+
+		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+				+ ", " + ttf.getRmsPower());
+
 		if (cqEnvelopeWhitenPreSwitch) {
 			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 			ttf.envelopeWhiten(cqEnvelopeWhitenControlMap, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
@@ -230,4 +235,5 @@ public class AudioCQProcessor extends ProcessorCommon {
 		cell.send(streamId, sequence);
 
 	}
+
 }

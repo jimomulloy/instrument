@@ -8,7 +8,6 @@ public class AudioFeatureFrame {
 
 	private AudioFeatureProcessor audioFeatureProcessor;
 	private ConstantQFeatures constantQFeatures;
-	private CQMicroToneFeatures cqMicroToneFeatures;
 	private double end;
 	private int frameSequence;
 
@@ -40,10 +39,6 @@ public class AudioFeatureFrame {
 
 	public ConstantQFeatures getConstantQFeatures() {
 		return constantQFeatures;
-	}
-
-	public CQMicroToneFeatures getCQMicroToneFeatures() {
-		return cqMicroToneFeatures;
 	}
 
 	public BeatFeatures getBeatFeatures() {
@@ -96,7 +91,6 @@ public class AudioFeatureFrame {
 
 	void initialise() {
 		constantQFeatures = new ConstantQFeatures();
-		cqMicroToneFeatures = new CQMicroToneFeatures();
 		percussionFeatures = new PercussionFeatures();
 		beatFeatures = new BeatFeatures();
 		spectralPeaksFeatures = new SpectralPeaksFeatures();
@@ -107,7 +101,6 @@ public class AudioFeatureFrame {
 		mfccFeatures = new MFCCFeatures();
 		cepstrumFeatures = new CepstrumFeatures();
 		constantQFeatures.initialise(this);
-		cqMicroToneFeatures.initialise(this);
 		percussionFeatures.initialise(this);
 		spectralPeaksFeatures.initialise(this);
 		pitchDetectorFeatures.initialise(this);

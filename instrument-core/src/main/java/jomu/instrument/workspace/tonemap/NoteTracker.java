@@ -198,8 +198,11 @@ public class NoteTracker {
 			return noteList;
 		}
 
-		public void insertNote(NoteListElement nle, NoteListElement previousNle) {
-			int addIndex = notes.indexOf(previousNle) + 1;
+		public void insertNote(NoteListElement nle, NoteListElement pnle) {
+			int addIndex = 0;
+			if (pnle != null) {
+				addIndex = notes.indexOf(pnle) + 1;
+			}
 			notes.add(addIndex, nle);
 		}
 

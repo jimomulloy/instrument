@@ -263,7 +263,7 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 			generator = new AudioGenerator(ResynthAudioSynthesizer.this.getWindowSize(), 0);
 			try {
 				generator.addAudioProcessor(resynthProcessor);
-				generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, false)));
+				generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, true)));
 			} catch (LineUnavailableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
