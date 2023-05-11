@@ -107,9 +107,8 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			}
 		}
 
-		notateTimeFrame.reset();
-
 		if (integrateCQSwitch) {
+			notateTimeFrame.reset();
 			if (notatePeaksSwitch) {
 				notateTuner.processPeaks(notateToneMap, true);
 			}
@@ -118,6 +117,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		}
 
 		if (integratePeaksSwitch) {
+			notatePeaksTimeFrame.reset();
 			if (notatePeaksSwitch) {
 				peaksTuner.processPeaks(notatePeaksToneMap, true);
 			}
@@ -126,6 +126,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		}
 
 		if (integrateSpectralSwitch) {
+			notateSpectralTimeFrame.reset();
 			if (notatePeaksSwitch) {
 				spTuner.processPeaks(notateSpectralToneMap, true);
 			}

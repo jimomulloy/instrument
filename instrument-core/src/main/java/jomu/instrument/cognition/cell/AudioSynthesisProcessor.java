@@ -85,18 +85,21 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		if (integratePeaksSwitch) {
 			if (synthesisFrame == null) {
 				synthesisFrame = notatePeaksFrame.clone();
+				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
 			synthesisFrame.integratePeaks(notatePeaksFrame);
 		}
 		if (integrateSpectralSwitch) {
 			if (synthesisFrame == null) {
 				synthesisFrame = notateSpectralFrame.clone();
+				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
 			synthesisFrame.merge(synthesisToneMap, notateSpectralFrame);
 		}
 
 		if (synthesisFrame == null) {
 			synthesisFrame = chromaFrame.clone();
+			synthesisToneMap.addTimeFrame(synthesisFrame);
 		}
 		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
 

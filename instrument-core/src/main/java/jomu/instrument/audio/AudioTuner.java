@@ -1098,7 +1098,7 @@ public class AudioTuner implements ToneMapConstants {
 			ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 			int step = 0;
 			for (int index = noteListElement.pitchIndex + 1; index < ttfElements.length
-					|| index < noteListElement.pitchIndex + 12; index++) {
+					&& index < noteListElement.pitchIndex + 12; index++) {
 				if (ttfElements[index].noteListElement != null) {
 					if (ttfElements[index].noteListElement != null && (ttfElements[index].noteListElement.endTime
 							- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
@@ -1113,7 +1113,7 @@ public class AudioTuner implements ToneMapConstants {
 			}
 			step = 0;
 			for (int index = noteListElement.pitchIndex - 1; index >= 0
-					|| index > noteListElement.pitchIndex - 12; index--) {
+					&& index > noteListElement.pitchIndex - 12; index--) {
 				if (ttfElements[index].noteListElement != null) {
 					if (ttfElements[index].noteListElement != null && (ttfElements[index].noteListElement.endTime
 							- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
@@ -1958,7 +1958,6 @@ public class AudioTuner implements ToneMapConstants {
 				noteTimbreMedianRatio);
 		pnt.buildTimbre(timeFrames, processedNote);
 		rnt.buildTimbre(timeFrames, rootNote);
-		LOG.severe(">>isMatchingTimbre A: " + rootNote + ", " + processedNote.note + ", " + rnt + ", " + pnt);
 		return pnt.matches(rnt);
 	}
 
