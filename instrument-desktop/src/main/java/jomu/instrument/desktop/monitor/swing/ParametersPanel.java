@@ -11,8 +11,15 @@ import java.awt.event.ItemListener;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,7 +51,7 @@ public class ParametersPanel extends JPanel {
 	private static final Logger LOG = Logger.getLogger(ParametersPanel.class.getName());
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "birds" };
+	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "birds", "beethoven" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;
@@ -377,7 +384,9 @@ public class ParametersPanel extends JPanel {
 						.toString();
 				String exportFileName = folder + System.getProperty("file.separator") + "instrument-user.properties";
 				try (FileOutputStream fs = new FileOutputStream(exportFileName)) {
-					parameterManager.getParameters().store(fs, null);
+					SortedStoreProperties ssp = new SortedStoreProperties();
+					ssp.putAll(parameterManager.getParameters());
+					ssp.store(fs, null);
 				} catch (IOException ex) {
 					LOG.log(Level.SEVERE, "Export Parameters exception", ex);
 				}
@@ -4458,5 +4467,45 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP));
 		tunerClearNoteEdgeFactorInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR));
+	}
+
+	class SortedStoreProperties extends Properties {
+
+		@Override
+		public void store(OutputStream out, String comments) throws IOException {
+			Properties sortedProps = new Properties() {
+				@Override
+				public Set<Map.Entry<Object, Object>> entrySet() {
+					/*
+					 * Using comparator to avoid the following exception on jdk >=9:
+					 * java.lang.ClassCastException:
+					 * java.base/java.util.concurrent.ConcurrentHashMap$MapEntry cannot be cast to
+					 * java.base/java.lang.Comparable
+					 */
+					Set<Map.Entry<Object, Object>> sortedSet = new TreeSet<Map.Entry<Object, Object>>(
+							new Comparator<Map.Entry<Object, Object>>() {
+								@Override
+								public int compare(Map.Entry<Object, Object> o1, Map.Entry<Object, Object> o2) {
+									return o1.getKey().toString().compareTo(o2.getKey().toString());
+								}
+							});
+					sortedSet.addAll(super.entrySet());
+					return sortedSet;
+				}
+
+				@Override
+				public Set<Object> keySet() {
+					return new TreeSet<Object>(super.keySet());
+				}
+
+				@Override
+				public synchronized Enumeration<Object> keys() {
+					return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+				}
+
+			};
+			sortedProps.putAll(this);
+			sortedProps.store(out, comments);
+		}
 	}
 }
