@@ -323,6 +323,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField cqBinsPerOctaveInput;
 
+	private JCheckBox tunerClearVibratoNotesSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -869,6 +871,22 @@ public class ParametersPanel extends JPanel {
 		tunerClearTailNotesSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH));
 		tunerSwitchPanel.add(tunerClearTailNotesSwitchCB);
+
+		tunerClearVibratoNotesSwitchCB = new JCheckBox("tunerClearTailNotesSwitchCB");
+		tunerClearVibratoNotesSwitchCB.setText("Tuner Clear Vibrato Notes Switch");
+		tunerClearVibratoNotesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		tunerClearVibratoNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH));
+		tunerSwitchPanel.add(tunerClearVibratoNotesSwitchCB);
 
 		hpsMedianSwitchCB = new JCheckBox("hpsMedianSwitchCB");
 		hpsMedianSwitchCB.setText("HPS Median Switch");
@@ -4462,6 +4480,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_HEAD_NOTES_SWITCH));
 		tunerClearTailNotesSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH));
+		tunerClearVibratoNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH));
 
 		tunerHarmonicSweepInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP));

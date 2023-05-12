@@ -110,6 +110,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 		if (integrateCQSwitch) {
 			notateTimeFrame.reset();
 			if (notatePeaksSwitch) {
+				LOG.severe(">>NOTATE PEAKS: " + sequence + ", streamId: " + streamId);
 				notateTuner.processPeaks(notateToneMap, true);
 			}
 			notateTuner.noteScan(notateToneMap, sequence, noteMinDuration, noteMaxDuration);
