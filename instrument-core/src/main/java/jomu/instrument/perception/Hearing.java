@@ -32,11 +32,15 @@ import com.github.psambit9791.jdsp.signal.Smooth;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
+import be.tarsos.dsp.BitDepthProcessor;
+import be.tarsos.dsp.GainProcessor;
 import be.tarsos.dsp.beatroot.BeatRootOnsetEventHandler;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
+import be.tarsos.dsp.wavelet.HaarWaveletCoder;
+import be.tarsos.dsp.wavelet.HaarWaveletDecoder;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.PidProcessor;
@@ -254,7 +258,7 @@ public class Hearing implements Organ {
 			bs = new BufferedInputStream(stream);
 		}
 		try {
-			audioStream.processAudioFileStream(bs);
+			audioStream.processAudioFileStream(bs, format);
 		} catch (UnsupportedAudioFileException | IOException ex) {
 			LOG.log(Level.SEVERE, "Audio file init error:" + fileName, ex);
 			throw new Exception("Audio file init error: " + ex.getMessage());
@@ -553,7 +557,7 @@ public class Hearing implements Organ {
 
 		}
 
-		private void processAudioFileStream(BufferedInputStream inputStream)
+		private void processAudioFileStream(BufferedInputStream inputStream, AudioFormat format)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 			console.getVisor().clearView();
 			this.setIsFile(true);
@@ -616,6 +620,22 @@ public class Hearing implements Organ {
 				});
 
 			}
+
+			double gainCompressFactor = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR);
+
+			HaarWaveletCoder coder = new HaarWaveletCoder();
+			HaarWaveletDecoder decoder = new HaarWaveletDecoder();
+			GainProcessor gain = new GainProcessor(gainCompressFactor);
+			BitDepthProcessor bithDeptProcessor = new BitDepthProcessor();
+			bithDeptProcessor.setBitDepth(format.getSampleSizeInBits());
+
+			dispatcher.addAudioProcessor(coder);
+			dispatcher.addAudioProcessor(decoder);
+			dispatcher.addAudioProcessor(gain);
+			dispatcher.addAudioProcessor(bithDeptProcessor);
+
+			LOG.severe(">>Hearing add HaarWaveletCoder");
 
 			int smoothFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR);
@@ -863,32 +883,6 @@ public class Hearing implements Organ {
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
-	}
-
-	public void test() {
-		InputStream is = getClass().getClassLoader().getResourceAsStream("test.wav");
-		if (is == null) {
-			throw new IllegalArgumentException("file not found!");
-		}
-
-		if (getStreamId() != null) {
-			workspace.getAtlas().removeMapsByStreamId(getStreamId());
-		}
-		streamId = UUID.randomUUID().toString();
-		AudioStream audioStream = new AudioStream(getStreamId());
-		audioStreams.put(getStreamId(), audioStream);
-
-		try {
-			audioStream.processAudioFileStream(new BufferedInputStream(is));
-		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		audioStream.getAudioFeatureProcessor().addObserver(cortex);
-		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
-		audioStream.start();
-
 	}
 
 	@Override

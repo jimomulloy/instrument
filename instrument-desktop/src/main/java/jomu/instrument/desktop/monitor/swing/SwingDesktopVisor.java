@@ -262,6 +262,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField voicePlayerGlissandoRangeInput;
 
+	private JTextField audioGainInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1316,6 +1318,29 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET));
 		actionPanel.add(audioOffsetLabel);
 		actionPanel.add(audioOffsetInput);
+
+		audioFeatureIntervalInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL));
+		actionPanel.add(audioFeatureIntervalLabel);
+		actionPanel.add(audioFeatureIntervalInput);
+
+		JLabel audioGainLabel = new JLabel("Gain: ");
+		audioGainInput = new JTextField(4);
+		audioGainInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR, newValue);
+				textField.setText(newValue);
+			}
+		});
+
+		audioGainInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR));
+		actionPanel.add(audioGainLabel);
+		actionPanel.add(audioGainInput);
 
 		JLabel audioRangeLabel = new JLabel("Range ms: ");
 		audioRangeInput = new JTextField(4);
@@ -2492,6 +2517,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL));
 		audioOffsetInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET));
+		audioGainInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR));
 		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
 		hearingMinFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));

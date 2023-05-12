@@ -1,11 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,7 +17,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 
 	private static final Logger LOG = Logger.getLogger(ToneSynthesiser.class.getName());
 
-	ConcurrentSkipListMap<Double, Map<Integer, NoteListElement>> notes = new ConcurrentSkipListMap<>();
 	ConcurrentSkipListMap<Double, ChordListElement> chords = new ConcurrentSkipListMap<>();
 
 	double minTimeIncrement = MIN_TIME_INCREMENT;
@@ -56,25 +51,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 
 	}
 
-	public void addNote(NoteListElement nle) {
-		Map<Integer, NoteListElement> noteMap;
-		if (notes.containsKey(nle.startTime)) {
-			noteMap = notes.get(nle.startTime);
-		} else {
-			noteMap = new HashMap<>();
-			notes.put(nle.startTime, noteMap);
-		}
-		noteMap.put(nle.note, nle);
-	}
-
-	public void removeNote(NoteListElement nle) {
-		Map<Integer, NoteListElement> noteMap;
-		if (notes.containsKey(nle.startTime)) {
-			noteMap = notes.get(nle.startTime);
-			noteMap.remove(nle.note);
-		}
-	}
-
 	public void removeChord(ChordListElement cle) {
 		if (chords.containsKey(cle.getStartTime())) {
 			chords.remove(cle.getStartTime());
@@ -100,8 +76,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 			}
 		}
 		Set<NoteListElement> discardedNotes = new HashSet<>();
-		NoteListElement[] nles = addNotes(targetFrame);
-		if (nles.length > 0) {
+		Set<NoteListElement> nles = addNotes(targetFrame);
+		if (nles.size() > 0) {
 			quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 			trackNotes(nles, discardedNotes, synthFillLegatoSwitch);
 			if (synthFillNotes) {
@@ -141,7 +117,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		}
 	}
 
-	private void trackNotes(NoteListElement[] nles, Set<NoteListElement> discardedNotes, boolean legato) {
+	private void trackNotes(Set<NoteListElement> nles, Set<NoteListElement> discardedNotes, boolean legato) {
 		for (NoteListElement nle : nles) {
 			NoteTrack track = toneMap.getNoteTracker().trackNote(nle, discardedNotes);
 			if (track != null && legato) {
@@ -178,10 +154,28 @@ public class ToneSynthesiser implements ToneMapConstants {
 							time = frame.getStartTime();
 						}
 					}
+					if (frame != null && pnle.note == nle.note) {
+						while (frame != null && (time * 1000) <= nle.endTime) {
+							frame.getElement(pnle.pitchIndex).noteListElement = pnle;
+							frame.getElement(pnle.pitchIndex).noteState = ON;
+							pnle.endTime = frame.getStartTime() * 1000;
+							frame = toneMap.getNextTimeFrame(time);
+							lastFrame = frame;
+							if (frame != null) {
+								time = frame.getStartTime();
+							}
+						}
+						if (nle.legatoAfter != null) {
+							pnle.legatoAfter = nle.legatoAfter;
+							nle.legatoAfter.legatoBefore = pnle;
+						}
+						track.removeNote(nle);
+					} else {
+						pnle.addLegato(nle);
+					}
 					if (lastFrame != null) {
 						lastFrame.getElement(pnle.pitchIndex).noteState = END;
 					}
-					pnle.addLegato(nle);
 					LOG.finer(">>ToneSynthesiser addLegato for nle X: " + pnle.note + ", " + pnle.startTime + ", "
 							+ nle.note + ", " + nle.startTime + ", " + pnle.endTime);
 
@@ -190,8 +184,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 		}
 	}
 
-	private NoteListElement[] addNotes(ToneTimeFrame targetFrame) {
-		List<NoteListElement> noteList = new ArrayList<>();
+	private Set<NoteListElement> addNotes(ToneTimeFrame targetFrame) {
+		Set<NoteListElement> notes = new HashSet<>();
 		ToneMapElement[] elements = targetFrame.getElements();
 		Double time = targetFrame.getStartTime();
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
@@ -200,22 +194,16 @@ public class ToneSynthesiser implements ToneMapConstants {
 			if (nle != null) {
 				// LOG.finer(">>SYNTH addNote: " + nle);
 			}
-			if (nle != null && time * 1000 == nle.startTime && isNewNote(nle)) {
+			if (nle != null && time * 1000 == nle.startTime) {
 				LOG.finer(">>SYNTH adding Note: " + nle);
-				addNote(nle);
-				noteList.add(nle);
+				notes.add(nle);
 			}
 		}
-		return noteList.toArray(new NoteListElement[noteList.size()]);
+		return notes;
 
 	}
 
-	private boolean isNewNote(NoteListElement nle) {
-		Map<Integer, NoteListElement> nMap = notes.get(nle.startTime);
-		return (nMap == null || !nMap.containsKey(nle.note));
-	}
-
-	private void fillNotes(NoteListElement[] nles, CalibrationMap calibrationMap, double quantizeRange,
+	private void fillNotes(Set<NoteListElement> nles, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent, int quantizeBeat) {
 		double toTime = Double.MAX_VALUE;
 		double fromTime = 0;
@@ -363,12 +351,12 @@ public class ToneSynthesiser implements ToneMapConstants {
 		}
 	}
 
-	private void quantizeNotes(NoteListElement[] nles, CalibrationMap calibrationMap, double quantizeRange,
+	private void quantizeNotes(Set<NoteListElement> nles, CalibrationMap calibrationMap, double quantizeRange,
 			double quantizePercent, int quantizeBeat) {
-		if (nles.length == 0) {
+		if (nles.size() == 0) {
 			return;
 		}
-		Double time = nles[0].startTime / 1000;
+		Double time = nles.iterator().next().startTime / 1000;
 		double beatBeforeTime = calibrationMap.getBeatBeforeTime(time, quantizeRange);
 		double beatAfterTime = calibrationMap.getBeatAfterTime(time, quantizeRange);
 		double beforeTimeDiff = 0;
@@ -411,9 +399,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 
 	private void quantizeNote(NoteListElement nle, double targetTime) {
 		double frameTime = nle.startTime / 1000;
-		removeNote(nle);
 		nle.startTime = targetTime * 1000;
-		addNote(nle);
 		int index = nle.pitchIndex;
 		ToneTimeFrame frame = toneMap.getTimeFrame(frameTime);
 		double time = frame.getStartTime();
@@ -557,15 +543,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 			targetFrame.setChord(newChord);
 			LOG.finer(">>Predict Chord added: " + newChord.getStartTime() + ", " + newChord + ",  " + previousChord);
 			return newChord;
-		}
-	}
-
-	public NoteListElement[] getNotes(double time) {
-		if (notes.containsKey(time)) {
-			Collection<NoteListElement> values = notes.get(time).values();
-			return values.toArray(new NoteListElement[values.size()]);
-		} else {
-			return new NoteListElement[0];
 		}
 	}
 

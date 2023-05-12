@@ -1566,8 +1566,27 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 
 			NoteListElement[] nles = track.getNotes(playTime);
-			NoteListElement[] snles = track.getStartNotes(playTime);
-			NoteListElement[] enles = track.getEndNotes(playTime);
+
+			Set<NoteListElement> snles = new HashSet<>();
+			Set<NoteListElement> enles = new HashSet<>();
+			for (NoteListElement nle : nles) {
+				if (nle.startTime == playTime) {
+					snles.add(nle);
+				}
+				if (nle.endTime < playTime) {
+					enles.add(nle);
+				}
+				boolean noteFound = false;
+				for (int vn : voiceChannelLastNotes) {
+					if (nle.note == vn) {
+						noteFound = true;
+						break;
+					}
+				}
+				if (!noteFound) {
+					enles.add(nle);
+				}
+			}
 
 			for (NoteListElement enle : enles) {
 				if (enle != null) {

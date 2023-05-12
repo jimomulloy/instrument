@@ -20,6 +20,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 	public static final String PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR = "perception.hearing.audioSmoothFactor";
+	public static final String PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR = "perception.hearing.audioGainCompressFactor";
 	public static final String PERCEPTION_HEARING_AUDIO_RECORD_SWITCH = "perception.hearing.audioRecordSwitch";
 	public static final String PERCEPTION_HEARING_AUDIO_SOURCE_DIRECTORY = "perception.hearing.audioSourceDirectory";
 	public static final String PERCEPTION_HEARING_AUDIO_DEFAULT_FILE = "perception.hearing.audioDefaultFile";

@@ -98,11 +98,7 @@ public class NoteTracker {
 		public NoteListElement[] getStartNotes(double time) {
 			List<NoteListElement> noteList = new ArrayList<>();
 			for (NoteListElement note : notes) {
-				LOG.finer(">>NoteTracker getStartNotes: " + time + ", " + note.note + ", " + number + ", "
-						+ note.startTime + " ," + note.endTime);
 				if (Math.floor(note.startTime) == Math.floor(time)) {
-					LOG.finer(">>NoteTracker GOT getStartNotes: " + time + ", " + note.note + ", " + number + ", "
-							+ note.startTime + " ," + note.endTime);
 					noteList.add(note);
 				}
 			}
@@ -112,7 +108,7 @@ public class NoteTracker {
 		public NoteListElement[] getNotes(double time) {
 			List<NoteListElement> noteList = new ArrayList<>();
 			for (NoteListElement note : notes) {
-				if (note.startTime <= time && (note.endTime + note.incrementTime) >= time) {
+				if (note.startTime <= time && Math.floor(note.endTime + note.incrementTime) >= Math.floor(time)) {
 					noteList.add(note);
 				}
 			}
@@ -208,8 +204,9 @@ public class NoteTracker {
 
 		public NoteListElement getNote(double startTime, double endTime) {
 			for (NoteListElement nle : notes) {
-				if ((nle.startTime <= startTime && nle.endTime + nle.incrementTime >= endTime)
-						|| (nle.startTime > startTime && nle.endTime + nle.incrementTime < endTime)) {
+				if ((nle.startTime <= startTime && Math.floor(nle.endTime + nle.incrementTime) >= Math.floor(endTime))
+						|| (nle.startTime > startTime
+								&& Math.floor(nle.endTime + nle.incrementTime) < Math.floor(endTime))) {
 					return nle;
 				}
 			}
