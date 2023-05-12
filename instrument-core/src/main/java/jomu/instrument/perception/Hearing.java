@@ -624,18 +624,19 @@ public class Hearing implements Organ {
 			double gainCompressFactor = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR);
 
-			HaarWaveletCoder coder = new HaarWaveletCoder();
-			HaarWaveletDecoder decoder = new HaarWaveletDecoder();
-			GainProcessor gain = new GainProcessor(gainCompressFactor);
-			BitDepthProcessor bithDeptProcessor = new BitDepthProcessor();
-			bithDeptProcessor.setBitDepth(format.getSampleSizeInBits());
+			if (gainCompressFactor > 0) {
+				HaarWaveletCoder coder = new HaarWaveletCoder();
+				HaarWaveletDecoder decoder = new HaarWaveletDecoder();
+				GainProcessor gain = new GainProcessor(gainCompressFactor);
+				BitDepthProcessor bithDeptProcessor = new BitDepthProcessor();
+				bithDeptProcessor.setBitDepth(format.getSampleSizeInBits());
 
-			dispatcher.addAudioProcessor(coder);
-			dispatcher.addAudioProcessor(decoder);
-			dispatcher.addAudioProcessor(gain);
-			dispatcher.addAudioProcessor(bithDeptProcessor);
-
-			LOG.severe(">>Hearing add HaarWaveletCoder");
+				// dispatcher.addAudioProcessor(coder);
+				// dispatcher.addAudioProcessor(decoder);
+				dispatcher.addAudioProcessor(gain);
+				// dispatcher.addAudioProcessor(bithDeptProcessor);
+				LOG.severe(">>Hearing add HaarWaveletCoder");
+			}
 
 			int smoothFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR);

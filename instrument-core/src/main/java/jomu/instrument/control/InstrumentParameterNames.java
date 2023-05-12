@@ -248,9 +248,13 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH = "audio.tuner.timbre.notateSwitch";
 	public static final String AUDIO_TUNER_HARMONIC_SWEEP = "audio.tuner.harmonicSweep";
 	public static final String AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR = "audio.tuner.clearNoteEdgeFactor";
+	public static final String AUDIO_TUNER_CLEAR_ISOLATED_NOTES_POWER_FACTOR = "audio.tuner.clearIsolatedNotesPowerFactor";
+	public static final String AUDIO_TUNER_CLEAR_ISOLATED_NOTES_TIME_RANGE = "audio.tuner.clearIsolatedNotesTimeRange";
+	public static final String AUDIO_TUNER_CLEAR_ISOLATED_NOTES_PITCH_RANGE = "audio.tuner.clearIsolatedNotesPitchRange";
 	public static final String AUDIO_TUNER_CLEAR_HEAD_NOTES_SWITCH = "audio.tuner.clearHeadNotesSwitch";
 	public static final String AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH = "audio.tuner.clearTailNotesSwitch";
 	public static final String AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH = "audio.tuner.clearVibratoNotesSwitch";
+	public static final String AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH = "audio.tuner.clearIsolatedNotesSwitch";
 
 	public static final String MONITOR_VIEW_TIME_AXIS_OFFSET = "monitor.view.timeAxisOffset";
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";

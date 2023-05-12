@@ -325,6 +325,14 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox tunerClearVibratoNotesSwitchCB;
 
+	private JCheckBox tunerClearIsolatedNotesSwitchCB;
+
+	private JTextField tunerClearIsolatedNotesPowerFactorInput;
+
+	private JTextField tunerClearIsolatedNotesTimeRangeInput;
+
+	private JTextField tunerClearIsolatedNotesPitchRangeInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -872,7 +880,7 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH));
 		tunerSwitchPanel.add(tunerClearTailNotesSwitchCB);
 
-		tunerClearVibratoNotesSwitchCB = new JCheckBox("tunerClearTailNotesSwitchCB");
+		tunerClearVibratoNotesSwitchCB = new JCheckBox("tunerClearVibratoNotesSwitchCB");
 		tunerClearVibratoNotesSwitchCB.setText("Tuner Clear Vibrato Notes Switch");
 		tunerClearVibratoNotesSwitchCB.addItemListener(new ItemListener() {
 
@@ -887,6 +895,22 @@ public class ParametersPanel extends JPanel {
 		tunerClearVibratoNotesSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH));
 		tunerSwitchPanel.add(tunerClearVibratoNotesSwitchCB);
+
+		tunerClearIsolatedNotesSwitchCB = new JCheckBox("tunerClearIsolatedNotesSwitchCB");
+		tunerClearIsolatedNotesSwitchCB.setText("Tuner Clear Isolated Notes Switch");
+		tunerClearIsolatedNotesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		tunerClearIsolatedNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH));
+		tunerSwitchPanel.add(tunerClearIsolatedNotesSwitchCB);
 
 		hpsMedianSwitchCB = new JCheckBox("hpsMedianSwitchCB");
 		hpsMedianSwitchCB.setText("HPS Median Switch");
@@ -3493,6 +3517,60 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(tunerClearNoteEdgeFactorLabel);
 		cqParamsPanel.add(tunerClearNoteEdgeFactorInput);
 
+		JLabel tunerClearIsolatedNotesPowerFactorLabel = new JLabel("Tuner Clear Isolated Notes Power Factor: ");
+		tunerClearIsolatedNotesPowerFactorInput = new JTextField(4);
+		tunerClearIsolatedNotesPowerFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerClearIsolatedNotesPowerFactorInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_POWER_FACTOR, newValue);
+				tunerClearIsolatedNotesPowerFactorLabel
+						.setText(String.format("Tuner Clear Isolated Notes Power Factor (%s):", newValue));
+				tunerClearIsolatedNotesPowerFactorInput.setText(newValue);
+			}
+		});
+		tunerClearIsolatedNotesPowerFactorInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_POWER_FACTOR));
+		cqParamsPanel.add(tunerClearIsolatedNotesPowerFactorLabel);
+		cqParamsPanel.add(tunerClearIsolatedNotesPowerFactorInput);
+
+		JLabel tunerClearIsolatedNotesTimeRangeLabel = new JLabel("Tuner Clear Isolated Notes Time Range: ");
+		tunerClearIsolatedNotesTimeRangeInput = new JTextField(4);
+		tunerClearIsolatedNotesTimeRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerClearIsolatedNotesTimeRangeInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_TIME_RANGE, newValue);
+				tunerClearIsolatedNotesTimeRangeLabel
+						.setText(String.format("Tuner Clear Isolated Notes Time Range (%s):", newValue));
+				tunerClearIsolatedNotesTimeRangeInput.setText(newValue);
+			}
+		});
+		tunerClearIsolatedNotesTimeRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_TIME_RANGE));
+		cqParamsPanel.add(tunerClearIsolatedNotesTimeRangeLabel);
+		cqParamsPanel.add(tunerClearIsolatedNotesTimeRangeInput);
+
+		JLabel tunerClearIsolatedNotesPitchRangeLabel = new JLabel("Tuner Clear Isolated Notes Pitch Range: ");
+		tunerClearIsolatedNotesPitchRangeInput = new JTextField(4);
+		tunerClearIsolatedNotesPitchRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerClearIsolatedNotesPitchRangeInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_PITCH_RANGE, newValue);
+				tunerClearIsolatedNotesPitchRangeLabel
+						.setText(String.format("Tuner Clear Isolated Notes Pitch Range (%s):", newValue));
+				tunerClearIsolatedNotesPitchRangeInput.setText(newValue);
+			}
+		});
+		tunerClearIsolatedNotesPitchRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_PITCH_RANGE));
+		cqParamsPanel.add(tunerClearIsolatedNotesPitchRangeLabel);
+		cqParamsPanel.add(tunerClearIsolatedNotesPitchRangeInput);
+
 		JLabel noteTimbreFrequencyRangeLabel = new JLabel("Note Timbre Frequency Range: ");
 		noteTimbreFrequencyRangeInput = new JTextField(4);
 		noteTimbreFrequencyRangeInput.addActionListener(new ActionListener() {
@@ -4482,11 +4560,19 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH));
 		tunerClearVibratoNotesSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH));
+		tunerClearIsolatedNotesSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH));
 
 		tunerHarmonicSweepInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP));
 		tunerClearNoteEdgeFactorInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTE_EDGE_FACTOR));
+		tunerClearIsolatedNotesPowerFactorInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_POWER_FACTOR));
+		tunerClearIsolatedNotesPitchRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_PITCH_RANGE));
+		tunerClearIsolatedNotesTimeRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_TIME_RANGE));
 	}
 
 	class SortedStoreProperties extends Properties {
