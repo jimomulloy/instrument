@@ -1353,6 +1353,7 @@ public class AudioTuner implements ToneMapConstants {
 		double toTime = noteListElement.startTime + harmonicSweep;
 
 		ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom(fromTime / 1000.0);
+		ToneTimeFrame timeFrameBefore = toneMap.getPreviousTimeFrame(timeFrames[0].getStartTime());
 
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 
@@ -1367,8 +1368,11 @@ public class AudioTuner implements ToneMapConstants {
 				if (ttfElements[index].noteListElement != null) {
 					if ((ttfElements[index].noteListElement.endTime
 							- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
-						discardedNotes.add(ttfElements[index].noteListElement);
-						step = 0;
+						if (timeFrameBefore == null || !((index == noteListElement.pitchIndex + 1)
+								&& timeFrameBefore.getElement(noteListElement.pitchIndex).noteListElement != null)) {
+							discardedNotes.add(ttfElements[index].noteListElement);
+							step = 0;
+						}
 					}
 				}
 				step++;
@@ -1382,8 +1386,11 @@ public class AudioTuner implements ToneMapConstants {
 				if (ttfElements[index].noteListElement != null) {
 					if ((ttfElements[index].noteListElement.endTime
 							- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
-						discardedNotes.add(ttfElements[index].noteListElement);
-						step = 0;
+						if (timeFrameBefore == null || !((index == noteListElement.pitchIndex - 1)
+								&& timeFrameBefore.getElement(noteListElement.pitchIndex).noteListElement != null)) {
+							discardedNotes.add(ttfElements[index].noteListElement);
+							step = 0;
+						}
 					}
 				}
 				step++;
@@ -1436,37 +1443,45 @@ public class AudioTuner implements ToneMapConstants {
 			for (int index = 0; index < ttfElements.length; index++) {
 				if (ttfElements[index].noteListElement != null
 						&& !noteListElement.equals(ttfElements[index].noteListElement)) {
-					if (!processedNotes.contains(ttfElements[index].noteListElement)
-							&& (ttfElements[index].noteListElement.endTime
-									- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
-						LOG.severe(">>clearIsolatedNotes process note: " + ttfElements[index].noteListElement.startTime
-								+ ", " + index);
+					LOG.severe(">>clearIsolatedNotes process note A: " + ttfElements[index].noteListElement.startTime
+							+ ", " + index);
+					NoteListElement candidateNote = ttfElements[index].noteListElement;
+					if (!processedNotes.contains(candidateNote)
+							&& (candidateNote.endTime - candidateNote.startTime) < harmonicSweep
+							&& candidateNote.maxAmp <= clearIsolatedNoteFactor * noteListElement.maxAmp) {
+						LOG.severe(">>clearIsolatedNotes process note B: " + candidateNote.startTime + ", " + index);
 						boolean isDiscard = true;
-						ToneTimeFrame[] sweepFrames = toneMap.getTimeFramesFrom(
-								(ttfElements[index].noteListElement.startTime - harmonicSweep) / 1000.0);
-						LOG.severe(">>clearIsolatedNotes sweep from-to: "
-								+ (ttfElements[index].noteListElement.startTime - harmonicSweep) + ", "
-								+ (ttfElements[index].noteListElement.endTime + harmonicSweep));
+						ToneTimeFrame[] sweepFrames = toneMap
+								.getTimeFramesFrom((candidateNote.startTime - harmonicSweep) / 1000.0);
+						LOG.severe(">>clearIsolatedNotes sweep from-to: " + (candidateNote.startTime - harmonicSweep)
+								+ ", " + (candidateNote.endTime + harmonicSweep));
 						for (ToneTimeFrame sweepFrame : sweepFrames) {
-							if (sweepFrame
-									.getStartTime() > ((ttfElements[index].noteListElement.endTime + harmonicSweep)
-											/ 1000.0)) {
+							if (sweepFrame.getStartTime() > ((candidateNote.endTime + harmonicSweep) / 1000.0)) {
 								break;
 							}
 							ToneMapElement[] sweepElements = sweepFrame.getElements();
-							for (int sindex = noteListElement.pitchIndex - clearIsolatedNotePitchRange > 0
-									? noteListElement.pitchIndex - clearIsolatedNotePitchRange
-									: 0; sindex < noteListElement.pitchIndex + clearIsolatedNotePitchRange
+							for (int sindex = candidateNote.pitchIndex - clearIsolatedNotePitchRange > 0
+									? candidateNote.pitchIndex - clearIsolatedNotePitchRange
+									: 0; sindex <= candidateNote.pitchIndex + clearIsolatedNotePitchRange
 											&& sindex < ttfElements.length; sindex++) {
-								if (!(sindex == index && sweepFrame.getStartTime() == toneTimeFrame.getStartTime())
-										&& sweepElements[sindex].noteListElement != null) {
+
+								if (!(sweepFrame.getStartTime() == toneTimeFrame.getStartTime())
+										&& sweepElements[sindex].noteListElement != null
+										&& !noteListElement.equals(sweepElements[sindex].noteListElement)
+										&& !candidateNote.equals(sweepElements[sindex].noteListElement)) {
+									LOG.severe(">>clearIsolatedNotes sweep frame: " + sweepFrame.getStartTime() + ", "
+											+ toneTimeFrame.getStartTime() + ", " + sindex + ", "
+											+ sweepElements[sindex].noteListElement.endTime + ", " + sindex + ", "
+											+ sweepElements[sindex].noteListElement.startTime + ", "
+											+ sweepElements[sindex].noteListElement.maxAmp + ", "
+											+ noteListElement.maxAmp);
 									if (((sweepElements[sindex].noteListElement.endTime
 											- sweepElements[sindex].noteListElement.startTime) >= harmonicSweep)
 											|| sweepElements[sindex].noteListElement.maxAmp > clearIsolatedNoteFactor
 													* noteListElement.maxAmp) {
 										isDiscard = false;
+										break;
 									}
-									break;
 								}
 							}
 							if (!isDiscard) {
@@ -1474,10 +1489,10 @@ public class AudioTuner implements ToneMapConstants {
 							}
 						}
 						if (isDiscard) {
-							discardedNotes.add(ttfElements[index].noteListElement);
+							discardedNotes.add(candidateNote);
 						}
 					}
-					processedNotes.add(ttfElements[index].noteListElement);
+					processedNotes.add(candidateNote);
 				}
 			}
 		}
