@@ -1434,7 +1434,6 @@ public class AudioTuner implements ToneMapConstants {
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteListElement> processedNotes = new HashSet<>();
 		processedNotes.add(noteListElement);
-		LOG.severe(">>clearIsolatedNotes: " + fromTime + ", " + toTime);
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
 			if (toneTimeFrame.getStartTime() > toTime / 1000.0) {
 				break;
@@ -1443,26 +1442,15 @@ public class AudioTuner implements ToneMapConstants {
 			for (int index = 0; index < ttfElements.length; index++) {
 				if (ttfElements[index].noteListElement != null
 						&& !noteListElement.equals(ttfElements[index].noteListElement)) {
-					LOG.severe(">>clearIsolatedNotes process note A: " + ttfElements[index].noteListElement.startTime
-							+ ", " + index);
 					NoteListElement candidateNote = ttfElements[index].noteListElement;
 					if (!processedNotes.contains(candidateNote)
-							&& (candidateNote.endTime
-									- candidateNote.startTime) < harmonicSweep
-							&& candidateNote.maxAmp <= clearIsolatedNoteFactor
-									* noteListElement.maxAmp) {
-						LOG.severe(">>clearIsolatedNotes process note B: "
-								+ candidateNote.startTime + ", " + index);
+							&& (candidateNote.endTime - candidateNote.startTime) < harmonicSweep
+							&& candidateNote.maxAmp <= clearIsolatedNoteFactor * noteListElement.maxAmp) {
 						boolean isDiscard = true;
-						ToneTimeFrame[] sweepFrames = toneMap.getTimeFramesFrom(
-								(candidateNote.startTime - harmonicSweep) / 1000.0);
-						LOG.severe(">>clearIsolatedNotes sweep from-to: "
-								+ (candidateNote.startTime - harmonicSweep) + ", "
-								+ (candidateNote.endTime + harmonicSweep));
+						ToneTimeFrame[] sweepFrames = toneMap
+								.getTimeFramesFrom((candidateNote.startTime - harmonicSweep) / 1000.0);
 						for (ToneTimeFrame sweepFrame : sweepFrames) {
-							if (sweepFrame
-									.getStartTime() > ((candidateNote.endTime + harmonicSweep)
-											/ 1000.0)) {
+							if (sweepFrame.getStartTime() > ((candidateNote.endTime + harmonicSweep) / 1000.0)) {
 								break;
 							}
 							ToneMapElement[] sweepElements = sweepFrame.getElements();
@@ -1475,12 +1463,6 @@ public class AudioTuner implements ToneMapConstants {
 										&& sweepElements[sindex].noteListElement != null
 										&& !noteListElement.equals(sweepElements[sindex].noteListElement)
 										&& !candidateNote.equals(sweepElements[sindex].noteListElement)) {
-									LOG.severe(">>clearIsolatedNotes sweep frame: " + sweepFrame.getStartTime() + ", "
-											+ toneTimeFrame.getStartTime() + ", " + sindex + ", "
-											+ sweepElements[sindex].noteListElement.endTime + ", " + sindex + ", "
-											+ sweepElements[sindex].noteListElement.startTime + ", "
-											+ sweepElements[sindex].noteListElement.maxAmp + ", "
-											+ noteListElement.maxAmp);
 									if (((sweepElements[sindex].noteListElement.endTime
 											- sweepElements[sindex].noteListElement.startTime) >= harmonicSweep)
 											|| sweepElements[sindex].noteListElement.maxAmp > clearIsolatedNoteFactor
