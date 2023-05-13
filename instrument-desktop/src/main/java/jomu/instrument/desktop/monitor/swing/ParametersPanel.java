@@ -333,6 +333,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField tunerClearIsolatedNotesPitchRangeInput;
 
+	private JTextField onsetSilenceThresholdInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -3450,6 +3452,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(onsetIntervalLabel);
 		cqParamsPanel.add(onsetIntervalInput);
 
+		JLabel onsetSilenceThresholdLabel = new JLabel("Onset Silence Threshold: ");
+		onsetSilenceThresholdInput = new JTextField(4);
+		onsetSilenceThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = onsetSilenceThresholdInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD, newValue);
+				onsetSilenceThresholdLabel.setText(String.format("Onset Silence Threshold  (%s):", newValue));
+				onsetSilenceThresholdInput.setText(newValue);
+			}
+		});
+		onsetSilenceThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD));
+		cqParamsPanel.add(onsetSilenceThresholdLabel);
+		cqParamsPanel.add(onsetSilenceThresholdInput);
+
 		JLabel tunerThresholdFactorLabel = new JLabel("Tuner Threshold Factor: ");
 		tunerThresholdFactorInput = new JTextField(4);
 		tunerThresholdFactorInput.addActionListener(new ActionListener() {
@@ -4535,6 +4554,8 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SENSITIVITY));
 		onsetIntervalInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL));
+		onsetSilenceThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD));
 		percussionSensitivityInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_PERCUSSION_SENSITIVITY));
 		percussionThresholdInput.setText(

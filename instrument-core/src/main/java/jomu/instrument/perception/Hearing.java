@@ -543,8 +543,11 @@ public class Hearing implements Organ {
 					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_THRESHOLD);
 			double onsetInterval = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL);
+			double onsetSilenceThreshold = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD);
 
-			ComplexOnsetDetector detector = new ComplexOnsetDetector(bufferSize, threshold, onsetInterval);
+			ComplexOnsetDetector detector = new ComplexOnsetDetector(bufferSize, threshold, onsetInterval,
+					onsetSilenceThreshold);
 			BeatRootOnsetEventHandler handler = new BeatRootOnsetEventHandler();
 			detector.setHandler(handler);
 

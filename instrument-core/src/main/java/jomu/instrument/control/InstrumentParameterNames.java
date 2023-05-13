@@ -111,7 +111,8 @@ public class InstrumentParameterNames {
 
 	public static final String PERCEPTION_HEARING_ONSET_THRESHOLD = "perception.hearing.onset.threshold";
 	public static final String PERCEPTION_HEARING_ONSET_SENSITIVITY = "perception.hearing.onset.sensitivity";
-	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = " perception.hearing.onset.interval";
+	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = "perception.hearing.onset.interval";
+	public static final String PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD = "perception.hearing.onset.silenceThreshold";
 	public static final String PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH = "perception.hearing.onset.cqOriginSwitch";
 
 	public static final String PERCEPTION_HEARING_PERCUSSION_THRESHOLD = "perception.hearing.percussion.threshold";
