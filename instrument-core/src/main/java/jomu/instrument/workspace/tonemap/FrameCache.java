@@ -72,7 +72,13 @@ public class FrameCache {
 		if (result.isEmpty()) {
 			// LOG.severe(">>FC GET: " + this.cacheMap.size() + ", " + this.queue.size() +
 			// ", " + key);
-			return this.storeage.getFrameStore().read(key);
+			Optional<ToneTimeFrame> v = this.storeage.getFrameStore().read(key);
+			if (v.isPresent()) {
+				put(key, v.get());
+				return v;
+			} else {
+				LOG.severe(">>FC GET MISSING FILE: " + this.cacheMap.size() + ", " + this.queue.size() + ", " + key);
+			}
 		}
 		return result;
 	}
@@ -84,9 +90,10 @@ public class FrameCache {
 		this.queue.add(key);
 		if (this.cacheMap.size() > MAX_CACHE_SIZE) {
 			String fk = this.queue.remove();
-			CacheValue oldCV = remove(fk);
-			if (oldCV != null) {
-				this.storeage.getFrameStore().write(fk, oldCV.getValue());
+			Optional<ToneTimeFrame> oldTm = get(fk);
+			if (oldTm.isPresent()) {
+				this.storeage.getFrameStore().write(fk, oldTm.get());
+				remove(fk);
 			} else {
 				LOG.severe(">>FC PUT Remove NULL: " + this.cacheMap.size() + ", " + this.queue.size() + ", " + fk + ", "
 						+ key);

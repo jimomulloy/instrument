@@ -66,11 +66,13 @@ public class FrameStore {
 		String filePath = folder + System.getProperty("file.separator") + fileName;
 		File file = new File(filePath);
 		try {
-			FileInputStream fi = new FileInputStream(file);
-			ObjectInputStream oi = new ObjectInputStream(fi);
-			// LOG.severe(">>FS READ: " + key);
-			ttf = (ToneTimeFrame) oi.readObject();
-			// LOG.severe(">>FS READDEN: " + key + ", " + ttf);
+			if (file.exists()) {
+				FileInputStream fi = new FileInputStream(file);
+				ObjectInputStream oi = new ObjectInputStream(fi);
+				// LOG.severe(">>FS READ: " + key);
+				ttf = (ToneTimeFrame) oi.readObject();
+				// LOG.severe(">>FS READDEN: " + key + ", " + ttf);
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
