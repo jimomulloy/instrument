@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.workspace.tonemap.FrameStore;
 
 @ApplicationScoped
 public class Storage implements Organ {
@@ -19,6 +20,9 @@ public class Storage implements Organ {
 
 	@Inject
 	ObjectStorage objectStorage;
+
+	@Inject
+	FrameStore frameStore;
 
 	@Inject
 	ParameterManager parameterManager;
@@ -34,6 +38,10 @@ public class Storage implements Organ {
 
 	public ObjectStorage getObjectStorage() {
 		return objectStorage;
+	}
+
+	public FrameStore getFrameStore() {
+		return frameStore;
 	}
 
 	@Override

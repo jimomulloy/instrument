@@ -1,5 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.io.Serializable;
+
 /**
  * This class defines the fields of the data elements contained within the
  * NoteSequence object which register state of Note data used for creating MIDI
@@ -7,7 +9,12 @@ package jomu.instrument.workspace.tonemap;
  *
  * @author Jim O'Mulloy
  */
-public class NoteStatusElement {
+public class NoteStatusElement implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public boolean highFlag;
 	public int index;

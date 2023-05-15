@@ -1,12 +1,12 @@
 package jomu.instrument.workspace.tonemap;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableSet;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import jomu.instrument.cognition.cell.Cell.CellTypes;
@@ -27,7 +27,7 @@ public class ToneMap {
 
 	private static final Logger LOG = Logger.getLogger(ToneMap.class.getName());
 
-	ConcurrentSkipListMap<Double, ToneTimeFrame> toneMapStore = new ConcurrentSkipListMap<>();
+	CopyOnWriteArrayList<Double> frameIndex = new CopyOnWriteArrayList<>();
 
 	String key;
 
@@ -41,12 +41,15 @@ public class ToneMap {
 
 	Map<Integer, ToneMapStatistics> statisticsBands = new HashMap<>();
 
-	private ParameterManager parameterManager;
+	ParameterManager parameterManager;
 
-	public ToneMap(String key, ParameterManager parameterManager) {
+	FrameCache frameCache;
+
+	public ToneMap(String key, ParameterManager parameterManager, FrameCache frameCache) {
 		this.key = key;
 		this.parameterManager = parameterManager;
-		this.toneMapStore = new ConcurrentSkipListMap<>();
+		this.frameCache = frameCache;
+		this.frameIndex = new CopyOnWriteArrayList<>();
 		this.noteTracker = new NoteTracker(this);
 		this.toneSynthesiser = new ToneSynthesiser(this);
 	}
@@ -72,8 +75,13 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
-		toneMapStore.put(toneTimeFrame.getStartTime(), toneTimeFrame);
+		frameCache.put(getFrameKey(toneTimeFrame.getStartTime()), toneTimeFrame);
+		frameIndex.addIfAbsent(toneTimeFrame.getStartTime());
 		return toneTimeFrame;
+	}
+
+	private String getFrameKey(Double startTime) {
+		return getKey() + ":" + startTime;
 	}
 
 	public final static String buildToneMapKey(CellTypes cellType, String streamId) {
@@ -92,96 +100,147 @@ public class ToneMap {
 	 * Clear current ToneMap objects after Reset
 	 */
 	public void clear() {
-		toneMapStore = new ConcurrentSkipListMap<>();
+		// TODO frameIndex = new ConcurrentSkipListMap<>();
+		frameIndex = new CopyOnWriteArrayList<>();
+		statistics = new ToneMapStatistics();
+		noteTracker = new NoteTracker(this);
+		toneSynthesiser = new ToneSynthesiser(this);
 	}
 
 	public void deleteTimeFrame() {
-		toneMapStore.remove(toneMapStore.firstKey());
-	}
-
-	public void deleteTimeFrame(Double time) {
-		toneMapStore.remove(time);
-	}
-
-	public ToneTimeFrame getNextTimeFrame(Double key) {
-		Entry<Double, ToneTimeFrame> nextEntry = toneMapStore.higherEntry(key);
-		if (nextEntry != null) {
-			return nextEntry.getValue();
-		} else {
-			return null;
+		if (frameIndex.size() > 0) {
+			double fk = frameIndex.get(0);
+			frameCache.remove(getFrameKey(fk));
+			frameIndex.remove(fk);
 		}
 	}
 
-	public ToneTimeFrame getPreviousTimeFrame() {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(toneMapStore.lastKey());
-		if (previousEntry != null) {
-			return previousEntry.getValue();
-		} else {
-			return null;
+	public void deleteTimeFrame(double time) {
+		if (frameIndex.contains(time)) {
+			double fk = frameIndex.get(frameIndex.indexOf(time));
+			frameCache.remove(getFrameKey(fk));
+			frameIndex.remove(fk);
 		}
 	}
 
-	public ToneTimeFrame getPreviousTimeFrame(Double key) {
-		Entry<Double, ToneTimeFrame> previousEntry = toneMapStore.lowerEntry(key);
-		if (previousEntry != null) {
-			return previousEntry.getValue();
-		} else {
-			return null;
-		}
-	}
-
-	public ToneTimeFrame getTimeFrame() {
-		if (!toneMapStore.isEmpty()) {
-			return toneMapStore.lastEntry().getValue();
+	public ToneTimeFrame getNextTimeFrame(double time) {
+		if (frameIndex.contains(time)) {
+			int index = frameIndex.indexOf(time);
+			if (index < frameIndex.size() - 1) {
+				double fk = frameIndex.get(index + 1);
+				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+				if (result.isPresent()) {
+					return result.get();
+				}
+			}
 		}
 		return null;
 	}
 
+	public ToneTimeFrame getPreviousTimeFrame() {
+		if (frameIndex.size() > 1) {
+			double fk = frameIndex.get(frameIndex.size() - 2);
+			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+			if (result.isPresent()) {
+				return result.get();
+			}
+		}
+		return null;
+	}
+
+	public ToneTimeFrame getPreviousTimeFrame(double time) {
+		if (frameIndex.contains(time)) {
+			int index = frameIndex.indexOf(time);
+			if (index > 0) {
+				double fk = frameIndex.get(index - 1);
+				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+				if (result.isPresent()) {
+					return result.get();
+				}
+			}
+		}
+		return null;
+	}
+
+	public ToneTimeFrame getTimeFrame() {
+		return getLastTimeFrame();
+	}
+
 	public ToneTimeFrame getFirstTimeFrame() {
-		if (!toneMapStore.isEmpty()) {
-			return toneMapStore.firstEntry().getValue();
+		if (!frameIndex.isEmpty()) {
+			double fk = frameIndex.get(0);
+			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+			if (result.isPresent()) {
+				return result.get();
+			}
 		}
 		return null;
 	}
 
 	public ToneTimeFrame getLastTimeFrame() {
-		if (!toneMapStore.isEmpty()) {
-			return toneMapStore.lastEntry().getValue();
+		if (!frameIndex.isEmpty()) {
+			double fk = frameIndex.get(frameIndex.size() - 1);
+			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+			if (result.isPresent()) {
+				return result.get();
+			}
 		}
 		return null;
 	}
 
-	public ToneTimeFrame getTimeFrame(Double key) {
-		return toneMapStore.get(key);
+	public ToneTimeFrame getTimeFrame(double time) {
+		if (frameIndex.contains(time)) {
+			int index = frameIndex.indexOf(time);
+			double fk = frameIndex.get(index);
+			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+			if (result.isPresent()) {
+				return result.get();
+			}
+		}
+		return null;
 	}
 
 	public ToneTimeFrame getTimeFrame(int sequence) {
-		NavigableSet<Double> keySet = toneMapStore.keySet();
-		int counter = sequence;
-		Iterator<Double> iterator = keySet.iterator();
-		Double key = null;
-		while (counter > 0 && iterator.hasNext()) {
-			key = iterator.next();
-			counter--;
+		if (frameIndex.size() >= sequence) {
+			double fk = frameIndex.get(sequence - 1);
+			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+			if (result.isPresent()) {
+				return result.get();
+			}
 		}
-		if (key == null) {
-			return null;
-		}
-		return toneMapStore.get(key);
+		return null;
 	}
 
-	public ToneTimeFrame[] getTimeFramesFrom(Double key) {
-		Collection<ToneTimeFrame> tailMap = toneMapStore.tailMap(key).values();
+	public ToneTimeFrame[] getTimeFramesFrom(double time) {
+		List<ToneTimeFrame> tailMap = new ArrayList<>();
+		for (double fk : frameIndex) {
+			if (fk >= time) {
+				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+				if (result.isPresent()) {
+					tailMap.add(result.get());
+				}
+			}
+		}
 		return tailMap.toArray(new ToneTimeFrame[tailMap.size()]);
 	}
 
-	public ToneTimeFrame[] getTimeFramesTo(Double key) {
-		Collection<ToneTimeFrame> headMap = toneMapStore.headMap(key).values();
-		return headMap.toArray(new ToneTimeFrame[headMap.size()]);
+	public ToneTimeFrame[] getTimeFramesTo(double time) {
+		List<ToneTimeFrame> tailMap = new ArrayList<>();
+		for (double fk : frameIndex) {
+			if (fk <= time) {
+				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
+				if (result.isPresent()) {
+					tailMap.add(result.get());
+				}
+			}
+		}
+		return tailMap.toArray(new ToneTimeFrame[tailMap.size()]);
 	}
 
 	public void initialise() {
-		toneMapStore = new ConcurrentSkipListMap<>();
+		// TODO init frames?
+		frameIndex = new CopyOnWriteArrayList<>();
+		frameCache.clear();
 	}
 
 	public void clearOldFrames(Double time) {

@@ -1,5 +1,6 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,7 +13,12 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class ToneTimeFrame {
+public class ToneTimeFrame implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOG = Logger.getLogger(ToneTimeFrame.class.getName());
 

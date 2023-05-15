@@ -1,5 +1,6 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,7 +11,12 @@ import java.util.logging.Logger;
  * @version 1.0 01/01/01
  * @author Jim O'Mulloy
  */
-public class NoteStatus {
+public class NoteStatus implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOG = Logger.getLogger(NoteStatus.class.getName());
 

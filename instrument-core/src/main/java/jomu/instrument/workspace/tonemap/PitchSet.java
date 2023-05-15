@@ -14,6 +14,11 @@ import java.util.Objects;
  */
 public class PitchSet implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(highPitchIndex, lowPitchIndex);

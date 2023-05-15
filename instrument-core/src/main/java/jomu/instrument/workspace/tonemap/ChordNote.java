@@ -1,12 +1,18 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * @author User
  *
  */
-public class ChordNote implements Comparable<ChordNote> {
+public class ChordNote implements Comparable<ChordNote>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	double amplitude;
 	int pitchClass;
 	int index;

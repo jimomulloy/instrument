@@ -1,6 +1,8 @@
 package jomu.instrument.workspace.tonemap;
 
-public class ToneMapStatistics {
+import java.io.Serializable;
+
+public class ToneMapStatistics implements Serializable {
 
 	public double mean;
 	public double max;

@@ -12,6 +12,11 @@ import java.util.Objects;
  */
 public class TimeSet implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private double currentTime;
 
 	private int endSample;

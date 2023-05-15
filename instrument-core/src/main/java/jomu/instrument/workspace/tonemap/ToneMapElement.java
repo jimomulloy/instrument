@@ -1,5 +1,6 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,11 +11,15 @@ import java.util.Map;
  * @version 1.0 01/01/01
  * @author Jim O'Mulloy
  */
-public class ToneMapElement {
+public class ToneMapElement implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public double amplitude;
 	public double harmonicAmplitude;
-	public NoteListElement noteListElement;
 	public int noteState;
 	public boolean isPeak;
 	public Map<Integer, Double> harmonicWeights = new HashMap();
@@ -23,6 +28,8 @@ public class ToneMapElement {
 	int index;
 	int pitchIndex;
 	int timeIndex;
+
+	transient public NoteListElement noteListElement;
 
 	public ToneMapElement(double amplitude, int index, int timeIndex, int pitchIndex) {
 

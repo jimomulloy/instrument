@@ -69,8 +69,8 @@ public class AudioYINProcessor extends ProcessorCommon {
 
 		FFTSpectrum fftSpectrum = new FFTSpectrum(features.getSource().getSampleRate(),
 				features.getSource().getBufferSize(), spectrum);
-
 		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 
 		if (pdSwitchWhitener) {

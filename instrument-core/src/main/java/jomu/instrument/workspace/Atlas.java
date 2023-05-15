@@ -9,15 +9,19 @@ import javax.inject.Inject;
 
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
+import jomu.instrument.workspace.tonemap.FrameCache;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
 public class Atlas {
 
+	private static final Logger LOG = Logger.getLogger(Atlas.class.getName());
+
 	@Inject
 	ParameterManager parameterManager;
 
-	private static final Logger LOG = Logger.getLogger(Atlas.class.getName());
+	@Inject
+	FrameCache frameCache;
 
 	Map<String, ToneMap> toneMaps = new ConcurrentHashMap<>();
 
@@ -29,7 +33,7 @@ public class Atlas {
 
 	public ToneMap getToneMap(String key) {
 		if (!toneMaps.containsKey(key)) {
-			putToneMap(key, new ToneMap(key, parameterManager));
+			putToneMap(key, new ToneMap(key, parameterManager, frameCache));
 		}
 		return toneMaps.get(key);
 	}
@@ -72,7 +76,8 @@ public class Atlas {
 	public void removeMapsByStreamId(String streamId) {
 		for (String key : toneMaps.keySet()) {
 			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
-				this.toneMaps.remove(key);
+				ToneMap tm = this.toneMaps.remove(key);
+				tm.clear();
 			}
 		}
 		for (String key : calibrationMaps.keySet()) {
@@ -80,14 +85,19 @@ public class Atlas {
 				this.calibrationMaps.remove(key);
 			}
 		}
+		LOG.severe(">>ATLAS FrameCache size: " + frameCache.getSize());
+		frameCache.clear();
 	}
 
 	public void clearOldMaps(String streamId, Double time) {
 		for (String key : toneMaps.keySet()) {
 			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
 				ToneMap tm = getToneMap(key);
-				tm.clearOldFrames(time);
+				// TODO tm.clearOldFrames(time);
+				tm.clear();
 			}
 		}
+		LOG.severe(">>ATLAS FrameCache size: " + frameCache.getSize());
+		frameCache.clear();
 	}
 }

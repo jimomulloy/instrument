@@ -1,12 +1,18 @@
 package jomu.instrument.workspace.tonemap;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public class MicroTones {
+public class MicroTones implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	ConcurrentSkipListMap<Double, Map<Integer, Double>> microToneMap = new ConcurrentSkipListMap<>();
 
