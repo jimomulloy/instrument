@@ -28,6 +28,10 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR);
 		boolean onsetCQOriginSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH);
+		int chromaRootNote = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE);
+		boolean chromaHarmonicsSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH);
 
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (onsetCQOriginSwitch) {
@@ -43,6 +47,8 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 			ToneTimeFrame currentFrame = onsetSmoothedToneMap.getTimeFrame(sequence);
 			ToneTimeFrame previousFrame = onsetSmoothedToneMap.getTimeFrame(sequence - 1);
 			currentFrame.onsetWhiten(previousFrame, (double) onsetSmoothingFactor / 100.0);
+			currentFrame.chroma(chromaRootNote, currentFrame.getPitchLow(), currentFrame.getPitchHigh(),
+					chromaHarmonicsSwitch);
 		}
 
 		if (sequence > 1) {

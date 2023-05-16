@@ -19,7 +19,7 @@ public class EventsStack extends Stack {
 		var eventBridgeListener = AWSLambda.createFunction(this, "instrument_EventBridgeListener",
 				"jomu.instrument.aws.s3handler.EventBridgeListener::handleRequest");
 
-		var s3Listener = new QuarkusLambda(this, "instrument_S3ObjectCreateListener", snapStart);
+		var s3Listener = new QuarkusLambda(this, "instrument_S3ObjectCreateListener2", snapStart);
 
 		var cloudWatchLogGroup = new EventBridgeTargetLogGroup(this);
 		var logGroup = cloudWatchLogGroup.getLogGroup();
