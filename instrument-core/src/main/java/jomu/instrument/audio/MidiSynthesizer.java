@@ -25,9 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
@@ -44,6 +41,9 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 
 import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.Controller;
@@ -968,16 +968,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 			int maxTracksLower = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER);
 
-			ToneMap toneMap = null;
-			ToneTimeFrame toneTimeFrame = null;
+			ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 
-			toneMap = workspace.getAtlas()
-					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, midiStream.getStreamId()));
-			toneTimeFrame = toneMap.getTimeFrame(mqm.sequence);
+			// toneMap = workspace.getAtlas()
+			// .getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS,
+			// midiStream.getStreamId()));
+			// toneTimeFrame = toneMap.getTimeFrame(mqm.sequence);
 			if (toneTimeFrame == null) {
 				return false;
 			}
 
+			ToneMap toneMap = toneTimeFrame.getToneMap();
 			List<ShortMessage> midiMessages = new ArrayList<>();
 			NoteTrack[] tracks = toneMap.getNoteTracker().getTracks();
 
@@ -1082,7 +1083,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
 			boolean hasNewChord = false;
-			if (chord != null && (cm.getBeatBeforeTime(beatTimeFrame.getStartTime(), 110) != -1)) {
+			if (chord != null && (cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110) != -1)) {
 				double beatRange = cm.getBeatRange(beatTimeFrame.getStartTime());
 				double time = beatTimeFrame.getStartTime();
 				if (beatRange != -1 && ((time - beatRange / 2) > chord.getStartTime())
@@ -1220,7 +1221,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			int volume = 127;
 			int beat4Note = drum;
 			boolean hasBeat = false;
-			double beatTime = cm.getBeatBeforeTime(beatTimeFrame.getStartTime(), 110);
+			double beatTime = cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110);
 			if (beatTime != -1) {
 				ToneTimeFrame ttf = beatToneMap.getTimeFrame(beatTime);
 				if (ttf != null) {
@@ -2457,7 +2458,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 
 			boolean hasNewChord = false;
-			if (chord != null && (cm.getBeatBeforeTime(beatTimeFrame.getStartTime(), 110) != -1)) {
+			if (chord != null && (cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110) != -1)) {
 				double beatRange = cm.getBeatRange(beatTimeFrame.getStartTime());
 				double time = beatTimeFrame.getStartTime();
 				if (beatRange != -1 && ((time - beatRange / 2) > chord.getStartTime())
@@ -3214,7 +3215,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			int volume = 127;
 			int beat4Note = drum;
 			boolean hasBeat = false;
-			double beatTime = cm.getBeatBeforeTime(beatTimeFrame.getStartTime(), 110);
+			double beatTime = cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110);
 			if (beatTime != -1) {
 				ToneTimeFrame ttf = beatToneMap.getTimeFrame(beatTime);
 				if (ttf != null) {

@@ -58,6 +58,8 @@ public class ToneTimeFrame implements Serializable {
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
 
+	transient ToneMap toneMap;
+
 	static class AdaptiveWhitenConfig {
 		public int lowNote;
 		public int highNote;
@@ -86,7 +88,8 @@ public class ToneTimeFrame implements Serializable {
 		return adaptiveWhitenConfigs[0];
 	}
 
-	public ToneTimeFrame(TimeSet timeSet, PitchSet pitchSet) {
+	public ToneTimeFrame(ToneMap toneMap, TimeSet timeSet, PitchSet pitchSet) {
+		this.toneMap = toneMap;
 		this.timeSet = timeSet;
 		this.pitchSet = pitchSet;
 		int pitchRange = pitchSet.getRange();
@@ -99,7 +102,7 @@ public class ToneTimeFrame implements Serializable {
 
 	@Override
 	public ToneTimeFrame clone() {
-		ToneTimeFrame copy = new ToneTimeFrame(this.timeSet.clone(), this.pitchSet.clone());
+		ToneTimeFrame copy = new ToneTimeFrame(this.toneMap, this.timeSet.clone(), this.pitchSet.clone());
 		copy.noteStatus = this.noteStatus.clone();
 		for (ChordNote chord : chordNotes) {
 			copy.chordNotes.add(chord.clone());
@@ -113,6 +116,14 @@ public class ToneTimeFrame implements Serializable {
 		copy.setLowThreshold(this.getLowThres());
 		copy.setHighThreshold(this.getHighThreshold());
 		return copy;
+	}
+
+	public ToneMap getToneMap() {
+		return toneMap;
+	}
+
+	public void setToneMap(ToneMap toneMap) {
+		this.toneMap = toneMap;
 	}
 
 	public double getRmsPower() {
@@ -311,7 +322,7 @@ public class ToneTimeFrame implements Serializable {
 	}
 
 	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch, boolean harmonics) {
-		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.timeSet.clone(),
+		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.toneMap, this.timeSet.clone(),
 				new PitchSet(basePitch, basePitch + 11));
 		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
 		for (int i = 0; i < elements.length; i++) {
@@ -1149,7 +1160,7 @@ public class ToneTimeFrame implements Serializable {
 
 			pitchSet = new PitchSet(getPitchLow(), getPitchHigh());
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(this.toneMap, timeSet, pitchSet);
 
 			targetToneMap.addTimeFrame(ttf);
 

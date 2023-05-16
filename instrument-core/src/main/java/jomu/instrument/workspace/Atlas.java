@@ -4,9 +4,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.FrameCache;
@@ -26,6 +25,10 @@ public class Atlas {
 	Map<String, ToneMap> toneMaps = new ConcurrentHashMap<>();
 
 	Map<String, CalibrationMap> calibrationMaps = new ConcurrentHashMap<>();
+
+	public FrameCache getFrameCache() {
+		return frameCache;
+	}
 
 	public boolean hasToneMap(String key) {
 		return toneMaps.containsKey(key);
@@ -86,7 +89,21 @@ public class Atlas {
 			}
 		}
 		LOG.severe(">>ATLAS FrameCache size: " + frameCache.getSize());
+	}
+
+	public void clear() {
 		frameCache.clear();
+		toneMaps = new ConcurrentHashMap<>();
+		calibrationMaps = new ConcurrentHashMap<>();
+	}
+
+	public void commitMapsByStreamId(String streamId, int sequence) {
+		for (String key : toneMaps.keySet()) {
+			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
+				ToneMap tm = this.toneMaps.get(key);
+				tm.commit(sequence);
+			}
+		}
 	}
 
 	public void clearOldMaps(String streamId, Double time) {

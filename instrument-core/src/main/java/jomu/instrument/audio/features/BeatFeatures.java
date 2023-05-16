@@ -50,7 +50,7 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
 			int amplitude = 0;
@@ -85,7 +85,7 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 		}
 	}

@@ -30,12 +30,12 @@ import java.awt.event.ActionListener;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.border.TitledBorder;
+import jakarta.swing.ButtonGroup;
+import jakarta.swing.JPanel;
+import jakarta.swing.JRadioButton;
+import jakarta.swing.JScrollPane;
+import jakarta.swing.ScrollPaneConstants;
+import jakarta.swing.border.TitledBorder;
 
 import jomu.instrument.monitor.Shared;
 

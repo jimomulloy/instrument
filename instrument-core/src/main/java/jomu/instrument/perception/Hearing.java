@@ -12,8 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -41,6 +39,8 @@ import be.tarsos.dsp.io.jvm.WaveformWriter;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import be.tarsos.dsp.wavelet.HaarWaveletCoder;
 import be.tarsos.dsp.wavelet.HaarWaveletDecoder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.PidProcessor;
@@ -171,8 +171,11 @@ public class Hearing implements Organ {
 		if (getStreamId() != null) {
 			LOG.severe(">>HEARING startAudioFileStream clear old stream: " + getStreamId());
 			workspace.getAtlas().removeMapsByStreamId(getStreamId());
+			System.gc();
 		}
-		System.gc();
+
+		workspace.getAtlas().clear();
+
 		// Get current size of heap in bytes
 		long heapSize = Runtime.getRuntime().totalMemory();
 		// Get maximum size of heap in bytes. The heap cannot grow beyond this size.//
@@ -317,8 +320,10 @@ public class Hearing implements Organ {
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
 		if (getStreamId() != null) {
 			workspace.getAtlas().removeMapsByStreamId(getStreamId());
+			System.gc();
 		}
-		System.gc();
+		workspace.getAtlas().clear();
+
 		// Get current size of heap in bytes
 		long heapSize = Runtime.getRuntime().totalMemory();
 		// Get maximum size of heap in bytes. The heap cannot grow beyond this size.//

@@ -4,12 +4,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
 import io.vertx.core.impl.ConcurrentHashSet;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
@@ -96,7 +96,8 @@ public class Voice implements Organ {
 				e.printStackTrace();
 			}
 		}
-		LOG.severe(">>Voice CLOSED, midi running: " + midiSynthesizer.isSynthesizerRunning());
+		LOG.severe(">>Voice CLOSED, midi running: " + midiSynthesizer.isSynthesizerRunning() + ", "
+				+ ", Frame Cache Size: " + workspace.getAtlas().getFrameCache().getSize());
 		if (controller.isCountDownLatch()) {
 			LOG.severe(">>Voice CLOSE JOB");
 			controller.getCountDownLatch().countDown();

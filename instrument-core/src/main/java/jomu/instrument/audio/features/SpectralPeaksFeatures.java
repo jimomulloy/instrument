@@ -81,7 +81,7 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 					nextTime + binWidth - timeStart);
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
 			for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
@@ -125,7 +125,7 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 		}
 	}

@@ -13,7 +13,7 @@ A brief description of what this project does and who it's for.
 
 **Client:** Swing, React (Provided by instrumentamp project)
 
-**Server:** Java11+, Quarkus, AWS Lambda
+**Server:** Java17, Quarkus, AWS Lambda
 
 
 ## Acknowledgements

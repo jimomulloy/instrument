@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 import jomu.instrument.Instrument;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(0)
+@jakarta.annotation.Priority(0)
 public class FileInstrumentStoreService implements InstrumentStoreService {
 
 	final List<ToneMap> toneMapList = new ArrayList<>();

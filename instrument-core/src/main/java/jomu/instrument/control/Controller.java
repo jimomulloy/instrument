@@ -8,9 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.store.InstrumentSession;
@@ -167,6 +166,21 @@ public class Controller implements Organ {
 			throw new InstrumentException(message);
 		}
 
+		String audioFrameStoreDirectory = parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FRAME_STORE_DIRECTORY);
+		audioFrameStoreDirectory = FileUtils.combine(baseDir, audioFrameStoreDirectory);
+		LOG.severe("Creating directory: " + audioFrameStoreDirectory);
+		if (FileUtils.mkdirs(audioFrameStoreDirectory)) {
+			LOG.severe("Created directory: " + audioFrameStoreDirectory);
+		}
+		// Check if the directory is writable
+		if (!new File(audioFrameStoreDirectory).canWrite()) {
+			String message = "Required directory " + audioFrameStoreDirectory
+					+ " is not writable!\n Please configure another directory for '"
+					+ InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FRAME_STORE_DIRECTORY + "'.";
+			LOG.severe(message);
+			throw new InstrumentException(message);
+		}
 	}
 
 	@Override

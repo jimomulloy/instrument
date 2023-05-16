@@ -18,7 +18,7 @@ public class InstrumentTestData {
 
 		TimeSet timeSet = new TimeSet(timeStart, timeEnd, 44125, timeEnd - timeStart);
 		PitchSet pitchSet = new PitchSet();
-		ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+		ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 		toneMap.addTimeFrame(ttf);
 
 		return toneMap;

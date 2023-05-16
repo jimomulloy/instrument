@@ -30,7 +30,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JComponent;
+import jakarta.swing.JComponent;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;

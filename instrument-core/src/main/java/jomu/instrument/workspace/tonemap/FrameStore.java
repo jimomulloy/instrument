@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.ObjectStorage;
@@ -29,16 +29,13 @@ public class FrameStore {
 	@Inject
 	ObjectStorage objectStorage;
 
-	String folder;
-
 	void write(String key, ToneTimeFrame value) {
 		String baseDir = objectStorage.getBasePath();
-		folder = Paths
+		String folder = Paths
 				.get(baseDir,
 						parameterManager
-								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FRAME_STORE_DIRECTORY))
 				.toString();
-		// String nkey = UUID.randomUUID().toString();
 		String fileName = key.replaceAll(":", "_") + ".ser";
 		String filePath = folder + System.getProperty("file.separator") + fileName;
 		File file = new File(filePath);
@@ -62,6 +59,12 @@ public class FrameStore {
 
 	Optional<ToneTimeFrame> read(String key) {
 		ToneTimeFrame ttf = null;
+		String baseDir = objectStorage.getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FRAME_STORE_DIRECTORY))
+				.toString();
 		String fileName = key.replaceAll(":", "_") + ".ser";
 		String filePath = folder + System.getProperty("file.separator") + fileName;
 		File file = new File(filePath);
@@ -83,5 +86,21 @@ public class FrameStore {
 
 		Optional<ToneTimeFrame> result = Optional.ofNullable(ttf);
 		return result;
+	}
+
+	public void clear() {
+		String baseDir = objectStorage.getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FRAME_STORE_DIRECTORY))
+				.toString();
+		File directory = new File(folder);
+		for (File file : Objects.requireNonNull(directory.listFiles())) {
+			if (!file.isDirectory()) {
+				file.delete();
+			}
+		}
+
 	}
 }

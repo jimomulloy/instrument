@@ -44,9 +44,6 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -95,6 +92,9 @@ import be.tarsos.dsp.ui.layers.TimeAxisLayer;
 import be.tarsos.dsp.ui.layers.VerticalFrequencyAxisLayer;
 import be.tarsos.dsp.ui.layers.ZoomMouseListenerLayer;
 import be.tarsos.dsp.util.PitchConverter;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.inject.Inject;
 import jomu.instrument.Instrument;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
@@ -119,7 +119,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(1)
+@jakarta.annotation.Priority(1)
 public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private static final Logger LOG = Logger.getLogger(SwingDesktopVisor.class.getName());
@@ -710,6 +710,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		JTabbedPane chromaTabbedPane = new JTabbedPane();
 		chromaTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
+		chromaSynthView = new ChromaView(false);
+		JPanel chromaSynthPanel = new JPanel(new BorderLayout());
+		chromaSynthPanel.add(chromaSynthView, BorderLayout.CENTER);
+		chromaSynthPanel.setBackground(Color.BLACK);
+		chromaTabbedPane.addTab("Chroma Synth", chromaSynthPanel);
 		chromaPreView = new ChromaView(true);
 		JPanel chromaPrePanel = new JPanel(new BorderLayout());
 		chromaPrePanel.add(chromaPreView, BorderLayout.CENTER);
@@ -720,11 +725,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		chromaPostPanel.add(chromaPostView, BorderLayout.CENTER);
 		chromaPostPanel.setBackground(Color.BLACK);
 		chromaTabbedPane.addTab("Chroma Post", chromaPostPanel);
-		chromaSynthView = new ChromaView(false);
-		JPanel chromaSynthPanel = new JPanel(new BorderLayout());
-		chromaSynthPanel.add(chromaSynthView, BorderLayout.CENTER);
-		chromaSynthPanel.setBackground(Color.BLACK);
-		chromaTabbedPane.addTab("Chroma Synth", chromaSynthPanel);
 		panel.add(chromaTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -795,11 +795,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		toneMapViewComboBox = new JComboBox<>();
 
-		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
-				Cell.CellTypes.AUDIO_CQ_MICRO_TONE.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
-				Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(), Cell.CellTypes.AUDIO_PITCH.name(),
-				Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(), Cell.CellTypes.AUDIO_MFCC.name(),
-				Cell.CellTypes.AUDIO_CEPSTRUM.name(), Cell.CellTypes.AUDIO_SYNTHESIS.name(),
+		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(), Cell.CellTypes.AUDIO_CQ.name(),
+				Cell.CellTypes.AUDIO_CQ_ORIGIN.name(), Cell.CellTypes.AUDIO_CQ_MICRO_TONE.name(),
+				Cell.CellTypes.AUDIO_TUNER_PEAKS.name(), Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(),
+				Cell.CellTypes.AUDIO_PITCH.name(), Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(),
+				Cell.CellTypes.AUDIO_MFCC.name(), Cell.CellTypes.AUDIO_CEPSTRUM.name(),
 				Cell.CellTypes.AUDIO_NOTATE.name(), Cell.CellTypes.AUDIO_NOTATE.name() + "_PEAKS",
 				Cell.CellTypes.AUDIO_NOTATE.name() + "_SPECTRAL", Cell.CellTypes.AUDIO_INTEGRATE.name(),
 				Cell.CellTypes.AUDIO_INTEGRATE.name() + "_PEAKS", Cell.CellTypes.AUDIO_INTEGRATE.name() + "_SPECTRAL",
@@ -811,9 +811,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.forEach(entry -> toneMapViewComboBox.addItem(entry));
 
 		toneMapViewComboBox.setEnabled(false);
-		toneMapViewComboBox.setSelectedItem(Cell.CellTypes.AUDIO_CQ.name());
+		toneMapViewComboBox.setSelectedItem(Cell.CellTypes.AUDIO_SYNTHESIS.name());
 		toneMapViewComboBox.setEnabled(true);
-		currentToneMapViewType = Cell.CellTypes.AUDIO_CQ.name();
+		currentToneMapViewType = Cell.CellTypes.AUDIO_SYNTHESIS.name();
 
 		toneMapViewComboBox.addActionListener(new ActionListener() {
 			@Override

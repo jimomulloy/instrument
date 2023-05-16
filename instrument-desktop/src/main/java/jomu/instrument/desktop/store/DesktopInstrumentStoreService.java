@@ -3,17 +3,16 @@ package jomu.instrument.desktop.store;
 import java.util.List;
 import java.util.Properties;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.inject.Inject;
 import jomu.instrument.desktop.store.microstream.InstrumentStorage;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(1)
+@jakarta.annotation.Priority(1)
 public class DesktopInstrumentStoreService implements InstrumentStoreService {
 
 	@Inject

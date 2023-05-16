@@ -3,7 +3,7 @@ package jomu.instrument.aws.s3handler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 //@QuarkusTest
 class ProcessingServiceTest {

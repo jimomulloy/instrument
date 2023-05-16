@@ -2,8 +2,8 @@ package jomu.instrument.adapter.aws;
 
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 
 import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;

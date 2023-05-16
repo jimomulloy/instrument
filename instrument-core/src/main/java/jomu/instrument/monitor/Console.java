@@ -1,7 +1,7 @@
 package jomu.instrument.monitor;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;

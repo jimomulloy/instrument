@@ -75,6 +75,7 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
+		toneTimeFrame.setToneMap(this);
 		frameCache.put(getFrameKey(toneTimeFrame.getStartTime()), toneTimeFrame);
 		frameIndex.addIfAbsent(toneTimeFrame.getStartTime());
 		return toneTimeFrame;
@@ -238,9 +239,7 @@ public class ToneMap {
 	}
 
 	public void initialise() {
-		// TODO init frames?
 		frameIndex = new CopyOnWriteArrayList<>();
-		frameCache.clear();
 	}
 
 	public void clearOldFrames(Double time) {
@@ -370,5 +369,11 @@ public class ToneMap {
 
 	public void setAmplitudeThreshold(double amplitudeThreshold) {
 		this.amplitudeThreshold = amplitudeThreshold;
+	}
+
+	public void commit(int sequence) {
+		if (frameIndex.size() >= sequence) {
+			frameCache.backup(getFrameKey(frameIndex.get(sequence - 1)));
+		}
 	}
 }

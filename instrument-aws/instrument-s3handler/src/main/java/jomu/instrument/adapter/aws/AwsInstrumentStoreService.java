@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.store.InstrumentStoreService;

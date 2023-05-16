@@ -2,7 +2,7 @@ package jomu.instrument;
 
 import java.lang.management.ManagementFactory;
 
-import javax.management.MBeanServer;
+import jakarta.management.MBeanServer;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

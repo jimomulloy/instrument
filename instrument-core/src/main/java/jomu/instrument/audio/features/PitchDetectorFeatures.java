@@ -68,7 +68,7 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 					nextTime + binWidth - timeStart);
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
 			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
@@ -88,7 +88,7 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 		}
 	}

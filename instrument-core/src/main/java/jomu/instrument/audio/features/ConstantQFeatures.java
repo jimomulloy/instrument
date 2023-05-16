@@ -68,7 +68,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 					nextTime + binWidth - timeStart);
 
 			// toneMap.initialise();
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
 			if (features.size() > 0) {
@@ -92,7 +92,7 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 
 			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 			ttf.reset();
 		}

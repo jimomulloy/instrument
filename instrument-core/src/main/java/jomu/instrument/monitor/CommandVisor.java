@@ -2,9 +2,8 @@ package jomu.instrument.monitor;
 
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -12,7 +11,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(0)
+@jakarta.annotation.Priority(0)
 public class CommandVisor implements Visor {
 
 	private static final Logger LOG = Logger.getLogger(CommandVisor.class.getName());

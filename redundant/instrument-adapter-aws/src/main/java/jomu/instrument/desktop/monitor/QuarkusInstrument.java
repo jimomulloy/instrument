@@ -1,6 +1,6 @@
 package jomu.instrument.desktop.monitor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;

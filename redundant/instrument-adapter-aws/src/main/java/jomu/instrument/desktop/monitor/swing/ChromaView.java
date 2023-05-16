@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.swing.JComponent;
+import jakarta.swing.JComponent;
 
 import jomu.instrument.Instrument;
 import jomu.instrument.control.InstrumentParameterNames;

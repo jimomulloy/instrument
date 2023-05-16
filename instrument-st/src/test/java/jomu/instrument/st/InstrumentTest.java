@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

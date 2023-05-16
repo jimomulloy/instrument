@@ -7,15 +7,14 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.inject.Inject;
 import jomu.instrument.control.ParameterManager;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(0)
+@jakarta.annotation.Priority(0)
 public class FileStorage implements ObjectStorage {
 
 	@Inject

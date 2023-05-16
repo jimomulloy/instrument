@@ -65,7 +65,7 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 					nextTime + binWidth - timeStart);
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
 			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
@@ -84,7 +84,7 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 			PitchSet pitchSet = new PitchSet();
 
-			ToneTimeFrame ttf = new ToneTimeFrame(timeSet, pitchSet);
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 		}
 	}
