@@ -736,7 +736,7 @@ public class AudioTuner implements ToneMapConstants {
 		}
 
 		if (clearIsolatedNotesSwitch && longestNote != null) {
-			LOG.severe(">>NOTESCAN clearIsolatedNotes: " + time + ", " + longestNote);
+			LOG.finer(">>NOTESCAN clearIsolatedNotes: " + time + ", " + longestNote);
 			clearIsolatedNotes(toneMap, longestNote);
 		}
 
@@ -1107,7 +1107,7 @@ public class AudioTuner implements ToneMapConstants {
 			LOG.finer(">>PROCESS NOTE ADDED NOTE TO: " + toneTimeFrame.getStartTime() + ", " + noteStatusElement);
 		}
 		processedNotes.add(noteListElement);
-		LOG.severe(">>PROCESS NOTE ADDED NOTE DONE " + noteListElement.note + ", " + noteListElement.startTime + ", "
+		LOG.finer(">>PROCESS NOTE ADDED NOTE DONE " + noteListElement.note + ", " + noteListElement.startTime + ", "
 				+ noteListElement.endTime + ", " + noteStatusElement.onTime + ", " + noteStatusElement.note + ", "
 				+ noteStatusElement.offTime + ", max in note: " + maxAmp + ", tm max: " + toneMap.getStatistics().max
 				+ ", " + noteStatusElement + ", " + noteListElement);
@@ -1118,13 +1118,13 @@ public class AudioTuner implements ToneMapConstants {
 		}
 
 		if (clearVibratoNotesSwitch) {
-			LOG.severe(">>PROCESS NOTE clearVibratoNotes A: " + noteListElement.note + ", " + noteListElement.pitchIndex
+			LOG.finer(">>PROCESS NOTE clearVibratoNotes A: " + noteListElement.note + ", " + noteListElement.pitchIndex
 					+ ", " + noteListElement.startTime + ", " + noteListElement.endTime);
 			ToneTimeFrame lastTtf = toneMap.getTimeFrame(noteListElement.endTime / 1000.0);
 			ToneTimeFrame nextTtf = toneMap.getNextTimeFrame(lastTtf.getStartTime());
 
-			LOG.severe(">>PROCESS NOTE clearVibratoNotes A1: " + lastTtf);
-			LOG.severe(">>PROCESS NOTE clearVibratoNotes A2: " + nextTtf);
+			LOG.finer(">>PROCESS NOTE clearVibratoNotes A1: " + lastTtf);
+			LOG.finer(">>PROCESS NOTE clearVibratoNotes A2: " + nextTtf);
 
 			boolean hasPendingNote = false;
 			if (nextTtf != null) {
@@ -1135,7 +1135,7 @@ public class AudioTuner implements ToneMapConstants {
 					if (tte.noteListElement != null || ns.getNoteStatusElement(
 							index + (noteListElement.note - noteListElement.pitchIndex)).state > 0) {
 						hasPendingNote = true;
-						LOG.severe(">>PROCESS NOTE clearVibratoNotes hasPendingNote = true: " + noteListElement.note
+						LOG.finer(">>PROCESS NOTE clearVibratoNotes hasPendingNote = true: " + noteListElement.note
 								+ ", " + noteListElement.pitchIndex + ", " + noteListElement.startTime + ", "
 								+ noteListElement.endTime);
 					}
@@ -1143,16 +1143,16 @@ public class AudioTuner implements ToneMapConstants {
 			}
 
 			if (!hasPendingNote) {
-				LOG.severe(">>PROCESS NOTE clearVibratoNotes X: " + noteListElement.note + ", "
+				LOG.finer(">>PROCESS NOTE clearVibratoNotes X: " + noteListElement.note + ", "
 						+ noteListElement.pitchIndex + ", " + noteListElement.startTime + ", "
 						+ noteListElement.endTime);
 				NoteListElement newNle = clearVibratoNotes(toneMap, noteListElement);
 				if (newNle != null) {
-					LOG.severe(">>PROCESS NOTE clearVibratoNotes Y: " + noteListElement.note + ", "
+					LOG.finer(">>PROCESS NOTE clearVibratoNotes Y: " + noteListElement.note + ", "
 							+ noteListElement.pitchIndex + ", " + noteListElement.startTime + ", "
 							+ noteListElement.endTime);
 					processedNotes.remove(noteListElement);
-					LOG.severe(">>PROCESS NOTE clearVibratoNotes Z: " + newNle.note + ", " + newNle.pitchIndex + ", "
+					LOG.finer(">>PROCESS NOTE clearVibratoNotes Z: " + newNle.note + ", " + newNle.pitchIndex + ", "
 							+ newNle.startTime + ", " + newNle.endTime);
 					processedNotes.add(newNle);
 				}
@@ -1233,7 +1233,7 @@ public class AudioTuner implements ToneMapConstants {
 			NoteListElement newNle = new NoteListElement(meanNote, pitchIndex, startTime, endTime, startTimeIndex,
 					endTimeIndex, avgAmp, maxAmp, minAmp, percentMin, false, incrementTime);
 
-			LOG.severe(">>clearVibratoNotes " + lowNote + ", " + highNote + ", " + newNle.note + ", " + newNle.startTime
+			LOG.finer(">>clearVibratoNotes " + lowNote + ", " + highNote + ", " + newNle.note + ", " + newNle.startTime
 					+ ", " + newNle.endTime + " ," + newNle.pitchIndex);
 
 			ToneTimeFrame[] ttfs = toneMap.getTimeFramesFrom((newNle.startTime / 1000.0));
@@ -1259,7 +1259,7 @@ public class AudioTuner implements ToneMapConstants {
 				noteStatusElement.onTime = newNle.startTime;
 				noteStatusElement.offTime = newNle.endTime;
 				noteStatusElement.highFlag = true;
-				LOG.severe(">>clearVibratoNotes set ampl: " + element.amplitude + ", " + element.getIndex() + ", "
+				LOG.finer(">>clearVibratoNotes set ampl: " + element.amplitude + ", " + element.getIndex() + ", "
 						+ toneTimeFrame.getStartTime());
 				toneTimeFrame.reset();
 			}
@@ -1283,7 +1283,7 @@ public class AudioTuner implements ToneMapConstants {
 				noteStatusElement.onTime = newNle.startTime;
 				noteStatusElement.offTime = newNle.endTime;
 				noteStatusElement.highFlag = true;
-				LOG.severe(">>clearVibratoNotes set ampl: " + element.amplitude + ", " + element.getIndex() + ", "
+				LOG.finer(">>clearVibratoNotes set ampl: " + element.amplitude + ", " + element.getIndex() + ", "
 						+ toneTimeFrame.getStartTime());
 				toneTimeFrame.reset();
 			}
@@ -1303,7 +1303,7 @@ public class AudioTuner implements ToneMapConstants {
 					: 0;
 			double toTime = currentNote.endTime;
 			ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom(fromTime / 1000.0);
-			LOG.severe(">>seekVibratoElements " + fromTime + ", " + toTime + ", " + timeFrames.length);
+			LOG.finer(">>seekVibratoElements " + fromTime + ", " + toTime + ", " + timeFrames.length);
 			for (int ttfi = timeFrames.length - 1; ttfi >= 0; ttfi--) {
 				ToneTimeFrame toneTimeFrame = timeFrames[ttfi];
 				if (toneTimeFrame.getStartTime() > toTime / 1000.0) {
@@ -1328,7 +1328,7 @@ public class AudioTuner implements ToneMapConstants {
 			}
 			candidateNotes.remove(currentNote);
 			processedNotes.add(currentNote);
-			LOG.severe(">>seekVibratoElements A: " + currentNote.startTime + ", " + currentNote.note);
+			LOG.finer(">>seekVibratoElements A: " + currentNote.startTime + ", " + currentNote.note);
 			int lowNote = Integer.MAX_VALUE;
 			int highNote = Integer.MIN_VALUE;
 			for (NoteListElement pnle : processedNotes) {
@@ -1342,7 +1342,7 @@ public class AudioTuner implements ToneMapConstants {
 					inRange = false;
 				}
 			}
-			LOG.severe(">>seekVibratoElements B: " + inRange + ", " + currentNote.startTime + ", " + currentNote.note
+			LOG.finer(">>seekVibratoElements B: " + inRange + ", " + currentNote.startTime + ", " + currentNote.note
 					+ ", " + lowNote + ", " + highNote);
 		} while (inRange && !candidateNotes.isEmpty());
 		return inRange;
@@ -2280,9 +2280,9 @@ public class AudioTuner implements ToneMapConstants {
 		rnt.buildTimbre(f0Element);
 		// if (f0Element.getPitchIndex() == 48) {
 		// boolean result = hnt.matches2(rnt);
-		// LOG.severe(">>!!AT isMatchingTimbre A: " + result + ", " + harmonicElement +
+		// LOG.finer(">>!!AT isMatchingTimbre A: " + result + ", " + harmonicElement +
 		// ", " + f0Element);
-		// LOG.severe(">>!!AT isMatchingTimbre A TIMBRES: " + hnt + ", " + rnt);
+		// LOG.finer(">>!!AT isMatchingTimbre A TIMBRES: " + hnt + ", " + rnt);
 		// return result;
 		// } else {
 		boolean result = hnt.matches(rnt);

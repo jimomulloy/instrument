@@ -15,8 +15,7 @@ import software.constructs.Construct;
 
 public class QuarkusLambda extends Construct {
 
-	static Map<String, String> configuration = Map.of("message", "hello, quarkus as AWS Lambda", "JAVA_TOOL_OPTIONS",
-			"-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
+	static Map<String, String> configuration = Map.of("message", "hello, quarkus as AWS Lambda");
 	static String lambdaHandler = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest";
 	static int memory = 10240;
 	static int timeout = 300;
@@ -63,12 +62,11 @@ public class QuarkusLambda extends Construct {
 		// final LayerVersion layer = new LayerVersion(this, "InstrumentLayer",
 		// LayerVersionProps.builder().code(Code.fromAsset("../instrument-layer/target/bundle"))
 		// .compatibleRuntimes(Arrays.asList(Runtime.JAVA_11)).build());
-		return Function.Builder.create(this, functionName).runtime(Runtime.JAVA_11).architecture(architecture)
+		return Function.Builder.create(this, functionName).runtime(Runtime.JAVA_17).architecture(architecture)
 				.code(Code.fromAsset("../instrument-s3handler/target/function.zip")).handler(functionHandler)
-				.memorySize(memory).functionName(functionName).environment(configuration)
-				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store", "JAVA_TOOL_OPTIONS",
-						"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"))
-				.timeout(Duration.seconds(timeout)).build();
+				.memorySize(memory).functionName(functionName)
+				.environment(Map.of("INSTRUMENT_STORE", "jomu-instrument-store")).timeout(Duration.seconds(timeout))
+				.build();
 	}
 
 	IFunction createNativeFunction(String functionName, String functionHandler, Map<String, String> configuration,
