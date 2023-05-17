@@ -136,8 +136,8 @@ public class Controller implements Organ {
 
 		String audioRecordDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY);
-		audioRecordDirectory = FileUtils.combine(baseDir, audioRecordDirectory);
 		LOG.severe("Creating directory: " + audioRecordDirectory);
+		audioRecordDirectory = FileUtils.combine(baseDir, audioRecordDirectory);
 		if (FileUtils.mkdirs(audioRecordDirectory)) {
 			LOG.severe("Created directory: " + audioRecordDirectory);
 		}
@@ -152,8 +152,8 @@ public class Controller implements Organ {
 
 		String audioProjectDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PROJECT_DIRECTORY);
-		audioProjectDirectory = FileUtils.combine(baseDir, audioProjectDirectory);
 		LOG.severe("Creating directory: " + audioProjectDirectory);
+		audioProjectDirectory = FileUtils.combine(baseDir, audioProjectDirectory);
 		if (FileUtils.mkdirs(audioProjectDirectory)) {
 			LOG.severe("Created directory: " + audioProjectDirectory);
 		}
@@ -168,8 +168,8 @@ public class Controller implements Organ {
 
 		String audioFrameStoreDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FRAME_STORE_DIRECTORY);
-		audioFrameStoreDirectory = FileUtils.combine(baseDir, audioFrameStoreDirectory);
 		LOG.severe("Creating directory: " + audioFrameStoreDirectory);
+		audioFrameStoreDirectory = FileUtils.combine(baseDir, audioFrameStoreDirectory);
 		if (FileUtils.mkdirs(audioFrameStoreDirectory)) {
 			LOG.severe("Created directory: " + audioFrameStoreDirectory);
 		}

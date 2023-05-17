@@ -34,7 +34,9 @@
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>	
 	    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
-	</properties>
+	    <jakarta.jakartaee-api.version>10.0.0</jakarta.jakartaee-api.version>
+ 		<microprofile.version>3.0.3</microprofile.version>
+ 	</properties>
 	
 	<dependencyManagement>
 	    <dependencies>
@@ -45,26 +47,48 @@
 	        <type>pom</type>
 	        <scope>import</scope>
 	      </dependency>
+	      <dependency>
+			 <groupId>org.eclipse.microprofile</groupId>
+			 <artifactId>microprofile</artifactId>
+			 <version>${microprofile.version}</version>
+			 <type>pom</type>
+			 <scope>provided</scope>
+		   </dependency>	 
 	    </dependencies>
 	 </dependencyManagement>
 	 
 	<dependencies>
+		 <dependency>
+		 	<groupId>jakarta.platform</groupId>
+		 	<artifactId>jakarta.jakartaee-api</artifactId>
+			 <version>${jakarta.jakartaee-api.version}</version>
+			 <scope>provided</scope>
+		 </dependency>
+		 <dependency>
+			 <groupId>org.junit.jupiter</groupId>
+			 <artifactId>junit-jupiter</artifactId>
+			 <scope>test</scope>
+		 </dependency>
+		 <dependency>
+			 <groupId>org.mockito</groupId>
+			 <artifactId>mockito-core</artifactId>
+		 <scope>test</scope>
+		 </dependency>
 		<dependency>
 	      <groupId>io.quarkus</groupId>
 	      <artifactId>quarkus-arc</artifactId>
           <version>${quarkus.platform.version}</version>
 	      <scope>provided</scope>
 	    </dependency>
-	    <dependency>
+	    <!--dependency>
 	      <groupId>io.quarkus</groupId>
 	      <artifactId>quarkus-resteasy</artifactId>
            <version>${quarkus.platform.version}</version>
 	      <scope>provided</scope>
-	    </dependency>
+	    </dependency-->
 	    <dependency>
 	      <groupId>io.quarkus</groupId>
 	      <artifactId>quarkus-junit5</artifactId>
-	      <version>${quarkus.platform.version}</version>
 	      <scope>test</scope>
 	    </dependency>
 	   <dependency>
@@ -75,6 +99,7 @@
 		<dependency>
 		    <groupId>io.quarkus</groupId>
 		    <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+		    <scope>provided</scope>
    		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

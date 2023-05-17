@@ -75,6 +75,10 @@
             <artifactId>quarkus-amazon-lambda</artifactId>
         </dependency>
         <dependency>
+		  <groupId>io.quarkus</groupId>
+		  <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+		</dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-test-amazon-lambda</artifactId>
             <scope>test</scope>
