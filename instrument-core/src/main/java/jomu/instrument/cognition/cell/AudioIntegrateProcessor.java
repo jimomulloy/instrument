@@ -66,7 +66,7 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		ToneMap yinToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId));
 		ToneMap mfccToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId));
 		ToneMap hpsMaskToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_HARMONIC_MASK", streamId));
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC_MASK", streamId));
 
 		ToneMap integrateToneMap = null;
 		ToneMap integratePeaksToneMap = null;
@@ -77,11 +77,11 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		}
 		if (integratePeaksSwitch) {
 			integratePeaksToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(this.cell.getCellType() + "_PEAKS", streamId));
+					.getToneMap(buildToneMapKey(this.cell.getCellType().toString() + "_PEAKS", streamId));
 		}
 		if (integrateSpectralSwitch) {
 			integrateSpectralToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SPECTRAL", streamId));
+					.getToneMap(buildToneMapKey(this.cell.getCellType().toString() + "_SPECTRAL", streamId));
 		}
 
 		if (integrateToneMap == null && integratePeaksToneMap == null && integrateSpectralToneMap == null) {

@@ -36,28 +36,16 @@ public class AudioHpsProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN);
 		boolean hpsCQOriginSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH);
-		int chromaRootNote = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE);
-		boolean chromaHarmonicsSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH);
 
 		ToneMap hpsToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		boolean integrateSwitchHps = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH);
-
-		if (!integrateSwitchHps) {
-			cell.send(streamId, sequence);
-			return;
-		}
-
 		ToneMap hpsHarmonicToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_HARMONIC", streamId));
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC", streamId));
 		ToneMap hpsPercussionToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_PERCUSSION", streamId));
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_PERCUSSION", streamId));
 		ToneMap hpsHarmonicMaskedToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_HARMONIC_MASK", streamId));
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC_MASK", streamId));
 		ToneMap hpsPercussionMaskedToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_PERCUSSION_MASK", streamId));
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_PERCUSSION_MASK", streamId));
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (hpsCQOriginSwitch) {
 			cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
@@ -80,8 +68,6 @@ public class AudioHpsProcessor extends ProcessorCommon {
 					(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0);
 			hpsHarmonicMaskedToneMap.getTimeFrame(tmIndex).hpsHarmonicMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
 					hpsMaskFactor);
-			hpsHarmonicMaskedToneMap.getTimeFrame(tmIndex).chroma(chromaRootNote, hpsPercussionTimeFrame.getPitchLow(),
-					hpsPercussionTimeFrame.getPitchHigh(), chromaHarmonicsSwitch);
 			hpsPercussionMaskedToneMap.getTimeFrame(tmIndex).hpsPercussionMask(hpsHarmonicTimeFrame,
 					hpsPercussionTimeFrame, hpsMaskFactor);
 			console.getVisor().updateToneMapView(hpsHarmonicToneMap, hpsHarmonicToneMap.getTimeFrame(tmIndex),
@@ -111,9 +97,6 @@ public class AudioHpsProcessor extends ProcessorCommon {
 							(double) hpsHarmonicWeighting / 100.0, (double) hpsPercussionWeighting / 100.0);
 					hpsHarmonicMaskedToneMap.getTimeFrame(i).hpsHarmonicMask(hpsHarmonicTimeFrame,
 							hpsPercussionTimeFrame, hpsMaskFactor);
-					hpsHarmonicMaskedToneMap.getTimeFrame(i).chroma(chromaRootNote,
-							hpsPercussionTimeFrame.getPitchLow(), hpsPercussionTimeFrame.getPitchHigh(),
-							chromaHarmonicsSwitch);
 					hpsPercussionMaskedToneMap.getTimeFrame(i).hpsPercussionMask(hpsHarmonicTimeFrame,
 							hpsPercussionTimeFrame, hpsMaskFactor);
 					console.getVisor().updateToneMapView(hpsHarmonicToneMap, hpsHarmonicToneMap.getTimeFrame(i),

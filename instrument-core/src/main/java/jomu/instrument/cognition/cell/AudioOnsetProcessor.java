@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
@@ -28,10 +29,14 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR);
 		boolean onsetCQOriginSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH);
-		int chromaRootNote = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE);
-		boolean chromaHarmonicsSwitch = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH);
+		boolean calibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
+		double calibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
+		boolean calibrateForwardSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
+		double lowThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (onsetCQOriginSwitch) {
@@ -47,14 +52,26 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 			ToneTimeFrame currentFrame = onsetSmoothedToneMap.getTimeFrame(sequence);
 			ToneTimeFrame previousFrame = onsetSmoothedToneMap.getTimeFrame(sequence - 1);
 			currentFrame.onsetWhiten(previousFrame, (double) onsetSmoothingFactor / 100.0);
-			currentFrame.chroma(chromaRootNote, currentFrame.getPitchLow(), currentFrame.getPitchHigh(),
-					chromaHarmonicsSwitch);
 		}
 
 		if (sequence > 1) {
 			ToneTimeFrame currentFrame = onsetToneMap.getTimeFrame(sequence);
 			ToneTimeFrame previousFrame = cqToneMap.getTimeFrame(sequence - 1);
 			currentFrame.onsetEdge(previousFrame, (double) onsetEdgeFactor / 100.0);
+		}
+
+		ToneTimeFrame ottf = onsetToneMap.getTimeFrame();
+		ToneTimeFrame osttf = onsetSmoothedToneMap.getTimeFrame();
+		if (ottf.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
+			LOG.severe(">>AudioOnsetProcessor 1 max: " + sequence + ", : " + ottf.getMaxAmplitude());
+		}
+		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			ottf.calibrate(onsetToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
+			osttf.calibrate(onsetSmoothedToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
+		}
+		if (ottf.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
+			LOG.severe(">>AudioOnsetProcessor 2 max: " + sequence + ", : " + ottf.getMaxAmplitude());
 		}
 
 		console.getVisor().updateToneMapView(onsetToneMap, this.cell.getCellType().toString());

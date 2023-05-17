@@ -38,6 +38,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CALIBRATE_SWITCH = "perception.hearing.calibrateSwitch";
 	public static final String PERCEPTION_HEARING_CALIBRATE_RANGE = "perception.hearing.calibrateRange";
 	public static final String PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH = "perception.hearing.calibrateForwardSwitch";
+	public static final String PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE = "perception.hearing.tonemap.persistenceMode";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 

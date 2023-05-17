@@ -72,17 +72,17 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 		if (integratePeaksSwitch) {
 			ToneMap integratePeaksToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_PEAKS", streamId));
+					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.toString() + "_PEAKS", streamId));
 			notatePeaksToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(this.cell.getCellType() + "_PEAKS", streamId));
+					.getToneMap(buildToneMapKey(this.cell.getCellType().toString() + "_PEAKS", streamId));
 			notatePeaksTimeFrame = notatePeaksToneMap
 					.addTimeFrame(integratePeaksToneMap.getTimeFrame(sequence).clone());
 		}
 		if (integrateSpectralSwitch) {
 			ToneMap integrateSpectralToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE + "_SPECTRAL", streamId));
+					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.toString() + "_SPECTRAL", streamId));
 			notateSpectralToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SPECTRAL", streamId));
+					.getToneMap(buildToneMapKey(this.cell.getCellType().toString() + "_SPECTRAL", streamId));
 			notateSpectralTimeFrame = notateSpectralToneMap
 					.addTimeFrame(integrateSpectralToneMap.getTimeFrame(sequence).clone());
 		}

@@ -24,6 +24,9 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		int sequence = getMessagesSequence(messages);
 		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 
+		int persistenceMode = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE);
+
 		boolean pausePlay = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH);
 
@@ -41,7 +44,9 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence, pausePlay);
 		}
 
-		commitMaps(streamId, sequence);
+		if (persistenceMode < 3) {
+			commitMaps(streamId, sequence, persistenceMode);
+		}
 
 		if (isClosing(streamId, sequence)) {
 			LOG.severe(">>AudioSinkProcessor CLOSE !! Frame Cache Size: "
@@ -51,8 +56,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		}
 	}
 
-	private void commitMaps(String streamId, int sequence) {
-
+	private void commitMaps(String streamId, int sequence, int persistenceMode) {
 		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId))) {
 			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId)).commit(sequence);
 		}
@@ -158,8 +162,10 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN.name() + "_WHITENER", streamId))
 					.commit(sequence);
 		}
-		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId))) {
-			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId)).commit(sequence);
+		if (persistenceMode < 2) {
+			if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId))) {
+				workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId)).commit(sequence);
+			}
 		}
 	}
 }

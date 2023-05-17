@@ -264,6 +264,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField audioGainInput;
 
+	private JTextField persistenceModeInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1390,6 +1392,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
 		actionPanel.add(hearingMaxFreqCentsLabel);
 		actionPanel.add(hearingMaxFreqCentsInput);
+
+		JLabel persistenceModeLabel = new JLabel("Persistence Mode: ");
+		persistenceModeInput = new JTextField(4);
+		persistenceModeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = persistenceModeInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE, newValue);
+				persistenceModeInput.setText(newValue);
+			}
+		});
+		persistenceModeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE));
+		actionPanel.add(persistenceModeLabel);
+		actionPanel.add(persistenceModeInput);
 
 		actionPanel.add(new JLabel("  "));
 
@@ -2524,6 +2542,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
 		hearingMaxFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		persistenceModeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE));
 		playMidiSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
 		playAudioSwitchCB

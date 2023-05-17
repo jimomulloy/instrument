@@ -1,6 +1,7 @@
 package jomu.instrument.workspace.tonemap;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -18,16 +19,41 @@ public class ChordListElement {
 	private double endTime;
 	private double startTime;
 
-	public ChordListElement(ChordNote[] chord, double startTime, double endTime) {
+	public ChordListElement(double startTime, double endTime, ChordNote[] chord) {
+		this(startTime, endTime);
 		this.chordNotes = new TreeSet<>(Arrays.asList(chord));
+	}
+
+	public ChordListElement(double startTime, double endTime) {
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
 
 	public ChordListElement clone() {
-		ChordListElement clone = new ChordListElement(chordNotes.toArray(new ChordNote[chordNotes.size()]),
-				this.startTime, this.endTime);
+		ChordListElement clone = new ChordListElement(this.startTime, this.endTime,
+				chordNotes.toArray(new ChordNote[chordNotes.size()]));
 		return clone;
+	}
+
+	public void merge(ChordListElement source) {
+		if (source != null) {
+			ChordNote[] sourceNotes = source.getChordNotes().toArray(new ChordNote[source.getChordNotes().size()]);
+			Arrays.sort(sourceNotes, new Comparator<ChordNote>() {
+				public int compare(ChordNote c1, ChordNote c2) {
+					return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
+				}
+			});
+
+			for (ChordNote sourceNote : sourceNotes) {
+				if (chordNotes.contains(sourceNote)) {
+					if (chordNotes.floor(sourceNote).amplitude < sourceNote.amplitude) {
+						chordNotes.floor(sourceNote).amplitude = sourceNote.amplitude;
+					}
+				} else {
+					chordNotes.add(sourceNote);
+				}
+			}
+		}
 	}
 
 	public TreeSet<ChordNote> getChordNotes() {

@@ -45,6 +45,18 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH);
 		int synthSweepRange = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE);
+		int chromaRootNote = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE);
+		boolean chromaHarmonicsSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HARMONICS_SWITCH);
+		double normaliseThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_NORMALISE_THRESHOLD);
+		boolean chromaCeilingSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CEILING_SWITCH);
+		boolean chromaChordifySharpenSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH);
+		double chromaChordifyThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD);
 
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
@@ -52,14 +64,14 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId));
 		ToneMap preChromaToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
-		ToneMap hpsHarmonicMaskToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC_MASK", streamId));
+		ToneMap hpsHarmonicToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC", streamId));
 		ToneMap beatToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId));
 		ToneMap onsetToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId));
 		ToneMap onsetSmoothedToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET.toString() + "_SMOOTHED", streamId));
-		ToneMap hpsPercussionMaskToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_PERCUSSION_MASK", streamId));
+		ToneMap hpsPercussionToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS + "_PERCUSSION", streamId));
 		ToneMap percussionToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PERCUSSION, streamId));
 		ToneMap notateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId));
@@ -122,7 +134,8 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		ToneTimeFrame preChromaTimeFrame = preChromaToneMap.getTimeFrame(sequence);
 		ToneTimeFrame postChromaTimeFrame = postChromaToneMap.getTimeFrame(sequence);
-		ToneTimeFrame hpsHarmonicMaskTimeFrame = hpsHarmonicMaskToneMap.getTimeFrame(sequence);
+		ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(sequence);
+
 		ToneTimeFrame onsetSmoothedTimeFrame = onsetSmoothedToneMap.getTimeFrame(sequence);
 
 		if (postChromaTimeFrame != null) {
@@ -131,21 +144,49 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		if (postChromaTimeFrame != null) {
 			synthesisFrame.putChordList(CellTypes.AUDIO_POST_CHROMA.name(), postChromaTimeFrame.getChord());
 		}
+
 		if (preChromaTimeFrame != null) {
-			synthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name(), preChromaTimeFrame.getChord());
+			ToneTimeFrame chroma = preChromaTimeFrame
+					.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(), preChromaTimeFrame.getPitchHigh(),
+							chromaHarmonicsSwitch)
+					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
+					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
+			synthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name(), chroma.getChord());
+			chroma = preChromaTimeFrame.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(),
+					preChromaTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
+					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
+			synthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name() + "_PADS", chroma.getFrameChord());
 		}
-		if (hpsHarmonicMaskTimeFrame != null) {
-			synthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
-					hpsHarmonicMaskTimeFrame.getChord());
+
+		if (hpsHarmonicTimeFrame != null) {
+			ToneTimeFrame chroma = hpsHarmonicTimeFrame
+					.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(), hpsHarmonicTimeFrame.getPitchHigh(),
+							chromaHarmonicsSwitch)
+					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
+					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
+			synthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC", chroma.getChord());
+			chroma = hpsHarmonicTimeFrame.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(),
+					hpsHarmonicTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
+					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
+			synthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_PADS", chroma.getFrameChord());
 		}
 		if (onsetSmoothedTimeFrame != null) {
+			ToneTimeFrame chroma = onsetSmoothedTimeFrame
+					.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(), onsetSmoothedTimeFrame.getPitchHigh(),
+							chromaHarmonicsSwitch)
+					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
+					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
 			synthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", onsetSmoothedTimeFrame.getChord());
+			chroma = onsetSmoothedTimeFrame.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(),
+					onsetSmoothedTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
+					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
+			synthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_PADS", chroma.getFrameChord());
 		}
 
 		ToneTimeFrame beatTimeFrame = beatToneMap.getTimeFrame(sequence);
 		ToneTimeFrame onsetTimeFrame = onsetToneMap.getTimeFrame(sequence);
 		ToneTimeFrame percussionTimeFrame = percussionToneMap.getTimeFrame(sequence);
-		ToneTimeFrame hpsPercussionMaskTimeFrame = hpsPercussionMaskToneMap.getTimeFrame(sequence);
+		ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(sequence);
 
 		if (beatTimeFrame != null) {
 			synthesisFrame.setBeatAmplitude(beatTimeFrame.getBeatAmplitude());
@@ -154,14 +195,16 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			synthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name(), beatTimeFrame.getMaxAmplitude());
 		}
 		if (onsetTimeFrame != null) {
+			LOG.finer(">>SYNTH ONSET: " + sequence + ", " + percussionTimeFrame.getMaxAmplitude());
 			synthesisFrame.putBeat(CellTypes.AUDIO_ONSET.name(), onsetTimeFrame.getMaxAmplitude());
 		}
 		if (percussionTimeFrame != null) {
+			LOG.finer(">>SYNTH PERC: " + sequence + ", " + percussionTimeFrame.getMaxAmplitude());
 			synthesisFrame.putBeat(CellTypes.AUDIO_PERCUSSION.name(), percussionTimeFrame.getMaxAmplitude());
 		}
-		if (hpsPercussionMaskTimeFrame != null) {
-			synthesisFrame.putBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK",
-					hpsPercussionMaskTimeFrame.getMaxAmplitude());
+		if (hpsPercussionTimeFrame != null) {
+			synthesisFrame.putBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION",
+					hpsPercussionTimeFrame.getMaxAmplitude());
 		}
 
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);

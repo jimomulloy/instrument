@@ -537,8 +537,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 			}
 			return chord;
 		} else {
-			ChordListElement newChord = new ChordListElement(
-					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]), startTime, endTime);
+			ChordListElement newChord = new ChordListElement(startTime, endTime,
+					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]));
 			addChord(newChord);
 			targetFrame.setChord(newChord);
 			LOG.finer(">>Predict Chord added: " + newChord.getStartTime() + ", " + newChord + ",  " + previousChord);
