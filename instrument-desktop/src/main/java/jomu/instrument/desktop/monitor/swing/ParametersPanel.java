@@ -3721,6 +3721,7 @@ public class ParametersPanel extends JPanel {
 				String newValue = synthesisBeatTimingInput.getText();
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING, newValue);
+				LOG.severe(">>BEAT value: " + newValue);
 				synthesisBeatTimingLabel.setText(String.format("Synthesis Sweep Range  (%s):", newValue));
 				synthesisBeatTimingInput.setText(newValue);
 			}
