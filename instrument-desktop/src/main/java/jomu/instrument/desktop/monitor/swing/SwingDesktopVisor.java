@@ -1923,6 +1923,61 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		instrumentPanel.add(new JLabel("  "));
 
+		final JButton synthButton = new JButton("Synth Controls");
+
+		synthButton.addActionListener(new ActionListener() {
+
+			private boolean synthDialogOpen;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String s = e.getActionCommand();
+				if (s.equals("Synth Controls")) {
+
+					if (!synthDialogOpen) {
+						// create a dialog Box
+						JDialog d = new JDialog(mainframe, "Synth");
+
+						d.addWindowListener(new WindowAdapter() {
+							public void windowClosed(WindowEvent e) {
+								synthDialogOpen = false;
+							}
+
+							public void windowClosing(WindowEvent e) {
+								synthDialogOpen = false;
+							}
+						});
+
+						JPanel dialogPanel = new JPanel(new BorderLayout());
+
+						JPanel synthPanel = new SynthPanel();
+						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
+								new EtchedBorder()));
+
+						dialogPanel.add(new JScrollPane(synthPanel), BorderLayout.CENTER);
+
+						d.add(dialogPanel);
+
+						Toolkit myScreen = Toolkit.getDefaultToolkit();
+						Dimension screenSize = myScreen.getScreenSize();
+						int screenHeight = screenSize.height;
+						int screenWidth = screenSize.width;
+
+						// setsize of dialog
+						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+
+						// set visibility of dialog
+						d.setVisible(true);
+
+						synthDialogOpen = true;
+
+					}
+				}
+			}
+		});
+		instrumentPanel.add(synthButton);
+		instrumentPanel.add(new JLabel("  "));
+
 		panel.add(instrumentPanel, BorderLayout.SOUTH);
 
 		return panel;
