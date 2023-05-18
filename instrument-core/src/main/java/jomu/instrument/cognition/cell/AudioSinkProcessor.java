@@ -39,8 +39,9 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
 
 		if (synthesisToneMap.getTimeFrame(sequence) != null) {
-			LOG.finer(">>AudioSinkProcessor VOICE SEND time: " + synthesisToneMap.getTimeFrame(sequence).getStartTime()
-					+ ", sequence: " + sequence + ", streamId: " + streamId);
+			if (sequence <= 1) {
+				voice.reset();
+			}
 			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence, pausePlay);
 		}
 
@@ -49,7 +50,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		}
 
 		if (isClosing(streamId, sequence)) {
-			LOG.severe(">>AudioSinkProcessor CLOSE !! Frame Cache Size: "
+			LOG.severe(">>AudioSinkProcessor CLOSE - Frame Cache Size: "
 					+ Instrument.getInstance().getWorkspace().getAtlas().getFrameCache().getSize());
 			voice.close(streamId);
 			hearing.removeAudioStream(streamId);

@@ -266,6 +266,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField persistenceModeInput;
 
+	private JTextField voicePlayerRepeatInput;
+
+	private AbstractButton loopSaveSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1574,6 +1578,39 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(voicePlayerDelayLabel);
 		voicePanel.add(voicePlayerDelayInput);
 
+		JLabel voicePlayerRepeatLabel = new JLabel("Repeat: ");
+		voicePlayerRepeatInput = new JTextField(4);
+		voicePlayerRepeatInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = voicePlayerRepeatInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_REPEAT,
+						newValue);
+				voicePlayerRepeatInput.setText(newValue);
+			}
+		});
+
+		voicePlayerRepeatInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_REPEAT));
+		voicePanel.add(voicePlayerRepeatLabel);
+		voicePanel.add(voicePlayerRepeatInput);
+
+		loopSaveSwitchCB = new JCheckBox("loopSaveSwitchCB");
+		loopSaveSwitchCB.setText("Loops");
+		loopSaveSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		loopSaveSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
+		voicePanel.add(loopSaveSwitchCB);
+
 		JLabel voicePlayerLowThresholdLabel = new JLabel("Low Threshold: ");
 		voicePlayerLowThresholdInput = new JTextField(4);
 		voicePlayerLowThresholdInput.addActionListener(new ActionListener() {
@@ -2607,6 +2644,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY));
 		playPeaksSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS));
+		loopSaveSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
+		voicePlayerRepeatInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_REPEAT));
+
 		pausePlaySwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH));
 		voicePlayerDelayInput.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY));

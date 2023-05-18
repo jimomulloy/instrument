@@ -5,12 +5,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -52,62 +50,58 @@ public class SynthPanel extends JPanel {
 		this.setBorder(
 				BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new TitledBorder("Synth Controls")));
 
-		JPanel actionPanel = new JPanel();
-
-		final JButton resetButton = new JButton("Reset");
-		resetButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				parameterManager.reset();
-				updateParameters();
-				console.getVisor().updateParameters();
-			}
-		});
-		actionPanel.add(resetButton);
-
-		final JButton loadButton = new JButton("Load");
-		loadButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Properties params = iss.getParameters();
-				if (params != null && !params.isEmpty()) {
-					parameterManager.setParameters(iss.getParameters());
-					updateParameters();
-					console.getVisor().updateParameters();
-				}
-			}
-		});
-		actionPanel.add(loadButton);
-
-		final JButton saveButton = new JButton("Save");
-		saveButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				iss.setParameters(parameterManager.getParameters());
-			}
-		});
-		actionPanel.add(saveButton);
-
 		JPanel parameterPanel = new JPanel();
 		parameterPanel.setLayout(new BoxLayout(parameterPanel, BoxLayout.Y_AXIS));
 		parameterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		parameterPanel.setBorder(new EmptyBorder(25, 25, 25, 5));
 
-		parameterPanel.add(buildTrackControlPanel("1 ", "", ""));
-		parameterPanel.add(buildTrackControlPanel("2 ", "", ""));
-		parameterPanel.add(buildTrackControlPanel("3 ", "", ""));
-		parameterPanel.add(buildTrackControlPanel("4 ", "", ""));
+		parameterPanel
+				.add(buildTrackControlPanel("Voice1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_1));
+		parameterPanel
+				.add(buildTrackControlPanel("Voice2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_2));
+		parameterPanel
+				.add(buildTrackControlPanel("Voice3 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_3,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_3));
+		parameterPanel
+				.add(buildTrackControlPanel("Voice4 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_4,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_4));
+		parameterPanel
+				.add(buildTrackControlPanel("Chord1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_1,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_1));
+		parameterPanel
+				.add(buildTrackControlPanel("Chord2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_2,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_2));
+		parameterPanel
+				.add(buildTrackControlPanel("Pad1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_1,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_1));
+		parameterPanel
+				.add(buildTrackControlPanel("Pad2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_2,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_2));
+		parameterPanel
+				.add(buildTrackControlPanel("Beat1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_1));
+		parameterPanel
+				.add(buildTrackControlPanel("Beat2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_2,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_2));
+		parameterPanel
+				.add(buildTrackControlPanel("Beat3 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_3));
+		parameterPanel
+				.add(buildTrackControlPanel("Beat4 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_4));
+		parameterPanel
+				.add(buildTrackControlPanel("Base ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BASE_1));
 
 		Dimension minimumSize = new Dimension(500, 500);
 		parameterPanel.setMinimumSize(minimumSize);
 		this.add(parameterPanel, BorderLayout.CENTER);
 	}
 
-	private JPanel buildTrackControlPanel(String name, String track, String property) {
+	private JPanel buildTrackControlPanel(String name, String trackParam, String volumeParam) {
 
 		JPanel containerPanel = new JPanel(new BorderLayout());
 
@@ -118,23 +112,21 @@ public class SynthPanel extends JPanel {
 		JPanel leftPanel = new JPanel(new BorderLayout());
 		JPanel centerPanel = new JPanel(new BorderLayout());
 
-		// trackControlPanel.setLayout(new FlowLayoutackControlPanel,
-		// BoxLayout.X_AXIS));
-
 		JLabel trackLabel = new JLabel(name);
 		JTextField trackInput = new JTextField(4);
 		trackInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = trackInput.getText();
-				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE,
-						newValue);
+				trackLabel.setText(String.format(name + " (%s):", newValue));
+				LOG.severe(">>trackParam: " + trackParam + ", " + newValue);
+				newValue = parameterManager.setParameter(trackParam, newValue);
 				trackInput.setText(newValue);
 			}
 		});
-		trackInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE));
-		trackLabel.setPreferredSize(new Dimension(60, 30));
-		trackInput.setPreferredSize(new Dimension(50, 30));
+		trackInput.setText(parameterManager.getParameter(trackParam));
+		trackLabel.setPreferredSize(new Dimension(100, 30));
+		trackInput.setPreferredSize(new Dimension(40, 30));
 		leftPanel.add(trackLabel, BorderLayout.WEST);
 		leftPanel.add(trackInput, BorderLayout.CENTER);
 
@@ -146,14 +138,13 @@ public class SynthPanel extends JPanel {
 				JSlider source = (JSlider) e.getSource();
 				int newValue = source.getValue();
 				volumeLabel.setText(String.format("Volume   (%d):", newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS,
-						Integer.toString(newValue));
+				parameterManager.setParameter(volumeParam, Integer.toString(newValue));
 			}
 		});
-		volumeSlider
-				.setValue(parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_LOWPASS));
+		volumeSlider.setValue(parameterManager.getIntParameter(volumeParam));
 		volumeLabel.setPreferredSize(new Dimension(100, 30));
 		volumeSlider.setPreferredSize(new Dimension(400, 30));
+
 		centerPanel.add(volumeLabel, BorderLayout.WEST);
 		centerPanel.add(volumeSlider, BorderLayout.CENTER);
 

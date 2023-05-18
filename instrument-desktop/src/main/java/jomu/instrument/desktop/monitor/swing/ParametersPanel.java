@@ -335,6 +335,10 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField onsetSilenceThresholdInput;
 
+	private JTextField synthesisChordTimingInput;
+
+	private JTextField synthesisBeatTimingInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -3692,6 +3696,40 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(notateSweepRangeLabel);
 		cqParamsPanel.add(notateSweepRangeInput);
 
+		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
+		synthesisChordTimingInput = new JTextField(4);
+		synthesisChordTimingInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChordTimingInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING, newValue);
+				synthesisChordTimingLabel.setText(String.format("Synthesis Sweep Range  (%s):", newValue));
+				synthesisChordTimingInput.setText(newValue);
+			}
+		});
+		synthesisChordTimingInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING));
+		cqParamsPanel.add(synthesisChordTimingLabel);
+		cqParamsPanel.add(synthesisChordTimingInput);
+
+		JLabel synthesisBeatTimingLabel = new JLabel("Synthesis Beat Timing: ");
+		synthesisBeatTimingInput = new JTextField(4);
+		synthesisBeatTimingInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeatTimingInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING, newValue);
+				synthesisBeatTimingLabel.setText(String.format("Synthesis Sweep Range  (%s):", newValue));
+				synthesisBeatTimingInput.setText(newValue);
+			}
+		});
+		synthesisBeatTimingInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING));
+		cqParamsPanel.add(synthesisBeatTimingLabel);
+		cqParamsPanel.add(synthesisBeatTimingInput);
+
 		JLabel synthesisSweepRangeLabel = new JLabel("Synthesis Sweep Range: ");
 		synthesisSweepRangeInput = new JTextField(4);
 		synthesisSweepRangeInput.addActionListener(new ActionListener() {
@@ -4393,6 +4431,10 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE));
 		synthesisSweepRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE));
+		synthesisBeatTimingInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING));
+		synthesisChordTimingInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING));
 
 		synthesisQuantizeRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE));

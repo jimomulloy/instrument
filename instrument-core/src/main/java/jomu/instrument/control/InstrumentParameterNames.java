@@ -163,6 +163,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH = "perception.hearing.synthesis.chordFirstSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT = "perception.hearing.synthesis.minTimeIncrement";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE = "perception.hearing.synthesis.sweepRange";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING = "perception.hearing.synthesis.chordTiming";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING = "perception.hearing.synthesis.beatTiming";
 
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER = "perception.hearing.notetracker.maxTracksUpper";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER = "perception.hearing.notetracker.maxTracksLower";
@@ -277,6 +279,8 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_GLISSANDO_RANGE = "actuation.voice.glissandoRange";
 	public static final String ACTUATION_VOICE_LOG_FACTOR = "actuation.voice.logFactor";
 	public static final String ACTUATION_VOICE_PLAY_PEAKS = "actuation.voice.playPeaks";
+	public static final String ACTUATION_VOICE_PLAY_REPEAT = "actuation.voice.playRepeat";
+	public static final String ACTUATION_VOICE_LOOP_SAVE = "actuation.voice.loopSave";
 	public static final String ACTUATION_VOICE_MIDI_PLAY = "actuation.voice.playMidi";
 	public static final String ACTUATION_VOICE_SILENT_WRITE = "actuation.voice.silentWrite";
 	public static final String ACTUATION_VOICE_AUDIO_PLAY = "actuation.voice.playAudio";
@@ -312,5 +316,18 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3 = "actuation.voice.midiInstrumentBeat3";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4 = "actuation.voice.midiInstrumentBeat4";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1 = "actuation.voice.midiInstrumentBase1";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_VOICE_1 = "actuation.voice.midiVolumeVoice1";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_VOICE_2 = "actuation.voice.midiVolumeVoice2";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_VOICE_3 = "actuation.voice.midiVolumeVoice3";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_VOICE_4 = "actuation.voice.midiVolumeVoice4";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_CHORD_1 = "actuation.voice.midiVolumeChord1";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_CHORD_2 = "actuation.voice.midiVolumeChord2";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_PAD_1 = "actuation.voice.midiVolumePad1";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_PAD_2 = "actuation.voice.midiVolumePad2";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_BEAT_1 = "actuation.voice.midiVolumeBeat1";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_BEAT_2 = "actuation.voice.midiVolumeBeat2";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_BEAT_3 = "actuation.voice.midiVolumeBeat3";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_BEAT_4 = "actuation.voice.midiVolumeBeat4";
+	public static final String ACTUATION_VOICE_MIDI_VOLUME_BASE_1 = "actuation.voice.midiVolumeBase1";
 
 }

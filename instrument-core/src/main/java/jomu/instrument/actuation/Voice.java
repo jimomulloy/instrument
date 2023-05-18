@@ -61,9 +61,7 @@ public class Voice implements Organ {
 	}
 
 	public MidiSynthesizer buildMidiSynthesizer() {
-		// midiSynthesizer = new MidiSynthesizer(workspace, parameterManager,
-		// controller);
-		LOG.finer(">>Voice buildMidiSynthesizer");
+		LOG.severe(">>Voice buildMidiSynthesizer");
 		if (!midiSynthesizer.open()) {
 			LOG.severe(">>Voice Open MidiSynthesizer error");
 			throw new InstrumentException(">>Voice Open MidiSynthesizer error");
@@ -96,6 +94,7 @@ public class Voice implements Organ {
 				e.printStackTrace();
 			}
 		}
+		midiSynthesizer.reset();
 		LOG.severe(">>Voice CLOSED, midi running: " + midiSynthesizer.isSynthesizerRunning() + ", "
 				+ ", Frame Cache Size: " + workspace.getAtlas().getFrameCache().getSize());
 		if (controller.isCountDownLatch()) {
@@ -122,7 +121,7 @@ public class Voice implements Organ {
 
 	@Override
 	public void initialise() {
-		LOG.finer(">>Voice initialise");
+		LOG.severe(">>Voice initialise");
 		midiSynthesizer = buildMidiSynthesizer();
 		audioSynthesizer = buildAudioSynthesizer();
 		resynthSynthesizer = buildResynthAudioSynthesizer();

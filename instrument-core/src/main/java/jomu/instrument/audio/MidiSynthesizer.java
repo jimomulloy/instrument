@@ -154,11 +154,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 */
 	public void close() {
 		setSynthesizerRunning(false);
+		LOG.severe(">>MIDI closing");
 		clearChannels();
 		if (midiSynthesizer != null && midiSynthesizer.isOpen()) {
 			midiSynthesizer.close();
 		}
-		LOG.finer(">>MIDI close");
+		LOG.severe(">>MIDI close");
 		midiSequence = null;
 		midiSynthesizer = null;
 		instruments = null;
@@ -178,7 +179,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	public void reset() {
-		LOG.finer(">>MIDI reset");
+		LOG.severe(">>MIDI reset");
 		close();
 		open();
 	}
@@ -330,7 +331,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 			}
 
-			LOG.finer(">>MidiSynth CHANNELS: " + channels.length);
+			LOG.severe(">>MidiSynth INIT CHANNELS: " + channels.length);
 			initChannels();
 			midiSequence = new Sequence(Sequence.PPQ, 10);
 		} catch (Exception ex) {
@@ -343,6 +344,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private void initChannels() {
 		initChannel(channels[VOICE_1_CHANNEL],
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1));
+		LOG.severe(">>MidiSynth INIT CHANNELS V1: " + InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1);
 		initChannel(channels[VOICE_2_CHANNEL],
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2));
 		initChannel(channels[VOICE_3_CHANNEL],
@@ -1034,6 +1036,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH);
 			int maxTracksLower = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER);
+			int voice1VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_1);
+			int voice2VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_2);
+			int voice3VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_3);
+			int voice4VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_4);
 
 			ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 			if (toneTimeFrame == null) {
@@ -1047,16 +1057,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			for (NoteTrack track : tracks) {
 				if ((track.getNumber() == 1 && midiPlayVoice1Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true);
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true, voice1VolumeFactor);
 				}
 				if ((track.getNumber() == 2 && midiPlayVoice2Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true);
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true, voice2VolumeFactor);
 				}
 				if ((track.getNumber() == 3 && midiPlayVoice3Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true);
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true, voice3VolumeFactor);
 				}
 				if ((track.getNumber() >= 4 && track.getNumber() <= maxTracksLower && midiPlayVoice4Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, false);
+					playSynthNoteTrack(track, toneTimeFrame, midiMessages, false, voice4VolumeFactor);
 				}
 			}
 
@@ -1106,6 +1116,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH);
 			boolean midiPlayChord2Switch = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH);
+			int chord1VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_1);
+			int chord2VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_2);
 
 			long tick = getTrackTick(toneTimeFrame);
 
@@ -1169,7 +1183,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						note += octaveAdjust * 12;
 
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-								amplitude);
+								amplitude, chord1VolumeFactor);
 						if (volume > 0) {
 							volumes.add(volume);
 							notes.add(note);
@@ -1287,7 +1301,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						note += octaveAdjust * 12;
 
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-								amplitude);
+								amplitude, chord2VolumeFactor);
 						if (volume > 0) {
 							volumes.add(volume);
 							notes.add(note);
@@ -1368,6 +1382,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3);
 			int drum4 = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4);
+			int beat1VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_1);
+			int beat2VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_2);
+			int beat3VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_3);
+			int beat4VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_4);
 
 			long tick = getTrackTick(toneTimeFrame);
 
@@ -1396,7 +1418,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				boolean hasBeat = false;
 				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-							beat);
+							beat, beat1VolumeFactor);
 					hasBeat = true;
 				}
 
@@ -1456,7 +1478,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				boolean hasBeat = false;
 				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-							beat);
+							beat, beat2VolumeFactor);
 					LOG.severe(">>MIDI BEAT2 volume: " + sequence + ", " + beat + ", " + volume);
 					hasBeat = true;
 				}
@@ -1515,7 +1537,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				boolean hasBeat = false;
 				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-							beat);
+							beat, beat3VolumeFactor);
 					hasBeat = true;
 				}
 
@@ -1573,7 +1595,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				boolean hasBeat = false;
 				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-							beat);
+							beat, beat4VolumeFactor);
 					hasBeat = true;
 				}
 
@@ -1624,6 +1646,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean silentWrite = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
+			int baseVolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BASE_1);
 
 			ChannelData base1Channel = channels[BASE_1_CHANNEL];
 
@@ -1655,6 +1679,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				} else {
 					volume = (int) (((amplitude - 0.1) / (1.0 - 0.1)) * 127);
 				}
+				volume *= (double) baseVolumeFactor / 100;
 
 				int octaveAdjust = 1;
 
@@ -1712,6 +1737,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH);
 			boolean midiPlayPad2Switch = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH);
+			int pad1VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_1);
+			int pad2VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_2);
 
 			long tick = getTrackTick(toneTimeFrame);
 
@@ -1761,7 +1790,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						note += octaveAdjust * 12;
 
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-								amplitude);
+								amplitude, pad1VolumeFactor);
 						if (volume > 0) {
 							volumes.add(volume);
 							notes.add(note);
@@ -1853,7 +1882,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						note += octaveAdjust * 12;
 
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-								amplitude);
+								amplitude, pad2VolumeFactor);
 						if (volume > 0) {
 							volumes.add(volume);
 							notes.add(note);
@@ -1904,7 +1933,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private void playSynthNoteTrack(NoteTrack track, ToneTimeFrame toneTimeFrame, List<ShortMessage> midiMessages,
-				boolean playGlissando) {
+				boolean playGlissando, int volumeFactor) {
 			LOG.finer(">>MIDI CHANNEL playTrack: " + track);
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -2041,7 +2070,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 						note = enle.legatoAfter.note;
 						if (!voiceChannelLastNotes.contains(note)) {
 							volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
-									false, enle.legatoAfter.maxAmp);
+									false, enle.legatoAfter.maxAmp, volumeFactor);
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_ON, voiceChannel.num, note, volume);
@@ -2063,7 +2092,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (snle != null) {
 					note = snle.note;
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
-							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
+							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
 
 					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
 						if (!voiceChannelLastNotes.contains(note)) {
@@ -2130,7 +2159,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				// if (increment >= 300 && increment % 300 < 100) {
 				if (voiceChannelLastNotes.contains(note)) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
-							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude);
+							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voiceChannel.num, 7, volume);
@@ -2319,6 +2348,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		private int getNoteVolume(double lowVoiceThreshold, double highVoiceThreshold, boolean playLog,
 				double logFactor, boolean playPeaks, boolean isPeak, double amplitude) {
+			return getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, isPeak,
+					amplitude);
+		}
+
+		private int getNoteVolume(double lowVoiceThreshold, double highVoiceThreshold, boolean playLog,
+				double logFactor, boolean playPeaks, boolean isPeak, double amplitude, int volumeFactor) {
 			double logAmplitude;
 			double highLogThreshold;
 			double lowLogThreshold;
@@ -2345,6 +2380,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 				} else {
 					volume = (int) (((amplitude - lowVoiceThreshold) / (highVoiceThreshold - lowVoiceThreshold)) * 127);
 				}
+			}
+			volume *= (double) volumeFactor / 100;
+			if (volume > 127) {
+				volume = 127;
 			}
 			return volume;
 		}
