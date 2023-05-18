@@ -11,31 +11,31 @@ import java.util.Objects;
  */
 public class BeatListElement {
 
-	double amplitiude;
+	double amplitude;
 	double startTime;
-	double endTime;
+	double timeRange;
 
-	public BeatListElement(double amplitude, double startTime, double endTime) {
-		this.amplitiude = amplitude;
+	public BeatListElement(double amplitude, double startTime, double timeRange) {
+		this.amplitude = amplitude;
 		this.startTime = startTime;
-		this.endTime = endTime;
+		this.timeRange = timeRange;
 	}
 
 	public BeatListElement clone() {
-		BeatListElement clone = new BeatListElement(this.amplitiude, this.startTime, this.endTime);
+		BeatListElement clone = new BeatListElement(this.amplitude, this.startTime, this.timeRange);
 		return clone;
 	}
 
-	public double getAmplitiude() {
-		return amplitiude;
+	public double getAmplitude() {
+		return amplitude;
 	}
 
 	public double getStartTime() {
 		return startTime;
 	}
 
-	public double getEndTime() {
-		return endTime;
+	public double getTimeRange() {
+		return timeRange;
 	}
 
 	@Override
@@ -57,7 +57,8 @@ public class BeatListElement {
 
 	@Override
 	public String toString() {
-		return "BeatListElement [amplitiude=" + amplitiude + ", startTime=" + startTime + ", endTime=" + endTime + "]";
+		return "BeatListElement [amplitiude=" + amplitude + ", startTime=" + startTime + ", timeRange=" + timeRange
+				+ "]";
 	}
 
 }

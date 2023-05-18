@@ -60,7 +60,7 @@ public class ToneTimeFrame implements Serializable {
 	TimeSet timeSet;
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	Map<String, ChordListElement> chordsMap = new HashMap<String, ChordListElement>();
-	Map<String, Double> beatsMap = new HashMap<String, Double>();
+	Map<String, BeatListElement> beatsMap = new HashMap<String, BeatListElement>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
 
 	transient ToneMap toneMap;
@@ -1774,11 +1774,11 @@ public class ToneTimeFrame implements Serializable {
 		return Optional.ofNullable(chordsMap.get(source));
 	}
 
-	public void putBeat(String source, double beat) {
+	public void putBeat(String source, BeatListElement beat) {
 		beatsMap.put(source, beat);
 	}
 
-	public Optional<Double> getBeat(String source) {
+	public Optional<BeatListElement> getBeat(String source) {
 		return Optional.ofNullable(beatsMap.get(source));
 	}
 
@@ -1790,11 +1790,11 @@ public class ToneTimeFrame implements Serializable {
 		this.chordsMap = chordsMap;
 	}
 
-	public Map<String, Double> getBeatsMap() {
+	public Map<String, BeatListElement> getBeatsMap() {
 		return beatsMap;
 	}
 
-	public void setBeatsMap(Map<String, Double> beatsMap) {
+	public void setBeatsMap(Map<String, BeatListElement> beatsMap) {
 		this.beatsMap = beatsMap;
 	}
 

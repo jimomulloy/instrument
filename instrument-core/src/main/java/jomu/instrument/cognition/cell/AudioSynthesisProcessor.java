@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.BeatListElement;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneSynthesiser;
@@ -214,32 +215,47 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		ToneTimeFrame percussionTimeFrame = percussionToneMap.getTimeFrame(beatSourceSequence);
 		ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(beatSourceSequence);
 
+		double beatTime = 0;
+		double timeRange = 0;
+
+		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+		if (beatTimeFrame != null) {
+			beatTime = cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110);
+			timeRange = cm.getBeatRange(beatTimeFrame.getStartTime());
+			LOG.severe(">>SYNTH CM BEAT: " + beatTime + ", " + timeRange);
+			if (beatTime != -1) {
+				BeatListElement ble = new BeatListElement(synthesisFrame.getMaxAmplitude(),
+						beatSynthesisFrame.getStartTime(), timeRange);
+				beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION", ble);
+			} else {
+				BeatListElement ble = new BeatListElement(ToneTimeFrame.AMPLITUDE_FLOOR,
+						beatSynthesisFrame.getStartTime(), timeRange);
+				beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION", ble);
+			}
+		}
+
 		if (beatTimeFrame != null) {
 			beatSynthesisFrame.setBeatAmplitude(beatTimeFrame.getBeatAmplitude());
 		}
 		if (beatTimeFrame != null) {
-			beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name(), beatTimeFrame.getMaxAmplitude());
+			BeatListElement ble = new BeatListElement(beatTimeFrame.getMaxAmplitude(),
+					beatSynthesisFrame.getStartTime(), timeRange);
+			beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name(), ble);
 		}
 		if (onsetTimeFrame != null) {
-			beatSynthesisFrame.putBeat(CellTypes.AUDIO_ONSET.name(), onsetTimeFrame.getMaxAmplitude());
+			BeatListElement ble = new BeatListElement(onsetTimeFrame.getMaxAmplitude(),
+					beatSynthesisFrame.getStartTime(), timeRange);
+			beatSynthesisFrame.putBeat(CellTypes.AUDIO_ONSET.name(), ble);
 		}
 		if (percussionTimeFrame != null) {
-			beatSynthesisFrame.putBeat(CellTypes.AUDIO_PERCUSSION.name(), percussionTimeFrame.getMaxAmplitude());
+			BeatListElement ble = new BeatListElement(percussionTimeFrame.getMaxAmplitude(),
+					beatSynthesisFrame.getStartTime(), timeRange);
+			beatSynthesisFrame.putBeat(CellTypes.AUDIO_PERCUSSION.name(), ble);
 		}
 		if (hpsPercussionTimeFrame != null) {
-			beatSynthesisFrame.putBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION",
-					hpsPercussionTimeFrame.getMaxAmplitude());
-		}
-
-		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-		if (beatTimeFrame != null) {
-			double beatTime = cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110);
-			if (beatTime != -1) {
-				beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION",
-						synthesisFrame.getMaxAmplitude());
-			} else {
-				beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION", ToneTimeFrame.AMPLITUDE_FLOOR);
-			}
+			BeatListElement ble = new BeatListElement(hpsPercussionTimeFrame.getMaxAmplitude(),
+					beatSynthesisFrame.getStartTime(), timeRange);
+			beatSynthesisFrame.putBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION", ble);
 		}
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
