@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -592,6 +593,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public Set<Integer> beatsChannel3LastNotes;
 		public Set<Integer> beatsChannel4LastNotes;
 		public Set<Integer> baseChannelLastNotes;
+		public Map<Integer, Double> baseChannelLastNoteTimes;
 
 		public Track voice1Track;
 		public Track voice2Track;
@@ -1641,6 +1643,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+			int baseBeat = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT);
+			int basePattern = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN);
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 			boolean playLog = parameterManager
@@ -1660,6 +1666,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 			if (baseChannelLastNotes == null) {
 				baseChannelLastNotes = new HashSet<>();
+				baseChannelLastNoteTimes = new HashMap<>();
 			}
 
 			double beat = 0;
@@ -1807,6 +1814,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					}
 					midiMessages.add(midiMessage);
 					baseChannelLastNotes.add(note);
+					baseChannelLastNoteTimes.put(note, toneTimeFrame.getStartTime());
 				}
 			}
 			return true;

@@ -222,7 +222,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		if (beatTimeFrame != null) {
 			beatTime = cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110);
 			timeRange = cm.getBeatRange(beatTimeFrame.getStartTime());
-			LOG.severe(">>SYNTH CM BEAT: " + beatTime + ", " + timeRange);
 			if (beatTime != -1) {
 				BeatListElement ble = new BeatListElement(synthesisFrame.getMaxAmplitude(),
 						beatSynthesisFrame.getStartTime(), timeRange);

@@ -62,14 +62,16 @@ public class ToneSynthesiser implements ToneMapConstants {
 	}
 
 	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap) {
-		// LOG.finer(">>SYNTH: " + targetFrame.getStartTime());
+		ChordListElement chord = targetFrame.getChord();
 		if (synthChordFirstSwitch) {
-			ChordListElement chord = targetFrame.getChord();
 			if (chord != null) {
-				addChord(targetFrame.getChord());
+				addChord(chord);
 			}
 			if (synthFillChords) {
 				chord = fillChord(targetFrame, chord);
+			}
+			if (targetFrame.getChord() == null) {
+				targetFrame.setChord(chord);
 			}
 			if (chord != null) {
 				quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
@@ -86,7 +88,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 			discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime() * 1000));
 			discardNotes(discardedNotes);
 			if (!synthChordFirstSwitch) {
-				ChordListElement chord = targetFrame.getChord();
 				if (chord != null) {
 					addChord(chord);
 				}
@@ -531,8 +532,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 				}
 				if (isChanged) {
 					chords.put(previousChord.get().getStartTime(), chord);
-					LOG.finer(
-							">>Predict Chord changed: " + chord.getStartTime() + ", " + chord + ",  " + previousChord);
+					targetFrame.setChord(chord);
 				}
 			}
 			return chord;
@@ -541,7 +541,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 					candidateChordNotes.toArray(new ChordNote[candidateChordNotes.size()]));
 			addChord(newChord);
 			targetFrame.setChord(newChord);
-			LOG.finer(">>Predict Chord added: " + newChord.getStartTime() + ", " + newChord + ",  " + previousChord);
 			return newChord;
 		}
 	}

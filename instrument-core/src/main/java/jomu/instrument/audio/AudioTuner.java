@@ -1584,7 +1584,7 @@ public class AudioTuner implements ToneMapConstants {
 
 	private void commitNote(ToneTimeFrame[] timeFrames, NoteListElement processedNote,
 			Set<NoteListElement> discardedNotes) {
-		LOG.finer(">>commitNote BEFORE: " + processedNote.note + ", " + processedNote.pitchIndex);
+		LOG.severe(">>commitNote BEFORE: " + processedNote.note + ", " + processedNote.pitchIndex);
 		ToneMapElement startElement = null;
 		ToneMapElement endElement = null;
 
@@ -1635,18 +1635,20 @@ public class AudioTuner implements ToneMapConstants {
 						ToneMapElement toneMapElement = toneTimeFrame.getElements()[index];
 						note = toneTimeFrame.getPitchSet().getNote(toneMapElement.getPitchIndex());
 						nle = toneMapElement.noteListElement;
-						LOG.finer(">>commitNote isMatchingTimbre: " + processedNote.note + " ," + nle);
-						if (nle != null && note <= harmonicHighLimit
-								&& nle.startTime >= (processedNote.startTime - harmonicSweep)
-								&& nle.endTime <= processedNote.endTime
-								&& (!noteTimbreNotateSwitch || isMatchingTimbre(timeFrames, processedNote, nle))) {
-							harmonicTones.add(nle);
-						} else if (nle != null) {
-							Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
-							if (noteHarmonics.containsKey(processedNote.note)) {
-								noteHarmonics.remove(processedNote.note);
-								if (noteHarmonics.isEmpty()) {
-									commitNote(timeFrames, nle, discardedNotes);
+						if (nle != null) {
+							if (note <= harmonicHighLimit && nle.startTime >= (processedNote.startTime - harmonicSweep)
+									&& nle.endTime <= processedNote.endTime
+									&& (!noteTimbreNotateSwitch || isMatchingTimbre(timeFrames, processedNote, nle))) {
+								LOG.severe(">>commitNote nle ADDED: " + processedNote.note + " ," + nle);
+								harmonicTones.add(nle);
+							} else {
+								LOG.severe(">>commitNote nle NOT ADDED: " + processedNote.note + " ," + nle);
+								Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
+								if (noteHarmonics.containsKey(processedNote.note)) {
+									noteHarmonics.remove(processedNote.note);
+									if (noteHarmonics.isEmpty()) {
+										commitNote(timeFrames, nle, discardedNotes);
+									}
 								}
 							}
 						}
@@ -1683,7 +1685,7 @@ public class AudioTuner implements ToneMapConstants {
 			}
 		});
 
-		LOG.finer(">>attenuateHarmonics for root note: " + harmonicTonesList.size() + ", " + processedNote.note);
+		LOG.severe(">>attenuateHarmonics for root note: " + harmonicTonesList.size() + ", " + processedNote.note);
 
 		double[] rootElementAccumulatedWeights = new double[timeFrames.length];
 
