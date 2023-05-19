@@ -36,6 +36,7 @@
 	    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
 	    <jakarta.jakartaee-api.version>10.0.0</jakarta.jakartaee-api.version>
  		<microprofile.version>3.0.3</microprofile.version>
+ 		<jandex-maven-plugin.version>1.2.3</jandex-maven-plugin.version>
  	</properties>
 	
 	<dependencyManagement>
@@ -192,6 +193,19 @@
                     <mainClass>com.dlsc.jpackagefx.App</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+				<groupId>org.jboss.jandex</groupId>
+				<artifactId>jandex-maven-plugin</artifactId>
+				<version>${jandex-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>make-index</id>
+						<goals>
+							<goal>jandex</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>

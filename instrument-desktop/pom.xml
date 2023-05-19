@@ -38,7 +38,7 @@
         <dependency.version.lombok>1.18.22</dependency.version.lombok>
 	    <dependency.version.mapstruct>1.4.2.Final</dependency.version.mapstruct>
 	    <compiler-plugin.version>3.8.1</compiler-plugin.version>
-	    <jandex-maven-plugin.version>1.2.2</jandex-maven-plugin.version>
+	    <jandex-maven-plugin.version>1.2.3</jandex-maven-plugin.version>
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>	
 	    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
 	    <microstream.version>07.01.00-MS-GA</microstream.version>  		
@@ -211,7 +211,6 @@
 		      </plugin>
 		      <plugin>
 		        <artifactId>maven-compiler-plugin</artifactId>
-		        <version>${compiler-plugin.version}</version>
 		        <configuration>
 		          <parameters>${maven.compiler.parameters}</parameters>
 		          <source>17</source>
@@ -220,7 +219,6 @@
 		      </plugin>
 		      <plugin>
 		        <artifactId>maven-surefire-plugin</artifactId>
-		        <version>${surefire-plugin.version}</version>
 		        <configuration>
 		            <systemPropertyVariables>
 		  		        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -239,7 +237,6 @@
  			<plugin>
 				<groupId>org.jboss.jandex</groupId>
 				<artifactId>jandex-maven-plugin</artifactId>
-				<version>1.0.7</version>
 				<executions>
 					<execution>
 						<id>make-index</id>

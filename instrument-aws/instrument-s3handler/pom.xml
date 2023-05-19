@@ -35,6 +35,7 @@
 		<junit.version>4.12</junit.version>
 		<mockito.version>1.9.5</mockito.version>
 		<local.sdk>/path/to/jar</local.sdk>
+		<jandex-maven-plugin.version>1.2.3</jandex-maven-plugin.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -186,7 +187,7 @@
 			<plugin>
 				<groupId>org.jboss.jandex</groupId>
 				<artifactId>jandex-maven-plugin</artifactId>
-				<version>1.0.7</version>
+				<version>${jandex-maven-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>make-index</id>

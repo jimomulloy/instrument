@@ -24,6 +24,7 @@
   	
   	<properties>
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
+		<jandex-maven-plugin.version>1.2.3</jandex-maven-plugin.version>
 	</properties>
 
   	<build>
@@ -38,7 +39,7 @@
 			<plugin>
 				<groupId>org.jboss.jandex</groupId>
 				<artifactId>jandex-maven-plugin</artifactId>
-				<version>1.0.7</version>
+				<version>${jandex-maven-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>make-index</id>
