@@ -56,7 +56,7 @@ public class ParameterManager {
 			}
 		}
 	}
-
+	
 	public String getParameter(String key) {
 		return parameters.getProperty(key);
 	}
@@ -152,7 +152,7 @@ public class ParameterManager {
 				LOG.finer(">>Error loading parameter styles :" + paramStyle);
 				return;
 			}
-			parameters.putAll(styleParameters);
+			mergeProperties(styleParameters);
 			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
 			LOG.finer(">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
 					+ PARAMETER_CONFIG_FILE_POSTFIX);
@@ -160,6 +160,20 @@ public class ParameterManager {
 			LOG.finer(">>ReLoaded :" + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 		}
 	}
+
+	public void mergeProperties(Properties newParameters) {
+		for (Entry<Object, Object> entry : parameters.entrySet()) {
+			if (newParameters.contains(entry.getKey())) {
+				if (!parameterValidator.validate((String) entry.getKey(), (String) entry.getValue())) {
+					LOG.severe("ParameterManager mergeProperties invalid parameter, key: " + entry.getKey()
+							+ ", value: " + entry.getValue());
+				} else {
+					parameters.put(entry.getKey(), newParameters.get(entry.getKey()));
+				}	
+			}
+		}
+	}
+
 
 	static class ParameterValidator {
 

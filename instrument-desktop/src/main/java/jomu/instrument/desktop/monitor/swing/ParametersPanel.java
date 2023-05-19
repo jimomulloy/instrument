@@ -426,7 +426,7 @@ public class ParametersPanel extends JPanel {
 					LOG.severe("Import Parameters file: " + importFileName + ", " + fi);
 					Properties props = new Properties();
 					props.load(fi);
-					parameterManager.setParameters(props);
+					parameterManager.mergeProperties(props);
 					updateParameters();
 					console.getVisor().updateParameters();
 				} catch (IOException ex) {
