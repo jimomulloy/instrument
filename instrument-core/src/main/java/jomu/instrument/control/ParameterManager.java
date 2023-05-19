@@ -7,10 +7,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-
-import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.InstrumentException;
 
 @ApplicationScoped
@@ -56,7 +55,7 @@ public class ParameterManager {
 			}
 		}
 	}
-	
+
 	public String getParameter(String key) {
 		return parameters.getProperty(key);
 	}
@@ -163,17 +162,16 @@ public class ParameterManager {
 
 	public void mergeProperties(Properties newParameters) {
 		for (Entry<Object, Object> entry : parameters.entrySet()) {
-			if (newParameters.contains(entry.getKey())) {
+			if (newParameters.containsKey(entry.getKey())) {
 				if (!parameterValidator.validate((String) entry.getKey(), (String) entry.getValue())) {
 					LOG.severe("ParameterManager mergeProperties invalid parameter, key: " + entry.getKey()
 							+ ", value: " + entry.getValue());
 				} else {
 					parameters.put(entry.getKey(), newParameters.get(entry.getKey()));
-				}	
+				}
 			}
 		}
 	}
-
 
 	static class ParameterValidator {
 
