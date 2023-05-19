@@ -55,7 +55,8 @@
 		 <dependency>
 		 	<groupId>jakarta.platform</groupId>
 		 	<artifactId>jakarta.jakartaee-api</artifactId>
-			 <version>${jakarta.jakartaee-api.version}</version>
+			<version>${jakarta.jakartaee-api.version}</version>
+			<scope>provided</scope> 
 		 </dependency>
 		 <dependency>
 			 <groupId>org.junit.jupiter</groupId>
@@ -70,6 +71,7 @@
 		<dependency>
 	      <groupId>io.quarkus</groupId>
 	      <artifactId>quarkus-arc</artifactId>
+	      <scope>provided</scope> 
         </dependency>
 	    <dependency>
 	      <groupId>io.quarkus</groupId>
@@ -84,6 +86,7 @@
 		<dependency>
 		    <groupId>io.quarkus</groupId>
 		    <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+		    <scope>provided</scope> 
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
