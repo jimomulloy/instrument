@@ -1939,7 +1939,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 
 			NoteListElement[] nles = track.getNotes(playTime);
-
+			if (isBase) {
+				LOG.severe(">>MIDI BASE: " + playTime + ", " + nles.length);
+			}
 			Set<NoteListElement> snles = new HashSet<>();
 			Set<NoteListElement> enles = new HashSet<>();
 			for (NoteListElement nle : nles) {
@@ -2020,8 +2022,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (NoteListElement snle : snles) {
 				if (snle != null) {
 					note = snle.note;
-					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
-							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
+					if (isBase) {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								false, snle.maxAmp, volumeFactor);
+						LOG.severe(">>MIDI BASE: " + playTime + ", " + note + ", " + snle.maxAmp + ", " + volume);
+					} else {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								false, toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
+					}
 
 					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
 						if (!noteTrackChannelLastNotes.contains(note)) {
@@ -2088,8 +2096,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 				int increment = (int) ((playTime - pnle.startTime));
 				// if (increment >= 300 && increment % 300 < 100) {
 				if (noteTrackChannelLastNotes.contains(note)) {
-					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, false,
-							toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
+					if (isBase) {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								false, pnle.maxAmp, volumeFactor);
+					} else {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								false, toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
+					}
 					midiMessage = new ShortMessage();
 					try {
 						midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, noteTrackChannel.num, 7, volume);

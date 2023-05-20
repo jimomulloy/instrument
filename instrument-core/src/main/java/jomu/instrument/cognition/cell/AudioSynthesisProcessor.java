@@ -223,8 +223,9 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			beatTime = cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110);
 			timeRange = cm.getBeatRange(beatTimeFrame.getStartTime());
 			if (beatTime != -1) {
-				BeatListElement ble = new BeatListElement(synthesisFrame.getMaxAmplitude(),
-						beatSynthesisFrame.getStartTime(), timeRange);
+				LOG.severe(">>AudioSynthesisProcessor FOUND BEAT!!: " + sequence + ", " + beatTimeFrame.getStartTime()
+						+ ", " + synthesisFrame.getMaxAmplitude());
+				BeatListElement ble = new BeatListElement(1.0, beatSynthesisFrame.getStartTime(), timeRange);
 				beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION", ble);
 			} else {
 				BeatListElement ble = new BeatListElement(ToneTimeFrame.AMPLITUDE_FLOOR,
@@ -235,6 +236,9 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		if (beatTimeFrame != null) {
 			beatSynthesisFrame.setBeatAmplitude(beatTimeFrame.getBeatAmplitude());
+			LOG.severe(">>AudioSynthesisProcessor setBeatAmplitude!!: " + sequence + ", " + beatTimeFrame.getStartTime()
+					+ ", " + beatTimeFrame.getBeatAmplitude());
+
 		}
 		if (beatTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(beatTimeFrame.getMaxAmplitude(),

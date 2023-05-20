@@ -398,6 +398,7 @@ public class NoteTracker {
 
 	public NoteListElement trackBase(BeatListElement beatListElement, ChordListElement chordListElement,
 			PitchSet pitchSet) {
+		LOG.severe(">>trackBase: " + beatListElement + " ," + chordListElement);
 		if (baseTrack == null) {
 			baseTrack = new NoteTrack(1);
 		}
@@ -405,6 +406,7 @@ public class NoteTracker {
 		if (beatListElement.getAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
 			NoteListElement lastNote = baseTrack.getLastNote();
 			if (lastNote == null || beatListElement.getStartTime() * 1000 >= lastNote.endTime) {
+				LOG.severe(">>trackBase add:");
 				return addBaseNote(beatListElement, chordListElement, pitchSet);
 			}
 		}
@@ -413,7 +415,7 @@ public class NoteTracker {
 
 	private NoteListElement addBaseNote(BeatListElement beatListElement, ChordListElement chordListElement,
 			PitchSet pitchSet) {
-		if (beatListElement == null || chordListElement == null) {
+		if (beatListElement == null || chordListElement == null || beatListElement.getTimeRange() <= 0) {
 			return null;
 		}
 		boolean isBar = baseTrack.getSize() % baseTimeSignature == 0;
@@ -422,7 +424,8 @@ public class NoteTracker {
 
 		int note = 0;
 		double startTime = beatListElement.getStartTime() * 1000;
-		double endTime = startTime + beatListElement.getTimeRange() * synthBaseBeat;
+		double endTime = startTime;
+		endTime += beatListElement.getTimeRange() * 1000 * synthBaseBeat;
 		double amplitude = 1.0;
 
 		List<Double> camps = new ArrayList<>();
@@ -449,11 +452,12 @@ public class NoteTracker {
 			if (note < rootNote) {
 				note += 12;
 			}
+			LOG.severe(">>trackBase chord note : " + note + ", " + rootNote);
 			note += synthBaseOctave * 12;
 			camps.add(amplitude);
 			cnotes.add(note);
 		}
-
+		rootNote += synthBaseOctave * 12;
 		if (isBar) {
 			note = rootNote;
 			amplitude = rootAmp;
@@ -470,7 +474,10 @@ public class NoteTracker {
 				amplitude = camps.get(noteIndex);
 			}
 		}
-		note += synthBaseOctave * 12;
+
+		LOG.severe(">>trackBase adding: " + note + ", " + startTime + ", " + endTime + ", " + rootNote + ", "
+				+ synthBaseBeat + ", " + beatListElement.getTimeRange() * 1000);
+
 		NoteListElement baseNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 				amplitude, amplitude, amplitude, 0, false, incrementTime);
 		baseTrack.addNote(baseNote);
