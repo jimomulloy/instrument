@@ -11,6 +11,7 @@ import java.awt.event.ItemListener;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -352,6 +353,18 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField synthesisBasePatternInput;
 
+	private JTextField synthesisBaseOctaveInput;
+
+	private JTextField synthesisChord1OctaveInput;
+
+	private JTextField synthesisChord2OctaveInput;
+
+	private JTextField synthesisPad1OctaveInput;
+
+	private JTextField synthesisPad2OctaveInput;
+
+	private JCheckBox exportDeltaSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -414,7 +427,19 @@ public class ParametersPanel extends JPanel {
 				String exportFileName = folder + System.getProperty("file.separator") + "instrument-user.properties";
 				try (FileOutputStream fs = new FileOutputStream(exportFileName)) {
 					SortedStoreProperties ssp = new SortedStoreProperties();
-					ssp.putAll(parameterManager.getParameters());
+					if (parameterManager
+							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_EXPORT_DELTA_SWITCH)) {
+						try (InputStream is = getClass().getClassLoader()
+								.getResourceAsStream("instrument.properties");) {
+							Properties props = new Properties();
+							props.load(is);
+							ssp.putAll(parameterManager.getDeltaParameters(props));
+						} catch (IOException ex) {
+							LOG.log(Level.SEVERE, "Export Parameters exception", ex);
+						}
+					} else {
+						ssp.putAll(parameterManager.getParameters());
+					}
 					ssp.store(fs, null);
 				} catch (IOException ex) {
 					LOG.log(Level.SEVERE, "Export Parameters exception", ex);
@@ -436,10 +461,8 @@ public class ParametersPanel extends JPanel {
 						.toString();
 				String importFileName = folder + System.getProperty("file.separator") + "instrument-user.properties";
 				try (FileInputStream fi = new FileInputStream(importFileName)) {
-					LOG.severe("Import Parameters file: " + importFileName + ", " + fi);
 					Properties props = new Properties();
 					props.load(fi);
-					LOG.severe("Merging props: " + props.size());
 					parameterManager.mergeProperties(props);
 					updateParameters();
 					console.getVisor().updateParameters();
@@ -449,6 +472,22 @@ public class ParametersPanel extends JPanel {
 			}
 		});
 		actionPanel.add(importButton);
+
+		exportDeltaSwitchCB = new JCheckBox("exportDeltaSwitchCB");
+		exportDeltaSwitchCB.setText("Delta");
+		exportDeltaSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_EXPORT_DELTA_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		exportDeltaSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_EXPORT_DELTA_SWITCH));
+		actionPanel.add(exportDeltaSwitchCB);
 
 		selectStyleComboBox = new JComboBox<String>(styles);
 		selectStyleComboBox.addActionListener(new ActionListener() {
@@ -3848,6 +3887,91 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(synthesisBeatPatternLabel);
 		cqParamsPanel.add(synthesisBeatPatternInput);
 
+		JLabel synthesisBaseOctaveLabel = new JLabel("Synthesis Base Octave: ");
+		synthesisBaseOctaveInput = new JTextField(4);
+		synthesisBaseOctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBaseOctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE, newValue);
+				synthesisBaseOctaveLabel.setText(String.format("Synthesis Base Octave  (%s):", newValue));
+				synthesisBaseOctaveInput.setText(newValue);
+			}
+		});
+		synthesisBaseOctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE));
+		cqParamsPanel.add(synthesisBaseOctaveLabel);
+		cqParamsPanel.add(synthesisBaseOctaveInput);
+
+		JLabel synthesisChord1OctaveLabel = new JLabel("Synthesis Chord1 Octave: ");
+		synthesisChord1OctaveInput = new JTextField(4);
+		synthesisChord1OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE, newValue);
+				synthesisChord1OctaveLabel.setText(String.format("Synthesis Chord1 Octave  (%s):", newValue));
+				synthesisChord1OctaveInput.setText(newValue);
+			}
+		});
+		synthesisChord1OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE));
+		cqParamsPanel.add(synthesisChord1OctaveLabel);
+		cqParamsPanel.add(synthesisChord1OctaveInput);
+
+		JLabel synthesisChord2OctaveLabel = new JLabel("Synthesis Chord2 Octave: ");
+		synthesisChord2OctaveInput = new JTextField(4);
+		synthesisChord2OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE, newValue);
+				synthesisChord2OctaveLabel.setText(String.format("Synthesis Chord2 Octave  (%s):", newValue));
+				synthesisChord2OctaveInput.setText(newValue);
+			}
+		});
+		synthesisChord2OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE));
+		cqParamsPanel.add(synthesisChord2OctaveLabel);
+		cqParamsPanel.add(synthesisChord2OctaveInput);
+
+		JLabel synthesisPad1OctaveLabel = new JLabel("Synthesis Pad1 Octave: ");
+		synthesisPad1OctaveInput = new JTextField(4);
+		synthesisPad1OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisPad1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE, newValue);
+				synthesisPad1OctaveLabel.setText(String.format("Synthesis Pad1 Octave  (%s):", newValue));
+				synthesisPad1OctaveInput.setText(newValue);
+			}
+		});
+		synthesisPad1OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE));
+		cqParamsPanel.add(synthesisPad1OctaveLabel);
+		cqParamsPanel.add(synthesisPad1OctaveInput);
+
+		JLabel synthesisPad2OctaveLabel = new JLabel("Synthesis Pad2 Octave: ");
+		synthesisPad2OctaveInput = new JTextField(4);
+		synthesisPad2OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisPad1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE, newValue);
+				synthesisPad2OctaveLabel.setText(String.format("Synthesis Pad2 Octave  (%s):", newValue));
+				synthesisPad2OctaveInput.setText(newValue);
+			}
+		});
+		synthesisPad2OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE));
+		cqParamsPanel.add(synthesisPad2OctaveLabel);
+		cqParamsPanel.add(synthesisPad2OctaveInput);
+
 		JLabel synthesisSweepRangeLabel = new JLabel("Synthesis Sweep Range: ");
 		synthesisSweepRangeInput = new JTextField(4);
 		synthesisSweepRangeInput.addActionListener(new ActionListener() {
@@ -4557,6 +4681,16 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT));
 		synthesisBasePatternInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN));
+		synthesisChord2OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE));
+		synthesisChord1OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE));
+		synthesisPad1OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE));
+		synthesisPad2OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE));
+		synthesisBaseOctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE));
 		synthesisBaseTimingInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_TIMING));
 		synthesisBeatPatternInput.setText(

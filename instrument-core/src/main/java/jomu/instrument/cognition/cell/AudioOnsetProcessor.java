@@ -62,16 +62,10 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 
 		ToneTimeFrame ottf = onsetToneMap.getTimeFrame();
 		ToneTimeFrame osttf = onsetSmoothedToneMap.getTimeFrame();
-		if (ottf.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
-			LOG.severe(">>AudioOnsetProcessor 1 max: " + sequence + ", : " + ottf.getMaxAmplitude());
-		}
 		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 			ottf.calibrate(onsetToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 			osttf.calibrate(onsetSmoothedToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
-		}
-		if (ottf.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
-			LOG.severe(">>AudioOnsetProcessor 2 max: " + sequence + ", : " + ottf.getMaxAmplitude());
 		}
 
 		console.getVisor().updateToneMapView(onsetToneMap, this.cell.getCellType().toString());

@@ -39,6 +39,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CALIBRATE_RANGE = "perception.hearing.calibrateRange";
 	public static final String PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH = "perception.hearing.calibrateForwardSwitch";
 	public static final String PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE = "perception.hearing.tonemap.persistenceMode";
+	public static final String PERCEPTION_HEARING_EXPORT_DELTA_SWITCH = "perception.hearing.exportDeltaSwitch";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 
@@ -165,12 +166,17 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE = "perception.hearing.synthesis.sweepRange";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING = "perception.hearing.synthesis.chordTiming";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_BEAT = "perception.hearing.synthesis.chordBeat";
-	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_PATTERN = "perception.hearing.synthesis.chordPttern";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_PATTERN = "perception.hearing.synthesis.chordPattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING = "perception.hearing.synthesis.beatTiming";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_PATTERN = "perception.hearing.synthesis.beatPattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_TIMING = "perception.hearing.synthesis.baseTiming";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT = "perception.hearing.synthesis.baseBeat";
-	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN = "perception.hearing.synthesis.basePttern";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN = "perception.hearing.synthesis.basePattern";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE = "perception.hearing.synthesis.baseOctave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE = "perception.hearing.synthesis.chord1Octave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE = "perception.hearing.synthesis.chord2Octave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE = "perception.hearing.synthesis.pad1Octave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE = "perception.hearing.synthesis.pad2Octave";
 
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER = "perception.hearing.notetracker.maxTracksUpper";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER = "perception.hearing.notetracker.maxTracksLower";

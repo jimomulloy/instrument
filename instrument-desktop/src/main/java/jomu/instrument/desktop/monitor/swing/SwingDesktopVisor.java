@@ -1397,81 +1397,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionPanel.add(hearingMaxFreqCentsLabel);
 		actionPanel.add(hearingMaxFreqCentsInput);
 
-		JLabel persistenceModeLabel = new JLabel("Persistence Mode: ");
-		persistenceModeInput = new JTextField(4);
-		persistenceModeInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = persistenceModeInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE, newValue);
-				persistenceModeInput.setText(newValue);
-			}
-		});
-		persistenceModeInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE));
-		actionPanel.add(persistenceModeLabel);
-		actionPanel.add(persistenceModeInput);
-
-		actionPanel.add(new JLabel("  "));
-
-		final JButton parametersButton = new JButton("Parameters");
-
-		parametersButton.addActionListener(new ActionListener() {
-
-			private boolean parameterDialogOpen;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String s = e.getActionCommand();
-				if (s.equals("Parameters")) {
-
-					if (!parameterDialogOpen) {
-						// create a dialog Box
-						JDialog d = new JDialog(mainframe, "Parameters");
-
-						d.addWindowListener(new WindowAdapter() {
-							public void windowClosed(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-
-							public void windowClosing(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-						});
-
-						JPanel dialogPanel = new JPanel(new BorderLayout());
-
-						JPanel parameterPanel = new ParametersPanel();
-						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
-								new EtchedBorder()));
-
-						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
-
-						d.add(dialogPanel);
-
-						Toolkit myScreen = Toolkit.getDefaultToolkit();
-						Dimension screenSize = myScreen.getScreenSize();
-						int screenHeight = screenSize.height;
-						int screenWidth = screenSize.width;
-
-						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
-
-						// set visibility of dialog
-						d.setVisible(true);
-
-						parameterDialogOpen = true;
-
-					}
-				}
-			}
-		});
-
-		actionPanel.add(new JLabel("  "));
-
-		actionPanel.add(parametersButton);
-
 		actionPanel.add(new JLabel("  "));
 
 		fileNameLabel = new JLabel("");
@@ -2014,6 +1939,81 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 		instrumentPanel.add(synthButton);
 		instrumentPanel.add(new JLabel("  "));
+
+		JLabel persistenceModeLabel = new JLabel("Persistence Mode: ");
+		persistenceModeInput = new JTextField(4);
+		persistenceModeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = persistenceModeInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE, newValue);
+				persistenceModeInput.setText(newValue);
+			}
+		});
+		persistenceModeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE));
+		instrumentPanel.add(persistenceModeLabel);
+		instrumentPanel.add(persistenceModeInput);
+
+		instrumentPanel.add(new JLabel("  "));
+
+		final JButton parametersButton = new JButton("Parameters");
+
+		parametersButton.addActionListener(new ActionListener() {
+
+			private boolean parameterDialogOpen;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String s = e.getActionCommand();
+				if (s.equals("Parameters")) {
+
+					if (!parameterDialogOpen) {
+						// create a dialog Box
+						JDialog d = new JDialog(mainframe, "Parameters");
+
+						d.addWindowListener(new WindowAdapter() {
+							public void windowClosed(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
+
+							public void windowClosing(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
+						});
+
+						JPanel dialogPanel = new JPanel(new BorderLayout());
+
+						JPanel parameterPanel = new ParametersPanel();
+						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
+								new EtchedBorder()));
+
+						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
+
+						d.add(dialogPanel);
+
+						Toolkit myScreen = Toolkit.getDefaultToolkit();
+						Dimension screenSize = myScreen.getScreenSize();
+						int screenHeight = screenSize.height;
+						int screenWidth = screenSize.width;
+
+						// setsize of dialog
+						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+
+						// set visibility of dialog
+						d.setVisible(true);
+
+						parameterDialogOpen = true;
+
+					}
+				}
+			}
+		});
+
+		instrumentPanel.add(new JLabel("  "));
+
+		instrumentPanel.add(parametersButton);
 
 		panel.add(instrumentPanel, BorderLayout.SOUTH);
 

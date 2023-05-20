@@ -1584,7 +1584,7 @@ public class AudioTuner implements ToneMapConstants {
 
 	private void commitNote(ToneTimeFrame[] timeFrames, NoteListElement processedNote,
 			Set<NoteListElement> discardedNotes) {
-		LOG.severe(">>commitNote BEFORE: " + processedNote.note + ", " + processedNote.pitchIndex);
+		LOG.finer(">>commitNote BEFORE: " + processedNote.note + ", " + processedNote.pitchIndex);
 		ToneMapElement startElement = null;
 		ToneMapElement endElement = null;
 
@@ -1639,10 +1639,8 @@ public class AudioTuner implements ToneMapConstants {
 							if (note <= harmonicHighLimit && nle.startTime >= (processedNote.startTime - harmonicSweep)
 									&& nle.endTime <= processedNote.endTime
 									&& (!noteTimbreNotateSwitch || isMatchingTimbre(timeFrames, processedNote, nle))) {
-								LOG.severe(">>commitNote nle ADDED: " + processedNote.note + " ," + nle);
 								harmonicTones.add(nle);
 							} else {
-								LOG.severe(">>commitNote nle NOT ADDED: " + processedNote.note + " ," + nle);
 								Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
 								if (noteHarmonics.containsKey(processedNote.note)) {
 									noteHarmonics.remove(processedNote.note);

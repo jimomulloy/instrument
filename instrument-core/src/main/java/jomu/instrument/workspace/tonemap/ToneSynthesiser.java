@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
+import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.NoteTracker.NoteTrack;
 
@@ -100,6 +101,13 @@ public class ToneSynthesiser implements ToneMapConstants {
 				if (chord != null) {
 					quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 				}
+			}
+		}
+		Optional<BeatListElement> beat = targetFrame.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
+		if (beat.isPresent() && chord != null) {
+			NoteListElement nle = toneMap.getNoteTracker().trackBase(beat.get(), chord, targetFrame.getPitchSet());
+			if (nle != null && synthFillLegatoSwitch) {
+				addLegato(toneMap.getNoteTracker().getBaseTrack(), nle);
 			}
 		}
 	}

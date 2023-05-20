@@ -163,11 +163,14 @@ public class ParameterManager {
 	public void mergeProperties(Properties newParameters) {
 		for (Entry<Object, Object> entry : parameters.entrySet()) {
 			if (newParameters.containsKey(entry.getKey())) {
+				LOG.severe("ParameterManager mergeProperties key: " + entry.getKey() + ", value: " + entry.getValue());
 				if (!parameterValidator.validate((String) entry.getKey(), (String) entry.getValue())) {
 					LOG.severe("ParameterManager mergeProperties invalid parameter, key: " + entry.getKey()
 							+ ", value: " + entry.getValue());
 				} else {
-					parameters.put(entry.getKey(), newParameters.get(entry.getKey()));
+					parameters.put((String) entry.getKey(), (String) newParameters.get(entry.getKey()));
+					LOG.severe("ParameterManager mergeProperties put new value key: " + entry.getKey() + ", value: "
+							+ entry.getValue() + ", get value: " + parameters.get(entry.getKey()));
 				}
 			}
 		}
@@ -279,5 +282,20 @@ public class ParameterManager {
 				return 0;
 			}
 		}
+	}
+
+	public Properties getDeltaParameters(Properties props) {
+		Properties delta = new Properties();
+		for (Entry<Object, Object> entry : props.entrySet()) {
+			if (!parameters.containsKey(entry.getKey())) {
+				delta.put(entry.getKey(), entry.getValue());
+			} else {
+				String value = (String) parameters.get(entry.getKey());
+				if (!value.equals(entry.getValue())) {
+					delta.put(entry.getKey(), value);
+				}
+			}
+		}
+		return delta;
 	}
 }
