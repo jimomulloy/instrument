@@ -304,7 +304,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		ToneTimeFrame lastFrame = null;
 
 		while (frame != null && time < (toTime / 1000)) {
-			if (calibrationMap.getBeat(time, MIN_TIME_INCREMENT) != 0) {
+			if (calibrationMap.getBeat(time, (MIN_TIME_INCREMENT * 1000)) > -1) {
 				int counter = quantizeBeat;
 				while (counter > 0 && frame != null && time < (toTime / 1000)) {
 					int r = (int) (Math.random() * (noteList.size()));
@@ -507,7 +507,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 			return chord;
 		}
 		Optional<ChordListElement> previousChord = getPreviousChord(startTime);
-		if (previousChord.isEmpty() || (chord != null && chord.getChordNotes().size() > 2)) {
+		if (previousChord.isEmpty() || (chord != null && chord.getChordNotes().size() > 3)) {
 			return chord;
 		}
 
@@ -540,9 +540,13 @@ public class ToneSynthesiser implements ToneMapConstants {
 				}
 				if (isChanged) {
 					chords.put(previousChord.get().getStartTime(), chord);
-					targetFrame.setChord(chord);
 				}
 			}
+			if (!previousChord.isEmpty() && chord.getChordNotes().equals(previousChord.get().getChordNotes())) {
+				chord.setStartTime(previousChord.get().getStartTime());
+			}
+			LOG.severe(">>TS set chord: " + targetFrame.getStartTime() + ", " + chord);
+			targetFrame.setChord(chord);
 			return chord;
 		} else {
 			ChordListElement newChord = new ChordListElement(startTime, endTime,

@@ -39,31 +39,11 @@ public class CalibrationMap implements OnsetHandler {
 	}
 
 	public double getBeat(double time, double range) {
-		Entry<Double, Double> le = beatMap.floorEntry(time);
-		if (le != null && range >= (time - le.getKey())) {
-			return le.getValue();
-		} else {
-			Entry<Double, Double> he = beatMap.ceilingEntry(time);
-			if (he != null && range >= (he.getKey() - time)) {
-				return he.getValue();
-			} else {
-				return 0;
-			}
+		double result = getBeatAfterTime(time, range);
+		if (result == -1) {
+			result = getBeatBeforeTime(time, range);
 		}
-	}
-
-	public double getBeatTime(double time, double range) {
-		Entry<Double, Double> le = beatMap.floorEntry(time);
-		if (le != null && range >= (time - le.getKey())) {
-			return le.getKey();
-		} else {
-			Entry<Double, Double> he = beatMap.ceilingEntry(time);
-			if (he != null && range >= (he.getKey() - time)) {
-				return he.getKey();
-			} else {
-				return -1;
-			}
-		}
+		return result;
 	}
 
 	public double getStartTime() {
@@ -136,10 +116,18 @@ public class CalibrationMap implements OnsetHandler {
 	}
 
 	public double getBeatRange(double time) {
-		Entry<Double, Double> le = beatMap.floorEntry(time);
-		Entry<Double, Double> he = beatMap.ceilingEntry(time);
-		if (le != null && he != null) {
-			return he.getKey() - le.getKey();
+		Entry<Double, Double> startEntry = beatMap.ceilingEntry(time);
+		if (startEntry != null) {
+			Entry<Double, Double> endEntry = beatMap.ceilingEntry(time + 0.1);
+			if (endEntry != null) {
+				return endEntry.getKey() - startEntry.getKey();
+			} else {
+				endEntry = startEntry;
+				startEntry = beatMap.floorEntry(time);
+				if (startEntry != null) {
+					return endEntry.getKey() - startEntry.getKey();
+				}
+			}
 		}
 		return -1;
 	}

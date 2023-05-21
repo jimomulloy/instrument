@@ -154,15 +154,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	@Inject
 	Storage storage;
 
-	ChromaView chromaPreView;
-
-	ChromaView chromaPostView;
-
-	ChromaView chromaSynthView;
+	ChromaView chromaView;
 
 	BeatsView beatsView;
-
-	BeatsView percussionView;
 
 	JFrame mainframe;
 
@@ -192,20 +186,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	@Inject
 	Workspace workspace;
 
-	JCheckBox midiPlayBaseSwitchCB;
 	JCheckBox playResynthSwitchCB;
-	JCheckBox midiPlayVoice1SwitchCB;
-	AbstractButton midiPlayVoice2SwitchCB;
-	AbstractButton midiPlayVoice3SwitchCB;
-	AbstractButton midiPlayVoice4SwitchCB;
-	AbstractButton midiPlayChord1SwitchCB;
-	AbstractButton midiPlayChord2SwitchCB;
-	AbstractButton midiPlayPad1SwitchCB;
-	JCheckBox midiPlayPad2SwitchCB;
-	JCheckBox midiPlayBeat1SwitchCB;
-	JCheckBox midiPlayBeat2SwitchCB;
-	JCheckBox midiPlayBeat3SwitchCB;
-	JCheckBox midiPlayBeat4SwitchCB;
 	TimeFramePanel timeFramePanel;
 	JButton chooseFileButton;
 	JButton startFileProcessingButton;
@@ -237,8 +218,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JLabel statusLabel;
 
 	JLabel fileNameLabel;
-
-	JCheckBox showSynthesisSwitchCB;
 
 	JTextField hearingMinFreqCentsInput;
 
@@ -715,22 +694,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		JPanel panel = new JPanel(new BorderLayout());
 		JTabbedPane chromaTabbedPane = new JTabbedPane();
 		chromaTabbedPane
-				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
-		chromaSynthView = new ChromaView(false);
+				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+		chromaView = new ChromaView();
 		JPanel chromaSynthPanel = new JPanel(new BorderLayout());
-		chromaSynthPanel.add(chromaSynthView, BorderLayout.CENTER);
+		chromaSynthPanel.add(chromaView, BorderLayout.CENTER);
 		chromaSynthPanel.setBackground(Color.BLACK);
-		chromaTabbedPane.addTab("Chroma Synth", chromaSynthPanel);
-		chromaPreView = new ChromaView(true);
-		JPanel chromaPrePanel = new JPanel(new BorderLayout());
-		chromaPrePanel.add(chromaPreView, BorderLayout.CENTER);
-		chromaPrePanel.setBackground(Color.BLACK);
-		chromaTabbedPane.addTab("Chroma Pre", chromaPrePanel);
-		chromaPostView = new ChromaView(false);
-		JPanel chromaPostPanel = new JPanel(new BorderLayout());
-		chromaPostPanel.add(chromaPostView, BorderLayout.CENTER);
-		chromaPostPanel.setBackground(Color.BLACK);
-		chromaTabbedPane.addTab("Chroma Post", chromaPostPanel);
+		chromaTabbedPane.addTab("Chroma", chromaSynthPanel);
 		panel.add(chromaTabbedPane, BorderLayout.CENTER);
 		return panel;
 	}
@@ -746,12 +715,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		beatsPanel.add(beatsView, BorderLayout.CENTER);
 		beatsPanel.setBackground(Color.BLACK);
 		beatsTabbedPane.addTab("Beats", beatsPanel);
-
-		percussionView = new BeatsView();
-		JPanel percussionPanel = new JPanel(new BorderLayout());
-		percussionPanel.add(percussionView, BorderLayout.CENTER);
-		percussionPanel.setBackground(Color.BLACK);
-		beatsTabbedPane.addTab("Percussion", percussionPanel);
 
 		panel.add(beatsTabbedPane, BorderLayout.CENTER);
 		return panel;
@@ -813,7 +776,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", Cell.CellTypes.AUDIO_HPS.name(),
 				Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
 				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC",
-				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION" }).stream()
+				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION", Cell.CellTypes.AUDIO_PRE_CHROMA.name(),
+				Cell.CellTypes.AUDIO_POST_CHROMA.name(), Cell.CellTypes.AUDIO_BEAT.name() }).stream()
 				.forEach(entry -> toneMapViewComboBox.addItem(entry));
 
 		toneMapViewComboBox.setEnabled(false);
@@ -977,22 +941,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS));
 		graphControlPanel.add(showStatsSwitchCB);
 
-		showSynthesisSwitchCB = new JCheckBox("showSynthesisSwitchCB");
-		showSynthesisSwitchCB.setText("Synth");
-		showSynthesisSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS,
-						Boolean.toString(newValue));
-				refreshMapViews();
-			}
-		});
-		showSynthesisSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS));
-		graphControlPanel.add(showSynthesisSwitchCB);
-
 		showLogSwitchCB = new JCheckBox("showLogSwitchCB");
 		showLogSwitchCB.setText("Logn");
 		showLogSwitchCB.addItemListener(new ItemListener() {
@@ -1102,6 +1050,63 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		JPanel instrumentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+		final JButton parametersButton = new JButton("Parameters");
+
+		parametersButton.addActionListener(new ActionListener() {
+
+			private boolean parameterDialogOpen;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String s = e.getActionCommand();
+				if (s.equals("Parameters")) {
+
+					if (!parameterDialogOpen) {
+						// create a dialog Box
+						JDialog d = new JDialog(mainframe, "Parameters");
+
+						d.addWindowListener(new WindowAdapter() {
+							public void windowClosed(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
+
+							public void windowClosing(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
+						});
+
+						JPanel dialogPanel = new JPanel(new BorderLayout());
+
+						JPanel parameterPanel = new ParametersPanel();
+						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
+								new EtchedBorder()));
+
+						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
+
+						d.add(dialogPanel);
+
+						Toolkit myScreen = Toolkit.getDefaultToolkit();
+						Dimension screenSize = myScreen.getScreenSize();
+						int screenHeight = screenSize.height;
+						int screenWidth = screenSize.width;
+
+						// setsize of dialog
+						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+
+						// set visibility of dialog
+						d.setVisible(true);
+
+						parameterDialogOpen = true;
+
+					}
+				}
+			}
+		});
+
+		actionPanel.add(parametersButton);
+
+		actionPanel.add(new JLabel("  "));
 
 		final JFileChooser fileChooser = new JFileChooser(new File(getAudioSourceFileFolder()));
 		chooseFileButton = new JButton("Open");
@@ -1397,12 +1402,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionPanel.add(hearingMaxFreqCentsLabel);
 		actionPanel.add(hearingMaxFreqCentsInput);
 
-		actionPanel.add(new JLabel("  "));
-
-		fileNameLabel = new JLabel("");
-
-		actionPanel.add(fileNameLabel);
-
 		panel.add(actionPanel, BorderLayout.NORTH);
 
 		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");
@@ -1675,216 +1674,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		panel.add(voicePanel, BorderLayout.CENTER);
 
-		midiPlayVoice1SwitchCB = new JCheckBox("midiPlayVoice1SwitchCB");
-		midiPlayVoice1SwitchCB.setText("Voice1");
-		midiPlayVoice1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH));
-		instrumentPanel.add(midiPlayVoice1SwitchCB);
-
-		midiPlayVoice2SwitchCB = new JCheckBox("midiPlayVoice2SwitchCB");
-		midiPlayVoice2SwitchCB.setText("Voice2");
-		midiPlayVoice2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH));
-		instrumentPanel.add(midiPlayVoice2SwitchCB);
-
-		midiPlayVoice3SwitchCB = new JCheckBox("midiPlayVoice3SwitchCB");
-		midiPlayVoice3SwitchCB.setText("Voice3");
-		midiPlayVoice3SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice3SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH));
-		instrumentPanel.add(midiPlayVoice3SwitchCB);
-
-		midiPlayVoice4SwitchCB = new JCheckBox("midiPlayVoice4SwitchCB");
-		midiPlayVoice4SwitchCB.setText("Voice4");
-		midiPlayVoice4SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayVoice4SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH));
-		instrumentPanel.add(midiPlayVoice4SwitchCB);
-
-		midiPlayChord1SwitchCB = new JCheckBox("midiPlayChord1SwitchCB");
-		midiPlayChord1SwitchCB.setText("Chord1");
-		midiPlayChord1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayChord1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH));
-		instrumentPanel.add(midiPlayChord1SwitchCB);
-
-		midiPlayChord2SwitchCB = new JCheckBox("midiPlayChord2SwitchCB");
-		midiPlayChord2SwitchCB.setText("Chord2");
-		midiPlayChord2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayChord2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH));
-		instrumentPanel.add(midiPlayChord2SwitchCB);
-
-		midiPlayPad1SwitchCB = new JCheckBox("midiPlayPad1SwitchCB");
-		midiPlayPad1SwitchCB.setText("Pad1");
-		midiPlayPad1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayPad1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH));
-		instrumentPanel.add(midiPlayPad1SwitchCB);
-
-		midiPlayPad2SwitchCB = new JCheckBox("midiPlayPad2SwitchCB");
-		midiPlayPad2SwitchCB.setText("Pad2");
-		midiPlayPad2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayPad2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH));
-		instrumentPanel.add(midiPlayPad2SwitchCB);
-
-		midiPlayBeat1SwitchCB = new JCheckBox("midiPlayBeat1SwitchCB");
-		midiPlayBeat1SwitchCB.setText("Beat1");
-		midiPlayBeat1SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH));
-		instrumentPanel.add(midiPlayBeat1SwitchCB);
-
-		midiPlayBeat2SwitchCB = new JCheckBox("midiPlayBeat2SwitchCB");
-		midiPlayBeat2SwitchCB.setText("Beat2");
-		midiPlayBeat2SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH));
-		instrumentPanel.add(midiPlayBeat2SwitchCB);
-
-		midiPlayBeat3SwitchCB = new JCheckBox("midiPlayBeat3SwitchCB");
-		midiPlayBeat3SwitchCB.setText("Beat3");
-		midiPlayBeat3SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat3SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH));
-		instrumentPanel.add(midiPlayBeat3SwitchCB);
-
-		midiPlayBeat4SwitchCB = new JCheckBox("midiPlayBeat4SwitchCB");
-		midiPlayBeat4SwitchCB.setText("Beat4");
-		midiPlayBeat4SwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBeat4SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH));
-		instrumentPanel.add(midiPlayBeat4SwitchCB);
-
-		midiPlayBaseSwitchCB = new JCheckBox("midiPlayBaseSwitchCB");
-		midiPlayBaseSwitchCB.setText("Base");
-		midiPlayBaseSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		midiPlayBaseSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH));
-		instrumentPanel.add(midiPlayBaseSwitchCB);
-
-		instrumentPanel.add(new JLabel("  "));
-
 		final JButton synthButton = new JButton("Synth Controls");
 
 		synthButton.addActionListener(new ActionListener() {
@@ -1958,62 +1747,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		instrumentPanel.add(new JLabel("  "));
 
-		final JButton parametersButton = new JButton("Parameters");
+		fileNameLabel = new JLabel("");
 
-		parametersButton.addActionListener(new ActionListener() {
-
-			private boolean parameterDialogOpen;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String s = e.getActionCommand();
-				if (s.equals("Parameters")) {
-
-					if (!parameterDialogOpen) {
-						// create a dialog Box
-						JDialog d = new JDialog(mainframe, "Parameters");
-
-						d.addWindowListener(new WindowAdapter() {
-							public void windowClosed(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-
-							public void windowClosing(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-						});
-
-						JPanel dialogPanel = new JPanel(new BorderLayout());
-
-						JPanel parameterPanel = new ParametersPanel();
-						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
-								new EtchedBorder()));
-
-						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
-
-						d.add(dialogPanel);
-
-						Toolkit myScreen = Toolkit.getDefaultToolkit();
-						Dimension screenSize = myScreen.getScreenSize();
-						int screenHeight = screenSize.height;
-						int screenWidth = screenSize.width;
-
-						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
-
-						// set visibility of dialog
-						d.setVisible(true);
-
-						parameterDialogOpen = true;
-
-					}
-				}
-			}
-		});
-
-		instrumentPanel.add(new JLabel("  "));
-
-		instrumentPanel.add(parametersButton);
+		instrumentPanel.add(fileNameLabel);
 
 		panel.add(instrumentPanel, BorderLayout.SOUTH);
 
@@ -2112,15 +1848,21 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					toneMapViews.put(toneMapViewType, toneMap);
 					if (toneMapViewType.equals(currentToneMapViewType)) {
 						toneMapView.renderToneMap(toneMap);
+						beatsView.renderToneMap(toneMap);
+						chromaView.renderToneMap(toneMap);
 					}
 				} else if (toneMapView.getToneMap() != null && toneMapViews.get(toneMapViewType) != null
 						&& !toneMapViews.get(toneMapViewType).getKey().equals(toneMapView.getToneMap().getKey())) {
 					toneMapViews.put(toneMapViewType, toneMap);
 					if (toneMapViewType.equals(currentToneMapViewType)) {
 						toneMapView.renderToneMap(toneMap);
+						beatsView.renderToneMap(toneMap);
+						chromaView.renderToneMap(toneMap);
 					}
 				} else if (toneMapViewType.equals(currentToneMapViewType) && toneMapView != null) {
 					toneMapView.updateToneMap(toneMap, ttf);
+					beatsView.updateToneMap(toneMap, ttf);
+					chromaView.updateToneMap(toneMap, ttf);
 				}
 				updateTimeFrameView(ttf);
 			}
@@ -2139,68 +1881,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			LOG.severe(">>!! chosen file reset TM views: " + currentToneMapViewType);
 			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			updateTimeFrameView(toneMapViews.get(currentToneMapViewType).getTimeFrame());
-			chromaPreView.renderToneMap(toneMapViews.get(currentToneMapViewType));
-			chromaPostView.renderToneMap(toneMapViews.get(currentToneMapViewType));
-			chromaSynthView.renderToneMap(toneMapViews.get(currentToneMapViewType));
+			chromaView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 		} else {
 			LOG.severe(">>Visor clear TM views: " + currentToneMapViewType);
 			toneMapView.clear();
-			chromaPreView.clear();
-			chromaPostView.clear();
-			chromaSynthView.clear();
+			chromaView.clear();
 			beatsView.clear();
 		}
-	}
-
-	@Override
-	public void updateBeatsView(ToneMap toneMap) {
-		beatsView.updateToneMap(toneMap);
-	}
-
-	@Override
-	public void updateBeatsView(ToneMap toneMap, ToneTimeFrame ttf) {
-		beatsView.updateToneMap(toneMap, ttf);
-	}
-
-	@Override
-	public void updatePercussionView(ToneMap toneMap) {
-		percussionView.updateToneMap(toneMap);
-	}
-
-	@Override
-	public void updatePercussionView(ToneMap toneMap, ToneTimeFrame ttf) {
-		percussionView.updateToneMap(toneMap, ttf);
-	}
-
-	@Override
-	public void updateChromaPreView(ToneMap toneMap, ToneTimeFrame ttf) {
-		chromaPreView.updateToneMap(toneMap, ttf);
-	}
-
-	@Override
-	public void updateChromaPreView(ToneMap toneMap) {
-		chromaPreView.updateToneMap(toneMap);
-	}
-
-	@Override
-	public void updateChromaPostView(ToneMap toneMap, ToneTimeFrame ttf) {
-		chromaPostView.updateToneMap(toneMap, ttf);
-	}
-
-	@Override
-	public void updateChromaPostView(ToneMap toneMap) {
-		chromaPostView.updateToneMap(toneMap);
-	}
-
-	@Override
-	public void updateChromaSynthView(ToneMap toneMap) {
-		chromaSynthView.updateToneMap(toneMap);
-	}
-
-	@Override
-	public void updateChromaSynthView(ToneMap toneMap, ToneTimeFrame ttf) {
-		chromaSynthView.updateToneMap(toneMap, ttf);
 	}
 
 	@Override
@@ -2576,11 +2264,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	private void refreshMapViews() {
 		if (toneMapView != null) {
 			toneMapView.updateAxis();
-			chromaPreView.updateAxis();
-			chromaPostView.updateAxis();
-			chromaSynthView.updateAxis();
+			chromaView.updateAxis();
 			beatsView.updateAxis();
-			percussionView.updateAxis();
 		}
 	}
 
@@ -2613,8 +2298,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING));
 		showStatsSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS));
-		showSynthesisSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS));
 		showLogSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG));
 		toneMapViewLowThresholdInput
@@ -2662,32 +2345,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE));
 		midiPlayLogSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH));
-		midiPlayVoice1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH));
-		midiPlayVoice2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH));
-		midiPlayVoice3SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH));
-		midiPlayVoice4SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH));
-		midiPlayChord1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH));
-		midiPlayChord2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH));
-		midiPlayPad1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH));
-		midiPlayPad2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH));
-		midiPlayBeat1SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH));
-		midiPlayBeat2SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH));
-		midiPlayBeat3SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH));
-		midiPlayBeat4SwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH));
-		midiPlayBaseSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH));
 		midiSynthTracksSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH));
 		silentWriteSwitchCB.setSelected(

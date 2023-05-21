@@ -62,74 +62,71 @@ public class PitchResyntheziser implements PitchDetectionHandler {
 	private boolean followEnvelope;
 	private final double[] previousFrequencies;
 	private int previousFrequencyIndex;
-	
-	public PitchResyntheziser(float samplerate){
-		this(samplerate,true,false);
+
+	public PitchResyntheziser(float samplerate) {
+		this(samplerate, true, false);
 	}
-	
-	public PitchResyntheziser(float samplerate,boolean followEnvelope,boolean pureSine){
-		this(samplerate,followEnvelope,pureSine,5);
+
+	public PitchResyntheziser(float samplerate, boolean followEnvelope, boolean pureSine) {
+		this(samplerate, followEnvelope, pureSine, 5);
 	}
-	
-	public PitchResyntheziser(float samplerate,boolean followEnvelope,boolean pureSine,int filterSize){
-		envelopeFollower = new EnvelopeFollower(samplerate,0.005,0.01);
-		this.followEnvelope=followEnvelope;
+
+	public PitchResyntheziser(float samplerate, boolean followEnvelope, boolean pureSine, int filterSize) {
+		envelopeFollower = new EnvelopeFollower(samplerate, 0.005, 0.01);
+		this.followEnvelope = followEnvelope;
 		this.usePureSine = pureSine;
 		this.samplerate = samplerate;
 		previousFrequencies = new double[filterSize];
 		previousFrequencyIndex = 0;
 	}
-	
+
 	@Override
-	public void handlePitch(PitchDetectionResult pitchDetectionResult,
-			AudioEvent audioEvent) {
+	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
 		double frequency = pitchDetectionResult.getPitch();
-		
-		if(frequency==-1){
-			frequency=prevFrequency;
-		}else{
-			if(previousFrequencies.length!=0){
-				//median filter
-				//store and adjust pointer
+
+		if (frequency == -1) {
+			frequency = prevFrequency;
+		} else {
+			if (previousFrequencies.length != 0) {
+				// median filter
+				// store and adjust pointer
 				previousFrequencies[previousFrequencyIndex] = frequency;
 				previousFrequencyIndex++;
 				previousFrequencyIndex %= previousFrequencies.length;
-				//sort to get median frequency
+				// sort to get median frequency
 				double[] frequenciesCopy = previousFrequencies.clone();
 				Arrays.sort(frequenciesCopy);
-				//use the median as frequency
-				frequency = frequenciesCopy[frequenciesCopy.length/2];
+				// use the median as frequency
+				frequency = frequenciesCopy[frequenciesCopy.length / 2];
 			}
-			
+
 			prevFrequency = frequency;
 		}
-		
-		
-	
+
 		final double twoPiF = 2 * Math.PI * frequency;
 		float[] audioBuffer = audioEvent.getFloatBuffer();
 		float[] envelope = null;
-		if(followEnvelope){
+		if (followEnvelope) {
 			envelope = audioBuffer.clone();
 			envelopeFollower.calculateEnvelope(envelope);
 		}
-		
+
 		for (int sample = 0; sample < audioBuffer.length; sample++) {
-			double time =   sample / samplerate;
-			double wave =  Math.sin(twoPiF * time + phase);
-			if(!usePureSine){
+			double time = sample / samplerate;
+			double wave = Math.sin(twoPiF * time + phase);
+			if (!usePureSine) {
 				wave += 0.05 * Math.sin(twoPiF * 4 * time + phaseFirst);
 				wave += 0.01 * Math.sin(twoPiF * 8 * time + phaseSecond);
-			}			
+			}
 			audioBuffer[sample] = (float) wave;
-			if(followEnvelope){
+			if (followEnvelope) {
 				audioBuffer[sample] = audioBuffer[sample] * envelope[sample];
 			}
 		}
-		
-		double timefactor = twoPiF * audioBuffer.length / samplerate; 
-		phase =  timefactor + phase;
-		if(!usePureSine){
+
+		double timefactor = twoPiF * audioBuffer.length / samplerate;
+		phase = timefactor + phase;
+		if (!usePureSine) {
 			phaseFirst = 4 * timefactor + phaseFirst;
 			phaseSecond = 8 * timefactor + phaseSecond;
 		}

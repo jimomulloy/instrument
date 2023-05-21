@@ -45,7 +45,7 @@ public class AudioBeatProcessor extends ProcessorCommon {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
-		console.getVisor().updateBeatsView(toneMap);
+		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}
 }

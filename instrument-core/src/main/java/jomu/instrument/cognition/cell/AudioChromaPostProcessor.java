@@ -46,7 +46,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		if (tmIndex > 0) {
 			timeFrame = postChromaToneMap.getTimeFrame(tmIndex);
 			if (timeFrame != null) {
-				console.getVisor().updateChromaPostView(postChromaToneMap, timeFrame);
+				console.getVisor().updateToneMapView(postChromaToneMap, timeFrame, this.cell.getCellType().toString());
 			}
 			cell.send(streamId, tmIndex);
 		}
@@ -57,8 +57,9 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 			}
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				timeFrame = postChromaToneMap.getTimeFrame(i);
-				if (timeFrame != null) { // TODO or make fake on here?
-					console.getVisor().updateChromaPostView(postChromaToneMap, timeFrame);
+				if (timeFrame != null) {
+					console.getVisor().updateToneMapView(postChromaToneMap, timeFrame,
+							this.cell.getCellType().toString());
 				}
 				cell.send(streamId, i);
 			}

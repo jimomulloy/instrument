@@ -5,10 +5,13 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -58,43 +61,56 @@ public class SynthPanel extends JPanel {
 		parameterPanel.setBorder(new EmptyBorder(25, 25, 25, 5));
 
 		parameterPanel
-				.add(buildTrackControlPanel("Voice1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1,
+				.add(buildTrackControlPanel("Voice1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_1));
 		parameterPanel
-				.add(buildTrackControlPanel("Voice2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2,
+				.add(buildTrackControlPanel("Voice2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_2));
 		parameterPanel
-				.add(buildTrackControlPanel("Voice3 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_3,
+				.add(buildTrackControlPanel("Voice3 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE3_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_3,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_3));
 		parameterPanel
-				.add(buildTrackControlPanel("Voice4 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_4,
+				.add(buildTrackControlPanel("Voice4 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_4,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_4));
 		parameterPanel
-				.add(buildTrackControlPanel("Chord1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_1,
+				.add(buildTrackControlPanel("Chord1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_1,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_1));
 		parameterPanel
-				.add(buildTrackControlPanel("Chord2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_2,
+				.add(buildTrackControlPanel("Chord2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_CHORD_2,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_2));
 		parameterPanel
-				.add(buildTrackControlPanel("Pad1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_1,
+				.add(buildTrackControlPanel("Pad1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_1,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_1));
 		parameterPanel
-				.add(buildTrackControlPanel("Pad2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_2,
+				.add(buildTrackControlPanel("Pad2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_PAD_2,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_2));
 		parameterPanel
-				.add(buildTrackControlPanel("Beat1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1,
+				.add(buildTrackControlPanel("Beat1 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_1));
 		parameterPanel
-				.add(buildTrackControlPanel("Beat2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_2,
+				.add(buildTrackControlPanel("Beat2 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT2_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_2,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_2));
 		parameterPanel
-				.add(buildTrackControlPanel("Beat3 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3,
+				.add(buildTrackControlPanel("Beat3 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT3_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_3));
 		parameterPanel
-				.add(buildTrackControlPanel("Beat4 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4,
+				.add(buildTrackControlPanel("Beat4 ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BEAT_4));
 		parameterPanel
-				.add(buildTrackControlPanel("Base ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1,
+				.add(buildTrackControlPanel("Base ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH,
+						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BASE_1));
 
 		Dimension minimumSize = new Dimension(500, 500);
@@ -102,7 +118,7 @@ public class SynthPanel extends JPanel {
 		this.add(parameterPanel, BorderLayout.CENTER);
 	}
 
-	private JPanel buildTrackControlPanel(String name, String trackParam, String volumeParam) {
+	private JPanel buildTrackControlPanel(String name, String playSwitchParam, String trackParam, String volumeParam) {
 
 		JPanel containerPanel = new JPanel(new BorderLayout());
 
@@ -113,22 +129,32 @@ public class SynthPanel extends JPanel {
 		JPanel leftPanel = new JPanel(new BorderLayout());
 		JPanel centerPanel = new JPanel(new BorderLayout());
 
-		JLabel trackLabel = new JLabel(name);
+		JCheckBox midiPlaySwitchCB = new JCheckBox(name + "SwitchCB");
+		midiPlaySwitchCB.setText(name);
+		midiPlaySwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(playSwitchParam, Boolean.toString(newValue));
+			}
+		});
+
+		midiPlaySwitchCB.setSelected(parameterManager.getBooleanParameter(playSwitchParam));
+		midiPlaySwitchCB.setPreferredSize(new Dimension(100, 30));
+
 		JTextField trackInput = new JTextField(4);
 		trackInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = trackInput.getText();
-				trackLabel.setText(String.format(name + " (%s):", newValue));
-				LOG.severe(">>trackParam: " + trackParam + ", " + newValue);
 				newValue = parameterManager.setParameter(trackParam, newValue);
 				trackInput.setText(newValue);
 			}
 		});
 		trackInput.setText(parameterManager.getParameter(trackParam));
-		trackLabel.setPreferredSize(new Dimension(100, 30));
 		trackInput.setPreferredSize(new Dimension(40, 30));
-		leftPanel.add(trackLabel, BorderLayout.WEST);
+		leftPanel.add(midiPlaySwitchCB, BorderLayout.WEST);
 		leftPanel.add(trackInput, BorderLayout.CENTER);
 
 		JSlider volumeSlider = new JSlider(0, 1000);

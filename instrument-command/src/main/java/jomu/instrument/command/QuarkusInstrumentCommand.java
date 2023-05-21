@@ -1,10 +1,9 @@
 package jomu.instrument.command;
 
-import jakarta.inject.Inject;
-
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import jakarta.inject.Inject;
 import jomu.instrument.Instrument;
 
 @QuarkusMain

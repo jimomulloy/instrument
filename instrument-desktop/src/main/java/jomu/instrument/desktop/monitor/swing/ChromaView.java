@@ -29,7 +29,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -43,7 +42,6 @@ import jomu.instrument.workspace.tonemap.ChordNote;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class ChromaView extends JComponent implements ComponentListener {
@@ -72,8 +70,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 
 	private ParameterManager parameterManager;
 
-	private boolean isPreview;
-
 	public ChromaView() {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.timeAxisStart = parameterManager
@@ -82,11 +78,6 @@ public class ChromaView extends JComponent implements ComponentListener {
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(512);
-	}
-
-	public ChromaView(boolean isPreview) {
-		this();
-		this.isPreview = isPreview;
 	}
 
 	public void clear() {
@@ -231,137 +222,50 @@ public class ChromaView extends JComponent implements ComponentListener {
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
 			double highViewThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
-			boolean showTracking = parameterManager
-					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showColour = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR);
-			boolean showSynthesis = parameterManager
-					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_SYNTHESIS);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
-			if (showSynthesis && !isPreview) {
+			ChordListElement chord = ttf.getChord();
 
-				Optional<ChordListElement> chord = toneMap.getToneSynthesiser().getChord(ttf.getStartTime());
-
-				Color color = Color.black;
-				if (chord.isPresent()) {
-					for (ChordNote chordNote : chord.get().getChordNotes()) {
-						int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
-						int height = (int) ((double) getHeight() / 12.0);
-						double amplitude = chordNote.getAmplitude();
-						amplitude = 1.0; // TODO
-						int greyValue = 0;
-						if (amplitude > highViewThreshold) {
-							greyValue = 255;
-						} else if (amplitude <= lowViewThreshold) {
-							greyValue = 0;
-						} else {
+			Color color = Color.black;
+			if (chord != null) {
+				for (ChordNote chordNote : chord.getChordNotes()) {
+					int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+					int height = (int) ((double) getHeight() / 12.0);
+					double amplitude = chordNote.getAmplitude();
+					amplitude = 1.0; // TODO
+					int greyValue = 0;
+					if (amplitude > highViewThreshold) {
+						greyValue = 255;
+					} else if (amplitude <= lowViewThreshold) {
+						greyValue = 0;
+					} else {
+						greyValue = (int) (Math
+								.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+								/ Math.log1p(1.0000001) * 255);
+						if (showLog) {
 							greyValue = (int) (Math
 									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
 									/ Math.log1p(1.0000001) * 255);
-							if (showLog) {
-								greyValue = (int) (Math
-										.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
-										/ Math.log1p(1.0000001) * 255);
-							} else {
-								greyValue = (int) (((amplitude - lowViewThreshold)
-										/ (highViewThreshold - lowViewThreshold)) * 255);
-							}
-							greyValue = Math.max(0, greyValue);
-							if (showColour) {
-								color = rainbow[255 - greyValue];
-							} else {
-								color = new Color(greyValue, greyValue, greyValue);
-							}
-						}
-
-						color = Color.WHITE;
-						int centsCoordinate = getCentsCoordinate(chordNote.getPitchClass());
-						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-
-						bufferedGraphics.setColor(color);
-						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
-					}
-				}
-			} else if (showTracking && !isPreview) {
-
-				ChordListElement chord = ttf.getChord();
-
-				Color color = Color.black;
-				if (chord != null) {
-					for (ChordNote chordNote : chord.getChordNotes()) {
-						int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
-						int height = (int) ((double) getHeight() / 12.0);
-						double amplitude = chordNote.getAmplitude();
-						amplitude = 1.0; // TODO
-						int greyValue = 0;
-						if (amplitude > highViewThreshold) {
-							greyValue = 255;
-						} else if (amplitude <= lowViewThreshold) {
-							greyValue = 0;
 						} else {
-							greyValue = (int) (Math
-									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
-									/ Math.log1p(1.0000001) * 255);
-							if (showLog) {
-								greyValue = (int) (Math
-										.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
-										/ Math.log1p(1.0000001) * 255);
-							} else {
-								greyValue = (int) (((amplitude - lowViewThreshold)
-										/ (highViewThreshold - lowViewThreshold)) * 255);
-							}
-							greyValue = Math.max(0, greyValue);
-							if (showColour) {
-								color = rainbow[255 - greyValue];
-							} else {
-								color = new Color(greyValue, greyValue, greyValue);
-							}
+							greyValue = (int) (((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
+									* 255);
 						}
-
-						color = Color.WHITE;
-						int centsCoordinate = getCentsCoordinate(chordNote.getPitchClass());
-						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-
-						bufferedGraphics.setColor(color);
-						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
-					}
-				}
-			} else {
-				ToneMapElement[] elements = ttf.getElements();
-
-				for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-
-					ToneMapElement toneMapElement = elements[elementIndex];
-					Color color = Color.black;
-					if (toneMapElement != null) {
-						double amplitude = 0.0;
-						int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
-						int height = (int) ((double) getHeight() / 12.0);
-						amplitude = toneMapElement.amplitude;
-						int greyValue = 0;
-						if (amplitude > highViewThreshold) {
-							greyValue = 255;
-						} else if (amplitude <= lowViewThreshold) {
-							greyValue = 0;
+						greyValue = Math.max(0, greyValue);
+						if (showColour) {
+							color = rainbow[255 - greyValue];
 						} else {
-							greyValue = (int) (Math
-									.log1p((amplitude - lowViewThreshold) / (highViewThreshold - lowViewThreshold))
-									/ Math.log1p(1.0000001) * 255);
-							greyValue = Math.max(0, greyValue);
-							if (showColour) {
-								color = rainbow[255 - greyValue];
-							} else {
-								color = new Color(greyValue, greyValue, greyValue);
-							}
+							color = new Color(greyValue, greyValue, greyValue);
 						}
-
-						int centsCoordinate = getCentsCoordinate(elementIndex);
-						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-
-						bufferedGraphics.setColor(color);
-						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 					}
+
+					color = Color.WHITE;
+					int centsCoordinate = getCentsCoordinate(chordNote.getPitchClass());
+					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+
+					bufferedGraphics.setColor(color);
+					bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 				}
 			}
 		}

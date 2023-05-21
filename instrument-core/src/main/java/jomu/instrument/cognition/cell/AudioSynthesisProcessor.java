@@ -223,8 +223,8 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			beatTime = cm.getBeatAfterTime(beatTimeFrame.getStartTime(), 110);
 			timeRange = cm.getBeatRange(beatTimeFrame.getStartTime());
 			if (beatTime != -1) {
-				LOG.severe(">>AudioSynthesisProcessor FOUND BEAT!!: " + sequence + ", " + beatTimeFrame.getStartTime()
-						+ ", " + synthesisFrame.getMaxAmplitude());
+				LOG.severe(">>AudioSynthesisProcessor FOUND BEAT!!: " + sequence + ", " + timeRange + ", "
+						+ beatTimeFrame.getStartTime() + ", " + synthesisFrame.getMaxAmplitude());
 				BeatListElement ble = new BeatListElement(1.0, beatSynthesisFrame.getStartTime(), timeRange);
 				beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION", ble);
 			} else {
@@ -269,8 +269,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
 			if (synthesisFrame != null) {
 				synthesiser.synthesise(synthesisFrame, cm);
-				console.getVisor().updateBeatsView(synthesisToneMap, synthesisFrame);
-				console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 				console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
 						this.cell.getCellType().toString());
 			}
@@ -287,8 +285,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				synthesisFrame = synthesisToneMap.getTimeFrame(i);
 				if (synthesisFrame != null) {
 					synthesiser.synthesise(synthesisFrame, cm);
-					console.getVisor().updateBeatsView(synthesisToneMap, synthesisFrame);
-					console.getVisor().updateChromaSynthView(synthesisToneMap, synthesisFrame);
 					console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
 							this.cell.getCellType().toString());
 				}

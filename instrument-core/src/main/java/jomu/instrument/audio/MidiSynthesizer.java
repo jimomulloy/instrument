@@ -1127,15 +1127,25 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_1);
 			int chord2VolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_2);
+			int synthChordBeat = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_BEAT);
+			int synthChordPattern = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_PATTERN);
+			int synthChord1Octave = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE);
+			int synthChord2Octave = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE);
 
 			long tick = getTrackTick(toneTimeFrame);
 
 			ShortMessage midiMessage = null;
 
-			double beat = 0;
+			double beatAmp = 0;
+			BeatListElement ble = null;
 			Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name());
 			if (ob.isPresent()) {
-				beat = ob.get().getAmplitude();
+				ble = ob.get();
+				beatAmp = ble.getAmplitude();
 			}
 
 			if (midiPlayChord1Switch) {
@@ -1149,22 +1159,26 @@ public class MidiSynthesizer implements ToneMapConstants {
 					chordsChannel1LastNotes = new HashSet<>();
 				}
 
-				ChordListElement chord = null;
-				Optional<ChordListElement> oc = toneTimeFrame.getChordList(CellTypes.AUDIO_POST_CHROMA.name());
-				if (oc.isPresent()) {
-					chord = oc.get();
-				}
+				ChordListElement chord = toneTimeFrame.getChord();
 
 				boolean hasNewChord = false;
-				if (chord != null && !chord.getChordNotes().isEmpty() && beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
+				if (chord != null && !chord.getChordNotes().isEmpty() && beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR
+						&& (ble.getStartTime() <= chord.getStartTime() || toneTimeFrame
+								.getStartTime() >= (chord.getStartTime() + ble.getTimeRange() * synthChordBeat))) {
 					hasNewChord = true;
+					LOG.severe(">>MIDI CHORD NEW 2: " + toneTimeFrame.getStartTime() + ", " + beatAmp + ", "
+							+ ble.getStartTime() + ", " + chord.getStartTime() + ", "
+							+ (ble.getTimeRange() * synthChordBeat));
+				}
+				if (chord != null) {
+					LOG.severe(">>MIDI CHORD NOT NULL: " + toneTimeFrame.getStartTime() + ", " + chord);
 				}
 
 				List<Integer> volumes = new ArrayList<>();
 				List<Integer> notes = new ArrayList<>();
 
 				if (chord != null) {
-					int octaveAdjust = 4;
+					int octaveAdjust = synthChord1Octave;
 					ChordNote[] chordNotes = chord.getChordNotes().toArray(new ChordNote[chord.getChordNotes().size()]);
 					Arrays.sort(chordNotes, new Comparator<ChordNote>() {
 						public int compare(ChordNote c1, ChordNote c2) {
@@ -1198,6 +1212,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 					HashSet<Integer> newNotes = new HashSet<Integer>(notes);
 					if (!newNotes.equals(chordsChannel1LastNotes)) {
+						LOG.severe(">>MIDI CHORD NEW 1: " + toneTimeFrame.getStartTime());
 						hasNewChord = true;
 					}
 				}
@@ -1220,12 +1235,15 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 
 				if (hasNewChord) {
+					LOG.severe(">>MIDI CHORD NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + chord.getStartTime()
+							+ ", " + chord.getEndTime() + ", " + chord.getChordNotes());
 					for (int i = 0; i < notes.size(); i++) {
 						int note = notes.get(i);
 						int volume = volumes.get(i);
 						midiMessage = new ShortMessage();
 						try {
 							midiMessage.setMessage(ShortMessage.NOTE_ON, chord1Channel.num, note, volume);
+
 							if (writeTrack) {
 								createEvent(chord2Track, chord1Channel, NOTEON, note, tick, volume);
 							}
@@ -1273,15 +1291,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 
 				boolean hasNewChord = false;
-				if (chord != null && !chord.getChordNotes().isEmpty() && beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
+				if (chord != null && !chord.getChordNotes().isEmpty() && beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR) {
 					hasNewChord = true;
 				}
+				toneTimeFrame.sharpenChord(chord);
 
 				List<Integer> volumes = new ArrayList<>();
 				List<Integer> notes = new ArrayList<>();
 
 				if (chord != null) {
-					int octaveAdjust = 4;
+					int octaveAdjust = synthChord2Octave;
 					ChordNote[] chordNotes = chord.getChordNotes().toArray(new ChordNote[chord.getChordNotes().size()]);
 					Arrays.sort(chordNotes, new Comparator<ChordNote>() {
 						public int compare(ChordNote c1, ChordNote c2) {
@@ -1659,6 +1678,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_1);
 			int pad2VolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_2);
+			int synthPad1Octave = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE);
+			int synthPad2Octave = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE);
 
 			long tick = getTrackTick(toneTimeFrame);
 
@@ -1679,12 +1702,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (oc.isPresent()) {
 					chord = oc.get();
 				}
+				toneTimeFrame.sharpenChord(chord);
 
 				List<Integer> volumes = new ArrayList<>();
 				List<Integer> notes = new ArrayList<>();
 
 				if (chord != null) {
-					int octaveAdjust = 4;
+					int octaveAdjust = synthPad1Octave;
 					ChordNote[] chordNotes = chord.getChordNotes().toArray(new ChordNote[chord.getChordNotes().size()]);
 					Arrays.sort(chordNotes, new Comparator<ChordNote>() {
 						public int compare(ChordNote c1, ChordNote c2) {
@@ -1771,12 +1795,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (oc.isPresent()) {
 					chord = oc.get();
 				}
+				toneTimeFrame.sharpenChord(chord);
 
 				List<Integer> volumes = new ArrayList<>();
 				List<Integer> notes = new ArrayList<>();
 
 				if (chord != null) {
-					int octaveAdjust = 4;
+					int octaveAdjust = synthPad2Octave;
 					ChordNote[] chordNotes = chord.getChordNotes().toArray(new ChordNote[chord.getChordNotes().size()]);
 					Arrays.sort(chordNotes, new Comparator<ChordNote>() {
 						public int compare(ChordNote c1, ChordNote c2) {

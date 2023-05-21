@@ -59,6 +59,7 @@ public class ToneTimeFrame implements Serializable {
 
 	TimeSet timeSet;
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
+	ChordListElement chordListElement = null;
 	Map<String, ChordListElement> chordsMap = new HashMap<String, ChordListElement>();
 	Map<String, BeatListElement> beatsMap = new HashMap<String, BeatListElement>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
@@ -1004,6 +1005,42 @@ public class ToneTimeFrame implements Serializable {
 		LOG.finer(">>EXIT Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
 	}
 
+	public void sharpenChord(ChordListElement cle) {
+		TreeSet<ChordNote> cleNotes = cle.getChordNotes();
+		TreeSet<ChordNote> result = new TreeSet<>();
+		ChordNote lastCandidate = null;
+		int pass = 10;
+		do {
+			result.clear();
+			lastCandidate = null;
+			for (ChordNote candidate : cleNotes) {
+				if (lastCandidate != null) {
+					if (candidate.pitchClass - lastCandidate.pitchClass == 1) {
+						result.add(lastCandidate);
+						result.add(candidate);
+						break;
+					}
+					if (candidate.pitchClass == 11 && cleNotes.first().pitchClass == 0) {
+						result.add(cleNotes.first());
+						result.add(candidate);
+						break;
+					}
+				}
+				lastCandidate = candidate;
+			}
+			if (result.size() > 0) {
+				if (result.first().amplitude >= result.last().amplitude) {
+					cleNotes.remove(result.last());
+					elements[result.last().index].amplitude = AMPLITUDE_FLOOR;
+				} else {
+					elements[result.first().index].amplitude = AMPLITUDE_FLOOR;
+					cleNotes.remove(result.first());
+				}
+			}
+			pass--;
+		} while (result.size() > 0 && pass > 0);
+	}
+
 	private Set<Integer> censGetSingles(TreeSet<Integer> candidates) {
 		TreeSet<Integer> result = new TreeSet<>();
 		int lastCandidate = -1;
@@ -1584,10 +1621,11 @@ public class ToneTimeFrame implements Serializable {
 	}
 
 	public ChordListElement getChord() {
-		ChordListElement chordListElement = null;
-		if (chordNotes.size() > 1) {
-			chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
-					chordNotes.toArray(new ChordNote[chordNotes.size()]));
+		if (chordListElement == null) {
+			if (chordNotes.size() > 1) {
+				chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
+						chordNotes.toArray(new ChordNote[chordNotes.size()]));
+			}
 		}
 		return chordListElement;
 	}
@@ -1756,6 +1794,7 @@ public class ToneTimeFrame implements Serializable {
 	}
 
 	public void setChord(ChordListElement chord) {
+		chordListElement = chord;
 		chordNotes.clear();
 		if (chord != null) {
 			chordNotes.addAll(chord.getChordNotes());

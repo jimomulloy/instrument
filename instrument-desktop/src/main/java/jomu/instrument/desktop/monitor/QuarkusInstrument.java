@@ -3,11 +3,10 @@ package jomu.instrument.desktop.monitor;
 import java.time.Instant;
 import java.util.UUID;
 
-import jakarta.inject.Inject;
-
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import jakarta.inject.Inject;
 import jomu.instrument.Instrument;
 import jomu.instrument.store.InstrumentSession;
 

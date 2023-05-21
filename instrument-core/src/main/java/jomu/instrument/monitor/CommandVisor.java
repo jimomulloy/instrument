@@ -64,42 +64,6 @@ public class CommandVisor implements Visor {
 	}
 
 	@Override
-	public void updateBeatsView(ToneMap toneMap) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updatePercussionView(ToneMap toneMap) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateChromaPreView(ToneMap toneMap, ToneTimeFrame ttf) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateChromaPreView(ToneMap toneMap) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateChromaPostView(ToneMap toneMap, ToneTimeFrame ttf) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateChromaPostView(ToneMap toneMap) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void updateSpectrumView(ToneTimeFrame toneTimeFrame, int windowSize) {
 		// TODO Auto-generated method stub
 
@@ -119,30 +83,6 @@ public class CommandVisor implements Visor {
 
 	@Override
 	public void updateStatusMessage(String string) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateBeatsView(ToneMap toneMap, ToneTimeFrame ttf) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updatePercussionView(ToneMap toneMap, ToneTimeFrame ttf) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateChromaSynthView(ToneMap toneMap, ToneTimeFrame ttf) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateChromaSynthView(ToneMap toneMap) {
 		// TODO Auto-generated method stub
 
 	}

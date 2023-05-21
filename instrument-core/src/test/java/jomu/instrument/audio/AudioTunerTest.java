@@ -2,13 +2,12 @@ package jomu.instrument.audio;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import jakarta.inject.Inject;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jomu.instrument.Instrument;
 import jomu.instrument.workspace.Atlas;
 import jomu.instrument.workspace.tonemap.ToneMap;

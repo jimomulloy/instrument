@@ -59,7 +59,7 @@ public class AudioPercussionProcessor extends ProcessorCommon {
 			LOG.severe(">>AudioPercProcessor 2 max: " + sequence + ", : " + ttf.getMaxAmplitude());
 		}
 
-		console.getVisor().updatePercussionView(toneMap);
+		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}
 }

@@ -43,7 +43,7 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 		chromaToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()
 				.chroma(chromaRootNote, cqTimeFrame.getPitchLow(), cqTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
 				.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize());
-		console.getVisor().updateChromaPreView(chromaToneMap);
+		console.getVisor().updateToneMapView(chromaToneMap, this.cell.getCellType().toString());
 		cell.send(streamId, sequence);
 	}
 }

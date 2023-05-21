@@ -2,10 +2,9 @@ package jomu.instrument.monitor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.enterprise.context.ApplicationScoped;
-
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class DemoMetrics {

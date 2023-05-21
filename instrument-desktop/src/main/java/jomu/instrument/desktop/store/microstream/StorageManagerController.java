@@ -2,14 +2,13 @@ package jomu.instrument.desktop.store.microstream;
 
 import java.nio.file.Paths;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.Storage;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
