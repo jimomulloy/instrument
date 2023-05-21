@@ -3,13 +3,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvocationType;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.core.SdkBytes;
 
-public class InvokeLambdaIT {
+public class S3ObjectCreateListenerIT {
     LambdaClient client;
 
     @BeforeEach
@@ -26,7 +27,7 @@ public class InvokeLambdaIT {
             SdkBytes payload = SdkBytes.fromUtf8String(json);
 
             InvokeRequest request = InvokeRequest.builder()
-                    .functionName("airhacks_lambda_greetings_boundary_Greetings")
+                    .functionName("instrument_S3ObjectCreateListener")
                     .payload(payload)
                     .invocationType(InvocationType.REQUEST_RESPONSE)
                     .build();

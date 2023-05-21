@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
-
 import jomu.instrument.Instrument;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.workspace.tonemap.ToneMap;

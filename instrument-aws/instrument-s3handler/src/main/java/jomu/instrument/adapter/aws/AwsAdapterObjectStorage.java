@@ -12,14 +12,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.inject.Inject;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import io.quarkus.runtime.StartupEvent;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.ObjectStorage;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;

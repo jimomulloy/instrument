@@ -12,6 +12,6 @@
   <modules>
     <module>instrument-s3handler</module>
     <module>instrument-s3handler-cdk</module>
-    <!--module>instrument-s3handler-st</module-->
+    <module>instrument-s3handler-st</module>
   </modules>
 </project>

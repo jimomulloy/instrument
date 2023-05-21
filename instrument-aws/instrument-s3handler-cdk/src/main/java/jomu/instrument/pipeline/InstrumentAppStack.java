@@ -1,21 +1,19 @@
 package jomu.instrument.pipeline;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-import software.constructs.Construct;
+import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.StageProps;
 import software.amazon.awscdk.pipelines.CodeBuildStep;
 import software.amazon.awscdk.pipelines.CodePipeline;
 import software.amazon.awscdk.pipelines.CodePipelineSource;
 import software.amazon.awscdk.pipelines.ManualApprovalStep;
-import software.amazon.awscdk.pipelines.ShellStep;
 import software.amazon.awscdk.pipelines.StageDeployment;
+import software.constructs.Construct;
 
 public class InstrumentAppStack extends Stack {
     public InstrumentAppStack(final Construct scope, final String id) {

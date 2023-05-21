@@ -2,6 +2,7 @@ package jomu.instrument.aws.s3handler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
 
 import jakarta.inject.Inject;
 
@@ -11,7 +12,7 @@ class ProcessingServiceTest {
 	@Inject
 	ProcessingService processingService;
 
-	// @Test
+	@Test
 	void testProcess() {
 		try {
 			InputObject input = new InputObject();

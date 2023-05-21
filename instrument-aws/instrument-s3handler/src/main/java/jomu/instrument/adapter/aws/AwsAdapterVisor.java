@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
-
 import jomu.instrument.InstrumentException;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.monitor.Visor;

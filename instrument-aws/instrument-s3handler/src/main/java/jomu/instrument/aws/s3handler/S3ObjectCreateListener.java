@@ -3,13 +3,13 @@ package jomu.instrument.aws.s3handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("test")
 public class S3ObjectCreateListener implements RequestHandler<S3Event, OutputObject> {

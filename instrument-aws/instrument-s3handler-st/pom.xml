@@ -44,6 +44,11 @@
   </dependencyManagement>
   <dependencies>
 	  <dependency>
+			<groupId>jomu</groupId>
+			<artifactId>instrument-s3handler</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	  <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-amazon-lambda</artifactId>
         </dependency>
@@ -74,6 +79,11 @@
       <artifactId>lambda</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+		<groupId>io.rest-assured</groupId>
+		<artifactId>rest-assured</artifactId>
+		<scope>test</scope>
+	</dependency>
   </dependencies>
   <build>
     <plugins>
