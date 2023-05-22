@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -592,7 +593,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public Set<Integer> beatsChannel3LastNotes;
 		public Set<Integer> beatsChannel4LastNotes;
 		public Set<Integer> baseChannelLastNotes;
-		public double baseChannelLastNoteTime;
+		public Map<Integer, Double> padsChannel1LastNoteTimes;
+		public Map<Integer, Double> padsChannel2LastNoteTimes;
+		public double chordChannelLastNoteTime;
 
 		public Track voice1Track;
 		public Track voice2Track;
@@ -1048,6 +1051,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_VOICE_4);
 			int baseVolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BASE_1);
+			boolean writeTrack = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
 
 			ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 			if (toneTimeFrame == null) {
@@ -1058,19 +1063,69 @@ public class MidiSynthesizer implements ToneMapConstants {
 			ToneMap toneMap = toneTimeFrame.getToneMap();
 			List<ShortMessage> midiMessages = new ArrayList<>();
 			NoteTrack[] tracks = toneMap.getNoteTracker().getTracks();
+			ChannelData noteTrackChannel = null;
+			Set<Integer> noteTrackChannelLastNotes = null;
+			Track midiTrack = null;
 
 			for (NoteTrack track : tracks) {
 				if ((track.getNumber() == 1 && midiPlayVoice1Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true, voice1VolumeFactor, false);
+					noteTrackChannel = channels[VOICE_1_CHANNEL];
+					if (voiceChannel1LastNotes == null) {
+						voiceChannel1LastNotes = new HashSet<>();
+					}
+					noteTrackChannelLastNotes = voiceChannel1LastNotes;
+					if (writeTrack && voice1Track == null) {
+						voice1Track = midiSequence.createTrack();
+						createEvent(voice1Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
+					}
+					midiTrack = voice1Track;
+					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
+							midiMessages, voice1VolumeFactor, false);
 				}
 				if ((track.getNumber() == 2 && midiPlayVoice2Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true, voice2VolumeFactor, false);
+					noteTrackChannel = channels[VOICE_2_CHANNEL];
+					if (voiceChannel2LastNotes == null) {
+						voiceChannel2LastNotes = new HashSet<>();
+					}
+					noteTrackChannelLastNotes = voiceChannel2LastNotes;
+					if (writeTrack && voice2Track == null) {
+						voice2Track = midiSequence.createTrack();
+						midiTrack = voice2Track;
+						createEvent(voice2Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
+					}
+					midiTrack = voice2Track;
+					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
+							midiMessages, voice2VolumeFactor, false);
 				}
 				if ((track.getNumber() == 3 && midiPlayVoice3Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, true, voice3VolumeFactor, false);
+					noteTrackChannel = channels[VOICE_3_CHANNEL];
+					if (voiceChannel3LastNotes == null) {
+						voiceChannel3LastNotes = new HashSet<>();
+					}
+					noteTrackChannelLastNotes = voiceChannel3LastNotes;
+					if (writeTrack && voice3Track == null) {
+						voice3Track = midiSequence.createTrack();
+						midiTrack = voice3Track;
+						createEvent(voice3Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
+					}
+					midiTrack = voice3Track;
+					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
+							midiMessages, voice3VolumeFactor, false);
 				}
 				if ((track.getNumber() >= 4 && track.getNumber() <= maxTracksLower && midiPlayVoice4Switch)) {
-					playSynthNoteTrack(track, toneTimeFrame, midiMessages, false, voice4VolumeFactor, false);
+					noteTrackChannel = channels[VOICE_4_CHANNEL];
+					if (voiceChannel4LastNotes == null) {
+						voiceChannel4LastNotes = new HashSet<>();
+					}
+					noteTrackChannelLastNotes = voiceChannel4LastNotes;
+					if (writeTrack && voice4Track == null) {
+						voice4Track = midiSequence.createTrack();
+						midiTrack = voice4Track;
+						createEvent(voice4Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
+					}
+					midiTrack = voice4Track;
+					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
+							midiMessages, voice4VolumeFactor, false);
 				}
 			}
 
@@ -1083,9 +1138,20 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 
 			if (midiPlayBaseSwitch) {
-				NoteTrack baseTrack = toneMap.getNoteTracker().getBaseTrack();
-				if (baseTrack != null) {
-					playSynthNoteTrack(baseTrack, toneTimeFrame, midiMessages, true, baseVolumeFactor, true);
+				NoteTrack track = toneMap.getNoteTracker().getBaseTrack();
+				if (track != null) {
+					noteTrackChannel = channels[BASE_1_CHANNEL];
+					if (baseChannelLastNotes == null) {
+						baseChannelLastNotes = new HashSet<>();
+					}
+					noteTrackChannelLastNotes = baseChannelLastNotes;
+					if (writeTrack && baseTrack == null) {
+						baseTrack = midiSequence.createTrack();
+						createEvent(baseTrack, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
+					}
+					midiTrack = baseTrack;
+					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
+							midiMessages, voice1VolumeFactor, true);
 				}
 			}
 
@@ -1166,12 +1232,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 						&& (ble.getStartTime() <= chord.getStartTime() || toneTimeFrame
 								.getStartTime() >= (chord.getStartTime() + ble.getTimeRange() * synthChordBeat))) {
 					hasNewChord = true;
-					LOG.severe(">>MIDI CHORD NEW 2: " + toneTimeFrame.getStartTime() + ", " + beatAmp + ", "
-							+ ble.getStartTime() + ", " + chord.getStartTime() + ", "
-							+ (ble.getTimeRange() * synthChordBeat));
-				}
-				if (chord != null) {
-					LOG.severe(">>MIDI CHORD NOT NULL: " + toneTimeFrame.getStartTime() + ", " + chord);
 				}
 
 				List<Integer> volumes = new ArrayList<>();
@@ -1212,7 +1272,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 					HashSet<Integer> newNotes = new HashSet<Integer>(notes);
 					if (!newNotes.equals(chordsChannel1LastNotes)) {
-						LOG.severe(">>MIDI CHORD NEW 1: " + toneTimeFrame.getStartTime());
 						hasNewChord = true;
 					}
 				}
@@ -1235,8 +1294,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 
 				if (hasNewChord) {
-					LOG.severe(">>MIDI CHORD NOTE_ON: " + toneTimeFrame.getStartTime() + ", " + chord.getStartTime()
-							+ ", " + chord.getEndTime() + ", " + chord.getChordNotes());
 					for (int i = 0; i < notes.size(); i++) {
 						int note = notes.get(i);
 						int volume = volumes.get(i);
@@ -1261,116 +1318,134 @@ public class MidiSynthesizer implements ToneMapConstants {
 				ChannelData chord2Channel = channels[CHORD_2_CHANNEL];
 				if (writeTrack && chord2Track == null) {
 					chord2Track = midiSequence.createTrack();
-					createEvent(chord1Track, chord2Channel, PROGRAM, chord2Channel.program + 1, 1L, 127);
+					createEvent(chord2Track, chord2Channel, PROGRAM, chord2Channel.program + 1, 1L, 127);
 				}
 
 				if (chordsChannel2LastNotes == null) {
 					chordsChannel2LastNotes = new HashSet<>();
 				}
 
-				ChordListElement chord = new ChordListElement(toneTimeFrame.getStartTime(), toneTimeFrame.getEndTime());
+				if (synthChordPattern <= 2) {
+					NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getArpeggioTrack();
+					LOG.severe(">>MIDI CHORD2 arp track: " + track);
+					if (track != null) {
+						playSynthNoteTrack(track, chord2Channel, chordsChannel2LastNotes, chord2Track, toneTimeFrame,
+								midiMessages, chord2VolumeFactor, false);
+					}
+				} else {
 
-				ChordListElement chordPre = null;
-				Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
-				if (ocp.isPresent()) {
-					chordPre = ocp.get();
-					chord.merge(chordPre);
-				}
-				ChordListElement chordHm = null;
-				Optional<ChordListElement> ochm = toneTimeFrame.getChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC");
-				if (ochm.isPresent()) {
-					chordHm = ochm.get();
-					chord.merge(chordHm);
-				}
-				ChordListElement chordOs = null;
-				Optional<ChordListElement> ocos = toneTimeFrame
-						.getChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED");
-				if (ocos.isPresent()) {
-					chordOs = ocos.get();
-					chord.merge(chordOs);
-				}
+					ChordListElement chord = new ChordListElement(toneTimeFrame.getStartTime(),
+							toneTimeFrame.getEndTime());
 
-				boolean hasNewChord = false;
-				if (chord != null && !chord.getChordNotes().isEmpty() && beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR) {
-					hasNewChord = true;
-				}
-				toneTimeFrame.sharpenChord(chord);
-
-				List<Integer> volumes = new ArrayList<>();
-				List<Integer> notes = new ArrayList<>();
-
-				if (chord != null) {
-					int octaveAdjust = synthChord2Octave;
-					ChordNote[] chordNotes = chord.getChordNotes().toArray(new ChordNote[chord.getChordNotes().size()]);
-					Arrays.sort(chordNotes, new Comparator<ChordNote>() {
-						public int compare(ChordNote c1, ChordNote c2) {
-							return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
-						}
-					});
-
-					int rootNote = -1;
-					for (ChordNote chordNote : chordNotes) {
-						int volume = 0;
-						int note = 0;
-						double amplitude = 0;
-						amplitude = chordNote.getAmplitude();
-
-						note = chordNote.getPitchClass();
-						if (rootNote < 0) {
-							rootNote = note;
-						}
-						if (note < rootNote) {
-							note += 12;
-						}
-						note += octaveAdjust * 12;
-
-						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-								amplitude, chord2VolumeFactor);
-						if (volume > 0) {
-							volumes.add(volume);
-							notes.add(note);
-						}
+					ChordListElement chordPre = null;
+					Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
+					if (ocp.isPresent()) {
+						chordPre = ocp.get();
+						chord.merge(chordPre);
+					}
+					ChordListElement chordHm = null;
+					Optional<ChordListElement> ochm = toneTimeFrame
+							.getChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC");
+					if (ochm.isPresent()) {
+						chordHm = ochm.get();
+						chord.merge(chordHm);
+					}
+					ChordListElement chordOs = null;
+					Optional<ChordListElement> ocos = toneTimeFrame
+							.getChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED");
+					if (ocos.isPresent()) {
+						chordOs = ocos.get();
+						chord.merge(chordOs);
 					}
 
-					HashSet<Integer> newNotes = new HashSet<Integer>(notes);
-					if (!newNotes.equals(chordsChannel2LastNotes)) {
+					boolean hasNewChord = false;
+					if (chord != null && !chord.getChordNotes().isEmpty() && beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR
+							&& (chordChannelLastNoteTime == 0 || ble.getStartTime() <= chordChannelLastNoteTime
+									|| toneTimeFrame.getStartTime() >= (chordChannelLastNoteTime
+											+ ble.getTimeRange() * synthChordBeat))) {
 						hasNewChord = true;
 					}
-				}
 
-				if ((chord == null && !chordsChannel2LastNotes.isEmpty()) || hasNewChord) {
-					for (int note : chordsChannel2LastNotes) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, chord2Channel.num, note, 0);
-							if (writeTrack) {
-								createEvent(chord2Track, chord2Channel, NOTEOFF, note, tick, 0);
+					toneTimeFrame.sharpenChord(chord);
+
+					List<Integer> volumes = new ArrayList<>();
+					List<Integer> notes = new ArrayList<>();
+
+					if (chord != null) {
+						int octaveAdjust = synthChord2Octave;
+						ChordNote[] chordNotes = chord.getChordNotes()
+								.toArray(new ChordNote[chord.getChordNotes().size()]);
+						Arrays.sort(chordNotes, new Comparator<ChordNote>() {
+							public int compare(ChordNote c1, ChordNote c2) {
+								return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
 							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						});
+
+						int rootNote = -1;
+						for (ChordNote chordNote : chordNotes) {
+							int volume = 0;
+							int note = 0;
+							double amplitude = 0;
+							amplitude = chordNote.getAmplitude();
+
+							note = chordNote.getPitchClass();
+							if (rootNote < 0) {
+								rootNote = note;
+							}
+							if (note < rootNote) {
+								note += 12;
+							}
+							note += octaveAdjust * 12;
+
+							volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false,
+									false, amplitude, chord2VolumeFactor);
+							if (volume > 0) {
+								volumes.add(volume);
+								notes.add(note);
+							}
 						}
-						midiMessages.add(midiMessage);
+
+						HashSet<Integer> newNotes = new HashSet<Integer>(notes);
+						if (!newNotes.equals(chordsChannel2LastNotes)) {
+							hasNewChord = true;
+						}
 					}
-					chordsChannel2LastNotes.clear();
-				}
 
-				if (hasNewChord) {
-					for (int i = 0; i < notes.size(); i++) {
-						int note = notes.get(i);
-						int volume = volumes.get(i);
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, chord2Channel.num, note, volume);
-							if (writeTrack) {
-								createEvent(chord2Track, chord2Channel, NOTEON, note, tick, volume);
+					if ((chord == null && !chordsChannel2LastNotes.isEmpty()) || hasNewChord) {
+						for (int note : chordsChannel2LastNotes) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_OFF, chord2Channel.num, note, 0);
+								if (writeTrack) {
+									createEvent(chord2Track, chord2Channel, NOTEOFF, note, tick, 0);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							midiMessages.add(midiMessage);
 						}
-						midiMessages.add(midiMessage);
-						chordsChannel2LastNotes.add(note);
+						chordsChannel2LastNotes.clear();
+					}
+
+					if (hasNewChord) {
+						for (int i = 0; i < notes.size(); i++) {
+							int note = notes.get(i);
+							int volume = volumes.get(i);
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.NOTE_ON, chord2Channel.num, note, volume);
+								if (writeTrack) {
+									createEvent(chord2Track, chord2Channel, NOTEON, note, tick, volume);
+								}
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+							chordsChannel2LastNotes.add(note);
+							chordChannelLastNoteTime = toneTimeFrame.getStartTime();
+						}
 					}
 				}
 			}
@@ -1678,6 +1753,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_1);
 			int pad2VolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_2);
+			int synthPadBeat = parameterManager
+					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_BEAT);
 			int synthPad1Octave = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE);
 			int synthPad2Octave = parameterManager
@@ -1687,6 +1764,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			ShortMessage midiMessage = null;
 
+			double beatAmp = 0;
+			BeatListElement ble = null;
+			Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name());
+			if (ob.isPresent()) {
+				ble = ob.get();
+				beatAmp = ble.getAmplitude();
+			}
+
 			if (midiPlayPad1Switch) {
 				ChannelData pad1Channel = channels[PAD_1_CHANNEL];
 				if (writeTrack && pad1Track == null) {
@@ -1695,6 +1780,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 				if (padsChannel1LastNotes == null) {
 					padsChannel1LastNotes = new HashSet<>();
+					padsChannel1LastNoteTimes = new HashMap<>();
 				}
 
 				ChordListElement chord = null;
@@ -1756,25 +1842,34 @@ public class MidiSynthesizer implements ToneMapConstants {
 					}
 					midiMessages.add(midiMessage);
 					padsChannel1LastNotes.remove(note);
+					padsChannel1LastNoteTimes.remove(note);
 				}
 
 				for (int i = 0; i < notes.size(); i++) {
 					int note = notes.get(i);
 					int volume = volumes.get(i);
-					// if (!padsChannel1LastNotes.contains(note)) {
-					midiMessage = new ShortMessage();
-					try {
-						midiMessage.setMessage(ShortMessage.NOTE_ON, pad1Channel.num, note, volume);
-						if (writeTrack) {
-							createEvent(pad1Track, pad1Channel, NOTEON, note, tick, volume);
-						}
-					} catch (InvalidMidiDataException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					double lastNoteTime = 0;
+					if (padsChannel1LastNoteTimes.containsKey(note)) {
+						lastNoteTime = padsChannel1LastNoteTimes.get(note);
 					}
-					midiMessages.add(midiMessage);
-					padsChannel1LastNotes.add(note);
-					// }
+
+					if (beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR && (lastNoteTime == 0
+							|| ble.getStartTime() <= lastNoteTime
+							|| toneTimeFrame.getStartTime() >= (lastNoteTime + ble.getTimeRange() * synthPadBeat))) {
+						midiMessage = new ShortMessage();
+						try {
+							midiMessage.setMessage(ShortMessage.NOTE_ON, pad1Channel.num, note, volume);
+							if (writeTrack) {
+								createEvent(pad1Track, pad1Channel, NOTEON, note, tick, volume);
+							}
+						} catch (InvalidMidiDataException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						midiMessages.add(midiMessage);
+						padsChannel1LastNotes.add(note);
+						padsChannel1LastNoteTimes.put(note, toneTimeFrame.getStartTime());
+					}
 				}
 			}
 
@@ -1788,6 +1883,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 				if (padsChannel2LastNotes == null) {
 					padsChannel2LastNotes = new HashSet<>();
+					padsChannel2LastNoteTimes = new HashMap<>();
 				}
 
 				ChordListElement chord = null;
@@ -1849,25 +1945,30 @@ public class MidiSynthesizer implements ToneMapConstants {
 					}
 					midiMessages.add(midiMessage);
 					padsChannel2LastNotes.remove(note);
+					padsChannel2LastNoteTimes.remove(note);
 				}
 
 				for (int i = 0; i < notes.size(); i++) {
 					int note = notes.get(i);
 					int volume = volumes.get(i);
-					// if (!padsChannel2LastNotes.contains(note)) {
-					midiMessage = new ShortMessage();
-					try {
-						midiMessage.setMessage(ShortMessage.NOTE_ON, pad2Channel.num, note, volume);
-						if (writeTrack) {
-							createEvent(pad2Track, pad2Channel, NOTEON, note, tick, volume);
+					double lastNoteTime = 0;
+					if (beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR && (lastNoteTime == 0
+							|| ble.getStartTime() <= lastNoteTime
+							|| toneTimeFrame.getStartTime() >= (lastNoteTime + ble.getTimeRange() * synthPadBeat))) {
+						midiMessage = new ShortMessage();
+						try {
+							midiMessage.setMessage(ShortMessage.NOTE_ON, pad2Channel.num, note, volume);
+							if (writeTrack) {
+								createEvent(pad2Track, pad2Channel, NOTEON, note, tick, volume);
+							}
+						} catch (InvalidMidiDataException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-					} catch (InvalidMidiDataException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						midiMessages.add(midiMessage);
+						padsChannel2LastNotes.add(note);
+						padsChannel2LastNoteTimes.put(note, toneTimeFrame.getStartTime());
 					}
-					midiMessages.add(midiMessage);
-					padsChannel2LastNotes.add(note);
-					// }
 				}
 			}
 
@@ -1875,9 +1976,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		}
 
-		private void playSynthNoteTrack(NoteTrack track, ToneTimeFrame toneTimeFrame, List<ShortMessage> midiMessages,
-				boolean playGlissando, int volumeFactor, boolean isBase) {
-			LOG.finer(">>MIDI CHANNEL playTrack: " + track);
+		private void playSynthNoteTrack(NoteTrack track, ChannelData noteTrackChannel,
+				Set<Integer> noteTrackChannelLastNotes, Track midiTrack, ToneTimeFrame toneTimeFrame,
+				List<ShortMessage> midiMessages, int volumeFactor, boolean followAmp) {
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 			double highVoiceThreshold = parameterManager
@@ -1891,82 +1992,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 			int glissandoRange = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE);
+			boolean playGlissando = true;
 
 			double playTime = toneTimeFrame.getStartTime() * 1000;
 			long tick = getTrackTick(toneTimeFrame);
 
 			PitchSet pitchSet = toneTimeFrame.getPitchSet();
-			ChannelData noteTrackChannel = null;
-			Set<Integer> noteTrackChannelLastNotes = null;
-			Track midiTrack = null;
 			ShortMessage midiMessage = null;
 			int note = 0;
 			int volume = 0;
 
-			if (isBase) {
-				noteTrackChannel = channels[BASE_1_CHANNEL];
-				if (baseChannelLastNotes == null) {
-					baseChannelLastNotes = new HashSet<>();
-				}
-				noteTrackChannelLastNotes = baseChannelLastNotes;
-				if (writeTrack && baseTrack == null) {
-					baseTrack = midiSequence.createTrack();
-					createEvent(baseTrack, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
-				}
-				midiTrack = baseTrack;
-			} else if (track.getNumber() > 0 && (track.getNumber() - 1) % 4 == 0) {
-				noteTrackChannel = channels[VOICE_1_CHANNEL];
-				if (voiceChannel1LastNotes == null) {
-					voiceChannel1LastNotes = new HashSet<>();
-				}
-				noteTrackChannelLastNotes = voiceChannel1LastNotes;
-				if (writeTrack && voice1Track == null) {
-					voice1Track = midiSequence.createTrack();
-					createEvent(voice1Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
-				}
-				midiTrack = voice1Track;
-			} else if (track.getNumber() > 1 && (track.getNumber() - 2) % 4 == 0) {
-				noteTrackChannel = channels[VOICE_2_CHANNEL];
-				if (voiceChannel2LastNotes == null) {
-					voiceChannel2LastNotes = new HashSet<>();
-				}
-				noteTrackChannelLastNotes = voiceChannel2LastNotes;
-				if (writeTrack && voice2Track == null) {
-					voice2Track = midiSequence.createTrack();
-					midiTrack = voice2Track;
-					createEvent(voice2Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
-				}
-				midiTrack = voice2Track;
-			} else if (track.getNumber() > 2 && (track.getNumber() - 3) % 4 == 0) {
-				noteTrackChannel = channels[VOICE_3_CHANNEL];
-				if (voiceChannel3LastNotes == null) {
-					voiceChannel3LastNotes = new HashSet<>();
-				}
-				noteTrackChannelLastNotes = voiceChannel3LastNotes;
-				if (writeTrack && voice3Track == null) {
-					voice3Track = midiSequence.createTrack();
-					midiTrack = voice3Track;
-					createEvent(voice3Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
-				}
-				midiTrack = voice3Track;
-			} else if (track.getNumber() > 3 && (track.getNumber() - 4) % 4 == 0) {
-				noteTrackChannel = channels[VOICE_4_CHANNEL];
-				if (voiceChannel4LastNotes == null) {
-					voiceChannel4LastNotes = new HashSet<>();
-				}
-				noteTrackChannelLastNotes = voiceChannel4LastNotes;
-				if (writeTrack && voice4Track == null) {
-					voice4Track = midiSequence.createTrack();
-					midiTrack = voice4Track;
-					createEvent(voice4Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
-				}
-				midiTrack = voice4Track;
-			}
-
 			NoteListElement[] nles = track.getNotes(playTime);
-			if (isBase) {
-				LOG.severe(">>MIDI BASE: " + playTime + ", " + nles.length);
-			}
 			Set<NoteListElement> snles = new HashSet<>();
 			Set<NoteListElement> enles = new HashSet<>();
 			for (NoteListElement nle : nles) {
@@ -2047,13 +2083,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (NoteListElement snle : snles) {
 				if (snle != null) {
 					note = snle.note;
-					if (isBase) {
-						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
-								false, snle.maxAmp, volumeFactor);
-						LOG.severe(">>MIDI BASE: " + playTime + ", " + note + ", " + snle.maxAmp + ", " + volume);
-					} else {
+					if (followAmp) {
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 								false, toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
+					} else {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								false, snle.maxAmp, volumeFactor);
 					}
 
 					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
@@ -2121,12 +2156,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 				int increment = (int) ((playTime - pnle.startTime));
 				// if (increment >= 300 && increment % 300 < 100) {
 				if (noteTrackChannelLastNotes.contains(note)) {
-					if (isBase) {
-						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
-								false, pnle.maxAmp, volumeFactor);
-					} else {
+					if (followAmp) {
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 								false, toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
+					} else {
+						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
+								false, pnle.maxAmp, volumeFactor);
 					}
 					midiMessage = new ShortMessage();
 					try {

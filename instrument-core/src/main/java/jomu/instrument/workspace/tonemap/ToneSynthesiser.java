@@ -62,54 +62,86 @@ public class ToneSynthesiser implements ToneMapConstants {
 		chords.put(cle.getStartTime(), cle);
 	}
 
-	public void synthesise(ToneTimeFrame targetFrame, CalibrationMap calibrationMap) {
-		ChordListElement chord = targetFrame.getChord();
+	public void synthesise(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
+		LOG.severe(">>SYNTH: " + toneTimeFrame.getStartTime());
+		ChordListElement chord = toneTimeFrame.getChord();
 		if (synthChordFirstSwitch) {
 			if (chord != null) {
+				LOG.severe(">>SYNTH chord: " + chord.getStartTime());
 				addChord(chord);
 			}
 			if (synthFillChords) {
-				chord = fillChord(targetFrame, chord);
+				chord = fillChord(toneTimeFrame, chord);
 			}
-			if (targetFrame.getChord() == null) {
-				targetFrame.setChord(chord);
+			if (toneTimeFrame.getChord() == null) {
+				toneTimeFrame.setChord(chord);
 			}
 			if (chord != null) {
 				quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 			}
 		}
 		Set<NoteListElement> discardedNotes = new HashSet<>();
-		Set<NoteListElement> nles = addNotes(targetFrame);
+		Set<NoteListElement> nles = addNotes(toneTimeFrame);
 		if (nles.size() > 0) {
 			quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 			trackNotes(nles, discardedNotes, synthFillLegatoSwitch);
 			if (synthFillNotes) {
 				fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 			}
-			discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(targetFrame.getStartTime() * 1000));
+			discardedNotes.addAll(toneMap.getNoteTracker().cleanTracks(toneTimeFrame.getStartTime() * 1000));
 			discardNotes(discardedNotes);
 			if (!synthChordFirstSwitch) {
 				if (chord != null) {
 					addChord(chord);
 				}
 				if (synthFillChords) {
-					chord = fillChord(targetFrame, chord);
+					chord = fillChord(toneTimeFrame, chord);
 				}
-				if (targetFrame.getChord() == null) {
-					targetFrame.setChord(chord);
+				if (toneTimeFrame.getChord() == null) {
+					toneTimeFrame.setChord(chord);
 				}
 				if (chord != null) {
 					quantizeChord(chord, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 				}
 			}
 		}
-		Optional<BeatListElement> beat = targetFrame.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
+		Optional<BeatListElement> beat = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
 		if (beat.isPresent() && chord != null) {
-			NoteListElement nle = toneMap.getNoteTracker().trackBase(beat.get(), chord, targetFrame.getPitchSet());
+			NoteListElement nle = toneMap.getNoteTracker().trackBase(beat.get(), chord, toneTimeFrame.getPitchSet());
 			if (nle != null && synthFillLegatoSwitch) {
 				addLegato(toneMap.getNoteTracker().getBaseTrack(), nle);
 			}
+			ChordListElement ac = aggregateChords(toneTimeFrame, calibrationMap);
+			nle = toneMap.getNoteTracker().trackArpeggio(beat.get(), ac, toneTimeFrame.getPitchSet());
+			if (nle != null && synthFillLegatoSwitch) {
+				addLegato(toneMap.getNoteTracker().getArpeggioTrack(), nle);
+			}
 		}
+	}
+
+	private ChordListElement aggregateChords(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
+		ChordListElement chord = new ChordListElement(toneTimeFrame.getStartTime(), toneTimeFrame.getEndTime());
+
+		ChordListElement chordPre = null;
+		Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
+		if (ocp.isPresent()) {
+			chordPre = ocp.get();
+			chord.merge(chordPre);
+		}
+		ChordListElement chordHm = null;
+		Optional<ChordListElement> ochm = toneTimeFrame.getChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC");
+		if (ochm.isPresent()) {
+			chordHm = ochm.get();
+			chord.merge(chordHm);
+		}
+		ChordListElement chordOs = null;
+		Optional<ChordListElement> ocos = toneTimeFrame.getChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED");
+		if (ocos.isPresent()) {
+			chordOs = ocos.get();
+			chord.merge(chordOs);
+		}
+		toneTimeFrame.sharpenChord(chord);
+		return chord;
 	}
 
 	private void discardNotes(Set<NoteListElement> discardedNotes) {
@@ -461,6 +493,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 			double timeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
 			if (timeDiff > MIN_TIME_INCREMENT) {
 				targetTime = time - timeDiff;
+				LOG.severe(">>QC before: " + time + ", " + targetTime + ", " + timeDiff);
 				quantizeChord(chord, targetTime);
 			}
 		} else if (beatAfterTime > 0) {
@@ -477,12 +510,12 @@ public class ToneSynthesiser implements ToneMapConstants {
 	private void quantizeChord(ChordListElement cle, double targetTime) {
 		double frameTime = cle.getStartTime();
 		removeChord(cle);
-		cle.setStartTime(targetTime);
-		addChord(cle);
+		LOG.severe(">>QC: " + frameTime + ", " + targetTime + ", " + cle + ", " + toneMap);
 		ToneTimeFrame frame = toneMap.getTimeFrame(frameTime);
 		double time = frame.getStartTime();
 		if (time < targetTime) {
 			while (time <= targetTime && frame != null) {
+				frameTime = frame.getStartTime();
 				frame.setChord(cle);
 				frame = toneMap.getNextTimeFrame(time);
 				if (frame != null) {
@@ -491,6 +524,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 			}
 		} else {
 			while (time >= targetTime && frame != null) {
+				frameTime = frame.getStartTime();
 				frame.setChord(cle);
 				frame = toneMap.getPreviousTimeFrame(time);
 				if (frame != null) {
@@ -498,6 +532,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 				}
 			}
 		}
+		cle.setStartTime(frameTime);
+		addChord(cle);
 	}
 
 	private ChordListElement fillChord(ToneTimeFrame targetFrame, ChordListElement chord) {
@@ -545,7 +581,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 			if (!previousChord.isEmpty() && chord.getChordNotes().equals(previousChord.get().getChordNotes())) {
 				chord.setStartTime(previousChord.get().getStartTime());
 			}
-			LOG.severe(">>TS set chord: " + targetFrame.getStartTime() + ", " + chord);
+			LOG.severe(">>TS set chord: " + targetFrame.getStartTime() + ", " + chord.getStartTime());
 			targetFrame.setChord(chord);
 			return chord;
 		} else {

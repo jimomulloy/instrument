@@ -103,8 +103,7 @@ public class Instrument implements Organ, InstrumentFactory {
 
 	@Override
 	public void processException(InstrumentException exception) throws InstrumentException {
-		// TODO Auto-generated method stub
-
+		LOG.log(Level.SEVERE, ">>INSTRUMENT Exception: " + exception.getMessage(), exception);
 	}
 
 }

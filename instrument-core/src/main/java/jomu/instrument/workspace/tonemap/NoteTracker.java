@@ -48,6 +48,14 @@ public class NoteTracker {
 
 	private int incrementTime;
 
+	private int synthChordBeat;
+
+	private int synthChordPattern;
+
+	private int synthChordOctave;
+
+	private int chordTimeSignature;
+
 	public class NoteTrack {
 
 		int number;
@@ -269,6 +277,17 @@ public class NoteTracker {
 		}
 		synthBaseOctave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE);
+		synthChordBeat = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_BEAT);
+		synthChordPattern = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_PATTERN);
+		if (synthChordPattern == 1 || synthChordPattern != 2) {
+			chordTimeSignature = 4;
+		} else {
+			chordTimeSignature = 3;
+		}
+		synthChordOctave = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE);
 		incrementTime = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 	}
@@ -407,20 +426,20 @@ public class NoteTracker {
 			NoteListElement lastNote = baseTrack.getLastNote();
 			if (lastNote == null || beatListElement.getStartTime() * 1000 >= lastNote.endTime) {
 				LOG.severe(">>trackBase add:");
-				return addBaseNote(beatListElement, chordListElement, pitchSet);
+				return addBaseNote(baseTrack, beatListElement, chordListElement, pitchSet);
 			}
 		}
 		return null;
 	}
 
-	private NoteListElement addBaseNote(BeatListElement beatListElement, ChordListElement chordListElement,
-			PitchSet pitchSet) {
+	private NoteListElement addBaseNote(NoteTrack track, BeatListElement beatListElement,
+			ChordListElement chordListElement, PitchSet pitchSet) {
 		if (beatListElement == null || chordListElement == null || beatListElement.getTimeRange() <= 0) {
 			return null;
 		}
-		boolean isBar = baseTrack.getSize() % baseTimeSignature == 0;
-		int barNote = baseTrack.getSize() % baseTimeSignature + 1;
-		int barCount = baseTrack.getSize() / baseTimeSignature;
+		boolean isBar = track.getSize() % baseTimeSignature == 0;
+		int barNote = track.getSize() % baseTimeSignature + 1;
+		int barCount = track.getSize() / baseTimeSignature;
 
 		int note = 0;
 		double startTime = beatListElement.getStartTime() * 1000;
@@ -480,15 +499,90 @@ public class NoteTracker {
 
 		NoteListElement baseNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 				amplitude, amplitude, amplitude, 0, false, incrementTime);
-		baseTrack.addNote(baseNote);
+		track.addNote(baseNote);
 		return baseNote;
 	}
 
-	public void trackArpeggio(BeatListElement beatListElement, ChordListElement chordListElement) {
+	public NoteListElement trackArpeggio(BeatListElement beatListElement, ChordListElement chordListElement,
+			PitchSet pitchSet) {
 		if (arpeggioTrack == null) {
 			arpeggioTrack = new NoteTrack(1);
 		}
+		if (beatListElement.getAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
+			NoteListElement lastNote = arpeggioTrack.getLastNote();
+			if (lastNote == null || beatListElement.getStartTime() * 1000 >= lastNote.endTime) {
+				LOG.severe(">>trackBase add:");
+				return addArpeggioNote(arpeggioTrack, beatListElement, chordListElement, pitchSet);
+			}
+		}
+		return null;
+	}
 
+	private NoteListElement addArpeggioNote(NoteTrack track, BeatListElement beatListElement,
+			ChordListElement chordListElement, PitchSet pitchSet) {
+		if (beatListElement == null || chordListElement == null || beatListElement.getTimeRange() <= 0) {
+			return null;
+		}
+		boolean isBar = track.getSize() % chordTimeSignature == 0;
+		int barNote = track.getSize() % chordTimeSignature + 1;
+		int barCount = track.getSize() / chordTimeSignature;
+
+		int note = 0;
+		double startTime = beatListElement.getStartTime() * 1000;
+		double endTime = startTime;
+		endTime += beatListElement.getTimeRange() * 1000 * synthChordBeat;
+		double amplitude = 1.0;
+
+		List<Double> camps = new ArrayList<>();
+		List<Integer> cnotes = new ArrayList<>();
+
+		ChordNote[] chordNotes = chordListElement.getChordNotes()
+				.toArray(new ChordNote[chordListElement.getChordNotes().size()]);
+		Arrays.sort(chordNotes, new Comparator<ChordNote>() {
+			public int compare(ChordNote c1, ChordNote c2) {
+				return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
+			}
+		});
+		int rootNote = -1;
+		double rootAmp = -1;
+		for (ChordNote chordNote : chordNotes) {
+			note = 0;
+			amplitude = chordNote.getAmplitude();
+
+			note = chordNote.getPitchClass();
+			if (rootNote < 0) {
+				rootNote = note;
+				rootAmp = amplitude;
+			}
+			if (note < rootNote) {
+				note += 12;
+			}
+			note += synthChordOctave * 12;
+			camps.add(amplitude);
+			cnotes.add(note);
+		}
+		rootNote += synthChordOctave * 12;
+		if (isBar) {
+			note = rootNote;
+			amplitude = rootAmp;
+		} else {
+			if (synthChordPattern == 1 || synthChordPattern == 2) {
+				int noteIndex = 0;
+				if (cnotes.size() > barNote) {
+					noteIndex = barNote;
+				} else {
+					int r = (int) (Math.random() * (cnotes.size()));
+					noteIndex = r;
+				}
+				note = cnotes.get(noteIndex);
+				amplitude = camps.get(noteIndex);
+			}
+		}
+
+		NoteListElement arpeggioNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
+				amplitude, amplitude, amplitude, 0, false, incrementTime);
+		track.addNote(arpeggioNote);
+		return arpeggioNote;
 	}
 
 	private NoteTrack getPendingOverlappingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
@@ -805,6 +899,10 @@ public class NoteTracker {
 
 	public NoteTrack getBaseTrack() {
 		return baseTrack;
+	}
+
+	public NoteTrack getArpeggioTrack() {
+		return arpeggioTrack;
 	}
 
 }

@@ -429,10 +429,14 @@ public class ParametersPanel extends JPanel {
 					SortedStoreProperties ssp = new SortedStoreProperties();
 					if (parameterManager
 							.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_EXPORT_DELTA_SWITCH)) {
-						try (InputStream is = getClass().getClassLoader()
-								.getResourceAsStream("instrument.properties");) {
+						try (InputStream is = getClass().getClassLoader().getResourceAsStream("instrument.properties");
+								InputStream isc = getClass().getClassLoader()
+										.getResourceAsStream("instrument-client.properties");) {
 							Properties props = new Properties();
 							props.load(is);
+							Properties clientParameters = new Properties();
+							clientParameters.load(isc);
+							props.putAll(clientParameters);
 							ssp.putAll(parameterManager.getDeltaParameters(props));
 						} catch (IOException ex) {
 							LOG.log(Level.SEVERE, "Export Parameters exception", ex);

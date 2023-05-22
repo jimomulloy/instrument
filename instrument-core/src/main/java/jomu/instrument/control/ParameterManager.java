@@ -18,6 +18,7 @@ public class ParameterManager {
 	private static final Logger LOG = Logger.getLogger(ParameterManager.class.getName());
 
 	private static String PARAMETER_CONFIG_FILE_PREFIX = "instrument";
+	private static String PARAMETER_CONFIG_CLIENT_FILE_INFIX = "client";
 	private static String PARAMETER_CONFIG_FILE_POSTFIX = "properties";
 	private static String PARAMETER_CONFIG_VALIDATION_FILE = "parameter-validation.properties";
 
@@ -36,8 +37,12 @@ public class ParameterManager {
 			LOG.severe("ParameterManager resetting..");
 			InputStream is = getClass().getClassLoader()
 					.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
-			LOG.severe(">>ParameterManager is: " + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 			parameters.load(is);
+			is = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "-"
+					+ PARAMETER_CONFIG_CLIENT_FILE_INFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+			Properties clientParameters = new Properties();
+			clientParameters.load(is);
+			parameters.putAll(clientParameters);
 			InputStream isv = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
 			parameterValidator.load(isv);
 			validateAll();
