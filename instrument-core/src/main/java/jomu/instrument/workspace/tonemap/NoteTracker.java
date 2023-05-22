@@ -417,7 +417,6 @@ public class NoteTracker {
 
 	public NoteListElement trackBase(BeatListElement beatListElement, ChordListElement chordListElement,
 			PitchSet pitchSet) {
-		LOG.severe(">>trackBase: " + beatListElement + " ," + chordListElement);
 		if (baseTrack == null) {
 			baseTrack = new NoteTrack(1);
 		}
@@ -425,7 +424,6 @@ public class NoteTracker {
 		if (beatListElement.getAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
 			NoteListElement lastNote = baseTrack.getLastNote();
 			if (lastNote == null || beatListElement.getStartTime() * 1000 >= lastNote.endTime) {
-				LOG.severe(">>trackBase add:");
 				return addBaseNote(baseTrack, beatListElement, chordListElement, pitchSet);
 			}
 		}
@@ -471,7 +469,6 @@ public class NoteTracker {
 			if (note < rootNote) {
 				note += 12;
 			}
-			LOG.severe(">>trackBase chord note : " + note + ", " + rootNote);
 			note += synthBaseOctave * 12;
 			camps.add(amplitude);
 			cnotes.add(note);
@@ -494,9 +491,6 @@ public class NoteTracker {
 			}
 		}
 
-		LOG.severe(">>trackBase adding: " + note + ", " + startTime + ", " + endTime + ", " + rootNote + ", "
-				+ synthBaseBeat + ", " + beatListElement.getTimeRange() * 1000);
-
 		NoteListElement baseNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 				amplitude, amplitude, amplitude, 0, false, incrementTime);
 		track.addNote(baseNote);
@@ -511,7 +505,6 @@ public class NoteTracker {
 		if (beatListElement.getAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
 			NoteListElement lastNote = arpeggioTrack.getLastNote();
 			if (lastNote == null || beatListElement.getStartTime() * 1000 >= lastNote.endTime) {
-				LOG.severe(">>trackBase add:");
 				return addArpeggioNote(arpeggioTrack, beatListElement, chordListElement, pitchSet);
 			}
 		}
@@ -903,6 +896,25 @@ public class NoteTracker {
 
 	public NoteTrack getArpeggioTrack() {
 		return arpeggioTrack;
+	}
+
+	public ChordListElement getChord(double startTime, double endTime) {
+		Set<ChordNote> notes = new HashSet<>();
+		for (NoteTrack track : tracks.values()) {
+			NoteListElement nle = track.getNote(startTime * 1000);
+			if (nle != null) {
+				int pitchClass = (int) nle.note / 12;
+				ChordNote cn = new ChordNote(pitchClass, pitchClass, nle.maxAmp);
+				notes.add(cn);
+			}
+		}
+		if (notes.size() > 0) {
+			ChordListElement cle = new ChordListElement(startTime, endTime, notes.toArray(new ChordNote[notes.size()]));
+			return cle;
+		} else {
+			return null;
+		}
+
 	}
 
 }

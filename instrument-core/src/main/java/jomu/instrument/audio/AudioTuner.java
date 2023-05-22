@@ -1683,8 +1683,6 @@ public class AudioTuner implements ToneMapConstants {
 			}
 		});
 
-		LOG.severe(">>attenuateHarmonics for root note: " + harmonicTonesList.size() + ", " + processedNote.note);
-
 		double[] rootElementAccumulatedWeights = new double[timeFrames.length];
 
 		for (NoteListElement nle : harmonicTonesList) {

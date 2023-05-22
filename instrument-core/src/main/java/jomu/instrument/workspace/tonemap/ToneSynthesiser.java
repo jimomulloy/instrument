@@ -104,42 +104,52 @@ public class ToneSynthesiser implements ToneMapConstants {
 			}
 		}
 		Optional<BeatListElement> beat = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
-		if (beat.isPresent() && chord != null) {
-			NoteListElement nle = toneMap.getNoteTracker().trackBase(beat.get(), chord, toneTimeFrame.getPitchSet());
-			if (nle != null && synthFillLegatoSwitch) {
-				addLegato(toneMap.getNoteTracker().getBaseTrack(), nle);
-			}
-			ChordListElement ac = aggregateChords(toneTimeFrame, calibrationMap);
-			nle = toneMap.getNoteTracker().trackArpeggio(beat.get(), ac, toneTimeFrame.getPitchSet());
-			if (nle != null && synthFillLegatoSwitch) {
-				addLegato(toneMap.getNoteTracker().getArpeggioTrack(), nle);
+		if (beat.isPresent()) {
+			ChordListElement ac = aggregateChords(toneTimeFrame, chord);
+			if (ac != null) {
+				NoteListElement nle = toneMap.getNoteTracker().trackBase(beat.get(), ac, toneTimeFrame.getPitchSet());
+				if (nle != null && synthFillLegatoSwitch) {
+					addLegato(toneMap.getNoteTracker().getBaseTrack(), nle);
+				}
+				nle = toneMap.getNoteTracker().trackArpeggio(beat.get(), ac, toneTimeFrame.getPitchSet());
+				if (nle != null && synthFillLegatoSwitch) {
+					addLegato(toneMap.getNoteTracker().getArpeggioTrack(), nle);
+				}
 			}
 		}
 	}
 
-	private ChordListElement aggregateChords(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
-		ChordListElement chord = new ChordListElement(toneTimeFrame.getStartTime(), toneTimeFrame.getEndTime());
+	private ChordListElement aggregateChords(ToneTimeFrame toneTimeFrame, ChordListElement chord) {
+		ChordListElement ac = null;
+		if (chord == null) {
+			ac = toneMap.getNoteTracker().getChord(toneTimeFrame.getStartTime(), toneTimeFrame.getEndTime());
+			if (ac == null) {
+				return null;
+			}
+		} else {
+			ac = chord.clone();
+		}
 
 		ChordListElement chordPre = null;
 		Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
 		if (ocp.isPresent()) {
 			chordPre = ocp.get();
-			chord.merge(chordPre);
+			ac.merge(chordPre);
 		}
 		ChordListElement chordHm = null;
 		Optional<ChordListElement> ochm = toneTimeFrame.getChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC");
 		if (ochm.isPresent()) {
 			chordHm = ochm.get();
-			chord.merge(chordHm);
+			ac.merge(chordHm);
 		}
 		ChordListElement chordOs = null;
 		Optional<ChordListElement> ocos = toneTimeFrame.getChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED");
 		if (ocos.isPresent()) {
 			chordOs = ocos.get();
-			chord.merge(chordOs);
+			ac.merge(chordOs);
 		}
-		toneTimeFrame.sharpenChord(chord);
-		return chord;
+		toneTimeFrame.sharpenChord(ac);
+		return ac;
 	}
 
 	private void discardNotes(Set<NoteListElement> discardedNotes) {
@@ -491,7 +501,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 			double timeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
 			if (timeDiff > MIN_TIME_INCREMENT) {
 				targetTime = time - timeDiff;
-				LOG.severe(">>QC before: " + time + ", " + targetTime + ", " + timeDiff);
 				quantizeChord(chord, targetTime);
 			}
 		} else if (beatAfterTime > 0) {
@@ -579,7 +588,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 			if (!previousChord.isEmpty() && chord.getChordNotes().equals(previousChord.get().getChordNotes())) {
 				chord.setStartTime(previousChord.get().getStartTime());
 			}
-			LOG.severe(">>TS set chord: " + targetFrame.getStartTime() + ", " + chord.getStartTime());
 			targetFrame.setChord(chord);
 			return chord;
 		} else {
