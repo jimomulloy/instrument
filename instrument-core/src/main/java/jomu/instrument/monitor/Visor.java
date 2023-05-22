@@ -34,4 +34,6 @@ public interface Visor extends AudioFeatureFrameObserver {
 
 	void showException(InstrumentException exception);
 
+	void shutdown();
+
 }

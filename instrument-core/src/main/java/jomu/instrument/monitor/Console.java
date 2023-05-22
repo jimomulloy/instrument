@@ -27,7 +27,8 @@ public class Console implements Organ {
 
 	@Override
 	public void stop() {
-		System.exit(0);
+		visor.shutdown();
+		// System.exit(0);
 	}
 
 	@Override

@@ -85,9 +85,25 @@ public class Instrument implements Organ, InstrumentFactory {
 		}
 	}
 
+	public void reset() {
+		try {
+			stop();
+			initialise();
+			start();
+		} catch (Exception ex) {
+			LOG.log(Level.SEVERE, ">>Reset INSTRUMENT exception: " + ex.getMessage(), ex);
+			throw ex;
+		}
+	}
+
 	@Override
 	public void stop() {
 		LOG.finer(">>Stop INSTRUMENT");
+		controller.stop();
+		storage.stop();
+		workspace.stop();
+		console.stop();
+		coordinator.stop();
 	}
 
 	public static Instrument getInstance() {

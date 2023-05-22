@@ -93,4 +93,10 @@ public class CommandVisor implements Visor {
 
 	}
 
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

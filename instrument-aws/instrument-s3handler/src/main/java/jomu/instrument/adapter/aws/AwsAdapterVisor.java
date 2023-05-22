@@ -12,7 +12,7 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(1)
+@jakarta.annotation.Priority(1)
 public class AwsAdapterVisor implements Visor {
 
 	private static final Logger LOG = Logger.getLogger(AwsAdapterVisor.class.getName());
@@ -92,6 +92,12 @@ public class AwsAdapterVisor implements Visor {
 
 	@Override
 	public void showException(InstrumentException exception) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void shutdown() {
 		// TODO Auto-generated method stub
 
 	}
