@@ -63,11 +63,9 @@ public class ToneSynthesiser implements ToneMapConstants {
 	}
 
 	public void synthesise(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
-		LOG.severe(">>SYNTH: " + toneTimeFrame.getStartTime());
 		ChordListElement chord = toneTimeFrame.getChord();
 		if (synthChordFirstSwitch) {
 			if (chord != null) {
-				LOG.severe(">>SYNTH chord: " + chord.getStartTime());
 				addChord(chord);
 			}
 			if (synthFillChords) {
