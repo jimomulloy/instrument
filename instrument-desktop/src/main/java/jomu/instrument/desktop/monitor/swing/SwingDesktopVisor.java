@@ -200,6 +200,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JButton startFileProcessingButton;
 	JButton startListeningButton;
 	JButton stopListeningButton;
+	JButton playAudioButton;
+	JButton playStreamButton;
 	JCheckBox playPeaksSwitchCB;
 	AbstractButton showPeaksSwitchCB;
 	JCheckBox showTrackingSwitchCB;
@@ -225,7 +227,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JTextField audioGainInput;
 	JTextField persistenceModeInput;
 	JTextField voicePlayerRepeatInput;
-	AbstractButton loopSaveSwitchCB;
+	JCheckBox loopSaveSwitchCB;
 
 	@Override
 	public void startUp() {
@@ -1126,6 +1128,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		startFileProcessingButton = new JButton("Start");
 		startListeningButton = new JButton("Listen");
 		stopListeningButton = new JButton("Stop");
+		playAudioButton = new JButton("Play Audio");
+		playStreamButton = new JButton("Play Stream");
 		LOG.severe(">>Audio folder: " + getAudioSourceFileFolder());
 		fileChooser.setSelectedFile(new File(getAudioSourceFileFolder(), getDefaultAudioFile()));
 		chooseFileButton.addActionListener(new ActionListener() {
@@ -1222,7 +1226,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
-					Instrument.getInstance().getCoordinator().getHearing().startAudioLineStream(filePath);
+					coordinator.getHearing().startAudioLineStream(filePath);
 					updateStatusMessage("Started listener: " + fileName);
 
 				} catch (LineUnavailableException | IOException e) {
@@ -1244,19 +1248,52 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				coordinator.getHearing().stopAudioStream();
+				coordinator.getHearing().stopAudioPlayer();
 				coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
+				coordinator.getVoice().stopStreamPlayer();
 				startFileProcessingButton.setEnabled(true);
 				startListeningButton.setEnabled(true);
-				// stopListeningButton.setEnabled(false);
+				playAudioButton.setEnabled(true);
+				playStreamButton.setEnabled(true);
 				chooseFileButton.setEnabled(true);
 				frameNumberInput.setEnabled(true);
 				updateStatusMessage("Stopped");
 			}
 		});
 
+		playAudioButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					boolean started = coordinator.getHearing().startAudioPlayer();
+					if (started) {
+						stopListeningButton.setEnabled(true);
+					}
+				} catch (Exception e) {
+					LOG.log(Level.SEVERE, "Error starting listener", e);
+					coordinator.getHearing().stopAudioStream();
+					updateStatusMessage("Error playing audio :" + e.getMessage());
+				}
+			}
+		});
+
+		playStreamButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (coordinator.getHearing().getStreamId() != null) {
+					boolean started = coordinator.getVoice().startStreamPlayer(coordinator.getHearing().getStreamId());
+					stopListeningButton.setEnabled(true);
+				}
+			}
+		});
+
 		actionPanel.add(startFileProcessingButton);
 		actionPanel.add(startListeningButton);
 		actionPanel.add(stopListeningButton);
+		actionPanel.add(playAudioButton);
+		actionPanel.add(playStreamButton);
 
 		final JButton synthButton = new JButton("Synth Controls");
 

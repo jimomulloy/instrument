@@ -16,11 +16,13 @@ import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.audio.ResynthAudioSynthesizer;
 import jomu.instrument.audio.TarsosAudioSynthesizer;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
+import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 @ApplicationScoped
@@ -224,6 +226,27 @@ public class Voice implements Organ {
 
 	@Override
 	public void processException(InstrumentException exception) throws InstrumentException {
+		// TODO Auto-generated method stub
+
+	}
+
+	public boolean startStreamPlayer(String streamId) {
+		ToneMap synthToneMap = workspace.getAtlas()
+				.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
+		if (synthToneMap == null) {
+			return false;
+		}
+		int sequence = 1;
+		ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
+		while (frame != null) {
+			send(frame, streamId, sequence, false);
+			sequence++;
+			frame = synthToneMap.getTimeFrame(sequence);
+		}
+		return true;
+	}
+
+	public void stopStreamPlayer() {
 		// TODO Auto-generated method stub
 
 	}

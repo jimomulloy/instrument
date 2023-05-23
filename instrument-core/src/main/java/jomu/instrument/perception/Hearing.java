@@ -34,6 +34,8 @@ import be.tarsos.dsp.BitDepthProcessor;
 import be.tarsos.dsp.GainProcessor;
 import be.tarsos.dsp.beatroot.BeatRootOnsetEventHandler;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
+import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
+import be.tarsos.dsp.io.jvm.AudioPlayer;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
@@ -90,6 +92,8 @@ public class Hearing implements Organ {
 
 	BufferedInputStream bs;
 
+	private AudioDispatcher audioPlayerDispatcher;
+
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
@@ -123,6 +127,8 @@ public class Hearing implements Organ {
 
 	@Override
 	public void initialise() {
+		audioStreams = new ConcurrentHashMap<>();
+		bs = null;
 	}
 
 	@Override
@@ -197,7 +203,7 @@ public class Hearing implements Organ {
 		streamId = UUID.randomUUID().toString();
 		LOG.severe(">>HEARING startAudioFileStream new stream: " + getStreamId());
 
-		AudioStream audioStream = new AudioStream(getStreamId());
+		AudioStream audioStream = new AudioStream(getStreamId(), inputFileName);
 		audioStreams.put(getStreamId(), audioStream);
 
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
@@ -378,6 +384,12 @@ public class Hearing implements Organ {
 		private AudioDispatcher dispatcher;
 		private TargetDataLine line;
 		private boolean isFile = true;
+		private String audioFileName;
+
+		public AudioStream(String streamId, String audioFileName) {
+			this(streamId);
+			this.audioFileName = audioFileName;
+		}
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
@@ -394,6 +406,10 @@ public class Hearing implements Organ {
 
 		public float getSampleRate() {
 			return sampleRate;
+		}
+
+		public String getAudioFileName() {
+			return audioFileName;
 		}
 
 		public int getBufferSize() {
@@ -852,6 +868,7 @@ public class Hearing implements Organ {
 				public void processingFinished() {
 
 				}
+
 			});
 
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
@@ -891,7 +908,8 @@ public class Hearing implements Organ {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
+		stopAudioPlayer();
+		stopAudioStream();
 	}
 
 	@Override
@@ -923,6 +941,40 @@ public class Hearing implements Organ {
 
 	public String getStreamId() {
 		return streamId;
+	}
+
+	public boolean startAudioPlayer() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		if (streamId == null) {
+			return false;
+		}
+		AudioStream audioStream = audioStreams.get(streamId);
+		if (audioStream == null || audioStream.getAudioFileName() == null) {
+			return false;
+		}
+		stopAudioPlayer();
+		File file = new File(audioStream.getAudioFileName());
+		AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(file);
+		AudioFormat format = fileFormat.getFormat();
+
+		GainProcessor gainProcessor = new GainProcessor(1.0);
+		AudioPlayer audioPlayer = new AudioPlayer(format);
+
+		audioPlayerDispatcher = AudioDispatcherFactory.fromFile(file, audioStream.getBufferSize(), 0);
+		audioPlayerDispatcher.addAudioProcessor(gainProcessor);
+		audioPlayerDispatcher.addAudioProcessor(audioPlayer);
+
+		Thread t = new Thread(audioPlayerDispatcher, "Audio Player Thread");
+		t.start();
+		return true;
+	}
+
+	public void stopAudioPlayer() {
+		AudioStream audioStream = audioStreams.get(streamId);
+		if (audioStream == null || audioStream.getAudioFileName() == null || audioPlayerDispatcher == null
+				|| !audioPlayerDispatcher.isStopped()) {
+			return;
+		}
+		audioPlayerDispatcher.stop();
 	}
 
 }

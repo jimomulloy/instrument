@@ -53,7 +53,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			LOG.severe(">>AudioSinkProcessor CLOSE - Frame Cache Size: "
 					+ Instrument.getInstance().getWorkspace().getAtlas().getFrameCache().getSize());
 			voice.close(streamId);
-			hearing.removeAudioStream(streamId);
+			// !! ?? hearing.removeAudioStream(streamId);
 		}
 	}
 
