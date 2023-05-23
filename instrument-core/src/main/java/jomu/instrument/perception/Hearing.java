@@ -746,6 +746,7 @@ public class Hearing implements Organ {
 				AudioFormat recordFormat = new AudioFormat(sampleRate, 16, 1, true, true);
 				WaveformWriter writer = new WaveformWriter(recordFormat, recordFile);
 				dispatcher.addAudioProcessor(writer);
+				LOG.severe(">>processMicrophoneStream writer: " + recordFile);
 			}
 
 			int audioHighPass = parameterManager
@@ -835,8 +836,6 @@ public class Hearing implements Organ {
 			}
 
 			int range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
-
-			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
 
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
