@@ -365,6 +365,8 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox exportDeltaSwitchCB;
 
+	private JTextField sinkSweepRangeInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -4061,6 +4063,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(synthesisMinTimeIncrementLabel);
 		cqParamsPanel.add(synthesisMinTimeIncrementInput);
 
+		JLabel sinkSweepRangeLabel = new JLabel("Sink Sweep Range: ");
+		sinkSweepRangeInput = new JTextField(4);
+		sinkSweepRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = sinkSweepRangeInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE, newValue);
+				sinkSweepRangeLabel.setText(String.format("Sink Sweep Range  (%s):", newValue));
+				sinkSweepRangeInput.setText(newValue);
+			}
+		});
+		sinkSweepRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE));
+		cqParamsPanel.add(sinkSweepRangeLabel);
+		cqParamsPanel.add(sinkSweepRangeInput);
+
 		JLabel noteTrackerMaxTracksUpperLabel = new JLabel("Note Tracker Max Tracks Upper Limit: ");
 		noteTrackerMaxTracksUpperInput = new JTextField(4);
 		noteTrackerMaxTracksUpperInput.addActionListener(new ActionListener() {
@@ -4677,6 +4696,8 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE));
 		synthesisSweepRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE));
+		sinkSweepRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE));
 		synthesisBeatTimingInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING));
 		synthesisChordTimingInput.setText(

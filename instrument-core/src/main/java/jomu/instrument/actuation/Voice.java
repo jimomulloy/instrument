@@ -130,6 +130,9 @@ public class Voice implements Organ {
 	}
 
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence, boolean pause) {
+		if (sequence <= 1) {
+			reset();
+		}
 		if (deadStreams.contains(streamId)) {
 			return;
 		}

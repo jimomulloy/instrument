@@ -331,6 +331,7 @@ public class NoteTracker {
 				if (salientTrack != null) {
 					LOG.finer(">>NoteTracker trackNote gotPendingSalientTrack note: " + noteListElement.note);
 					disconnectedNote = salientTrack.getLastNote();
+					LOG.severe(">>NT salient remove: " + salientTrack.getNumber() +", "+ disconnectedNote.startTime);
 					salientTrack.removeNote(disconnectedNote);
 				}
 			}
@@ -870,6 +871,7 @@ public class NoteTracker {
 						lastNote = nle;
 					}
 					for (NoteListElement nle : notesToDelete) {
+						LOG.severe(">>NT clean remove: " + track.getNumber() +", "+ fromTime +", "+ nle.startTime);
 						track.removeNote(nle);
 						if (track.getNotes().size() == 0) {
 							LOG.finer(">>NoteTracker cleanTracks track: " + track);
@@ -886,7 +888,7 @@ public class NoteTracker {
 	}
 
 	private void removeTrack(NoteTrack track) {
-		LOG.finer(">>NoteTracker removeTrack: " + track.getNumber());
+		LOG.severe(">>NoteTracker removeTrack: " + track.getNumber());
 		tracks.remove(track.getNumber());
 	}
 

@@ -9,6 +9,7 @@ import jomu.instrument.actuation.Voice;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class AudioSinkProcessor extends ProcessorCommon {
 
@@ -26,9 +27,10 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 		int persistenceMode = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE);
-
 		boolean pausePlay = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH);
+		int sinkSweepRange = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE);
 
 		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
 		ToneMap synthesisToneMap = workspace.getAtlas()
@@ -37,23 +39,33 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 		console.getVisor().updateSpectrumView(cqToneMap.getTimeFrame(),
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
-
-		if (synthesisToneMap.getTimeFrame(sequence) != null) {
-			if (sequence <= 1) {
-				voice.reset();
+		ToneTimeFrame synthesisFrame = null;
+		
+		int tmIndex = sequence - sinkSweepRange;
+		if (tmIndex > 0) {
+			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
+			if (synthesisFrame != null) {
+				voice.send(synthesisFrame, streamId, tmIndex, pausePlay);
+			}	
+			if (persistenceMode < 3) {
+				commitMaps(streamId, tmIndex, persistenceMode);
 			}
-			voice.send(synthesisToneMap.getTimeFrame(sequence), streamId, sequence, pausePlay);
-		}
-
-		if (persistenceMode < 3) {
-			commitMaps(streamId, sequence, persistenceMode);
 		}
 
 		if (isClosing(streamId, sequence)) {
-			LOG.severe(">>AudioSinkProcessor CLOSE - Frame Cache Size: "
-					+ Instrument.getInstance().getWorkspace().getAtlas().getFrameCache().getSize());
+			if (tmIndex < 0) {
+				tmIndex = 0;
+			}
+			for (int i = tmIndex + 1; i <= sequence; i++) {
+				synthesisFrame = synthesisToneMap.getTimeFrame(i);
+				if (synthesisFrame != null) {
+					voice.send(synthesisFrame, streamId, i, pausePlay);
+				}
+				if (persistenceMode < 3) {
+					commitMaps(streamId, i, persistenceMode);
+				}
+			}
 			voice.close(streamId);
-			// !! ?? hearing.removeAudioStream(streamId);
 		}
 	}
 

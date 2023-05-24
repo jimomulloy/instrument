@@ -229,6 +229,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JTextField voicePlayerRepeatInput;
 	JCheckBox loopSaveSwitchCB;
 
+	private AbstractButton midiPlayVolumeSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -523,11 +525,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setOpaque(true);
-		JMenu file = buildFileMenu();
-		JMenu help = buildHelpMenu();
+		//JMenu file = buildFileMenu();
+		//JMenu help = buildHelpMenu();
 
-		menuBar.add(file);
-		menuBar.add(help);
+		//menuBar.add(file);
+		//menuBar.add(help);
 		mainFrame.setJMenuBar(menuBar);
 	}
 
@@ -1037,7 +1039,15 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
-		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel actionPanel = new JPanel(new BorderLayout());
+		//JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		
+		JPanel actionEastPanel = new JPanel();
+		JPanel actionCenterPanel = new JPanel();
+		JPanel actionWestPanel = new JPanel();
+		actionPanel.add(actionEastPanel, BorderLayout.EAST); 
+		actionPanel.add(actionCenterPanel, BorderLayout.CENTER); 
+		actionPanel.add(actionWestPanel, BorderLayout.WEST); 
 
 		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
@@ -1053,7 +1063,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		actionPanel.add(resetSystemButton);
+		actionWestPanel.add(resetSystemButton);
 
 		final JButton helpButton = new JButton("Help");
 		helpButton.addActionListener(new ActionListener() {
@@ -1064,7 +1074,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		actionPanel.add(helpButton);
+		actionWestPanel.add(helpButton);
 
 		final JButton parametersButton = new JButton("Parameters");
 
@@ -1119,10 +1129,62 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		actionPanel.add(parametersButton);
+		actionWestPanel.add(parametersButton);
 
-		actionPanel.add(new JLabel("  "));
+		final JButton synthButton = new JButton("Synth Controls");
 
+		synthButton.addActionListener(new ActionListener() {
+
+			private boolean synthDialogOpen;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String s = e.getActionCommand();
+				if (s.equals("Synth Controls")) {
+
+					if (!synthDialogOpen) {
+						// create a dialog Box
+						JDialog d = new JDialog(mainframe, "Synth");
+
+						d.addWindowListener(new WindowAdapter() {
+							public void windowClosed(WindowEvent e) {
+								synthDialogOpen = false;
+							}
+
+							public void windowClosing(WindowEvent e) {
+								synthDialogOpen = false;
+							}
+						});
+
+						JPanel dialogPanel = new JPanel(new BorderLayout());
+
+						JPanel synthPanel = new SynthPanel();
+						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
+								new EtchedBorder()));
+
+						dialogPanel.add(new JScrollPane(synthPanel), BorderLayout.CENTER);
+
+						d.add(dialogPanel);
+
+						Toolkit myScreen = Toolkit.getDefaultToolkit();
+						Dimension screenSize = myScreen.getScreenSize();
+						int screenHeight = screenSize.height;
+						int screenWidth = screenSize.width;
+
+						// setsize of dialog
+						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+
+						// set visibility of dialog
+						d.setVisible(true);
+
+						synthDialogOpen = true;
+
+					}
+				}
+			}
+		});
+		actionWestPanel.add(synthButton);
+		
 		final JFileChooser fileChooser = new JFileChooser(new File(getAudioSourceFileFolder()));
 		chooseFileButton = new JButton("Open");
 		startFileProcessingButton = new JButton("Start");
@@ -1170,7 +1232,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		actionPanel.add(chooseFileButton);
+		actionCenterPanel.add(chooseFileButton);
 
 		startFileProcessingButton.addActionListener(new ActionListener() {
 
@@ -1235,7 +1297,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
 					startFileProcessingButton.setEnabled(true);
 					startListeningButton.setEnabled(true);
-					// stopListeningButton.setEnabled(false);
 					chooseFileButton.setEnabled(true);
 					frameNumberInput.setEnabled(true);
 					updateStatusMessage("Error starting listener :" + e.getMessage());
@@ -1289,66 +1350,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		actionPanel.add(startFileProcessingButton);
-		actionPanel.add(startListeningButton);
-		actionPanel.add(stopListeningButton);
-		actionPanel.add(playAudioButton);
-		actionPanel.add(playStreamButton);
-
-		final JButton synthButton = new JButton("Synth Controls");
-
-		synthButton.addActionListener(new ActionListener() {
-
-			private boolean synthDialogOpen;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String s = e.getActionCommand();
-				if (s.equals("Synth Controls")) {
-
-					if (!synthDialogOpen) {
-						// create a dialog Box
-						JDialog d = new JDialog(mainframe, "Synth");
-
-						d.addWindowListener(new WindowAdapter() {
-							public void windowClosed(WindowEvent e) {
-								synthDialogOpen = false;
-							}
-
-							public void windowClosing(WindowEvent e) {
-								synthDialogOpen = false;
-							}
-						});
-
-						JPanel dialogPanel = new JPanel(new BorderLayout());
-
-						JPanel synthPanel = new SynthPanel();
-						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
-								new EtchedBorder()));
-
-						dialogPanel.add(new JScrollPane(synthPanel), BorderLayout.CENTER);
-
-						d.add(dialogPanel);
-
-						Toolkit myScreen = Toolkit.getDefaultToolkit();
-						Dimension screenSize = myScreen.getScreenSize();
-						int screenHeight = screenSize.height;
-						int screenWidth = screenSize.width;
-
-						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
-
-						// set visibility of dialog
-						d.setVisible(true);
-
-						synthDialogOpen = true;
-
-					}
-				}
-			}
-		});
-		actionPanel.add(synthButton);
-		actionPanel.add(new JLabel("  "));
+		actionCenterPanel.add(startFileProcessingButton);
+		actionCenterPanel.add(startListeningButton);
+		actionCenterPanel.add(stopListeningButton);
+		actionCenterPanel.add(playAudioButton);
+		actionCenterPanel.add(playStreamButton);
 
 		JLabel persistenceModeLabel = new JLabel("Persistence Mode: ");
 		persistenceModeInput = new JTextField(4);
@@ -1363,30 +1369,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 		persistenceModeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE));
-		actionPanel.add(persistenceModeLabel);
-		actionPanel.add(persistenceModeInput);
-
-		recordSwitchCB = new JCheckBox("recordSwitchCB");
-		recordSwitchCB.setText("Record");
-		recordSwitchCB.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBox cb = (JCheckBox) e.getSource();
-				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH,
-						Boolean.toString(newValue));
-			}
-		});
-
-		recordSwitchCB.setSelected(
-				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH));
-		actionPanel.add(recordSwitchCB);
-
-		actionPanel.add(new JLabel(" Current File:"));
-
-		fileNameLabel = new JLabel("");
-
-		actionPanel.add(fileNameLabel);
+		actionEastPanel.add(persistenceModeLabel);
+		actionEastPanel.add(persistenceModeInput);
 
 		panel.add(actionPanel, BorderLayout.NORTH);
 
@@ -1530,6 +1514,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
 		instrumentPanel.add(hearingMaxFreqCentsLabel);
 		instrumentPanel.add(hearingMaxFreqCentsInput);
+
+		instrumentPanel.add(new JLabel(" Current File:"));
+
+		fileNameLabel = new JLabel("");
+
+		instrumentPanel.add(fileNameLabel);
 
 		panel.add(instrumentPanel, BorderLayout.CENTER);
 
@@ -1700,6 +1690,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(voicePlayerHighThresholdLabel);
 		voicePanel.add(voicePlayerHighThresholdInput);
 
+		midiPlayVolumeSwitchCB = new JCheckBox("midiPlayVolumeSwitchCB");
+		midiPlayVolumeSwitchCB.setText("Volume");
+		midiPlayVolumeSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		midiPlayVolumeSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH));
+		voicePanel.add(midiPlayVolumeSwitchCB);
+
 		midiPlayLogSwitchCB = new JCheckBox("midiPlayLogSwitchCB");
 		midiPlayLogSwitchCB.setText("Log");
 		midiPlayLogSwitchCB.addItemListener(new ItemListener() {
@@ -1800,6 +1806,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		trackWriteSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH));
 		voicePanel.add(trackWriteSwitchCB);
+
+		recordSwitchCB = new JCheckBox("recordSwitchCB");
+		recordSwitchCB.setText("Record");
+		recordSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		recordSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH));
+		voicePanel.add(recordSwitchCB);
 
 		panel.add(voicePanel, BorderLayout.SOUTH);
 
@@ -2397,6 +2419,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE));
 		midiPlayLogSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH));
+		midiPlayVolumeSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH));
 		midiSynthTracksSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH));
 		silentWriteSwitchCB.setSelected(

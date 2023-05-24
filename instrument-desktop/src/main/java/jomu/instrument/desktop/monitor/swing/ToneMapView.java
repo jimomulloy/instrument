@@ -29,10 +29,15 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Track;
 import javax.swing.JComponent;
 
 import jomu.instrument.Instrument;
@@ -254,6 +259,10 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 			boolean showStats = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS);
+
+			NoteTrack[] noteTracks = toneMap.getNoteTracker().getTracks();
+			NoteTrack baseTrack = toneMap.getNoteTracker().getBaseTrack();
+			NoteTrack arpeggioTrack = toneMap.getNoteTracker().getArpeggioTrack();
 
 			ToneMapElement[] elements = ttf.getElements();
 

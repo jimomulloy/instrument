@@ -1987,6 +1987,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
 			boolean playPeaks = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
+			boolean playVolume = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH);
 			int glissandoRange = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_GLISSANDO_RANGE);
 			boolean playGlissando = true;
@@ -2105,7 +2107,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			for (NoteListElement snle : snles) {
 				if (snle != null) {
 					note = snle.note;
-					if (followAmp) {
+					if (followAmp && playVolume) {
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 								false, toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
 					} else {
@@ -2115,18 +2117,20 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 					if (!playGlissando || snle.legatoBefore == null || snle.legatoBefore.endTime <= playTime) {
 						if (!noteTrackChannelLastNotes.contains(note)) {
-							midiMessage = new ShortMessage();
-							try {
-								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, noteTrackChannel.num, 7, volume);
-								if (writeTrack) {
-									createEvent(midiTrack, noteTrackChannel, ShortMessage.CONTROL_CHANGE, 7, tick,
-											volume);
+							if (playVolume) {
+								midiMessage = new ShortMessage();
+								try {
+									midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, noteTrackChannel.num, 7, volume);
+									if (writeTrack) {
+										createEvent(midiTrack, noteTrackChannel, ShortMessage.CONTROL_CHANGE, 7, tick,
+												volume);
+									}
+								} catch (InvalidMidiDataException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
 								}
-							} catch (InvalidMidiDataException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								midiMessages.add(midiMessage);
 							}
-							midiMessages.add(midiMessage);
 							midiMessage = new ShortMessage();
 							try {
 								midiMessage.setMessage(ShortMessage.NOTE_ON, noteTrackChannel.num, note, volume);
@@ -2178,24 +2182,26 @@ public class MidiSynthesizer implements ToneMapConstants {
 				int increment = (int) ((playTime - pnle.startTime));
 				// if (increment >= 300 && increment % 300 < 100) {
 				if (noteTrackChannelLastNotes.contains(note)) {
-					if (followAmp) {
+					if (followAmp && playVolume) {
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 								false, toneTimeFrame.getElement(pitchSet.getIndex(note)).amplitude, volumeFactor);
 					} else {
 						volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks,
 								false, pnle.maxAmp, volumeFactor);
 					}
-					midiMessage = new ShortMessage();
-					try {
-						midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, noteTrackChannel.num, 7, volume);
-						if (writeTrack) {
-							createEvent(midiTrack, noteTrackChannel, ShortMessage.CONTROL_CHANGE, 7, tick, volume);
+					if (playVolume) {
+						midiMessage = new ShortMessage();
+						try {
+							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, noteTrackChannel.num, 7, volume);
+							if (writeTrack) {
+								createEvent(midiTrack, noteTrackChannel, ShortMessage.CONTROL_CHANGE, 7, tick, volume);
+							}
+						} catch (InvalidMidiDataException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-					} catch (InvalidMidiDataException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					midiMessages.add(midiMessage);
+						midiMessages.add(midiMessage);
+					}	
 				}
 				// }
 			}
@@ -2217,6 +2223,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
 			boolean playPeaks = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
+			boolean playVolume = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH);
 
 			ToneMap toneMap = null;
 			ToneTimeFrame toneTimeFrame = null;
@@ -2279,14 +2287,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessages.add(midiMessage);
 						voiceChannel1LastNotes.add(note);
 					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice1Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						// midiMessages.add(midiMessage);
+						if (playVolume) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice1Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+						}	
 					}
 					break;
 				case OFF:
@@ -2428,6 +2438,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
 			boolean playPeaks = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
+			boolean playVolume = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH);
 
 			ToneMap toneMap = null;
 			ToneTimeFrame toneTimeFrame = null;
@@ -2484,13 +2496,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessages.add(midiMessage);
 						voiceChannel2LastNotes.add(note);
 					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice2Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						if (playVolume) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice2Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+						}	
 					}
 				} else {
 					if (voiceChannel2LastNotes.contains(note)) {
@@ -2540,6 +2555,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			double logFactor = parameterManager.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOG_FACTOR);
 			boolean playPeaks = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
+			boolean playVolume = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH);
+
 
 			ToneMap toneMap = null;
 			ToneTimeFrame toneTimeFrame = null;
@@ -2594,14 +2612,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessages.add(midiMessage);
 						voiceChannel3LastNotes.add(note);
 					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice3Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						// midiMessages.add(midiMessage);
+						if (playVolume) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice3Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+						}	
 					}
 				} else {
 					if (voiceChannel3LastNotes.contains(note)) {
@@ -2651,6 +2671,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE);
 			boolean playLog = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH);
+			boolean playVolume = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH);
 
 			ToneMap toneMap = null;
 			ToneTimeFrame toneTimeFrame = null;
@@ -2717,14 +2739,16 @@ public class MidiSynthesizer implements ToneMapConstants {
 						midiMessages.add(midiMessage);
 						voiceChannel4LastNotes.add(note);
 					} else {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice4Channel.num, note, volume);
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						// midiMessages.add(midiMessage);
+						if (playVolume) {
+							midiMessage = new ShortMessage();
+							try {
+								midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, voice4Channel.num, note, volume);
+							} catch (InvalidMidiDataException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							midiMessages.add(midiMessage);
+						}	
 					}
 				} else {
 					if (voiceChannel4LastNotes.contains(note)) {

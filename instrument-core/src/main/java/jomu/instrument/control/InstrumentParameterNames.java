@@ -178,6 +178,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE = "perception.hearing.synthesis.pad1Octave";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE = "perception.hearing.synthesis.pad2Octave";
 
+	public static final String PERCEPTION_HEARING_SINK_SWEEP_RANGE = "perception.hearing.sink.sweepRange";
+	
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER = "perception.hearing.notetracker.maxTracksUpper";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER = "perception.hearing.notetracker.maxTracksLower";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_UPPER = "perception.hearing.notetracker.clearRangeUpper";
@@ -300,6 +302,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH = "actuation.voice.useSynthesizer";
 	public static final String ACTUATION_VOICE_RESYNTH_PLAY = "actuation.voice.playResynth";
 	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH = "actuation.voice.midiPlayVolumeSwitch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH = "actuation.voice.midiPlayLogSwitch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH = "actuation.voice.midiPlayVoice1Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICE2_SWITCH = "actuation.voice.midiPlayVoice2Switch";

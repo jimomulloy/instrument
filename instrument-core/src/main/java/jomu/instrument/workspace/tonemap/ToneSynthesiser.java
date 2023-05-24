@@ -63,6 +63,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 	}
 
 	public void synthesise(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
+		LOG.finer(">>SYNTH time: " + toneTimeFrame.getStartTime() );
 		ChordListElement chord = toneTimeFrame.getChord();
 		if (synthChordFirstSwitch) {
 			if (chord != null) {
@@ -219,6 +220,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 							nle.legatoAfter.legatoBefore = pnle;
 						}
 						track.removeNote(nle);
+						LOG.severe(">>SYNTH legato remove: " + track.getNumber() +", "+ nle.startTime);
 					} else {
 						pnle.addLegato(nle);
 					}
@@ -517,7 +519,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 	private void quantizeChord(ChordListElement cle, double targetTime) {
 		double frameTime = cle.getStartTime();
 		removeChord(cle);
-		LOG.severe(">>QC: " + frameTime + ", " + targetTime + ", " + cle + ", " + toneMap);
 		ToneTimeFrame frame = toneMap.getTimeFrame(frameTime);
 		double time = frame.getStartTime();
 		if (time < targetTime) {
