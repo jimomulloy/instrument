@@ -39,7 +39,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(1)
+@jakarta.annotation.Priority(1)
 public class AwsAdapterObjectStorage implements ObjectStorage {
 
 	private static final Logger LOG = Logger.getLogger(AwsAdapterObjectStorage.class.getName());

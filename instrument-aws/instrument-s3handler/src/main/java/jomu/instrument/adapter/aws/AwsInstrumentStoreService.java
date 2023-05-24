@@ -13,7 +13,7 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 
 @ApplicationScoped
 @Alternative
-@io.quarkus.arc.Priority(1)
+@jakarta.annotation.Priority(1)
 public class AwsInstrumentStoreService implements InstrumentStoreService {
 
 	private static final Logger LOG = Logger.getLogger(AwsInstrumentStoreService.class.getName());
