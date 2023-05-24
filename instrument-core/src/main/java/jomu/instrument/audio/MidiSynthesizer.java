@@ -1499,60 +1499,19 @@ public class MidiSynthesizer implements ToneMapConstants {
 			ChannelData beatChannel = channels[BEATS_CHANNEL];
 
 			if (midiPlayBeat1Switch) {
-				double beat = ToneTimeFrame.AMPLITUDE_FLOOR;
-				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
-				if (ob.isPresent()) {
-					beat = ob.get().getAmplitude();
-				}
-
-				if (writeTrack && beat1Track == null) {
-					beat1Track = midiSequence.createTrack();
-					createEvent(beat1Track, beatChannel, PROGRAM, 1, 1L, 127);
-				}
-
-				if (beatsChannel1LastNotes == null) {
-					beatsChannel1LastNotes = new HashSet<>();
-				}
-
-				int volume = 0;
-				int beat1Note = drum1;
-				boolean hasBeat = false;
-				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
-					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-							beat, beat1VolumeFactor);
-					hasBeat = true;
-				}
-
-				if (hasBeat) {
-					if (!beatsChannel1LastNotes.contains(beat1Note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, beatChannel.num, beat1Note, volume);
-							if (writeTrack) {
-								createEvent(beat1Track, beatChannel, NOTEON, beat1Note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						midiMessages.add(midiMessage);
-						beatsChannel1LastNotes.add(beat1Note);
+				ToneMap toneMap = toneTimeFrame.getToneMap();
+				NoteTrack track = toneMap.getNoteTracker().getBeatTrack();
+				if (track != null) {
+					if (writeTrack && beat1Track == null) {
+						beat1Track = midiSequence.createTrack();
+						createEvent(beat1Track, beatChannel, PROGRAM, 1, 1L, 127);
 					}
-				} else {
-					if (beatsChannel1LastNotes.contains(beat1Note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, beatChannel.num, beat1Note, 0);
-							if (writeTrack) {
-								createEvent(beat1Track, beatChannel, NOTEOFF, beat1Note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						midiMessages.add(midiMessage);
-						beatsChannel1LastNotes.remove(beat1Note);
+
+					if (beatsChannel1LastNotes == null) {
+						beatsChannel1LastNotes = new HashSet<>();
 					}
+					playSynthNoteTrack(track, beatChannel, beatsChannel1LastNotes, beat1Track, toneTimeFrame,
+							midiMessages, beat1VolumeFactor, false);
 				}
 			}
 
@@ -2022,7 +1981,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					enles.add(nle);
 				}
 			}
-			
+
 			for (int ln : noteTrackChannelLastNotes) {
 				note = ln;
 				boolean noteFound = false;
@@ -2047,7 +2006,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					noteTrackChannelLastNotes.remove(note);
 				}
 			}
-			
+
 			for (NoteListElement enle : enles) {
 				if (enle != null) {
 					note = enle.note;
@@ -2120,7 +2079,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 							if (playVolume) {
 								midiMessage = new ShortMessage();
 								try {
-									midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, noteTrackChannel.num, 7, volume);
+									midiMessage.setMessage(ShortMessage.CONTROL_CHANGE, noteTrackChannel.num, 7,
+											volume);
 									if (writeTrack) {
 										createEvent(midiTrack, noteTrackChannel, ShortMessage.CONTROL_CHANGE, 7, tick,
 												volume);
@@ -2201,7 +2161,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							e.printStackTrace();
 						}
 						midiMessages.add(midiMessage);
-					}	
+					}
 				}
 				// }
 			}
@@ -2296,7 +2256,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 								e.printStackTrace();
 							}
 							midiMessages.add(midiMessage);
-						}	
+						}
 					}
 					break;
 				case OFF:
@@ -2505,7 +2465,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 								e.printStackTrace();
 							}
 							midiMessages.add(midiMessage);
-						}	
+						}
 					}
 				} else {
 					if (voiceChannel2LastNotes.contains(note)) {
@@ -2557,7 +2517,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_PEAKS);
 			boolean playVolume = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH);
-
 
 			ToneMap toneMap = null;
 			ToneTimeFrame toneTimeFrame = null;
@@ -2621,7 +2580,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 								e.printStackTrace();
 							}
 							midiMessages.add(midiMessage);
-						}	
+						}
 					}
 				} else {
 					if (voiceChannel3LastNotes.contains(note)) {
@@ -2748,7 +2707,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 								e.printStackTrace();
 							}
 							midiMessages.add(midiMessage);
-						}	
+						}
 					}
 				} else {
 					if (voiceChannel4LastNotes.contains(note)) {

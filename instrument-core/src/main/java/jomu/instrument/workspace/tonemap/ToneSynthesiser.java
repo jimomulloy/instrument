@@ -63,7 +63,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 	}
 
 	public void synthesise(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
-		LOG.finer(">>SYNTH time: " + toneTimeFrame.getStartTime() );
+		LOG.finer(">>SYNTH time: " + toneTimeFrame.getStartTime());
 		ChordListElement chord = toneTimeFrame.getChord();
 		if (synthChordFirstSwitch) {
 			if (chord != null) {
@@ -116,6 +116,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 				if (nle != null && synthFillLegatoSwitch) {
 					addLegato(toneMap.getNoteTracker().getArpeggioTrack(), nle);
 				}
+				nle = toneMap.getNoteTracker().trackBeat(beat.get(), toneTimeFrame.getPitchSet());
 			}
 		}
 	}
@@ -220,7 +221,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 							nle.legatoAfter.legatoBefore = pnle;
 						}
 						track.removeNote(nle);
-						LOG.severe(">>SYNTH legato remove: " + track.getNumber() +", "+ nle.startTime);
+						LOG.severe(">>SYNTH legato remove: " + track.getNumber() + ", " + nle.startTime);
 					} else {
 						pnle.addLegato(nle);
 					}

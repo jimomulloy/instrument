@@ -525,11 +525,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setOpaque(true);
-		//JMenu file = buildFileMenu();
-		//JMenu help = buildHelpMenu();
+		// JMenu file = buildFileMenu();
+		// JMenu help = buildHelpMenu();
 
-		//menuBar.add(file);
-		//menuBar.add(help);
+		// menuBar.add(file);
+		// menuBar.add(help);
 		mainFrame.setJMenuBar(menuBar);
 	}
 
@@ -655,9 +655,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		JSplitPane leftBottomPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(leftTopPane),
 				new JScrollPane(spectrumsPanel));
 		leftTopPane.setOneTouchExpandable(true);
-		leftTopPane.setDividerLocation(230);
+		leftTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
 		leftBottomPane.setOneTouchExpandable(true);
-		leftBottomPane.setDividerLocation(370);
+		leftBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
 
 		leftGraphPanel.add(leftBottomPane, BorderLayout.CENTER);
 
@@ -675,7 +675,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		toneMapTabbedPane
 				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder())); // BorderFactory.createLineBorder(Color.black));
 		JPanel toneMapLayerPanel = createToneMapLayerPanel();
-		toneMapTabbedPane.addTab("ToneMap1", toneMapLayerPanel);
+		toneMapTabbedPane.addTab("ToneMap", toneMapLayerPanel);
 		cqPanel = createCQPanel();
 		toneMapTabbedPane.addTab("CQ", cqPanel);
 		pitchDetectPanel = createPitchDetectPanel();
@@ -1040,14 +1040,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		panel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
 		JPanel actionPanel = new JPanel(new BorderLayout());
-		//JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		
+		// JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
 		JPanel actionEastPanel = new JPanel();
 		JPanel actionCenterPanel = new JPanel();
 		JPanel actionWestPanel = new JPanel();
-		actionPanel.add(actionEastPanel, BorderLayout.EAST); 
-		actionPanel.add(actionCenterPanel, BorderLayout.CENTER); 
-		actionPanel.add(actionWestPanel, BorderLayout.WEST); 
+		actionPanel.add(actionEastPanel, BorderLayout.EAST);
+		actionPanel.add(actionCenterPanel, BorderLayout.CENTER);
+		actionPanel.add(actionWestPanel, BorderLayout.WEST);
 
 		JPanel voicePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
@@ -1184,7 +1184,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 		actionWestPanel.add(synthButton);
-		
+
 		final JFileChooser fileChooser = new JFileChooser(new File(getAudioSourceFileFolder()));
 		chooseFileButton = new JButton("Open");
 		startFileProcessingButton = new JButton("Start");
@@ -1973,7 +1973,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			spectrumLayer.clearPeaks();
 			spectrumLayer.setSpectrum(spectrum);
 			spectrumPanel.repaint();
-		}	
+		}
 	}
 
 	private LinkedPanel createCQPanel() {

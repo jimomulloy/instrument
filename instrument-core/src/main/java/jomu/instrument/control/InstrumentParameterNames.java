@@ -169,6 +169,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_PATTERN = "perception.hearing.synthesis.chordPattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING = "perception.hearing.synthesis.beatTiming";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_PATTERN = "perception.hearing.synthesis.beatPattern";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_BEAT = "perception.hearing.synthesis.beatBeat";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_OFFSET = "perception.hearing.synthesis.beatOffset";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_TIMING = "perception.hearing.synthesis.baseTiming";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT = "perception.hearing.synthesis.baseBeat";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN = "perception.hearing.synthesis.basePattern";
@@ -179,7 +181,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE = "perception.hearing.synthesis.pad2Octave";
 
 	public static final String PERCEPTION_HEARING_SINK_SWEEP_RANGE = "perception.hearing.sink.sweepRange";
-	
+
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_UPPER = "perception.hearing.notetracker.maxTracksUpper";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_MAX_TRACKS_LOWER = "perception.hearing.notetracker.maxTracksLower";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_CLEAR_RANGE_UPPER = "perception.hearing.notetracker.clearRangeUpper";

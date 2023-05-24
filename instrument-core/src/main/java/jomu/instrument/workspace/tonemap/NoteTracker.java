@@ -38,6 +38,8 @@ public class NoteTracker {
 
 	private NoteTrack arpeggioTrack;
 
+	private NoteTrack beatTrack;
+
 	private int synthBasePattern;
 
 	private int synthBaseBeat;
@@ -55,6 +57,22 @@ public class NoteTracker {
 	private int synthChordOctave;
 
 	private int chordTimeSignature;
+
+	private int synthBeatBeat;
+
+	private int synthBeatOffset;
+
+	private int synthBeatPattern;
+
+	private int beatTimeSignature;
+
+	private int synthBeat1Drum;
+
+	private int synthBeat2Drum;
+
+	private int synthBeat3Drum;
+
+	private int synthBeat4Drum;
 
 	public class NoteTrack {
 
@@ -288,6 +306,26 @@ public class NoteTracker {
 		}
 		synthChordOctave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE);
+		synthBeatBeat = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_BEAT);
+		synthBeatOffset = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_OFFSET);
+		synthBeatPattern = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_PATTERN);
+		if (synthBeatPattern == 1 || synthBeatPattern != 2) {
+			beatTimeSignature = 4;
+		} else {
+			beatTimeSignature = 3;
+		}
+		synthBeat1Drum = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1);
+		synthBeat2Drum = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_2);
+		synthBeat3Drum = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3);
+		synthBeat4Drum = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4);
+
 		incrementTime = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 	}
@@ -331,7 +369,7 @@ public class NoteTracker {
 				if (salientTrack != null) {
 					LOG.finer(">>NoteTracker trackNote gotPendingSalientTrack note: " + noteListElement.note);
 					disconnectedNote = salientTrack.getLastNote();
-					LOG.severe(">>NT salient remove: " + salientTrack.getNumber() +", "+ disconnectedNote.startTime);
+					LOG.severe(">>NT salient remove: " + salientTrack.getNumber() + ", " + disconnectedNote.startTime);
 					salientTrack.removeNote(disconnectedNote);
 				}
 			}
@@ -577,6 +615,46 @@ public class NoteTracker {
 				amplitude, amplitude, amplitude, 0, false, incrementTime);
 		track.addNote(arpeggioNote);
 		return arpeggioNote;
+	}
+
+	public NoteListElement trackBeat(BeatListElement beatListElement, PitchSet pitchSet) {
+		if (beatTrack == null) {
+			beatTrack = new NoteTrack(1);
+		}
+
+		if (beatListElement.getAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
+			NoteListElement lastNote = beatTrack.getLastNote();
+			if (lastNote == null || beatListElement.getStartTime() * 1000 >= lastNote.endTime) {
+				return addBeatNote(beatTrack, beatListElement, pitchSet);
+			}
+		}
+		return null;
+	}
+
+	private NoteListElement addBeatNote(NoteTrack track, BeatListElement beatListElement, PitchSet pitchSet) {
+		if (beatListElement == null || beatListElement.getTimeRange() <= 0) {
+			return null;
+		}
+		boolean isBar = (track.getSize() + synthBeatOffset) % beatTimeSignature == 0;
+		int barNote = (track.getSize() + synthBeatOffset) % beatTimeSignature + 1;
+		int barCount = (track.getSize() + synthBeatOffset) / beatTimeSignature;
+
+		int note = 0;
+		double startTime = beatListElement.getStartTime() * 1000;
+		double endTime = startTime;
+		endTime += beatListElement.getTimeRange() * 1000;
+		double amplitude = beatListElement.getAmplitude();
+
+		if (isBar) {
+			note = synthBeat1Drum;
+		} else {
+			note = synthBeat2Drum;
+		}
+		NoteListElement beatNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
+				amplitude, amplitude, amplitude, 0, false, incrementTime);
+		track.addNote(beatNote);
+		LOG.severe(">>NT added beat note: " + beatNote);
+		return beatNote;
 	}
 
 	private NoteTrack getPendingOverlappingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
@@ -871,7 +949,7 @@ public class NoteTracker {
 						lastNote = nle;
 					}
 					for (NoteListElement nle : notesToDelete) {
-						LOG.severe(">>NT clean remove: " + track.getNumber() +", "+ fromTime +", "+ nle.startTime);
+						LOG.severe(">>NT clean remove: " + track.getNumber() + ", " + fromTime + ", " + nle.startTime);
 						track.removeNote(nle);
 						if (track.getNotes().size() == 0) {
 							LOG.finer(">>NoteTracker cleanTracks track: " + track);
@@ -894,6 +972,10 @@ public class NoteTracker {
 
 	public NoteTrack getBaseTrack() {
 		return baseTrack;
+	}
+
+	public NoteTrack getBeatTrack() {
+		return beatTrack;
 	}
 
 	public NoteTrack getArpeggioTrack() {

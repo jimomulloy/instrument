@@ -367,6 +367,10 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField sinkSweepRangeInput;
 
+	private JTextField synthesisBeatBeatInput;
+
+	private JTextField synthesisBeatOffsetInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -3893,6 +3897,40 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(synthesisBeatPatternLabel);
 		cqParamsPanel.add(synthesisBeatPatternInput);
 
+		JLabel synthesisBeatBeatLabel = new JLabel("Synthesis Beat Beat: ");
+		synthesisBeatBeatInput = new JTextField(4);
+		synthesisBeatBeatInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeatBeatInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT, newValue);
+				synthesisBeatBeatLabel.setText(String.format("Synthesis Beat Beat (%s):", newValue));
+				synthesisBeatBeatInput.setText(newValue);
+			}
+		});
+		synthesisBeatBeatInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_BEAT));
+		cqParamsPanel.add(synthesisBeatBeatLabel);
+		cqParamsPanel.add(synthesisBeatBeatInput);
+
+		JLabel synthesisBeatOffsetLabel = new JLabel("Synthesis Beat Offset: ");
+		synthesisBeatOffsetInput = new JTextField(4);
+		synthesisBeatOffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeatOffsetInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT, newValue);
+				synthesisBeatOffsetLabel.setText(String.format("Synthesis Beat Offset (%s):", newValue));
+				synthesisBeatOffsetInput.setText(newValue);
+			}
+		});
+		synthesisBeatOffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_BEAT));
+		cqParamsPanel.add(synthesisBeatOffsetLabel);
+		cqParamsPanel.add(synthesisBeatOffsetInput);
+
 		JLabel synthesisBaseOctaveLabel = new JLabel("Synthesis Base Octave: ");
 		synthesisBaseOctaveInput = new JTextField(4);
 		synthesisBaseOctaveInput.addActionListener(new ActionListener() {
@@ -4069,14 +4107,14 @@ public class ParametersPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = sinkSweepRangeInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE,
+						newValue);
 				sinkSweepRangeLabel.setText(String.format("Sink Sweep Range  (%s):", newValue));
 				sinkSweepRangeInput.setText(newValue);
 			}
 		});
-		sinkSweepRangeInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE));
+		sinkSweepRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE));
 		cqParamsPanel.add(sinkSweepRangeLabel);
 		cqParamsPanel.add(sinkSweepRangeInput);
 
@@ -4696,8 +4734,8 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE));
 		synthesisSweepRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE));
-		sinkSweepRangeInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE));
+		sinkSweepRangeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE));
 		synthesisBeatTimingInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING));
 		synthesisChordTimingInput.setText(
@@ -4724,6 +4762,10 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_PATTERN));
 		synthesisChordBeatInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_BEAT));
+		synthesisBeatBeatInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_BEAT));
+		synthesisBeatOffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_OFFSET));
 
 		synthesisQuantizeRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE));
