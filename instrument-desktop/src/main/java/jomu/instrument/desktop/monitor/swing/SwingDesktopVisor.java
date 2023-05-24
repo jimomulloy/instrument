@@ -1943,13 +1943,15 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Override
 	public void updateSpectrumView(ToneTimeFrame toneTimeFrame, int windowSize) {
-		float[] spectrum = toneTimeFrame.extractFFTSpectrum(windowSize).getSpectrum();
-		for (int i = 0; i < spectrum.length; i++) {
-			spectrum[i] *= 100;
-		}
-		spectrumLayer.clearPeaks();
-		spectrumLayer.setSpectrum(spectrum);
-		spectrumPanel.repaint();
+		if (toneTimeFrame != null) {
+			float[] spectrum = toneTimeFrame.extractFFTSpectrum(windowSize).getSpectrum();
+			for (int i = 0; i < spectrum.length; i++) {
+				spectrum[i] *= 100;
+			}
+			spectrumLayer.clearPeaks();
+			spectrumLayer.setSpectrum(spectrum);
+			spectrumPanel.repaint();
+		}	
 	}
 
 	private LinkedPanel createCQPanel() {

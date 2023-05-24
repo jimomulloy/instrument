@@ -1330,7 +1330,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				if (synthChordPattern <= 2) {
 					NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getArpeggioTrack();
-					LOG.severe(">>MIDI CHORD2 arp track: " + track);
 					if (track != null) {
 						playSynthNoteTrack(track, chord2Channel, chordsChannel2LastNotes, chord2Track, toneTimeFrame,
 								midiMessages, chord2VolumeFactor, false);
@@ -1564,8 +1563,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					beat = ob.get().getAmplitude();
 				}
 
-				LOG.severe(">>MIDI BEAT2: " + sequence + ", " + beat + ", " + beatChannel.num);
-
 				if (writeTrack && beat2Track == null) {
 					beat2Track = midiSequence.createTrack();
 					createEvent(beat2Track, beatChannel, PROGRAM, 1, 1L, 127);
@@ -1581,7 +1578,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
 							beat, beat2VolumeFactor);
-					LOG.severe(">>MIDI BEAT2 volume: " + sequence + ", " + beat + ", " + volume);
 					hasBeat = true;
 				}
 
@@ -1624,7 +1620,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (ob.isPresent()) {
 					beat = ob.get().getAmplitude();
 				}
-				LOG.finer(">>MIDI BEAT3: " + sequence + ", " + beat);
 				if (writeTrack && beat3Track == null) {
 					beat3Track = midiSequence.createTrack();
 					createEvent(beat3Track, beatChannel, PROGRAM, 1, 1L, 127);
@@ -1682,7 +1677,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (ob.isPresent()) {
 					beat = ob.get().getAmplitude();
 				}
-				LOG.severe(">>MIDI BEAT4: " + sequence + ", " + beat);
 				if (writeTrack && beat4Track == null) {
 					beat4Track = midiSequence.createTrack();
 					createEvent(beat4Track, beatChannel, PROGRAM, 1, 1L, 127);
@@ -1698,7 +1692,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
 					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
 							beat, beat4VolumeFactor);
-					LOG.severe(">>MIDI BEAT4 has beat: " + sequence + ", " + beat);
 					hasBeat = true;
 				}
 
@@ -2017,8 +2010,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					enles.add(nle);
 				}
 				boolean noteFound = false;
-				for (int vn : noteTrackChannelLastNotes) {
-					if (nle.note == vn) {
+				for (int ln : noteTrackChannelLastNotes) {
+					if (nle.note == ln) {
 						noteFound = true;
 						break;
 					}
@@ -2027,7 +2020,32 @@ public class MidiSynthesizer implements ToneMapConstants {
 					enles.add(nle);
 				}
 			}
-
+			
+			for (int ln : noteTrackChannelLastNotes) {
+				note = ln;
+				boolean noteFound = false;
+				for (NoteListElement nle : nles) {
+					if (nle.note == ln) {
+						noteFound = true;
+						break;
+					}
+				}
+				if (!noteFound) {
+					midiMessage = new ShortMessage();
+					try {
+						midiMessage.setMessage(ShortMessage.NOTE_OFF, noteTrackChannel.num, note, 0);
+						if (writeTrack) {
+							createEvent(midiTrack, noteTrackChannel, NOTEOFF, note, tick, 0);
+						}
+					} catch (InvalidMidiDataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					midiMessages.add(midiMessage);
+					noteTrackChannelLastNotes.remove(note);
+				}
+			}
+			
 			for (NoteListElement enle : enles) {
 				if (enle != null) {
 					note = enle.note;
