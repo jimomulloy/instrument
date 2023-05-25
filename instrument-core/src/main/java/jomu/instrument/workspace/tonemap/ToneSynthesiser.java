@@ -116,8 +116,11 @@ public class ToneSynthesiser implements ToneMapConstants {
 				if (nle != null && synthFillLegatoSwitch) {
 					addLegato(toneMap.getNoteTracker().getArpeggioTrack(), nle);
 				}
-				nle = toneMap.getNoteTracker().trackBeat(beat.get(), toneTimeFrame.getPitchSet());
 			}
+		}
+		beat = toneTimeFrame.getBeat(CellTypes.AUDIO_ONSET.name()); 
+		if (beat.isPresent()) {
+			toneMap.getNoteTracker().trackBeat(beat.get(), toneTimeFrame.getPitchSet());
 		}
 	}
 

@@ -312,10 +312,14 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_OFFSET);
 		synthBeatPattern = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_PATTERN);
-		if (synthBeatPattern == 1 || synthBeatPattern != 2) {
-			beatTimeSignature = 4;
-		} else {
+		if (synthBeatPattern == 1) {
+			beatTimeSignature = 1;
+		} else if (synthBeatPattern == 2) {
+			beatTimeSignature = 2;
+		} else if (synthBeatPattern == 3) {
 			beatTimeSignature = 3;
+		} else if (synthBeatPattern == 4) {
+			beatTimeSignature = 4;
 		}
 		synthBeat1Drum = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1);
@@ -471,7 +475,7 @@ public class NoteTracker {
 
 	private NoteListElement addBaseNote(NoteTrack track, BeatListElement beatListElement,
 			ChordListElement chordListElement, PitchSet pitchSet) {
-		if (beatListElement == null || chordListElement == null || beatListElement.getTimeRange() <= 0) {
+		if (beatListElement == null || chordListElement == null) {
 			return null;
 		}
 		boolean isBar = track.getSize() % baseTimeSignature == 0;
@@ -481,7 +485,7 @@ public class NoteTracker {
 		int note = 0;
 		double startTime = beatListElement.getStartTime() * 1000;
 		double endTime = startTime;
-		endTime += beatListElement.getTimeRange() * 1000 * synthBaseBeat;
+		endTime += beatListElement.getTimeRange() > 0 ? beatListElement.getTimeRange() * 1000 * synthBaseBeat : synthBaseBeat * 200;
 		double amplitude = 1.0;
 
 		List<Double> camps = new ArrayList<>();
@@ -552,7 +556,7 @@ public class NoteTracker {
 
 	private NoteListElement addArpeggioNote(NoteTrack track, BeatListElement beatListElement,
 			ChordListElement chordListElement, PitchSet pitchSet) {
-		if (beatListElement == null || chordListElement == null || beatListElement.getTimeRange() <= 0) {
+		if (beatListElement == null || chordListElement == null) {
 			return null;
 		}
 		boolean isBar = track.getSize() % chordTimeSignature == 0;
@@ -562,7 +566,7 @@ public class NoteTracker {
 		int note = 0;
 		double startTime = beatListElement.getStartTime() * 1000;
 		double endTime = startTime;
-		endTime += beatListElement.getTimeRange() * 1000 * synthChordBeat;
+		endTime += beatListElement.getTimeRange() > 0 ? beatListElement.getTimeRange() * 1000 * synthChordBeat : synthChordBeat * 200;
 		double amplitude = 1.0;
 
 		List<Double> camps = new ArrayList<>();
@@ -632,7 +636,7 @@ public class NoteTracker {
 	}
 
 	private NoteListElement addBeatNote(NoteTrack track, BeatListElement beatListElement, PitchSet pitchSet) {
-		if (beatListElement == null || beatListElement.getTimeRange() <= 0) {
+		if (beatListElement == null) {
 			return null;
 		}
 		boolean isBar = (track.getSize() + synthBeatOffset) % beatTimeSignature == 0;
@@ -641,8 +645,7 @@ public class NoteTracker {
 
 		int note = 0;
 		double startTime = beatListElement.getStartTime() * 1000;
-		double endTime = startTime;
-		endTime += beatListElement.getTimeRange() * 1000;
+		double endTime = startTime + (beatListElement.getTimeRange() > 0 ? beatListElement.getTimeRange() * 1000 : incrementTime);
 		double amplitude = beatListElement.getAmplitude();
 
 		if (isBar) {
@@ -653,7 +656,7 @@ public class NoteTracker {
 		NoteListElement beatNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 				amplitude, amplitude, amplitude, 0, false, incrementTime);
 		track.addNote(beatNote);
-		LOG.severe(">>NT added beat note: " + beatNote);
+		LOG.severe(">>NT added beat note: " + beatNote.startTime +", "+ beatNote.endTime +", "+ note +", "+ track.getSize()+ ", "+ beatTimeSignature+ ", "+ startTime+ ", "+ endTime);
 		return beatNote;
 	}
 

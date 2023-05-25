@@ -239,21 +239,33 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			BeatListElement ble = new BeatListElement(beatTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name(), ble);
+			if (beatTimeFrame.getBeatAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
+				LOG.severe(">>AudioSynthesisProcessor putBeat BEAT: " + beatTargetSequence+ ", "+beatSynthesisFrame.getStartTime() + ", "+ beatTimeFrame.getBeatAmplitude()+ ", "+ sequence + ", streamId: " + streamId);
+			}	
 		}
 		if (onsetTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(onsetTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_ONSET.name(), ble);
+			if (onsetTimeFrame.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
+				LOG.severe(">>AudioSynthesisProcessor putBeat ONSET: " + beatTime +", "+ timeRange +", "+ beatSynthesisFrame.getStartTime() + ", "+ onsetTimeFrame.getMaxAmplitude()+ ", "+sequence + ", streamId: " + streamId);
+			}	
 		}
 		if (percussionTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(percussionTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_PERCUSSION.name(), ble);
+			if (percussionTimeFrame.getBeatAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
+				LOG.severe(">>AudioSynthesisProcessor putBeat PERCUSSION: " + beatSynthesisFrame.getStartTime() + ", "+ percussionTimeFrame.getBeatAmplitude()+ ", "+sequence + ", streamId: " + streamId);
+			}	
 		}
 		if (hpsPercussionTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(hpsPercussionTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION", ble);
+			if (hpsPercussionTimeFrame.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR * 10) {
+				LOG.severe(">>AudioSynthesisProcessor putBeat HPS: " + beatSynthesisFrame.getStartTime() + ", "+ ToneTimeFrame.AMPLITUDE_FLOOR+ ", "+ hpsPercussionTimeFrame.getMaxAmplitude()+ ", "+sequence + ", streamId: " + streamId);
+			}	
 		}
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();

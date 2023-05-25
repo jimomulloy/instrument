@@ -210,7 +210,7 @@ public class Voice implements Organ {
 	}
 
 	public void reset() {
-		LOG.severe(">>VOICE clear: ");
+		LOG.severe(">>VOICE reset: ");
 		midiSynthesizer.reset();
 	}
 

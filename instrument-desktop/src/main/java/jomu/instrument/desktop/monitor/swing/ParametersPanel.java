@@ -3904,7 +3904,7 @@ public class ParametersPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				String newValue = synthesisBeatBeatInput.getText();
 				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT, newValue);
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_BEAT, newValue);
 				synthesisBeatBeatLabel.setText(String.format("Synthesis Beat Beat (%s):", newValue));
 				synthesisBeatBeatInput.setText(newValue);
 			}
@@ -3921,13 +3921,13 @@ public class ParametersPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				String newValue = synthesisBeatOffsetInput.getText();
 				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT, newValue);
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_OFFSET, newValue);
 				synthesisBeatOffsetLabel.setText(String.format("Synthesis Beat Offset (%s):", newValue));
 				synthesisBeatOffsetInput.setText(newValue);
 			}
 		});
 		synthesisBeatOffsetInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_BEAT));
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_OFFSET));
 		cqParamsPanel.add(synthesisBeatOffsetLabel);
 		cqParamsPanel.add(synthesisBeatOffsetInput);
 

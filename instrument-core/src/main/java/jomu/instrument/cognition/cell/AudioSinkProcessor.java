@@ -45,6 +45,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
 			if (synthesisFrame != null) {
+				LOG.finer(">>AudioSinkProcessor send 1: " + tmIndex + ",  "+ sequence + ", streamId: " + streamId);
 				voice.send(synthesisFrame, streamId, tmIndex, pausePlay);
 			}	
 			if (persistenceMode < 3) {
@@ -59,6 +60,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				synthesisFrame = synthesisToneMap.getTimeFrame(i);
 				if (synthesisFrame != null) {
+					LOG.finer(">>AudioSinkProcessor send 2: " + tmIndex + ",  "+ sequence + ", streamId: " + streamId);
 					voice.send(synthesisFrame, streamId, i, pausePlay);
 				}
 				if (persistenceMode < 3) {

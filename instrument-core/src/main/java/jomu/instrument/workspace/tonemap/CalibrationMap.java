@@ -118,7 +118,7 @@ public class CalibrationMap implements OnsetHandler {
 	public double getBeatRange(double time) {
 		Entry<Double, Double> startEntry = beatMap.ceilingEntry(time);
 		if (startEntry != null) {
-			Entry<Double, Double> endEntry = beatMap.ceilingEntry(time + 0.1);
+			Entry<Double, Double> endEntry = beatMap.ceilingEntry(startEntry.getKey() + 0.1);
 			if (endEntry != null) {
 				return endEntry.getKey() - startEntry.getKey();
 			} else {
