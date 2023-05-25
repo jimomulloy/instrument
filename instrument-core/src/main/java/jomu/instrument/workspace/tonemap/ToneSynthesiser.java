@@ -118,7 +118,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 				}
 			}
 		}
-		beat = toneTimeFrame.getBeat(CellTypes.AUDIO_ONSET.name()); 
+		beat = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name());
 		if (beat.isPresent()) {
 			toneMap.getNoteTracker().trackBeat(beat.get(), toneTimeFrame.getPitchSet());
 		}
