@@ -1,5 +1,5 @@
 /*
-*      _______                       _____   _____ _____
+ *      _______                       _____   _____ _____
 *     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
 *        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
@@ -29,11 +29,13 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 
 import jomu.instrument.Instrument;
+import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.monitor.ColorUtil;
@@ -43,12 +45,27 @@ import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.TimeSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
-import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class BeatsView extends JComponent implements ComponentListener {
 
 	private static final Logger LOG = Logger.getLogger(BeatsView.class.getName());
+
+	public static final Color[] COLORS = { new Color(0xff0000), // red
+			new Color(0x0000ff), // blue
+			new Color(0x00ff00), // green
+			new Color(0xcc02de), // purple
+			new Color(0x00aaaa), // cyan-ish
+			new Color(0xffa500), // orange
+			new Color(0x53868b), // cadetblue4
+			new Color(0xff7f50), // coral
+			new Color(0x45ab1f), // dark green-ish
+			new Color(0x90422d), // sienna-ish
+			new Color(0xa0a0a0), // grey-ish
+			new Color(0x14ff14), // green-ish
+			new Color(0x6e4272), // dark purple
+			new Color(0x552209) // brown
+	};
 
 	private BufferedImage bufferedImage;
 	private Graphics2D bufferedGraphics;
@@ -235,39 +252,19 @@ public class BeatsView extends JComponent implements ComponentListener {
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 
-			ToneMapElement[] elements = ttf.getElements();
 			BeatListElement beat = ttf.getBeat();
-			Color color = Color.black;
-			double amplitude = ttf.getMaxAmplitude();
 
-			int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+			Optional<BeatListElement> obc = ttf.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
+			Optional<BeatListElement> obb = ttf.getBeat(CellTypes.AUDIO_BEAT.name());
+			Optional<BeatListElement> obo = ttf.getBeat(CellTypes.AUDIO_ONSET.name());
+			Optional<BeatListElement> obp = ttf.getBeat(CellTypes.AUDIO_PERCUSSION.name());
+			Optional<BeatListElement> obh = ttf.getBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION");
+
+			Color color = Color.black;
+
 			int height = (int) ((double) getHeight() / 2.0);
 
-			int greyValue = 0;
-			if (amplitude > highViewThreshold) {
-				greyValue = 255;
-				color = Color.WHITE;
-			} else if (amplitude <= lowViewThreshold) {
-				greyValue = 0;
-				color = Color.BLACK;
-			} else {
-				if (showLog) {
-					greyValue = (int) (Math.log1p(amplitude / highViewThreshold) / Math.log1p(1.0000001) * 255);
-				} else {
-					greyValue = (int) ((amplitude / highViewThreshold) * 255);
-				}
-				greyValue = Math.max(0, greyValue);
-				if (showColour) {
-					color = rainbow[255 - greyValue];
-				} else {
-					color = new Color(greyValue, greyValue, greyValue);
-				}
-			}
-
 			int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-
-			bufferedGraphics.setColor(color);
-			bufferedGraphics.fillRect(timeCoordinate, (int) (height / 2.0), width, (int) (height / 10.0));
 
 			if (cm.getBeatAfterTime(ttf.getStartTime(), 110) != -1) {
 				color = Color.RED;
@@ -276,11 +273,36 @@ public class BeatsView extends JComponent implements ComponentListener {
 			}
 
 			if (beat != null) {
-				color = Color.CYAN;
+				color = Color.BLUE;
 				bufferedGraphics.setColor(color);
 				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.0 / 5.0) * height), 6, 6);
 			}
 
+			if (obc.isPresent() && obc.get().getAmplitude() > 0.001) {
+				color = Color.LIGHT_GRAY;
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((1.0 / 5.0) * height), 6, 6);
+			}
+			if (obb.isPresent() && obb.get().getAmplitude() > 0.001) {
+				color = new Color(0xcc02de); // purple
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((2.0 / 5.0) * height), 6, 6);
+			}
+			if (obp.isPresent() && obp.get().getAmplitude() > 0.001) {
+				color = Color.CYAN;
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.5 / 5.0) * height), 6, 6);
+			}
+			if (obo.isPresent() && obo.get().getAmplitude() > 0.001) {
+				color = new Color(0xffa500); // orange
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.8 / 5.0) * height), 6, 6);
+			}
+			if (obh.isPresent() && obh.get().getAmplitude() > 0.001) {
+				color = new Color(0x00ff00); // green
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((3.5 / 5.0) * height), 6, 6);
+			}
 		}
 	}
 

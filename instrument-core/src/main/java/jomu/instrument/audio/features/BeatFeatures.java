@@ -69,7 +69,6 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 				}
 
 			}
-
 			if (amplitude > ToneTimeFrame.AMPLITUDE_FLOOR) {
 				ttf.setBeatAmplitude(amplitude);
 			}

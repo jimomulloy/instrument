@@ -29,15 +29,10 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
 import javax.swing.JComponent;
 
 import jomu.instrument.Instrument;
@@ -310,21 +305,20 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						color = Color.MAGENTA;
 					}
 
-						color = Color.BLACK;
-						if (showStats) {
-							if (ttf.getMaxAmplitude() > lowViewThreshold) {
-								if (spectralCentroid != -1 && elementIndex == spectralCentroid) {
-									color = new Color(0x53868b); // cadetblue4
-								}
-								if (spectralMean != -1 && elementIndex == spectralMean) {
-									color = new Color(0xff7f50); // coral
-								}
-								if ((spectralCentroid != -1 && elementIndex == spectralCentroid)
-										&& (spectralMean != -1 && elementIndex == spectralMean)) {
-									color = new Color(0x6e4272); // dark purple
-								}
+					if (showStats) {
+						if (ttf.getMaxAmplitude() > lowViewThreshold) {
+							if (spectralCentroid != -1 && elementIndex == spectralCentroid) {
+								color = new Color(0x53868b); // cadetblue4
+							}
+							if (spectralMean != -1 && elementIndex == spectralMean) {
+								color = new Color(0xff7f50); // coral
+							}
+							if ((spectralCentroid != -1 && elementIndex == spectralCentroid)
+									&& (spectralMean != -1 && elementIndex == spectralMean)) {
+								color = new Color(0x6e4272); // dark purple
 							}
 						}
+					}
 
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
 					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
@@ -455,8 +449,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				for (NoteTrack track : tracks) {
 					color = Color.BLACK;
 					if (track != null) {
-						color = COLORS[track.getNumber() < COLORS.length ? track.getNumber() - 1
-								: COLORS.length - 1];
+						color = COLORS[track.getNumber() < COLORS.length ? track.getNumber() - 1 : COLORS.length - 1];
 					}
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
@@ -474,9 +467,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							int timeEndCoordinate = getTimeCoordinate(timeStart + nle.incrementTime - timeAxisStart);
 							bufferedGraphics.fillOval(timeEndCoordinate, centsCoordinate - height - 2, 6, 6);
 						}
-					}	
+					}
 				}
-				
+
 				NoteTrack track = toneMap.getNoteTracker().getBaseTrack();
 				color = Color.BLACK;
 				if (track != null) {
@@ -491,10 +484,10 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							color = new Color(0xff7f50); // coral
 							bufferedGraphics.setColor(color);
 							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
-						} 
+						}
 					}
-				}	
-				
+				}
+
 				track = toneMap.getNoteTracker().getArpeggioTrack();
 				color = Color.BLACK;
 				if (track != null) {
@@ -509,10 +502,10 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							color = new Color(0xff7f50); // coral
 							bufferedGraphics.setColor(color);
 							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
-						} 
+						}
 					}
-				}		
-				
+				}
+
 				track = toneMap.getNoteTracker().getBeatTrack();
 				color = Color.BLACK;
 				if (track != null) {
@@ -524,10 +517,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 							bufferedGraphics.setColor(color);
 							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
-						}	
+						}
 					}
-				}	
-				
+				}
 			}
 		}
 	}

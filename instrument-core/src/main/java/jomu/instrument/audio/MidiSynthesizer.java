@@ -1577,7 +1577,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 				double beat = ToneTimeFrame.AMPLITUDE_FLOOR;
 				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_PERCUSSION.name());
 				if (ob.isPresent()) {
-					beat = ob.get().getAmplitude();
+					beat = 1.0; // ob.get().getAmplitude();
+				} else {
+					ob = toneTimeFrame.getBeat(CellTypes.AUDIO_ONSET.name());
+					if (ob.isPresent()) {
+						beat = 1.0; // ob.get().getAmplitude();
+					}
 				}
 				if (writeTrack && beat3Track == null) {
 					beat3Track = midiSequence.createTrack();
@@ -1632,9 +1637,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (midiPlayBeat4Switch) {
 				double beat = ToneTimeFrame.AMPLITUDE_FLOOR;
-				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_ONSET.name());
+				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION");
 				if (ob.isPresent()) {
-					beat = ob.get().getAmplitude();
+					beat = 1.0; // ob.get().getAmplitude();
 				}
 				if (writeTrack && beat4Track == null) {
 					beat4Track = midiSequence.createTrack();

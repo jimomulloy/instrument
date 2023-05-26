@@ -88,7 +88,6 @@ public class Atlas {
 				this.calibrationMaps.remove(key);
 			}
 		}
-		LOG.severe(">>ATLAS FrameCache size: " + frameCache.getSize());
 	}
 
 	public void clear() {
@@ -110,11 +109,9 @@ public class Atlas {
 		for (String key : toneMaps.keySet()) {
 			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
 				ToneMap tm = getToneMap(key);
-				// TODO tm.clearOldFrames(time);
 				tm.clear();
 			}
 		}
-		LOG.severe(">>ATLAS FrameCache size: " + frameCache.getSize());
 		frameCache.clear();
 	}
 }

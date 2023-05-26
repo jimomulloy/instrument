@@ -45,6 +45,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
+import jomu.instrument.actuation.Voice;
 import jomu.instrument.audio.PidProcessor;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
@@ -77,6 +78,9 @@ public class Hearing implements Organ {
 
 	@Inject
 	Workspace workspace;
+
+	@Inject
+	Voice voice;
 
 	@Inject
 	Cortex cortex;
@@ -177,7 +181,9 @@ public class Hearing implements Organ {
 		if (getStreamId() != null) {
 			LOG.severe(">>HEARING startAudioFileStream clear old stream: " + getStreamId());
 			workspace.getAtlas().removeMapsByStreamId(getStreamId());
+			voice.reset();
 			System.gc();
+			LOG.severe(">>HEARING startAudioFileStream cleared old stream: " + getStreamId());
 		}
 
 		workspace.getAtlas().clear();
@@ -325,8 +331,11 @@ public class Hearing implements Organ {
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
 		if (getStreamId() != null) {
+			LOG.severe(">>HEARING startAudioLineStream clear old stream: " + getStreamId());
 			workspace.getAtlas().removeMapsByStreamId(getStreamId());
+			voice.reset();
 			System.gc();
+			LOG.severe(">>HEARING startAudioLineStream cleared old stream: " + getStreamId());
 		}
 		workspace.getAtlas().clear();
 

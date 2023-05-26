@@ -59,7 +59,9 @@ public class PercussionFeatures extends AudioEventFeatures<OnsetInfo[]> {
 				OnsetInfo[] onsetInfo = entry.getValue();// in cents
 				// draw the pixels
 				for (OnsetInfo element : onsetInfo) {
-					amplitude += element.salience;
+					if (element.salience == -1.0) {
+						amplitude = 1.0;
+					}
 				}
 
 				ToneMapElement[] elements = ttf.getElements();

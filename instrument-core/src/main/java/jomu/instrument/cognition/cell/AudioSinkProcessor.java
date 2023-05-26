@@ -40,14 +40,13 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		console.getVisor().updateSpectrumView(cqToneMap.getTimeFrame(),
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
 		ToneTimeFrame synthesisFrame = null;
-		
+
 		int tmIndex = sequence - sinkSweepRange;
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
 			if (synthesisFrame != null) {
-				LOG.finer(">>AudioSinkProcessor send 1: " + tmIndex + ",  "+ sequence + ", streamId: " + streamId);
 				voice.send(synthesisFrame, streamId, tmIndex, pausePlay);
-			}	
+			}
 			if (persistenceMode < 3) {
 				commitMaps(streamId, tmIndex, persistenceMode);
 			}
@@ -60,7 +59,6 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				synthesisFrame = synthesisToneMap.getTimeFrame(i);
 				if (synthesisFrame != null) {
-					LOG.finer(">>AudioSinkProcessor send 2: " + tmIndex + ",  "+ sequence + ", streamId: " + streamId);
 					voice.send(synthesisFrame, streamId, i, pausePlay);
 				}
 				if (persistenceMode < 3) {
