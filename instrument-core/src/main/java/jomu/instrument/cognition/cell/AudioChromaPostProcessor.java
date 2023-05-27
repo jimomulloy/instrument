@@ -30,6 +30,13 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH);
 		double chromaChordifyThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD);
+		boolean chromaCQOriginSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH);
+
+		ToneMap originToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		if (chromaCQOriginSwitch) {
+			originToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
+		}
 
 		ToneMap postChromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
@@ -40,6 +47,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		postChromaToneMap.addTimeFrame(postTimeFrame);
 		postTimeFrame.smoothMedian(preChromaToneMap, postChromaToneMap, chromaSmoothFactor, sequence,
 				chromaChordifySwitch, chromaChordifyThreshold, chromaChordifySharpenSwitch);
+		postTimeFrame.chordNoteOctivate(originToneMap.getTimeFrame(sequence));
 
 		int tmIndex = sequence - 10; // TODO !!
 		ToneTimeFrame timeFrame;

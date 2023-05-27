@@ -113,16 +113,10 @@ public class ToneSynthesiser implements ToneMapConstants {
 				if (nle != null && synthFillLegatoSwitch) {
 					addLegato(toneMap.getNoteTracker().getBaseTrack(), nle);
 				}
-				nle = toneMap.getNoteTracker().trackArpeggio(beat.get(), ac, toneTimeFrame.getPitchSet());
-				if (nle != null && synthFillLegatoSwitch) {
-					addLegato(toneMap.getNoteTracker().getArpeggioTrack(), nle);
-				}
+				toneMap.getNoteTracker().trackChords(beat.get(), ac, toneTimeFrame);
 			}
 		}
-		beat = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
-		if (beat.isPresent()) {
-			toneMap.getNoteTracker().trackBeat(beat.get(), toneTimeFrame.getPitchSet());
-		}
+		toneMap.getNoteTracker().trackBeats(toneTimeFrame);
 	}
 
 	private ChordListElement aggregateChords(ToneTimeFrame toneTimeFrame, ChordListElement chord) {

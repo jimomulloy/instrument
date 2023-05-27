@@ -258,7 +258,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 			NoteTrack[] noteTracks = toneMap.getNoteTracker().getTracks();
 			NoteTrack baseTrack = toneMap.getNoteTracker().getBaseTrack();
-			NoteTrack arpeggioTrack = toneMap.getNoteTracker().getArpeggioTrack();
+			NoteTrack chordTrack1 = toneMap.getNoteTracker().getChordTrack(1);
 
 			ToneMapElement[] elements = ttf.getElements();
 
@@ -488,7 +488,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					}
 				}
 
-				track = toneMap.getNoteTracker().getArpeggioTrack();
+				track = toneMap.getNoteTracker().getChordTrack(1);
 				color = Color.BLACK;
 				if (track != null) {
 					color = Color.GRAY;
@@ -506,10 +506,43 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					}
 				}
 
-				track = toneMap.getNoteTracker().getBeatTrack();
+				track = toneMap.getNoteTracker().getChordTrack(2);
+				color = Color.BLACK;
+				if (track != null) {
+					color = Color.DARK_GRAY;
+					NoteListElement[] nles = track.getNotes(timeStart);
+					for (NoteListElement nle : nles) {
+						int centsCoordinate = getCentsCoordinate((nle.note + 48) * 100);
+						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+						bufferedGraphics.setColor(color);
+						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+						if (nle.startTime == timeStart) {
+							color = new Color(0xff7f50); // coral
+							bufferedGraphics.setColor(color);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+						}
+					}
+				}
+
+				track = toneMap.getNoteTracker().getBeatTrack(1);
 				color = Color.BLACK;
 				if (track != null) {
 					color = Color.CYAN;
+					NoteListElement[] nles = track.getNotes(timeStart);
+					for (NoteListElement nle : nles) {
+						if (nle.startTime == timeStart) {
+							int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+							int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+							bufferedGraphics.setColor(color);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+						}
+					}
+				}
+				
+				track = toneMap.getNoteTracker().getBeatTrack(2);
+				color = Color.BLACK;
+				if (track != null) {
+					color = Color.GREEN;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						if (nle.startTime == timeStart) {
