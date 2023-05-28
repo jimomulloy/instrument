@@ -39,7 +39,7 @@ The work is based on ideas and techniques that I have taken from the _many_ wond
 * instrument-s3handler : AWS Cloud Services implementation of instrument API including Lambda functions and S3 store.
 * instrument-s3handler-cdk : AWS Cloud Services "CDK" infrastructure-as-code implementation of deployable AWS service components.
 * instrument-s3handler-st : System tests for AWS Cloud Services implementation of instrument API.
-* 
+
 
 
 ## Installation
