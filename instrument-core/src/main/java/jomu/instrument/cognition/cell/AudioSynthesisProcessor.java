@@ -58,10 +58,10 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH);
 		double chromaChordifyThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD);
-		int beat1Timing = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_TIMING);
-		int chord1Timing = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_TIMING);
+		int beatTiming = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING);
+		int chordTiming = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING);
 
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
@@ -139,10 +139,10 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		int chordSourceSequence = sequence;
 		int chordTargetSequence = sequence;
-		if (chord1Timing > 0 && chordSourceSequence - chord1Timing > 0) {
-			chordSourceSequence -= chord1Timing;
-		} else if (chord1Timing < 0 && chordTargetSequence + chord1Timing > 0) {
-			chordTargetSequence += chord1Timing;
+		if (chordTiming > 0 && chordSourceSequence - chordTiming > 0) {
+			chordSourceSequence -= chordTiming;
+		} else if (chordTiming < 0 && chordTargetSequence + chordTiming > 0) {
+			chordTargetSequence += chordTiming;
 		}
 
 		ToneTimeFrame chordSynthesisFrame = synthesisToneMap.getTimeFrame(chordTargetSequence);
@@ -156,6 +156,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			chordSynthesisFrame.setChord(postChromaTimeFrame);
 		}
 		if (postChromaTimeFrame != null) {
+			LOG.severe(">>SC put chord: " + chordSynthesisFrame.getStartTime() + ", " + postChromaTimeFrame.getChord());
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_POST_CHROMA.name(), postChromaTimeFrame.getChord());
 		}
 
@@ -200,10 +201,10 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		int beatSourceSequence = sequence;
 		int beatTargetSequence = sequence;
-		if (beat1Timing > 0 && beatSourceSequence - beat1Timing > 0) {
-			beatSourceSequence -= beat1Timing;
-		} else if (beat1Timing < 0 && beatTargetSequence + beat1Timing > 0) {
-			beatTargetSequence += beat1Timing;
+		if (beatTiming > 0 && beatSourceSequence - beatTiming > 0) {
+			beatSourceSequence -= beatTiming;
+		} else if (beatTiming < 0 && beatTargetSequence + beatTiming > 0) {
+			beatTargetSequence += beatTiming;
 
 		}
 

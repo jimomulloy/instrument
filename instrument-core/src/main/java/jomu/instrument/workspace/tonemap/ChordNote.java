@@ -65,7 +65,7 @@ public class ChordNote implements Comparable<ChordNote>, Serializable {
 
 	@Override
 	public String toString() {
-		return "ChordNote [amplitiude=" + amplitude + ", pitchClass=" + pitchClass + "]";
+		return "ChordNote [amplitiude=" + amplitude + ", pitchClass=" + pitchClass + ", octave=" + octave + "]";
 	}
 
 	@Override

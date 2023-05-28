@@ -1196,35 +1196,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_1);
 			int chord2VolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_2);
-			int synthChord1Measure = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_MEASURE);
-			int synthChord1Pattern = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_PATTERN);
-			int synthChord1Source = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_SOURCE);
-			int synthChord2Measure = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_MEASURE);
-			int synthChord2Pattern = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_PATTERN);
-			int synthChord2Source = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_SOURCE);
-			int synthChord1Octave = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE);
-			int synthChord2Octave = parameterManager
-					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE);
-
-			long tick = getTrackTick(toneTimeFrame);
-
-			ShortMessage midiMessage = null;
-
-			double beatAmp = 0;
-			BeatListElement ble = null;
-			Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name());
-			if (ob.isPresent()) {
-				ble = ob.get();
-				beatAmp = ble.getAmplitude();
-			}
-
+	
 			if (midiPlayChord1Switch) {
 				ChannelData chord1Channel = channels[CHORD_1_CHANNEL];
 				if (writeTrack && chord1Track == null) {
@@ -1236,101 +1208,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 					chordsChannel1LastNotes = new HashSet<>();
 				}
 
-				if (synthChord1Source > 0) {
-					NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(1);
-					if (track != null) {
-						playSynthNoteTrack(track, chord1Channel, chordsChannel1LastNotes, chord1Track, toneTimeFrame,
-								midiMessages, chord1VolumeFactor, false);
-					}
-				} else {
-
-					ChordListElement chord = toneTimeFrame.getChord();
-	
-					boolean hasNewChord = false;
-					if (chord != null && !chord.getChordNotes().isEmpty() && beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR
-							&& (ble.getStartTime() <= chord.getStartTime() || toneTimeFrame
-									.getStartTime() >= (chord.getStartTime() + ble.getTimeRange() * synthChord1Measure))) {
-						hasNewChord = true;
-					}
-	
-					List<Integer> volumes = new ArrayList<>();
-					List<Integer> notes = new ArrayList<>();
-	
-					if (chord != null) {
-						int octaveAdjust = synthChord1Octave;
-						ChordNote[] chordNotes = chord.getChordNotes().toArray(new ChordNote[chord.getChordNotes().size()]);
-						Arrays.sort(chordNotes, new Comparator<ChordNote>() {
-							public int compare(ChordNote c1, ChordNote c2) {
-								return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
-							}
-						});
-	
-						int rootNote = -1;
-						for (ChordNote chordNote : chordNotes) {
-							int volume = 0;
-							int note = 0;
-							double amplitude = 0;
-							amplitude = chordNote.getAmplitude();
-	
-							note = chordNote.getPitchClass();
-							if (rootNote < 0) {
-								rootNote = note;
-							}
-							if (note < rootNote) {
-								note += 12;
-							}
-							note += octaveAdjust * 12;
-	
-							volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-									amplitude, chord1VolumeFactor);
-							if (volume > 0) {
-								volumes.add(volume);
-								notes.add(note);
-							}
-						}
-	
-						HashSet<Integer> newNotes = new HashSet<Integer>(notes);
-						if (!newNotes.equals(chordsChannel1LastNotes)) {
-							hasNewChord = true;
-						}
-					}
-	
-					if ((chord == null && !chordsChannel1LastNotes.isEmpty()) || hasNewChord) {
-						for (int note : chordsChannel1LastNotes) {
-							midiMessage = new ShortMessage();
-							try {
-								midiMessage.setMessage(ShortMessage.NOTE_OFF, chord1Channel.num, note, 0);
-								if (writeTrack) {
-									createEvent(chord1Track, chord1Channel, NOTEOFF, note, tick, 0);
-								}
-							} catch (InvalidMidiDataException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							midiMessages.add(midiMessage);
-						}
-						chordsChannel1LastNotes.clear();
-					}
-	
-					if (hasNewChord) {
-						for (int i = 0; i < notes.size(); i++) {
-							int note = notes.get(i);
-							int volume = volumes.get(i);
-							midiMessage = new ShortMessage();
-							try {
-								midiMessage.setMessage(ShortMessage.NOTE_ON, chord1Channel.num, note, volume);
-	
-								if (writeTrack) {
-									createEvent(chord2Track, chord1Channel, NOTEON, note, tick, volume);
-								}
-							} catch (InvalidMidiDataException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							midiMessages.add(midiMessage);
-							chordsChannel1LastNotes.add(note);
-						}
-					}
+				NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(1);
+				if (track != null) {
+					playSynthNoteTrack(track, chord1Channel, chordsChannel1LastNotes, chord1Track, toneTimeFrame,
+							midiMessages, chord1VolumeFactor, false);
 				}
 			}
 			
@@ -1345,127 +1226,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 					chordsChannel2LastNotes = new HashSet<>();
 				}
 
-				if (synthChord2Source > 0) {
-					NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(2);
-					if (track != null) {
-						playSynthNoteTrack(track, chord2Channel, chordsChannel2LastNotes, chord2Track, toneTimeFrame,
-								midiMessages, chord2VolumeFactor, false);
-					}
-				} else {
-
-					ChordListElement chord = new ChordListElement(toneTimeFrame.getStartTime(),
-							toneTimeFrame.getEndTime());
-
-					ChordListElement chordPre = null;
-					Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
-					if (ocp.isPresent()) {
-						chordPre = ocp.get();
-						chord.merge(chordPre);
-					}
-					ChordListElement chordHm = null;
-					Optional<ChordListElement> ochm = toneTimeFrame
-							.getChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC");
-					if (ochm.isPresent()) {
-						chordHm = ochm.get();
-						chord.merge(chordHm);
-					}
-					ChordListElement chordOs = null;
-					Optional<ChordListElement> ocos = toneTimeFrame
-							.getChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED");
-					if (ocos.isPresent()) {
-						chordOs = ocos.get();
-						chord.merge(chordOs);
-					}
-
-					boolean hasNewChord = false;
-					if (chord != null && !chord.getChordNotes().isEmpty() && beatAmp > ToneTimeFrame.AMPLITUDE_FLOOR
-							&& (chordChannelLastNoteTime == 0 || ble.getStartTime() <= chordChannelLastNoteTime
-									|| toneTimeFrame.getStartTime() >= (chordChannelLastNoteTime
-											+ ble.getTimeRange() * synthChord2Measure))) {
-						hasNewChord = true;
-					}
-
-					toneTimeFrame.sharpenChord(chord);
-
-					List<Integer> volumes = new ArrayList<>();
-					List<Integer> notes = new ArrayList<>();
-
-					if (chord != null) {
-						int octaveAdjust = synthChord2Octave;
-						ChordNote[] chordNotes = chord.getChordNotes()
-								.toArray(new ChordNote[chord.getChordNotes().size()]);
-						Arrays.sort(chordNotes, new Comparator<ChordNote>() {
-							public int compare(ChordNote c1, ChordNote c2) {
-								return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
-							}
-						});
-
-						int rootNote = -1;
-						for (ChordNote chordNote : chordNotes) {
-							int volume = 0;
-							int note = 0;
-							double amplitude = 0;
-							amplitude = chordNote.getAmplitude();
-
-							note = chordNote.getPitchClass();
-							if (rootNote < 0) {
-								rootNote = note;
-							}
-							if (note < rootNote) {
-								note += 12;
-							}
-							note += octaveAdjust * 12;
-
-							volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false,
-									false, amplitude, chord2VolumeFactor);
-							if (volume > 0) {
-								volumes.add(volume);
-								notes.add(note);
-							}
-						}
-
-						HashSet<Integer> newNotes = new HashSet<Integer>(notes);
-						if (!newNotes.equals(chordsChannel2LastNotes)) {
-							hasNewChord = true;
-						}
-					}
-
-					if ((chord == null && !chordsChannel2LastNotes.isEmpty()) || hasNewChord) {
-						for (int note : chordsChannel2LastNotes) {
-							midiMessage = new ShortMessage();
-							try {
-								midiMessage.setMessage(ShortMessage.NOTE_OFF, chord2Channel.num, note, 0);
-								if (writeTrack) {
-									createEvent(chord2Track, chord2Channel, NOTEOFF, note, tick, 0);
-								}
-							} catch (InvalidMidiDataException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							midiMessages.add(midiMessage);
-						}
-						chordsChannel2LastNotes.clear();
-					}
-
-					if (hasNewChord) {
-						for (int i = 0; i < notes.size(); i++) {
-							int note = notes.get(i);
-							int volume = volumes.get(i);
-							midiMessage = new ShortMessage();
-							try {
-								midiMessage.setMessage(ShortMessage.NOTE_ON, chord2Channel.num, note, volume);
-								if (writeTrack) {
-									createEvent(chord2Track, chord2Channel, NOTEON, note, tick, volume);
-								}
-							} catch (InvalidMidiDataException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							midiMessages.add(midiMessage);
-							chordsChannel2LastNotes.add(note);
-							chordChannelLastNoteTime = toneTimeFrame.getStartTime();
-						}
-					}
+				NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(2);
+				if (track != null) {
+					playSynthNoteTrack(track, chord2Channel, chordsChannel2LastNotes, chord2Track, toneTimeFrame,
+							midiMessages, chord2VolumeFactor, false);
 				}
 			}
 			return true;
