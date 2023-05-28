@@ -8,7 +8,7 @@ The purpose of my doing this "side" project was to:
 * Be a fun and playful creative exercise to provide really useful tools to support my hobby as an experimental musician and film artist as this gives me joy.
 ([Spotify](https://open.spotify.com/artist/0q6YXdTHAKSurxHEoAxbDm?si=alkeorFsRVSHRuE1dqLCqw) and [YouTube](https://www.youtube.com/channel/UCC1zuBMO0TDeicMlU1xzCZA))
 
-The work is based on ideas and techniques that I have taken from the _many_ wonderful insights in the rich field of "MIR", (Music Information Retrieval,) research and practice. I have also derived and built on many examples of Java signal processing code from here on Github and beyond.(Please see [Acknowledgements](#acknowledgements) section below)
+The work is based on ideas and techniques that I have taken from the _many_ wonderful insights in the rich field of "MIR", (Music Information Retrieval,) research and practice. I have also derived and built on many examples of Java signal processing code from here on Github and beyond. (Please see [Acknowledgements](#acknowledgements) section below)
 
 
 ## License
