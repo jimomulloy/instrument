@@ -22,6 +22,20 @@ The work is based on ideas and techniques that I have taken from the _many_ wond
 
 **Server:** Java17, Quarkus, AWS Lambda
 
+## Instrument project - Maven modules as implemented:
+
+![InstrumentModules drawio](https://github.com/jimomulloy/instrument/assets/2285093/3d9f97e6-cdbb-43bd-bb34-b0564e4d568d)
+
+* instrument : Parent module
+* instrument-core : Core signal processing framework and functionality (as per design above.)
+* instrument-desktop : PC Java Desktop implementation of instrument API including Swing UI, MicroStream DB and local file store.
+* instrument-cmd : Simple implementation of instrument API for command line operation.
+* instrument-st : System tests for Core Instrument funtions.
+* instrument-aws : AWS based Cloud Services parent module.
+* instrument-s3handler : AWS Cloud Services implementation of instrument API including Lambda functions and S3 store.
+* instrument-s3handler-cdk : AWS Cloud Services "CDK" infrastructure-as-code implementation of deployable AWS service components.
+* instrument-s3handler-st : System tests for AWS Cloud Services implementation of instrument API.
+* 
 
 ## Acknowledgements
 
