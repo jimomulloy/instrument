@@ -49,30 +49,16 @@ To deploy this project run
 
 ## Documentation
 
+[Please see project Github WIKI([https://linktodocumentation](https://github.com/jimomulloy/instrument/wiki))
+
 ![The Instrument Block Diagram](https://github.com/jimomulloy/instrument/blob/main/images/instrumentblocks.drawio.png)
 
-[Documentation](https://linktodocumentation)
 
+## Demo/Usage/Examples
 
-## Demo
+### Screen shots
 
-Insert gif or link to demo
+![image](https://github.com/jimomulloy/instrument/assets/2285093/f3bcebb5-c716-4650-8e9e-b50bcd42f917)
 
-## Features
-
-- Light/dark mode toggle
-- Live previews
-- Fullscreen mode
-- Cross platform
-
-    
-## Usage/Examples
-
-```javascript
-import Component from 'my-project'
-
-function App() {
-  return <Component />
-}
-```
+![20230524_144242605](https://github.com/jimomulloy/instrument/assets/2285093/a47b47f2-2e88-419c-8966-ff578b85d427)
 
