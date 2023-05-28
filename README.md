@@ -49,7 +49,7 @@ To deploy this project run
 
 ## Documentation
 
-[Please see project Github WIKI](https://linktodocumentation](https://github.com/jimomulloy/instrument/wiki)
+[Please see project Github WIKI](https://github.com/jimomulloy/instrument/wiki)
 
 ![The Instrument Block Diagram](https://github.com/jimomulloy/instrument/blob/main/images/instrumentblocks.drawio.png)
 
