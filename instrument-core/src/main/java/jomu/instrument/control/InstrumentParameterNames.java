@@ -187,7 +187,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT2_MEASURE = "perception.hearing.synthesis.beat2Measure";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT2_OFFSET = "perception.hearing.synthesis.beat2Offset";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_TIMING = "perception.hearing.synthesis.baseTiming";
-	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_BEAT = "perception.hearing.synthesis.baseBeat";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_MEASURE = "perception.hearing.synthesis.baseMeasure";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN = "perception.hearing.synthesis.basePattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE = "perception.hearing.synthesis.baseOctave";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE = "perception.hearing.synthesis.pad1Octave";
