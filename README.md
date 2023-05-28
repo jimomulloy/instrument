@@ -44,7 +44,7 @@ The work is based on ideas and techniques that I have taken from the _many_ wond
 
 ## Installation
 
-Install my-project with mvn
+Install instrument project locally with mvn
 
 ```bash
   cd instrument
@@ -54,13 +54,27 @@ Install my-project with mvn
 
 ## Deployment
 
-To deploy this project run
+* AWS Cloud deployment using "infrastructure as Code" with CDK (Cloud Dev Kit)
 
 ```bash
   cd instrument
   mvn clean install
+  cd instrument-aws/instrument-s3handler-cdk
+  cdk deploy
 ```
 
+* Use JPackage tools to build a standalone desktop application installer for various PC platforms including a built in JDK.
+
+Start from platform of choice with pre-requisite tools and libaries installed including version of JDK17.
+
+E.g. for Windows10+:
+
+```bash
+  cd instrument
+  mvn clean install
+  ./jpackage --type exe --name InstrumentApp --input target --dest target\packed --main-jar instrument-desktop-0.0.1-SNAPSHOT.jar --main-class jomu.instrument.desktop.monitor.QuarkusInstrument --description "The Instrument Desktop App by Jim O'Mulloy" --app-version 0.0.1 --icon src/main/resources/instrument.ico --win-shortcut --win-menu --win-menu-group "jomu"
+```
+This should produce an standalone .exe installer with built in JDK (So can be run on a Windows10+ PC with no previous Java installed.
 
 
 ## Documentation
