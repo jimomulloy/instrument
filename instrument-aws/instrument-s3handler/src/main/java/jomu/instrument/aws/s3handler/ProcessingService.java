@@ -170,7 +170,8 @@ public class ProcessingService {
 					+ instrumentSession.getInputAudioFileName() + ", " + fileNames.size() + " ," + fileNames);
 			for (String fileName : fileNames) {
 				LOG.severe(">>ProcessingService midiFileFolder fileName: " + fileName);
-				if (fileName.startsWith(instrumentSession.getInputAudioFileName())) {
+				if (fileName.startsWith(instrumentSession.getInputAudioFileName()) 
+						&& (fileName.toLowerCase().endsWith("midi") || fileName.toLowerCase().endsWith("mid"))) {
 					File midiFile = new File(midiFileFolder + "/" + fileName);
 					LOG.severe(
 							">>ProcessingService store: " + midiFileFolder + "/" + fileName + ", " + midiFile.length());
