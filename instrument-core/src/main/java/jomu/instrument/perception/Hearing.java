@@ -180,9 +180,9 @@ public class Hearing implements Organ {
 		LOG.severe(">>HEARING startAudioFileStream: " + inputFileName);
 		if (getStreamId() != null) {
 			LOG.severe(">>HEARING startAudioFileStream clear old stream: " + getStreamId());
-			workspace.getAtlas().removeMapsByStreamId(getStreamId());
+			//workspace.getAtlas().removeMapsByStreamId(getStreamId());
 			voice.reset();
-			System.gc();
+			//System.gc();
 			LOG.severe(">>HEARING startAudioFileStream cleared old stream: " + getStreamId());
 		}
 
