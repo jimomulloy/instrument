@@ -595,8 +595,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public Set<Integer> baseChannelLastNotes;
 		public Map<Integer, Double> padsChannel1LastNoteTimes;
 		public Map<Integer, Double> padsChannel2LastNoteTimes;
-		public double chordChannelLastNoteTime;
-
+		
 		public Track voice1Track;
 		public Track voice2Track;
 		public Track voice3Track;
@@ -1203,6 +1202,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					chord1Track = midiSequence.createTrack();
 					createEvent(chord1Track, chord1Channel, PROGRAM, chord1Channel.program + 1, 1L, 127);
 				}
+				
+				LOG.severe(">>MIDI CHANNEL playSynthChords chordsChannel1LastNotes");
 
 				if (chordsChannel1LastNotes == null) {
 					chordsChannel1LastNotes = new HashSet<>();
@@ -2488,7 +2489,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private boolean playChordChannel1(MidiQueueMessage mqm) {
-			LOG.finer(">>MIDI CHANNEL playChordChannel1");
+			LOG.severe(">>MIDI CHANNEL playChordChannel1");
 
 			double lowVoiceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
@@ -2530,6 +2531,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			List<ShortMessage> midiMessages = new ArrayList<>();
 			ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+			LOG.severe(">>MIDI CHANNEL playChordChannel1 chordsChannel1LastNotes");
+
 			if (chordsChannel1LastNotes == null) {
 				chordsChannel1LastNotes = new HashSet<>();
 			}
