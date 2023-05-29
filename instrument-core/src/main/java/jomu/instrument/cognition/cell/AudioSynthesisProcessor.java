@@ -156,7 +156,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			chordSynthesisFrame.setChord(postChromaTimeFrame);
 		}
 		if (postChromaTimeFrame != null) {
-			LOG.severe(">>SC put chord: " + chordSynthesisFrame.getStartTime() + ", " + postChromaTimeFrame.getChord());
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_POST_CHROMA.name(), postChromaTimeFrame.getChord());
 		}
 
@@ -192,7 +191,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
-					onsetSmoothedTimeFrame.getChord());
+					chroma.getChord());
 			chroma = onsetSmoothedTimeFrame.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(),
 					onsetSmoothedTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);

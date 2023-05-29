@@ -220,7 +220,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 							nle.legatoAfter.legatoBefore = pnle;
 						}
 						track.removeNote(nle);
-						LOG.severe(">>SYNTH legato remove: " + track.getNumber() + ", " + nle.startTime);
+						LOG.finer(">>SYNTH legato remove: " + track.getNumber() + ", " + nle.startTime);
 					} else {
 						pnle.addLegato(nle);
 					}

@@ -47,16 +47,9 @@ public class AudioPercussionProcessor extends ProcessorCommon {
 		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 
-		if (ttf.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
-			LOG.severe(">>AudioPercProcessor 1 max: " + sequence + ", : " + ttf.getMaxAmplitude());
-		}
 		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
-		}
-
-		if (ttf.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
-			LOG.severe(">>AudioPercProcessor 2 max: " + sequence + ", : " + ttf.getMaxAmplitude());
 		}
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

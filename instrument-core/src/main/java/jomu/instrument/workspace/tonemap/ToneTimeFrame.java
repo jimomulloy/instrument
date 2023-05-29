@@ -326,7 +326,7 @@ public class ToneTimeFrame implements Serializable {
 	public ToneTimeFrame cens() {
 		return this;
 	}
-
+	
 	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch, boolean harmonics) {
 		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.toneMap, this.timeSet.clone(),
 				new PitchSet(basePitch, basePitch + OCTAVE_LENGTH - 1));
@@ -355,7 +355,9 @@ public class ToneTimeFrame implements Serializable {
 					chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
 				}
 			}
-			chromaElement.amplitude += elements[i].amplitude;
+			if (elements[i].amplitude > 0.0001) {
+				chromaElement.amplitude += elements[i].amplitude;
+			}	
 		}
 		ToneMapElement[] chromaElements = chromaTimeFrame.getElements();
 		for (int i = 0; i < chromaElements.length; i++) {
@@ -740,8 +742,10 @@ public class ToneTimeFrame implements Serializable {
 				}
 			}
 		}
-		chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
+		if (cnotes.size() >= 2) {
+			chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
 				cnotes.toArray(new ChordNote[cnotes.size()]));
+		}	
 		return chordListElement;
 
 	}
@@ -769,7 +773,7 @@ public class ToneTimeFrame implements Serializable {
 		reset();
 		return this;
 	}
-
+	
 	public ToneTimeFrame chromaChordify(double threshold, boolean sharpen) {
 		chordNotes = new TreeSet<>();
 		TreeSet<Integer> firstCandidates = new TreeSet<>();
@@ -965,16 +969,21 @@ public class ToneTimeFrame implements Serializable {
 	public void chordNoteOctivate(ToneTimeFrame originFrame) {
 		for (ChordNote cn : chordNotes) {
 			cn.octave = originFrame.findMaxOctave(cn.pitchClass);
-		}		
+			if (cn.octave == -1) {
+				chordNotes.clear();
+				chordListElement = null;
+				break;
+			}
+		}	
 	}
 
 	private int findMaxOctave(int pitchClass) {
-		int result = 0;
-		double maxAmp = 0; 
+		int result = -1;
+		double maxAmp = AMPLITUDE_FLOOR; 
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null && i % OCTAVE_LENGTH == pitchClass && elements[i].amplitude > maxAmp) {
+				maxAmp = elements[i].amplitude;
 				result = i / 12;
-				maxAmp = elements[i].amplitude;				
 			}
 		}	
 		return result;
