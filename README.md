@@ -87,6 +87,8 @@ This should produce an standalone .exe installer with built in JDK (So can be ru
 
 ## Demo/Usage/Examples
 
+Input:  
+
 ### Screen shots
 
 ![image](https://github.com/jimomulloy/instrument/assets/2285093/f3bcebb5-c716-4650-8e9e-b50bcd42f917)
