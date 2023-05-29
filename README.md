@@ -20,9 +20,9 @@ The work is based on ideas and techniques that I have taken from the _many_ wond
 
 ## Tech Stack
 
-**Client:** Swing, React (Provided by [instrumentamper](https://github.com/jimomulloy/instrumentamper) project)
-
 **Server:** Java17, Quarkus, AWS Lambda
+
+**Client:** Java Swing, React (Provided by [instrumentamper](https://github.com/jimomulloy/instrumentamper) project)
 
 
 
