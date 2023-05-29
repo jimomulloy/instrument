@@ -1834,7 +1834,9 @@ public class ToneTimeFrame implements Serializable {
 	}
 
 	public void putChordList(String source, ChordListElement chordList) {
-		chordsMap.put(source, chordList);
+		if (chordList != null) {
+			chordsMap.put(source, chordList);
+		}	
 	}
 
 	public Optional<ChordListElement> getChordList(String source) {
