@@ -57,6 +57,7 @@ public class ProcessingService {
 
 	public OutputObject process(InputObject input) {
 		LOG.severe(">>ProcessingService process: " + input);
+		instrument.reset();
 		String s3Key = input.getName();
 		String userId = s3Key.substring("private/".length(), s3Key.indexOf("/input/"));
 		String propsKey = "private/" + userId + "/input/parameter.properties";
