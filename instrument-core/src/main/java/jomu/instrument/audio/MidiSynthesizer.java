@@ -1488,12 +1488,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (oc.isPresent()) {
 					chord = oc.get();
 				}
-				toneTimeFrame.sharpenChord(chord);
-
+		
 				List<Integer> volumes = new ArrayList<>();
 				List<Integer> notes = new ArrayList<>();
 
 				if (chord != null) {
+					toneTimeFrame.sharpenChord(chord);
 					int octaveAdjust = synthPad1Octave;
 					ChordNote[] chordNotes = chord.getChordNotes().toArray(new ChordNote[chord.getChordNotes().size()]);
 					Arrays.sort(chordNotes, new Comparator<ChordNote>() {
