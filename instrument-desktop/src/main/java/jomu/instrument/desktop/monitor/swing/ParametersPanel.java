@@ -52,8 +52,8 @@ public class ParametersPanel extends JPanel {
 	private static final Logger LOG = Logger.getLogger(ParametersPanel.class.getName());
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "birds", "beethoven",
-			"folk" };
+	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "vocal-male",
+			"vocal-female", "birds", "blackbird", "classical", "folk" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;
@@ -4284,7 +4284,7 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE));
 		sinkSweepRangeInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE));
-		
+
 		noteTrackerMaxTracksUpperInput.setText(parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT));
 		noteTrackerMaxTracksLowerInput.setText(parameterManager
@@ -4416,7 +4416,7 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH));
 		integrateMFCCSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH));
-	
+
 		beatsThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD));
 		beatsSensitivityInput
