@@ -70,7 +70,7 @@ public class ProcessingService {
 			Properties props = new Properties();
 			try {
 				props.load(stream);
-				controller.getParameterManager().overrideParameters(props);
+				controller.getParameterManager().mergeProperties(props);
 				LOG.severe(">>ProcessingService overrideParameters");
 			} catch (IOException e) {
 				LOG.log(Level.SEVERE, ">>ProcessingService error overriding parameters", e);
