@@ -143,7 +143,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			chordSourceSequence -= chordTiming;
 		} else if (chordTiming < 0 && chordTargetSequence + chordTiming > 0) {
 			chordTargetSequence += chordTiming;
-
 		}
 
 		ToneTimeFrame chordSynthesisFrame = synthesisToneMap.getTimeFrame(chordTargetSequence);
@@ -192,7 +191,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
-					onsetSmoothedTimeFrame.getChord());
+					chroma.getChord());
 			chroma = onsetSmoothedTimeFrame.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(),
 					onsetSmoothedTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);

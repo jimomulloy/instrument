@@ -113,16 +113,10 @@ public class ToneSynthesiser implements ToneMapConstants {
 				if (nle != null && synthFillLegatoSwitch) {
 					addLegato(toneMap.getNoteTracker().getBaseTrack(), nle);
 				}
-				nle = toneMap.getNoteTracker().trackArpeggio(beat.get(), ac, toneTimeFrame.getPitchSet());
-				if (nle != null && synthFillLegatoSwitch) {
-					addLegato(toneMap.getNoteTracker().getArpeggioTrack(), nle);
-				}
+				toneMap.getNoteTracker().trackChords(beat.get(), ac, toneTimeFrame);
 			}
 		}
-		beat = toneTimeFrame.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
-		if (beat.isPresent()) {
-			toneMap.getNoteTracker().trackBeat(beat.get(), toneTimeFrame.getPitchSet());
-		}
+		toneMap.getNoteTracker().trackBeats(toneTimeFrame);
 	}
 
 	private ChordListElement aggregateChords(ToneTimeFrame toneTimeFrame, ChordListElement chord) {
@@ -136,6 +130,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 			ac = chord.clone();
 		}
 
+		//TODO !! Normalise first?
 		ChordListElement chordPre = null;
 		Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
 		if (ocp.isPresent()) {
@@ -225,7 +220,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 							nle.legatoAfter.legatoBefore = pnle;
 						}
 						track.removeNote(nle);
-						LOG.severe(">>SYNTH legato remove: " + track.getNumber() + ", " + nle.startTime);
+						LOG.finer(">>SYNTH legato remove: " + track.getNumber() + ", " + nle.startTime);
 					} else {
 						pnle.addLegato(nle);
 					}
