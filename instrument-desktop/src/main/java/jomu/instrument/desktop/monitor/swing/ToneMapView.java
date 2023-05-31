@@ -97,7 +97,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 	private double maxAmplitude = 0;
 
-	private double maxTime = 0;
+	private int maxTime = 0;
 
 	private int maxPitchCents = Integer.MIN_VALUE;
 
@@ -151,7 +151,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 		return minPitchCents - 100 < 0 ? 0 : minPitchCents - 100;
 	}
 
-	public double getMaxTime() {
+	public int getMaxTime() {
 		return maxTime;
 	}
 
@@ -166,7 +166,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.minCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET);
 		this.maxCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE);
-		LOG.severe(">>TM udpateAxis : " + this.minCents + ", " + this.maxCents);
 		maxAmplitude = 0;
 		maxTime = 0;
 		maxPitchCents = 0;
@@ -272,7 +271,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			double timeEnd = timeSet.getEndTime() * 1000;
 
 			if (timeEnd > maxTime) {
-				maxTime = timeEnd;
+				maxTime = (int) timeEnd;
 			}
 
 			if (timeStart >= timeAxisEnd) {

@@ -66,6 +66,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				}
 			}
 			voice.close(streamId);
+			console.getVisor().updateViewThresholds();
 		}
 	}
 

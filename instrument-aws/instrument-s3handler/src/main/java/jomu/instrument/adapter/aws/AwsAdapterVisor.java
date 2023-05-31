@@ -102,4 +102,10 @@ public class AwsAdapterVisor implements Visor {
 
 	}
 
+	@Override
+	public void updateViewThresholds() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

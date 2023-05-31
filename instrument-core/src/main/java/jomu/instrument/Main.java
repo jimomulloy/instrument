@@ -1,7 +1,6 @@
 package jomu.instrument;
 
 /**
- * Hello world!
  *
  */
 public class Main {

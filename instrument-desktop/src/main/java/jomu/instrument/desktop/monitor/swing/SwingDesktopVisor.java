@@ -232,6 +232,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JCheckBox showNotesSwitchCB;
 	JCheckBox showChordsSwitchCB;
 	JCheckBox showBeatsSwitchCB;
+	JButton resetSystemButton;
+	JButton parametersButton;
+	JButton synthButton;
+	JButton updateViewButton;
+	JSplitPane toneMapViewTopPane;
+	JSplitPane toneMapViewBottomPane;
 
 	@Override
 	public void startUp() {
@@ -652,17 +658,34 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		JPanel chromaPanel = buildChromaPanel();
 		JPanel spectrumsPanel = buildSpectrumsPanel();
 		JPanel beatsPanel = buildBeatsPanel();
-		JSplitPane leftTopPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(chromaPanel),
+		toneMapViewTopPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(chromaPanel),
 				new JScrollPane(beatsPanel));
-		JSplitPane leftBottomPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(leftTopPane),
+		toneMapViewBottomPane = new JSplitPane(SwingConstants.HORIZONTAL, new JScrollPane(toneMapViewTopPane),
 				new JScrollPane(spectrumsPanel));
-		leftTopPane.setOneTouchExpandable(true);
-		leftTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
-		leftBottomPane.setOneTouchExpandable(true);
-		leftBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
+		toneMapViewTopPane.setOneTouchExpandable(true);
+		toneMapViewBottomPane.setOneTouchExpandable(true);
 
-		leftGraphPanel.add(leftBottomPane, BorderLayout.CENTER);
+		leftGraphPanel.add(toneMapViewBottomPane, BorderLayout.CENTER);
 
+		if (toneMapViewTopPane != null) {
+			if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS)) {
+				if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS)) {
+					toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
+					toneMapViewTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
+				} else {
+					toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
+					toneMapViewTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
+				}
+			} else {
+				if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS)) {
+					toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.2));
+					toneMapViewTopPane.setDividerLocation(0);
+				} else {
+					toneMapViewBottomPane.setDividerLocation(0);
+					toneMapViewTopPane.setDividerLocation(0);
+				}
+			}
+		}
 		diagnosticsPanel = buildDiagnosticsPanel();
 		rightGraphPanel.add(diagnosticsPanel, BorderLayout.CENTER);
 		Dimension minimumSize = new Dimension(100, 1000);
@@ -950,6 +973,28 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				boolean newValue = cb.isSelected();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS,
 						Boolean.toString(newValue));
+				Toolkit myScreen = Toolkit.getDefaultToolkit();
+				Dimension screenSize = myScreen.getScreenSize();
+				int screenHeight = screenSize.height;
+				if (toneMapViewTopPane != null) {
+					if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS)) {
+						if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS)) {
+							toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
+							toneMapViewTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
+						} else {
+							toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
+							toneMapViewTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
+						}
+					} else {
+						if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS)) {
+							toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.2));
+							toneMapViewTopPane.setDividerLocation(0);
+						} else {
+							toneMapViewBottomPane.setDividerLocation(0);
+							toneMapViewTopPane.setDividerLocation(0);
+						}
+					}
+				}
 				refreshMapViews();
 			}
 		});
@@ -966,6 +1011,28 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				boolean newValue = cb.isSelected();
 				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS,
 						Boolean.toString(newValue));
+				Toolkit myScreen = Toolkit.getDefaultToolkit();
+				Dimension screenSize = myScreen.getScreenSize();
+				int screenHeight = screenSize.height;
+				if (toneMapViewTopPane != null) {
+					if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS)) {
+						if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS)) {
+							toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
+							toneMapViewTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
+						} else {
+							toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.3));
+							toneMapViewTopPane.setDividerLocation((int) ((double) screenHeight * 0.18));
+						}
+					} else {
+						if (parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS)) {
+							toneMapViewBottomPane.setDividerLocation((int) ((double) screenHeight * 0.2));
+							toneMapViewTopPane.setDividerLocation(0);
+						} else {
+							toneMapViewBottomPane.setDividerLocation(0);
+							toneMapViewTopPane.setDividerLocation(0);
+						}
+					}
+				}
 				refreshMapViews();
 			}
 		});
@@ -1005,8 +1072,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG));
 		graphViewControlPanel.add(showLogSwitchCB);
 
-		final JButton parametersButton = new JButton("Update");
-		parametersButton.addActionListener(new ActionListener() {
+		updateViewButton = new JButton("Update");
+		updateViewButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1015,7 +1082,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 			}
 		});
-		graphViewControlPanel.add(parametersButton);
+		graphViewControlPanel.add(updateViewButton);
 
 		JLabel toneMapViewLowThresholdLabel = new JLabel("Low: ");
 		toneMapViewLowThresholdInput = new JTextField(4);
@@ -1060,7 +1127,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		return panel;
 	}
 
-	protected void updateViewThresholds() {
+	@Override
+	public void updateViewThresholds() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
 			double maxAmplitude = toneMapView.getMaxAmplitude();
 			Formatter formatter = new Formatter();
@@ -1069,9 +1137,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					formatter.toString());
 			formatter.close();
 			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
-			double timeRange = toneMapView.getMaxTime();
+			int timeRange = toneMapView.getMaxTime();
 			formatter = new Formatter();
-			formatter.format("%.2f", timeRange);
+			formatter.format("%d", timeRange);
 			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, formatter.toString());
 			formatter.close();
 			int minPitchCents = toneMapView.getMinPitchCents();
@@ -1134,7 +1202,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		JPanel instrumentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-		final JButton resetSystemButton = new JButton("Reset");
+		resetSystemButton = new JButton("Reset");
 		resetSystemButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -1147,17 +1215,118 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionWestPanel.add(resetSystemButton);
 
 		final JButton helpButton = new JButton("Help");
+
 		helpButton.addActionListener(new ActionListener() {
 
+			private boolean helpDialogOpen;
+
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				updateStatusMessage("Please see - https://github.com/jimomulloy/instrument/wiki");
+			public void actionPerformed(ActionEvent e) {
+				String s = e.getActionCommand();
+				if (s.equals("Help")) {
+
+					if (!helpDialogOpen) {
+						// create a dialog Box
+						JDialog d = new JDialog(mainframe, "Help");
+
+						d.addWindowListener(new WindowAdapter() {
+							public void windowClosed(WindowEvent e) {
+								helpDialogOpen = false;
+							}
+
+							public void windowClosing(WindowEvent e) {
+								helpDialogOpen = false;
+							}
+						});
+
+						JPanel dialogPanel = new JPanel(new BorderLayout());
+
+						JPanel helpPanel = new JPanel();
+
+						JLabel helpMessage = new JLabel("HelpMessage");
+						helpMessage.setText("Please see - https://github.com/jimomulloy/instrument/wiki");
+						helpPanel.add(helpMessage, BorderLayout.CENTER);
+
+						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
+								new EtchedBorder()));
+
+						dialogPanel.add(new JScrollPane(helpPanel), BorderLayout.CENTER);
+
+						d.add(dialogPanel);
+
+						Toolkit myScreen = Toolkit.getDefaultToolkit();
+						Dimension screenSize = myScreen.getScreenSize();
+						int screenHeight = screenSize.height;
+						int screenWidth = screenSize.width;
+
+						// setsize of dialog
+						d.setSize((int) ((double) screenWidth * 0.4), (int) ((double) screenHeight * 0.4));
+
+						// set visibility of dialog
+						d.setVisible(true);
+
+						helpDialogOpen = true;
+
+					}
+				}
 			}
 		});
 
+		parametersButton = new JButton("Parameters");
+
+		parametersButton.addActionListener(new ActionListener() {
+
+			private boolean parameterDialogOpen;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String s = e.getActionCommand();
+				if (s.equals("Parameters")) {
+
+					if (!parameterDialogOpen) {
+						// create a dialog Box
+						JDialog d = new JDialog(mainframe, "Parameters");
+
+						d.addWindowListener(new WindowAdapter() {
+							public void windowClosed(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
+
+							public void windowClosing(WindowEvent e) {
+								parameterDialogOpen = false;
+							}
+						});
+
+						JPanel dialogPanel = new JPanel(new BorderLayout());
+
+						JPanel parameterPanel = new ParametersPanel();
+						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
+								new EtchedBorder()));
+
+						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
+
+						d.add(dialogPanel);
+
+						Toolkit myScreen = Toolkit.getDefaultToolkit();
+						Dimension screenSize = myScreen.getScreenSize();
+						int screenHeight = screenSize.height;
+						int screenWidth = screenSize.width;
+
+						// setsize of dialog
+						d.setSize((int) ((double) screenWidth * 0.9), (int) ((double) screenHeight * 0.8));
+
+						// set visibility of dialog
+						d.setVisible(true);
+
+						parameterDialogOpen = true;
+
+					}
+				}
+			}
+		});
 		actionWestPanel.add(helpButton);
 
-		final JButton parametersButton = new JButton("Parameters");
+		parametersButton = new JButton("Parameters");
 
 		parametersButton.addActionListener(new ActionListener() {
 
@@ -1212,7 +1381,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		actionWestPanel.add(parametersButton);
 
-		final JButton synthButton = new JButton("Synth Controls");
+		synthButton = new JButton("Synth Controls");
 
 		synthButton.addActionListener(new ActionListener() {
 
@@ -2523,6 +2692,17 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Override
 	public void showException(InstrumentException exception) {
+		startListeningButton.setEnabled(false);
+		startFileProcessingButton.setEnabled(false);
+		stopListeningButton.setEnabled(false);
+		chooseFileButton.setEnabled(false);
+		frameNumberInput.setEnabled(false);
+		playAudioButton.setEnabled(false);
+		playStreamButton.setEnabled(false);
+		parametersButton.setEnabled(false);
+		updateViewButton.setEnabled(false);
+		synthButton.setEnabled(false);
+		resetSystemButton.setForeground(Color.RED);
 		updateStatusMessage("Instument System Error: " + exception.getMessage());
 	}
 

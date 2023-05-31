@@ -25,6 +25,11 @@ import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
+/**
+ * 
+ * @author jim
+ *
+ */
 @ApplicationScoped
 public class Voice implements Organ {
 

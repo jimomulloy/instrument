@@ -36,4 +36,6 @@ public interface Visor extends AudioFeatureFrameObserver {
 
 	void shutdown();
 
+	void updateViewThresholds();
+
 }

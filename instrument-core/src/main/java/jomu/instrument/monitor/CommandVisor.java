@@ -99,4 +99,10 @@ public class CommandVisor implements Visor {
 
 	}
 
+	@Override
+	public void updateViewThresholds() {
+		// TODO Auto-generated method stub
+
+	}
+
 }
