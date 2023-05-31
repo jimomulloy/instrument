@@ -204,7 +204,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JButton playStreamButton;
 	JCheckBox playPeaksSwitchCB;
 	AbstractButton showPeaksSwitchCB;
-	JCheckBox showTrackingSwitchCB;
+	JCheckBox showPowerSwitchCB;
 	JCheckBox showLogSwitchCB;
 	JCheckBox trackWriteSwitchCB;
 	JPanel visorPanel;
@@ -228,8 +228,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JTextField persistenceModeInput;
 	JTextField voicePlayerRepeatInput;
 	JCheckBox loopSaveSwitchCB;
-
-	private AbstractButton midiPlayVolumeSwitchCB;
+	JCheckBox midiPlayVolumeSwitchCB;
+	JCheckBox showNotesSwitchCB;
+	JCheckBox showChordsSwitchCB;
+	JCheckBox showBeatsSwitchCB;
 
 	@Override
 	public void startUp() {
@@ -738,6 +740,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		JPanel graphControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
+		JPanel graphViewControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
 		JLabel frameNumberLabel = new JLabel("Frame #: ");
 		frameNumberInput = new JTextField(4);
 		frameNumberInput.addActionListener(new ActionListener() {
@@ -871,6 +875,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		graphControlPanel.add(pitchAxisRangeLabel);
 		graphControlPanel.add(pitchAxisRangeInput);
 
+		panel.add(graphControlPanel, BorderLayout.NORTH);
+
 		showColourSwitchCB = new JCheckBox("showColourSwitchCB");
 		showColourSwitchCB.setText("Colour");
 		showColourSwitchCB.addItemListener(new ItemListener() {
@@ -885,7 +891,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 		showColourSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR));
-		graphControlPanel.add(showColourSwitchCB);
+		graphViewControlPanel.add(showColourSwitchCB);
 
 		showPeaksSwitchCB = new JCheckBox("showPeaksSwitchCB");
 		showPeaksSwitchCB.setText("Peaks");
@@ -901,23 +907,71 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 		showPeaksSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS));
-		graphControlPanel.add(showPeaksSwitchCB);
+		graphViewControlPanel.add(showPeaksSwitchCB);
 
-		showTrackingSwitchCB = new JCheckBox("showTrackingSwitchCB");
-		showTrackingSwitchCB.setText("Tracks");
-		showTrackingSwitchCB.addItemListener(new ItemListener() {
+		showPowerSwitchCB = new JCheckBox("showPowerSwitchCB");
+		showPowerSwitchCB.setText("Power");
+		showPowerSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
 				JCheckBox cb = (JCheckBox) e.getSource();
 				boolean newValue = cb.isSelected();
-				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING,
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_POWER,
 						Boolean.toString(newValue));
 				refreshMapViews();
 			}
 		});
-		showTrackingSwitchCB
-				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING));
-		graphControlPanel.add(showTrackingSwitchCB);
+		showPowerSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_POWER));
+		graphViewControlPanel.add(showPowerSwitchCB);
+
+		showNotesSwitchCB = new JCheckBox("showNotesSwitchCB");
+		showNotesSwitchCB.setText("Notes");
+		showNotesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_NOTES,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		showNotesSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_NOTES));
+		graphViewControlPanel.add(showNotesSwitchCB);
+
+		showChordsSwitchCB = new JCheckBox("showChordsSwitchCB");
+		showChordsSwitchCB.setText("Chords");
+		showChordsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		showChordsSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS));
+		graphViewControlPanel.add(showChordsSwitchCB);
+
+		showBeatsSwitchCB = new JCheckBox("showBeatsSwitchCB");
+		showBeatsSwitchCB.setText("Beats");
+		showBeatsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		showBeatsSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS));
+		graphViewControlPanel.add(showBeatsSwitchCB);
 
 		showStatsSwitchCB = new JCheckBox("showStatsSwitchCB");
 		showStatsSwitchCB.setText("Stats");
@@ -933,7 +987,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 		showStatsSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS));
-		graphControlPanel.add(showStatsSwitchCB);
+		graphViewControlPanel.add(showStatsSwitchCB);
 
 		showLogSwitchCB = new JCheckBox("showLogSwitchCB");
 		showLogSwitchCB.setText("Logn");
@@ -949,7 +1003,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 		showLogSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG));
-		graphControlPanel.add(showLogSwitchCB);
+		graphViewControlPanel.add(showLogSwitchCB);
 
 		final JButton parametersButton = new JButton("Update");
 		parametersButton.addActionListener(new ActionListener() {
@@ -961,7 +1015,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
 			}
 		});
-		graphControlPanel.add(parametersButton);
+		graphViewControlPanel.add(parametersButton);
 
 		JLabel toneMapViewLowThresholdLabel = new JLabel("Low: ");
 		toneMapViewLowThresholdInput = new JTextField(4);
@@ -979,8 +1033,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		toneMapViewLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD));
-		graphControlPanel.add(toneMapViewLowThresholdLabel);
-		graphControlPanel.add(toneMapViewLowThresholdInput);
+		graphViewControlPanel.add(toneMapViewLowThresholdLabel);
+		graphViewControlPanel.add(toneMapViewLowThresholdInput);
 
 		JLabel toneMapViewHighThresholdLabel = new JLabel("High: ");
 		toneMapViewHighThresholdInput = new JTextField(4);
@@ -998,10 +1052,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		toneMapViewHighThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD));
-		graphControlPanel.add(toneMapViewHighThresholdLabel);
-		graphControlPanel.add(toneMapViewHighThresholdInput);
+		graphViewControlPanel.add(toneMapViewHighThresholdLabel);
+		graphViewControlPanel.add(toneMapViewHighThresholdInput);
 
-		panel.add(graphControlPanel, BorderLayout.CENTER);
+		panel.add(graphViewControlPanel, BorderLayout.CENTER);
 
 		return panel;
 	}
@@ -1211,6 +1265,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					timeAxisOffsetInput.setText("0");
 					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DEFAULT_FILE,
+							inputFile.getName());
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
@@ -1250,6 +1306,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					timeAxisOffsetInput.setText("0");
 					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DEFAULT_FILE,
+							inputFile.getName());
 					toneMapViews.remove(currentToneMapViewType);
 					refreshMapViews();
 					resetToneMapView();
@@ -2368,8 +2426,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR));
 		showPeaksSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS));
-		showTrackingSwitchCB
-				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING));
+		showPowerSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_POWER));
+		showNotesSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_NOTES));
+		showChordsSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS));
+		showBeatsSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS));
 		showStatsSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS));
 		showLogSwitchCB

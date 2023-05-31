@@ -229,6 +229,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			this.currentHeight = getHeight();
 		}
 		drawGrid();
+
 		if (ttf != null) {
 
 			double timeAxisRange = parameterManager
@@ -251,8 +252,11 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			boolean showPeaks = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_PEAKS);
 			boolean showColour = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR);
-			boolean showTracking = parameterManager
-					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
+			boolean showPower = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_POWER);
+			boolean showNotes = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_NOTES);
+			boolean showChords = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS);
+			boolean showBeats = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 			boolean showStats = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS);
 
@@ -323,10 +327,12 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
 					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
-					bufferedGraphics.setColor(color);
-					bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+					if (showPower) {
+						bufferedGraphics.setColor(color);
+						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+					}
 
-					if (showTracking) {
+					if (showNotes) {
 						if (toneMapElement.noteListElement != null) {
 							if (toneMapElement.noteState == START) {
 								color = new Color(0xff7f50); // coral
@@ -443,7 +449,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				}
 			}
 
-			if (showTracking) {
+			if (showNotes) {
 				Color color = Color.BLACK;
 				NoteTrack[] tracks = toneMap.getNoteTracker().getTracks();
 				for (NoteTrack track : tracks) {
@@ -487,14 +493,16 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
+			}
 
-				track = toneMap.getNoteTracker().getArpeggioTrack();
-				color = Color.BLACK;
+			if (showChords) {
+				NoteTrack track = toneMap.getNoteTracker().getArpeggioTrack();
+				Color color = Color.BLACK;
 				if (track != null) {
 					color = Color.GRAY;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
-						int centsCoordinate = getCentsCoordinate((nle.note + 48) * 100);
+						int centsCoordinate = getCentsCoordinate((nle.note) * 100);
 						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
@@ -505,9 +513,11 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
+			}
 
-				track = toneMap.getNoteTracker().getBeatTrack();
-				color = Color.BLACK;
+			if (showBeats) {
+				NoteTrack track = toneMap.getNoteTracker().getBeatTrack();
+				Color color = Color.BLACK;
 				if (track != null) {
 					color = Color.CYAN;
 					NoteListElement[] nles = track.getNotes(timeStart);
@@ -521,6 +531,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					}
 				}
 			}
+
 		}
 	}
 

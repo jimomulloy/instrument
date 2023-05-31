@@ -282,7 +282,10 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_TIME_AXIS_RANGE = "monitor.view.timeAxisRange";
 	public static final String MONITOR_VIEW_PITCH_AXIS_RANGE = "monitor.view.pitchAxisRange";
 	public static final String MONITOR_VIEW_SHOW_PEAKS = "monitor.view.showPeaks";
-	public static final String MONITOR_VIEW_SHOW_TRACKING = "monitor.view.showTracking";
+	public static final String MONITOR_VIEW_SHOW_POWER = "monitor.view.showPower";
+	public static final String MONITOR_VIEW_SHOW_NOTES = "monitor.view.showNotes";
+	public static final String MONITOR_VIEW_SHOW_CHORDS = "monitor.view.showChords";
+	public static final String MONITOR_VIEW_SHOW_BEATS = "monitor.view.showBeats";
 	public static final String MONITOR_VIEW_SHOW_SYNTHESIS = "monitor.view.showSynthesis";
 	public static final String MONITOR_VIEW_SHOW_LOG = "monitor.view.showLog";
 	public static final String MONITOR_VIEW_SHOW_STATS = "monitor.view.showStats";

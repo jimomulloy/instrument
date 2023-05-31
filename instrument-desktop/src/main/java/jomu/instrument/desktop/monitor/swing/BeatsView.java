@@ -242,16 +242,6 @@ public class BeatsView extends JComponent implements ComponentListener {
 
 			bufferedGraphics.setColor(Color.black);
 
-			double lowViewThreshold = parameterManager
-					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
-			double highViewThreshold = parameterManager
-					.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
-			boolean showColour = parameterManager
-					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_COLOUR);
-			boolean showTracking = parameterManager
-					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_TRACKING);
-			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
-
 			BeatListElement beat = ttf.getBeat();
 
 			Optional<BeatListElement> obc = ttf.getBeat(CellTypes.AUDIO_BEAT.name() + "_CALIBRATION");
