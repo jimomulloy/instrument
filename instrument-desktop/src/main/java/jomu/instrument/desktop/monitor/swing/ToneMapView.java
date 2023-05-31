@@ -51,6 +51,8 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 public class ToneMapView extends JComponent implements ComponentListener, ToneMapConstants {
 
+	private static final int MAX_CENTS = 1200 * 10;
+
 	private static final Logger LOG = Logger.getLogger(ToneMapView.class.getName());
 
 	public static final Color[] COLORS = { new Color(0xff0000), // red
@@ -87,13 +89,19 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 	private int minCents = 0;
 
-	private int maxCents = 1200 * 10;
+	private int maxCents = MAX_CENTS;
 
 	private ToneMap toneMap;
 
 	private Color[] rainbow;
 
 	private double maxAmplitude = 0;
+
+	private double maxTime = 0;
+
+	private int maxPitchCents = Integer.MIN_VALUE;
+
+	private int minPitchCents = Integer.MAX_VALUE;
 
 	private ParameterManager parameterManager;
 
@@ -116,6 +124,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 		this.timeAxisEnd = this.timeAxisStart
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		maxAmplitude = 0;
+		maxTime = 0;
+		maxPitchCents = 0;
+		minPitchCents = 0;
 		this.toneMap = null;
 		this.currentWidth = getWidth();
 		this.currentHeight = getHeight();
@@ -132,6 +143,18 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 		return maxAmplitude;
 	}
 
+	public int getMaxPitchCents() {
+		return maxPitchCents + 100 > MAX_CENTS ? MAX_CENTS : maxPitchCents + 100;
+	}
+
+	public int getMinPitchCents() {
+		return minPitchCents - 100 < 0 ? 0 : minPitchCents - 100;
+	}
+
+	public double getMaxTime() {
+		return maxTime;
+	}
+
 	public ToneMap getToneMap() {
 		return toneMap;
 	}
@@ -143,7 +166,12 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
 		this.minCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET);
 		this.maxCents = parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE);
+		LOG.severe(">>TM udpateAxis : " + this.minCents + ", " + this.maxCents);
 		maxAmplitude = 0;
+		maxTime = 0;
+		maxPitchCents = 0;
+		minPitchCents = 0;
+
 		if (toneMap != null) {
 			renderToneMap(toneMap);
 		} else {
@@ -183,6 +211,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 	public void renderToneMap(ToneMap toneMap) {
 		this.toneMap = toneMap;
 		maxAmplitude = 0;
+		maxTime = 0;
+		maxPitchCents = 0;
+		minPitchCents = 0;
 		double timeStart = timeAxisStart / 1000;
 		double timeEnd = timeAxisEnd / 1000;
 		this.currentWidth = getWidth();
@@ -239,6 +270,11 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			updateAxis(timeSet, pitchSet);
 			double timeStart = timeSet.getStartTime() * 1000;
 			double timeEnd = timeSet.getEndTime() * 1000;
+
+			if (timeEnd > maxTime) {
+				maxTime = timeEnd;
+			}
+
 			if (timeStart >= timeAxisEnd) {
 				return;
 			}
@@ -275,12 +311,24 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 
 				ToneMapElement toneMapElement = elements[elementIndex];
+				int cents = pitchSet.getNote(elementIndex) * 100;
+				int centsCoordinate = getCentsCoordinate(cents);
+				int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
+
 				Color color = Color.black;
 				if (toneMapElement != null) {
 					double amplitude = 0.0;
 					amplitude = toneMapElement.amplitude;
 					if (maxAmplitude < amplitude) {
 						maxAmplitude = amplitude;
+					}
+					if (amplitude > ToneTimeFrame.AMPLITUDE_FLOOR) {
+						if (maxPitchCents < cents) {
+							maxPitchCents = cents;
+						}
+						if (minPitchCents > cents) {
+							minPitchCents = cents;
+						}
 					}
 					int greyValue = 0;
 					if (amplitude > highViewThreshold) {
@@ -323,9 +371,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							}
 						}
 					}
-
-					int centsCoordinate = getCentsCoordinate(pitchSet.getNote(elementIndex) * 100);
-					int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
 					if (showPower) {
 						bufferedGraphics.setColor(color);

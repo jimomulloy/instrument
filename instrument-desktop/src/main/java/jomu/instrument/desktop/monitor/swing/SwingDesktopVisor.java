@@ -1063,12 +1063,39 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	protected void updateViewThresholds() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
 			double maxAmplitude = toneMapView.getMaxAmplitude();
-
 			Formatter formatter = new Formatter();
 			formatter.format("%.2f", maxAmplitude);
 			parameterManager.setParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD,
 					formatter.toString());
 			formatter.close();
+			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
+			double timeRange = toneMapView.getMaxTime();
+			formatter = new Formatter();
+			formatter.format("%.2f", timeRange);
+			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, formatter.toString());
+			formatter.close();
+			int minPitchCents = toneMapView.getMinPitchCents();
+			formatter = new Formatter();
+			formatter.format("%d", minPitchCents);
+			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
+					formatter.toString());
+			formatter.close();
+			int maxPitchCents = toneMapView.getMaxPitchCents();
+			formatter = new Formatter();
+			formatter.format("%d", maxPitchCents);
+			LOG.severe(">>TV Max pitch: " + maxPitchCents + ", "
+					+ parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
+			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, formatter.toString());
+			formatter.close();
+			timeAxisOffsetInput
+					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET));
+			pitchAxisOffsetInput
+					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET));
+			timeAxisRangeInput
+					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE));
+			pitchAxisRangeInput
+					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
+
 		}
 		refreshMapViews();
 	}
@@ -1246,7 +1273,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		stopListeningButton = new JButton("Stop");
 		playAudioButton = new JButton("Play Audio");
 		playStreamButton = new JButton("Play Stream");
-		LOG.severe(">>Audio folder: " + getAudioSourceFileFolder());
 		fileChooser.setSelectedFile(new File(getAudioSourceFileFolder(), getDefaultAudioFile()));
 		chooseFileButton.addActionListener(new ActionListener() {
 
@@ -1262,7 +1288,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
 					frameNumberInput.setEnabled(false);
-					timeAxisOffsetInput.setText("0");
+					// timeAxisOffsetInput.setText("0");
 					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DEFAULT_FILE,
@@ -1303,7 +1329,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
 					frameNumberInput.setEnabled(false);
-					timeAxisOffsetInput.setText("0");
+					// timeAxisOffsetInput.setText("0");
 					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_DEFAULT_FILE,
@@ -1340,7 +1366,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					stopListeningButton.setEnabled(true);
 					chooseFileButton.setEnabled(false);
 					frameNumberInput.setEnabled(false);
-					timeAxisOffsetInput.setText("0");
+					// timeAxisOffsetInput.setText("0");
 					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 					toneMapViews.remove(currentToneMapViewType);
@@ -2008,13 +2034,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private void resetToneMapView() {
 		if (toneMapViews.containsKey(currentToneMapViewType)) {
-			LOG.severe(">>!! chosen file reset TM views: " + currentToneMapViewType);
 			toneMapView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			updateTimeFrameView(toneMapViews.get(currentToneMapViewType).getTimeFrame());
 			chromaView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 			beatsView.renderToneMap(toneMapViews.get(currentToneMapViewType));
 		} else {
-			LOG.severe(">>Visor clear TM views: " + currentToneMapViewType);
 			toneMapView.clear();
 			chromaView.clear();
 			beatsView.clear();
