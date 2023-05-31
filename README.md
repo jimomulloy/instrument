@@ -1,7 +1,7 @@
 
 # The Instrument - a Java project
 
-The "Instrument" is a project to develop a Java based application system based on a general purpose Signal Processing engine. In the first instance this platform provides a framework for the implementation of a Music Information Processing application. 
+The "Instrument" is a project to develop a Java based application system by building on a general purpose Signal Processing engine. In the first instance this platform provides a framework for the implementation of a Music Information Processing application. The aim is to deliver tools and capabilities that can be used to experiment creatively with musical sound by extracting, analysing and synthesising existing and new musical data features for a given input.
 
 The purpose of my doing this "side" project was to:
 * Strengthen and update my core Java skills as a calling card to employers, (hopefully you!)

@@ -979,7 +979,7 @@ public class Hearing implements Organ {
 	public void stopAudioPlayer() {
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null || audioStream.getAudioFileName() == null || audioPlayerDispatcher == null
-				|| !audioPlayerDispatcher.isStopped()) {
+				|| audioPlayerDispatcher.isStopped()) {
 			return;
 		}
 		audioPlayerDispatcher.stop();
