@@ -139,11 +139,11 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		int chordSourceSequence = sequence;
 		int chordTargetSequence = sequence;
-		if (chordTiming > 0 && chordSourceSequence - chordTiming > 0) {
-			chordSourceSequence -= chordTiming;
-		} else if (chordTiming < 0 && chordTargetSequence + chordTiming > 0) {
-			chordTargetSequence += chordTiming;
-		}
+//		if (chordTiming > 0 && chordSourceSequence - chordTiming > 0) {
+//			chordSourceSequence -= chordTiming;
+//		} else if (chordTiming < 0 && chordTargetSequence + chordTiming > 0) {
+//			chordTargetSequence += chordTiming;
+//		}
 
 		ToneTimeFrame chordSynthesisFrame = synthesisToneMap.getTimeFrame(chordTargetSequence);
 
@@ -190,8 +190,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
-			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
-					chroma.getChord());
+			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", chroma.getChord());
 			chroma = onsetSmoothedTimeFrame.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(),
 					onsetSmoothedTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
