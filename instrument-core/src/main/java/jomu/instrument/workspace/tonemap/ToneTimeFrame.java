@@ -326,7 +326,7 @@ public class ToneTimeFrame implements Serializable {
 	public ToneTimeFrame cens() {
 		return this;
 	}
-	
+
 	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch, boolean harmonics) {
 		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.toneMap, this.timeSet.clone(),
 				new PitchSet(basePitch, basePitch + OCTAVE_LENGTH - 1));
@@ -357,7 +357,7 @@ public class ToneTimeFrame implements Serializable {
 			}
 			if (elements[i].amplitude > 0.0001) {
 				chromaElement.amplitude += elements[i].amplitude;
-			}	
+			}
 		}
 		ToneMapElement[] chromaElements = chromaTimeFrame.getElements();
 		for (int i = 0; i < chromaElements.length; i++) {
@@ -744,8 +744,8 @@ public class ToneTimeFrame implements Serializable {
 		}
 		if (cnotes.size() >= 2) {
 			chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
-				cnotes.toArray(new ChordNote[cnotes.size()]));
-		}	
+					cnotes.toArray(new ChordNote[cnotes.size()]));
+		}
 		return chordListElement;
 
 	}
@@ -773,7 +773,7 @@ public class ToneTimeFrame implements Serializable {
 		reset();
 		return this;
 	}
-	
+
 	public ToneTimeFrame chromaChordify(double threshold, boolean sharpen) {
 		chordNotes = new TreeSet<>();
 		TreeSet<Integer> firstCandidates = new TreeSet<>();
@@ -828,7 +828,7 @@ public class ToneTimeFrame implements Serializable {
 		if (censHasClusters(firstCandidates, 4)) {
 			return this;
 		}
-	
+
 		censRemoveClusters(firstCandidates, 3, true);
 
 		Set<Integer> level1Pairs = censGetPairs(firstCandidates);
@@ -958,7 +958,7 @@ public class ToneTimeFrame implements Serializable {
 				}
 			}
 		}
-		
+
 		if (getChord() != null && sharpen) {
 			sharpenChord();
 			reset();
@@ -974,18 +974,18 @@ public class ToneTimeFrame implements Serializable {
 				chordListElement = null;
 				break;
 			}
-		}	
+		}
 	}
 
 	private int findMaxOctave(int pitchClass) {
 		int result = -1;
-		double maxAmp = AMPLITUDE_FLOOR; 
+		double maxAmp = AMPLITUDE_FLOOR;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null && i % OCTAVE_LENGTH == pitchClass && elements[i].amplitude > maxAmp) {
 				maxAmp = elements[i].amplitude;
 				result = i / 12;
 			}
-		}	
+		}
 		return result;
 	}
 
@@ -1836,7 +1836,7 @@ public class ToneTimeFrame implements Serializable {
 	public void putChordList(String source, ChordListElement chordList) {
 		if (chordList != null) {
 			chordsMap.put(source, chordList);
-		}	
+		}
 	}
 
 	public Optional<ChordListElement> getChordList(String source) {

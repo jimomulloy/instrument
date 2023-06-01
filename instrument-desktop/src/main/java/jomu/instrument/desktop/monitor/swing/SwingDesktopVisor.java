@@ -576,32 +576,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		return file;
 	}
 
-	protected JMenu buildHelpMenu() {
-
-		JMenu help = new JMenu("Help");
-		JMenuItem about = new JMenuItem("About ToneMap...");
-		JMenuItem openHelp = new JMenuItem("Open Help Window");
-
-		about.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// showAboutBox();
-			}
-		});
-
-		openHelp.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// openHelpWindow();
-			}
-		});
-
-		help.add(about);
-		help.add(openHelp);
-
-		return help;
-	}
-
 	public void initialise(JFrame mainframe) {
 		visorPanel = new JPanel();
 		this.mainframe = mainframe;
@@ -1218,56 +1192,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		helpButton.addActionListener(new ActionListener() {
 
-			private boolean helpDialogOpen;
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String s = e.getActionCommand();
+				String message = """
+						Please see - https://github.com/jimomulloy/instrument/wiki
+						""";
 				if (s.equals("Help")) {
-
-					if (!helpDialogOpen) {
-						// create a dialog Box
-						JDialog d = new JDialog(mainframe, "Help");
-
-						d.addWindowListener(new WindowAdapter() {
-							public void windowClosed(WindowEvent e) {
-								helpDialogOpen = false;
-							}
-
-							public void windowClosing(WindowEvent e) {
-								helpDialogOpen = false;
-							}
-						});
-
-						JPanel dialogPanel = new JPanel(new BorderLayout());
-
-						JPanel helpPanel = new JPanel();
-
-						JLabel helpMessage = new JLabel("HelpMessage");
-						helpMessage.setText("Please see - https://github.com/jimomulloy/instrument/wiki");
-						helpPanel.add(helpMessage, BorderLayout.CENTER);
-
-						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
-								new EtchedBorder()));
-
-						dialogPanel.add(new JScrollPane(helpPanel), BorderLayout.CENTER);
-
-						d.add(dialogPanel);
-
-						Toolkit myScreen = Toolkit.getDefaultToolkit();
-						Dimension screenSize = myScreen.getScreenSize();
-						int screenHeight = screenSize.height;
-						int screenWidth = screenSize.width;
-
-						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.4), (int) ((double) screenHeight * 0.4));
-
-						// set visibility of dialog
-						d.setVisible(true);
-
-						helpDialogOpen = true;
-
-					}
+					JOptionPane.showMessageDialog(mainframe, message);
 				}
 			}
 		});

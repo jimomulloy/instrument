@@ -48,7 +48,7 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		postTimeFrame.smoothMedian(preChromaToneMap, postChromaToneMap, chromaSmoothFactor, sequence,
 				chromaChordifySwitch, chromaChordifyThreshold, chromaChordifySharpenSwitch);
 		postTimeFrame.chordNoteOctivate(originToneMap.getTimeFrame(sequence));
-	
+
 		int tmIndex = sequence - 10; // TODO !!
 		ToneTimeFrame timeFrame;
 		if (tmIndex > 0) {

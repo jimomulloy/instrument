@@ -130,7 +130,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 			ac = chord.clone();
 		}
 
-		//TODO !! Normalise first?
+		// TODO !! Normalise first?
 		ChordListElement chordPre = null;
 		Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
 		if (ocp.isPresent()) {

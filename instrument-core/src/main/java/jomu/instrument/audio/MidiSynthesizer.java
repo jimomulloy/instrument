@@ -93,7 +93,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	private static final int BASE_1_CHANNEL = 8;
 
 	private static final int BEATS_CHANNEL = 9;
-	
+
 	private int bpmSetting = INIT_BPM_SETTING;
 
 	private ChannelData channels[];
@@ -595,7 +595,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public Set<Integer> baseChannelLastNotes;
 		public Map<Integer, Double> padsChannel1LastNoteTimes;
 		public Map<Integer, Double> padsChannel2LastNoteTimes;
-		
+
 		public Track voice1Track;
 		public Track voice2Track;
 		public Track voice3Track;
@@ -609,7 +609,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public Track beat3Track;
 		public Track beat4Track;
 		public Track baseTrack;
-		
+
 		private boolean running = true;
 
 		public MidiQueueConsumer(BlockingQueue<MidiQueueMessage> bq, MidiStream midiStream) {
@@ -1195,14 +1195,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_1);
 			int chord2VolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_2);
-	
+
 			if (midiPlayChord1Switch) {
 				ChannelData chord1Channel = channels[CHORD_1_CHANNEL];
 				if (writeTrack && chord1Track == null) {
 					chord1Track = midiSequence.createTrack();
 					createEvent(chord1Track, chord1Channel, PROGRAM, chord1Channel.program + 1, 1L, 127);
 				}
-			
+
 				if (chordsChannel1LastNotes == null) {
 					chordsChannel1LastNotes = new HashSet<>();
 				}
@@ -1213,7 +1213,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 							midiMessages, chord1VolumeFactor, false);
 				}
 			}
-			
+
 			if (midiPlayChord2Switch) {
 				ChannelData chord2Channel = channels[CHORD_2_CHANNEL];
 				if (writeTrack && chord2Track == null) {
@@ -1488,7 +1488,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (oc.isPresent()) {
 					chord = oc.get();
 				}
-		
+
 				List<Integer> volumes = new ArrayList<>();
 				List<Integer> notes = new ArrayList<>();
 
@@ -1591,7 +1591,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (oc.isPresent()) {
 					chord = oc.get();
 				}
-				
+
 				List<Integer> volumes = new ArrayList<>();
 				List<Integer> notes = new ArrayList<>();
 
@@ -1727,7 +1727,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 
 			Set<Integer> discardNotes = new HashSet<>();
-			
+
 			for (int ln : noteTrackChannelLastNotes) {
 				note = ln;
 				boolean noteFound = false;
@@ -1752,11 +1752,11 @@ public class MidiSynthesizer implements ToneMapConstants {
 					discardNotes.add(note);
 				}
 			}
-			
-			for(int dn: discardNotes) {
+
+			for (int dn : discardNotes) {
 				noteTrackChannelLastNotes.remove(dn);
 			}
-			
+
 			for (NoteListElement enle : enles) {
 				if (enle != null) {
 					note = enle.note;

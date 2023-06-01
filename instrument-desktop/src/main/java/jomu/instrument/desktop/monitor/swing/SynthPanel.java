@@ -184,9 +184,9 @@ public class SynthPanel extends JPanel {
 				.add(buildTrackControlPanel("Base ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BASE_1));
-		
+
 		parameterPanel.add(synthTuningPanel());
-	
+
 		Dimension minimumSize = new Dimension(500, 500);
 		parameterPanel.setMinimumSize(minimumSize);
 		this.add(parameterPanel, BorderLayout.CENTER);
@@ -298,7 +298,7 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING));
 		tuningPanel.add(synthesisBeatTimingLabel);
 		tuningPanel.add(synthesisBeatTimingInput);
-		
+
 		tuningPanel.add(new JLabel(""));
 		tuningPanel.add(new JLabel(""));
 
@@ -318,7 +318,7 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_MEASURE));
 		tuningPanel.add(synthesisChord1MeasureLabel);
 		tuningPanel.add(synthesisChord1MeasureInput);
-		
+
 		JLabel synthesisChord1PatternLabel = new JLabel("Synthesis Chord1 Pattern: ");
 		synthesisChord1PatternInput = new JTextField(4);
 		synthesisChord1PatternInput.addActionListener(new ActionListener() {
@@ -626,7 +626,7 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_SOURCE));
 		tuningPanel.add(synthesisBeat2SourceLabel);
 		tuningPanel.add(synthesisBeat2SourceInput);
-		
+
 		JLabel synthesisBaseOctaveLabel = new JLabel("Synthesis Base Octave: ");
 		synthesisBaseOctaveInput = new JTextField(4);
 		synthesisBaseOctaveInput.addActionListener(new ActionListener() {
@@ -712,7 +712,6 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisPad2OctaveLabel);
 		tuningPanel.add(synthesisPad2OctaveInput);
 
-
 		JLabel synthesisSweepRangeLabel = new JLabel("Synthesis Sweep Range: ");
 		synthesisSweepRangeInput = new JTextField(4);
 		synthesisSweepRangeInput.addActionListener(new ActionListener() {
@@ -797,7 +796,7 @@ public class SynthPanel extends JPanel {
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT));
 		tuningPanel.add(synthesisMinTimeIncrementLabel);
 		tuningPanel.add(synthesisMinTimeIncrementInput);
-		
+
 		return tuningPanel;
 	}
 
