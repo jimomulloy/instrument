@@ -1,7 +1,14 @@
 package jomu.instrument.control;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -127,6 +134,50 @@ public class Controller implements Organ {
 		return true;
 	}
 
+	public String dumpStatusInfo() {
+		String baseDir = storage.getObjectStorage().getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PROJECT_DIRECTORY))
+				.toString();
+		String dumpFileName = folder + System.getProperty("file.separator") + "instrument-status-dump.txt";
+
+		try (BufferedWriter bwr = new BufferedWriter(new FileWriter(new File(dumpFileName)))) {
+			StringBuilder buff = new StringBuilder();
+			Throwable t = workspace.getInstrumentSessionManager().getCurrentSession().getException();
+			buff.append("Intrument Status Dump on: " + java.time.LocalDateTime.now() + "\n");
+			buff.append("=======================================================\n");
+			buff.append("\n");
+			buff.append("Last Stack Trace:\n");
+			buff.append("=================\n");
+			if (t != null) {
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				t.printStackTrace(new PrintStream(out));
+				buff.append(new String(out.toByteArray()));
+			} else {
+				buff.append("None");
+			}
+			buff.append("\n");
+			buff.append("\n");
+			buff.append("Parameters:\n");
+			buff.append("===========\n");
+			Properties params = parameterManager.getParameters();
+			for (Object key : params.keySet()) {
+				buff.append(key + ": " + params.getProperty(key.toString()));
+				buff.append("\n");
+			}
+			bwr.write(buff.toString());
+			bwr.flush();
+		} catch (IOException ex) {
+			LOG.log(Level.SEVERE, "Dump Status exception", ex);
+			return "Status Dump error: " + ex.getMessage();
+		}
+
+		return "Status Dump to file: " + dumpFileName;
+
+	}
+
 	/**
 	 * Checks the configured directories and creates them if they are not present.
 	 */
@@ -188,4 +239,5 @@ public class Controller implements Organ {
 		// TODO Auto-generated method stub
 
 	}
+
 }

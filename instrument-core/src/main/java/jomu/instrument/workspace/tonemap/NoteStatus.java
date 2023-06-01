@@ -1,7 +1,6 @@
 package jomu.instrument.workspace.tonemap;
 
 import java.io.Serializable;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -55,18 +54,12 @@ public class NoteStatus implements Serializable {
 		if (note <= highNote && note >= lowNote) {
 			index = note - lowNote;
 		} else {
-			// TODO !!
-			LOG.log(Level.SEVERE, ">> NoteStatus getNote error 1: " + lowNote + ", " + highNote + ", " + note + ", "
-					+ noteStatusElements.length + ", " + (note - lowNote));
 			return noteStatusElements[0];
 		}
 
 		if (noteStatusElements.length > index) {
 			return noteStatusElements[index];
 		} else {
-			// TODO !!
-			LOG.log(Level.SEVERE, ">> NoteStatus getNote error 2: " + lowNote + ", " + highNote + ", " + note + ", "
-					+ noteStatusElements.length + ", " + (note - lowNote));
 			return noteStatusElements[0];
 		}
 	}

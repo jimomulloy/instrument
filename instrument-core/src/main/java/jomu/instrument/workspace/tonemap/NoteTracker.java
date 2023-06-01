@@ -554,8 +554,8 @@ public class NoteTracker {
 		}
 
 		salientTrack.addNote(noteListElement);
-		LOG.finer(">>NoteTracker addNote: " + noteListElement.note + ", " + salientTrack + ", "
-				+ noteListElement.startTime + " ," + noteListElement.endTime);
+		LOG.finer(">>NoteTracker addNote: " + salientTrack.getNumber() + ", " + noteListElement.note + ", "
+				+ salientTrack + ", " + noteListElement.startTime + " ," + noteListElement.endTime);
 
 		for (NoteTrack track : tracks.values()) {
 			if (track.isEmpty()) {
@@ -659,10 +659,9 @@ public class NoteTracker {
 		processChordTrack(1, toneTimeFrame, beatListElement, chordListElement,
 				new SynthChordParameters(synthChord1Source, synthChord1Measure, synthChord1Pattern, synthChord1Octave,
 						synthChord1Offset, chord1TimeSignature));
-		// processChordTrack(2, toneTimeFrame, beatListElement, chordListElement,
-		// new SynthChordParameters(synthChord2Source, synthChord2Measure,
-		// synthChord2Pattern, synthChord2Octave,
-		// synthChord2Offset, chord2TimeSignature));
+		processChordTrack(2, toneTimeFrame, beatListElement, chordListElement,
+				new SynthChordParameters(synthChord2Source, synthChord2Measure, synthChord2Pattern, synthChord2Octave,
+						synthChord2Offset, chord2TimeSignature));
 	}
 
 	private void processChordTrack(int trackNumber, ToneTimeFrame toneTimeFrame, BeatListElement beatListElement,
@@ -687,7 +686,7 @@ public class NoteTracker {
 			if (oc.isPresent()) {
 				addChordNotes(chordTrack, beatListElement, toneTimeFrame.getStartTime(), oc.get(), pitchSet,
 						synthChordParameters);
-				LOG.severe(">>SYN Chord: " + toneTimeFrame.getStartTime() + " ," + oc.get());
+				LOG.finer(">>SYN Chord: " + toneTimeFrame.getStartTime() + " ," + oc.get());
 			}
 		} else if (synthChordParameters.chordSource == 2) {
 			Optional<ChordListElement> oc = toneTimeFrame.getChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED");
@@ -769,19 +768,17 @@ public class NoteTracker {
 			if (rootOctave == 0 && octave != 0) {
 				rootOctave = octave;
 			}
-			if (rootOctave != 0 && octave > rootOctave) {
-				octave = rootOctave + 1;
-			}
+			// if (rootOctave != 0 && octave > rootOctave) {
+			// octave = rootOctave + 1;
+			// }
 //			if (synthChordParameters.chordPattern > 0) {
 //				note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));
 //			} else {
 //				note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));// octave;
 //			}
-			note += 12 * (synthChordParameters.chordOctave);
+			note += 12 * octave; // (synthChordParameters.chordOctave);
 			camps.add(amplitude);
 			cnotes.add(note);
-			LOG.finer(">>NT ADDING chord note: " + time + ", " + currentNotes.length + ", " + octave + ", " + note
-					+ ", " + rootOctave + ", " + rootNote);
 			if (synthChordParameters.chordPattern == 0) {
 				NoteListElement cnle = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 						amplitude, amplitude, amplitude, 0, false, incrementTime);
@@ -792,7 +789,7 @@ public class NoteTracker {
 		if (synthChordParameters.chordPattern > 0)
 
 		{
-			rootNote += 12 * synthChordParameters.chordOctave;
+			rootNote += 12 * rootOctave; // synthChordParameters.chordOctave;
 			if (isBar) {
 				note = rootNote;
 				amplitude = rootAmp;
@@ -827,8 +824,8 @@ public class NoteTracker {
 				}
 				for (NoteListElement cnle : newNotes) {
 					if (!currentNoteSet.contains(cnle.note)) {
-						LOG.severe(">>NT added chord notes: " + time + ", " + currentNotes.length + ", "
-								+ cnle.startTime + ", " + cnle.endTime + ", " + note + ", " + track.getSize() + ", "
+						LOG.finer(">>NT added chord notes: " + time + ", " + currentNotes.length + ", " + cnle.startTime
+								+ ", " + cnle.endTime + ", " + note + ", " + track.getSize() + ", "
 								+ synthChordParameters.chordTimeSignature + ", " + startTime + ", " + endTime + ", "
 								+ cnle);
 						track.addNote(cnle);
@@ -1129,7 +1126,6 @@ public class NoteTracker {
 				return track;
 			}
 		}
-		LOG.finer(">>NoteTracker createTrack NULL!!");
 		return null;
 	}
 
@@ -1242,7 +1238,7 @@ public class NoteTracker {
 			NoteListElement nle = track.getNote(startTime * 1000);
 			if (nle != null) {
 				int pitchClass = (int) nle.note % 12;
-				ChordNote cn = new ChordNote(pitchClass, pitchClass, nle.maxAmp, nle.note / 12);
+				ChordNote cn = new ChordNote(pitchClass, pitchClass, nle.maxAmp, nle.note / 12, 0); // TODO
 				notes.add(cn);
 			}
 		}

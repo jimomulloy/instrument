@@ -82,8 +82,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteListElement> nles = addNotes(toneTimeFrame);
 		if (nles.size() > 0) {
-			// quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent,
-			// quantizeBeat);
+			quantizeNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
 			trackNotes(nles, discardedNotes, synthFillLegatoSwitch);
 			if (synthFillNotes) {
 				fillNotes(nles, calibrationMap, quantizeRange, quantizePercent, quantizeBeat);
@@ -130,7 +129,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 			ac = chord.clone();
 		}
 
-		// TODO !! Normalise first?
 		ChordListElement chordPre = null;
 		Optional<ChordListElement> ocp = toneTimeFrame.getChordList(CellTypes.AUDIO_PRE_CHROMA.name());
 		if (ocp.isPresent()) {

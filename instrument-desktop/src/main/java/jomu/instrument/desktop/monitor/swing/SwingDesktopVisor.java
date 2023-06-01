@@ -54,9 +54,6 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -105,6 +102,7 @@ import jomu.instrument.audio.features.SpectralInfo;
 import jomu.instrument.audio.features.SpectralPeaksSource;
 import jomu.instrument.audio.features.SpectrogramInfo;
 import jomu.instrument.cognition.cell.Cell;
+import jomu.instrument.control.Controller;
 import jomu.instrument.control.Coordinator;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
@@ -141,6 +139,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	@Inject
 	Console console;
+
+	@Inject
+	Controller controller;
 
 	@Inject
 	Coordinator coordinator;
@@ -265,8 +266,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		mainFrame.setTitle("The Instrument");
 
-		buildMenus();
-
 		buildContent();
 
 		initialise(mainFrame);
@@ -286,14 +285,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		mainframe.dispose();
 	}
 
-	private void showStackTraceDialog(Throwable throwable, String title) {/* from w w w . j av a2s . co m */
-		String message = throwable.getMessage() == null ? throwable.toString() : throwable.getMessage();
-		showStackTraceDialog(throwable, title, message);
-	}
-
 	private void showStackTraceDialog(Throwable throwable, String title, String message) {
 		Window window = DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
 		showStackTraceDialog(throwable, window, title, message);
+	}
+
+	private void showEmailStatusInfoDialog(String title, String message) {
+		Window window = DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+		showEmailStatusInfoDialog(window, title, message);
 	}
 
 	private void showStatusInfoDialog(String title, String message) {
@@ -412,6 +411,53 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		dialog.dispose();
 	}
 
+	private void showEmailStatusInfoDialog(Component parentComponent, String title, String message) {
+		final String more = "More";
+		// create stack strace panel
+		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+		JButton emailSendButton = new JButton("Send Email");
+
+		JLabel emailSenderAddressLabel = new JLabel("Sender Email address: ");
+		JTextField emailSenderAddressInput = new JTextField(4);
+		emailSenderAddressInput.setPreferredSize(null);
+		emailSenderAddressInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				emailSendButton.setEnabled(true);
+			}
+		});
+
+		emailSendButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// String result =
+				// controller.sendStatusInfoEmail(emailSenderAddressInput.getText());
+				// statusLabel.setText(result);
+			}
+		});
+		emailSendButton.setEnabled(false);
+
+		labelPanel.add(emailSenderAddressLabel);
+		labelPanel.add(emailSenderAddressInput);
+		labelPanel.add(emailSendButton);
+
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(labelPanel, BorderLayout.CENTER);
+
+		JOptionPane pane = new JOptionPane(panel, JOptionPane.INFORMATION_MESSAGE);
+		JDialog dialog = pane.createDialog(parentComponent, title);
+		int maxWidth = Toolkit.getDefaultToolkit().getScreenSize().width * 2 / 3;
+		if (dialog.getWidth() > maxWidth) {
+			dialog.setSize(new Dimension(maxWidth, dialog.getHeight()));
+			setLocationRelativeTo(dialog, parentComponent);
+		}
+		dialog.setResizable(true);
+		dialog.setVisible(true);
+		dialog.dispose();
+	}
+
 	/**
 	 * set c1 location relative to c2
 	 * 
@@ -498,6 +544,19 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
+		statusLabel = new JLabel("Ready");
+
+		JButton dumpStatusInfoButton = new JButton("Dump Status Info");
+
+		dumpStatusInfoButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String result = controller.dumpStatusInfo();
+				statusLabel.setText(result);
+			}
+		});
+
 		contentPane.setLayout(new BorderLayout());
 
 		final int inset1 = 45;
@@ -511,6 +570,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		statusPane.add(statusLabel, BorderLayout.CENTER);
 		statusPane.add(showStatusInfoButton, BorderLayout.EAST);
+		statusPane.add(dumpStatusInfoButton, BorderLayout.EAST);
 
 		EmptyBorder eb1 = new EmptyBorder(2, 2, 2, 2);
 		BevelBorder bb1 = new BevelBorder(BevelBorder.LOWERED);
@@ -527,53 +587,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		contentPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		mainFrame.setContentPane(contentPane);
-	}
-
-	protected void buildMenus() {
-
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.setOpaque(true);
-		// JMenu file = buildFileMenu();
-		// JMenu help = buildHelpMenu();
-
-		// menuBar.add(file);
-		// menuBar.add(help);
-		mainFrame.setJMenuBar(menuBar);
-	}
-
-	protected JMenu buildFileMenu() {
-
-		JMenu file = new JMenu("File");
-		JMenuItem open = new JMenuItem("Open");
-		JMenuItem save = new JMenuItem("Save");
-		JMenuItem quit = new JMenuItem("Quit");
-
-		open.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// openToneMap();
-			}
-		});
-
-		save.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// saveToneMap();
-			}
-		});
-
-		quit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// stop();
-			}
-		});
-
-		file.add(open);
-		file.add(save);
-		file.addSeparator();
-		file.add(quit);
-		return file;
 	}
 
 	public void initialise(JFrame mainframe) {
@@ -1196,7 +1209,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				String s = e.getActionCommand();
 				String message = """
-						Please see - https://github.com/jimomulloy/instrument/wiki
+						For information about using this application - please see - https://github.com/jimomulloy/instrument/wiki
+
+						In case of status errors, please use the "Dump Status Info" button to create a text file containing information
+						about the current status of the application.
+
+						If you wish me to investigate please send this file as an attachment to my email address jimomulloy@gmail.com.
+
+						Thank you for using this early prototype version, hope you have fun with it.
 						""";
 				if (s.equals("Help")) {
 					JOptionPane.showMessageDialog(mainframe, message);

@@ -132,31 +132,6 @@ public class NoteTimbre {
 		return false;
 	}
 
-	public boolean matches2(NoteTimbre other) {
-		LOG.severe(">>!!matches2: " + this.frequency + ", " + other.frequency + ", " + this.median + ", " + other.median
-				+ ", " + this.range + ", " + other.range);
-		if (this.frequency == 0 && other.frequency == 0) {
-			return true;
-		}
-		if (this.frequency != 0 && other.frequency == 0) {
-			return false;
-		}
-		if (this.frequency == 0 && other.frequency != 0) {
-			return false;
-		}
-		double fr = this.frequency / other.frequency;
-		LOG.severe(">>!!matches2 A: " + fr + ", " + (frequencyRatio + frequencyRange));
-		if (fr > frequencyRatio && fr < (frequencyRatio + frequencyRange)) {
-			double mr = (this.range / this.median) / (other.range / other.median);
-			LOG.severe(">>!!matches2 B: " + mr + ", " + (medianRatio + medianRange) + ", " + (this.range / this.median)
-					+ ", " + (other.range / other.median));
-			if (mr > medianRatio && mr < (medianRatio + medianRange)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public String toString() {
 		return "NoteTimbre [frequency=" + frequency + ", range=" + range + ", median=" + median + ", frequencyRange="

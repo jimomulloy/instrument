@@ -11,23 +11,22 @@
 	<packaging>pom</packaging>
 
 	<name>instrument-parent</name>
-	<!-- FIXME change it to the project's website -->
-	<url>http://www.example.com</url>
-	
+	<url>https://github.com/jimomulloy/instrument/wiki</url>
+
 	<modules>
-    	<module>instrument-core</module>
-    	<module>instrument-desktop</module>
-    	<module>instrument-command</module>
-  		<module>instrument-aws</module>
-  		<module>instrument-st</module>
-    </modules>
-  	
-  	<properties>
+		<module>instrument-core</module>
+		<module>instrument-desktop</module>
+		<module>instrument-command</module>
+		<module>instrument-aws</module>
+		<module>instrument-st</module>
+	</modules>
+
+	<properties>
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
 		<jandex-maven-plugin.version>1.2.3</jandex-maven-plugin.version>
 	</properties>
 
-  	<build>
+	<build>
 
 		<plugins>
 
@@ -52,7 +51,8 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -85,6 +85,6 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-  	</build>
-  
+	</build>
+
 </project>

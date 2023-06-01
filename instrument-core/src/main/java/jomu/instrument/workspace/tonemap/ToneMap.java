@@ -101,7 +101,6 @@ public class ToneMap {
 	 * Clear current ToneMap objects after Reset
 	 */
 	public void clear() {
-		// TODO frameIndex = new ConcurrentSkipListMap<>();
 		frameIndex = new CopyOnWriteArrayList<>();
 		statistics = new ToneMapStatistics();
 		noteTracker = new NoteTracker(this);

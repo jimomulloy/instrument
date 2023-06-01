@@ -189,7 +189,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				if (integrateCQSwitch) {
 					notateTimeFrame = notateToneMap.getTimeFrame(i);
-					if (notateTimeFrame != null) { // TODO or make fake on here?
+					if (notateTimeFrame != null) {
 						if (notateSwitchCompress) {
 							clearNotes(notateTimeFrame);
 							notateTimeFrame.compress(compression, false);
@@ -201,7 +201,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 				if (integratePeaksSwitch) {
 					notatePeaksTimeFrame = notatePeaksToneMap.getTimeFrame(i);
-					if (notatePeaksTimeFrame != null) { // TODO or make fake on here?
+					if (notatePeaksTimeFrame != null) {
 						if (notateSwitchCompress) {
 							clearNotes(notatePeaksTimeFrame);
 							notatePeaksTimeFrame.compress(compression, false);
@@ -213,7 +213,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 				if (integrateSpectralSwitch) {
 					notateSpectralTimeFrame = notateSpectralToneMap.getTimeFrame(i);
-					if (notateSpectralTimeFrame != null) { // TODO or make fake on here?
+					if (notateSpectralTimeFrame != null) {
 						if (notateSwitchCompress) {
 							clearNotes(notateSpectralTimeFrame);
 							notateSpectralTimeFrame.compress(compression, false);

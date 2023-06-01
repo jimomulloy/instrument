@@ -1069,6 +1069,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			Set<Integer> noteTrackChannelLastNotes = null;
 			Track midiTrack = null;
 
+			Set<NoteTrack> extraTracks = new HashSet<>();
 			for (NoteTrack track : tracks) {
 				if ((track.getNumber() == 1 && midiPlayVoice1Switch)) {
 					noteTrackChannel = channels[VOICE_1_CHANNEL];
@@ -1081,8 +1082,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 						createEvent(voice1Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
 					}
 					midiTrack = voice1Track;
-					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
-							midiMessages, voice1VolumeFactor, true);
+					playSynthNoteTracks(new NoteTrack[] { track }, noteTrackChannel, noteTrackChannelLastNotes,
+							midiTrack, toneTimeFrame, midiMessages, voice1VolumeFactor, true);
 				}
 				if ((track.getNumber() == 2 && midiPlayVoice2Switch)) {
 					noteTrackChannel = channels[VOICE_2_CHANNEL];
@@ -1096,8 +1097,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 						createEvent(voice2Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
 					}
 					midiTrack = voice2Track;
-					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
-							midiMessages, voice2VolumeFactor, true);
+					playSynthNoteTracks(new NoteTrack[] { track }, noteTrackChannel, noteTrackChannelLastNotes,
+							midiTrack, toneTimeFrame, midiMessages, voice2VolumeFactor, true);
 				}
 				if ((track.getNumber() == 3 && midiPlayVoice3Switch)) {
 					noteTrackChannel = channels[VOICE_3_CHANNEL];
@@ -1111,24 +1112,28 @@ public class MidiSynthesizer implements ToneMapConstants {
 						createEvent(voice3Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
 					}
 					midiTrack = voice3Track;
-					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
-							midiMessages, voice3VolumeFactor, true);
+					playSynthNoteTracks(new NoteTrack[] { track }, noteTrackChannel, noteTrackChannelLastNotes,
+							midiTrack, toneTimeFrame, midiMessages, voice3VolumeFactor, true);
 				}
 				if ((track.getNumber() >= 4 && track.getNumber() <= maxTracksLower && midiPlayVoice4Switch)) {
-					noteTrackChannel = channels[VOICE_4_CHANNEL];
-					if (voiceChannel4LastNotes == null) {
-						voiceChannel4LastNotes = new HashSet<>();
-					}
-					noteTrackChannelLastNotes = voiceChannel4LastNotes;
-					if (writeTrack && voice4Track == null) {
-						voice4Track = midiSequence.createTrack();
-						midiTrack = voice4Track;
-						createEvent(voice4Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
-					}
-					midiTrack = voice4Track;
-					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
-							midiMessages, voice4VolumeFactor, true);
+					extraTracks.add(track);
 				}
+			}
+
+			if (!extraTracks.isEmpty()) {
+				noteTrackChannel = channels[VOICE_4_CHANNEL];
+				if (voiceChannel4LastNotes == null) {
+					voiceChannel4LastNotes = new HashSet<>();
+				}
+				noteTrackChannelLastNotes = voiceChannel4LastNotes;
+				if (writeTrack && voice4Track == null) {
+					voice4Track = midiSequence.createTrack();
+					midiTrack = voice4Track;
+					createEvent(voice4Track, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
+				}
+				midiTrack = voice4Track;
+				playSynthNoteTracks(extraTracks.toArray(new NoteTrack[extraTracks.size()]), noteTrackChannel,
+						noteTrackChannelLastNotes, midiTrack, toneTimeFrame, midiMessages, voice4VolumeFactor, true);
 			}
 
 			if (midiPlayChord1Switch || midiPlayChord2Switch) {
@@ -1152,8 +1157,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 						createEvent(baseTrack, noteTrackChannel, PROGRAM, noteTrackChannel.program + 1, 1L, 127);
 					}
 					midiTrack = baseTrack;
-					playSynthNoteTrack(track, noteTrackChannel, noteTrackChannelLastNotes, midiTrack, toneTimeFrame,
-							midiMessages, baseVolumeFactor, false);
+					playSynthNoteTracks(new NoteTrack[] { track }, noteTrackChannel, noteTrackChannelLastNotes,
+							midiTrack, toneTimeFrame, midiMessages, baseVolumeFactor, false);
 				}
 			}
 
@@ -1209,8 +1214,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(1);
 				if (track != null) {
-					playSynthNoteTrack(track, chord1Channel, chordsChannel1LastNotes, chord1Track, toneTimeFrame,
-							midiMessages, chord1VolumeFactor, false);
+					playSynthNoteTracks(new NoteTrack[] { track }, chord1Channel, chordsChannel1LastNotes, chord1Track,
+							toneTimeFrame, midiMessages, chord1VolumeFactor, false);
 				}
 			}
 
@@ -1227,8 +1232,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(2);
 				if (track != null) {
-					playSynthNoteTrack(track, chord2Channel, chordsChannel2LastNotes, chord2Track, toneTimeFrame,
-							midiMessages, chord2VolumeFactor, false);
+					playSynthNoteTracks(new NoteTrack[] { track }, chord2Channel, chordsChannel2LastNotes, chord2Track,
+							toneTimeFrame, midiMessages, chord2VolumeFactor, false);
 				}
 			}
 			return true;
@@ -1290,8 +1295,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (beatsChannel1LastNotes == null) {
 						beatsChannel1LastNotes = new HashSet<>();
 					}
-					playSynthNoteTrack(track, beatChannel, beatsChannel1LastNotes, beat1Track, toneTimeFrame,
-							midiMessages, beat1VolumeFactor, false);
+					playSynthNoteTracks(new NoteTrack[] { track }, beatChannel, beatsChannel1LastNotes, beat1Track,
+							toneTimeFrame, midiMessages, beat1VolumeFactor, false);
 				}
 			}
 
@@ -1307,8 +1312,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					if (beatsChannel2LastNotes == null) {
 						beatsChannel2LastNotes = new HashSet<>();
 					}
-					playSynthNoteTrack(track, beatChannel, beatsChannel2LastNotes, beat2Track, toneTimeFrame,
-							midiMessages, beat2VolumeFactor, false);
+					playSynthNoteTracks(new NoteTrack[] { track }, beatChannel, beatsChannel2LastNotes, beat2Track,
+							toneTimeFrame, midiMessages, beat2VolumeFactor, false);
 				}
 			}
 
@@ -1676,7 +1681,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		}
 
-		private void playSynthNoteTrack(NoteTrack track, ChannelData noteTrackChannel,
+		private void playSynthNoteTracks(NoteTrack[] tracks, ChannelData noteTrackChannel,
 				Set<Integer> noteTrackChannelLastNotes, Track midiTrack, ToneTimeFrame toneTimeFrame,
 				List<ShortMessage> midiMessages, int volumeFactor, boolean followAmp) {
 			double lowVoiceThreshold = parameterManager
@@ -1704,7 +1709,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 			int note = 0;
 			int volume = 0;
 
-			NoteListElement[] nles = track.getNotes(playTime);
+			Set<NoteListElement> nles = new HashSet<>();
+			for (NoteTrack track : tracks) {
+				nles.addAll(Arrays.asList(track.getNotes(playTime)));
+			}
 			Set<NoteListElement> snles = new HashSet<>();
 			Set<NoteListElement> enles = new HashSet<>();
 			for (NoteListElement nle : nles) {

@@ -109,6 +109,9 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			synthesisFrame = notateFrame.clone();
 			synthesisToneMap.addTimeFrame(synthesisFrame);
 			synthesisFrame.mergeNotes(synthesisToneMap, notateFrame);
+			if (synthesisFrame.getChord() != null) {
+				LOG.severe(">>SYNTH FRAME CH 0: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
+			}
 		}
 
 		if (integratePeaksSwitch) {
@@ -117,6 +120,9 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
 			synthesisFrame.integratePeaks(notatePeaksFrame);
+			if (synthesisFrame.getChord() != null) {
+				LOG.severe(">>SYNTH FRAME CH 1: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
+			}
 		}
 		if (integrateSpectralSwitch) {
 			if (synthesisFrame == null) {
@@ -124,11 +130,17 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
 			synthesisFrame.merge(synthesisToneMap, notateSpectralFrame);
+			if (synthesisFrame.getChord() != null) {
+				LOG.severe(">>SYNTH FRAME CH 2: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
+			}
 		}
 
 		if (synthesisFrame == null) {
 			synthesisFrame = cqToneMap.getTimeFrame(sequence).clone();
 			synthesisToneMap.addTimeFrame(synthesisFrame);
+			if (synthesisFrame.getChord() != null) {
+				LOG.severe(">>SYNTH FRAME CH 3: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
+			}
 		}
 		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
@@ -139,14 +151,15 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		int chordSourceSequence = sequence;
 		int chordTargetSequence = sequence;
-//		if (chordTiming > 0 && chordSourceSequence - chordTiming > 0) {
-//			chordSourceSequence -= chordTiming;
-//		} else if (chordTiming < 0 && chordTargetSequence + chordTiming > 0) {
-//			chordTargetSequence += chordTiming;
-//		}
+		if (chordTiming > 0 && chordSourceSequence - chordTiming > 0) {
+			chordSourceSequence -= chordTiming;
+		} else if (chordTiming < 0 && chordTargetSequence + chordTiming > 0) {
+			chordTargetSequence += chordTiming;
+		}
 
 		ToneTimeFrame chordSynthesisFrame = synthesisToneMap.getTimeFrame(chordTargetSequence);
 
+		ToneTimeFrame cqTimeFrame = cqToneMap.getTimeFrame(chordSourceSequence);
 		ToneTimeFrame preChromaTimeFrame = preChromaToneMap.getTimeFrame(chordSourceSequence);
 		ToneTimeFrame postChromaTimeFrame = postChromaToneMap.getTimeFrame(chordSourceSequence);
 		ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(chordSourceSequence);
@@ -164,12 +177,14 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 					.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(), preChromaTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
-					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
+					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
+					.chordNoteOctivate(preChromaTimeFrame);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name(), chroma.getChord());
 			chroma = preChromaTimeFrame.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(),
 					preChromaTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
-			chordSynthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name() + "_PADS", chroma.getFrameChord());
+			chordSynthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name() + "_PADS",
+					chroma.getFrameChord(cqTimeFrame));
 		}
 
 		if (hpsHarmonicTimeFrame != null) {
@@ -177,24 +192,28 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 					.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(), hpsHarmonicTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
-					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
+					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
+					.chordNoteOctivate(hpsHarmonicTimeFrame);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC", chroma.getChord());
 			chroma = hpsHarmonicTimeFrame.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(),
 					hpsHarmonicTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
-			chordSynthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_PADS", chroma.getFrameChord());
+			chordSynthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_PADS",
+					chroma.getFrameChord(hpsHarmonicTimeFrame));
 		}
 		if (onsetSmoothedTimeFrame != null) {
 			ToneTimeFrame chroma = onsetSmoothedTimeFrame
 					.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(), onsetSmoothedTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize()
-					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch);
+					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
+					.chordNoteOctivate(onsetSmoothedTimeFrame);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", chroma.getChord());
 			chroma = onsetSmoothedTimeFrame.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(),
 					onsetSmoothedTimeFrame.getPitchHigh(), chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
-			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_PADS", chroma.getFrameChord());
+			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_PADS",
+					chroma.getFrameChord(onsetSmoothedTimeFrame));
 		}
 
 		int beatSourceSequence = sequence;

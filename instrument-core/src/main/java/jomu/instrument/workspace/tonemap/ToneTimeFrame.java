@@ -323,15 +323,10 @@ public class ToneTimeFrame implements Serializable {
 		return noteStatus;
 	}
 
-	public ToneTimeFrame cens() {
-		return this;
-	}
-
 	public ToneTimeFrame chroma(int basePitch, int lowPitch, int highPitch, boolean harmonics) {
 		ToneTimeFrame chromaTimeFrame = new ToneTimeFrame(this.toneMap, this.timeSet.clone(),
 				new PitchSet(basePitch, basePitch + OCTAVE_LENGTH - 1));
 		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
-		Map<Integer, Integer> chromaClassOctaveMaxMap = new HashMap<>();
 		for (int i = 0; i < elements.length; i++) {
 			int note = pitchSet.getNote(i);
 			if (note < lowPitch) {
@@ -342,18 +337,11 @@ public class ToneTimeFrame implements Serializable {
 			}
 			int chromaClass = note % OCTAVE_LENGTH;
 			ToneMapElement chromaElement = null;
-			int chromaOctaveMax = 0;
 			if (!chromaClassMap.containsKey(chromaClass)) {
 				chromaElement = new ToneMapElement(chromaClass);
 				chromaClassMap.put(chromaClass, chromaElement);
-				chromaOctaveMax = i / 12;
-				chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
 			} else {
 				chromaElement = chromaClassMap.get(chromaClass);
-				chromaOctaveMax = i / 12;
-				if (chromaOctaveMax > chromaClassOctaveMaxMap.get(chromaClass)) {
-					chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
-				}
 			}
 			if (elements[i].amplitude > 0.0001) {
 				chromaElement.amplitude += elements[i].amplitude;
@@ -363,6 +351,7 @@ public class ToneTimeFrame implements Serializable {
 		for (int i = 0; i < chromaElements.length; i++) {
 			chromaElements[i] = chromaClassMap.get(i);
 		}
+
 		chromaTimeFrame.reset();
 		return chromaTimeFrame;
 	}
@@ -370,7 +359,7 @@ public class ToneTimeFrame implements Serializable {
 	public double[] getPitches() {
 		double[] result = new double[elements.length];
 		for (int i = 0; i < elements.length - 1; i++) {
-			result[i] = pitchSet.getFreq(i + 1); // ?? !! pitchSet.getFreq(i)
+			result[i] = pitchSet.getFreq(i + 1);
 		}
 		return result;
 	}
@@ -469,7 +458,6 @@ public class ToneTimeFrame implements Serializable {
 				if (elements[i].amplitude < AMPLITUDE_FLOOR) {
 					elements[i].amplitude = AMPLITUDE_FLOOR;
 				}
-				// !! ?? !! TODO elements[i].noteState = 0;
 				avgAmplitude += elements[i].amplitude;
 				count++;
 				if (maxAmplitude < elements[i].amplitude) {
@@ -729,19 +717,61 @@ public class ToneTimeFrame implements Serializable {
 		return this;
 	}
 
-	public ChordListElement getFrameChord() {
+	public ChordListElement getFrameChord(ToneTimeFrame originFrame) {
 		ChordListElement chordListElement = null;
 		TreeSet<ChordNote> cnotes = new TreeSet<>();
 		for (int i = 0; i < elements.length; i++) {
 			int index = i % OCTAVE_LENGTH;
 			int note = pitchSet.getNote(i);
 			if (elements[i] != null && elements[i].amplitude > 0.01) {
-				ChordNote cn = new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH);
+				ChordNote cn = new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 0);
 				if (!cnotes.contains(cn)) {
 					cnotes.add(cn);
 				}
 			}
 		}
+
+		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
+		Map<Integer, Integer> chromaClassOctaveMaxMap = new HashMap<>();
+		Map<Integer, Double> chromaClassOctaveAmpMap = new HashMap<>();
+		double amp = 0;
+		ToneMapElement[] originElements = originFrame.getElements();
+		for (int i = 0; i < originElements.length; i++) {
+			int note = originFrame.getPitchSet().getNote(i);
+			int chromaClass = note % OCTAVE_LENGTH;
+			ToneMapElement chromaElement = null;
+			int chromaOctaveMax = 0;
+			if (!chromaClassMap.containsKey(chromaClass)) {
+				chromaElement = new ToneMapElement(chromaClass);
+				chromaClassMap.put(chromaClass, chromaElement);
+				chromaOctaveMax = i / 12;
+				amp = originElements[i].amplitude;
+				chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
+				chromaClassOctaveAmpMap.put(chromaClass, amp);
+			} else {
+				chromaElement = chromaClassMap.get(chromaClass);
+				chromaOctaveMax = i / 12;
+				amp = originElements[i].amplitude;
+				if (amp > chromaClassOctaveAmpMap.get(chromaClass)) {
+					chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
+					chromaClassOctaveAmpMap.put(chromaClass, amp);
+				}
+			}
+		}
+
+		int maxOctave = 0;
+		for (ChordNote cn : cnotes) {
+			cn.octave = chromaClassOctaveMaxMap.get(cn.pitchClass);
+			if (maxOctave < cn.octave) {
+				maxOctave = cn.octave;
+			}
+		}
+		for (ChordNote cn : cnotes) {
+			if (cn.octave == 0) {
+				cn.octave = maxOctave;
+			}
+		}
+
 		if (cnotes.size() >= 2) {
 			chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
 					cnotes.toArray(new ChordNote[cnotes.size()]));
@@ -847,7 +877,7 @@ public class ToneTimeFrame implements Serializable {
 					if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 						elements[i].amplitude = 1.0;
 						int note = pitchSet.getNote(i);
-						chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+						chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 					}
 				}
 			}
@@ -864,7 +894,7 @@ public class ToneTimeFrame implements Serializable {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 							}
 						}
 					}
@@ -889,12 +919,12 @@ public class ToneTimeFrame implements Serializable {
 						if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 							elements[i].amplitude = 1.0;
 							int note = pitchSet.getNote(i);
-							chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+							chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 						}
 						if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 							elements[i].amplitude = 0.75;
 							int note = pitchSet.getNote(i);
-							chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+							chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
 						}
 					}
 				}
@@ -910,12 +940,12 @@ public class ToneTimeFrame implements Serializable {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 							}
 							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 								elements[i].amplitude = 0.75;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
 							}
 						}
 					}
@@ -938,20 +968,20 @@ public class ToneTimeFrame implements Serializable {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 								counter++;
 							}
 							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 								counter++;
 								elements[i].amplitude = 0.75;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
 							}
 							if (level3Singles.contains(index) || level3Pairs.contains(index)) {
 								counter++;
 								elements[i].amplitude = 0.5;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH));
+								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 3));
 							}
 						}
 					}
@@ -966,27 +996,49 @@ public class ToneTimeFrame implements Serializable {
 		return this;
 	}
 
-	public void chordNoteOctivate(ToneTimeFrame originFrame) {
-		for (ChordNote cn : chordNotes) {
-			cn.octave = originFrame.findMaxOctave(cn.pitchClass);
-			if (cn.octave == -1) {
-				chordNotes.clear();
-				chordListElement = null;
-				break;
+	public ToneTimeFrame chordNoteOctivate(ToneTimeFrame originFrame) {
+		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
+		Map<Integer, Integer> chromaClassOctaveMaxMap = new HashMap<>();
+		Map<Integer, Double> chromaClassOctaveAmpMap = new HashMap<>();
+		double amp = 0;
+		ToneMapElement[] originElements = originFrame.getElements();
+		for (int i = 0; i < originElements.length; i++) {
+			int note = originFrame.getPitchSet().getNote(i);
+			int chromaClass = note % OCTAVE_LENGTH;
+			ToneMapElement chromaElement = null;
+			int chromaOctaveMax = 0;
+			if (!chromaClassMap.containsKey(chromaClass)) {
+				chromaElement = new ToneMapElement(chromaClass);
+				chromaClassMap.put(chromaClass, chromaElement);
+				chromaOctaveMax = i / 12;
+				amp = originElements[i].amplitude;
+				chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
+				chromaClassOctaveAmpMap.put(chromaClass, amp);
+			} else {
+				chromaElement = chromaClassMap.get(chromaClass);
+				chromaOctaveMax = i / 12;
+				amp = originElements[i].amplitude;
+				if (amp > chromaClassOctaveAmpMap.get(chromaClass)) {
+					chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
+					chromaClassOctaveAmpMap.put(chromaClass, amp);
+				}
 			}
 		}
-	}
 
-	private int findMaxOctave(int pitchClass) {
-		int result = -1;
-		double maxAmp = AMPLITUDE_FLOOR;
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] != null && i % OCTAVE_LENGTH == pitchClass && elements[i].amplitude > maxAmp) {
-				maxAmp = elements[i].amplitude;
-				result = i / 12;
+		int maxOctave = 0;
+		for (ChordNote cn : chordNotes) {
+			cn.octave = chromaClassOctaveMaxMap.get(cn.pitchClass);
+			if (maxOctave < cn.octave) {
+				maxOctave = cn.octave;
 			}
 		}
-		return result;
+		for (ChordNote cn : chordNotes) {
+			if (cn.octave == 0) {
+				cn.octave = maxOctave;
+			}
+		}
+		reset();
+		return this;
 	}
 
 	public void sharpenChord() {
@@ -1184,7 +1236,7 @@ public class ToneTimeFrame implements Serializable {
 		return false;
 	}
 
-	public ToneTimeFrame smoothMedian(ToneMap sourceToneMap, ToneMap targetToneMap, int factor, int sequence,
+	public ToneTimeFrame chromaCens(ToneMap sourceToneMap, ToneMap targetToneMap, int factor, int sequence,
 			boolean chromaChordifySwitch, double chromaChordifyThreshold, boolean chromaChordifySharpen) {
 		// collect previous frames
 		List<ToneTimeFrame> sourceFrames = new ArrayList<>();

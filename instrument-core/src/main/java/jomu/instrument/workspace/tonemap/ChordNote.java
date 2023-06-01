@@ -17,12 +17,14 @@ public class ChordNote implements Comparable<ChordNote>, Serializable {
 	int pitchClass;
 	int index;
 	int octave;
+	int level;
 
-	public ChordNote(int index, int pitchClass, double amplitude, int octave) {
+	public ChordNote(int index, int pitchClass, double amplitude, int octave, int level) {
 		this.index = index;
 		this.pitchClass = pitchClass;
 		this.amplitude = amplitude;
 		this.octave = octave;
+		this.level = level;
 	}
 
 	public int getIndex() {
@@ -37,12 +39,16 @@ public class ChordNote implements Comparable<ChordNote>, Serializable {
 		return octave;
 	}
 
+	public int getLevel() {
+		return octave;
+	}
+
 	public int getPitchClass() {
 		return pitchClass;
 	}
 
 	public ChordNote clone() {
-		ChordNote clone = new ChordNote(index, pitchClass, amplitude, octave);
+		ChordNote clone = new ChordNote(index, pitchClass, amplitude, octave, level);
 		return clone;
 	}
 
@@ -65,7 +71,8 @@ public class ChordNote implements Comparable<ChordNote>, Serializable {
 
 	@Override
 	public String toString() {
-		return "ChordNote [amplitiude=" + amplitude + ", pitchClass=" + pitchClass + ", octave=" + octave + "]";
+		return "ChordNote [amplitiude=" + amplitude + ", pitchClass=" + pitchClass + ", octave=" + octave + ", level="
+				+ level + "]";
 	}
 
 	@Override
