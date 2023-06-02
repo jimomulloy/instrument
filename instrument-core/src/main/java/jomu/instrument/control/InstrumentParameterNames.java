@@ -163,11 +163,13 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_MEASURE = "perception.hearing.synthesis.chord1Measure";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_PATTERN = "perception.hearing.synthesis.chord1Pattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_SOURCE = "perception.hearing.synthesis.chord1Source";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_INVERT = "perception.hearing.synthesis.chord1Invert";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE = "perception.hearing.synthesis.chord1Octave";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_OFFSET = "perception.hearing.synthesis.chord2Offset";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_MEASURE = "perception.hearing.synthesis.chord2Measure";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_PATTERN = "perception.hearing.synthesis.chord2Pattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_SOURCE = "perception.hearing.synthesis.chord2Source";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_INVERT = "perception.hearing.synthesis.chord2Invert";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE = "perception.hearing.synthesis.chord2Octave";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING = "perception.hearing.synthesis.beatTiming";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT1_SOURCE = "perception.hearing.synthesis.beat1Source";

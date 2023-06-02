@@ -1929,16 +1929,14 @@ public class ToneTimeFrame implements Serializable {
 		this.beatsMap = beatsMap;
 	}
 
-	public ToneTimeFrame onsetPeaks(ToneTimeFrame previousFrame, ToneTimeFrame sourceFrame, double onsetPeaksEdgeFactor,
-			int onsetPeaksSweep, double onsetPeaksThreshold) {
-		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
-		ToneTimeFrame stf = sourceFrame;
+	public ToneTimeFrame onsetPeaks(ToneTimeFrame previousFrame, double onsetPeaksEdgeFactor, int onsetPeaksSweep,
+			double onsetPeaksThreshold) {
+		ToneTimeFrame sf = this;
 		int i = onsetPeaksSweep;
 		double totalAmp = 0;
-		while (stf != null && i > 0) {
-			sourceFrames.add(stf);
-			totalAmp += stf.getTotalAmplitude();
-			stf = stf.getToneMap().getPreviousTimeFrame(stf.getStartTime());
+		while (sf != null && i > 0) {
+			totalAmp += sf.getTotalAmplitude();
+			sf = sf.getToneMap().getPreviousTimeFrame(sf.getStartTime());
 			i--;
 		}
 
@@ -1949,8 +1947,6 @@ public class ToneTimeFrame implements Serializable {
 				isPeak = true;
 			}
 			setOnsetElement(new OnsetElement(totalAmp, isPeak));
-			LOG.severe(">>TF ONSET PEAK 1: " + getStartTime() + ", " + getOnsetElement().amplitude + ", "
-					+ getOnsetElement().isPeak + ", " + previousFrame.getStartTime());
 		} else if (previousFrame.getOnsetElement().amplitude < totalAmp) {
 			if (totalAmp > 0 && totalAmp > onsetPeaksThreshold
 					&& (((totalAmp - previousFrame.getOnsetElement().amplitude) / totalAmp) > onsetPeaksEdgeFactor)) {
@@ -1958,12 +1954,8 @@ public class ToneTimeFrame implements Serializable {
 				previousFrame.getOnsetElement().isPeak = false;
 			}
 			setOnsetElement(new OnsetElement(totalAmp, isPeak));
-			LOG.severe(">>TF ONSET PEAK 2: " + getStartTime() + ", " + getOnsetElement().amplitude + ", "
-					+ getOnsetElement().isPeak + ", " + previousFrame.getStartTime());
 		} else {
 			setOnsetElement(new OnsetElement(totalAmp, false));
-			LOG.severe(">>TF ONSET PEAK 3: " + getStartTime() + ", " + getOnsetElement().amplitude + ", "
-					+ getOnsetElement().isPeak + ", " + previousFrame.getStartTime());
 		}
 		reset();
 		return this;

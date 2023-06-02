@@ -240,7 +240,7 @@ public class Hearing implements Organ {
 		}
 
 		if (format.getSampleRate() != audioStream.getSampleRate()) {
-			audioStream.setSampleRate(format.getSampleRate());
+			audioStream.setSampleRate((int) format.getSampleRate());
 			LOG.finer(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
 		}
 
@@ -425,10 +425,11 @@ public class Hearing implements Organ {
 			return bufferSize;
 		}
 
-		public void setSampleRate(float sampleRate) {
+		public void setSampleRate(int sampleRate) {
 			this.sampleRate = sampleRate;
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE,
-					Float.toString(sampleRate));
+					Integer.toString(sampleRate));
+			console.getVisor().updateParameters();
 
 		}
 

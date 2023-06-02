@@ -1381,7 +1381,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			if (midiPlayBeat4Switch) {
 				double beat = ToneTimeFrame.AMPLITUDE_FLOOR;
-				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION");
+				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_ONSET.name() + "_PEAKS");
 				if (ob.isPresent()) {
 					beat = 1.0; // ob.get().getAmplitude();
 				}

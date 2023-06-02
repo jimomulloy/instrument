@@ -249,19 +249,19 @@ public class BeatsView extends JComponent implements ComponentListener {
 			Optional<BeatListElement> obo = ttf.getBeat(CellTypes.AUDIO_ONSET.name());
 			Optional<BeatListElement> obp = ttf.getBeat(CellTypes.AUDIO_PERCUSSION.name());
 			Optional<BeatListElement> obh = ttf.getBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION");
+			Optional<BeatListElement> obop = ttf.getBeat(CellTypes.AUDIO_ONSET.name() + "_PEAKS");
 
 			Color color = Color.black;
 
-			int height = (int) ((double) getHeight() / 2.0);
+			int height = (int) ((double) getHeight() / 1.3);
 
 			int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
 			if (cm.getBeatAfterTime(ttf.getStartTime(), 110) != -1) {
 				color = Color.RED;
 				bufferedGraphics.setColor(color);
-				bufferedGraphics.fillOval(timeCoordinate, (int) (height / 4.0), 6, (int) 6);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((1.5 / 5.0) * height), 6, (int) 6);
 			}
-
 			if (beat != null) {
 				color = Color.BLUE;
 				bufferedGraphics.setColor(color);
@@ -281,12 +281,17 @@ public class BeatsView extends JComponent implements ComponentListener {
 			if (obp.isPresent() && obp.get().getAmplitude() > 0.001) {
 				color = Color.CYAN;
 				bufferedGraphics.setColor(color);
-				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.5 / 5.0) * height), 6, 6);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((2.5 / 5.0) * height), 6, 6);
 			}
 			if (obo.isPresent() && obo.get().getAmplitude() > 0.001) {
 				color = new Color(0xffa500); // orange
 				bufferedGraphics.setColor(color);
-				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.8 / 5.0) * height), 6, 6);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.5 / 5.0) * height), 6, 6);
+			}
+			if (obop.isPresent() && obop.get().getAmplitude() > 0.001) {
+				color = new Color(0x90422d); // sienna-ish
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillOval(timeCoordinate, (int) ((2.9 / 5.0) * height), 6, 6);
 			}
 			if (obh.isPresent() && obh.get().getAmplitude() > 0.001) {
 				color = new Color(0x00ff00); // green

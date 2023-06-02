@@ -163,7 +163,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	Map<String, ToneMap> toneMapViews = new HashMap<>();
 
-	static final Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192 };
+	static final Integer[] fftWindowSizes = { 256, 512, 1024, 2048, 4096, 8192 };
 	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 48000, 192000 };
 
 	File inputFile;
@@ -239,6 +239,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JButton updateViewButton;
 	JSplitPane toneMapViewTopPane;
 	JSplitPane toneMapViewBottomPane;
+	JComboBox fftWindowSizeComboBox;
+	JComboBox inputSampleRateCombobox;
 
 	@Override
 	public void startUp() {
@@ -1579,8 +1581,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		panel.add(actionPanel, BorderLayout.NORTH);
 
-		JComboBox<Integer> fftSizeComboBox = new JComboBox<>(fftSizes);
-		fftSizeComboBox.addActionListener(new ActionListener() {
+		fftWindowSizeComboBox = new JComboBox<>(fftWindowSizes);
+		fftWindowSizeComboBox.addActionListener(new ActionListener() {
 			private Integer fftsize;
 
 			@Override
@@ -1593,11 +1595,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		fftSizeComboBox.setSelectedIndex(2);
-		instrumentPanel.add(new JLabel("FFT-size:  "));
-		instrumentPanel.add(fftSizeComboBox);
+		fftWindowSizeComboBox.setSelectedIndex(2);
+		instrumentPanel.add(new JLabel("FFT Window:  "));
+		instrumentPanel.add(fftWindowSizeComboBox);
 
-		JComboBox<Integer> inputSampleRateCombobox = new JComboBox<>(inputSampleRate);
+		inputSampleRateCombobox = new JComboBox<>(inputSampleRate);
 		inputSampleRateCombobox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -2636,6 +2638,25 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE));
 		trackWriteSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH));
+		int sampleRateParam = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
+		int i = 0;
+		for (int sr : inputSampleRate) {
+			if (sr == sampleRateParam) {
+				inputSampleRateCombobox.setSelectedIndex(i);
+				break;
+			}
+			i++;
+		}
+		int fftParam = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
+		i = 0;
+		for (int fws : fftWindowSizes) {
+			if (fws == fftParam) {
+				fftWindowSizeComboBox.setSelectedIndex(i);
+				break;
+			}
+			i++;
+		}
 	}
 
 	public JPanel getContentPanel() {

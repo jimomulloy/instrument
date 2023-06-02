@@ -395,8 +395,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 			if (showPeaks && ttf.getOnsetElement() != null && ttf.getOnsetElement().isPeak) {
 				Color color = new Color(0x90422d); // sienna-ish
-				// LOG.severe(">>TV ONSET PEAK: " + ttf.getStartTime() + ", " +
-				// ttf.getOnsetElement().amplitude);
 				bufferedGraphics.setColor(color);
 				bufferedGraphics.fillRect(timeCoordinate, height / 2, 6, 6);
 			}

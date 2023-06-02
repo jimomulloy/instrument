@@ -69,8 +69,7 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		if (sequence > onsetPeaksSweep) {
 			ToneTimeFrame currentFrame = onsetToneMap.getTimeFrame(sequence);
 			ToneTimeFrame previousFrame = onsetToneMap.getTimeFrame(sequence - 1);
-			currentFrame.onsetPeaks(previousFrame, cqToneMap.getTimeFrame(sequence), onsetPeaksEdgeFactor,
-					onsetPeaksSweep, onsetPeaksThreshold);
+			currentFrame.onsetPeaks(previousFrame, onsetPeaksEdgeFactor, onsetPeaksSweep, onsetPeaksThreshold);
 		}
 
 		ToneTimeFrame ottf = onsetToneMap.getTimeFrame();

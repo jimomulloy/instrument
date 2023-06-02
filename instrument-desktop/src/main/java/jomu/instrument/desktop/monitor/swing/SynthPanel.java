@@ -112,6 +112,10 @@ public class SynthPanel extends JPanel {
 
 	private JCheckBox synthesisChordFirstSwitchCB;
 
+	private JCheckBox synthesisChord1InvertSwitchCB;
+
+	private JCheckBox synthesisChord2InvertSwitchCB;
+
 	private JTextField synthesisChordTimingInput;
 
 	private JTextField synthesisBeatTimingInput;
@@ -262,8 +266,37 @@ public class SynthPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH));
 		tuningPanel.add(synthesisChordFirstSwitchCB);
 
-		tuningPanel.add(new JLabel(""));
-		tuningPanel.add(new JLabel(""));
+		synthesisChord1InvertSwitchCB = new JCheckBox("synthesisChord1InvertSwitchCB");
+		synthesisChord1InvertSwitchCB.setText("Synthesis Chord1 Invert");
+		synthesisChord1InvertSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_INVERT,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisChord1InvertSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_INVERT));
+		tuningPanel.add(synthesisChord1InvertSwitchCB);
+
+		synthesisChord2InvertSwitchCB = new JCheckBox("synthesisChord2InvertSwitchCB");
+		synthesisChord2InvertSwitchCB.setText("Synthesis Chord2 Invert");
+		synthesisChord2InvertSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_INVERT,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisChord2InvertSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_INVERT));
+		tuningPanel.add(synthesisChord2InvertSwitchCB);
 
 		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
 		synthesisChordTimingInput = new JTextField(4);

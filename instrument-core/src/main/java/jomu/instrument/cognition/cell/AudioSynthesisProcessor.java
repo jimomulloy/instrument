@@ -109,9 +109,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			synthesisFrame = notateFrame.clone();
 			synthesisToneMap.addTimeFrame(synthesisFrame);
 			synthesisFrame.mergeNotes(synthesisToneMap, notateFrame);
-			if (synthesisFrame.getChord() != null) {
-				LOG.severe(">>SYNTH FRAME CH 0: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
-			}
 		}
 
 		if (integratePeaksSwitch) {
@@ -120,9 +117,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
 			synthesisFrame.integratePeaks(notatePeaksFrame);
-			if (synthesisFrame.getChord() != null) {
-				LOG.severe(">>SYNTH FRAME CH 1: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
-			}
 		}
 		if (integrateSpectralSwitch) {
 			if (synthesisFrame == null) {
@@ -130,17 +124,11 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
 			synthesisFrame.merge(synthesisToneMap, notateSpectralFrame);
-			if (synthesisFrame.getChord() != null) {
-				LOG.severe(">>SYNTH FRAME CH 2: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
-			}
 		}
 
 		if (synthesisFrame == null) {
 			synthesisFrame = cqToneMap.getTimeFrame(sequence).clone();
 			synthesisToneMap.addTimeFrame(synthesisFrame);
-			if (synthesisFrame.getChord() != null) {
-				LOG.severe(">>SYNTH FRAME CH 3: " + synthesisFrame.getStartTime() + ", " + synthesisFrame.getChord());
-			}
 		}
 		synthesisFrame.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
@@ -256,40 +244,29 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			BeatListElement ble = new BeatListElement(beatTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_BEAT.name(), ble);
-			if (beatTimeFrame.getBeatAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
-				LOG.finer(">>AudioSynthesisProcessor putBeat BEAT: " + beatTargetSequence + ", "
-						+ beatSynthesisFrame.getStartTime() + ", " + beatTimeFrame.getBeatAmplitude() + ", " + sequence
-						+ ", streamId: " + streamId);
-			}
 		}
 		if (onsetTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(onsetTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_ONSET.name(), ble);
-			if (onsetTimeFrame.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
-				LOG.finer(">>AudioSynthesisProcessor putBeat ONSET: " + beatTime + ", " + timeRange + ", "
-						+ beatSynthesisFrame.getStartTime() + ", " + onsetTimeFrame.getMaxAmplitude() + ", " + sequence
-						+ ", streamId: " + streamId);
+			if (onsetTimeFrame.getOnsetElement() != null && onsetTimeFrame.getOnsetElement().isPeak) {
+				ble = new BeatListElement(onsetTimeFrame.getOnsetElement().amplitude, beatSynthesisFrame.getStartTime(),
+						timeRange);
+				beatSynthesisFrame.putBeat(CellTypes.AUDIO_ONSET.name() + "_PEAKS", ble);
+			} else {
+				ble = new BeatListElement(ToneTimeFrame.AMPLITUDE_FLOOR, beatSynthesisFrame.getStartTime(), timeRange);
+				beatSynthesisFrame.putBeat(CellTypes.AUDIO_ONSET.name() + "_PEAKS", ble);
 			}
 		}
 		if (percussionTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(percussionTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_PERCUSSION.name(), ble);
-			if (percussionTimeFrame.getBeatAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR) {
-				LOG.finer(">>AudioSynthesisProcessor putBeat PERCUSSION: " + beatSynthesisFrame.getStartTime() + ", "
-						+ percussionTimeFrame.getBeatAmplitude() + ", " + sequence + ", streamId: " + streamId);
-			}
 		}
 		if (hpsPercussionTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(hpsPercussionTimeFrame.getMaxAmplitude(),
 					beatSynthesisFrame.getStartTime(), timeRange);
 			beatSynthesisFrame.putBeat(CellTypes.AUDIO_HPS.name() + "_PERCUSSION", ble);
-			if (hpsPercussionTimeFrame.getMaxAmplitude() > ToneTimeFrame.AMPLITUDE_FLOOR * 10) {
-				LOG.finer(">>AudioSynthesisProcessor putBeat HPS: " + beatSynthesisFrame.getStartTime() + ", "
-						+ ToneTimeFrame.AMPLITUDE_FLOOR + ", " + hpsPercussionTimeFrame.getMaxAmplitude() + ", "
-						+ sequence + ", streamId: " + streamId);
-			}
 		}
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
