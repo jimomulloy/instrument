@@ -60,6 +60,8 @@ public class ToneTimeFrame implements Serializable {
 	TimeSet timeSet;
 	TreeSet<ChordNote> chordNotes = new TreeSet<>();
 	ChordListElement chordListElement = null;
+	OnsetElement onsetElement = null;
+
 	Map<String, ChordListElement> chordsMap = new HashMap<String, ChordListElement>();
 	Map<String, BeatListElement> beatsMap = new HashMap<String, BeatListElement>();
 	double beatAmplitude = AMPLITUDE_FLOOR;
@@ -138,6 +140,14 @@ public class ToneTimeFrame implements Serializable {
 
 	public double getRawRmsPower() {
 		return rawRmsPower;
+	}
+
+	public OnsetElement getOnsetElement() {
+		return onsetElement;
+	}
+
+	public void setOnsetElement(OnsetElement onsetElement) {
+		this.onsetElement = onsetElement;
 	}
 
 	public double getSpectralFlux() {
@@ -1917,6 +1927,46 @@ public class ToneTimeFrame implements Serializable {
 
 	public void setBeatsMap(Map<String, BeatListElement> beatsMap) {
 		this.beatsMap = beatsMap;
+	}
+
+	public ToneTimeFrame onsetPeaks(ToneTimeFrame previousFrame, ToneTimeFrame sourceFrame, double onsetPeaksEdgeFactor,
+			int onsetPeaksSweep, double onsetPeaksThreshold) {
+		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
+		ToneTimeFrame stf = sourceFrame;
+		int i = onsetPeaksSweep;
+		double totalAmp = 0;
+		while (stf != null && i > 0) {
+			sourceFrames.add(stf);
+			totalAmp += stf.getTotalAmplitude();
+			stf = stf.getToneMap().getPreviousTimeFrame(stf.getStartTime());
+			i--;
+		}
+
+		boolean isPeak = false;
+		if (previousFrame.getOnsetElement() == null) {
+			previousFrame.setOnsetElement(new OnsetElement(AMPLITUDE_FLOOR, false));
+			if (totalAmp > onsetPeaksThreshold) {
+				isPeak = true;
+			}
+			setOnsetElement(new OnsetElement(totalAmp, isPeak));
+			LOG.severe(">>TF ONSET PEAK 1: " + getStartTime() + ", " + getOnsetElement().amplitude + ", "
+					+ getOnsetElement().isPeak + ", " + previousFrame.getStartTime());
+		} else if (previousFrame.getOnsetElement().amplitude < totalAmp) {
+			if (totalAmp > 0 && totalAmp > onsetPeaksThreshold
+					&& (((totalAmp - previousFrame.getOnsetElement().amplitude) / totalAmp) > onsetPeaksEdgeFactor)) {
+				isPeak = true;
+				previousFrame.getOnsetElement().isPeak = false;
+			}
+			setOnsetElement(new OnsetElement(totalAmp, isPeak));
+			LOG.severe(">>TF ONSET PEAK 2: " + getStartTime() + ", " + getOnsetElement().amplitude + ", "
+					+ getOnsetElement().isPeak + ", " + previousFrame.getStartTime());
+		} else {
+			setOnsetElement(new OnsetElement(totalAmp, false));
+			LOG.severe(">>TF ONSET PEAK 3: " + getStartTime() + ", " + getOnsetElement().amplitude + ", "
+					+ getOnsetElement().isPeak + ", " + previousFrame.getStartTime());
+		}
+		reset();
+		return this;
 	}
 
 }

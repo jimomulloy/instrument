@@ -327,6 +327,12 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField sinkSweepRangeInput;
 
+	private JTextField onsetPeaksThresholdInput;
+
+	private JTextField onsetPeaksEdgeFactorInput;
+
+	private JTextField onsetPeaksSweepInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -3360,6 +3366,57 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(onsetSensitivityLabel);
 		cqParamsPanel.add(onsetSensitivityInput);
 
+		JLabel onsetPeaksSweepLabel = new JLabel("Onset Peaks Sweep Factor: ");
+		onsetPeaksSweepInput = new JTextField(4);
+		onsetPeaksSweepInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = onsetPeaksSweepInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_SWEEP,
+						newValue);
+				onsetPeaksSweepLabel.setText(String.format("Onset Peaks Sweep Factor  (%s):", newValue));
+				onsetPeaksSweepInput.setText(newValue);
+			}
+		});
+		onsetPeaksSweepInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_SWEEP));
+		cqParamsPanel.add(onsetPeaksSweepLabel);
+		cqParamsPanel.add(onsetPeaksSweepInput);
+
+		JLabel onsetPeaksThresholdLabel = new JLabel("Onset Peaks Threshold Factor: ");
+		onsetPeaksThresholdInput = new JTextField(4);
+		onsetPeaksThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = onsetPeaksThresholdInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_THRESHOLD, newValue);
+				onsetPeaksThresholdLabel.setText(String.format("Onset Peaks Threshold Factor  (%s):", newValue));
+				onsetPeaksThresholdInput.setText(newValue);
+			}
+		});
+		onsetPeaksThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_THRESHOLD));
+		cqParamsPanel.add(onsetPeaksThresholdLabel);
+		cqParamsPanel.add(onsetPeaksThresholdInput);
+
+		JLabel onsetPeaksEdgeFactorLabel = new JLabel("Onset Peaks Edge Factor: ");
+		onsetPeaksEdgeFactorInput = new JTextField(4);
+		onsetPeaksEdgeFactorInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = onsetPeaksEdgeFactorInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_EDGE_FACTOR, newValue);
+				onsetPeaksEdgeFactorLabel.setText(String.format("Onset Peaks Edge Factor  (%s):", newValue));
+				onsetPeaksEdgeFactorInput.setText(newValue);
+			}
+		});
+		onsetPeaksEdgeFactorInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_EDGE_FACTOR));
+		cqParamsPanel.add(onsetPeaksEdgeFactorLabel);
+		cqParamsPanel.add(onsetPeaksEdgeFactorInput);
+
 		JLabel percussionThresholdLabel = new JLabel("Percussion Threshold Factor: ");
 		percussionThresholdInput = new JTextField(4);
 		percussionThresholdInput.addActionListener(new ActionListener() {
@@ -4427,6 +4484,12 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SENSITIVITY));
 		onsetIntervalInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL));
+		onsetPeaksSweepInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_SWEEP));
+		onsetPeaksThresholdInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_THRESHOLD));
+		onsetPeaksEdgeFactorInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_EDGE_FACTOR));
 		onsetSilenceThresholdInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD));
 		percussionSensitivityInput.setText(

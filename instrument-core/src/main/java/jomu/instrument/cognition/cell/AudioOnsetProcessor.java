@@ -25,6 +25,12 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		LOG.finer(">>AudioOnsetProcessor accept seq: " + sequence + ", streamId: " + streamId);
 		int onsetSmoothingFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR);
+		int onsetPeaksSweep = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_SWEEP);
+		double onsetPeaksThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_THRESHOLD);
+		double onsetPeaksEdgeFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_EDGE_FACTOR);
 		int onsetEdgeFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_EDGE_FACTOR);
 		boolean onsetCQOriginSwitch = parameterManager
@@ -58,6 +64,13 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 			ToneTimeFrame currentFrame = onsetToneMap.getTimeFrame(sequence);
 			ToneTimeFrame previousFrame = cqToneMap.getTimeFrame(sequence - 1);
 			currentFrame.onsetEdge(previousFrame, (double) onsetEdgeFactor / 100.0);
+		}
+
+		if (sequence > onsetPeaksSweep) {
+			ToneTimeFrame currentFrame = onsetToneMap.getTimeFrame(sequence);
+			ToneTimeFrame previousFrame = onsetToneMap.getTimeFrame(sequence - 1);
+			currentFrame.onsetPeaks(previousFrame, cqToneMap.getTimeFrame(sequence), onsetPeaksEdgeFactor,
+					onsetPeaksSweep, onsetPeaksThreshold);
 		}
 
 		ToneTimeFrame ottf = onsetToneMap.getTimeFrame();

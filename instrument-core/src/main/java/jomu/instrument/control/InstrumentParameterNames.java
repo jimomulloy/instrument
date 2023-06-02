@@ -112,12 +112,6 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";
 	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";
 
-	public static final String PERCEPTION_HEARING_ONSET_THRESHOLD = "perception.hearing.onset.threshold";
-	public static final String PERCEPTION_HEARING_ONSET_SENSITIVITY = "perception.hearing.onset.sensitivity";
-	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = "perception.hearing.onset.interval";
-	public static final String PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD = "perception.hearing.onset.silenceThreshold";
-	public static final String PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH = "perception.hearing.onset.cqOriginSwitch";
-
 	public static final String PERCEPTION_HEARING_PERCUSSION_THRESHOLD = "perception.hearing.percussion.threshold";
 	public static final String PERCEPTION_HEARING_PERCUSSION_SENSITIVITY = "perception.hearing.percussion.sensitivity";
 
@@ -205,8 +199,16 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_RANGE = "perception.hearing.notetracker.salientTimeRange";
 	public static final String PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR = "perception.hearing.notetracker.salientTimeNoteFactor";
 
+	public static final String PERCEPTION_HEARING_ONSET_THRESHOLD = "perception.hearing.onset.threshold";
+	public static final String PERCEPTION_HEARING_ONSET_SENSITIVITY = "perception.hearing.onset.sensitivity";
+	public static final String PERCEPTION_HEARING_ONSET_INTERVAL = "perception.hearing.onset.interval";
+	public static final String PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD = "perception.hearing.onset.silenceThreshold";
+	public static final String PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH = "perception.hearing.onset.cqOriginSwitch";
 	public static final String PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR = "perception.hearing.onset.smoothingFactor";
 	public static final String PERCEPTION_HEARING_ONSET_EDGE_FACTOR = "perception.hearing.onset.edgeFactor";
+	public static final String PERCEPTION_HEARING_ONSET_PEAKS_SWEEP = "perception.hearing.onset.peaksSweep";
+	public static final String PERCEPTION_HEARING_ONSET_PEAKS_THRESHOLD = "perception.hearing.onset.peaksThreshold";
+	public static final String PERCEPTION_HEARING_ONSET_PEAKS_EDGE_FACTOR = "perception.hearing.onset.peaksEdgeFactor";
 
 	public static final String PERCEPTION_HEARING_NOTATE_COMPRESSION = "perception.hearing.notate.compression";
 	public static final String PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS = "perception.hearing.notate.compressionSwitch";

@@ -306,13 +306,13 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			int spectralMean = ttf.getSpectralMean();
 			int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
 			int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
+			int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 
 				ToneMapElement toneMapElement = elements[elementIndex];
 				int cents = pitchSet.getNote(elementIndex) * 100;
 				int centsCoordinate = getCentsCoordinate(cents);
-				int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
 				Color color = Color.black;
 				if (toneMapElement != null) {
@@ -352,7 +352,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 							color = new Color(greyValue, greyValue, greyValue);
 						}
 					}
-					if (toneMapElement.isPeak && showPeaks) {
+					if (showPeaks && toneMapElement.isPeak) {
 						color = Color.MAGENTA;
 					}
 
@@ -391,6 +391,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					}
 
 				}
+			}
+
+			if (showPeaks && ttf.getOnsetElement() != null && ttf.getOnsetElement().isPeak) {
+				Color color = new Color(0x90422d); // sienna-ish
+				// LOG.severe(">>TV ONSET PEAK: " + ttf.getStartTime() + ", " +
+				// ttf.getOnsetElement().amplitude);
+				bufferedGraphics.setColor(color);
+				bufferedGraphics.fillRect(timeCoordinate, height / 2, 6, 6);
 			}
 
 			if (showStats) {
@@ -504,7 +512,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						int centsCoordinate = getCentsCoordinate(nle.note * 100);
-						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
@@ -527,7 +534,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						int centsCoordinate = getCentsCoordinate(nle.note * 100);
-						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
@@ -547,7 +553,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						int centsCoordinate = getCentsCoordinate((nle.note) * 100);
-						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
@@ -558,23 +563,22 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					}
 				}
 
-//				track = toneMap.getNoteTracker().getChordTrack(2);
-//				color = Color.BLACK;
-//				if (track != null) {
-//					color = Color.PINK;
-//					NoteListElement[] nles = track.getNotes(timeStart);
-//					for (NoteListElement nle : nles) {
-//						int centsCoordinate = getCentsCoordinate((nle.note) * 100);
-//						int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-//						bufferedGraphics.setColor(color);
-//						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
-//						if (nle.startTime == timeStart) {
-//							color = new Color(0xff7f50); // coral
-//							bufferedGraphics.setColor(color);
-//							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
-//						}
-//					}
-//				}
+				track = toneMap.getNoteTracker().getChordTrack(2);
+				color = Color.BLACK;
+				if (track != null) {
+					color = Color.PINK;
+					NoteListElement[] nles = track.getNotes(timeStart);
+					for (NoteListElement nle : nles) {
+						int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+						bufferedGraphics.setColor(color);
+						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+						if (nle.startTime == timeStart) {
+							color = new Color(0xff7f50); // coral
+							bufferedGraphics.setColor(color);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+						}
+					}
+				}
 			}
 
 			if (showBeats) {
@@ -586,7 +590,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					for (NoteListElement nle : nles) {
 						if (nle.startTime == timeStart) {
 							int centsCoordinate = getCentsCoordinate((nle.note) * 100);
-							int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 							bufferedGraphics.setColor(color);
 							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
 						}
@@ -601,7 +604,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					for (NoteListElement nle : nles) {
 						if (nle.startTime == timeStart) {
 							int centsCoordinate = getCentsCoordinate((nle.note) * 100);
-							int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 							bufferedGraphics.setColor(color);
 							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
 						}
