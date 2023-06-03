@@ -1345,8 +1345,6 @@ public class AudioTuner implements ToneMapConstants {
 
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 
-		LOG.severe(">>AT clear heads: " + noteListElement.note + ", " + noteListElement.startTime);
-
 		for (ToneTimeFrame toneTimeFrame : timeFrames) {
 			if (toneTimeFrame.getStartTime() > toTime / 1000.0) {
 				break;

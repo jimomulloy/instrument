@@ -62,7 +62,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		chords.put(cle.getStartTime(), cle);
 	}
 
-	public void synthesise(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
+	public void synthesise(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap, boolean isClosing) {
 		LOG.finer(">>SYNTH time: " + toneTimeFrame.getStartTime());
 		ChordListElement chord = toneTimeFrame.getChord();
 		if (synthChordFirstSwitch) {
@@ -240,11 +240,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			NoteListElement nle = element.noteListElement;
-			if (nle != null) {
-				// LOG.finer(">>SYNTH addNote: " + nle);
-			}
 			if (nle != null && time * 1000 == nle.startTime) {
-				LOG.finer(">>SYNTH adding Note: " + nle);
 				notes.add(nle);
 			}
 		}

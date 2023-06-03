@@ -1780,7 +1780,7 @@ public class ToneTimeFrame implements Serializable {
 
 	public void mergeNotes(ToneMap toneMap, ToneTimeFrame sourceTimeFrame) {
 		ToneMapElement[] ses = sourceTimeFrame.getElements();
-		LOG.finer(">>mergeNotes: " + getStartTime());
+		// LOG.finer(">>mergeNotes: " + getStartTime());
 		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
 			ToneMapElement sourceElement = ses[elementIndex];
 			if (sourceElement.noteListElement != null) {
@@ -1808,8 +1808,9 @@ public class ToneTimeFrame implements Serializable {
 			if (element.noteListElement != null) {
 				if (firstNoteListElement == null) {
 					firstNoteListElement = element.noteListElement;
+				} else {
+					lastNoteListElement = element.noteListElement;
 				}
-				lastNoteListElement = element.noteListElement;
 			}
 			ttf = toneMap.getNextTimeFrame(ttf.getStartTime());
 		}
@@ -1823,7 +1824,8 @@ public class ToneTimeFrame implements Serializable {
 			return;
 
 		}
-		if (firstNoteListElement == null) {
+
+		if (firstNoteListElement == null || firstNoteListElement.endTime <= newNoteListElement.startTime) {
 			LOG.finer(">>TTF merge A: " + elementIndex + ", " + getStartTime() + ", " + sourceNoteListElement.note
 					+ ", " + sourceNoteListElement.startTime + ", " + sourceNoteListElement.endTime);
 			ttf = toneMap.getTimeFrame(startTime);
@@ -1840,8 +1842,25 @@ public class ToneTimeFrame implements Serializable {
 			LOG.finer(">>TTF merge X2: " + elementIndex + ", " + getStartTime() + ", " + firstNoteListElement.note
 					+ ", " + firstNoteListElement.startTime + ", " + firstNoteListElement.endTime);
 			ttf = toneMap.getTimeFrame(firstNoteListElement.startTime / 1000);
-			newNoteListElement.startTime = firstNoteListElement.startTime;
+			firstNoteListElement.endTime = newNoteListElement.endTime;
+			firstNoteListElement.merge(newNoteListElement);
+			newNoteListElement = firstNoteListElement;
 			while (ttf != null && ttf.getStartTime() <= firstNoteListElement.endTime / 1000) {
+				startTime = ttf.getStartTime();
+				ToneMapElement element = ttf.getElement(elementIndex);
+				element.noteListElement = newNoteListElement;
+				ttf = toneMap.getNextTimeFrame(startTime);
+			}
+			LOG.finer(">>TTF merged X21: " + elementIndex + ", " + getStartTime() + ", " + newNoteListElement.note
+					+ ", " + newNoteListElement.startTime + ", " + newNoteListElement.endTime);
+		}
+		if (lastNoteListElement != null) {
+			LOG.finer(">>TTF merge X3: " + elementIndex + ", " + getStartTime() + ", " + lastNoteListElement.note + ", "
+					+ lastNoteListElement.startTime + ", " + lastNoteListElement.endTime);
+			if (lastNoteListElement.endTime > newNoteListElement.endTime) {
+				newNoteListElement.endTime = lastNoteListElement.endTime;
+			}
+			while (ttf != null && ttf.getStartTime() <= (newNoteListElement.endTime / 1000)) {
 				startTime = ttf.getStartTime();
 				ToneMapElement element = ttf.getElement(elementIndex);
 				if (element.noteListElement != null) {
@@ -1852,27 +1871,10 @@ public class ToneTimeFrame implements Serializable {
 				}
 				ttf = toneMap.getNextTimeFrame(startTime);
 			}
-			if (lastNoteListElement.endTime > firstNoteListElement.endTime
-					|| newNoteListElement.endTime > firstNoteListElement.endTime) {
-				LOG.finer(">>TTF merge X3: " + elementIndex + ", " + getStartTime() + ", " + lastNoteListElement.note
-						+ ", " + lastNoteListElement.startTime + ", " + lastNoteListElement.endTime);
-				if (lastNoteListElement.endTime > newNoteListElement.endTime) {
-					newNoteListElement.endTime = lastNoteListElement.endTime;
-				}
-				while (ttf != null && ttf.getStartTime() <= (newNoteListElement.endTime / 1000)) {
-					startTime = ttf.getStartTime();
-					ToneMapElement element = ttf.getElement(elementIndex);
-					if (element.noteListElement != null) {
-						newNoteListElement.merge(element.noteListElement);
-						element.noteListElement = newNoteListElement;
-					} else {
-						element.noteListElement = newNoteListElement;
-					}
-					ttf = toneMap.getNextTimeFrame(startTime);
-				}
-			}
-		}
+			LOG.finer(">>TTF merged X31: " + elementIndex + ", " + getStartTime() + ", " + newNoteListElement.note
+					+ ", " + newNoteListElement.startTime + ", " + newNoteListElement.endTime);
 
+		}
 	}
 
 	public void setChord(ToneTimeFrame sourceTimeFrame) {

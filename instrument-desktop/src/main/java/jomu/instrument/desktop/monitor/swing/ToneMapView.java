@@ -386,6 +386,10 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 								color = new Color(0x53868b); // cadetblue4
 								bufferedGraphics.setColor(color);
 								bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 3, 6, (int) 6);
+							} else {
+								color = Color.LIGHT_GRAY;
+								bufferedGraphics.setColor(color);
+								bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 3, 6, (int) 6);
 							}
 						}
 					}
@@ -609,6 +613,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				}
 			}
 		}
+
 	}
 
 	private void drawGrid() {

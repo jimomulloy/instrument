@@ -276,7 +276,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
 			if (synthesisFrame != null) {
-				synthesiser.synthesise(synthesisFrame, cm);
+				synthesiser.synthesise(synthesisFrame, cm, false);
 				console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
 						this.cell.getCellType().toString());
 			}
@@ -291,7 +291,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				synthesisFrame = synthesisToneMap.getTimeFrame(i);
 				if (synthesisFrame != null) {
-					synthesiser.synthesise(synthesisFrame, cm);
+					synthesiser.synthesise(synthesisFrame, cm, (i == sequence));
 					console.getVisor().updateToneMapView(synthesisToneMap, synthesisFrame,
 							this.cell.getCellType().toString());
 				}
