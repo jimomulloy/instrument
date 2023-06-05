@@ -41,9 +41,9 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 
-import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Startup;
 import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
@@ -137,7 +137,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 	boolean synthesizerRunning = false;
 
-	public void onStartup(@Observes StartupEvent startupEvent) {
+	public void onStartup(@Observes Startup startupEvent) {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 
 			@Override

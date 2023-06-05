@@ -7,9 +7,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Startup;
 import jomu.instrument.InstrumentException;
 
 @ApplicationScoped
@@ -25,7 +25,7 @@ public class ParameterManager {
 	Properties parameters = new Properties();
 	ParameterValidator parameterValidator = new ParameterValidator();
 
-	public void onStartup(@Observes StartupEvent startupEvent) {
+	public void onStartup(@Observes Startup startupEvent) {
 		reset();
 	}
 

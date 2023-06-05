@@ -1,4 +1,4 @@
-package jomu.instrument.control;
+package jomu.instrument.desktop.control;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;

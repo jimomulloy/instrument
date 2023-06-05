@@ -1,13 +1,13 @@
 package jomu.instrument.actuation;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 
-import io.vertx.core.impl.ConcurrentHashSet;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
@@ -55,7 +55,7 @@ public class Voice implements Organ {
 
 	ConcurrentLinkedQueue<SendMessage> smq = new ConcurrentLinkedQueue<>();
 
-	Set<String> deadStreams = new ConcurrentHashSet<>();
+	Set<String> deadStreams = ConcurrentHashMap.newKeySet();
 
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new TarsosAudioSynthesizer(parameterManager);

@@ -177,7 +177,6 @@
 	          <version>${surefire-plugin.version}</version>
 	          <configuration>
 	            <systemProperties>
-	              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
 	            </systemProperties>
 	          </configuration>
 	        </plugin>
@@ -212,8 +211,7 @@
 		        <artifactId>maven-surefire-plugin</artifactId>
 		        <configuration>
 		            <systemPropertyVariables>
-		  		        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-		        	    <maven.home>${maven.home}</maven.home>
+		  			    <maven.home>${maven.home}</maven.home>
 		          </systemPropertyVariables>
 		        </configuration>
 		      </plugin>

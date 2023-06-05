@@ -26,30 +26,21 @@
 		<maven.compiler.parameters>true</maven.compiler.parameters>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>3.0.3.Final</quarkus.platform.version>
 		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 		<client.version>1.0.0</client.version>
 		<exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
 		<jakarta.jakartaee-api.version>10.0.0</jakarta.jakartaee-api.version>
-		<microprofile.version>3.0.3</microprofile.version>
+		<microprofile.version>3.3</microprofile.version>
+		<weld-se-core>5.1.0.Final</weld-se-core>
+		<weld-junit5>4.0.0.Final</weld-junit5>
+		<junit-jupiter>5.6.2</junit-jupiter>
+		<mockito-core>5.3.1</mockito-core>
+		<jmc.common>8.3.0</jmc.common>
+		<commons-lang3>3.12.0</commons-lang3>
+		<commons-math3>3.6.1</commons-math3>
 		<jandex-maven-plugin.version>1.2.3</jandex-maven-plugin.version>
 	</properties>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>${quarkus.platform.group-id}</groupId>
-				<artifactId>${quarkus.platform.artifact-id}</artifactId>
-				<version>${quarkus.platform.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -59,43 +50,50 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.microprofile</groupId>
+			<artifactId>microprofile</artifactId>
+			<version>${microprofile.version}</version>
+			<type>pom</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
+			<version>${junit-jupiter}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.weld</groupId>
+			<artifactId>weld-junit5</artifactId>
+			<version>${weld-junit5}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.weld.se</groupId>
+			<artifactId>weld-se-core</artifactId>
+			<version>${weld-se-core}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-arc</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-junit5</artifactId>
+			<version>${mockito-core}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.openjdk.jmc</groupId>
 			<artifactId>common</artifactId>
-			<version>8.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-micrometer-registry-prometheus</artifactId>
-			<scope>provided</scope>
+			<version>${jmc.common}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
+			<version>${commons-lang3}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
+			<version>${commons-math3}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.formdev</groupId>
@@ -122,45 +120,37 @@
 			<artifactId>tritonus-share</artifactId>
 			<version>0.3.7.4</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>tritonus-all</artifactId>
 			<version>0.3.7.2</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>jlayer</artifactId>
 			<version>1.0.1.4</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>mp3spi</artifactId>
 			<version>1.9.5.4</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>jorbis</artifactId>
 			<version>0.0.17.4</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>vorbisspi</artifactId>
 			<version>1.0.3.3</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.github.psambit9791</groupId>
 			<artifactId>jdsp</artifactId>
 			<version>2.0.1</version>
 		</dependency>
-		<!--dependency> <groupId>jomuddlo</groupId> <artifactId>tarsos</artifactId> 
-			<version>1.0</version> <scope>system</scope> <systemPath>${project.basedir}/library/TarsosDSP-2.4.jar</systemPath> 
-			</dependency -->
+
 	</dependencies>
 
 	<build>
@@ -179,7 +169,6 @@
 				<version>${surefire-plugin.version}</version>
 				<configuration>
 					<systemPropertyVariables>
-						<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
 						<maven.home>${maven.home}</maven.home>
 					</systemPropertyVariables>
 				</configuration>

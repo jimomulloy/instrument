@@ -4,7 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.Coordinator;
@@ -23,7 +22,6 @@ import jomu.instrument.workspace.Workspace;
  * @author Jim O'Mulloy
  */
 @ApplicationScoped
-@Default
 public class Instrument implements Organ, InstrumentFactory {
 
 	private static final Logger LOG = Logger.getLogger(Instrument.class.getName());

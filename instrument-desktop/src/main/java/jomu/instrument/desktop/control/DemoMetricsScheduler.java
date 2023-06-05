@@ -1,6 +1,7 @@
-package jomu.instrument.monitor;
+package jomu.instrument.desktop.control;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jomu.instrument.desktop.monitor.DemoMetrics;
 
 @ApplicationScoped
 public class DemoMetricsScheduler {

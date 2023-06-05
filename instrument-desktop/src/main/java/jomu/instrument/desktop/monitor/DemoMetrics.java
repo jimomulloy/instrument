@@ -1,5 +1,6 @@
-package jomu.instrument.monitor;
+package jomu.instrument.desktop.monitor;
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.micrometer.core.instrument.Counter;
