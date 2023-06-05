@@ -26,8 +26,6 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_SMOOTH_FACTOR);
 		boolean chromaChordifySwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH);
-		int chromaRootNote = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_ROOT_NOTE);
 		boolean chromaChordifySharpenSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH);
 		double chromaChordifyThreshold = parameterManager
@@ -47,9 +45,8 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		ToneTimeFrame preTimeFrame = preChromaToneMap.getTimeFrame(sequence);
 		ToneTimeFrame postTimeFrame = preTimeFrame.clone();
 		postChromaToneMap.addTimeFrame(postTimeFrame);
-		postTimeFrame.chromaCens(preChromaToneMap, postChromaToneMap, chromaSmoothFactor, sequence,
+		postTimeFrame.chromaCens(preChromaToneMap, postChromaToneMap, originToneMap, chromaSmoothFactor, sequence,
 				chromaChordifySwitch, chromaChordifyThreshold, chromaChordifySharpenSwitch);
-		postTimeFrame.chordNoteOctivate(originToneMap.getTimeFrame(sequence));
 
 		int tmIndex = sequence - 10;
 		ToneTimeFrame timeFrame;

@@ -1006,31 +1006,33 @@ public class ToneTimeFrame implements Serializable {
 		return this;
 	}
 
-	public ToneTimeFrame chordNoteOctivate(ToneTimeFrame originFrame) {
+	public ToneTimeFrame chordNoteOctivate(ToneTimeFrame[] originFrames) {
 		Map<Integer, ToneMapElement> chromaClassMap = new HashMap<>();
 		Map<Integer, Integer> chromaClassOctaveMaxMap = new HashMap<>();
 		Map<Integer, Double> chromaClassOctaveAmpMap = new HashMap<>();
 		double amp = 0;
-		ToneMapElement[] originElements = originFrame.getElements();
-		for (int i = 0; i < originElements.length; i++) {
-			int note = originFrame.getPitchSet().getNote(i);
-			int chromaClass = note % OCTAVE_LENGTH;
-			ToneMapElement chromaElement = null;
-			int chromaOctaveMax = 0;
-			if (!chromaClassMap.containsKey(chromaClass)) {
-				chromaElement = new ToneMapElement(chromaClass);
-				chromaClassMap.put(chromaClass, chromaElement);
-				chromaOctaveMax = i / 12;
-				amp = originElements[i].amplitude;
-				chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
-				chromaClassOctaveAmpMap.put(chromaClass, amp);
-			} else {
-				chromaElement = chromaClassMap.get(chromaClass);
-				chromaOctaveMax = i / 12;
-				amp = originElements[i].amplitude;
-				if (amp > chromaClassOctaveAmpMap.get(chromaClass)) {
+		for (ToneTimeFrame originFrame : originFrames) {
+			ToneMapElement[] originElements = originFrame.getElements();
+			for (int i = 0; i < originElements.length; i++) {
+				int note = originFrame.getPitchSet().getNote(i);
+				int chromaClass = note % OCTAVE_LENGTH;
+				ToneMapElement chromaElement = null;
+				int chromaOctaveMax = 0;
+				if (!chromaClassMap.containsKey(chromaClass)) {
+					chromaElement = new ToneMapElement(chromaClass);
+					chromaClassMap.put(chromaClass, chromaElement);
+					chromaOctaveMax = i / 12;
+					amp = originElements[i].amplitude;
 					chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
 					chromaClassOctaveAmpMap.put(chromaClass, amp);
+				} else {
+					chromaElement = chromaClassMap.get(chromaClass);
+					chromaOctaveMax = i / 12;
+					amp = originElements[i].amplitude;
+					if (amp > chromaClassOctaveAmpMap.get(chromaClass)) {
+						chromaClassOctaveMaxMap.put(chromaClass, chromaOctaveMax);
+						chromaClassOctaveAmpMap.put(chromaClass, amp);
+					}
 				}
 			}
 		}
@@ -1047,8 +1049,10 @@ public class ToneTimeFrame implements Serializable {
 				cn.octave = maxOctave;
 			}
 		}
+
 		reset();
 		return this;
+
 	}
 
 	public void sharpenChord() {
@@ -1246,23 +1250,32 @@ public class ToneTimeFrame implements Serializable {
 		return false;
 	}
 
-	public ToneTimeFrame chromaCens(ToneMap sourceToneMap, ToneMap targetToneMap, int factor, int sequence,
-			boolean chromaChordifySwitch, double chromaChordifyThreshold, boolean chromaChordifySharpen) {
+	public ToneTimeFrame chromaCens(ToneMap sourceToneMap, ToneMap targetToneMap, ToneMap originToneMap,
+			int chromaSmoothFactor, int sequence, boolean chromaChordifySwitch, double chromaChordifyThreshold,
+			boolean chromaChordifySharpen) {
 		// collect previous frames
 		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
 		ToneTimeFrame stf = sourceToneMap.getTimeFrame(sequence);
-		int i = factor;
-		while (stf != null && i > 1) {
+		int i = chromaSmoothFactor;
+		while (stf != null && i > 0) {
 			sourceFrames.add(stf);
 			stf = sourceToneMap.getPreviousTimeFrame(stf.getStartTime());
 			i--;
 		}
 		List<ToneTimeFrame> targetFrames = new ArrayList<>();
 		ToneTimeFrame ttf = targetToneMap.getTimeFrame(sequence);
-		i = factor / 2 + factor % 2 + 1;
-		while (ttf != null && i > 1) {
+		i = chromaSmoothFactor / 2 + chromaSmoothFactor % 2 + 1;
+		while (ttf != null && i > 0) {
 			targetFrames.add(ttf);
 			ttf = targetToneMap.getPreviousTimeFrame(ttf.getStartTime());
+			i--;
+		}
+		List<ToneTimeFrame> originFrames = new ArrayList<>();
+		ToneTimeFrame otf = originToneMap.getTimeFrame(sequence);
+		i = chromaSmoothFactor;
+		while (otf != null && i > 0) {
+			originFrames.add(otf);
+			otf = originToneMap.getPreviousTimeFrame(otf.getStartTime());
 			i--;
 		}
 
@@ -1279,6 +1292,7 @@ public class ToneTimeFrame implements Serializable {
 				tf.reset();
 				if (chromaChordifySwitch) {
 					tf.chromaChordify(chromaChordifyThreshold, chromaChordifySharpen);
+					tf.chordNoteOctivate(originFrames.toArray(new ToneTimeFrame[originFrames.size()]));
 				}
 				tf.reset();
 			}
