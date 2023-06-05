@@ -1,6 +1,6 @@
 package jomu.instrument.audio;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +43,7 @@ class AudioTunerTest {
 
 		boolean result = tuner.noteScan(toneMap, 1, 100, 1000);
 
-		assertTrue(result, "AudioTuner noteScan failed");
+		assertFalse(result, "AudioTuner noteScan shodiul have failed");
 	}
 
 }

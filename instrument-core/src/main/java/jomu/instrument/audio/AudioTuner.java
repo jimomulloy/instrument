@@ -431,6 +431,9 @@ public class AudioTuner implements ToneMapConstants {
 	 *
 	 */
 	public boolean noteScan(ToneMap toneMap, int sequence, int noteMinDuration, int noteMaxDuration) {
+		if (toneMap.getTimeFrame() == null) {
+			return false;
+		}
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 		ToneTimeFrame previousToneTimeFrame = null;
 		NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
