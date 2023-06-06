@@ -449,7 +449,6 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_3);
 		synthBeat4Drum = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4);
-
 		incrementTime = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 	}

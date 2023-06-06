@@ -292,12 +292,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			boolean showChords = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS);
 			boolean showBeats = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS);
+			boolean showBase = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BASE);
 			boolean showLog = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_LOG);
 			boolean showStats = parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_STATS);
-
-			NoteTrack[] noteTracks = toneMap.getNoteTracker().getTracks();
-			NoteTrack baseTrack = toneMap.getNoteTracker().getBaseTrack();
-			NoteTrack chordTrack1 = toneMap.getNoteTracker().getChordTrack(1);
 
 			ToneMapElement[] elements = ttf.getElements();
 
@@ -528,7 +525,10 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
+			}
 
+			if (showBase) {
+				Color color = Color.BLACK;
 				NoteTrack track = toneMap.getNoteTracker().getBaseTrack();
 				color = Color.BLACK;
 				if (track != null) {

@@ -301,6 +301,7 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_VIEW_SHOW_POWER = "monitor.view.showPower";
 	public static final String MONITOR_VIEW_SHOW_NOTES = "monitor.view.showNotes";
 	public static final String MONITOR_VIEW_SHOW_CHORDS = "monitor.view.showChords";
+	public static final String MONITOR_VIEW_SHOW_BASE = "monitor.view.showBase";
 	public static final String MONITOR_VIEW_SHOW_BEATS = "monitor.view.showBeats";
 	public static final String MONITOR_VIEW_SHOW_SYNTHESIS = "monitor.view.showSynthesis";
 	public static final String MONITOR_VIEW_SHOW_LOG = "monitor.view.showLog";

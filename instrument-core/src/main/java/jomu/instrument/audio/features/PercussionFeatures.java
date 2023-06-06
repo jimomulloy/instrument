@@ -34,7 +34,7 @@ public class PercussionFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 		if (features.size() > 0) {
 
-			float binWidth = 100; // ?? TODO
+			float binWidth = (float) getSource().getIncrement() / getSource().getSampleRate();
 			double timeStart = -1;
 			double nextTime = -1;
 

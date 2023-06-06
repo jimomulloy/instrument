@@ -62,6 +62,16 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING);
 		int chordTiming = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING);
+		double windowInterval = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
+		int onsetSmoothingFactor = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SMOOTHING_FACTOR);
+		int onsetPeaksSweep = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_SWEEP);
+		double onsetPeaksThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_THRESHOLD);
+		double onsetPeaksEdgeFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_PEAKS_EDGE_FACTOR);
 
 		ToneMap synthesisToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
@@ -135,6 +145,12 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 			synthesisFrame.calibrate(synthesisToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
+		}
+
+		if (sequence > onsetPeaksSweep) {
+			ToneTimeFrame previousFrame = synthesisToneMap.getTimeFrame(sequence - 1);
+			synthesisFrame.onsetPeaks(previousFrame, onsetPeaksEdgeFactor, onsetPeaksSweep, onsetPeaksThreshold,
+					(double) onsetSmoothingFactor / 100.0);
 		}
 
 		int chordSourceSequence = sequence;
@@ -225,7 +241,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 		if (beatTimeFrame != null) {
-			beatTime = cm.getBeatAfterTime(beatSynthesisFrame.getStartTime(), 110);
+			beatTime = cm.getBeatAfterTime(beatSynthesisFrame.getStartTime(), windowInterval + 10);
 			timeRange = cm.getBeatRange(beatSynthesisFrame.getStartTime());
 			if (beatTime != -1) {
 				BeatListElement ble = new BeatListElement(1.0, beatSynthesisFrame.getStartTime(), timeRange);
@@ -239,6 +255,15 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		if (beatTimeFrame != null) {
 			beatSynthesisFrame.setBeatAmplitude(beatTimeFrame.getBeatAmplitude());
+		}
+		if (beatSynthesisFrame.getOnsetElement() != null && beatSynthesisFrame.getOnsetElement().isPeak) {
+			BeatListElement ble = new BeatListElement(beatSynthesisFrame.getOnsetElement().amplitude,
+					beatSynthesisFrame.getStartTime(), timeRange);
+			beatSynthesisFrame.putBeat(CellTypes.AUDIO_SYNTHESIS.name() + "_PEAKS", ble);
+		} else {
+			BeatListElement ble = new BeatListElement(ToneTimeFrame.AMPLITUDE_FLOOR, beatSynthesisFrame.getStartTime(),
+					timeRange);
+			beatSynthesisFrame.putBeat(CellTypes.AUDIO_SYNTHESIS.name() + "_PEAKS", ble);
 		}
 		if (beatTimeFrame != null) {
 			BeatListElement ble = new BeatListElement(beatTimeFrame.getMaxAmplitude(),

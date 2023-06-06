@@ -27,7 +27,6 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 
 	private List<OnsetInfo> onsetInfos = new ArrayList<>();
 	private int windowSize = 1024;
-	private int overlap = 0;
 	private float sampleRate = 44100;
 
 	private AudioDispatcher dispatcher;

@@ -242,6 +242,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JComboBox fftWindowSizeComboBox;
 	JComboBox inputSampleRateCombobox;
 
+	private JCheckBox showBaseSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -991,6 +993,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS));
 		graphViewControlPanel.add(showChordsSwitchCB);
 
+		showBaseSwitchCB = new JCheckBox("showBaseSwitchCB");
+		showBaseSwitchCB.setText("Base");
+		showBaseSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BASE,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		showBaseSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BASE));
+		graphViewControlPanel.add(showBaseSwitchCB);
+
 		showBeatsSwitchCB = new JCheckBox("showBeatsSwitchCB");
 		showBeatsSwitchCB.setText("Beats");
 		showBeatsSwitchCB.addItemListener(new ItemListener() {
@@ -1127,6 +1145,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			formatter.close();
 			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 			int timeRange = toneMapView.getMaxTime();
+			LOG.severe(">>TV Time: " + timeRange + ", " + currentToneMapViewType);
 			formatter = new Formatter();
 			formatter.format("%d", timeRange);
 			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, formatter.toString());
@@ -2579,6 +2598,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_NOTES));
 		showChordsSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_CHORDS));
+		showBaseSwitchCB
+				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BASE));
 		showBeatsSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.MONITOR_VIEW_SHOW_BEATS));
 		showStatsSwitchCB

@@ -16,7 +16,6 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 	private static final Logger LOG = Logger.getLogger(BeatFeatures.class.getName());
 
 	private AudioFeatureFrame audioFeatureFrame;
-	private PitchSet pitchSet;
 	private TimeSet timeSet;
 	private ToneMap toneMap;
 	private Visor visor;
@@ -34,7 +33,7 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 		if (features.size() > 0) {
 
-			float binWidth = 100; // ?? TODO
+			float binWidth = (float) getSource().getIncrement() / getSource().getSampleRate();
 			double timeStart = -1;
 			double nextTime = -1;
 

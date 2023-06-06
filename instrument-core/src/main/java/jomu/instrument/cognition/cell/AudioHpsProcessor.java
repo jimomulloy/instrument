@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
@@ -36,7 +37,15 @@ public class AudioHpsProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_SWITCH_MEDIAN);
 		boolean hpsCQOriginSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_CQ_ORIGIN_SWITCH);
-
+		boolean calibrateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
+		double calibrateRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
+		boolean calibrateForwardSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
+		double lowThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
+		calibrateSwitch = false;
 		ToneMap hpsToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap hpsHarmonicToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC", streamId));
@@ -62,6 +71,13 @@ public class AudioHpsProcessor extends ProcessorCommon {
 		if (tmIndex > 0) {
 			ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(tmIndex);
 			ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(tmIndex);
+			if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
+				CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+				hpsHarmonicTimeFrame.calibrate(hpsHarmonicToneMap, cm, calibrateRange, calibrateForwardSwitch,
+						lowThreshold, false);
+				hpsPercussionTimeFrame.calibrate(hpsPercussionToneMap, cm, calibrateRange, calibrateForwardSwitch,
+						lowThreshold, false);
+			}
 			hpsHarmonicToneMap.getTimeFrame(tmIndex).hpsHarmonicMedian(cqToneMap, sequence, hpsHarmonicMedian,
 					hpsMedianSwitch);
 			hpsToneMap.getTimeFrame(tmIndex).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,
@@ -91,6 +107,13 @@ public class AudioHpsProcessor extends ProcessorCommon {
 				ToneTimeFrame hpsHarmonicTimeFrame = hpsHarmonicToneMap.getTimeFrame(i);
 				if (hpsHarmonicTimeFrame != null) {
 					ToneTimeFrame hpsPercussionTimeFrame = hpsPercussionToneMap.getTimeFrame(i);
+					if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
+						CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+						hpsHarmonicTimeFrame.calibrate(hpsHarmonicToneMap, cm, calibrateRange, calibrateForwardSwitch,
+								lowThreshold, false);
+						hpsPercussionTimeFrame.calibrate(hpsPercussionToneMap, cm, calibrateRange,
+								calibrateForwardSwitch, lowThreshold, false);
+					}
 					hpsHarmonicToneMap.getTimeFrame(i).hpsHarmonicMedian(cqToneMap, sequence, hpsHarmonicMedian,
 							hpsMedianSwitch);
 					hpsToneMap.getTimeFrame(i).hpsMask(hpsHarmonicTimeFrame, hpsPercussionTimeFrame,

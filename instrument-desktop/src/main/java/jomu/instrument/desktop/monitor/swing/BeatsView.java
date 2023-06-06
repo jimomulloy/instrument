@@ -90,6 +90,8 @@ public class BeatsView extends JComponent implements ComponentListener {
 	private ParameterManager parameterManager;
 	private Workspace workspace;
 
+	private double windowInterval;
+
 	public BeatsView() {
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.workspace = Instrument.getInstance().getWorkspace();
@@ -97,6 +99,8 @@ public class BeatsView extends JComponent implements ComponentListener {
 				.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET);
 		this.timeAxisEnd = this.timeAxisStart
 				+ parameterManager.getDoubleParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE);
+		this.windowInterval = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 		this.addComponentListener(this);
 		rainbow = ColorUtil.generateRainbow(512);
 	}
@@ -256,8 +260,7 @@ public class BeatsView extends JComponent implements ComponentListener {
 			int height = (int) ((double) getHeight() / 1.3);
 
 			int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
-
-			if (cm.getBeatAfterTime(ttf.getStartTime(), 110) != -1) {
+			if (cm.getBeatAfterTime(ttf.getStartTime(), this.windowInterval + 10) != -1) {
 				color = Color.RED;
 				bufferedGraphics.setColor(color);
 				bufferedGraphics.fillOval(timeCoordinate, (int) ((1.5 / 5.0) * height), 6, (int) 6);

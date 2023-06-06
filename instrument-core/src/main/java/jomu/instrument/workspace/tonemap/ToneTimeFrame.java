@@ -1946,7 +1946,7 @@ public class ToneTimeFrame implements Serializable {
 	}
 
 	public ToneTimeFrame onsetPeaks(ToneTimeFrame previousFrame, double onsetPeaksEdgeFactor, int onsetPeaksSweep,
-			double onsetPeaksThreshold) {
+			double onsetPeaksThreshold, double onsetFactor) {
 		ToneTimeFrame sf = this;
 		int i = onsetPeaksSweep;
 		double totalAmp = 0;
@@ -1963,15 +1963,21 @@ public class ToneTimeFrame implements Serializable {
 				isPeak = true;
 			}
 			setOnsetElement(new OnsetElement(totalAmp, isPeak));
-		} else if (previousFrame.getOnsetElement().amplitude < totalAmp) {
-			if (totalAmp > 0 && totalAmp > onsetPeaksThreshold
-					&& (((totalAmp - previousFrame.getOnsetElement().amplitude) / totalAmp) > onsetPeaksEdgeFactor)) {
-				isPeak = true;
-				previousFrame.getOnsetElement().isPeak = false;
-			}
-			setOnsetElement(new OnsetElement(totalAmp, isPeak));
 		} else {
-			setOnsetElement(new OnsetElement(totalAmp, false));
+			if (previousFrame.getOnsetElement().amplitude >= totalAmp) {
+				totalAmp = Math.max(
+						((previousFrame.getOnsetElement().amplitude * onsetFactor) + totalAmp * (1 - onsetFactor)),
+						totalAmp);
+				setOnsetElement(new OnsetElement(totalAmp, false));
+			} else {
+				if (totalAmp > 0 && totalAmp > onsetPeaksThreshold
+						&& (((totalAmp - previousFrame.getOnsetElement().amplitude)
+								/ totalAmp) > onsetPeaksEdgeFactor)) {
+					isPeak = true;
+					previousFrame.getOnsetElement().isPeak = false;
+				}
+				setOnsetElement(new OnsetElement(totalAmp, isPeak));
+			}
 		}
 		reset();
 		return this;
