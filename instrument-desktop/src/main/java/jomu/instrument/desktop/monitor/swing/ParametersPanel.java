@@ -335,6 +335,10 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox cqMicroToneSwitchCB;
 
+	private JCheckBox onsetHpsSwitchCB;
+
+	private JCheckBox chromaHpsSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1865,6 +1869,38 @@ public class ParametersPanel extends JPanel {
 		notateApplyFormantsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_APPLY_FORMANTS_SWITCH));
 		cqSwitchPanel.add(notateApplyFormantsSwitchCB);
+
+		onsetHpsSwitchCB = new JCheckBox("onsetHpsSwitchCB");
+		onsetHpsSwitchCB.setText("Onset HPS");
+		onsetHpsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_HPS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		onsetHpsSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_HPS_SWITCH));
+		cqSwitchPanel.add(onsetHpsSwitchCB);
+
+		chromaHpsSwitchCB = new JCheckBox("chromaHpsSwitchCB");
+		chromaHpsSwitchCB.setText("Chroma HPS");
+		chromaHpsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HPS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		chromaHpsSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HPS_SWITCH));
+		cqSwitchPanel.add(chromaHpsSwitchCB);
 
 		parameterPanel.add(cqSwitchPanel);
 
@@ -4475,6 +4511,10 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
+		onsetHpsSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_HPS_SWITCH));
+		chromaHpsSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HPS_SWITCH));
 		integrateCQSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH));
 		integratePeaksSwitchCB.setSelected(parameterManager

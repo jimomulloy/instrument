@@ -43,16 +43,27 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
+		boolean onsetHpsSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_HPS_SWITCH);
 
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (onsetCQOriginSwitch) {
 			cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
 		}
+
+		ToneMap hpsMaskToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_PERCUSSION_MASK", streamId));
+
 		ToneMap onsetToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap onsetSmoothedToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SMOOTHED", streamId));
-		onsetToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-		onsetSmoothedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone()).reset();
+
+		ToneTimeFrame cqTimeFrame = cqToneMap.getTimeFrame(sequence);
+		ToneTimeFrame onsetTimeFrame = onsetToneMap.addTimeFrame(cqTimeFrame.clone());
+		if (onsetHpsSwitch) {
+			onsetTimeFrame.mask(hpsMaskToneMap.getTimeFrame(sequence));
+		}
+		onsetSmoothedToneMap.addTimeFrame(cqTimeFrame.clone()).reset();
 
 		if (sequence > 1) {
 			ToneTimeFrame currentFrame = onsetSmoothedToneMap.getTimeFrame(sequence);

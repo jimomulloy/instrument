@@ -109,6 +109,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH = "perception.hearing.chroma.chordifySwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CHORDIFY_SHARPEN_SWITCH = "perception.hearing.chroma.chordifySharpenSwitch";
 	public static final String PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH = "perception.hearing.chroma.cqOriginSwitch";
+	public static final String PERCEPTION_HEARING_CHROMA_HPS_SWITCH = "perception.hearing.chroma.hpsSwitch";
 
 	public static final String PERCEPTION_HEARING_BEATS_THRESHOLD = "perception.hearing.beats.threshold";
 	public static final String PERCEPTION_HEARING_BEATS_SENSITIVITY = "perception.hearing.beats.sensitivity";
@@ -212,6 +213,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_ONSET_PEAKS_SWEEP = "perception.hearing.onset.peaksSweep";
 	public static final String PERCEPTION_HEARING_ONSET_PEAKS_THRESHOLD = "perception.hearing.onset.peaksThreshold";
 	public static final String PERCEPTION_HEARING_ONSET_PEAKS_EDGE_FACTOR = "perception.hearing.onset.peaksEdgeFactor";
+	public static final String PERCEPTION_HEARING_ONSET_HPS_SWITCH = "perception.hearing.onset.hpsSwitch";
 
 	public static final String PERCEPTION_HEARING_NOTATE_COMPRESSION = "perception.hearing.notate.compression";
 	public static final String PERCEPTION_HEARING_NOTATE_SWITCH_COMPRESS = "perception.hearing.notate.compressionSwitch";

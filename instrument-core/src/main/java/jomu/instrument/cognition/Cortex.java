@@ -133,13 +133,16 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 		Weaver.connect(audioCQOriginCell, audioOnsetCell);
 		Weaver.connect(audioCQCell, audioTunerPeaksCell);
 		//
+		Weaver.connect(audioHpsCell, audioOnsetCell);
+		Weaver.connect(audioHpsCell, audioPreChromaCell);
+		//
+		Weaver.connect(audioHpsCell, audioIntegrateCell);
 		Weaver.connect(audioCQCell, audioIntegrateCell);
 		Weaver.connect(audioOnsetCell, audioIntegrateCell);
 		Weaver.connect(audioBeatCell, audioIntegrateCell);
 		Weaver.connect(audioPercussionCell, audioIntegrateCell);
 		Weaver.connect(audioPitchCell, audioIntegrateCell);
 		Weaver.connect(audioYINCell, audioIntegrateCell);
-		Weaver.connect(audioHpsCell, audioIntegrateCell);
 		Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
 		Weaver.connect(audioSACFCell, audioIntegrateCell);
 		Weaver.connect(audioMFCCCell, audioIntegrateCell);

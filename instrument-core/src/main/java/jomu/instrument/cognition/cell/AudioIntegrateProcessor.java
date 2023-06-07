@@ -87,26 +87,22 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		if (integrateToneMap == null && integratePeaksToneMap == null && integrateSpectralToneMap == null) {
 			throw new InstrumentException("AudioIntegrateProcessor has no options");
 		}
-
-		if (integrateHpsSwitch) {
-			if (integrateCQSwitch) {
-				integrateToneMap.addTimeFrame(hpsMaskToneMap.getTimeFrame(sequence).clone());
+		if (integrateCQSwitch) {
+			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			if (integrateHpsSwitch) {
+				integrateToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence));
 			}
-			if (integratePeaksSwitch) {
-				integratePeaksToneMap.addTimeFrame(hpsMaskToneMap.getTimeFrame(sequence).clone());
+		}
+		if (integratePeaksSwitch) {
+			integratePeaksToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			if (integrateHpsSwitch) {
+				integratePeaksToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence));
 			}
-			if (integrateSpectralSwitch) {
-				integrateSpectralToneMap.addTimeFrame(hpsMaskToneMap.getTimeFrame(sequence).clone());
-			}
-		} else {
-			if (integrateCQSwitch) {
-				integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-			}
-			if (integratePeaksSwitch) {
-				integratePeaksToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
-			}
-			if (integrateSpectralSwitch) {
-				integrateSpectralToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+		}
+		if (integrateSpectralSwitch) {
+			integrateSpectralToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			if (integrateHpsSwitch) {
+				integrateSpectralToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence));
 			}
 		}
 

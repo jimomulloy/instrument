@@ -1392,12 +1392,18 @@ public class ToneTimeFrame implements Serializable {
 			if (hpsMedianSwitch) {
 				List<ToneMapElement> sortedElements = subElements.stream()
 						.sorted(Comparator.comparingDouble(tm -> tm.amplitude)).collect(Collectors.toList());
-
-				ToneMapElement median = sortedElements.size() % 2 == 0
-						? sortedElements.get(sortedElements.size() / 2 - 1)
-						: sortedElements.get(sortedElements.size() / 2);
-
-				hpsElements[elementIndex].amplitude = median.amplitude;
+				if (sortedElements.size() > 0) {
+					if (sortedElements.size() == 1) {
+						hpsElements[elementIndex].amplitude = sortedElements.get(0).amplitude;
+					} else if (sortedElements.size() % 2 == 0) {
+						ToneMapElement median1 = sortedElements.get(sortedElements.size() / 2 - 1);
+						ToneMapElement median2 = sortedElements.get(sortedElements.size() / 2);
+						hpsElements[elementIndex].amplitude = (median1.amplitude + median2.amplitude) / 2;
+					} else {
+						ToneMapElement median = sortedElements.get(sortedElements.size() / 2);
+						hpsElements[elementIndex].amplitude = median.amplitude;
+					}
+				}
 			} else {
 				hpsElements[elementIndex].amplitude = sum / subElements.size();
 			}
@@ -1415,6 +1421,11 @@ public class ToneTimeFrame implements Serializable {
 			boolean hpsMedianSwitch) {
 
 		LOG.finer(">>hpsHarmonicMedianFactor: " + hpsHarmonicMedianFactor + ", " + getStartTime());
+
+		ToneMapElement[] hpsElements = getElements();
+		for (int i = 0; i < elements.length; i++) {
+			hpsElements[i] = elements[i].clone();
+		}
 
 		List<ToneTimeFrame> sourceFrames = new ArrayList<>();
 		ToneTimeFrame stf = sourceToneMap.getTimeFrame(sequence);
@@ -1438,14 +1449,26 @@ public class ToneTimeFrame implements Serializable {
 					if (hpsMedianSwitch) {
 						List<ToneMapElement> sortedElements = subElements.stream()
 								.sorted(Comparator.comparingDouble(tm -> tm.amplitude)).collect(Collectors.toList());
-						ToneMapElement median = sortedElements.size() % 2 == 0
-								? sortedElements.get(sortedElements.size() / 2 - 1)
-								: sortedElements.get(sortedElements.size() / 2);
-						elements[elementIndex].amplitude = median.amplitude;
+						if (sortedElements.size() > 0) {
+							if (sortedElements.size() == 1) {
+								hpsElements[elementIndex].amplitude = sortedElements.get(0).amplitude;
+							} else if (sortedElements.size() % 2 == 0) {
+								ToneMapElement median1 = sortedElements.get(sortedElements.size() / 2 - 1);
+								ToneMapElement median2 = sortedElements.get(sortedElements.size() / 2);
+								hpsElements[elementIndex].amplitude = (median1.amplitude + median2.amplitude) / 2;
+							} else {
+								ToneMapElement median = sortedElements.get(sortedElements.size() / 2);
+								hpsElements[elementIndex].amplitude = median.amplitude;
+							}
+						}
 					} else {
-						elements[elementIndex].amplitude = sum / sourceFrames.size();
+						hpsElements[elementIndex].amplitude = sum / sourceFrames.size();
 					}
 				}
+			}
+
+			for (int j = 0; j < elements.length; j++) {
+				elements[j] = hpsElements[j];
 			}
 			reset();
 		}
@@ -1474,6 +1497,8 @@ public class ToneTimeFrame implements Serializable {
 			if (((harmonicTimeFrame.elements[elementIndex].amplitude)
 					/ (percussionTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)) < hpsMaskFactor) {
 				elements[elementIndex].amplitude = 0;
+			} else {
+				elements[elementIndex].amplitude = 1.0;
 			}
 		}
 		reset();
@@ -1486,10 +1511,23 @@ public class ToneTimeFrame implements Serializable {
 			if (((percussionTimeFrame.elements[elementIndex].amplitude)
 					/ (harmonicTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)) < hpsMaskFactor) {
 				elements[elementIndex].amplitude = 0;
+			} else {
+				elements[elementIndex].amplitude = 1.0;
 			}
 		}
 		reset();
 		return this;
+	}
+
+	public ToneTimeFrame mask(ToneTimeFrame maskTimeFrame) {
+		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			if (maskTimeFrame.getElement(elementIndex).amplitude == 0) {
+				elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
+			}
+		}
+		reset();
+		return this;
+
 	}
 
 	public ToneTimeFrame onsetWhiten(ToneTimeFrame previousFrame, double onsetFactor) {
