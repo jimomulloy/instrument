@@ -112,6 +112,9 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 		double onsetInterval = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL);
 
+		double onsetSilenceThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD);
+
 		int overlap = 0;
 
 		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
@@ -120,7 +123,8 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 		djp.setName("BEAT");
 		dispatcher.addAudioProcessor(djp);
 
-		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(windowSize, threshold, onsetInterval);
+		ComplexOnsetDetector onsetDetector = new ComplexOnsetDetector(windowSize, threshold, onsetInterval,
+				onsetSilenceThreshold);
 		onsetDetector.setHandler(this);
 		djp.addAudioProcessor(onsetDetector);
 
