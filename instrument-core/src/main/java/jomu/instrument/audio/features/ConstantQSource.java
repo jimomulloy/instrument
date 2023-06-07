@@ -42,6 +42,8 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 
 	private int hearingMaximumFrequencyInCents;
 
+	private boolean microToneSwitch;
+
 	public ConstantQSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
@@ -58,6 +60,12 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS);
 		this.binsPerOctave = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_BINS_PER_OCTAVE);
+		this.microToneSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH);
+	}
+
+	public boolean isMicroToneSwitch() {
+		return microToneSwitch;
 	}
 
 	public double getMaxMagnitudeThreshold() {

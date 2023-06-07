@@ -121,6 +121,8 @@ public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 
 	private boolean isPowerSquared;
 
+	private boolean microToneSwitch;
+
 	public PitchDetectorSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
@@ -130,11 +132,17 @@ public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 		this.isPowerSquared = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);
 
-		int stepsize = windowSize / 2; // 512;
+		int stepsize = windowSize / 2;
 		overlap = windowSize - stepsize;
 		if (overlap < 1) {
-			overlap = stepsize / 4; // 128;
+			overlap = stepsize / 4;
 		}
+		this.microToneSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH);
+	}
+
+	public boolean isMicroToneSwitch() {
+		return microToneSwitch;
 	}
 
 	public PitchDetectorSource(AudioDispatcher dispatcher, int bufferSize) {

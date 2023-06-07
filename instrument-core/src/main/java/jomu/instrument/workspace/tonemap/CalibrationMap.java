@@ -93,11 +93,32 @@ public class CalibrationMap implements OnsetHandler {
 		return max;
 	}
 
+	public double getMaxPowerTime(double fromTime, double toTime) {
+		double max = 0;
+		double maxTime = 0;
+		ConcurrentNavigableMap<Double, Double> subMap = audioFilePowerMap.subMap(fromTime, toTime);
+		if (subMap.isEmpty()) {
+			maxTime = fromTime;
+		} else {
+			for (Entry<Double, Double> entry : subMap.entrySet()) {
+				if (max < entry.getValue()) {
+					max = entry.getValue();
+					maxTime = entry.getKey();
+				}
+			}
+		}
+		return maxTime;
+	}
+
 	public double getPower(double time) {
 		Double power = audioFilePowerMap.get(time);
 		if (power != null) {
 			return power.doubleValue();
 		} else {
+			Entry<Double, Double> floorEntry = audioFilePowerMap.floorEntry(time);
+			if (floorEntry != null) {
+				return floorEntry.getValue();
+			}
 			return 0;
 		}
 	}

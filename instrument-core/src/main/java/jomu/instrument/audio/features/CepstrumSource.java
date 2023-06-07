@@ -39,12 +39,20 @@ public class CepstrumSource extends AudioEventSource<CepstrumInfo> {
 
 	private ParameterManager parameterManager;
 
+	private boolean microToneSwitch;
+
 	public CepstrumSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
 		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
+		this.microToneSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH);
+	}
+
+	public boolean isMicroToneSwitch() {
+		return microToneSwitch;
 	}
 
 	public CepstrumSource(AudioDispatcher dispatcher, int bufferSize) {

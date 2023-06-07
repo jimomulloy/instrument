@@ -44,6 +44,8 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 
 	private boolean isPowerSquared;
 
+	private boolean microToneSwitch;
+
 	public SpectralPeaksSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
@@ -52,6 +54,12 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		this.isPowerSquared = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);
+		this.microToneSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH);
+	}
+
+	public boolean isMicroToneSwitch() {
+		return microToneSwitch;
 	}
 
 	public double getMaxMagnitudeThreshold() {

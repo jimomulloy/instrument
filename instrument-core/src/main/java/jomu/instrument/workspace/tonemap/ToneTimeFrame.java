@@ -613,9 +613,10 @@ public class ToneTimeFrame implements Serializable {
 	public ToneTimeFrame calibrate(ToneMap toneMap, CalibrationMap cm, double calibrateRange, boolean calibrateFuture,
 			double lowThreshold, boolean keepPeaks) {
 		boolean hasPower = false;
+		double power = cm.getPower(getStartTime());
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
-				if (elements[i].amplitude <= lowThreshold) {
+				if (elements[i].amplitude <= lowThreshold || power < lowThreshold) {
 					elements[i].amplitude = AMPLITUDE_FLOOR;
 					if (!keepPeaks) {
 						elements[i].isPeak = false;
@@ -626,7 +627,6 @@ public class ToneTimeFrame implements Serializable {
 			}
 		}
 		reset();
-
 		if (hasPower) {
 			ToneTimeFrame tf = this;
 			double maxAmp = getMaxAmplitude();
@@ -642,38 +642,40 @@ public class ToneTimeFrame implements Serializable {
 					maxAmpTime = tf.getStartTime();
 				}
 				tf = toneMap.getPreviousTimeFrame(tf.getStartTime());
-				if (tf != null) {
-					maxAmpTime = tf.getStartTime();
-				}
+//				if (tf != null) {
+//					maxAmpTime = tf.getStartTime();
+//				}
 			}
-
-			double maxFutureAmp = 0;
-			double maxFuturePower = cm.getMaxPower(getStartTime(), lastTime);
-			if (maxAmp > lowThreshold && calibrateFuture) {
-				double maxPastPower = cm.getPower(maxAmpTime);
-				if (maxPastPower > 0) {
-					maxFutureAmp = maxFuturePower * maxAmp / maxPastPower;
-					if (maxAmp < maxFutureAmp) {
-						maxAmp = maxFutureAmp;
-					}
-				}
-			}
-			for (int i = 0; i < elements.length; i++) {
-				if (elements[i] != null) {
-					if (elements[i].amplitude > lowThreshold && maxAmp > lowThreshold) {
-						elements[i].amplitude = elements[i].amplitude / maxAmp;
-						if (elements[i].amplitude > 1.0) {
-							elements[i].amplitude = 1.0;
-						}
-					} else {
-						elements[i].amplitude = AMPLITUDE_FLOOR;
-						if (!keepPeaks) {
-							elements[i].isPeak = false;
+			if (cm.getPower(maxAmpTime) > lowThreshold) {
+				double maxFutureAmp = 0;
+				double maxFuturePower = cm.getMaxPower(getStartTime(), lastTime);
+				if (maxAmp > lowThreshold && calibrateFuture) {
+					double maxPastPower = cm.getPower(maxAmpTime) > lowThreshold ? cm.getPower(maxAmpTime)
+							: lowThreshold;
+					if (maxPastPower > 0) {
+						maxFutureAmp = maxFuturePower * maxAmp / maxPastPower;
+						if (maxAmp < maxFutureAmp) {
+							maxAmp = maxFutureAmp;
 						}
 					}
 				}
+				for (int i = 0; i < elements.length; i++) {
+					if (elements[i] != null) {
+						if (elements[i].amplitude > lowThreshold && maxAmp > lowThreshold) {
+							elements[i].amplitude = elements[i].amplitude / maxAmp;
+							if (elements[i].amplitude > 1.0) {
+								elements[i].amplitude = 1.0;
+							}
+						} else {
+							elements[i].amplitude = AMPLITUDE_FLOOR;
+							if (!keepPeaks) {
+								elements[i].isPeak = false;
+							}
+						}
+					}
+				}
+				reset();
 			}
-			reset();
 		}
 		return this;
 	}

@@ -121,6 +121,8 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 
 	private boolean isPowerSquared;
 
+	private boolean microToneSwitch;
+
 	public YINSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
@@ -132,6 +134,12 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_YIN_LOW_PASS);
 		this.isPowerSquared = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);
+		this.microToneSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH);
+	}
+
+	public boolean isMicroToneSwitch() {
+		return microToneSwitch;
 	}
 
 	public YINSource(AudioDispatcher dispatcher, int bufferSize) {

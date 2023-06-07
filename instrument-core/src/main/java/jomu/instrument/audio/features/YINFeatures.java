@@ -29,8 +29,21 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 			}
 			for (int i = 0; i < spectralEnergy.length; i++) {
 				if (getSource().isPowerSquared()) {
-					spectrum[i] += spectralEnergy[i] * spectralEnergy[i];
+					if (getSource().isMicroToneSwitch()) {
+						if (spectrum[i] < spectralEnergy[i] * spectralEnergy[i]) {
+							spectrum[i] = spectralEnergy[i] * spectralEnergy[i];
+						}
+					} else {
+						spectrum[i] += spectralEnergy[i] * spectralEnergy[i];
+					}
 				} else {
+					if (getSource().isMicroToneSwitch()) {
+						if (spectrum[i] < spectralEnergy[i]) {
+							spectrum[i] = spectralEnergy[i];
+						}
+					} else {
+						spectrum[i] += spectralEnergy[i];
+					}
 					spectrum[i] += spectralEnergy[i];
 				}
 			}

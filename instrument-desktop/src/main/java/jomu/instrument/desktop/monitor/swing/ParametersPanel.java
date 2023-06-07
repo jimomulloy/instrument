@@ -333,6 +333,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField onsetPeaksSweepInput;
 
+	private JCheckBox cqMicroToneSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1250,6 +1252,22 @@ public class ParametersPanel extends JPanel {
 						Boolean.toString(newValue));
 			}
 		});
+
+		cqMicroToneSwitchCB = new JCheckBox("cqMicroToneSwitchCB");
+		cqMicroToneSwitchCB.setText("MicroTone Switch");
+		cqMicroToneSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqMicroToneSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH));
+		cqSwitchPanel.add(cqMicroToneSwitchCB);
 
 		cqPreSharpenSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_SHARPEN));
@@ -4169,6 +4187,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH));
 		cqCalibrateSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH));
+		cqMicroToneSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH));
 		cqCalibrateForwardSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH));
 		cqPreSharpenSwitchCB.setSelected(parameterManager

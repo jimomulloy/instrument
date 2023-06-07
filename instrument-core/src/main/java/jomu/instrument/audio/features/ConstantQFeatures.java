@@ -32,7 +32,6 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 		} else {
 			this.features.put(time, values);
 			if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
-				// previousFrame.getConstantQFeatures().buildToneMap();
 				previousFrame.getConstantQFeatures().commit();
 			}
 		}
@@ -61,13 +60,9 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 				}
 			}
 
-			LOG.finer(">>CQ Features: " + this.audioFeatureFrame.getStart() + " ," + this.audioFeatureFrame.getEnd()
-					+ ", " + timeStart + ", " + nextTime + binWidth + ", " + getSource().getSampleRate());
-			LOG.finer(">>CQ Features lowPitch: " + lowPitch + ", highPitch: " + highPitch);
 			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
 					nextTime + binWidth - timeStart);
 
-			// toneMap.initialise();
 			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);
 
@@ -81,7 +76,13 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 								.freqToMidiNote(PitchConverter.absoluteCentToHertz(binStartingPointsInCents[i]));
 						int index = pitchSet.getIndex(note);
 						elements[index].microTones.putMicroTone(entry.getKey(), spectralEnergy[i]);
-						elements[index].amplitude += spectralEnergy[i];
+						if (getSource().isMicroToneSwitch()) {
+							if (elements[index].amplitude < spectralEnergy[i]) {
+								elements[index].amplitude = spectralEnergy[i];
+							}
+						} else {
+							elements[index].amplitude += spectralEnergy[i];
+						}
 					}
 				}
 				ttf.reset();

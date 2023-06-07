@@ -35,7 +35,13 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 				spectrum = new float[spectralEnergy.length];
 			}
 			for (int i = 0; i < spectralEnergy.length; i++) {
-				spectrum[i] += spectralEnergy[i];
+				if (getSource().isMicroToneSwitch()) {
+					if (spectrum[i] < spectralEnergy[i]) {
+						spectrum[i] = (float) spectralEnergy[i];
+					}
+				} else {
+					spectrum[i] += spectralEnergy[i];
+				}
 			}
 		}
 		if (spectrum == null) {
@@ -79,7 +85,13 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 							float frequency = getSource().getSampleRate() / peak;
 							int tmIndex = pitchSet.getIndex(frequency);
 							if (tmIndex > -1) {
-								ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+								if (getSource().isMicroToneSwitch()) {
+									if (ttf.getElement(tmIndex).amplitude < feature.correlations[peak]) {
+										ttf.getElement(tmIndex).amplitude = feature.correlations[peak];
+									}
+								} else {
+									ttf.getElement(tmIndex).amplitude += feature.correlations[peak];
+								}
 								ttf.getElement(tmIndex).isPeak = true;
 							}
 						}

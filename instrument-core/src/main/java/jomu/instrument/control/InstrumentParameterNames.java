@@ -40,6 +40,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH = "perception.hearing.calibrateForwardSwitch";
 	public static final String PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE = "perception.hearing.tonemap.persistenceMode";
 	public static final String PERCEPTION_HEARING_EXPORT_DELTA_SWITCH = "perception.hearing.exportDeltaSwitch";
+	public static final String PERCEPTION_HEARING_MICRO_TONE_SWITCH = "perception.hearing.microToneSwitch";
 
 	public static final String PERCEPTION_HEARING_YIN_LOW_PASS = "perception.hearing.yin.lowPass";
 
