@@ -38,7 +38,7 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 	@Override
 	abstract public void accept(List<NuMessage> messages) throws InstrumentException;
 
-	final static String buildToneMapKey(CellTypes cellType, String streamId) {
+	public final static String buildToneMapKey(CellTypes cellType, String streamId) {
 		return cellType + ":" + streamId;
 	}
 

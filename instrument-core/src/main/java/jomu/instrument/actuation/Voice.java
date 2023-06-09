@@ -26,9 +26,9 @@ import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
 /**
- * 
- * @author jim
+ * The Class Voice.
  *
+ * @author jim
  */
 @ApplicationScoped
 public class Voice implements Organ {
@@ -36,6 +36,7 @@ public class Voice implements Organ {
 	private static final Logger LOG = Logger.getLogger(Voice.class.getName());
 
 	AudioSynthesizer resynthSynthesizer;
+
 	AudioSynthesizer audioSynthesizer;
 
 	@Inject
@@ -55,18 +56,34 @@ public class Voice implements Organ {
 
 	ConcurrentLinkedQueue<SendMessage> smq = new ConcurrentLinkedQueue<>();
 
+	/** The dead streams. */
 	Set<String> deadStreams = ConcurrentHashMap.newKeySet();
 
+	/**
+	 * Builds the audio synthesizer.
+	 *
+	 * @return the audio synthesizer
+	 */
 	public AudioSynthesizer buildAudioSynthesizer() {
 		audioSynthesizer = new TarsosAudioSynthesizer(parameterManager);
 		return this.audioSynthesizer;
 	}
 
+	/**
+	 * Builds the resynth audio synthesizer.
+	 *
+	 * @return the audio synthesizer
+	 */
 	public AudioSynthesizer buildResynthAudioSynthesizer() {
 		resynthSynthesizer = new ResynthAudioSynthesizer(parameterManager);
 		return this.resynthSynthesizer;
 	}
 
+	/**
+	 * Builds the midi synthesizer.
+	 *
+	 * @return the midi synthesizer
+	 */
 	public MidiSynthesizer buildMidiSynthesizer() {
 		LOG.severe(">>Voice buildMidiSynthesizer");
 		if (!midiSynthesizer.open()) {
@@ -76,6 +93,11 @@ public class Voice implements Organ {
 		return this.midiSynthesizer;
 	}
 
+	/**
+	 * Close.
+	 *
+	 * @param streamId the stream id
+	 */
 	public void close(String streamId) {
 		if (!smq.isEmpty()) {
 			for (SendMessage sm : smq) {
@@ -110,22 +132,43 @@ public class Voice implements Organ {
 		}
 	}
 
+	/**
+	 * Wait for players.
+	 */
 	private void waitForPlayers() {
 		LOG.severe(">>Voice wait for players");
 	}
 
+	/**
+	 * Gets the audio sequencer.
+	 *
+	 * @return the audio sequencer
+	 */
 	public MidiSynthesizer getAudioSequencer() {
 		return this.midiSynthesizer;
 	}
 
+	/**
+	 * Gets the audio synthesizer.
+	 *
+	 * @return the audio synthesizer
+	 */
 	public AudioSynthesizer getAudioSynthesizer() {
 		return audioSynthesizer;
 	}
 
+	/**
+	 * Gets the resynth audio synthesizer.
+	 *
+	 * @return the resynth audio synthesizer
+	 */
 	public AudioSynthesizer getResynthAudioSynthesizer() {
 		return resynthSynthesizer;
 	}
 
+	/**
+	 * Initialise.
+	 */
 	@Override
 	public void initialise() {
 		LOG.severe(">>Voice initialise");
@@ -134,6 +177,14 @@ public class Voice implements Organ {
 		resynthSynthesizer = buildResynthAudioSynthesizer();
 	}
 
+	/**
+	 * Send.
+	 *
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
+	 * @param pause         the pause
+	 */
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence, boolean pause) {
 		if (deadStreams.contains(streamId)) {
 			return;
@@ -153,6 +204,11 @@ public class Voice implements Organ {
 		}
 	}
 
+	/**
+	 * Send message.
+	 *
+	 * @param message the message
+	 */
 	public void sendMessage(SendMessage message) {
 		if (deadStreams.contains(message.streamId)) {
 			return;
@@ -168,22 +224,46 @@ public class Voice implements Organ {
 		}
 	}
 
+	/**
+	 * Start.
+	 */
 	@Override
 	public void start() {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * Write audio.
+	 *
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
+	 */
 	public void writeAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 
 	}
 
+	/**
+	 * Write resynth audio.
+	 *
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
+	 */
 	public void writeResynthAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		resynthSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 
 	}
 
+	/**
+	 * Write midi.
+	 *
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
+	 */
 	public void writeMidi(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		try {
 			midiSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
@@ -197,12 +277,20 @@ public class Voice implements Organ {
 
 	}
 
+	/**
+	 * Stop.
+	 */
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * Clear.
+	 *
+	 * @param streamId the stream id
+	 */
 	public void clear(String streamId) {
 		LOG.severe(">>VOICE clear: ");
 		deadStreams.add(streamId);
@@ -211,17 +299,35 @@ public class Voice implements Organ {
 		midiSynthesizer.clear(streamId);
 	}
 
+	/**
+	 * Reset.
+	 */
 	public void reset() {
 		LOG.severe(">>VOICE reset: ");
 		midiSynthesizer.reset();
 	}
 
+	/**
+	 * The Class SendMessage.
+	 */
 	class SendMessage {
 
+		/** The tone time frame. */
 		public ToneTimeFrame toneTimeFrame;
+
+		/** The stream id. */
 		public String streamId;
+
+		/** The sequence. */
 		public int sequence;
 
+		/**
+		 * Instantiates a new send message.
+		 *
+		 * @param toneTimeFrame the tone time frame
+		 * @param streamId      the stream id
+		 * @param sequence      the sequence
+		 */
 		public SendMessage(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 			this.toneTimeFrame = toneTimeFrame;
 			this.streamId = streamId;
@@ -229,12 +335,24 @@ public class Voice implements Organ {
 		}
 	}
 
+	/**
+	 * Process exception.
+	 *
+	 * @param exception the exception
+	 * @throws InstrumentException the instrument exception
+	 */
 	@Override
 	public void processException(InstrumentException exception) throws InstrumentException {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * Start stream player.
+	 *
+	 * @param streamId the stream id
+	 * @return true, if successful
+	 */
 	public boolean startStreamPlayer(String streamId) {
 		ToneMap synthToneMap = workspace.getAtlas()
 				.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
@@ -251,6 +369,9 @@ public class Voice implements Organ {
 		return true;
 	}
 
+	/**
+	 * Stop stream player.
+	 */
 	public void stopStreamPlayer() {
 		// TODO Auto-generated method stub
 

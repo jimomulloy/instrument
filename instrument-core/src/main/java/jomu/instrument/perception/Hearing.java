@@ -47,6 +47,7 @@ import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.actuation.Voice;
 import jomu.instrument.audio.PidProcessor;
+import jomu.instrument.audio.TarsosAudioDispatcherFactory;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
 import jomu.instrument.audio.features.TarsosFeatureSource;
 import jomu.instrument.cognition.Cortex;
@@ -97,6 +98,12 @@ public class Hearing implements Organ {
 	BufferedInputStream bs;
 
 	private AudioDispatcher audioPlayerDispatcher;
+
+	private TarsosAudioDispatcherFactory audioDispatcherFactory = new TarsosAudioDispatcherFactory();
+
+	public void setAudioDispatcherFactory(TarsosAudioDispatcherFactory audioDispatcherFactory) {
+		this.audioDispatcherFactory = audioDispatcherFactory;
+	}
 
 	public void closeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
@@ -450,7 +457,7 @@ public class Hearing implements Organ {
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			LOG.severe(">>calibarteAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 
-			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+			dispatcher = audioDispatcherFactory.getAudioDispatcher(audioStream, bufferSize, overlap);
 			int audioHighPass = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			int audioLowPass = parameterManager
@@ -604,7 +611,7 @@ public class Hearing implements Organ {
 			LOG.severe(">>processAudioFileStream skip from secs: " + audioOffset / 1000.0);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			LOG.severe(">>processAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
-			dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
+			dispatcher = audioDispatcherFactory.getAudioDispatcher(audioStream, bufferSize, overlap);
 			int audioHighPass = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			int audioLowPass = parameterManager

@@ -29,14 +29,6 @@ import jomu.instrument.workspace.tonemap.ToneMapConstants;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 
-/**
- * This class defines the Audio Sub System Data Model processing functions for
- * the ToneMap including file reading, Audio data transformation, Playback
- * implementation and control settings management through the AudioPanel class.
- *
- * @version 1.0 01/01/01
- * @author Jim O'Mulloy
- */
 public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesizer {
 
 	private static final Logger LOG = Logger.getLogger(TarsosAudioSynthesizer.class.getName());

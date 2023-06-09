@@ -22,9 +22,9 @@ import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 
 @QuarkusTest
-public class InstrumentTest {
+public class InstrumentIntegrationTest {
 
-	private static final Logger LOG = Logger.getLogger(InstrumentTest.class.getName());
+	private static final Logger LOG = Logger.getLogger(InstrumentIntegrationTest.class.getName());
 
 	@Inject
 	Instrument instrument;

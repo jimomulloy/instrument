@@ -53,6 +53,10 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 		return hearing;
 	}
 
+	public void setHearing(Hearing hearing) {
+		this.hearing = hearing;
+	}
+
 	public Voice getVoice() {
 		return voice;
 	}

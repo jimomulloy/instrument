@@ -56,7 +56,6 @@ import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
  * file reference</a>.
  * </p>
  * 
- * @author Joren Six
  */
 public class WaveformWriter implements AudioProcessor {
 	private final AudioFormat format;

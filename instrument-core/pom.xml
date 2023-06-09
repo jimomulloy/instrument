@@ -35,7 +35,7 @@
 		<weld-se-core>5.1.0.Final</weld-se-core>
 		<weld-junit5>4.0.0.Final</weld-junit5>
 		<junit-jupiter>5.6.2</junit-jupiter>
-		<mockito-core>5.3.1</mockito-core>
+		<mockito-all>1.10.19</mockito-all>
 		<jmc.common>8.3.0</jmc.common>
 		<commons-lang3>3.12.0</commons-lang3>
 		<commons-math3>3.6.1</commons-math3>
@@ -75,10 +75,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>${mockito-core}</version>
-			<scope>test</scope>
+    		<groupId>org.mockito</groupId>
+    		<artifactId>mockito-junit-jupiter</artifactId>
+    		<version>4.5.1</version>
+    		<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.openjdk.jmc</groupId>
