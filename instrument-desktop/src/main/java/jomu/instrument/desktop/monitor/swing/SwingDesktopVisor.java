@@ -164,7 +164,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	Map<String, ToneMap> toneMapViews = new HashMap<>();
 
 	static final Integer[] fftWindowSizes = { 256, 512, 1024, 2048, 4096, 8192 };
-	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 48000, 192000 };
+	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 48000, 96000, 192000 };
 
 	static final String[] toneMapViewTypesMode3 = new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(),
 			Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
@@ -261,6 +261,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JComboBox inputSampleRateCombobox;
 
 	private JCheckBox showBaseSwitchCB;
+
+	private JCheckBox resampleSwitchCB;
 
 	@Override
 	public void startUp() {
@@ -1662,6 +1664,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
+		resampleSwitchCB = new JCheckBox("resampleSwitchCB");
+		resampleSwitchCB.setText("Resample");
+		resampleSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		resampleSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE));
+		instrumentPanel.add(resampleSwitchCB);
+
 		audioFeatureIntervalInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL));
 		instrumentPanel.add(audioFeatureIntervalLabel);
@@ -2635,6 +2653,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		audioGainInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR));
 		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
+		resampleSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE));
 		hearingMinFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
 		hearingMaxFreqCentsInput.setText(

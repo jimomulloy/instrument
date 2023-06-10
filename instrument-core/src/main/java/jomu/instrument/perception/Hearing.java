@@ -234,6 +234,14 @@ public class Hearing implements Organ {
 		}
 		bs = new BufferedInputStream(stream);
 
+		boolean isResample = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE);
+		if (isResample) {
+			String resampleFilePath = resample(fileName);
+			stream = new FileInputStream(resampleFilePath);
+			bs = new BufferedInputStream(stream);
+		}
+
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
 		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + getStreamId() + ", " + format.getEncoding()
 				+ ", " + format);
@@ -334,6 +342,34 @@ public class Hearing implements Organ {
 		File wavFile = new File(wavFilePath);
 		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, wavFile);
 		return wavFilePath;
+	}
+
+	public String resample(String fileName) throws UnsupportedAudioFileException, IOException {
+
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(fileName));
+		AudioFormat sourceFormat = audioInputStream.getFormat();
+		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 192000,
+				sourceFormat.getSampleSizeInBits(), sourceFormat.getChannels(), sourceFormat.getFrameSize(),
+				sourceFormat.getFrameRate(), sourceFormat.isBigEndian());
+
+		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
+
+		// write stream into a file with file format wav
+		String baseDir = storage.getObjectStorage().getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+				.toString();
+		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
+				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
+				: 0;
+		String rsFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + ".wav";
+		String rsFilePath = folder + System.getProperty("file.separator") + "resampled_" + rsFileName;
+		File file = new File(rsFilePath);
+		AudioSystem.write(inputStream, AudioFileFormat.Type.WAVE, file);
+
+		return rsFilePath;
 	}
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
