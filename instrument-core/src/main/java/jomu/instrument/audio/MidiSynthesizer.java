@@ -367,16 +367,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	private void clearChannels() {
-		clearChannel(channels[VOICE_1_CHANNEL]);
-		clearChannel(channels[VOICE_2_CHANNEL]);
-		clearChannel(channels[VOICE_3_CHANNEL]);
-		clearChannel(channels[VOICE_4_CHANNEL]);
-		clearChannel(channels[CHORD_1_CHANNEL]);
-		clearChannel(channels[CHORD_2_CHANNEL]);
-		clearChannel(channels[PAD_1_CHANNEL]);
-		clearChannel(channels[PAD_2_CHANNEL]);
-		clearChannel(channels[BASE_1_CHANNEL]);
-		clearChannel(channels[BEATS_CHANNEL]);
+		if (channels != null) {
+			clearChannel(channels[VOICE_1_CHANNEL]);
+			clearChannel(channels[VOICE_2_CHANNEL]);
+			clearChannel(channels[VOICE_3_CHANNEL]);
+			clearChannel(channels[VOICE_4_CHANNEL]);
+			clearChannel(channels[CHORD_1_CHANNEL]);
+			clearChannel(channels[CHORD_2_CHANNEL]);
+			clearChannel(channels[PAD_1_CHANNEL]);
+			clearChannel(channels[PAD_2_CHANNEL]);
+			clearChannel(channels[BASE_1_CHANNEL]);
+			clearChannel(channels[BEATS_CHANNEL]);
+		}
 	}
 
 	private void clearChannel(ChannelData channelData) {

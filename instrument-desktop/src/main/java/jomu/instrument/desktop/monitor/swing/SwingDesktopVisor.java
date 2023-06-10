@@ -166,6 +166,24 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	static final Integer[] fftWindowSizes = { 256, 512, 1024, 2048, 4096, 8192 };
 	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 48000, 192000 };
 
+	static final String[] toneMapViewTypesMode3 = new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(),
+			Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
+			Cell.CellTypes.AUDIO_CQ_MICRO_TONE.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
+			Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(), Cell.CellTypes.AUDIO_PITCH.name(),
+			Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(), Cell.CellTypes.AUDIO_MFCC.name(),
+			Cell.CellTypes.AUDIO_CEPSTRUM.name(), Cell.CellTypes.AUDIO_NOTATE.name(),
+			Cell.CellTypes.AUDIO_NOTATE.name() + "_PEAKS", Cell.CellTypes.AUDIO_NOTATE.name() + "_SPECTRAL",
+			Cell.CellTypes.AUDIO_INTEGRATE.name(), Cell.CellTypes.AUDIO_INTEGRATE.name() + "_PEAKS",
+			Cell.CellTypes.AUDIO_INTEGRATE.name() + "_SPECTRAL", Cell.CellTypes.AUDIO_ONSET.name(),
+			Cell.CellTypes.AUDIO_PERCUSSION.name(), Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
+			Cell.CellTypes.AUDIO_HPS.name(), Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
+			Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC",
+			Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION", Cell.CellTypes.AUDIO_PRE_CHROMA.name(),
+			Cell.CellTypes.AUDIO_POST_CHROMA.name(), Cell.CellTypes.AUDIO_BEAT.name() };
+
+	static final String[] toneMapViewTypesMode2 = new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(),
+			Cell.CellTypes.AUDIO_CQ.name() };
+
 	File inputFile;
 
 	JPanel diagnosticsPanel;
@@ -776,21 +794,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		toneMapViewComboBox = new JComboBox<>();
 
-		Arrays.asList(new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(), Cell.CellTypes.AUDIO_CQ.name(),
-				Cell.CellTypes.AUDIO_CQ_ORIGIN.name(), Cell.CellTypes.AUDIO_CQ_MICRO_TONE.name(),
-				Cell.CellTypes.AUDIO_TUNER_PEAKS.name(), Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(),
-				Cell.CellTypes.AUDIO_PITCH.name(), Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(),
-				Cell.CellTypes.AUDIO_MFCC.name(), Cell.CellTypes.AUDIO_CEPSTRUM.name(),
-				Cell.CellTypes.AUDIO_NOTATE.name(), Cell.CellTypes.AUDIO_NOTATE.name() + "_PEAKS",
-				Cell.CellTypes.AUDIO_NOTATE.name() + "_SPECTRAL", Cell.CellTypes.AUDIO_INTEGRATE.name(),
-				Cell.CellTypes.AUDIO_INTEGRATE.name() + "_PEAKS", Cell.CellTypes.AUDIO_INTEGRATE.name() + "_SPECTRAL",
-				Cell.CellTypes.AUDIO_ONSET.name(), Cell.CellTypes.AUDIO_PERCUSSION.name(),
-				Cell.CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", Cell.CellTypes.AUDIO_HPS.name(),
-				Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK",
-				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", Cell.CellTypes.AUDIO_HPS.name() + "_HARMONIC",
-				Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION", Cell.CellTypes.AUDIO_PRE_CHROMA.name(),
-				Cell.CellTypes.AUDIO_POST_CHROMA.name(), Cell.CellTypes.AUDIO_BEAT.name() }).stream()
-				.forEach(entry -> toneMapViewComboBox.addItem(entry));
+		Arrays.asList(toneMapViewTypesMode2).stream().forEach(entry -> toneMapViewComboBox.addItem(entry));
 
 		toneMapViewComboBox.setEnabled(false);
 		toneMapViewComboBox.setSelectedItem(Cell.CellTypes.AUDIO_SYNTHESIS.name());
@@ -1591,6 +1595,18 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE, newValue);
 				persistenceModeInput.setText(newValue);
+				if (toneMapViewComboBox != null) {
+					if (parameterManager.getIntParameter(
+							InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE) <= 2) {
+						toneMapViewComboBox.removeAllItems();
+						Arrays.asList(toneMapViewTypesMode2).stream()
+								.forEach(entry -> toneMapViewComboBox.addItem(entry));
+					} else {
+						toneMapViewComboBox.removeAllItems();
+						Arrays.asList(toneMapViewTypesMode3).stream()
+								.forEach(entry -> toneMapViewComboBox.addItem(entry));
+					}
+				}
 			}
 		});
 		persistenceModeInput.setText(
