@@ -890,7 +890,6 @@ public class Hearing implements Organ {
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();
 			audioFeatureProcessor = new AudioFeatureProcessor(streamId, tarsosFeatureSource);
-
 			dispatcher.addAudioProcessor(audioFeatureProcessor);
 
 		}

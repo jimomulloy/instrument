@@ -1,7 +1,10 @@
 package jomu.instrument.perception;
 
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URL;
@@ -32,7 +35,15 @@ class HearingTest extends InstrumentTestBase {
 	@Mock
 	AudioDispatcher audioDispatcher;
 
-	TarsosDSPAudioFormat format = new TarsosDSPAudioFormat(0, 0, 0, false, false);
+	TarsosDSPAudioFormat format = new TarsosDSPAudioFormat(44100, 16, 2, false, false);
+
+	@Test
+	void testFileDispatch() {
+
+		String fileName = "data/3notescale.wav";
+		URL fileResource = getClass().getClassLoader().getResource(fileName);
+
+	}
 
 	@Test
 	void testStreamException() {
@@ -43,7 +54,7 @@ class HearingTest extends InstrumentTestBase {
 	}
 
 	@Test
-	void testFileException() {
+	void testAudioFileStreamProcess() {
 
 		String fileName = "data/3notescale.wav";
 		URL fileResource = getClass().getClassLoader().getResource(fileName);
@@ -52,10 +63,12 @@ class HearingTest extends InstrumentTestBase {
 				.thenReturn(audioDispatcher);
 		when(audioDispatcher.getFormat()).thenReturn(format);
 
-		Exception thrown = Assertions.assertThrows(Exception.class, () -> {
+		try {
 			hearing.startAudioFileStream(fileResource.getPath());
-		});
-		Assertions.assertEquals("n must be greater than 0", thrown.getMessage());
+		} catch (Exception e) {
+			fail("Invalid Exception thrown", e);
+		}
+		verify(audioDispatcher, times(3)).run();
 	}
 
 	protected void mockInstrument(Instrument instrument) {

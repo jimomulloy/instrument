@@ -79,6 +79,18 @@ public class Voice implements Organ {
 		return this.resynthSynthesizer;
 	}
 
+	public void setResynthSynthesizer(AudioSynthesizer resynthSynthesizer) {
+		this.resynthSynthesizer = resynthSynthesizer;
+	}
+
+	public void setAudioSynthesizer(AudioSynthesizer audioSynthesizer) {
+		this.audioSynthesizer = audioSynthesizer;
+	}
+
+	public void setMidiSynthesizer(MidiSynthesizer midiSynthesizer) {
+		this.midiSynthesizer = midiSynthesizer;
+	}
+
 	/**
 	 * Builds the midi synthesizer.
 	 *
@@ -209,7 +221,7 @@ public class Voice implements Organ {
 	 *
 	 * @param message the message
 	 */
-	public void sendMessage(SendMessage message) {
+	private void sendMessage(SendMessage message) {
 		if (deadStreams.contains(message.streamId)) {
 			return;
 		}
@@ -240,7 +252,7 @@ public class Voice implements Organ {
 	 * @param streamId      the stream id
 	 * @param sequence      the sequence
 	 */
-	public void writeAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
+	private void writeAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 
 	}
@@ -252,7 +264,7 @@ public class Voice implements Organ {
 	 * @param streamId      the stream id
 	 * @param sequence      the sequence
 	 */
-	public void writeResynthAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
+	private void writeResynthAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
 		resynthSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 
 	}
