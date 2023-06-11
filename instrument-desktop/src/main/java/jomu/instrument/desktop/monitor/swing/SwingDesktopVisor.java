@@ -796,7 +796,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		toneMapViewComboBox = new JComboBox<>();
 
-		Arrays.asList(toneMapViewTypesMode2).stream().forEach(entry -> toneMapViewComboBox.addItem(entry));
+		if (parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE) <= 2) {
+			Arrays.asList(toneMapViewTypesMode2).stream().forEach(entry -> toneMapViewComboBox.addItem(entry));
+		} else {
+			Arrays.asList(toneMapViewTypesMode3).stream().forEach(entry -> toneMapViewComboBox.addItem(entry));
+		}
 
 		toneMapViewComboBox.setEnabled(false);
 		toneMapViewComboBox.setSelectedItem(Cell.CellTypes.AUDIO_SYNTHESIS.name());

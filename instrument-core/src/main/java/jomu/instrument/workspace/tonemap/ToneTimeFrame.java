@@ -1522,8 +1522,9 @@ public class ToneTimeFrame implements Serializable {
 
 	public ToneTimeFrame mask(ToneTimeFrame maskTimeFrame) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			if (maskTimeFrame.getElement(elementIndex).amplitude == 0) {
+			if (maskTimeFrame.getElement(elementIndex).amplitude <= AMPLITUDE_FLOOR) {
 				elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
+				LOG.severe(">>MASK :" + getStartTime() + ", " + elementIndex + ", " + this.toneMap.getKey());
 			}
 		}
 		reset();
