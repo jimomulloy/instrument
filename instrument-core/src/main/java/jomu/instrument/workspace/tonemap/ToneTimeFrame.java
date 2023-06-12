@@ -203,7 +203,8 @@ public class ToneTimeFrame implements Serializable {
 				elements[i].amplitude = (float) Math.log10(1 + (factor * elements[i].amplitude));
 			}
 		}
-		normalise(highThreshold);
+		// normalise(highThreshold);
+		// reset();
 	}
 
 	public void normalise(double highThreshold) {
@@ -1524,7 +1525,6 @@ public class ToneTimeFrame implements Serializable {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			if (maskTimeFrame.getElement(elementIndex).amplitude <= AMPLITUDE_FLOOR) {
 				elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
-				LOG.severe(">>MASK :" + getStartTime() + ", " + elementIndex + ", " + this.toneMap.getKey());
 			}
 		}
 		reset();
@@ -1571,9 +1571,8 @@ public class ToneTimeFrame implements Serializable {
 			int rangeStart = elementIndex - config.range / 2 > 0 ? elementIndex - config.range / 2 : 0;
 			int rangeEnd = elementIndex + config.range / 2 <= elements.length ? elementIndex + config.range / 2
 					: elements.length;
-			boolean isAttack = true;
 			if (previousFrame != null
-					&& previousFrame.getElements()[elementIndex].amplitude <= toneMapElement.amplitude) {
+					&& previousFrame.getElements()[elementIndex].amplitude > toneMapElement.amplitude) {
 				controlFactor = onsetDecayFactor;
 			}
 			double controlAmplitude;

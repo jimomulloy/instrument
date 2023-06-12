@@ -57,6 +57,14 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
+		boolean integrateEnvelopeWhitenSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_ENVELOPE_WHITEN_SWITCH);
+		double envelopeWhitenThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_THRESHOLD);
+		double envelopeWhitenAttackFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_ATTACK_FACTOR);
+		double envelopeWhitenDecayFactor = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR);
 
 		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		ToneMap pitchToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
@@ -89,8 +97,16 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		}
 		if (integrateCQSwitch) {
 			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			ToneTimeFrame ittf = integrateToneMap.getTimeFrame();
 			if (integrateHpsSwitch) {
-				integrateToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence));
+				ittf.mask(hpsMaskToneMap.getTimeFrame(sequence));
+			}
+			if (integrateEnvelopeWhitenSwitch) {
+				ToneMap integrateEnvelopeWhitenControlMap = workspace.getAtlas()
+						.getToneMap(buildToneMapKey(this.cell.getCellType() + "_ENVELOPE", streamId));
+				integrateEnvelopeWhitenControlMap.addTimeFrame(ittf.clone());
+				ittf.envelopeWhiten(integrateEnvelopeWhitenControlMap, envelopeWhitenThreshold,
+						envelopeWhitenDecayFactor, envelopeWhitenAttackFactor, lowThreshold);
 			}
 		}
 		if (integratePeaksSwitch) {

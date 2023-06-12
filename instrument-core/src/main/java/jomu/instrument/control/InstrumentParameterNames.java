@@ -151,6 +151,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_INTEGRATION_YIN_SWITCH = "perception.hearing.integration.yinSwitch";
 	public static final String PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH = "perception.hearing.integration.sacfSwitch";
 	public static final String PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH = "perception.hearing.integration.mfccSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_ENVELOPE_WHITEN_SWITCH = "perception.hearing.integration.envelopeWhitenSwitch";
 
 	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_RANGE = "perception.hearing.synthesis.quantizeRange";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_BEAT = "perception.hearing.synthesis.quantizeBeat";

@@ -182,7 +182,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			Cell.CellTypes.AUDIO_POST_CHROMA.name(), Cell.CellTypes.AUDIO_BEAT.name() };
 
 	static final String[] toneMapViewTypesMode2 = new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(),
-			Cell.CellTypes.AUDIO_CQ.name() };
+			Cell.CellTypes.AUDIO_INTEGRATE.name(), Cell.CellTypes.AUDIO_CQ.name() };
 
 	File inputFile;
 

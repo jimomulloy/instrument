@@ -339,6 +339,8 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox chromaHpsSwitchCB;
 
+	private JCheckBox integrationEnvelopeWhitenSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1662,6 +1664,23 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_CQ_ORIGIN_SWITCH));
 		cqSwitchPanel.add(onsetCQOriginSwitchCB);
 
+		integrationEnvelopeWhitenSwitchCB = new JCheckBox("integrationEnvelopeWhitenSwitchCB");
+		integrationEnvelopeWhitenSwitchCB.setText("Integration Envelope Whiten");
+		integrationEnvelopeWhitenSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_ENVELOPE_WHITEN_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integrationEnvelopeWhitenSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_ENVELOPE_WHITEN_SWITCH));
+		cqSwitchPanel.add(integrationEnvelopeWhitenSwitchCB);
+
 		integrateHpsSwitchCB = new JCheckBox("integrateHpsSwitchCB");
 		integrateHpsSwitchCB.setText("Integrate HPS");
 		integrateHpsSwitchCB.addItemListener(new ItemListener() {
@@ -2693,7 +2712,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteLowLabel);
 		parameterPanel.add(noteLowSlider);
 
-		noteMaxDurationSlider = new JSlider(100, 10000);
+		noteMaxDurationSlider = new JSlider(1, 10000);
 		final JLabel noteMaxDurationLabel = new JLabel("Audio Tuner Max Note Duration :");
 		noteMaxDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2711,7 +2730,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteMaxDurationLabel);
 		parameterPanel.add(noteMaxDurationSlider);
 
-		noteMinDurationSlider = new JSlider(10, 10000);
+		noteMinDurationSlider = new JSlider(1, 10000);
 		final JLabel noteMinDurationLabel = new JLabel("Audio Tuner Min Note Duration :");
 		noteMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2729,7 +2748,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteMinDurationLabel);
 		parameterPanel.add(noteMinDurationSlider);
 
-		notePeaksMaxDurationSlider = new JSlider(100, 10000);
+		notePeaksMaxDurationSlider = new JSlider(1, 10000);
 		final JLabel notePeaksMaxDurationLabel = new JLabel("Audio Tuner Max Note Peaks Duration :");
 		notePeaksMaxDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2747,7 +2766,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(notePeaksMaxDurationLabel);
 		parameterPanel.add(notePeaksMaxDurationSlider);
 
-		notePeaksMinDurationSlider = new JSlider(10, 10000);
+		notePeaksMinDurationSlider = new JSlider(1, 10000);
 		final JLabel notePeaksMinDurationLabel = new JLabel("Audio Tuner Min Note Peaks Duration :");
 		notePeaksMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2765,7 +2784,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(notePeaksMinDurationLabel);
 		parameterPanel.add(notePeaksMinDurationSlider);
 
-		noteSpectralMaxDurationSlider = new JSlider(100, 10000);
+		noteSpectralMaxDurationSlider = new JSlider(1, 10000);
 		final JLabel noteSpectralMaxDurationLabel = new JLabel("Audio Tuner Max Note Spectral Duration :");
 		noteSpectralMaxDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2783,7 +2802,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteSpectralMaxDurationLabel);
 		parameterPanel.add(noteSpectralMaxDurationSlider);
 
-		noteSpectralMinDurationSlider = new JSlider(10, 10000);
+		noteSpectralMinDurationSlider = new JSlider(1, 10000);
 		final JLabel noteSpectralMinDurationLabel = new JLabel("Audio Tuner Min Note Spectral Duration :");
 		noteSpectralMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -4217,7 +4236,7 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS));
 		cqPostHarmonicsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS));
-		cqEnvelopeWhitenPreSwitchCB.setSelected(parameterManager
+		integrationEnvelopeWhitenSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH));
 		cqEnvelopeWhitenPostSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH));
@@ -4533,6 +4552,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH));
 		integrateMFCCSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH));
+		cqEnvelopeWhitenPreSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_ENVELOPE_WHITEN_SWITCH));
 
 		beatsThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_BEATS_THRESHOLD));
