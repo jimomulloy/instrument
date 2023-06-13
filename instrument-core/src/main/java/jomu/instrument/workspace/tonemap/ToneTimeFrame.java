@@ -1361,7 +1361,7 @@ public class ToneTimeFrame implements Serializable {
 		return amplitude / frames.size();
 	}
 
-	public ToneTimeFrame hpsPercussionMedian(int hpsPercussionMedianFactor, boolean hpsMedianSwitch) {
+	public ToneTimeFrame hpsPercussionMedian(int hpsPercussionMedianFactor, double lowThreshold) {
 
 		ToneMapElement[] hpsElements = getElements();
 		for (int i = 0; i < elements.length; i++) {
@@ -1384,23 +1384,9 @@ public class ToneTimeFrame implements Serializable {
 				sum += elements[subElementIndex].amplitude;
 			}
 
-			if (hpsMedianSwitch) {
-				List<ToneMapElement> sortedElements = subElements.stream()
-						.sorted(Comparator.comparingDouble(tm -> tm.amplitude)).collect(Collectors.toList());
-				if (sortedElements.size() > 0) {
-					if (sortedElements.size() == 1) {
-						hpsElements[elementIndex].amplitude = sortedElements.get(0).amplitude;
-					} else if (sortedElements.size() % 2 == 0) {
-						ToneMapElement median1 = sortedElements.get(sortedElements.size() / 2 - 1);
-						ToneMapElement median2 = sortedElements.get(sortedElements.size() / 2);
-						hpsElements[elementIndex].amplitude = (median1.amplitude + median2.amplitude) / 2;
-					} else {
-						ToneMapElement median = sortedElements.get(sortedElements.size() / 2);
-						hpsElements[elementIndex].amplitude = median.amplitude;
-					}
-				}
-			} else {
-				hpsElements[elementIndex].amplitude = sum / subElements.size();
+			hpsElements[elementIndex].amplitude = sum / subElements.size();
+			if (hpsElements[elementIndex].amplitude <= lowThreshold) {
+				hpsElements[elementIndex].amplitude = AMPLITUDE_FLOOR;
 			}
 		}
 
@@ -1489,8 +1475,10 @@ public class ToneTimeFrame implements Serializable {
 	public ToneTimeFrame hpsHarmonicMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
 			double hpsMaskFactor) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			if (((harmonicTimeFrame.elements[elementIndex].amplitude)
-					/ (percussionTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)) < hpsMaskFactor) {
+			if (harmonicTimeFrame.elements[elementIndex].amplitude <= AMPLITUDE_FLOOR
+					|| ((harmonicTimeFrame.elements[elementIndex].amplitude)
+							/ (percussionTimeFrame.elements[elementIndex].amplitude
+									+ AMPLITUDE_FLOOR)) < hpsMaskFactor) {
 				elements[elementIndex].amplitude = 0;
 			} else {
 				elements[elementIndex].amplitude = 1.0;
@@ -1503,8 +1491,9 @@ public class ToneTimeFrame implements Serializable {
 	public ToneTimeFrame hpsPercussionMask(ToneTimeFrame harmonicTimeFrame, ToneTimeFrame percussionTimeFrame,
 			double hpsMaskFactor) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			if (((percussionTimeFrame.elements[elementIndex].amplitude)
-					/ (harmonicTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)) < hpsMaskFactor) {
+			if (percussionTimeFrame.elements[elementIndex].amplitude <= AMPLITUDE_FLOOR
+					|| ((percussionTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)
+							/ (harmonicTimeFrame.elements[elementIndex].amplitude + AMPLITUDE_FLOOR)) < hpsMaskFactor) {
 				elements[elementIndex].amplitude = 0;
 			} else {
 				elements[elementIndex].amplitude = 1.0;

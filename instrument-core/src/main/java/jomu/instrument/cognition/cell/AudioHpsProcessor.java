@@ -65,7 +65,7 @@ public class AudioHpsProcessor extends ProcessorCommon {
 		hpsHarmonicMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 		hpsPercussionMaskedToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 
-		hpsPercussionToneMap.getTimeFrame().hpsPercussionMedian(hpsPercussionMedian, hpsMedianSwitch);
+		hpsPercussionToneMap.getTimeFrame().hpsPercussionMedian(hpsPercussionMedian, lowThreshold);
 
 		int tmIndex = sequence - hpsHarmonicMedian / 2;
 		if (tmIndex > 0) {
