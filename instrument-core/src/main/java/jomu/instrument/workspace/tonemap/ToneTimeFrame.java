@@ -192,25 +192,18 @@ public class ToneTimeFrame implements Serializable {
 		this.maxPitch = maxPitch;
 	}
 
-	public void compress(float factor, boolean useMax) {
-		double highThreshold = (float) Math.log10(1 + (factor * getHighThreshold()));
-		if (useMax) {
-			reset();
-			highThreshold = getMaxAmplitude();
-		}
+	public void compress(float factor) {
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] != null) {
+			if (elements[i] != null && elements[i].amplitude > AMPLITUDE_FLOOR) {
 				elements[i].amplitude = (float) Math.log10(1 + (factor * elements[i].amplitude));
 			}
 		}
-		// normalise(highThreshold);
-		// reset();
 	}
 
 	public void normalise(double highThreshold) {
-		assert highThreshold > 0;
+		assert highThreshold > AMPLITUDE_FLOOR;
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] != null) {
+			if (elements[i] != null && elements[i].amplitude > AMPLITUDE_FLOOR) {
 				elements[i].amplitude = elements[i].amplitude / highThreshold;
 			}
 		}

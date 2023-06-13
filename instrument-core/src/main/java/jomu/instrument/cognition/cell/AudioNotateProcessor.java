@@ -144,7 +144,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 					if (notateSwitchCompress) {
 						clearNotes(notateTimeFrame);
-						notateTimeFrame.compress(compression, false);
+						notateTimeFrame.compress(compression);
 					}
 					console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
 							this.cell.getCellType().toString());
@@ -157,7 +157,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 					if (notateSwitchCompress) {
 						clearNotes(notatePeaksTimeFrame);
-						notatePeaksTimeFrame.compress(compression, false);
+						notatePeaksTimeFrame.compress(compression);
 					}
 					console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
 							this.cell.getCellType().toString() + "_PEAKS");
@@ -170,7 +170,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 
 					if (notateSwitchCompress) {
 						clearNotes(notateSpectralTimeFrame);
-						notateSpectralTimeFrame.compress(compression, false);
+						notateSpectralTimeFrame.compress(compression);
 					}
 					console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
 							this.cell.getCellType().toString() + "_SPECTRAL");
@@ -192,7 +192,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 					if (notateTimeFrame != null) {
 						if (notateSwitchCompress) {
 							clearNotes(notateTimeFrame);
-							notateTimeFrame.compress(compression, false);
+							notateTimeFrame.compress(compression);
 						}
 						console.getVisor().updateToneMapView(notateToneMap, notateTimeFrame,
 								this.cell.getCellType().toString());
@@ -204,7 +204,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 					if (notatePeaksTimeFrame != null) {
 						if (notateSwitchCompress) {
 							clearNotes(notatePeaksTimeFrame);
-							notatePeaksTimeFrame.compress(compression, false);
+							notatePeaksTimeFrame.compress(compression);
 						}
 						console.getVisor().updateToneMapView(notatePeaksToneMap, notatePeaksTimeFrame,
 								this.cell.getCellType().toString() + "_PEAKS");
@@ -216,7 +216,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 					if (notateSpectralTimeFrame != null) {
 						if (notateSwitchCompress) {
 							clearNotes(notateSpectralTimeFrame);
-							notateSpectralTimeFrame.compress(compression, false);
+							notateSpectralTimeFrame.compress(compression);
 						}
 						console.getVisor().updateToneMapView(notateSpectralToneMap, notateSpectralTimeFrame,
 								this.cell.getCellType().toString() + "_SPECTRAL");

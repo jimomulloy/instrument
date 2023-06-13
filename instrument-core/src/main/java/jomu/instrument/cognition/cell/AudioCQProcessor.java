@@ -156,7 +156,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		}
 
 		if (cqSwitchCompress) {
-			ttf.compress(compression, cqSwitchCompressMax);
+			ttf.compress(compression);
 		}
 		if (cqSwitchNormalise) {
 			double nt = highCQThreshold;

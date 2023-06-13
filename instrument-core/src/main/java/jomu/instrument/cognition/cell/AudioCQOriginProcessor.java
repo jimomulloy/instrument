@@ -107,7 +107,7 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		}
 
 		if (cqSwitchCompress) {
-			toneMap.getTimeFrame().compress(compression, cqSwitchCompressMax);
+			toneMap.getTimeFrame().compress(compression);
 		}
 		if (cqSwitchSquare) {
 			toneMap.getTimeFrame().square();
