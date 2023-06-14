@@ -118,6 +118,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		double startTimeMS = audioEvent.getTimeStamp() * 1000;
 		LOG.finer(">>process startTimeMS: " + startTimeMS);
 		if (startTimeMS > range) {
+			lastTimeStamp = startTimeMS;
+			currentProcessTime = startTimeMS + 100;
 			LOG.finer(">>Stop processing at range: " + range);
 			hearing.stopAudioStream();
 			return false;
@@ -151,7 +153,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		frameSequence++;
 		state = AudioFeatureFrameState.CLOSED;
 		lastSequence = frameSequence;
-		LOG.finer(">>SET LAST SEQ: " + frameSequence);
+		LOG.finer(">>LAST SEQ process audioEvent: firstTimeStamp: " + firstTimeStamp + ", lastTimeStamp: "
+				+ lastTimeStamp + ", endTimeStamp: " + endTimeStamp + ", frameSequence: " + frameSequence);
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
 		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);

@@ -237,6 +237,10 @@ public class ToneMap {
 		return tailMap.toArray(new ToneTimeFrame[tailMap.size()]);
 	}
 
+	public int getNumberOfTimeFrames() {
+		return frameIndex.size();
+	}
+
 	public void initialise() {
 		frameIndex = new CopyOnWriteArrayList<>();
 	}

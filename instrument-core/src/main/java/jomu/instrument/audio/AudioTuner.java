@@ -784,16 +784,19 @@ public class AudioTuner implements ToneMapConstants {
 				step = 0;
 				for (int index = candidateNote.pitchIndex - 1; index >= 0
 						|| index > candidateNote.pitchIndex - 12; index--) {
-					if (ttfElements[index].noteListElement != null) {
-						if (ttfElements[index].noteListElement != null && (ttfElements[index].noteListElement.endTime
-								- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
-							discardedNotes.add(ttfElements[index].noteListElement);
-							step = 0;
+					if (index < ttfElements.length) {
+						if (ttfElements[index].noteListElement != null) {
+							if (ttfElements[index].noteListElement != null
+									&& (ttfElements[index].noteListElement.endTime
+											- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
+								discardedNotes.add(ttfElements[index].noteListElement);
+								step = 0;
+							}
 						}
-					}
-					step++;
-					if (step > 4) {
-						break;
+						step++;
+						if (step > 4) {
+							break;
+						}
 					}
 				}
 			}
@@ -1306,7 +1309,7 @@ public class AudioTuner implements ToneMapConstants {
 				ToneMapElement[] ttfElements = toneTimeFrame.getElements();
 				for (int pi = currentNote.pitchIndex - 2 > 0 ? currentNote.pitchIndex - 1
 						: 0; pi < currentNote.pitchIndex + 2 && pi < ttfElements.length; pi++) {
-					if (ttfElements[pi].noteListElement != null) {
+					if (pi < ttfElements.length && ttfElements[pi].noteListElement != null) {
 						if (!processedNotes.contains(ttfElements[pi].noteListElement)
 								&& !candidateNotes.contains(ttfElements[pi].noteListElement)
 								&& (ttfElements[pi].noteListElement.endTime <= currentNote.endTime)
@@ -1356,37 +1359,43 @@ public class AudioTuner implements ToneMapConstants {
 			int step = 0;
 			for (int index = noteListElement.pitchIndex + 1; index < ttfElements.length
 					&& index < noteListElement.pitchIndex + 12; index++) {
-				if (ttfElements[index].noteListElement != null) {
-					if ((ttfElements[index].noteListElement.endTime
-							- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
-						if (timeFrameBefore == null || !((index == noteListElement.pitchIndex + 1)
-								&& timeFrameBefore.getElement(noteListElement.pitchIndex).noteListElement != null)) {
-							discardedNotes.add(ttfElements[index].noteListElement);
-							step = 0;
+				if (index < ttfElements.length) {
+					if (ttfElements[index].noteListElement != null) {
+						if ((ttfElements[index].noteListElement.endTime
+								- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
+							if (timeFrameBefore == null
+									|| !((index == noteListElement.pitchIndex + 1) && timeFrameBefore
+											.getElement(noteListElement.pitchIndex).noteListElement != null)) {
+								discardedNotes.add(ttfElements[index].noteListElement);
+								step = 0;
+							}
 						}
 					}
-				}
-				step++;
-				if (step > 4) {
-					break;
+					step++;
+					if (step > 4) {
+						break;
+					}
 				}
 			}
 			step = 0;
 			for (int index = noteListElement.pitchIndex - 1; index >= 0
 					&& index > noteListElement.pitchIndex - 12; index--) {
-				if (ttfElements[index].noteListElement != null) {
-					if ((ttfElements[index].noteListElement.endTime
-							- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
-						if (timeFrameBefore == null || !((index == noteListElement.pitchIndex - 1)
-								&& timeFrameBefore.getElement(noteListElement.pitchIndex).noteListElement != null)) {
-							discardedNotes.add(ttfElements[index].noteListElement);
-							step = 0;
+				if (index < ttfElements.length) {
+					if (ttfElements[index].noteListElement != null) {
+						if ((ttfElements[index].noteListElement.endTime
+								- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
+							if (timeFrameBefore == null
+									|| !((index == noteListElement.pitchIndex - 1) && timeFrameBefore
+											.getElement(noteListElement.pitchIndex).noteListElement != null)) {
+								discardedNotes.add(ttfElements[index].noteListElement);
+								step = 0;
+							}
 						}
 					}
-				}
-				step++;
-				if (step > 4) {
-					break;
+					step++;
+					if (step > 4) {
+						break;
+					}
 				}
 			}
 		}

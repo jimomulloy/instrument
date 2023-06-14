@@ -420,8 +420,15 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 				for (Entry<Integer, ToneMapStatistics> band : bands.entrySet()) {
 					int note = band.getKey();
+					int cents = note * 100;
 					ToneMapStatistics bandStatistics = band.getValue();
-					int centsCoordinate = getCentsCoordinate(note * 100);
+					int centsCoordinate = getCentsCoordinate(cents);
+					if (maxPitchCents < cents) {
+						maxPitchCents = cents;
+					}
+					if (minPitchCents > cents) {
+						minPitchCents = cents;
+					}
 					Color color = new Color(0x14ff14); // green-ish
 
 					double variance = bandStatistics.variance;
@@ -510,7 +517,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					}
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
-						int centsCoordinate = getCentsCoordinate(nle.note * 100);
+						int cents = nle.note * 100;
+						int centsCoordinate = getCentsCoordinate(cents);
+						if (maxPitchCents < cents) {
+							maxPitchCents = cents;
+						}
+						if (minPitchCents > cents) {
+							minPitchCents = cents;
+						}
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
@@ -535,7 +549,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					color = Color.WHITE;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
-						int centsCoordinate = getCentsCoordinate(nle.note * 100);
+						int cents = nle.note * 100;
+						int centsCoordinate = getCentsCoordinate(cents);
+						if (maxPitchCents < cents) {
+							maxPitchCents = cents;
+						}
+						if (minPitchCents > cents) {
+							minPitchCents = cents;
+						}
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
@@ -554,7 +575,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					color = Color.YELLOW;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
-						int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+						int cents = nle.note * 100;
+						int centsCoordinate = getCentsCoordinate(cents);
+						if (maxPitchCents < cents) {
+							maxPitchCents = cents;
+						}
+						if (minPitchCents > cents) {
+							minPitchCents = cents;
+						}
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
@@ -571,7 +599,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					color = Color.PINK;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
-						int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+						int cents = nle.note * 100;
+						int centsCoordinate = getCentsCoordinate(cents);
+						if (maxPitchCents < cents) {
+							maxPitchCents = cents;
+						}
+						if (minPitchCents > cents) {
+							minPitchCents = cents;
+						}
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
@@ -591,7 +626,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						if (nle.startTime == timeStart) {
-							int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+							int cents = nle.note * 100;
+							int centsCoordinate = getCentsCoordinate(cents);
+							if (maxPitchCents < cents) {
+								maxPitchCents = cents;
+							}
+							if (minPitchCents > cents) {
+								minPitchCents = cents;
+							}
 							bufferedGraphics.setColor(color);
 							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
 						}
@@ -606,6 +648,13 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 					for (NoteListElement nle : nles) {
 						if (nle.startTime == timeStart) {
 							int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+							int cents = nle.note * 100;
+							if (maxPitchCents < cents) {
+								maxPitchCents = cents;
+							}
+							if (minPitchCents > cents) {
+								minPitchCents = cents;
+							}
 							bufferedGraphics.setColor(color);
 							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
 						}
