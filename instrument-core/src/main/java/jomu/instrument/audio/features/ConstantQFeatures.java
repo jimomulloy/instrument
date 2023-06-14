@@ -50,18 +50,9 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 
 		if (features.size() > 0) {
 
-			double timeStart = -1;
-			double nextTime = -1;
-
-			for (Map.Entry<Double, float[]> column : features.entrySet()) {
-				nextTime = column.getKey();
-				if (timeStart == -1) {
-					timeStart = nextTime;
-				}
-			}
-
-			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
-					nextTime + binWidth - timeStart);
+			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
+			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 
 			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
 			toneMap.addTimeFrame(ttf);

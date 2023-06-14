@@ -53,7 +53,8 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "vocal-male",
-			"vocal-female", "birds", "blackbird", "classical", "folk" };
+			"vocal-female", "birds", "blackbird", "classical", "folk", "beethoven", "brass", "compresschord", "epiano",
+			"epiano-arp", "epiano-chords", "epiano-chords-staccato", "guitarstrum", "hpschord", "neon", "neon-peaked" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;
@@ -4258,7 +4259,6 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_ADAPTIVE_WHITEN));
 		cqWhitenCompensateSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN_COMPENSATE));
-
 		chromaCQOriginSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH));
 		hpsCQOriginSwitchCB.setSelected(

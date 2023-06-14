@@ -783,7 +783,7 @@ public class AudioTuner implements ToneMapConstants {
 				}
 				step = 0;
 				for (int index = candidateNote.pitchIndex - 1; index >= 0
-						|| index > candidateNote.pitchIndex - 12; index--) {
+						&& index > candidateNote.pitchIndex - 12; index--) {
 					if (index < ttfElements.length) {
 						if (ttfElements[index].noteListElement != null) {
 							if (ttfElements[index].noteListElement != null
@@ -846,7 +846,7 @@ public class AudioTuner implements ToneMapConstants {
 						previousToneTimeFrame.getElements(), index - 1, previousNoteStatusElement, noteStatus, note - 1,
 						processedNotes);
 			}
-			if (index < ttfElements.length - 1 && previousToneTimeFrame != null) {
+			if (index >= 0 && index < ttfElements.length - 1 && previousToneTimeFrame != null) {
 				LOG.finer(">>attenuateSemitone Z: " + index + ", " + note);
 				NoteStatus previousNoteStatus = previousToneTimeFrame.getNoteStatus();
 				NoteStatusElement previousNoteStatusElement = previousNoteStatus.getNoteStatusElement(note);
@@ -1359,7 +1359,7 @@ public class AudioTuner implements ToneMapConstants {
 			int step = 0;
 			for (int index = noteListElement.pitchIndex + 1; index < ttfElements.length
 					&& index < noteListElement.pitchIndex + 12; index++) {
-				if (index < ttfElements.length) {
+				if (index >= 0) {
 					if (ttfElements[index].noteListElement != null) {
 						if ((ttfElements[index].noteListElement.endTime
 								- ttfElements[index].noteListElement.startTime) < harmonicSweep) {

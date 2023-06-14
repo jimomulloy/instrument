@@ -164,14 +164,11 @@ public class ParameterManager {
 	public void mergeProperties(Properties newParameters) {
 		for (Entry<Object, Object> entry : parameters.entrySet()) {
 			if (newParameters.containsKey(entry.getKey())) {
-				LOG.severe("ParameterManager mergeProperties key: " + entry.getKey() + ", value: " + entry.getValue());
 				if (!parameterValidator.validate((String) entry.getKey(), (String) entry.getValue())) {
 					LOG.severe("ParameterManager mergeProperties invalid parameter, key: " + entry.getKey()
 							+ ", value: " + entry.getValue());
 				} else {
 					parameters.put((String) entry.getKey(), (String) newParameters.get(entry.getKey()));
-					LOG.severe("ParameterManager mergeProperties put new value key: " + entry.getKey() + ", value: "
-							+ entry.getValue() + ", get value: " + parameters.get(entry.getKey()));
 				}
 			}
 		}

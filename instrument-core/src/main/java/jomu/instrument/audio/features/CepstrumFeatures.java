@@ -59,19 +59,9 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 
 		if (features.size() > 0) {
 
-			float binWidth = getSource().getBinWidth();
-			double timeStart = -1;
-			double nextTime = -1;
-
-			for (Entry<Double, CepstrumInfo> column : features.entrySet()) {
-				nextTime = column.getKey();
-				if (timeStart == -1) {
-					timeStart = nextTime;
-				}
-			}
-
-			TimeSet timeSet = new TimeSet(timeStart, nextTime + binWidth, getSource().getSampleRate(),
-					nextTime + binWidth - timeStart);
+			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
+			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
 			PitchSet pitchSet = new PitchSet();
 
 			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);

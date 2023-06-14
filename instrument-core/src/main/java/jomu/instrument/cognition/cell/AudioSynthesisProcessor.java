@@ -127,12 +127,14 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
 			synthesisFrame.integratePeaks(notatePeaksFrame);
+			synthesisFrame.merge(synthesisToneMap, notatePeaksFrame);
 		}
 		if (integrateSpectralSwitch) {
 			if (synthesisFrame == null) {
 				synthesisFrame = notateSpectralFrame.clone();
 				synthesisToneMap.addTimeFrame(synthesisFrame);
 			}
+			synthesisFrame.integratePeaks(notateSpectralFrame);
 			synthesisFrame.merge(synthesisToneMap, notateSpectralFrame);
 		}
 

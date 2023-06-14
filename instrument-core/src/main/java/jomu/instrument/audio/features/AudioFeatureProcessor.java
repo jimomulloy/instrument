@@ -134,8 +134,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				}
 				if (startTimeMS - lastTimeStamp >= (double) (interval + lag)) {
 					frameSequence++;
-					LOG.finer(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: " + firstTimeStamp
-							+ ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
+					LOG.severe(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: "
+							+ firstTimeStamp + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
 							+ ", frameSequence: " + frameSequence);
 					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
 					lastTimeStamp = startTimeMS;
@@ -153,7 +153,7 @@ public class AudioFeatureProcessor implements AudioProcessor {
 		frameSequence++;
 		state = AudioFeatureFrameState.CLOSED;
 		lastSequence = frameSequence;
-		LOG.finer(">>LAST SEQ process audioEvent: firstTimeStamp: " + firstTimeStamp + ", lastTimeStamp: "
+		LOG.severe(">>LAST SEQ process audioEvent: firstTimeStamp: " + firstTimeStamp + ", lastTimeStamp: "
 				+ lastTimeStamp + ", endTimeStamp: " + endTimeStamp + ", frameSequence: " + frameSequence);
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
