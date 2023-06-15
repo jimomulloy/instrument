@@ -409,6 +409,7 @@ public class AudioTuner implements ToneMapConstants {
 					toneMapElement.isPeak = false;
 				} else {
 					toneMapElement.isPeak = true;
+					toneMapElement.amplitude = 1.0; // toneTimeFrame.getMaxAmplitude();
 					LOG.finer(">>PEAK found: " + toneMapElement);
 				}
 			}
@@ -921,6 +922,7 @@ public class AudioTuner implements ToneMapConstants {
 		peaks.iterator();
 		for (SpectralPeak peak : peaks) {
 			ttfElements[peak.getBin()].isPeak = true;
+			ttfElements[peak.getBin()].amplitude = 1.0;
 		}
 
 	}
@@ -2370,6 +2372,7 @@ public class AudioTuner implements ToneMapConstants {
 				break;
 			} else {
 				toneMapElement.isPeak = true;
+				toneMapElement.amplitude = maxAmp;
 //				double amplitude = toneMapElement.amplitude / maxAmp;
 //
 //				double nt = normalThreshold(toneTimeFrame, toneMapElement, thresholdElement);

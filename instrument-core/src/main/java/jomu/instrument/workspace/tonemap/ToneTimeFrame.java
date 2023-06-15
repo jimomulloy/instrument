@@ -1775,7 +1775,7 @@ public class ToneTimeFrame implements Serializable {
 		for (int elementIndex = 0; elementIndex < elements.length && elementIndex < ses.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			if (ses[elementIndex].isPeak) {
-				element.amplitude += ses[elementIndex].amplitude;
+				element.amplitude = 1.0; // += ses[elementIndex].amplitude;
 				element.isPeak = true;
 			}
 		}

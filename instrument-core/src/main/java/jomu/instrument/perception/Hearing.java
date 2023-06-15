@@ -216,7 +216,7 @@ public class Hearing implements Organ {
 		streamId = UUID.randomUUID().toString();
 		LOG.severe(">>HEARING startAudioFileStream new stream: " + getStreamId());
 
-		AudioStream audioStream = new AudioStream(getStreamId(), inputFileName);
+		AudioStream audioStream = new AudioStream(getStreamId());
 		audioStreams.put(getStreamId(), audioStream);
 
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
@@ -225,22 +225,32 @@ public class Hearing implements Organ {
 		instrumentSession.setState(InstrumentSessionState.RUNNING);
 
 		InputStream stream = null;
-		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
-			String wavFilePath = convertToWav(fileName);
-			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
-			stream = new FileInputStream(wavFilePath);
-		} else {
-			stream = storage.getObjectStorage().read(fileName);
-		}
-		bs = new BufferedInputStream(stream);
-
 		boolean isResample = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE);
-		if (isResample) {
-			String resampleFilePath = resample(fileName);
-			stream = new FileInputStream(resampleFilePath);
-			bs = new BufferedInputStream(stream);
+		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
+			String wavFilePath = convertToWav(fileName);
+			if (isResample) {
+				String resampleFilePath = resample(wavFilePath);
+				stream = new FileInputStream(resampleFilePath);
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
+						resampleFilePath);
+			} else {
+				stream = new FileInputStream(wavFilePath);
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
+						wavFilePath);
+			}
+		} else {
+			if (isResample) {
+				String resampleFilePath = resample(fileName);
+				stream = new FileInputStream(resampleFilePath);
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
+						resampleFilePath);
+			} else {
+				stream = storage.getObjectStorage().read(fileName);
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, fileName);
+			}
 		}
+		bs = new BufferedInputStream(stream);
 
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
 		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + getStreamId() + ", " + format.getEncoding()
@@ -251,6 +261,7 @@ public class Hearing implements Organ {
 			String wavFilePath = convertToWav(fileName);
 			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
 			stream = new FileInputStream(wavFilePath);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
 			bs = new BufferedInputStream(stream);
 		}
 
@@ -274,8 +285,10 @@ public class Hearing implements Organ {
 			String wavFilePath = convertToWav(fileName);
 			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
 			stream = new FileInputStream(wavFilePath);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
 		} else {
 			stream = storage.getObjectStorage().read(fileName);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, fileName);
 		}
 		bs = new BufferedInputStream(stream);
 
@@ -285,9 +298,12 @@ public class Hearing implements Organ {
 			String wavFilePath = convertToWav(fileName);
 			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
 			stream = new FileInputStream(wavFilePath);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
 			bs = new BufferedInputStream(stream);
 		}
 		try {
+			audioStream.setAudioFileName(
+					parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE));
 			audioStream.processAudioFileStream(bs, format);
 		} catch (UnsupportedAudioFileException | IOException ex) {
 			LOG.log(Level.SEVERE, "Audio file init error:" + fileName, ex);
@@ -438,11 +454,6 @@ public class Hearing implements Organ {
 		private boolean isFile = true;
 		private String audioFileName;
 
-		public AudioStream(String streamId, String audioFileName) {
-			this(streamId);
-			this.audioFileName = audioFileName;
-		}
-
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
 			sampleRate = parameterManager
@@ -462,6 +473,10 @@ public class Hearing implements Organ {
 
 		public String getAudioFileName() {
 			return audioFileName;
+		}
+
+		public void setAudioFileName(String audioFileName) {
+			this.audioFileName = audioFileName;
 		}
 
 		public int getBufferSize() {
