@@ -16,7 +16,7 @@
 	<modules>
 		<module>instrument-core</module>
 		<module>instrument-desktop</module>
-		<module>instrument-command</module>
+		<!-- <module>instrument-command</module-->
 		<module>instrument-aws</module>
 		<module>instrument-st</module>
 	</modules>
