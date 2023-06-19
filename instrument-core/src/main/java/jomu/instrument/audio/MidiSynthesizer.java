@@ -284,13 +284,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				try {
 					if (parameterManager.hasParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)) {
-						File file = new File(parameterManager
-								.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)); // getFileFromResource("FluidR3_GM.sf2");
+						String fileName = storage.getObjectStorage().getBasePath() + System.getProperty("file.separator")
+								+ parameterManager
+								.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS);
+
+						LOG.severe(">>midi file: " + fileName);
+						File file = new File(fileName);
 						if (file.exists()) {
 							sb = MidiSystem.getSoundbank(file);
 							midiSynthesizer.loadAllInstruments(sb);
 							instruments = midiSynthesizer.getLoadedInstruments();
-							LOG.finer(">>MidiSynth CustomSoundbank!!");
+							LOG.severe(">>MidiSynth CustomSoundbank!!: " + instruments.length);
 						}
 					} else {
 						LOG.finer(">>MidiSynth Default Soundbank!!");
