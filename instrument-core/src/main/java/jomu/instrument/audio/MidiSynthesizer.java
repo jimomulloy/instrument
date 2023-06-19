@@ -3714,7 +3714,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		Track track;
 
 		public TrackData(int chanNum, String name, Track track) {
-			this.chanNum = new Integer(chanNum);
+			this.chanNum = Integer.valueOf(chanNum);
 			this.name = name;
 			this.track = track;
 		}
