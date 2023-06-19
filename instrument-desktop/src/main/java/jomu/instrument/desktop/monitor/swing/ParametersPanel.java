@@ -126,8 +126,6 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox pdKlapuriSwitchCB;
 	private JCheckBox pdTarsosSwitchCB;
 	private JTextField pdLowThresholdInput;
-	private JTextField cqMinFreqCentsInput;
-	private JTextField cqMaxFreqCentsInput;
 	private JSlider hpsHarmonicWeightingSlider;
 	private JSlider hpsPercussionWeightingSlider;
 	private JSlider hpsHarmonicMedianSlider;
@@ -557,48 +555,6 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR));
 		parameterPanel.add(audioSmoothFactorLabel);
 		parameterPanel.add(audioSmoothFactorSlider);
-
-		JPanel audioComboPanel = new JPanel();
-		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
-		audioComboPanel.setLayout(new GridLayout(0, 4));
-		audioComboPanel
-				.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(25, 25, 25, 5), new EtchedBorder()));
-
-		JLabel cqMinFreqCentsLabel = new JLabel("CQ Min Cents: ");
-		cqMinFreqCentsInput = new JTextField(4);
-		cqMinFreqCentsInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqMinFreqCentsInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS, newValue);
-				cqMinFreqCentsLabel.setText(String.format("CQ Min Cents (%s):", newValue));
-				cqMinFreqCentsInput.setText(newValue);
-			}
-		});
-		cqMinFreqCentsInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS));
-		audioComboPanel.add(cqMinFreqCentsLabel);
-		audioComboPanel.add(cqMinFreqCentsInput);
-
-		JLabel cqMaxFreqCentsLabel = new JLabel("CQ Max Cents: ");
-		cqMaxFreqCentsInput = new JTextField(4);
-		cqMaxFreqCentsInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = cqMaxFreqCentsInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS, newValue);
-				cqMaxFreqCentsLabel.setText(String.format("CQ Max Cents (%s):", newValue));
-				cqMaxFreqCentsInput.setText(newValue);
-			}
-		});
-		cqMaxFreqCentsInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS));
-		audioComboPanel.add(cqMaxFreqCentsLabel);
-		audioComboPanel.add(cqMaxFreqCentsInput);
-
-		parameterPanel.add(audioComboPanel);
 
 		JPanel tunerSwitchPanel = new JPanel();
 		// switchPanel.setLayout(new BoxLayout(switchPanel, BoxLayout.X_AXIS));
@@ -4478,10 +4434,6 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_KLAPURI));
 		pdTarsosSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_TARSOS));
-		cqMaxFreqCentsInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS));
-		cqMinFreqCentsInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS));
 		hpsHarmonicWeightingSlider.setValue(
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_HPS_HARMONIC_WEIGHTING));
 		hpsHarmonicMedianSlider.setValue(

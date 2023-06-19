@@ -264,6 +264,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JCheckBox resampleSwitchCB;
 
+	private JTextField padBeforeInput;
+
+	private JTextField padAfterInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -550,7 +554,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		upperPane = new JPanel();
 		JPanel statusPane = new JPanel();
 		JPanel lowerPane = new JPanel();
-
+		
 		statusLabel = new JLabel("Ready");
 		JButton showStatusInfoButton = new JButton("Show Status Info");
 
@@ -592,14 +596,20 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		CompoundBorder cb = new CompoundBorder(eb, bb);
 		contentPane.setBorder(cb);
 
+		fileNameLabel = new JLabel("");
+		
+		statusPane.add(showStatusInfoButton, BorderLayout.WEST);
+		statusPane.add(dumpStatusInfoButton, BorderLayout.WEST);
 		statusPane.add(statusLabel, BorderLayout.CENTER);
-		statusPane.add(showStatusInfoButton, BorderLayout.EAST);
-		statusPane.add(dumpStatusInfoButton, BorderLayout.EAST);
+		statusPane.add(new JLabel("   Current File:"), BorderLayout.EAST);
+		statusPane.add(fileNameLabel, BorderLayout.EAST);
+			
 
 		EmptyBorder eb1 = new EmptyBorder(2, 2, 2, 2);
 		BevelBorder bb1 = new BevelBorder(BevelBorder.LOWERED);
 		CompoundBorder cb1 = new CompoundBorder(eb1, bb1);
 		statusPane.setBorder(cb1);
+	
 
 		upperPane.setLayout(new BorderLayout());
 
@@ -1748,6 +1758,42 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(audioRangeLabel);
 		instrumentPanel.add(audioRangeInput);
 
+		JLabel padBeforeLabel = new JLabel("Pad Before s: ");
+		padBeforeInput = new JTextField(4);
+		padBeforeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE,
+						newValue);
+				textField.setText(newValue);
+			}
+		});
+
+		padBeforeInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE));
+		instrumentPanel.add(padBeforeLabel);
+		instrumentPanel.add(padBeforeInput);
+
+		JLabel padAfterLabel = new JLabel("Pad After s: ");
+		padAfterInput = new JTextField(4);
+		padAfterInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER,
+						newValue);
+				textField.setText(newValue);
+			}
+		});
+
+		padAfterInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER));
+		instrumentPanel.add(padAfterLabel);
+		instrumentPanel.add(padAfterInput);
+
 		JLabel hearingMinFreqCentsLabel = new JLabel("Min Cents: ");
 		hearingMinFreqCentsInput = new JTextField(4);
 		hearingMinFreqCentsInput.addActionListener(new ActionListener() {
@@ -1779,12 +1825,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
 		instrumentPanel.add(hearingMaxFreqCentsLabel);
 		instrumentPanel.add(hearingMaxFreqCentsInput);
-
-		instrumentPanel.add(new JLabel(" Current File:"));
-
-		fileNameLabel = new JLabel("");
-
-		instrumentPanel.add(fileNameLabel);
 
 		panel.add(instrumentPanel, BorderLayout.CENTER);
 
@@ -2658,6 +2698,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		audioGainInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR));
 		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
+		padBeforeInput
+			.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE));
+		padAfterInput
+			.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER));
 		resampleSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE));
 		hearingMinFreqCentsInput.setText(

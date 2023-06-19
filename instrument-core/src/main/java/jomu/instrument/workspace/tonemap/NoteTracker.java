@@ -82,8 +82,6 @@ public class NoteTracker {
 
 	private int synthBeat2Pattern;
 
-	private int synthBeat2Timing;
-
 	private int synthBeat2Source;
 
 	private int beat1TimeSignature;
@@ -129,6 +127,54 @@ public class NoteTracker {
 	private boolean synthChord2Invert;
 
 	private int synthChord2Source;
+
+	private int synthChord3Measure;
+
+	private int synthChord3Offset;
+
+	private int synthChord3Pattern;
+
+	private int synthChord3Source;
+
+	private boolean synthChord3Invert;
+
+	private int chord3TimeSignature;
+
+	private int synthChord3Octave;
+
+	private int synthChord4Measure;
+
+	private int synthChord4Offset;
+
+	private int synthChord4Pattern;
+
+	private int synthChord4Source;
+
+	private boolean synthChord4Invert;
+
+	private int chord4TimeSignature;
+
+	private int synthChord4Octave;
+
+	private int synthBeat3Measure;
+
+	private int synthBeat3Offset;
+
+	private int synthBeat3Pattern;
+
+	private int synthBeat3Source;
+
+	private int beat3TimeSignature;
+
+	private int synthBeat4Measure;
+
+	private int synthBeat4Offset;
+
+	private int synthBeat4Pattern;
+
+	private int synthBeat4Source;
+
+	private int beat4TimeSignature;
 
 	public class NoteTrack {
 
@@ -400,8 +446,45 @@ public class NoteTracker {
 		synthChord2Octave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE);
 
+		synthChord3Measure = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_MEASURE);
+		synthChord3Offset = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OFFSET);
+		synthChord3Pattern = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_PATTERN);
+		synthChord3Source = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_SOURCE);
+		synthChord3Invert = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_INVERT);
+		if (synthChord3Pattern == 1 || synthChord3Pattern != 2) {
+			chord3TimeSignature = 4;
+		} else {
+			chord3TimeSignature = 3;
+		}
+		synthChord3Octave = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OCTAVE);
+
+		synthChord4Measure = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_MEASURE);
+		synthChord4Offset = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OFFSET);
+		synthChord4Pattern = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_PATTERN);
+		synthChord4Source = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_SOURCE);
+		synthChord4Invert = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_INVERT);
+		if (synthChord4Pattern == 1 || synthChord4Pattern != 2) {
+			chord4TimeSignature = 4;
+		} else {
+			chord4TimeSignature = 3;
+		}
+		synthChord4Octave = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE);
+
 		synthBeatTiming = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING);
+		
 		synthBeat1Measure = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_MEASURE);
 		synthBeat1Offset = toneMap.getParameterManager()
@@ -427,8 +510,6 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_OFFSET);
 		synthBeat2Pattern = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_PATTERN);
-		synthBeat2Timing = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_TIMING);
 		synthBeat2Source = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_SOURCE);
 		if (synthBeat2Pattern == 1) {
@@ -441,6 +522,42 @@ public class NoteTracker {
 			beat2TimeSignature = 4;
 		}
 
+		synthBeat3Measure = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_MEASURE);
+		synthBeat3Offset = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_OFFSET);
+		synthBeat3Pattern = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_PATTERN);
+		synthBeat3Source = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_SOURCE);
+		if (synthBeat3Pattern == 1) {
+			beat3TimeSignature = 1;
+		} else if (synthBeat3Pattern == 2) {
+			beat3TimeSignature = 2;
+		} else if (synthBeat3Pattern == 3) {
+			beat3TimeSignature = 3;
+		} else if (synthBeat3Pattern == 4) {
+			beat3TimeSignature = 4;
+		}
+
+		synthBeat4Measure = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_MEASURE);
+		synthBeat4Offset = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_OFFSET);
+		synthBeat4Pattern = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_PATTERN);
+		synthBeat4Source = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_SOURCE);
+		if (synthBeat4Pattern == 1) {
+			beat4TimeSignature = 1;
+		} else if (synthBeat4Pattern == 2) {
+			beat4TimeSignature = 2;
+		} else if (synthBeat4Pattern == 3) {
+			beat4TimeSignature = 3;
+		} else if (synthBeat4Pattern == 4) {
+			beat4TimeSignature = 4;
+		}
+		
 		synthBeat1Drum = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1);
 		synthBeat2Drum = toneMap.getParameterManager()
@@ -668,6 +785,12 @@ public class NoteTracker {
 		processChordTrack(2, toneTimeFrame, beatListElement, chordListElement,
 				new SynthChordParameters(synthChord2Source, synthChord2Measure, synthChord2Pattern, synthChord2Octave,
 						synthChord2Offset, chord2TimeSignature, synthChord2Invert));
+		processChordTrack(3, toneTimeFrame, beatListElement, chordListElement,
+				new SynthChordParameters(synthChord3Source, synthChord3Measure, synthChord3Pattern, synthChord3Octave,
+						synthChord3Offset, chord3TimeSignature, synthChord3Invert));
+		processChordTrack(4, toneTimeFrame, beatListElement, chordListElement,
+				new SynthChordParameters(synthChord4Source, synthChord4Measure, synthChord4Pattern, synthChord4Octave,
+						synthChord4Offset, chord4TimeSignature, synthChord4Invert));
 	}
 
 	private void processChordTrack(int trackNumber, ToneTimeFrame toneTimeFrame, BeatListElement beatListElement,
@@ -853,6 +976,10 @@ public class NoteTracker {
 				new SynthBeatParameters(synthBeat1Source, synthBeat1Drum, synthBeat1Offset, beat1TimeSignature));
 		processBeatTrack(2, toneTimeFrame,
 				new SynthBeatParameters(synthBeat2Source, synthBeat2Drum, synthBeat2Offset, beat2TimeSignature));
+		processBeatTrack(3, toneTimeFrame,
+				new SynthBeatParameters(synthBeat3Source, synthBeat3Drum, synthBeat3Offset, beat3TimeSignature));
+		processBeatTrack(4, toneTimeFrame,
+				new SynthBeatParameters(synthBeat4Source, synthBeat4Drum, synthBeat4Offset, beat4TimeSignature));
 	}
 
 	private void processBeatTrack(int trackNumber, ToneTimeFrame toneTimeFrame,

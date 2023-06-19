@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -96,6 +98,7 @@ public class Hearing implements Organ {
 	Coordinator coordinator;
 
 	BufferedInputStream bs;
+	InputStream is;
 
 	private AudioDispatcher audioPlayerDispatcher;
 
@@ -140,6 +143,7 @@ public class Hearing implements Organ {
 	public void initialise() {
 		audioStreams = new ConcurrentHashMap<>();
 		bs = null;
+		is = null;
 	}
 
 	@Override
@@ -224,83 +228,80 @@ public class Hearing implements Organ {
 		instrumentSession.setStreamId(getStreamId());
 		instrumentSession.setState(InstrumentSessionState.RUNNING);
 
-		InputStream stream = null;
+		is = null;
 		boolean isResample = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE);
+		String cacheFilePath = cacheFile(fileName);
+		
 		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
-			String wavFilePath = convertToWav(fileName);
+			String wavFilePath = convertToWav(cacheFilePath);
 			if (isResample) {
 				String resampleFilePath = resample(wavFilePath);
-				stream = new FileInputStream(resampleFilePath);
+				is = new FileInputStream(resampleFilePath);
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
 						resampleFilePath);
 			} else {
-				stream = new FileInputStream(wavFilePath);
+				is = new FileInputStream(wavFilePath);
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
 						wavFilePath);
 			}
 		} else {
 			if (isResample) {
-				String resampleFilePath = resample(fileName);
-				stream = new FileInputStream(resampleFilePath);
+				String resampleFilePath = resample(cacheFilePath);
+				is = new FileInputStream(resampleFilePath);
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
 						resampleFilePath);
 			} else {
-				stream = storage.getObjectStorage().read(fileName);
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, fileName);
+				is = new FileInputStream(cacheFilePath);
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, cacheFilePath);
 			}
 		}
-		bs = new BufferedInputStream(stream);
-
+		
+		String filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
+		if (parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE) > 0 ||
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER) > 0) {
+			String padFilePath = padAudio(filePath);
+			is = new FileInputStream(padFilePath);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
+					padFilePath);
+		}
+		
+		filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
+		bs = new BufferedInputStream(is);
+		
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
-		LOG.severe(">>Start Audio file: " + fileName + ", streamId: " + getStreamId() + ", " + format.getEncoding()
+		LOG.severe(">>Start Audio file: " + fileName +", path: " + filePath + ", streamId: " + getStreamId() + ", " + format.getEncoding()
 				+ ", " + format);
 		if (!format.getEncoding().toString().startsWith("PCM")) {
 			bs.close();
-			stream.close();
-			String wavFilePath = convertToWav(fileName);
+			is.close();
+			String wavFilePath = convertToWav(cacheFilePath);
 			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
-			stream = new FileInputStream(wavFilePath);
+			is = new FileInputStream(wavFilePath);
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
-			bs = new BufferedInputStream(stream);
+			bs = new BufferedInputStream(is);
 		}
 
 		if (format.getSampleRate() != audioStream.getSampleRate()) {
 			audioStream.setSampleRate((int) format.getSampleRate());
 			LOG.finer(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
 		}
-
-		LOG.severe(">>Start Audio file processing buffer size: " + audioStream.getBufferSize() + ", sampelRate: "
-				+ audioStream.getSampleRate());
 		try {
 			audioStream.calibrateAudioFileStream(bs);
 			bs.close();
-			stream.close();
+			is.close();
 		} catch (UnsupportedAudioFileException | IOException ex) {
 			LOG.log(Level.SEVERE, "Audio file calibrate error:" + fileName, ex);
 			throw new Exception("Audio file calibrate error: " + ex.getMessage());
 		}
 
-		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
-			String wavFilePath = convertToWav(fileName);
-			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
-			stream = new FileInputStream(wavFilePath);
-			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
-		} else {
-			stream = storage.getObjectStorage().read(fileName);
-			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, fileName);
-		}
-		bs = new BufferedInputStream(stream);
-
-		if (!format.getEncoding().toString().startsWith("PCM")) {
-			bs.close();
-			stream.close();
-			String wavFilePath = convertToWav(fileName);
-			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
-			stream = new FileInputStream(wavFilePath);
-			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
-			bs = new BufferedInputStream(stream);
-		}
+		filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
+		
+		LOG.severe(">>!!Start Audio file path: " + filePath);
+		
+		is = new FileInputStream(filePath);
+		bs = new BufferedInputStream(is);
+		
 		try {
 			audioStream.setAudioFileName(
 					parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE));
@@ -330,12 +331,77 @@ public class Hearing implements Organ {
 		}
 	}
 
+
+	/**
+	 * Invoke this function to convert to a playable file.
+	 */
+	public String padAudio(String fileName) throws UnsupportedAudioFileException, IOException {
+	    String baseDir = storage.getObjectStorage().getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+				.toString();
+		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
+				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
+				: 0;
+		String appendedFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + "_padded_" + ".wav";
+		String appendedFilePath = folder + System.getProperty("file.separator") + appendedFileName;
+		File appendedFile = new File(appendedFilePath);
+		
+        int padBefore = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE);
+        int padAfter = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER);
+        
+        AudioInputStream sourceFileStream = AudioSystem.getAudioInputStream(new File(fileName));
+        
+        while (padBefore > 0) {
+    	    InputStream ssis = getClass().getClassLoader().getResourceAsStream("secondSilence.wav");
+            AudioInputStream secondSilenceStream = AudioSystem.getAudioInputStream(ssis);
+
+        	AudioInputStream appendedFileStream = new AudioInputStream(
+			    new SequenceInputStream(secondSilenceStream, sourceFileStream),     
+			    sourceFileStream.getFormat(), 
+			    secondSilenceStream.getFrameLength() + sourceFileStream.getFrameLength());
+    	    AudioSystem.write(appendedFileStream, 
+                    AudioFileFormat.Type.WAVE, 
+                    appendedFile);
+    	    ssis.close();
+    	    secondSilenceStream.close();
+    	    sourceFileStream.close();
+    	    sourceFileStream = AudioSystem.getAudioInputStream(appendedFile);
+        	padBefore--;
+        }	
+        
+        while (padAfter > 0) {
+    	    InputStream ssis = getClass().getClassLoader().getResourceAsStream("secondSilence.wav");
+            AudioInputStream secondSilenceStream = AudioSystem.getAudioInputStream(ssis);
+
+        	AudioInputStream appendedFileStream = new AudioInputStream(
+    			    new SequenceInputStream(sourceFileStream, secondSilenceStream),     
+    			    sourceFileStream.getFormat(), 
+    			    secondSilenceStream.getFrameLength() + sourceFileStream.getFrameLength());
+    	    AudioSystem.write(appendedFileStream, 
+                    AudioFileFormat.Type.WAVE, 
+                    appendedFile);
+    	    ssis.close();
+    	    secondSilenceStream.close();
+    	    sourceFileStream.close();
+    	    sourceFileStream = AudioSystem.getAudioInputStream(appendedFile);
+        	padAfter--;
+        }	
+        
+        sourceFileStream.close();
+        
+		return appendedFilePath;
+	}
+	
+	
 	/**
 	 * Invoke this function to convert to a playable file.
 	 */
 	public String convertToWav(String fileName) throws UnsupportedAudioFileException, IOException {
 		// open stream
-		AudioInputStream stream = AudioSystem.getAudioInputStream(storage.getObjectStorage().read(fileName));
+		AudioInputStream stream = AudioSystem.getAudioInputStream(new File(fileName));
 		AudioFormat sourceFormat = stream.getFormat();
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
@@ -353,15 +419,34 @@ public class Hearing implements Organ {
 		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
 				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
 				: 0;
-		String wavFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + ".wav";
+		String wavFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + "converted_"+ ".wav";
 		String wavFilePath = folder + System.getProperty("file.separator") + wavFileName;
 		File wavFile = new File(wavFilePath);
 		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, wavFile);
 		return wavFilePath;
 	}
 
+	public String cacheFile(String fileName) throws UnsupportedAudioFileException, IOException {
+		// open stream
+		AudioInputStream stream = AudioSystem.getAudioInputStream(new File(fileName)); //storage.getObjectStorage().read(fileName));
+		String baseDir = storage.getObjectStorage().getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+				.toString();
+		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
+				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
+				: 0;
+		String cacheFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + ".wav";
+		String cacheFilePath = folder + System.getProperty("file.separator") + "cache_" + cacheFileName;
+		File cacheFile = new File(cacheFilePath);
+		AudioSystem.write(stream, AudioFileFormat.Type.WAVE, cacheFile);
+		return cacheFilePath;
+	}
+	
 	public String resample(String fileName) throws UnsupportedAudioFileException, IOException {
-
+		LOG.severe(">>resample file: " + fileName);
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(fileName));
 		AudioFormat sourceFormat = audioInputStream.getFormat();
 		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 192000,
@@ -434,6 +519,7 @@ public class Hearing implements Organ {
 		if (bs != null) {
 			try {
 				bs.close();
+				is.close();
 				LOG.finer(">>Close Audio Stream: " + getStreamId());
 			} catch (IOException e) {
 				LOG.log(Level.SEVERE, "Exception closig " + getStreamId(), e);

@@ -120,6 +120,46 @@ public class SynthPanel extends JPanel {
 
 	private JTextField synthesisBeatTimingInput;
 
+	private JTextField synthesisChord3MeasureInput;
+
+	private JTextField synthesisChord3PatternInput;
+
+	private JTextField synthesisChord3SourceInput;
+
+	private JTextField synthesisChord3OffsetInput;
+
+	private JTextField synthesisChord3OctaveInput;
+
+	private JTextField synthesisChord4MeasureInput;
+
+	private JTextField synthesisChord4PatternInput;
+
+	private JTextField synthesisChord4SourceInput;
+
+	private JTextField synthesisChord4OffsetInput;
+
+	private JTextField synthesisChord4OctaveInput;
+
+	private JCheckBox synthesisChord3InvertSwitchCB;
+
+	private JCheckBox synthesisChord4InvertSwitchCB;
+
+	private JTextField synthesisBeat3PatternInput;
+
+	private JTextField synthesisBeat3MeasureInput;
+
+	private JTextField synthesisBeat3OffsetInput;
+
+	private JTextField synthesisBeat3SourceInput;
+
+	private JTextField synthesisBeat4PatternInput;
+
+	private JTextField synthesisBeat4MeasureInput;
+
+	private JTextField synthesisBeat4OffsetInput;
+
+	private JTextField synthesisBeat4SourceInput;
+
 	public SynthPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -297,6 +337,40 @@ public class SynthPanel extends JPanel {
 		synthesisChord2InvertSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_INVERT));
 		tuningPanel.add(synthesisChord2InvertSwitchCB);
+		
+
+		synthesisChord3InvertSwitchCB = new JCheckBox("synthesisChord3InvertSwitchCB");
+		synthesisChord3InvertSwitchCB.setText("Synthesis Chord3 Invert");
+		synthesisChord3InvertSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_INVERT,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisChord3InvertSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_INVERT));
+		tuningPanel.add(synthesisChord3InvertSwitchCB);
+
+		synthesisChord4InvertSwitchCB = new JCheckBox("synthesisChord4InvertSwitchCB");
+		synthesisChord4InvertSwitchCB.setText("Synthesis Chord4 Invert");
+		synthesisChord4InvertSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_INVERT,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisChord4InvertSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_INVERT));
+		tuningPanel.add(synthesisChord4InvertSwitchCB);
+
 
 		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
 		synthesisChordTimingInput = new JTextField(4);
@@ -403,6 +477,24 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisChord1OffsetLabel);
 		tuningPanel.add(synthesisChord1OffsetInput);
 
+		JLabel synthesisChord1OctaveLabel = new JLabel("Synthesis Chord1 Octave: ");
+		synthesisChord1OctaveInput = new JTextField(4);
+		synthesisChord1OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE, newValue);
+				synthesisChord1OctaveLabel.setText(String.format("Synthesis Chord1 Octave  (%s):", newValue));
+				synthesisChord1OctaveInput.setText(newValue);
+			}
+		});
+		synthesisChord1OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE));
+		tuningPanel.add(synthesisChord1OctaveLabel);
+		tuningPanel.add(synthesisChord1OctaveInput);
+
+		
 		JLabel synthesisChord2MeasureLabel = new JLabel("Synthesis Chord2 Measure: ");
 		synthesisChord2MeasureInput = new JTextField(4);
 		synthesisChord2MeasureInput.addActionListener(new ActionListener() {
@@ -471,6 +563,196 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisChord2OffsetLabel);
 		tuningPanel.add(synthesisChord2OffsetInput);
 
+		JLabel synthesisChord2OctaveLabel = new JLabel("Synthesis Chord2 Octave: ");
+		synthesisChord2OctaveInput = new JTextField(4);
+		synthesisChord2OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE, newValue);
+				synthesisChord2OctaveLabel.setText(String.format("Synthesis Chord2 Octave  (%s):", newValue));
+				synthesisChord2OctaveInput.setText(newValue);
+			}
+		});
+		synthesisChord2OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE));
+		tuningPanel.add(synthesisChord2OctaveLabel);
+		tuningPanel.add(synthesisChord2OctaveInput);
+		
+			
+		JLabel synthesisChord3MeasureLabel = new JLabel("Synthesis Chord3 Measure: ");
+		synthesisChord3MeasureInput = new JTextField(4);
+		synthesisChord3MeasureInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord3MeasureInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_MEASURE, newValue);
+				synthesisChord3MeasureLabel.setText(String.format("Synthesis Chord3 Measure (%s):", newValue));
+				synthesisChord3MeasureInput.setText(newValue);
+			}
+		});
+		synthesisChord3MeasureInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_MEASURE));
+		tuningPanel.add(synthesisChord3MeasureLabel);
+		tuningPanel.add(synthesisChord3MeasureInput);
+
+		JLabel synthesisChord3PatternLabel = new JLabel("Synthesis Chord3 Pattern: ");
+		synthesisChord3PatternInput = new JTextField(4);
+		synthesisChord3PatternInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord3PatternInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_PATTERN, newValue);
+				synthesisChord3PatternLabel.setText(String.format("Synthesis Chord3 Pattern  (%s):", newValue));
+				synthesisChord3PatternInput.setText(newValue);
+			}
+		});
+		synthesisChord3PatternInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_PATTERN));
+		tuningPanel.add(synthesisChord3PatternLabel);
+		tuningPanel.add(synthesisChord3PatternInput);
+
+		JLabel synthesisChord3SourceLabel = new JLabel("Synthesis Chord3 Source: ");
+		synthesisChord3SourceInput = new JTextField(4);
+		synthesisChord3SourceInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord3SourceInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_SOURCE, newValue);
+				synthesisChord3SourceLabel.setText(String.format("Synthesis Chord3 Source  (%s):", newValue));
+				synthesisChord3SourceInput.setText(newValue);
+			}
+		});
+		synthesisChord3SourceInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_SOURCE));
+		tuningPanel.add(synthesisChord3SourceLabel);
+		tuningPanel.add(synthesisChord3SourceInput);
+
+		JLabel synthesisChord3OffsetLabel = new JLabel("Synthesis Chord3 Offset: ");
+		synthesisChord3OffsetInput = new JTextField(4);
+		synthesisChord3OffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord3OffsetInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OFFSET, newValue);
+				synthesisChord3OffsetLabel.setText(String.format("Synthesis Chord3 Offset  (%s):", newValue));
+				synthesisChord3OffsetInput.setText(newValue);
+			}
+		});
+		synthesisChord3OffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OFFSET));
+		tuningPanel.add(synthesisChord3OffsetLabel);
+		tuningPanel.add(synthesisChord3OffsetInput);
+
+		JLabel synthesisChord3OctaveLabel = new JLabel("Synthesis Chord3 Octave: ");
+		synthesisChord3OctaveInput = new JTextField(4);
+		synthesisChord3OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OCTAVE, newValue);
+				synthesisChord3OctaveLabel.setText(String.format("Synthesis Chord3 Octave  (%s):", newValue));
+				synthesisChord3OctaveInput.setText(newValue);
+			}
+		});
+		synthesisChord3OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OCTAVE));
+		tuningPanel.add(synthesisChord3OctaveLabel);
+		tuningPanel.add(synthesisChord3OctaveInput);
+		
+			
+		JLabel synthesisChord4MeasureLabel = new JLabel("Synthesis Chord4 Measure: ");
+		synthesisChord4MeasureInput = new JTextField(4);
+		synthesisChord4MeasureInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord4MeasureInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_MEASURE, newValue);
+				synthesisChord4MeasureLabel.setText(String.format("Synthesis Chord4 Measure (%s):", newValue));
+				synthesisChord4MeasureInput.setText(newValue);
+			}
+		});
+		synthesisChord4MeasureInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_MEASURE));
+		tuningPanel.add(synthesisChord4MeasureLabel);
+		tuningPanel.add(synthesisChord4MeasureInput);
+	
+		JLabel synthesisChord4PatternLabel = new JLabel("Synthesis Chord4 Pattern: ");
+		synthesisChord4PatternInput = new JTextField(4);
+		synthesisChord4PatternInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord4PatternInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_PATTERN, newValue);
+				synthesisChord4PatternLabel.setText(String.format("Synthesis Chord4 Pattern  (%s):", newValue));
+				synthesisChord4PatternInput.setText(newValue);
+			}
+		});
+		synthesisChord4PatternInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_PATTERN));
+		tuningPanel.add(synthesisChord4PatternLabel);
+		tuningPanel.add(synthesisChord4PatternInput);
+	
+		JLabel synthesisChord4SourceLabel = new JLabel("Synthesis Chord4 Source: ");
+		synthesisChord4SourceInput = new JTextField(4);
+		synthesisChord4SourceInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord4SourceInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_SOURCE, newValue);
+				synthesisChord4SourceLabel.setText(String.format("Synthesis Chord4 Source  (%s):", newValue));
+				synthesisChord4SourceInput.setText(newValue);
+			}
+		});
+		synthesisChord4SourceInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_SOURCE));
+		tuningPanel.add(synthesisChord4SourceLabel);
+		tuningPanel.add(synthesisChord4SourceInput);
+	
+		JLabel synthesisChord4OffsetLabel = new JLabel("Synthesis Chord4 Offset: ");
+		synthesisChord4OffsetInput = new JTextField(4);
+		synthesisChord4OffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord4OffsetInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OFFSET, newValue);
+				synthesisChord4OffsetLabel.setText(String.format("Synthesis Chord4 Offset  (%s):", newValue));
+				synthesisChord4OffsetInput.setText(newValue);
+			}
+		});
+		synthesisChord4OffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OFFSET));
+		tuningPanel.add(synthesisChord4OffsetLabel);
+		tuningPanel.add(synthesisChord4OffsetInput);
+	
+		JLabel synthesisChord4OctaveLabel = new JLabel("Synthesis Chord4 Octave: ");
+		synthesisChord4OctaveInput = new JTextField(4);
+		synthesisChord4OctaveInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisChord1OctaveInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE, newValue);
+				synthesisChord4OctaveLabel.setText(String.format("Synthesis Chord4 Octave  (%s):", newValue));
+				synthesisChord4OctaveInput.setText(newValue);
+			}
+		});
+		synthesisChord4OctaveInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE));
+		tuningPanel.add(synthesisChord4OctaveLabel);
+		tuningPanel.add(synthesisChord4OctaveInput);
+		
+								
 		JLabel synthesisBaseTimingLabel = new JLabel("Synthesis Base Timing: ");
 		synthesisBaseTimingInput = new JTextField(4);
 		synthesisBaseTimingInput.addActionListener(new ActionListener() {
@@ -659,7 +941,150 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_SOURCE));
 		tuningPanel.add(synthesisBeat2SourceLabel);
 		tuningPanel.add(synthesisBeat2SourceInput);
+		
+		
+		
 
+		JLabel synthesisBeat3PatternLabel = new JLabel("Synthesis Beat3 Pattern: ");
+		synthesisBeat3PatternInput = new JTextField(4);
+		synthesisBeat3PatternInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat3PatternInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_PATTERN, newValue);
+				LOG.severe(">>BEAT value: " + newValue);
+				synthesisBeat3PatternLabel.setText(String.format("Synthesis Beat3 Pattern  (%s):", newValue));
+				synthesisBeat3PatternInput.setText(newValue);
+			}
+		});
+		synthesisBeat3PatternInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_PATTERN));
+		tuningPanel.add(synthesisBeat3PatternLabel);
+		tuningPanel.add(synthesisBeat3PatternInput);
+
+		JLabel synthesisBeat3MeasureLabel = new JLabel("Synthesis Beat3 Measure: ");
+		synthesisBeat3MeasureInput = new JTextField(4);
+		synthesisBeat3MeasureInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat3MeasureInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_MEASURE, newValue);
+				synthesisBeat3MeasureLabel.setText(String.format("Synthesis Beat3 Measure (%s):", newValue));
+				synthesisBeat3MeasureInput.setText(newValue);
+			}
+		});
+		synthesisBeat3MeasureInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_MEASURE));
+		tuningPanel.add(synthesisBeat3MeasureLabel);
+		tuningPanel.add(synthesisBeat3MeasureInput);
+
+		JLabel synthesisBeat3OffsetLabel = new JLabel("Synthesis Beat3 Offset: ");
+		synthesisBeat3OffsetInput = new JTextField(4);
+		synthesisBeat3OffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat3OffsetInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_OFFSET, newValue);
+				synthesisBeat3OffsetLabel.setText(String.format("Synthesis Beat3 Offset (%s):", newValue));
+				synthesisBeat3OffsetInput.setText(newValue);
+			}
+		});
+		synthesisBeat3OffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_OFFSET));
+		tuningPanel.add(synthesisBeat3OffsetLabel);
+		tuningPanel.add(synthesisBeat3OffsetInput);
+
+		JLabel synthesisBeat3SourceLabel = new JLabel("Synthesis Beat3 Source: ");
+		synthesisBeat3SourceInput = new JTextField(4);
+		synthesisBeat3SourceInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat3SourceInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_SOURCE, newValue);
+				synthesisBeat3SourceLabel.setText(String.format("Synthesis Beat3 Source (%s):", newValue));
+				synthesisBeat3SourceInput.setText(newValue);
+			}
+		});
+		synthesisBeat3SourceInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_SOURCE));
+		tuningPanel.add(synthesisBeat3SourceLabel);
+		tuningPanel.add(synthesisBeat3SourceInput);
+		
+		
+		JLabel synthesisBeat4PatternLabel = new JLabel("Synthesis Beat4 Pattern: ");
+		synthesisBeat4PatternInput = new JTextField(4);
+		synthesisBeat4PatternInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat4PatternInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_PATTERN, newValue);
+				LOG.severe(">>BEAT value: " + newValue);
+				synthesisBeat4PatternLabel.setText(String.format("Synthesis Beat4 Pattern  (%s):", newValue));
+				synthesisBeat4PatternInput.setText(newValue);
+			}
+		});
+		synthesisBeat4PatternInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_PATTERN));
+		tuningPanel.add(synthesisBeat4PatternLabel);
+		tuningPanel.add(synthesisBeat4PatternInput);
+
+		JLabel synthesisBeat4MeasureLabel = new JLabel("Synthesis Beat4 Measure: ");
+		synthesisBeat4MeasureInput = new JTextField(4);
+		synthesisBeat4MeasureInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat4MeasureInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_MEASURE, newValue);
+				synthesisBeat4MeasureLabel.setText(String.format("Synthesis Beat4 Measure (%s):", newValue));
+				synthesisBeat4MeasureInput.setText(newValue);
+			}
+		});
+		synthesisBeat4MeasureInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_MEASURE));
+		tuningPanel.add(synthesisBeat4MeasureLabel);
+		tuningPanel.add(synthesisBeat4MeasureInput);
+
+		JLabel synthesisBeat4OffsetLabel = new JLabel("Synthesis Beat4 Offset: ");
+		synthesisBeat4OffsetInput = new JTextField(4);
+		synthesisBeat4OffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat4OffsetInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_OFFSET, newValue);
+				synthesisBeat4OffsetLabel.setText(String.format("Synthesis Beat4 Offset (%s):", newValue));
+				synthesisBeat4OffsetInput.setText(newValue);
+			}
+		});
+		synthesisBeat4OffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_OFFSET));
+		tuningPanel.add(synthesisBeat4OffsetLabel);
+		tuningPanel.add(synthesisBeat4OffsetInput);
+
+		JLabel synthesisBeat4SourceLabel = new JLabel("Synthesis Beat4 Source: ");
+		synthesisBeat4SourceInput = new JTextField(4);
+		synthesisBeat4SourceInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBeat4SourceInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_SOURCE, newValue);
+				synthesisBeat4SourceLabel.setText(String.format("Synthesis Beat4 Source (%s):", newValue));
+				synthesisBeat4SourceInput.setText(newValue);
+			}
+		});
+		synthesisBeat4SourceInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_SOURCE));
+		tuningPanel.add(synthesisBeat4SourceLabel);
+		tuningPanel.add(synthesisBeat4SourceInput);
+
+		
 		JLabel synthesisBaseOctaveLabel = new JLabel("Synthesis Base Octave: ");
 		synthesisBaseOctaveInput = new JTextField(4);
 		synthesisBaseOctaveInput.addActionListener(new ActionListener() {
@@ -676,40 +1101,6 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE));
 		tuningPanel.add(synthesisBaseOctaveLabel);
 		tuningPanel.add(synthesisBaseOctaveInput);
-
-		JLabel synthesisChord1OctaveLabel = new JLabel("Synthesis Chord1 Octave: ");
-		synthesisChord1OctaveInput = new JTextField(4);
-		synthesisChord1OctaveInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = synthesisChord1OctaveInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE, newValue);
-				synthesisChord1OctaveLabel.setText(String.format("Synthesis Chord1 Octave  (%s):", newValue));
-				synthesisChord1OctaveInput.setText(newValue);
-			}
-		});
-		synthesisChord1OctaveInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE));
-		tuningPanel.add(synthesisChord1OctaveLabel);
-		tuningPanel.add(synthesisChord1OctaveInput);
-
-		JLabel synthesisChord2OctaveLabel = new JLabel("Synthesis Chord2 Octave: ");
-		synthesisChord2OctaveInput = new JTextField(4);
-		synthesisChord2OctaveInput.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String newValue = synthesisChord1OctaveInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE, newValue);
-				synthesisChord2OctaveLabel.setText(String.format("Synthesis Chord2 Octave  (%s):", newValue));
-				synthesisChord2OctaveInput.setText(newValue);
-			}
-		});
-		synthesisChord2OctaveInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE));
-		tuningPanel.add(synthesisChord2OctaveLabel);
-		tuningPanel.add(synthesisChord2OctaveInput);
 
 		JLabel synthesisPad1OctaveLabel = new JLabel("Synthesis Pad1 Octave: ");
 		synthesisPad1OctaveInput = new JTextField(4);

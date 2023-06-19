@@ -40,7 +40,6 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 	public void buildToneMapFrame(ToneMap toneMap) {
 
 		float[] binStartingPointsInCents = getSource().getBinStartingPointsInCents();
-		float binWidth = getSource().getBinWidth();
 		int lowPitch = PitchSet
 				.freqToMidiNote(PitchConverter.absoluteCentToHertz(getSource().getHearingMinimumFrequencyInCents()));
 		int highPitch = PitchSet

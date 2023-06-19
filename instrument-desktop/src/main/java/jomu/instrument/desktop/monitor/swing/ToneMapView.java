@@ -616,6 +616,55 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
+				
+
+				track = toneMap.getNoteTracker().getChordTrack(3);
+				color = Color.BLACK;
+				if (track != null) {
+					color = Color.ORANGE;
+					NoteListElement[] nles = track.getNotes(timeStart);
+					for (NoteListElement nle : nles) {
+						int cents = nle.note * 100;
+						int centsCoordinate = getCentsCoordinate(cents);
+						if (maxPitchCents < cents) {
+							maxPitchCents = cents;
+						}
+						if (minPitchCents > cents) {
+							minPitchCents = cents;
+						}
+						bufferedGraphics.setColor(color);
+						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+						if (nle.startTime == timeStart) {
+							color = new Color(0xff7f50); // coral
+							bufferedGraphics.setColor(color);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+						}
+					}
+				}
+				
+				track = toneMap.getNoteTracker().getChordTrack(4);
+				color = Color.BLACK;
+				if (track != null) {
+					color = Color.CYAN;
+					NoteListElement[] nles = track.getNotes(timeStart);
+					for (NoteListElement nle : nles) {
+						int cents = nle.note * 100;
+						int centsCoordinate = getCentsCoordinate(cents);
+						if (maxPitchCents < cents) {
+							maxPitchCents = cents;
+						}
+						if (minPitchCents > cents) {
+							minPitchCents = cents;
+						}
+						bufferedGraphics.setColor(color);
+						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
+						if (nle.startTime == timeStart) {
+							color = new Color(0xff7f50); // coral
+							bufferedGraphics.setColor(color);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+						}
+					}
+				}
 			}
 
 			if (showBeats) {
@@ -644,6 +693,48 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				color = Color.BLACK;
 				if (track != null) {
 					color = Color.GREEN;
+					NoteListElement[] nles = track.getNotes(timeStart);
+					for (NoteListElement nle : nles) {
+						if (nle.startTime == timeStart) {
+							int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+							int cents = nle.note * 100;
+							if (maxPitchCents < cents) {
+								maxPitchCents = cents;
+							}
+							if (minPitchCents > cents) {
+								minPitchCents = cents;
+							}
+							bufferedGraphics.setColor(color);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+						}
+					}
+				}
+				
+				track = toneMap.getNoteTracker().getBeatTrack(3);
+				color = Color.BLACK;
+				if (track != null) {
+					color = Color.BLUE;
+					NoteListElement[] nles = track.getNotes(timeStart);
+					for (NoteListElement nle : nles) {
+						if (nle.startTime == timeStart) {
+							int centsCoordinate = getCentsCoordinate((nle.note) * 100);
+							int cents = nle.note * 100;
+							if (maxPitchCents < cents) {
+								maxPitchCents = cents;
+							}
+							if (minPitchCents > cents) {
+								minPitchCents = cents;
+							}
+							bufferedGraphics.setColor(color);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+						}
+					}
+				}
+				
+				track = toneMap.getNoteTracker().getBeatTrack(4);
+				color = Color.BLACK;
+				if (track != null) {
+					color = Color.RED;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						if (nle.startTime == timeStart) {

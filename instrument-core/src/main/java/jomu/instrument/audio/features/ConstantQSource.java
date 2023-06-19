@@ -31,17 +31,12 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 	private ConstantQ constantQ;
 	private double constantQLag;
 	private int windowSize = 1024;
-	private int maximumFrequencyInCents = 12000;
-	private int minimumFrequencyInCents = 1200;
 	private float sampleRate = 44100;
 	private AudioDispatcher dispatcher;
 	private ParameterManager parameterManager;
 	float max = 0;
-
-	private int hearingMinimumFrequencyInCents;
-
-	private int hearingMaximumFrequencyInCents;
-
+	private int hearingMinimumFrequencyInCents = 1200;  
+	private int hearingMaximumFrequencyInCents = 12000;
 	private boolean microToneSwitch;
 
 	public ConstantQSource(AudioDispatcher dispatcher) {
@@ -50,10 +45,6 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		this.sampleRate = dispatcher.getFormat().getSampleRate();
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
-		this.minimumFrequencyInCents = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MINIMUM_FREQUENCY_CENTS);
-		this.maximumFrequencyInCents = parameterManager
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_MAXIMUM_FREQUENCY_CENTS);
 		this.hearingMinimumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
 		this.hearingMaximumFrequencyInCents = parameterManager
@@ -116,14 +107,6 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		return windowSize;
 	}
 
-	public int getMaximumFrequencyInCents() {
-		return maximumFrequencyInCents;
-	}
-
-	public int getMinimumFrequencyInCents() {
-		return minimumFrequencyInCents;
-	}
-
 	public int getHearingMaximumFrequencyInCents() {
 		return hearingMaximumFrequencyInCents;
 	}
@@ -145,8 +128,8 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 	}
 
 	void initialise() {
-		float minimumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(minimumFrequencyInCents);
-		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(maximumFrequencyInCents);
+		float minimumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(hearingMinimumFrequencyInCents);
+		float maximumFrequencyInHertz = (float) PitchConverter.absoluteCentToHertz(hearingMaximumFrequencyInCents);
 		LOG.finer(">>CQS minimumFrequencyInHertz: " + minimumFrequencyInHertz);
 		LOG.finer(">>CQS window increment: " + windowSize);
 

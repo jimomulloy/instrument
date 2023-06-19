@@ -1308,7 +1308,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (track != null) {
 					if (writeTrack && beat2Track == null) {
 						beat2Track = midiSequence.createTrack();
-						createEvent(beat1Track, beatChannel, PROGRAM, 1, 1L, 127);
+						createEvent(beat2Track, beatChannel, PROGRAM, 1, 1L, 127);
 					}
 
 					if (beatsChannel2LastNotes == null) {
@@ -1320,121 +1320,36 @@ public class MidiSynthesizer implements ToneMapConstants {
 			}
 
 			if (midiPlayBeat3Switch) {
-				double beat = ToneTimeFrame.AMPLITUDE_FLOOR;
-				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_PERCUSSION.name());
-				if (ob.isPresent()) {
-					beat = 1.0; // ob.get().getAmplitude();
-				} else {
-					ob = toneTimeFrame.getBeat(CellTypes.AUDIO_ONSET.name());
-					if (ob.isPresent()) {
-						beat = 1.0; // ob.get().getAmplitude();
+				ToneMap toneMap = toneTimeFrame.getToneMap();
+				NoteTrack track = toneMap.getNoteTracker().getBeatTrack(3);
+				if (track != null) {
+					if (writeTrack && beat3Track == null) {
+						beat3Track = midiSequence.createTrack();
+						createEvent(beat3Track, beatChannel, PROGRAM, 1, 1L, 127);
 					}
-				}
-				if (writeTrack && beat3Track == null) {
-					beat3Track = midiSequence.createTrack();
-					createEvent(beat3Track, beatChannel, PROGRAM, 1, 1L, 127);
-				}
 
-				if (beatsChannel3LastNotes == null) {
-					beatsChannel3LastNotes = new HashSet<>();
-				}
-
-				int volume = 0;
-				int beat3Note = drum3;
-				boolean hasBeat = false;
-				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
-					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-							beat, beat3VolumeFactor);
-					hasBeat = true;
-				}
-
-				if (hasBeat) {
-					if (!beatsChannel3LastNotes.contains(beat3Note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, beatChannel.num, beat3Note, volume);
-							if (writeTrack) {
-								createEvent(beat3Track, beatChannel, NOTEON, beat3Note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						midiMessages.add(midiMessage);
-						beatsChannel3LastNotes.add(beat3Note);
+					if (beatsChannel3LastNotes == null) {
+						beatsChannel3LastNotes = new HashSet<>();
 					}
-				} else {
-					if (beatsChannel3LastNotes.contains(beat3Note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, beatChannel.num, beat3Note, 0);
-							if (writeTrack) {
-								createEvent(beat3Track, beatChannel, NOTEOFF, beat3Note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						midiMessages.add(midiMessage);
-						beatsChannel3LastNotes.remove(beat3Note);
-					}
+					playSynthNoteTracks(new NoteTrack[] { track }, beatChannel, beatsChannel3LastNotes, beat3Track,
+							toneTimeFrame, midiMessages, beat3VolumeFactor, false);
 				}
 			}
 
 			if (midiPlayBeat4Switch) {
-				double beat = ToneTimeFrame.AMPLITUDE_FLOOR;
-				Optional<BeatListElement> ob = toneTimeFrame.getBeat(CellTypes.AUDIO_ONSET.name() + "_PEAKS");
-				if (ob.isPresent()) {
-					beat = 1.0; // ob.get().getAmplitude();
-				}
-				if (writeTrack && beat4Track == null) {
-					beat4Track = midiSequence.createTrack();
-					createEvent(beat4Track, beatChannel, PROGRAM, 1, 1L, 127);
-				}
-
-				if (beatsChannel4LastNotes == null) {
-					beatsChannel4LastNotes = new HashSet<>();
-				}
-
-				int volume = 0;
-				int beat4Note = drum4;
-				boolean hasBeat = false;
-				if (beat > ToneTimeFrame.AMPLITUDE_FLOOR) {
-					volume = getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, false, false,
-							beat, beat4VolumeFactor);
-					hasBeat = true;
-				}
-
-				if (hasBeat) {
-					if (!beatsChannel4LastNotes.contains(beat4Note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_ON, beatChannel.num, beat4Note, volume);
-							if (writeTrack) {
-								createEvent(beat4Track, beatChannel, NOTEON, beat4Note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						midiMessages.add(midiMessage);
-						beatsChannel4LastNotes.add(beat4Note);
+				ToneMap toneMap = toneTimeFrame.getToneMap();
+				NoteTrack track = toneMap.getNoteTracker().getBeatTrack(4);
+				if (track != null) {
+					if (writeTrack && beat4Track == null) {
+						beat4Track = midiSequence.createTrack();
+						createEvent(beat4Track, beatChannel, PROGRAM, 1, 1L, 127);
 					}
-				} else {
-					if (beatsChannel4LastNotes.contains(beat4Note)) {
-						midiMessage = new ShortMessage();
-						try {
-							midiMessage.setMessage(ShortMessage.NOTE_OFF, beatChannel.num, beat4Note, 0);
-							if (writeTrack) {
-								createEvent(beat4Track, beatChannel, NOTEOFF, beat4Note, tick, volume);
-							}
-						} catch (InvalidMidiDataException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						midiMessages.add(midiMessage);
-						beatsChannel4LastNotes.remove(beat4Note);
+
+					if (beatsChannel4LastNotes == null) {
+						beatsChannel4LastNotes = new HashSet<>();
 					}
+					playSynthNoteTracks(new NoteTrack[] { track }, beatChannel, beatsChannel4LastNotes, beat4Track,
+							toneTimeFrame, midiMessages, beat4VolumeFactor, false);
 				}
 			}
 
