@@ -270,6 +270,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField padAfterInput;
 
+	private JTextField audioPitchShiftInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1761,6 +1763,24 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(audioTimeStretchLabel);
 		instrumentPanel.add(audioTimeStretchInput);
 
+		JLabel audioPitchShiftLabel = new JLabel("Shift: ");
+		audioPitchShiftInput = new JTextField(3);
+		audioPitchShiftInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT, newValue);
+				textField.setText(newValue);
+			}
+		});
+
+		audioPitchShiftInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT));
+		instrumentPanel.add(audioPitchShiftLabel);
+		instrumentPanel.add(audioPitchShiftInput);
+
 		JLabel audioRangeLabel = new JLabel("Range: ");
 		audioRangeInput = new JTextField(4);
 		audioRangeInput.addActionListener(new ActionListener() {
@@ -2720,6 +2740,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		audioTimeStretchInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH));
 		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
+		audioPitchShiftInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT));
 		padBeforeInput
 			.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE));
 		padAfterInput

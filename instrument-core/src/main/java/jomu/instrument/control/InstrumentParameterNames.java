@@ -23,6 +23,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 
+	public static final String PERCEPTION_HEARING_AUDIO_PITCH_SHIFT = "perception.hearing.audioPitchShift";
 	public static final String PERCEPTION_HEARING_AUDIO_TIME_STRETCH = "perception.hearing.audioTimeStretch";
 	public static final String PERCEPTION_HEARING_AUDIO_SMOOTH_FACTOR = "perception.hearing.audioSmoothFactor";
 	public static final String PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR = "perception.hearing.audioGainCompressFactor";

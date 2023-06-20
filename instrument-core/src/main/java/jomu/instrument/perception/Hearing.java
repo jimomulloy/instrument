@@ -26,6 +26,8 @@ import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import be.tarsos.dsp.*;
+import be.tarsos.dsp.WaveformSimilarityBasedOverlapAdd.Parameters;
+
 import com.github.psambit9791.jdsp.filter.Butterworth;
 import com.github.psambit9791.jdsp.signal.Smooth;
 
@@ -36,6 +38,7 @@ import be.tarsos.dsp.io.jvm.AudioPlayer;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.io.jvm.WaveformWriter;
 import be.tarsos.dsp.onsets.ComplexOnsetDetector;
+import be.tarsos.dsp.resample.RateTransposer;
 import be.tarsos.dsp.wavelet.HaarWaveletCoder;
 import be.tarsos.dsp.wavelet.HaarWaveletDecoder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -263,6 +266,23 @@ public class Hearing implements Organ {
 					filePath);
 		}
 
+		double audioPitchShift = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT);
+		if (audioPitchShift > 0) {
+			filePath = pitchShift(filePath, audioPitchShift);
+			is = new FileInputStream(filePath);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
+					filePath);
+		}
+
+		if (parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE) > 0 ||
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER) > 0) {
+			String padFilePath = padAudio(filePath);
+			is = new FileInputStream(padFilePath);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
+					padFilePath);
+		}
+
 		if (parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE) > 0 ||
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER) > 0) {
 			String padFilePath = padAudio(filePath);
@@ -465,6 +485,48 @@ public class Hearing implements Organ {
 		dispatcher.addAudioProcessor(writer);
 		dispatcher.run();
 		return tsFilePath;
+	}
+
+	public String pitchShift(String fileName, double audioPitchShift) throws UnsupportedAudioFileException, IOException {
+		String baseDir = storage.getObjectStorage().getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+				.toString();
+		int startIndex = 0;
+		if (fileName.lastIndexOf("/") != -1)  {
+			startIndex = fileName.lastIndexOf("/") + 1;
+		} else if (fileName.lastIndexOf("\\") != -1)  {
+			startIndex = fileName.lastIndexOf("\\") + 1;
+		}
+		String psFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + "_shifted_"+ ".wav";
+		String psFilePath = folder + System.getProperty("file.separator") + psFileName;
+
+		File inputFile = new File(fileName);
+		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
+		
+		double sampleRate = format.getSampleRate();
+		double factor = 1 / Math.pow(Math.E, audioPitchShift*Math.log(2)/1200/Math.log(Math.E)); 
+		RateTransposer rateTransposer = new RateTransposer(factor);
+		WaveformSimilarityBasedOverlapAdd wsola = new WaveformSimilarityBasedOverlapAdd(Parameters.musicDefaults(factor, sampleRate));
+	
+		WaveformWriter writer = new WaveformWriter(format, psFilePath);
+		
+		AudioDispatcher dispatcher;
+		if(format.getChannels() != 1){
+			dispatcher = AudioDispatcherFactory.fromFile(inputFile,wsola.getInputBufferSize() * format.getChannels(),wsola.getOverlap() * format.getChannels());
+			dispatcher.addAudioProcessor(new MultichannelToMono(format.getChannels(),true));
+		}else{
+			dispatcher = AudioDispatcherFactory.fromFile(inputFile,wsola.getInputBufferSize(),wsola.getOverlap());
+		}
+		wsola.setDispatcher(dispatcher);
+		dispatcher.addAudioProcessor(wsola);
+		dispatcher.addAudioProcessor(rateTransposer);
+		dispatcher.addAudioProcessor(writer);
+		dispatcher.run();
+		
+		return psFilePath;
 	}
 
 	public String cacheFile(String fileName) throws UnsupportedAudioFileException, IOException {
