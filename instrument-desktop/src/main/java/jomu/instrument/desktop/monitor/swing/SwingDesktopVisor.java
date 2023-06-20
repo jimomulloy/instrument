@@ -243,6 +243,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	JCheckBox midiPlayLogSwitchCB;
 	JTextField voicePlayerLogFactorInput;
 	JTextField voicePlayerGlissandoRangeInput;
+
+	JTextField audioTimeStretchInput;
 	JTextField audioGainInput;
 	JTextField persistenceModeInput;
 	JTextField voicePlayerRepeatInput;
@@ -1648,7 +1650,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 
 		fftWindowSizeComboBox.setSelectedIndex(2);
-		instrumentPanel.add(new JLabel("FFT Window:  "));
+		instrumentPanel.add(new JLabel("FFT Window: "));
 		instrumentPanel.add(fftWindowSizeComboBox);
 
 		inputSampleRateCombobox = new JComboBox<>(inputSampleRate);
@@ -1663,11 +1665,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 		inputSampleRateCombobox.setSelectedIndex(3);
-		instrumentPanel.add(new JLabel("Sample rate:  "));
+		instrumentPanel.add(new JLabel("Sample rate: "));
 		instrumentPanel.add(inputSampleRateCombobox);
 
-		JLabel audioFeatureIntervalLabel = new JLabel("Interval ms: ");
-		audioFeatureIntervalInput = new JTextField(4);
+		JLabel audioFeatureIntervalLabel = new JLabel("Interval: ");
+		audioFeatureIntervalInput = new JTextField(3);
 		audioFeatureIntervalInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1680,7 +1682,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		});
 
 		resampleSwitchCB = new JCheckBox("resampleSwitchCB");
-		resampleSwitchCB.setText("Resample");
+		resampleSwitchCB.setText("ReS");
 		resampleSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
@@ -1700,7 +1702,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(audioFeatureIntervalLabel);
 		instrumentPanel.add(audioFeatureIntervalInput);
 
-		JLabel audioOffsetLabel = new JLabel("Offset ms: ");
+		JLabel audioOffsetLabel = new JLabel("Offset: ");
 		audioOffsetInput = new JTextField(4);
 		audioOffsetInput.addActionListener(new ActionListener() {
 			@Override
@@ -1724,7 +1726,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(audioFeatureIntervalInput);
 
 		JLabel audioGainLabel = new JLabel("Gain: ");
-		audioGainInput = new JTextField(4);
+		audioGainInput = new JTextField(3);
 		audioGainInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1741,7 +1743,25 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(audioGainLabel);
 		instrumentPanel.add(audioGainInput);
 
-		JLabel audioRangeLabel = new JLabel("Range ms: ");
+		JLabel audioTimeStretchLabel = new JLabel("Stretch: ");
+		audioTimeStretchInput = new JTextField(3);
+		audioTimeStretchInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField textField = (JTextField) e.getSource();
+				String newValue = textField.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH, newValue);
+				textField.setText(newValue);
+			}
+		});
+
+		audioTimeStretchInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH));
+		instrumentPanel.add(audioTimeStretchLabel);
+		instrumentPanel.add(audioTimeStretchInput);
+
+		JLabel audioRangeLabel = new JLabel("Range: ");
 		audioRangeInput = new JTextField(4);
 		audioRangeInput.addActionListener(new ActionListener() {
 			@Override
@@ -1758,8 +1778,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(audioRangeLabel);
 		instrumentPanel.add(audioRangeInput);
 
-		JLabel padBeforeLabel = new JLabel("Pad Before s: ");
-		padBeforeInput = new JTextField(4);
+		JLabel padBeforeLabel = new JLabel("Pad Before: ");
+		padBeforeInput = new JTextField(3);
 		padBeforeInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1776,8 +1796,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(padBeforeLabel);
 		instrumentPanel.add(padBeforeInput);
 
-		JLabel padAfterLabel = new JLabel("Pad After s: ");
-		padAfterInput = new JTextField(4);
+		JLabel padAfterLabel = new JLabel("After: ");
+		padAfterInput = new JTextField(3);
 		padAfterInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1794,8 +1814,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(padAfterLabel);
 		instrumentPanel.add(padAfterInput);
 
-		JLabel hearingMinFreqCentsLabel = new JLabel("Min Cents: ");
-		hearingMinFreqCentsInput = new JTextField(4);
+		JLabel hearingMinFreqCentsLabel = new JLabel("Cents Min: ");
+		hearingMinFreqCentsInput = new JTextField(3);
 		hearingMinFreqCentsInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1810,8 +1830,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(hearingMinFreqCentsLabel);
 		instrumentPanel.add(hearingMinFreqCentsInput);
 
-		JLabel hearingMaxFreqCentsLabel = new JLabel("Max Cents: ");
-		hearingMaxFreqCentsInput = new JTextField(4);
+		JLabel hearingMaxFreqCentsLabel = new JLabel("Max: ");
+		hearingMaxFreqCentsInput = new JTextField(3);
 		hearingMaxFreqCentsInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -2697,6 +2717,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET));
 		audioGainInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR));
+		audioTimeStretchInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH));
 		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
 		padBeforeInput
 			.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE));

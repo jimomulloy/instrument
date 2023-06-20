@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -26,14 +25,10 @@ import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import be.tarsos.dsp.*;
 import com.github.psambit9791.jdsp.filter.Butterworth;
 import com.github.psambit9791.jdsp.signal.Smooth;
 
-import be.tarsos.dsp.AudioDispatcher;
-import be.tarsos.dsp.AudioEvent;
-import be.tarsos.dsp.AudioProcessor;
-import be.tarsos.dsp.BitDepthProcessor;
-import be.tarsos.dsp.GainProcessor;
 import be.tarsos.dsp.beatroot.BeatRootOnsetEventHandler;
 import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 import be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
@@ -256,8 +251,18 @@ public class Hearing implements Organ {
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, cacheFilePath);
 			}
 		}
-		
+
 		String filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
+
+		double audioTimeStretch = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH);
+		if (audioTimeStretch > 0) {
+			filePath = timeStretch(filePath, audioTimeStretch);
+			is = new FileInputStream(filePath);
+			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
+					filePath);
+		}
+
 		if (parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE) > 0 ||
 				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER) > 0) {
 			String padFilePath = padAudio(filePath);
@@ -424,6 +429,33 @@ public class Hearing implements Organ {
 		File wavFile = new File(wavFilePath);
 		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, wavFile);
 		return wavFilePath;
+	}
+
+	public String timeStretch(String fileName, double audioTimeStretch) throws UnsupportedAudioFileException, IOException {
+		String baseDir = storage.getObjectStorage().getBasePath();
+		String folder = Paths
+				.get(baseDir,
+						parameterManager
+								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
+				.toString();
+		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
+				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
+				: 0;
+		String tsFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + "_stretched_"+ ".wav";
+		String tsFilePath = folder + System.getProperty("file.separator") + tsFileName;
+
+		File inputFile = new File(fileName);
+		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
+		WaveformSimilarityBasedOverlapAdd wsola =
+				new WaveformSimilarityBasedOverlapAdd(WaveformSimilarityBasedOverlapAdd.Parameters
+						.slowdownDefaults(audioTimeStretch, format.getSampleRate()));
+		WaveformWriter writer = new WaveformWriter(format, tsFilePath);
+		AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(inputFile,wsola.getInputBufferSize(),wsola.getOverlap());
+		wsola.setDispatcher(dispatcher);
+		dispatcher.addAudioProcessor(wsola);
+		dispatcher.addAudioProcessor(writer);
+		dispatcher.run();
+		return tsFilePath;
 	}
 
 	public String cacheFile(String fileName) throws UnsupportedAudioFileException, IOException {
@@ -749,6 +781,7 @@ public class Hearing implements Organ {
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
 			LOG.severe(">>processAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 			dispatcher = audioDispatcherFactory.getAudioDispatcher(audioStream, bufferSize, overlap);
+
 			int audioHighPass = parameterManager
 					.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_HIGHPASS);
 			int audioLowPass = parameterManager
