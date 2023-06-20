@@ -229,10 +229,9 @@ public class Hearing implements Organ {
 		is = null;
 		boolean isResample = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE);
-		String cacheFilePath = cacheFile(fileName);
 		
-		if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg")) {
-			String wavFilePath = convertToWav(cacheFilePath);
+		if (fileName.toLowerCase().endsWith(".mp3") || fileName.toLowerCase().endsWith(".ogg")) {
+			String wavFilePath = convertToWav(fileName);
 			if (isResample) {
 				String resampleFilePath = resample(wavFilePath);
 				is = new FileInputStream(resampleFilePath);
@@ -244,6 +243,7 @@ public class Hearing implements Organ {
 						wavFilePath);
 			}
 		} else {
+			String cacheFilePath = cacheFile(fileName);
 			if (isResample) {
 				String resampleFilePath = resample(cacheFilePath);
 				is = new FileInputStream(resampleFilePath);
@@ -259,7 +259,7 @@ public class Hearing implements Organ {
 
 		double audioTimeStretch = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH);
-		if (audioTimeStretch > 0) {
+		if (audioTimeStretch != 0 && audioTimeStretch != 1.0) {
 			filePath = timeStretch(filePath, audioTimeStretch);
 			is = new FileInputStream(filePath);
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
@@ -268,7 +268,7 @@ public class Hearing implements Organ {
 
 		double audioPitchShift = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT);
-		if (audioPitchShift > 0) {
+		if (audioPitchShift != 0) {
 			filePath = pitchShift(filePath, audioPitchShift);
 			is = new FileInputStream(filePath);
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE,
@@ -300,7 +300,7 @@ public class Hearing implements Organ {
 		if (!format.getEncoding().toString().startsWith("PCM")) {
 			bs.close();
 			is.close();
-			String wavFilePath = convertToWav(cacheFilePath);
+			String wavFilePath = convertToWav(filePath);
 			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
 			is = new FileInputStream(wavFilePath);
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
@@ -428,8 +428,9 @@ public class Hearing implements Organ {
 	 * Invoke this function to convert to a playable file.
 	 */
 	public String convertToWav(String fileName) throws UnsupportedAudioFileException, IOException {
-		// open stream
-		AudioInputStream stream = AudioSystem.getAudioInputStream(new File(fileName));
+		BufferedInputStream bis = new BufferedInputStream(storage.getObjectStorage().read(fileName));   
+		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
+				
 		AudioFormat sourceFormat = stream.getFormat();
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
@@ -454,6 +455,8 @@ public class Hearing implements Organ {
 		String wavFilePath = folder + System.getProperty("file.separator") + wavFileName;
 		File wavFile = new File(wavFilePath);
 		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, wavFile);
+		bis.close();
+		stream.close();
 		return wavFilePath;
 	}
 
@@ -477,7 +480,7 @@ public class Hearing implements Organ {
 		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
 		WaveformSimilarityBasedOverlapAdd wsola =
 				new WaveformSimilarityBasedOverlapAdd(WaveformSimilarityBasedOverlapAdd.Parameters
-						.slowdownDefaults(audioTimeStretch, format.getSampleRate()));
+						.musicDefaults(audioTimeStretch, format.getSampleRate()));
 		WaveformWriter writer = new WaveformWriter(format, tsFilePath);
 		AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(inputFile,wsola.getInputBufferSize(),wsola.getOverlap());
 		wsola.setDispatcher(dispatcher);
@@ -530,8 +533,12 @@ public class Hearing implements Organ {
 	}
 
 	public String cacheFile(String fileName) throws UnsupportedAudioFileException, IOException {
-		// open stream
-		AudioInputStream stream = AudioSystem.getAudioInputStream(new File(fileName)); //storage.getObjectStorage().read(fileName));
+		LOG.severe(">>cacheFile: " + fileName);
+		BufferedInputStream bis = new BufferedInputStream(storage.getObjectStorage().read(fileName));   
+		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
+		
+		LOG.severe(">>cacheFile 2: " + fileName);
+		
 		String baseDir = storage.getObjectStorage().getBasePath();
 		String folder = Paths
 				.get(baseDir,
@@ -549,6 +556,8 @@ public class Hearing implements Organ {
 		String cacheFilePath = folder + System.getProperty("file.separator") + "cache_" + cacheFileName;
 		File cacheFile = new File(cacheFilePath);
 		AudioSystem.write(stream, AudioFileFormat.Type.WAVE, cacheFile);
+		bis.close();
+		stream.close();
 		return cacheFilePath;
 	}
 	

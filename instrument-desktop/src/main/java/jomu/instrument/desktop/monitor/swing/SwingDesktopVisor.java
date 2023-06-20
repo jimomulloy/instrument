@@ -1170,7 +1170,6 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			formatter.close();
 			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 			int timeRange = toneMapView.getMaxTime();
-			LOG.severe(">>TV Time: " + timeRange + ", " + currentToneMapViewType);
 			formatter = new Formatter();
 			formatter.format("%d", timeRange);
 			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE, formatter.toString());
@@ -1178,24 +1177,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			int minPitchCents = toneMapView.getMinPitchCents();
 			formatter = new Formatter();
 			formatter.format("%d", minPitchCents);
-			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
-					formatter.toString());
+			//parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
+			//		formatter.toString());
 			formatter.close();
 			int maxPitchCents = toneMapView.getMaxPitchCents();
 			formatter = new Formatter();
 			formatter.format("%d", maxPitchCents);
-			LOG.severe(">>TV Max pitch: " + maxPitchCents + ", "
-					+ parameterManager.getIntParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
-			parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, formatter.toString());
+			//parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, formatter.toString());
 			formatter.close();
 			timeAxisOffsetInput
 					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET));
-			pitchAxisOffsetInput
-					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET));
+			//pitchAxisOffsetInput
+			//		.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET));
 			timeAxisRangeInput
 					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE));
-			pitchAxisRangeInput
-					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
+			//pitchAxisRangeInput
+			//		.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
 
 		}
 		refreshMapViews();
@@ -2441,7 +2438,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	public void audioStopped() {
 		startFileProcessingButton.setEnabled(true);
 		startListeningButton.setEnabled(true);
-		// stopListeningButton.setEnabled(false);
+		//stopListeningButton.setEnabled(false);
 		chooseFileButton.setEnabled(true);
 		frameNumberInput.setEnabled(true);
 	}

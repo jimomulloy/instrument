@@ -155,7 +155,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	 * Close MIDI Java Sound system objects
 	 */
 	public void close() {
-		setSynthesizerRunning(false);
 		LOG.severe(">>MIDI closing");
 		clearChannels();
 		if (midiSynthesizer != null && midiSynthesizer.isOpen()) {
@@ -576,7 +575,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	public void setSynthesizerRunning(boolean synthesizerRunning) {
-		LOG.finer(">>MidiSynthesizer running status: " + synthesizerRunning);
 		this.synthesizerRunning = synthesizerRunning;
 	}
 
@@ -621,7 +619,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 		public MidiQueueConsumer(BlockingQueue<MidiQueueMessage> bq, MidiStream midiStream) {
 			this.bq = bq;
 			this.midiStream = midiStream;
-			LOG.severe(">>MidiQueueConsumer!!: " + System.currentTimeMillis());
+			setSynthesizerRunning(true);
+			LOG.severe(">>MidiQueueConsumer create");			
 		}
 
 		public void stop() {
@@ -630,6 +629,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		@Override
 		public void run() {
+			LOG.severe(">>MidiQueueConsumer start run");
 			try {
 				MidiSynthesizer.this.setSynthesizerRunning(true);
 				boolean completed = false;
@@ -3612,8 +3612,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.streamId = streamId;
 			bq = new LinkedBlockingQueue<>();
 			consumer = new MidiQueueConsumer(bq, this);
-			// TODO LOOM Thread.startVirtualThread(new MidiQueueConsumer(bq, this));
-			new Thread(new MidiQueueConsumer(bq, this)).start();
+			// TODO LOOM Thread.startVirtualThread(consumer);
+			new Thread(consumer).start();
 		}
 
 		public void setPaused(boolean paused) {
