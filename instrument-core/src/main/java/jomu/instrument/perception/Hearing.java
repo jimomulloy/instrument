@@ -347,9 +347,12 @@ public class Hearing implements Organ {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 				.toString();
-		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
-				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
-				: 0;
+		int startIndex = 0;
+		if (fileName.lastIndexOf("/") != -1)  {
+			startIndex = fileName.lastIndexOf("/") + 1;
+		} else if (fileName.lastIndexOf("\\") != -1)  {
+			startIndex = fileName.lastIndexOf("\\") + 1;
+		}
 		String appendedFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + "_padded_" + ".wav";
 		String appendedFilePath = folder + System.getProperty("file.separator") + appendedFileName;
 		File appendedFile = new File(appendedFilePath);
@@ -421,9 +424,12 @@ public class Hearing implements Organ {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 				.toString();
-		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
-				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
-				: 0;
+		int startIndex = 0;
+		if (fileName.lastIndexOf("/") != -1)  {
+			startIndex = fileName.lastIndexOf("/") + 1;
+		} else if (fileName.lastIndexOf("\\") != -1)  {
+			startIndex = fileName.lastIndexOf("\\") + 1;
+		}
 		String wavFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + "converted_"+ ".wav";
 		String wavFilePath = folder + System.getProperty("file.separator") + wavFileName;
 		File wavFile = new File(wavFilePath);
@@ -438,9 +444,12 @@ public class Hearing implements Organ {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 				.toString();
-		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
-				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
-				: 0;
+		int startIndex = 0;
+		if (fileName.lastIndexOf("/") != -1)  {
+			startIndex = fileName.lastIndexOf("/") + 1;
+		} else if (fileName.lastIndexOf("\\") != -1)  {
+			startIndex = fileName.lastIndexOf("\\") + 1;
+		}
 		String tsFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + "_stretched_"+ ".wav";
 		String tsFilePath = folder + System.getProperty("file.separator") + tsFileName;
 
@@ -467,9 +476,13 @@ public class Hearing implements Organ {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 				.toString();
-		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
-				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
-				: 0;
+		int startIndex = 0;
+		if (fileName.lastIndexOf("/") != -1)  {
+			startIndex = fileName.lastIndexOf("/") + 1;
+		} else if (fileName.lastIndexOf("\\") != -1)  {
+			startIndex = fileName.lastIndexOf("\\") + 1;
+		}
+		
 		String cacheFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + ".wav";
 		String cacheFilePath = folder + System.getProperty("file.separator") + "cache_" + cacheFileName;
 		File cacheFile = new File(cacheFilePath);
@@ -478,7 +491,6 @@ public class Hearing implements Organ {
 	}
 	
 	public String resample(String fileName) throws UnsupportedAudioFileException, IOException {
-		LOG.severe(">>resample file: " + fileName);
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(fileName));
 		AudioFormat sourceFormat = audioInputStream.getFormat();
 		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 192000,
@@ -494,9 +506,12 @@ public class Hearing implements Organ {
 						parameterManager
 								.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY))
 				.toString();
-		int startIndex = fileName.lastIndexOf(System.getProperty("file.separator")) != -1
-				? fileName.lastIndexOf(System.getProperty("file.separator")) + 1
-				: 0;
+		int startIndex = 0;
+		if (fileName.lastIndexOf("/") != -1)  {
+			startIndex = fileName.lastIndexOf("/") + 1;
+		} else if (fileName.lastIndexOf("\\") != -1)  {
+			startIndex = fileName.lastIndexOf("\\") + 1;
+		}
 		String rsFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + ".wav";
 		String rsFilePath = folder + System.getProperty("file.separator") + "resampled_" + rsFileName;
 		File file = new File(rsFilePath);
