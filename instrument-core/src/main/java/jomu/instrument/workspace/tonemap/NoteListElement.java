@@ -26,6 +26,7 @@ public class NoteListElement {
 	public int startTimeIndex;
 	public boolean underTone;
 	public double incrementTime;
+	public int vibrato;
 	public NoteHarmonics noteHarmonics;
 	public NoteTimbre noteTimbre;
 	public boolean isContinuation;

@@ -146,6 +146,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_RANGE = "perception.hearing.autocorrelation.undertoneRange";
 
 	public static final String PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH = "perception.hearing.integration.hpsSwitch";
+	public static final String PERCEPTION_HEARING_INTEGRATION_PERCUSSION_SWITCH = "perception.hearing.integration.percussionSwitch";
 	public static final String PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH = "perception.hearing.integration.cqSwitch";
 	public static final String PERCEPTION_HEARING_INTEGRATION_PEAKS_SWITCH = "perception.hearing.integration.peaksSwitch";
 	public static final String PERCEPTION_HEARING_INTEGRATION_SPECTRAL_SWITCH = "perception.hearing.integration.spectralSwitch";
@@ -309,6 +310,7 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_FREQUENCY_RATIO = "audio.tuner.timbre.frequencyRatio";
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE = "audio.tuner.timbre.medianRange";
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO = "audio.tuner.timbre.medianRatio";
+	public static final String AUDIO_TUNER_NOTE_TIMBRE_VIBRATO_RATIO = "audio.tuner.timbre.vibratoRatio";
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH = "audio.tuner.timbre.cqSwitch";
 	public static final String AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH = "audio.tuner.timbre.notateSwitch";
 	public static final String AUDIO_TUNER_HARMONIC_SWEEP = "audio.tuner.harmonicSweep";

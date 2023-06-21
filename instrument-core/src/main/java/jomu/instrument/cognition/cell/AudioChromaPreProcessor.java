@@ -47,7 +47,7 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 
 		ToneTimeFrame sourceTimeFrame = cqToneMap.getTimeFrame(sequence).clone();
 		if (chromaHpsSwitch) {
-			sourceTimeFrame.mask(hpsMaskToneMap.getTimeFrame(sequence));
+			sourceTimeFrame.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
 		}
 
 		chromaToneMap.addTimeFrame(sourceTimeFrame

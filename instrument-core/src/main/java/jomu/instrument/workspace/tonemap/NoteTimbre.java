@@ -11,18 +11,22 @@ public class NoteTimbre {
 	public double frequency;
 	public double range;
 	public double median;
+	public double vibrato;
 
 	double frequencyRange = 1.0;
 	double frequencyRatio = 0.5;
 	double medianRange = 1.0;
 	double medianRatio = 0.5;
+	double vibratoRatio;
 
-	public NoteTimbre(double frequencyRange, double frequencyRatio, double medianRange, double medianRatio) {
+	public NoteTimbre(double frequencyRange, double frequencyRatio, double medianRange, double medianRatio,
+			double vibratoRatio) {
 		super();
 		this.frequencyRange = frequencyRange;
 		this.frequencyRatio = frequencyRatio;
 		this.medianRange = medianRange;
 		this.medianRatio = medianRatio;
+		this.vibratoRatio = vibratoRatio;
 	}
 
 	public void buildTimbre(ToneTimeFrame[] timeFrames, NoteListElement noteListElement) {
@@ -41,7 +45,7 @@ public class NoteTimbre {
 		median = buildMedian(microTones);
 		frequency = buildFrequency(microTones);
 		range = buildRange(microTones);
-
+		vibrato = noteListElement.vibrato;
 	}
 
 	public void buildTimbre(ToneTimeFrame timeFrames[], int pitchIndex) {
@@ -105,10 +109,11 @@ public class NoteTimbre {
 	}
 
 	public NoteTimbre clone() {
-		NoteTimbre clone = new NoteTimbre(frequencyRange, frequencyRatio, medianRange, medianRatio);
+		NoteTimbre clone = new NoteTimbre(frequencyRange, frequencyRatio, medianRange, medianRatio, vibratoRatio);
 		clone.median = median;
 		clone.frequency = frequency;
 		clone.range = range;
+		clone.vibrato = vibrato;
 		return clone;
 	}
 
@@ -130,6 +135,23 @@ public class NoteTimbre {
 			}
 		}
 		return false;
+	}
+
+	public boolean matchesVibrato(NoteTimbre other) {
+		if (this.vibrato == 0 && other.vibrato == 0) {
+			return true;
+		}
+		if (this.vibrato != 0 && other.vibrato == 0) {
+			return false;
+		}
+		if (this.vibrato == 0 && other.vibrato != 0) {
+			return false;
+		}
+		double r = this.vibrato / other.vibrato;
+		if (r > vibratoRatio) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

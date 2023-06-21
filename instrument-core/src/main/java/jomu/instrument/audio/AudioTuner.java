@@ -111,6 +111,8 @@ public class AudioTuner implements ToneMapConstants {
 
 	private double noteTimbreMedianRatio;
 
+	private double noteTimbreVibratoRatio;
+
 	private boolean noteTimbreCQSwitch;
 
 	private boolean noteTimbreNotateSwitch;
@@ -244,6 +246,8 @@ public class AudioTuner implements ToneMapConstants {
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE);
 		noteTimbreMedianRatio = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO);
+		noteTimbreVibratoRatio = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_VIBRATO_RATIO);
 		noteTimbreCQSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH);
 		noteTimbreNotateSwitch = parameterManager
@@ -1220,6 +1224,7 @@ public class AudioTuner implements ToneMapConstants {
 					noteStatusElement.highFlag = false;
 					toneMapElement.isPeak = false;
 				}
+				currentNote.vibrato++;
 			}
 
 			int noteRange = (highNote - lowNote);
@@ -1299,7 +1304,6 @@ public class AudioTuner implements ToneMapConstants {
 					: 0;
 			double toTime = currentNote.endTime;
 			ToneTimeFrame[] timeFrames = toneMap.getTimeFramesFrom(fromTime / 1000.0);
-			LOG.finer(">>seekVibratoElements " + fromTime + ", " + toTime + ", " + timeFrames.length);
 			for (int ttfi = timeFrames.length - 1; ttfi >= 0; ttfi--) {
 				ToneTimeFrame toneTimeFrame = timeFrames[ttfi];
 				if (toneTimeFrame.getStartTime() > toTime / 1000.0) {
@@ -1324,7 +1328,6 @@ public class AudioTuner implements ToneMapConstants {
 			}
 			candidateNotes.remove(currentNote);
 			processedNotes.add(currentNote);
-			LOG.finer(">>seekVibratoElements A: " + currentNote.startTime + ", " + currentNote.note);
 			int lowNote = Integer.MAX_VALUE;
 			int highNote = Integer.MIN_VALUE;
 			for (NoteListElement pnle : processedNotes) {
@@ -1338,8 +1341,6 @@ public class AudioTuner implements ToneMapConstants {
 					inRange = false;
 				}
 			}
-			LOG.finer(">>seekVibratoElements B: " + inRange + ", " + currentNote.startTime + ", " + currentNote.note
-					+ ", " + lowNote + ", " + highNote);
 		} while (inRange && !candidateNotes.isEmpty());
 		return inRange;
 	}
@@ -2273,9 +2274,9 @@ public class AudioTuner implements ToneMapConstants {
 
 	private boolean isMatchingTimbre(ToneMapElement harmonicElement, ToneMapElement f0Element) {
 		NoteTimbre hnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
-				noteTimbreMedianRatio);
+				noteTimbreMedianRatio, 0);
 		NoteTimbre rnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
-				noteTimbreMedianRatio);
+				noteTimbreMedianRatio, 0);
 		hnt.buildTimbre(harmonicElement);
 		rnt.buildTimbre(f0Element);
 		// if (f0Element.getPitchIndex() == 48) {
@@ -2292,25 +2293,25 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean isMatchingTimbre(ToneTimeFrame[] timeFrames, NoteListElement rootNote,
 			NoteListElement processedNote) {
 		NoteTimbre pnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
-				noteTimbreMedianRatio);
+				noteTimbreMedianRatio, noteTimbreVibratoRatio);
 		NoteTimbre rnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
-				noteTimbreMedianRatio);
+				noteTimbreMedianRatio, noteTimbreVibratoRatio);
 		processedNote.noteTimbre = pnt;
 		rootNote.noteTimbre = rnt;
 		processedNote.noteTimbre.buildTimbre(timeFrames, processedNote);
 		rootNote.noteTimbre.buildTimbre(timeFrames, rootNote);
-		boolean matches = processedNote.noteTimbre.matches(rootNote.noteTimbre);
+		boolean matches = processedNote.noteTimbre.matchesVibrato(rootNote.noteTimbre);
 		return matches;
 	}
 
 	private boolean isMatchingTimbre(ToneTimeFrame[] timeFrames, NoteListElement processedNote, int rootNote) {
 		NoteTimbre pnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
-				noteTimbreMedianRatio);
+				noteTimbreMedianRatio, noteTimbreVibratoRatio);
 		NoteTimbre rnt = new NoteTimbre(noteTimbreFrequencyRange, noteTimbreFrequencyRatio, noteTimbreMedianRange,
-				noteTimbreMedianRatio);
+				noteTimbreMedianRatio, noteTimbreVibratoRatio);
 		pnt.buildTimbre(timeFrames, processedNote);
 		rnt.buildTimbre(timeFrames, rootNote);
-		return pnt.matches(rnt);
+		return pnt.matchesVibrato(rnt);
 	}
 
 	private void processOvertones(ToneMap toneMap, double lowThreshold, boolean peaks) {

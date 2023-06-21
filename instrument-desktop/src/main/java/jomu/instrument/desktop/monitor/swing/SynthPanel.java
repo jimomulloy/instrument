@@ -160,6 +160,8 @@ public class SynthPanel extends JPanel {
 
 	private JTextField synthesisBeat4SourceInput;
 
+	private JCheckBox synthesisPadChordsSwitchCB;
+
 	public SynthPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -370,6 +372,26 @@ public class SynthPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_INVERT));
 		tuningPanel.add(synthesisChord4InvertSwitchCB);
 
+		synthesisPadChordsSwitchCB = new JCheckBox("synthesisPadChordsSwitchCB");
+		synthesisPadChordsSwitchCB.setText("Synthesis Chord Pads");
+		synthesisPadChordsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD_CHORDS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisPadChordsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD_CHORDS_SWITCH));
+		tuningPanel.add(synthesisPadChordsSwitchCB);
+
+		tuningPanel.add(new JLabel(" "));
+		tuningPanel.add(new JLabel(" "));
+		tuningPanel.add(new JLabel(" "));
+
 		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
 		synthesisChordTimingInput = new JTextField(4);
 		synthesisChordTimingInput.addActionListener(new ActionListener() {
@@ -565,7 +587,7 @@ public class SynthPanel extends JPanel {
 		synthesisChord2OctaveInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = synthesisChord1OctaveInput.getText();
+				String newValue = synthesisChord2OctaveInput.getText();
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE, newValue);
 				synthesisChord2OctaveLabel.setText(String.format("Synthesis Chord2 Octave  (%s):", newValue));
@@ -650,7 +672,7 @@ public class SynthPanel extends JPanel {
 		synthesisChord3OctaveInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = synthesisChord1OctaveInput.getText();
+				String newValue = synthesisChord3OctaveInput.getText();
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OCTAVE, newValue);
 				synthesisChord3OctaveLabel.setText(String.format("Synthesis Chord3 Octave  (%s):", newValue));
@@ -735,7 +757,7 @@ public class SynthPanel extends JPanel {
 		synthesisChord4OctaveInput.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newValue = synthesisChord1OctaveInput.getText();
+				String newValue = synthesisChord4OctaveInput.getText();
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE, newValue);
 				synthesisChord4OctaveLabel.setText(String.format("Synthesis Chord4 Octave  (%s):", newValue));

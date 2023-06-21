@@ -1503,11 +1503,17 @@ public class ToneTimeFrame implements Serializable {
 		return this;
 	}
 
-	public ToneTimeFrame mask(ToneTimeFrame maskTimeFrame) {
+	public ToneTimeFrame mask(ToneTimeFrame maskTimeFrame, boolean maskMode) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			if (maskTimeFrame.getElement(elementIndex).amplitude <= AMPLITUDE_FLOOR) {
-				elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
-			}
+			if (maskMode) {
+				if (maskTimeFrame.getElement(elementIndex).amplitude > AMPLITUDE_FLOOR) {
+					elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
+				}
+			} else {
+				if (maskTimeFrame.getElement(elementIndex).amplitude <= AMPLITUDE_FLOOR) {
+					elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
+				}
+			}	
 		}
 		reset();
 		return this;

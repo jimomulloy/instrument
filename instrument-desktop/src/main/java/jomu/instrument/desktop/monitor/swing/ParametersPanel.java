@@ -340,6 +340,10 @@ public class ParametersPanel extends JPanel {
 
 	private JCheckBox integrationEnvelopeWhitenSwitchCB;
 
+	private JCheckBox integratePercussionSwitchCB;
+
+	private JTextField noteTimbreVibratoRatioInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1653,6 +1657,22 @@ public class ParametersPanel extends JPanel {
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
 		cqSwitchPanel.add(integrateHpsSwitchCB);
+
+		integratePercussionSwitchCB = new JCheckBox("integratePercussionSwitchCB");
+		integratePercussionSwitchCB.setText("Integrate Percussion");
+		integratePercussionSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PERCUSSION_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		integratePercussionSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PERCUSSION_SWITCH));
+		cqSwitchPanel.add(integratePercussionSwitchCB);
 
 		integrateCQSwitchCB = new JCheckBox("integrateCQSwitchCB");
 		integrateCQSwitchCB.setText("Integrate CQ");
@@ -3704,6 +3724,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(noteTimbreMedianRatioLabel);
 		cqParamsPanel.add(noteTimbreMedianRatioInput);
 
+		JLabel noteTimbreVibratoRatioLabel = new JLabel("Note Timbre Vibrato Ratio: ");
+		noteTimbreVibratoRatioInput = new JTextField(4);
+		noteTimbreVibratoRatioInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = noteTimbreVibratoRatioInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_VIBRATO_RATIO,
+						newValue);
+				noteTimbreVibratoRatioLabel.setText(String.format("Note Timbre Vibrato Ratio (%s):", newValue));
+				noteTimbreVibratoRatioInput.setText(newValue);
+			}
+		});
+		noteTimbreVibratoRatioInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_VIBRATO_RATIO));
+		cqParamsPanel.add(noteTimbreVibratoRatioLabel);
+		cqParamsPanel.add(noteTimbreVibratoRatioInput);
+
 		JLabel notateCompressionLevelLabel = new JLabel("Notate Compression Level: ");
 		notateCompressionLevelInput = new JTextField(4);
 		notateCompressionLevelInput.addActionListener(new ActionListener() {
@@ -4482,6 +4519,8 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_SWITCH));
 		integrateHpsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH));
+		integratePercussionSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PERCUSSION_SWITCH));
 		onsetHpsSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_HPS_SWITCH));
 		chromaHpsSwitchCB.setSelected(
@@ -4539,6 +4578,8 @@ public class ParametersPanel extends JPanel {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RANGE));
 		noteTimbreMedianRatioInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_MEDIAN_RATIO));
+		noteTimbreVibratoRatioInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_VIBRATO_RATIO));
 		noteTimbreCQSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_CQ_SWITCH));
 		noteTimbreNotateSwitchCB.setSelected(

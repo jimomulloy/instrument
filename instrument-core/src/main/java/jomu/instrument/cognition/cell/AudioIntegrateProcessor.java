@@ -27,6 +27,8 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 
 		boolean integrateHpsSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_HPS_SWITCH);
+		boolean integratePercussionSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_PERCUSSION_SWITCH);
 		boolean integrateCQSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_CQ_SWITCH);
 		boolean integratePeaksSwitch = parameterManager
@@ -75,6 +77,8 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		ToneMap mfccToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId));
 		ToneMap hpsMaskToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC_MASK", streamId));
+		ToneMap percussionToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PERCUSSION.toString(), streamId));
 
 		ToneMap integrateToneMap = null;
 		ToneMap integratePeaksToneMap = null;
@@ -99,7 +103,10 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 			ToneTimeFrame ittf = integrateToneMap.getTimeFrame();
 			if (integrateHpsSwitch) {
-				ittf.mask(hpsMaskToneMap.getTimeFrame(sequence));
+				ittf.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
+			}
+			if (integratePercussionSwitch) {
+				ittf.mask(percussionToneMap.getTimeFrame(sequence), true);
 			}
 			if (integrateEnvelopeWhitenSwitch) {
 				ToneMap integrateEnvelopeWhitenControlMap = workspace.getAtlas()
@@ -112,13 +119,19 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		if (integratePeaksSwitch) {
 			integratePeaksToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 			if (integrateHpsSwitch) {
-				integratePeaksToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence));
+				integratePeaksToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence), false);
+			}
+			if (integratePercussionSwitch) {
+				integratePeaksToneMap.getTimeFrame().mask(percussionToneMap.getTimeFrame(sequence), true);
 			}
 		}
 		if (integrateSpectralSwitch) {
 			integrateSpectralToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
 			if (integrateHpsSwitch) {
-				integrateSpectralToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence));
+				integrateSpectralToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence), false);
+			}
+			if (integratePercussionSwitch) {
+				integrateSpectralToneMap.getTimeFrame().mask(percussionToneMap.getTimeFrame(sequence), false);
 			}
 		}
 

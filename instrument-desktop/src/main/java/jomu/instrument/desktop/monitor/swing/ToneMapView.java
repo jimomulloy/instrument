@@ -71,6 +71,9 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 			new Color(0x552209) // brown
 	};
 
+	private static final int HEIGHT_MIN = 3;
+	private static final int WIDTH_MIN = 3;
+
 	private BufferedImage bufferedImage;
 	private Graphics2D bufferedGraphics;
 
@@ -302,7 +305,13 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 
 			int spectralMean = ttf.getSpectralMean();
 			int width = (int) Math.ceil((((timeEnd - timeStart + 1) / (timeAxisRange)) * (getWidth() - 1)));
+			if (width < WIDTH_MIN) {
+				width = WIDTH_MIN;
+			}
 			int height = (int) ((100.0 / (maxCents - minCents)) * getHeight());
+			if (height < HEIGHT_MIN) {
+				height = HEIGHT_MIN;
+			}
 			int timeCoordinate = getTimeCoordinate(timeStart - timeAxisStart);
 
 			for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {

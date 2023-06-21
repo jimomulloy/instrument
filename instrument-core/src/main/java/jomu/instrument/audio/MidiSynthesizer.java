@@ -3583,6 +3583,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			chordsChannel2LastNotes = new HashSet<>();
 			padsChannel1LastNotes = new HashSet<>();
 			padsChannel2LastNotes = new HashSet<>();
+			padsChannel1LastNoteTimes = new HashMap<>();
+			padsChannel2LastNoteTimes = new HashMap<>();
 			beatsChannel1LastNotes = new HashSet<>();
 			beatsChannel2LastNotes = new HashSet<>();
 			beatsChannel3LastNotes = new HashSet<>();

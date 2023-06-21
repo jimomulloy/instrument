@@ -114,8 +114,6 @@ public class NoteTracker {
 
 	private int synthChord2Pattern;
 
-	private int synthChord2Timing;
-
 	private int chord2TimeSignature;
 
 	private int synthChord2Octave;

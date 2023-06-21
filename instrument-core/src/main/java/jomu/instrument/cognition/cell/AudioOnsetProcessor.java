@@ -61,7 +61,7 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		ToneTimeFrame cqTimeFrame = cqToneMap.getTimeFrame(sequence);
 		ToneTimeFrame onsetTimeFrame = onsetToneMap.addTimeFrame(cqTimeFrame.clone());
 		if (onsetHpsSwitch) {
-			onsetTimeFrame.mask(hpsMaskToneMap.getTimeFrame(sequence));
+			onsetTimeFrame.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
 		}
 		onsetSmoothedToneMap.addTimeFrame(cqTimeFrame.clone()).reset();
 
