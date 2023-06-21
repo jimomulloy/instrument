@@ -558,7 +558,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		upperPane = new JPanel();
 		JPanel statusPane = new JPanel();
 		JPanel lowerPane = new JPanel();
-		
+
 		statusLabel = new JLabel("Ready");
 		JButton showStatusInfoButton = new JButton("Show Status Info");
 
@@ -601,19 +601,17 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		contentPane.setBorder(cb);
 
 		fileNameLabel = new JLabel("");
-		
+
 		statusPane.add(showStatusInfoButton, BorderLayout.WEST);
 		statusPane.add(dumpStatusInfoButton, BorderLayout.WEST);
 		statusPane.add(statusLabel, BorderLayout.CENTER);
 		statusPane.add(new JLabel("   Current File:"), BorderLayout.EAST);
 		statusPane.add(fileNameLabel, BorderLayout.EAST);
-			
 
 		EmptyBorder eb1 = new EmptyBorder(2, 2, 2, 2);
 		BevelBorder bb1 = new BevelBorder(BevelBorder.LOWERED);
 		CompoundBorder cb1 = new CompoundBorder(eb1, bb1);
 		statusPane.setBorder(cb1);
-	
 
 		upperPane.setLayout(new BorderLayout());
 
@@ -1177,22 +1175,23 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			int minPitchCents = toneMapView.getMinPitchCents();
 			formatter = new Formatter();
 			formatter.format("%d", minPitchCents);
-			//parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
-			//		formatter.toString());
+			// parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET,
+			// formatter.toString());
 			formatter.close();
 			int maxPitchCents = toneMapView.getMaxPitchCents();
 			formatter = new Formatter();
 			formatter.format("%d", maxPitchCents);
-			//parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE, formatter.toString());
+			// parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE,
+			// formatter.toString());
 			formatter.close();
 			timeAxisOffsetInput
 					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET));
-			//pitchAxisOffsetInput
-			//		.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET));
+			// pitchAxisOffsetInput
+			// .setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_OFFSET));
 			timeAxisRangeInput
 					.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_RANGE));
-			//pitchAxisRangeInput
-			//		.setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
+			// pitchAxisRangeInput
+			// .setText(parameterManager.getParameter(InstrumentParameterNames.MONITOR_VIEW_PITCH_AXIS_RANGE));
 
 		}
 		refreshMapViews();
@@ -1749,14 +1748,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH,
+						newValue);
 				textField.setText(newValue);
 			}
 		});
 
-		audioTimeStretchInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH));
+		audioTimeStretchInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH));
 		instrumentPanel.add(audioTimeStretchLabel);
 		instrumentPanel.add(audioTimeStretchInput);
 
@@ -1767,14 +1766,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			public void actionPerformed(ActionEvent e) {
 				JTextField textField = (JTextField) e.getSource();
 				String newValue = textField.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT,
+						newValue);
 				textField.setText(newValue);
 			}
 		});
 
-		audioPitchShiftInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT));
+		audioPitchShiftInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT));
 		instrumentPanel.add(audioPitchShiftLabel);
 		instrumentPanel.add(audioPitchShiftInput);
 
@@ -2438,7 +2437,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	public void audioStopped() {
 		startFileProcessingButton.setEnabled(true);
 		startListeningButton.setEnabled(true);
-		//stopListeningButton.setEnabled(false);
+		// stopListeningButton.setEnabled(false);
 		chooseFileButton.setEnabled(true);
 		frameNumberInput.setEnabled(true);
 	}
@@ -2734,15 +2733,15 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_OFFSET));
 		audioGainInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR));
-		audioTimeStretchInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH));
+		audioTimeStretchInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH));
 		audioRangeInput.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE));
-		audioPitchShiftInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT));
+		audioPitchShiftInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT));
 		padBeforeInput
-			.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE));
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE));
 		padAfterInput
-			.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER));
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER));
 		resampleSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE));
 		hearingMinFreqCentsInput.setText(

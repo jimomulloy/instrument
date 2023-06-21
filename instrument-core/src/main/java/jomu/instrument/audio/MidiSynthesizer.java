@@ -283,9 +283,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 				try {
 					if (parameterManager.hasParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS)) {
-						String fileName = storage.getObjectStorage().getBasePath() + System.getProperty("file.separator")
-								+ parameterManager
-								.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS);
+						String fileName = storage.getObjectStorage().getBasePath()
+								+ System.getProperty("file.separator") + parameterManager
+										.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_SOUND_FONTS);
 
 						LOG.severe(">>midi file: " + fileName);
 						File file = new File(fileName);
@@ -620,7 +620,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			this.bq = bq;
 			this.midiStream = midiStream;
 			setSynthesizerRunning(true);
-			LOG.severe(">>MidiQueueConsumer create");			
+			LOG.severe(">>MidiQueueConsumer create");
 		}
 
 		public void stop() {
@@ -1144,8 +1144,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 						noteTrackChannelLastNotes, midiTrack, toneTimeFrame, midiMessages, voice4VolumeFactor, true);
 			}
 
-			if (midiPlayChord1Switch || midiPlayChord2Switch || 
-					((midiPlayPad1Switch || midiPlayPad2Switch) && midiPlayPadChordsSwitch)) {
+			if (midiPlayChord1Switch || midiPlayChord2Switch
+					|| ((midiPlayPad1Switch || midiPlayPad2Switch) && midiPlayPadChordsSwitch)) {
 				playSynthChords(toneTimeFrame, mqm.sequence, tracks, midiMessages);
 			}
 
@@ -1255,7 +1255,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 							toneTimeFrame, midiMessages, chord2VolumeFactor, false);
 				}
 			}
-			
 
 			if (midiPlayPadChordsSwitch && midiPlayChord3Switch) {
 				ChannelData pad1Channel = channels[PAD_1_CHANNEL];
@@ -1273,8 +1272,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					playSynthNoteTracks(new NoteTrack[] { track }, pad1Channel, padsChannel1LastNotes, pad1Track,
 							toneTimeFrame, midiMessages, chord3VolumeFactor, false);
 				}
-			}	
-			
+			}
+
 			if (midiPlayPadChordsSwitch && midiPlayChord4Switch) {
 				ChannelData pad2Channel = channels[PAD_2_CHANNEL];
 				if (writeTrack && pad2Track == null) {

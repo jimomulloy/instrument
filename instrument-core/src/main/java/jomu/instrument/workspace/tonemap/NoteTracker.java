@@ -484,7 +484,7 @@ public class NoteTracker {
 
 		synthBeatTiming = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING);
-		
+
 		synthBeat1Measure = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_MEASURE);
 		synthBeat1Offset = toneMap.getParameterManager()
@@ -557,7 +557,7 @@ public class NoteTracker {
 		} else if (synthBeat4Pattern == 4) {
 			beat4TimeSignature = 4;
 		}
-		
+
 		synthBeat1Drum = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_1);
 		synthBeat2Drum = toneMap.getParameterManager()

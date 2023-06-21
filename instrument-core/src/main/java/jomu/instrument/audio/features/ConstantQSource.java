@@ -35,7 +35,7 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 	private AudioDispatcher dispatcher;
 	private ParameterManager parameterManager;
 	float max = 0;
-	private int hearingMinimumFrequencyInCents = 1200;  
+	private int hearingMinimumFrequencyInCents = 1200;
 	private int hearingMaximumFrequencyInCents = 12000;
 	private boolean microToneSwitch;
 

@@ -134,8 +134,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				}
 				if (startTimeMS - lastTimeStamp >= (double) (interval + lag)) {
 					frameSequence++;
-					LOG.finer(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: "
-							+ firstTimeStamp + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
+					LOG.finer(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: " + firstTimeStamp
+							+ ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
 							+ ", frameSequence: " + frameSequence);
 					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
 					lastTimeStamp = startTimeMS;

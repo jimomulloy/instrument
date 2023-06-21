@@ -616,7 +616,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
-				
 
 				track = toneMap.getNoteTracker().getChordTrack(3);
 				color = Color.BLACK;
@@ -641,7 +640,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
-				
+
 				track = toneMap.getNoteTracker().getChordTrack(4);
 				color = Color.BLACK;
 				if (track != null) {
@@ -709,7 +708,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
-				
+
 				track = toneMap.getNoteTracker().getBeatTrack(3);
 				color = Color.BLACK;
 				if (track != null) {
@@ -730,7 +729,7 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						}
 					}
 				}
-				
+
 				track = toneMap.getNoteTracker().getBeatTrack(4);
 				color = Color.BLACK;
 				if (track != null) {
