@@ -1033,6 +1033,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH);
 			boolean midiPlayChord2Switch = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH);
+			boolean midiPlayPadChordsSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD_CHORDS_SWITCH);
 			boolean midiPlayPad1Switch = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH);
 			boolean midiPlayPad2Switch = parameterManager
@@ -1142,11 +1144,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 						noteTrackChannelLastNotes, midiTrack, toneTimeFrame, midiMessages, voice4VolumeFactor, true);
 			}
 
-			if (midiPlayChord1Switch || midiPlayChord2Switch) {
+			if (midiPlayChord1Switch || midiPlayChord2Switch || 
+					((midiPlayPad1Switch || midiPlayPad2Switch) && midiPlayPadChordsSwitch)) {
 				playSynthChords(toneTimeFrame, mqm.sequence, tracks, midiMessages);
 			}
 
-			if (midiPlayPad1Switch || midiPlayPad2Switch) {
+			if ((midiPlayPad1Switch || midiPlayPad2Switch) && !midiPlayPadChordsSwitch) {
 				playSynthPads(toneTimeFrame, mqm.sequence, tracks, midiMessages);
 			}
 
@@ -1202,10 +1205,20 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH);
 			boolean midiPlayChord2Switch = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH);
+			boolean midiPlayChord3Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH);
+			boolean midiPlayChord4Switch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH);
+			boolean midiPlayPadChordsSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD_CHORDS_SWITCH);
 			int chord1VolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_1);
 			int chord2VolumeFactor = parameterManager
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_CHORD_2);
+			int chord3VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_1);
+			int chord4VolumeFactor = parameterManager
+					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_PAD_2);
 
 			if (midiPlayChord1Switch) {
 				ChannelData chord1Channel = channels[CHORD_1_CHANNEL];
@@ -1240,6 +1253,43 @@ public class MidiSynthesizer implements ToneMapConstants {
 				if (track != null) {
 					playSynthNoteTracks(new NoteTrack[] { track }, chord2Channel, chordsChannel2LastNotes, chord2Track,
 							toneTimeFrame, midiMessages, chord2VolumeFactor, false);
+				}
+			}
+			
+
+			if (midiPlayPadChordsSwitch && midiPlayChord3Switch) {
+				ChannelData pad1Channel = channels[PAD_1_CHANNEL];
+				if (writeTrack && pad1Track == null) {
+					pad1Track = midiSequence.createTrack();
+					createEvent(pad1Track, pad1Channel, PROGRAM, pad1Channel.program + 1, 1L, 127);
+				}
+
+				if (padsChannel1LastNotes == null) {
+					padsChannel1LastNotes = new HashSet<>();
+				}
+
+				NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(3);
+				if (track != null) {
+					playSynthNoteTracks(new NoteTrack[] { track }, pad1Channel, padsChannel1LastNotes, pad1Track,
+							toneTimeFrame, midiMessages, chord3VolumeFactor, false);
+				}
+			}	
+			
+			if (midiPlayPadChordsSwitch && midiPlayChord4Switch) {
+				ChannelData pad2Channel = channels[PAD_2_CHANNEL];
+				if (writeTrack && pad2Track == null) {
+					pad2Track = midiSequence.createTrack();
+					createEvent(pad2Track, pad2Channel, PROGRAM, pad2Channel.program + 1, 1L, 127);
+				}
+
+				if (padsChannel2LastNotes == null) {
+					padsChannel2LastNotes = new HashSet<>();
+				}
+
+				NoteTrack track = toneTimeFrame.getToneMap().getNoteTracker().getChordTrack(4);
+				if (track != null) {
+					playSynthNoteTracks(new NoteTrack[] { track }, pad2Channel, padsChannel2LastNotes, pad2Track,
+							toneTimeFrame, midiMessages, chord4VolumeFactor, false);
 				}
 			}
 			return true;

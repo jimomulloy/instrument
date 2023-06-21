@@ -360,6 +360,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICE4_SWITCH = "actuation.voice.midiPlayVoice4Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_CHORD1_SWITCH = "actuation.voice.midiPlayChord1Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_CHORD2_SWITCH = "actuation.voice.midiPlayChord2Switch";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_PAD_CHORDS_SWITCH = "actuation.voice.midiPlayPadChordsSwitch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_PAD1_SWITCH = "actuation.voice.midiPlayPad1Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_PAD2_SWITCH = "actuation.voice.midiPlayPad2Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_BEAT1_SWITCH = "actuation.voice.midiPlayBeat1Switch";
