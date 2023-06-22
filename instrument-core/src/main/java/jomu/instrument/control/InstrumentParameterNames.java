@@ -39,6 +39,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY = "perception.hearing.tonemap.maximumFrequency";
 	public static final String PERCEPTION_HEARING_HARMONIC_LOW_NOTE = "perception.hearing.harmonicLowNote";
 	public static final String PERCEPTION_HEARING_HARMONIC_HIGH_NOTE = "perception.hearing.harmonicHighNote";
+	public static final String PERCEPTION_HEARING_PID_SWITCH = "perception.hearing.pidSwitch";
 	public static final String PERCEPTION_HEARING_PID_P_FACTOR = "perception.hearing.pidPFactor";
 	public static final String PERCEPTION_HEARING_PID_D_FACTOR = "perception.hearing.pidDFactor";
 	public static final String PERCEPTION_HEARING_PID_I_FACTOR = "perception.hearing.pidIFactor";

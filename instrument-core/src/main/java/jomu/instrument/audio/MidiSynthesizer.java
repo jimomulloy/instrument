@@ -483,11 +483,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public void playFrameSequence(ToneTimeFrame toneTimeFrame, String streamId, int sequence)
 			throws InvalidMidiDataException, MidiUnavailableException {
 
-		if (!midiStreams.containsKey(streamId)) {
+		MidiStream midiStream = midiStreams.get(streamId);
+		if (midiStream == null || midiStream.isClosed()) {
 			clearTracks();
 			midiStreams.put(streamId, new MidiStream(streamId));
+			midiStream = midiStreams.get(streamId);
 		}
-		MidiStream midiStream = midiStreams.get(streamId);
 		MidiQueueMessage midiQueueMessage = new MidiQueueMessage(toneTimeFrame, sequence);
 		midiStream.getBq().add(midiQueueMessage);
 		return;
@@ -670,6 +671,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				boolean doneDelay = false;
 
 				try {
+
 					while (running) {
 
 						if (playDelay > 0 && !doneDelay) {

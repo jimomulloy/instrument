@@ -126,7 +126,6 @@ public class CalibrationMap implements OnsetHandler {
 	@Override
 	public void handleOnset(double time, double salience) {
 		beatMap.put(time, salience);
-		LOG.severe(">>CALIBRATE BEAT: " + time);
 	}
 
 	public double getBeatBeforeTime(double time, double range) {

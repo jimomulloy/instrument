@@ -568,8 +568,9 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 	}
 
-	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes) {
+	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes, int retryCount) {
 		LOG.finer(">>NoteTracker trackNote: " + noteListElement.note + ", " + noteListElement);
+		int currentRetryCount = retryCount;
 		NoteTrack pendingOverlappingSalientTrack = null;
 		NoteTrack salientTrack = null;
 		NoteListElement disconnectedNote = null;
@@ -685,9 +686,14 @@ public class NoteTracker {
 		}
 
 		LOG.finer(">>NoteTracker trackNote ADDED note: " + noteListElement.note + ", " + salientTrack.number);
-		if (disconnectedNote != null) {
-			LOG.severe(">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
-			trackNote(disconnectedNote, discardedNotes);
+		if (disconnectedNote != null && currentRetryCount <= maxTracksLower) {
+			if (currentRetryCount <= maxTracksLower) {
+				LOG.severe(
+						">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
+				trackNote(disconnectedNote, discardedNotes, currentRetryCount++);
+			} else {
+				discardedNotes.add(disconnectedNote);
+			}
 		}
 		return salientTrack;
 	}

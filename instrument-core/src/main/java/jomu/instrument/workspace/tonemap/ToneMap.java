@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
@@ -24,6 +25,11 @@ import jomu.instrument.control.ParameterManager;
  * @author Jim O'Mulloy
  */
 public class ToneMap {
+
+	@Override
+	public String toString() {
+		return "ToneMap [key=" + key + "]";
+	}
 
 	private static final Logger LOG = Logger.getLogger(ToneMap.class.getName());
 
@@ -378,5 +384,22 @@ public class ToneMap {
 		if (frameIndex.size() >= sequence) {
 			frameCache.backup(getFrameKey(frameIndex.get(sequence - 1)));
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(key);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ToneMap other = (ToneMap) obj;
+		return Objects.equals(key, other.key);
 	}
 }

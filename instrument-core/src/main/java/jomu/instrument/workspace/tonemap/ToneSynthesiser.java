@@ -167,7 +167,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 
 	private void trackNotes(Set<NoteListElement> nles, Set<NoteListElement> discardedNotes, boolean legato) {
 		for (NoteListElement nle : nles) {
-			NoteTrack track = toneMap.getNoteTracker().trackNote(nle, discardedNotes);
+			NoteTrack track = toneMap.getNoteTracker().trackNote(nle, discardedNotes, 0);
 			if (track != null && legato) {
 				addLegato(track, nle);
 			}

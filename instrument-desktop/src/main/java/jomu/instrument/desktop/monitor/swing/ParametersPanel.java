@@ -346,6 +346,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField cqHighThresholdInput;
 
+	private JCheckBox pidSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -962,6 +964,22 @@ public class ParametersPanel extends JPanel {
 		acSACFSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_SACF_SWITCH));
 		tunerSwitchPanel.add(acSACFSwitchCB);
+
+		pidSwitchCB = new JCheckBox("pidSwitchCB");
+		pidSwitchCB.setText("PID Switch");
+		pidSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		pidSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_SWITCH));
+		tunerSwitchPanel.add(pidSwitchCB);
 
 		parameterPanel.add(tunerSwitchPanel);
 
@@ -4221,6 +4239,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_ACCUMULATE_SWITCH));
 		peakSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_PEAK_SWITCH));
+		pidSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_SWITCH));
 		compressionSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS));
 		notateCompressionSwitchCB.setSelected(parameterManager

@@ -298,7 +298,7 @@ public class Hearing implements Organ {
 
 		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
 		LOG.severe(">>Start Audio file: " + fileName + ", path: " + filePath + ", streamId: " + getStreamId() + ", "
-				+ format.getEncoding() + ", " + format);
+				+ format);
 		if (!format.getEncoding().toString().startsWith("PCM")) {
 			bs.close();
 			is.close();
@@ -312,7 +312,7 @@ public class Hearing implements Organ {
 
 		if (format.getSampleRate() != audioStream.getSampleRate()) {
 			audioStream.setSampleRate((int) format.getSampleRate());
-			LOG.finer(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
+			LOG.severe(">>Start Audio file set sample rate: " + audioStream.getSampleRate());
 		}
 		try {
 			audioStream.calibrateAudioFileStream(bs);
@@ -431,6 +431,9 @@ public class Hearing implements Organ {
 		// this is *not* the same as the file format (wav)
 		AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16,
 				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
+		// AudioFormat convertFormat = new AudioFormat(sourceFormat.getSampleRate(), 16,
+		// 1, true, true);
+
 		// create stream that delivers the desired format
 		AudioInputStream converted = AudioSystem.getAudioInputStream(convertFormat, stream);
 		// write stream into a file with file format wav
@@ -709,7 +712,6 @@ public class Hearing implements Organ {
 			}
 
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
-			LOG.severe(">>calibarteAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 
 			dispatcher = audioDispatcherFactory.getAudioDispatcher(audioStream, bufferSize, overlap);
 			int audioHighPass = parameterManager
@@ -817,8 +819,6 @@ public class Hearing implements Organ {
 					}
 					double result = Math.sqrt(total / numSamples);
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
-
-					LOG.severe(">>CALIBRATE POWER: " + audioEvent.getTimeStamp() + ", " + result);
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {
@@ -928,12 +928,7 @@ public class Hearing implements Organ {
 				GainProcessor gain = new GainProcessor(gainCompressFactor);
 				BitDepthProcessor bithDeptProcessor = new BitDepthProcessor();
 				bithDeptProcessor.setBitDepth(format.getSampleSizeInBits());
-
-				// dispatcher.addAudioProcessor(coder);
-				// dispatcher.addAudioProcessor(decoder);
 				dispatcher.addAudioProcessor(gain);
-				// dispatcher.addAudioProcessor(bithDeptProcessor);
-				LOG.severe(">>Hearing add HaarWaveletCoder");
 			}
 
 			int smoothFactor = parameterManager
@@ -961,6 +956,8 @@ public class Hearing implements Organ {
 
 			}
 
+			boolean pidSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_SWITCH);
 			float pidPFactor = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_P_FACTOR);
 			float pidDFactor = parameterManager
@@ -968,12 +965,9 @@ public class Hearing implements Organ {
 			float pidIFactor = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PID_I_FACTOR);
 
-			if (pidPFactor > 0 || pidDFactor > 0 || pidIFactor > 0) {
+			if (pidSwitch && (pidPFactor != 0 || pidDFactor != 0 || pidIFactor != 0)) {
 				dispatcher.addAudioProcessor(new PidProcessor(pidPFactor, pidDFactor, pidIFactor));
 			}
-
-			// dispatcher.addAudioProcessor(new PitchShifter(pidIFactor, sampleRate,
-			// bufferSize, overlap));
 
 			tarsosFeatureSource = new TarsosFeatureSource(dispatcher);
 			tarsosFeatureSource.initialise();

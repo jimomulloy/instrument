@@ -138,17 +138,7 @@ public class NoteTimbre {
 	}
 
 	public boolean matchesVibrato(NoteTimbre other) {
-		if (this.vibrato == 0 && other.vibrato == 0) {
-			return true;
-		}
-		if (this.vibrato != 0 && other.vibrato == 0) {
-			return false;
-		}
-		if (this.vibrato == 0 && other.vibrato != 0) {
-			return false;
-		}
-		double r = this.vibrato / other.vibrato;
-		if (r > vibratoRatio) {
+		if (vibratoRatio < Math.abs(this.vibrato - other.vibrato)) {
 			return false;
 		}
 		return true;

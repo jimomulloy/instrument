@@ -368,6 +368,7 @@ public class Voice implements Organ {
 	public boolean startStreamPlayer(String streamId) {
 		ToneMap synthToneMap = workspace.getAtlas()
 				.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
+		LOG.severe(">>Play Stream from tm: " + synthToneMap);
 		if (synthToneMap == null) {
 			return false;
 		}
