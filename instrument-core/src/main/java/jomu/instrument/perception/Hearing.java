@@ -307,6 +307,7 @@ public class Hearing implements Organ {
 			is = new FileInputStream(wavFilePath);
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
 			bs = new BufferedInputStream(is);
+			throw new InstrumentException("Why am I here!!");
 		}
 
 		if (format.getSampleRate() != audioStream.getSampleRate()) {
@@ -816,6 +817,8 @@ public class Hearing implements Organ {
 					}
 					double result = Math.sqrt(total / numSamples);
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
+
+					LOG.severe(">>CALIBRATE POWER: " + audioEvent.getTimeStamp() + ", " + result);
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {

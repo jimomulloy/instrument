@@ -213,16 +213,16 @@ public class ToneTimeFrame implements Serializable {
 
 	public void scale(double lowThreshold, double highThreshold, boolean useLog) {
 		for (int i = 0; i < elements.length; i++) {
-			double amp = elements[i].amplitude;
-			if (amp > highThreshold) {
-				amp = 1.0;
-			} else if (amp <= lowThreshold) {
-				amp = AMPLITUDE_FLOOR;
+			if (elements[i].amplitude > highThreshold) {
+				elements[i].amplitude = 1.0;
+			} else if (elements[i].amplitude <= lowThreshold) {
+				elements[i].amplitude = AMPLITUDE_FLOOR;
 			} else {
 				if (useLog) {
-					amp = Math.log1p((amp - lowThreshold) / (highThreshold - lowThreshold));
+					elements[i].amplitude = Math
+							.log1p((elements[i].amplitude - lowThreshold) / (highThreshold - lowThreshold));
 				} else {
-					amp = (amp - lowThreshold) / (highThreshold - lowThreshold);
+					elements[i].amplitude = (elements[i].amplitude - lowThreshold) / (highThreshold - lowThreshold);
 				}
 			}
 		}
@@ -1513,7 +1513,7 @@ public class ToneTimeFrame implements Serializable {
 				if (maskTimeFrame.getElement(elementIndex).amplitude <= AMPLITUDE_FLOOR) {
 					elements[elementIndex].amplitude = AMPLITUDE_FLOOR;
 				}
-			}	
+			}
 		}
 		reset();
 		return this;

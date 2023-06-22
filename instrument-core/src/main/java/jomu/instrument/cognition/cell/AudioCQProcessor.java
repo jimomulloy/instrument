@@ -31,18 +31,16 @@ public class AudioCQProcessor extends ProcessorCommon {
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
+		double highThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_HIGH_THRESHOLD);
 		double signalMinimum = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SIGNAL_MINIMUM);
-		double normaliseThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_NORMALISE_THRESHOLD);
 		double decibelLevel = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_DECIBEL_LEVEL);
 		float compression = parameterManager
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_COMPRESSION);
 		boolean cqSwitchCompress = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS);
-		boolean cqSwitchCompressUeMax = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX);
 		boolean cqSwitchSquare = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_SQUARE);
 		boolean cqSwitchLowThreshold = parameterManager
@@ -53,8 +51,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
 		boolean cqSwitchNormaliseMax = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
-		boolean cqSwitchCompressMax = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_MAX);
 		boolean cqSwitchCompressLog = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG);
 		boolean cqSwitchScale = parameterManager
@@ -103,14 +99,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY);
 		double toneMapMaxFrequency = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY);
-		double lowCQThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
-		double highCQThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
-		double lowCQPitchThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_LOW_THRESHOLD);
-		double highCQPitchThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		ConstantQFeatures cqf = aff.getConstantQFeatures();
@@ -159,7 +147,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 			ttf.compress(compression);
 		}
 		if (cqSwitchNormalise) {
-			double nt = highCQThreshold;
+			double nt = highThreshold;
 			if (cqSwitchNormaliseMax) {
 				nt = ttf.getMaxAmplitude();
 			}
@@ -171,10 +159,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		if (cqSwitchLowThreshold) {
 			ttf.lowThreshold(lowThreshold, signalMinimum);
-		}
-
-		if (cqSwitchScale) {
-			ttf.scale(lowCQThreshold, highCQThreshold, cqSwitchCompressLog);
 		}
 
 		if (cqSwitchAdaptiveWhiten) {
@@ -218,21 +202,24 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		LOG.finer(">>CQ Before calibarte: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+		LOG.finer(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 				+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
-			LOG.finer(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
-					+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
+
+		if (cqSwitchScale) {
+			ttf.scale(lowThreshold, highThreshold, cqSwitchCompressLog);
+		} else {
+			if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
+				CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+				ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
+				LOG.finer(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+						+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
+			}
 		}
 
 		toneMap.updateStatistics(ttf);
 
 		LOG.finer(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
-				+ ", " + ttf.getSpectralCentroid());
-
-		LOG.finer(">>CQ MAX/MIN AMP X: " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude());
+				+ ", " + ttf.getSpectralCentroid() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude());
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 

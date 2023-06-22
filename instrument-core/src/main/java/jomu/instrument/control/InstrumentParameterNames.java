@@ -55,6 +55,7 @@ public class InstrumentParameterNames {
 	public static final String MONITOR_TONEMAP_VIEW_HIGH_THRESHOLD = "monitor.tonemap.view.highThreshold";
 
 	public static final String PERCEPTION_HEARING_CQ_LOW_THRESHOLD = "perception.hearing.cq.lowThreshold";
+	public static final String PERCEPTION_HEARING_CQ_HIGH_THRESHOLD = "perception.hearing.cq.highThreshold";
 	public static final String PERCEPTION_HEARING_CQ_THRESHOLD_FACTOR = "perception.hearing.cq.thresholdFactor";
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_THRESHOLD = "perception.hearing.cq.envelopeWhitenThreshold";
 	public static final String PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_ATTACK_FACTOR = "perception.hearing.cq.envelopeWhitenAttackFactor";

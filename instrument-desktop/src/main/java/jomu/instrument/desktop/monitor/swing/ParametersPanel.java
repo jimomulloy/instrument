@@ -344,6 +344,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField noteTimbreVibratoRatioInput;
 
+	private JTextField cqHighThresholdInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -3006,6 +3008,23 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(cqLowThresholdLabel);
 		cqParamsPanel.add(cqLowThresholdInput);
 
+		JLabel cqHighThresholdLabel = new JLabel("CQ High Threshold: ");
+		cqHighThresholdInput = new JTextField(4);
+		cqHighThresholdInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = cqHighThresholdInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_HIGH_THRESHOLD,
+						newValue);
+				cqHighThresholdLabel.setText(String.format("CQ High Threshold  (%s):", newValue));
+				cqHighThresholdInput.setText(newValue);
+			}
+		});
+		cqHighThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_HIGH_THRESHOLD));
+		cqParamsPanel.add(cqHighThresholdLabel);
+		cqParamsPanel.add(cqHighThresholdInput);
+
 		JLabel cqThresholdFactorLabel = new JLabel("CQ Threshold Factor: ");
 		cqThresholdFactorInput = new JTextField(4);
 		cqThresholdFactorInput.addActionListener(new ActionListener() {
@@ -4388,6 +4407,8 @@ public class ParametersPanel extends JPanel {
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_THRESHOLD));
 		cqLowThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD));
+		cqHighThresholdInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_HIGH_THRESHOLD));
 		cqBinsPerOctaveInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_BINS_PER_OCTAVE));
 

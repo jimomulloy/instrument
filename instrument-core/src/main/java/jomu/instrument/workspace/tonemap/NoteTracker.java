@@ -686,7 +686,7 @@ public class NoteTracker {
 
 		LOG.finer(">>NoteTracker trackNote ADDED note: " + noteListElement.note + ", " + salientTrack.number);
 		if (disconnectedNote != null) {
-			LOG.finer(">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
+			LOG.severe(">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
 			trackNote(disconnectedNote, discardedNotes);
 		}
 		return salientTrack;
