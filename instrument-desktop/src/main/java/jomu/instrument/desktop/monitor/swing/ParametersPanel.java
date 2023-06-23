@@ -53,8 +53,9 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "vocal-male",
-			"vocal-female", "birds", "blackbird", "classical", "folk", "beethoven", "brass", "compresschord", "epiano",
-			"epiano-arp", "epiano-chords", "epiano-chords-staccato", "guitarstrum", "hpschord", "neon", "neon-peaked" };
+			"vocal-female", "birds", "blackbird", "bird-alt1", "bird-best", "bird-scaled", "classical", "folk", "folky",
+			"beethoven", "brass", "compresschord", "epiano", "epiano-arp", "epiano-chords", "epiano-chords-staccato",
+			"guitarstrum", "hpschord", "neon", "neon-peaked" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;
@@ -347,6 +348,8 @@ public class ParametersPanel extends JPanel {
 	private JTextField cqHighThresholdInput;
 
 	private JCheckBox pidSwitchCB;
+
+	private JCheckBox tunerClearNotesOnCreateSwitchCB;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -915,6 +918,22 @@ public class ParametersPanel extends JPanel {
 		tunerClearIsolatedNotesSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH));
 		tunerSwitchPanel.add(tunerClearIsolatedNotesSwitchCB);
+
+		tunerClearNotesOnCreateSwitchCB = new JCheckBox("tunerClearNotesOnCreateSwitchCB");
+		tunerClearNotesOnCreateSwitchCB.setText("Tuner Clear Notes On Create Switch");
+		tunerClearNotesOnCreateSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTES_ON_CREATE_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		tunerClearNotesOnCreateSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTES_ON_CREATE_SWITCH));
+		tunerSwitchPanel.add(tunerClearNotesOnCreateSwitchCB);
 
 		hpsMedianSwitchCB = new JCheckBox("hpsMedianSwitchCB");
 		hpsMedianSwitchCB.setText("HPS Median Switch");
@@ -2675,7 +2694,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(normalizeSettingLabel);
 		parameterPanel.add(normalizeSettingSlider);
 
-		noteHighSlider = new JSlider(0, 100);
+		noteHighSlider = new JSlider(1, 100);
 		final JLabel noteHighLabel = new JLabel("Audio Tuner High Note :");
 		noteHighSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2692,7 +2711,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteHighLabel);
 		parameterPanel.add(noteHighSlider);
 
-		noteLowSlider = new JSlider(0, 100);
+		noteLowSlider = new JSlider(1, 100);
 		final JLabel noteLowLabel = new JLabel("Audio Tuner Low Note :");
 		noteLowSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2709,7 +2728,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteLowLabel);
 		parameterPanel.add(noteLowSlider);
 
-		noteMaxDurationSlider = new JSlider(1, 10000);
+		noteMaxDurationSlider = new JSlider(100, 10000);
 		final JLabel noteMaxDurationLabel = new JLabel("Audio Tuner Max Note Duration :");
 		noteMaxDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -2727,7 +2746,7 @@ public class ParametersPanel extends JPanel {
 		parameterPanel.add(noteMaxDurationLabel);
 		parameterPanel.add(noteMaxDurationSlider);
 
-		noteMinDurationSlider = new JSlider(1, 10000);
+		noteMinDurationSlider = new JSlider(1, 1000);
 		final JLabel noteMinDurationLabel = new JLabel("Audio Tuner Min Note Duration :");
 		noteMinDurationSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -4633,6 +4652,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH));
 		tunerClearIsolatedNotesSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH));
+		tunerClearNotesOnCreateSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTES_ON_CREATE_SWITCH));
 
 		tunerHarmonicSweepInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP));

@@ -324,6 +324,7 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_CLEAR_TAIL_NOTES_SWITCH = "audio.tuner.clearTailNotesSwitch";
 	public static final String AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH = "audio.tuner.clearVibratoNotesSwitch";
 	public static final String AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH = "audio.tuner.clearIsolatedNotesSwitch";
+	public static final String AUDIO_TUNER_CLEAR_NOTES_ON_CREATE_SWITCH = "audio.tuner.clearNotesOnCreateSwitch";
 
 	public static final String MONITOR_VIEW_TIME_AXIS_OFFSET = "monitor.view.timeAxisOffset";
 	public static final String MONITOR_VIEW_PITCH_AXIS_OFFSET = "monitor.view.pitchAxisOffset";

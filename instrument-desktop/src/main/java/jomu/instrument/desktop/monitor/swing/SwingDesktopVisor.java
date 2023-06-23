@@ -1307,7 +1307,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						int screenWidth = screenSize.width;
 
 						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.9), (int) ((double) screenHeight * 0.8));
+						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
 
 						// set visibility of dialog
 						d.setVisible(true);
@@ -1416,7 +1416,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						int screenWidth = screenSize.width;
 
 						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.9), (int) ((double) screenHeight * 0.8));
+						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
 
 						// set visibility of dialog
 						d.setVisible(true);

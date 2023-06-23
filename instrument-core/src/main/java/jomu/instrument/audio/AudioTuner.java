@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -47,6 +49,7 @@ public class AudioTuner implements ToneMapConstants {
 	boolean clearTailNotesSwitch;
 	boolean clearIsolatedNotesSwitch;
 	boolean clearVibratoNotesSwitch;
+	boolean clearNotesOnCreateSwitch;
 
 	private int n1Setting = 10;
 	private boolean n1Switch;
@@ -159,6 +162,8 @@ public class AudioTuner implements ToneMapConstants {
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_SWITCH);
 		clearIsolatedNotesSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_SWITCH);
+		clearNotesOnCreateSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_NOTES_ON_CREATE_SWITCH);
 		noteScanAttenuateHarmonics = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_SCAN_ATTENUATE_HARMONICS);
 		noteScanAttenuateUndertones = parameterManager
@@ -727,11 +732,11 @@ public class AudioTuner implements ToneMapConstants {
 			}
 		}
 
-		if (clearTailNotesSwitch) {
+		if (!clearNotesOnCreateSwitch && clearTailNotesSwitch) {
 			clearTailNotes(toneMap);
 		}
 
-		if (clearIsolatedNotesSwitch && longestNote != null) {
+		if (!clearNotesOnCreateSwitch && clearIsolatedNotesSwitch && longestNote != null) {
 			LOG.finer(">>NOTESCAN clearIsolatedNotes: " + time + ", " + longestNote);
 			clearIsolatedNotes(toneMap, longestNote);
 		}
@@ -1137,6 +1142,14 @@ public class AudioTuner implements ToneMapConstants {
 					processedNotes.add(newNle);
 				}
 			}
+
+			if (clearNotesOnCreateSwitch && clearTailNotesSwitch) {
+				clearTailNotes(toneMap);
+			}
+
+			if (clearNotesOnCreateSwitch && clearIsolatedNotesSwitch) {
+				clearIsolatedNotes(toneMap, noteListElement);
+			}
 		}
 	}
 
@@ -1146,6 +1159,7 @@ public class AudioTuner implements ToneMapConstants {
 		Set<NoteListElement> candidateNotes = new HashSet<>();
 		NoteListElement currentNote = noteListElement;
 		candidateNotes.add(currentNote);
+		Map<Integer, Double> accumulatedNoteLengthMap = new HashMap<Integer, Double>();
 		if (seekVibratoElements(toneMap, processedNotes, candidateNotes)) {
 			int lowNote = Integer.MAX_VALUE;
 			int highNote = Integer.MIN_VALUE;
@@ -1162,6 +1176,11 @@ public class AudioTuner implements ToneMapConstants {
 			double percentMin = 0;
 			double incrementTime = 0;
 			for (NoteListElement pnle : processedNotes) {
+				double accumulatedNoteLength = pnle.endTime + pnle.incrementTime - pnle.startTime;
+				if (accumulatedNoteLengthMap.containsKey(pnle.note)) {
+					accumulatedNoteLength += accumulatedNoteLengthMap.get(pnle.note);
+				}
+				accumulatedNoteLengthMap.put(pnle.note, accumulatedNoteLength);
 				ampSum += pnle.avgAmp;
 				numSlots++;
 				if (lowNote > pnle.note) {
@@ -1208,12 +1227,27 @@ public class AudioTuner implements ToneMapConstants {
 				currentNote.vibrato++;
 				currentProcessedNotes.remove(pnle);
 			}
+			double maxNoteLength = 0;
+			int targetNote = 0;
+			boolean hasMaxLength = false;
+			for (Entry<Integer, Double> entry : accumulatedNoteLengthMap.entrySet()) {
+				if (maxNoteLength < entry.getValue()) {
+					targetNote = entry.getKey();
+					maxNoteLength = entry.getValue();
+					hasMaxLength = true;
+				} else if (maxNoteLength == entry.getValue()) {
+					hasMaxLength = false;
+					break;
+				}
+			}
+			if (!hasMaxLength) {
+				int noteRange = (highNote - lowNote);
+				targetNote = noteRange / 2 + lowNote;
+			}
 
-			int noteRange = (highNote - lowNote);
-			int meanNote = noteRange / 2 + lowNote;
-			pitchIndex += meanNote - lowNote;
+			pitchIndex += targetNote - lowNote;
 			avgAmp = ampSum / numSlots;
-			NoteListElement newNle = new NoteListElement(meanNote, pitchIndex, startTime, endTime, startTimeIndex,
+			NoteListElement newNle = new NoteListElement(targetNote, pitchIndex, startTime, endTime, startTimeIndex,
 					endTimeIndex, avgAmp, maxAmp, minAmp, percentMin, false, incrementTime);
 
 			LOG.finer(">>clearVibratoNotes " + lowNote + ", " + highNote + ", " + newNle.note + ", " + newNle.startTime
@@ -1255,9 +1289,13 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean seekVibratoElements(ToneMap toneMap, Set<NoteListElement> processedNotes,
 			Set<NoteListElement> candidateNotes) {
 		boolean inRange = true;
+		NoteListElement rootNote = null;
 		do {
 
 			NoteListElement currentNote = candidateNotes.iterator().next();
+			if (rootNote == null) {
+				rootNote = currentNote;
+			}
 			double fromTime = currentNote.startTime - currentNote.incrementTime - clearIsolatedNoteTimeRange > 0
 					? currentNote.startTime - currentNote.incrementTime - clearIsolatedNoteTimeRange
 					: 0;
@@ -1281,9 +1319,10 @@ public class AudioTuner implements ToneMapConstants {
 								&& (ttfElements[pi].noteListElement.endTime <= currentNote.endTime)
 								&& (ttfElements[pi].noteListElement.endTime
 										+ ttfElements[pi].noteListElement.incrementTime >= currentNote.startTime)
-								&& (ttfElements[pi].noteListElement.endTime
+								&& ((ttfElements[pi].noteListElement.endTime
 										+ ttfElements[pi].noteListElement.incrementTime
-										- ttfElements[pi].noteListElement.startTime <= clearIsolatedNoteTimeRange)) {
+										- ttfElements[pi].noteListElement.startTime <= clearIsolatedNoteTimeRange))
+								|| rootNote.note == ttfElements[pi].noteListElement.note) {
 							candidateNotes.add(ttfElements[pi].noteListElement);
 						}
 					}
@@ -1413,7 +1452,11 @@ public class AudioTuner implements ToneMapConstants {
 					NoteListElement candidateNote = ttfElements[index].noteListElement;
 					if (!processedNotes.contains(candidateNote)
 							&& (candidateNote.endTime - candidateNote.startTime) < harmonicSweep
-							&& candidateNote.maxAmp <= clearIsolatedNoteFactor * noteListElement.maxAmp) {
+							&& candidateNote.maxAmp <= clearIsolatedNoteFactor * noteListElement.maxAmp
+							&& !((candidateNote.endTime >= noteListElement.startTime)
+									&& Math.abs(candidateNote.note - noteListElement.note) <= 2)
+							&& !((noteListElement.endTime >= candidateNote.startTime)
+									&& Math.abs(candidateNote.note - noteListElement.note) <= 2)) {
 						boolean isDiscard = true;
 						ToneTimeFrame[] sweepFrames = toneMap
 								.getTimeFramesFrom((candidateNote.startTime - harmonicSweep) / 1000.0);
