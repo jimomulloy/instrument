@@ -198,13 +198,17 @@ public class Voice implements Organ {
 	 * @param pause         the pause
 	 */
 	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence, boolean pause) {
+		LOG.severe(">>send 1: " + streamId);
 		if (deadStreams.contains(streamId)) {
 			return;
 		}
+		LOG.severe(">>send 2: " + streamId);
 		if (pause) {
 			smq.add(new SendMessage(toneTimeFrame, streamId, sequence));
 		} else {
+			LOG.severe(">>send 3: " + streamId);
 			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
+				LOG.severe(">>send 4: " + streamId);
 				writeMidi(toneTimeFrame, streamId, sequence);
 			}
 			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
@@ -305,7 +309,7 @@ public class Voice implements Organ {
 	 */
 	public void clear(String streamId) {
 		LOG.severe(">>VOICE clear: ");
-		deadStreams.add(streamId);
+		// ?? deadStreams.add(streamId);
 		resynthSynthesizer.clear(streamId);
 		audioSynthesizer.clear(streamId);
 		midiSynthesizer.clear(streamId);
@@ -375,6 +379,7 @@ public class Voice implements Organ {
 		int sequence = 1;
 		ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
 		while (frame != null) {
+			LOG.severe(">>Play Stream for frame: " + frame.getStartTime());
 			send(frame, streamId, sequence, false);
 			sequence++;
 			frame = synthToneMap.getTimeFrame(sequence);

@@ -484,7 +484,9 @@ public class MidiSynthesizer implements ToneMapConstants {
 			throws InvalidMidiDataException, MidiUnavailableException {
 
 		MidiStream midiStream = midiStreams.get(streamId);
+		LOG.severe(">>playFrameSequence for MidiStream: " + streamId);
 		if (midiStream == null || midiStream.isClosed()) {
+			LOG.severe(">>playFrameSequence reset MidiStream: " + streamId);
 			clearTracks();
 			midiStreams.put(streamId, new MidiStream(streamId));
 			midiStream = midiStreams.get(streamId);
@@ -3666,6 +3668,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			bq = new LinkedBlockingQueue<>();
 			consumer = new MidiQueueConsumer(bq, this);
 			// TODO LOOM Thread.startVirtualThread(consumer);
+			LOG.severe(">>Start MidiQueueConsumer Stream: " + streamId);
 			new Thread(consumer).start();
 		}
 

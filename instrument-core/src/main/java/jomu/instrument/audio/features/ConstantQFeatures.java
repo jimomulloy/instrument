@@ -67,8 +67,8 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 						int index = pitchSet.getIndex(note);
 						elements[index].microTones.putMicroTone(entry.getKey(), spectralEnergy[i]);
 						if (getSource().isMicroToneSwitch()) {
-							if (elements[index].amplitude < spectralEnergy[i]) {
-								elements[index].amplitude = spectralEnergy[i];
+							if (elements[index].amplitude < (spectralEnergy[i] * (float) features.size())) {
+								elements[index].amplitude = (spectralEnergy[i] * (float) features.size());
 							}
 						} else {
 							elements[index].amplitude += spectralEnergy[i];
