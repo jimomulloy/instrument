@@ -690,7 +690,8 @@ public class NoteTracker {
 			if (currentRetryCount <= maxTracksLower) {
 				LOG.severe(
 						">>NoteTracker trackNote disconnected note: " + disconnectedNote + ", " + noteListElement.note);
-				trackNote(disconnectedNote, discardedNotes, currentRetryCount++);
+				currentRetryCount++;
+				trackNote(disconnectedNote, discardedNotes, currentRetryCount);
 			} else {
 				discardedNotes.add(disconnectedNote);
 			}
