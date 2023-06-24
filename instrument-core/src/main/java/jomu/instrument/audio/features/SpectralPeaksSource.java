@@ -135,7 +135,6 @@ public class SpectralPeaksSource extends AudioEventSource<SpectralInfo> {
 	}
 
 	void initialise() {
-		LOG.finer(">>SP init: " + this.windowSize);
 		noiseFloorMedianFilterLength = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOISE_FLOOR_FILTER_LENGTH);
 		noiseFloorFactor = parameterManager

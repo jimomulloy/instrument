@@ -182,11 +182,17 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 			if (integrateSACFSwitch) {
 				integrateSpectralToneMap.getTimeFrame().merge(sacfToneMap.getTimeFrame(sequence));
 			}
+			if (integrateTPSwitch) {
+				integrateSpectralToneMap.getTimeFrame().merge(tpToneMap.getTimeFrame(sequence));
+			}
 			if (integrateSPSwitch) {
 				integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
 			}
 			if (integrateYINSwitch) {
 				integrateSpectralToneMap.getTimeFrame().merge(yinToneMap.getTimeFrame(sequence));
+			}
+			if (integrateMFCCSwitch) {
+				integrateSpectralToneMap.getTimeFrame().merge(mfccToneMap.getTimeFrame(sequence));
 			}
 
 			integrateSpectralToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);

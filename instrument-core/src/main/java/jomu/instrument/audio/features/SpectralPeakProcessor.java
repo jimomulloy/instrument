@@ -36,7 +36,7 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	private final FFT fft;
 
 	/**
-	 * The pahse info of the current frame.
+	 * The phase info of the current frame.
 	 */
 	private final float[] currentPhaseOffsets;
 

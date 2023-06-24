@@ -484,9 +484,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			throws InvalidMidiDataException, MidiUnavailableException {
 
 		MidiStream midiStream = midiStreams.get(streamId);
-		LOG.severe(">>playFrameSequence for MidiStream: " + streamId);
 		if (midiStream == null || midiStream.isClosed()) {
-			LOG.severe(">>playFrameSequence reset MidiStream: " + streamId);
 			clearTracks();
 			midiStreams.put(streamId, new MidiStream(streamId));
 			midiStream = midiStreams.get(streamId);

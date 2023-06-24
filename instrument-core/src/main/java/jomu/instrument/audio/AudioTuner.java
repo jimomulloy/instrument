@@ -298,7 +298,7 @@ public class AudioTuner implements ToneMapConstants {
 		int index = 0;
 		ToneMapElement thresholdElement = null;
 
-		double troughAmp, lastAmp, lastPeakAmp;
+		double troughAmp, lastAmp;
 
 		ToneTimeFrame toneTimeFrame = toneMap.getTimeFrame();
 
@@ -330,12 +330,9 @@ public class AudioTuner implements ToneMapConstants {
 		if (!n1Switch) {
 			thresholdElement = null;
 		}
-		lastPeakAmp = 0;
 		double peakFactor = (double) n2Setting / 100.0;
 		double peakStepFactor = (double) n6Setting / 100.0;
 
-		PitchSet pitchSet = toneTimeFrame.getPitchSet();
-		LOG.finer(">>Process peaks: " + normalizePeak + ", " + toneTimeFrame);
 		for (ToneMapElement toneMapElement : ttfElements) {
 
 			index = toneMapElement.getIndex();
@@ -346,8 +343,6 @@ public class AudioTuner implements ToneMapConstants {
 				if (troughAmp <= normalizeTrough || (amplitude / troughAmp) > peakFactor) {
 					if (amplitude > lastAmp) {
 						if (startPeak != 0 && ((lastAmp / amplitude) < peakStepFactor)) {
-							LOG.finer(">>Process peaks 1: " + amplitude + ", " + lastAmp + ", " + startPeak + ", "
-									+ endPeak);
 							if (backFill) {
 								peakBackFill(ttfElements, startPeak, lastEndPeak);
 							}
@@ -356,12 +351,10 @@ public class AudioTuner implements ToneMapConstants {
 						}
 						startPeak = index;
 						endPeak = index;
-						lastPeakAmp = amplitude;
 					} else if (startPeak != 0) {
 						endPeak = index;
 					}
 				} else {
-					lastPeakAmp = 0;
 					startPeak = 0;
 					endPeak = 0;
 				}
@@ -378,9 +371,7 @@ public class AudioTuner implements ToneMapConstants {
 					if ((amplitude / lastAmp) < peakStepFactor) {
 						startPeak = index;
 						endPeak = index;
-						lastPeakAmp = amplitude;
 					} else {
-						lastPeakAmp = 0;
 						startPeak = 0;
 						endPeak = 0;
 					}
@@ -410,20 +401,17 @@ public class AudioTuner implements ToneMapConstants {
 			}
 		}).limit(n1Setting).map(t1 -> t1).collect(Collectors.toList());
 
-		if (n3Switch) {
-			toneTimeFrame.reset();
-			for (ToneMapElement toneMapElement : ttfElements) {
-				if (!topPeaks.contains(toneMapElement)) {
-					toneMapElement.amplitude = MIN_AMPLITUDE;
-					toneMapElement.isPeak = false;
-				} else {
-					toneMapElement.isPeak = true;
-					toneMapElement.amplitude = 1.0; // toneTimeFrame.getMaxAmplitude();
-					LOG.finer(">>PEAK found: " + toneMapElement);
-				}
+		toneTimeFrame.reset();
+		for (ToneMapElement toneMapElement : ttfElements) {
+			if (!topPeaks.contains(toneMapElement)) {
+				toneMapElement.amplitude = MIN_AMPLITUDE;
+				toneMapElement.isPeak = false;
+			} else if (n3Switch) {
+				toneMapElement.isPeak = true;
+				toneMapElement.amplitude = 1.0;
 			}
-			LOG.finer(">>PEAK thresholds: " + toneTimeFrame.getHighThreshold() + ", " + toneTimeFrame.getLowThres());
 		}
+
 		toneTimeFrame.reset();
 		return true;
 	}
