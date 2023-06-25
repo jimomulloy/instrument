@@ -162,6 +162,14 @@ public class SynthPanel extends JPanel {
 
 	private JCheckBox synthesisPadChordsSwitchCB;
 
+	private JTextField synthesisQuantizeSourceInput;
+
+	private JTextField synthesisTimeSignatureInput;
+
+	private JTextField synthesisBaseSourceInput;
+
+	private JCheckBox synthesisCleanTracksSwitchCB;
+
 	public SynthPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -275,6 +283,22 @@ public class SynthPanel extends JPanel {
 		synthesisNotesSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_NOTES_SWITCH));
 		tuningPanel.add(synthesisNotesSwitchCB);
+
+		synthesisCleanTracksSwitchCB = new JCheckBox("synthesisCleanTracksSwitchCB");
+		synthesisCleanTracksSwitchCB.setText("Synthesis Clean Tracks");
+		synthesisCleanTracksSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CLEAN_TRACKS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisCleanTracksSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CLEAN_TRACKS_SWITCH));
+		tuningPanel.add(synthesisCleanTracksSwitchCB);
 
 		synthesisLegatoSwitchCB = new JCheckBox("synthesisLegatoSwitchCB");
 		synthesisLegatoSwitchCB.setText("Synthesis Fill Legato");
@@ -803,6 +827,23 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisBaseMeasureLabel);
 		tuningPanel.add(synthesisBaseMeasureInput);
 
+		JLabel synthesisBaseSourceLabel = new JLabel("Synthesis Base Source: ");
+		synthesisBaseSourceInput = new JTextField(4);
+		synthesisBaseSourceInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisBaseSourceInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_SOURCE, newValue);
+				synthesisBaseSourceLabel.setText(String.format("Synthesis Base Source (%s):", newValue));
+				synthesisBaseSourceInput.setText(newValue);
+			}
+		});
+		synthesisBaseSourceInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_SOURCE));
+		tuningPanel.add(synthesisBaseSourceLabel);
+		tuningPanel.add(synthesisBaseSourceInput);
+
 		JLabel synthesisBasePatternLabel = new JLabel("Synthesis Base Pattern: ");
 		synthesisBasePatternInput = new JTextField(4);
 		synthesisBasePatternInput.addActionListener(new ActionListener() {
@@ -1181,6 +1222,23 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisQuantizeBeatLabel);
 		tuningPanel.add(synthesisQuantizeBeatInput);
 
+		JLabel synthesisQuantizeSourceLabel = new JLabel("Synthesis Quantize Source: ");
+		synthesisQuantizeSourceInput = new JTextField(4);
+		synthesisQuantizeSourceInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisQuantizeSourceInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_SOURCE, newValue);
+				synthesisQuantizeSourceLabel.setText(String.format("Synthesis Quantize Source  (%s):", newValue));
+				synthesisQuantizeSourceInput.setText(newValue);
+			}
+		});
+		synthesisQuantizeSourceInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_SOURCE));
+		tuningPanel.add(synthesisQuantizeSourceLabel);
+		tuningPanel.add(synthesisQuantizeSourceInput);
+
 		JLabel synthesisQuantizeRangeLabel = new JLabel("Synthesis Quantize Range: ");
 		synthesisQuantizeRangeInput = new JTextField(4);
 		synthesisQuantizeRangeInput.addActionListener(new ActionListener() {
@@ -1214,6 +1272,23 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_PERCENT));
 		tuningPanel.add(synthesisQuantizePercentLabel);
 		tuningPanel.add(synthesisQuantizePercentInput);
+
+		JLabel synthesisTimeSignatureLabel = new JLabel("Synthesis Time Signature: ");
+		synthesisTimeSignatureInput = new JTextField(4);
+		synthesisTimeSignatureInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = synthesisTimeSignatureInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_TIME_SIGNATURE, newValue);
+				synthesisTimeSignatureLabel.setText(String.format("Synthesis Time Signature  (%s):", newValue));
+				synthesisTimeSignatureInput.setText(newValue);
+			}
+		});
+		synthesisTimeSignatureInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_TIME_SIGNATURE));
+		tuningPanel.add(synthesisTimeSignatureLabel);
+		tuningPanel.add(synthesisTimeSignatureInput);
 
 		JLabel synthesisMinTimeIncrementLabel = new JLabel("Synthesis Min Time Increment: ");
 		synthesisMinTimeIncrementInput = new JTextField(4);

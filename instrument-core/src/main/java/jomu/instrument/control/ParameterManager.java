@@ -139,8 +139,10 @@ public class ParameterManager {
 		}
 	}
 
-	public void loadStyle(String paramStyle) throws FileNotFoundException, IOException {
-		reset();
+	public void loadStyle(String paramStyle, boolean delta) throws FileNotFoundException, IOException {
+		if (!delta) {
+			reset();
+		}
 		Properties styleParameters = new Properties();
 		InputStream is = null;
 		if (paramStyle != null && !paramStyle.equals("default")) {
@@ -156,8 +158,6 @@ public class ParameterManager {
 			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
 			LOG.finer(">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
 					+ PARAMETER_CONFIG_FILE_POSTFIX);
-		} else {
-			LOG.finer(">>ReLoaded :" + PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 		}
 	}
 

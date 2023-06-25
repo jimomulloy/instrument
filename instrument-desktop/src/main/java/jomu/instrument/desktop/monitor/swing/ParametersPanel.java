@@ -53,9 +53,9 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "vocal-male",
-			"vocal-female", "birds", "blackbird", "bird-alt1", "bird-best", "bird-scaled", "classical", "folk", "folky",
-			"beethoven", "brass", "compresschord", "epiano", "epiano-arp", "epiano-chords", "epiano-chords-staccato",
-			"guitarstrum", "hpschord", "neon", "neon-peaked" };
+			"vocal-female", "birds", "blackbird", "bird-alt1", "bird-best", "bird-scaled", "bird-mix", "classical",
+			"folk", "folky", "beethoven", "brass", "compresschord", "epiano", "epiano-arp", "epiano-chords",
+			"epiano-chords-staccato", "guitarstrum", "hpschord", "neon", "neon-peaked", "neon-synth" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;
@@ -490,7 +490,8 @@ public class ParametersPanel extends JPanel {
 					selectStyleComboBox.setSelectedIndex(getSelectStyleIndex(
 							parameterManager.getParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE)));
 					try {
-						parameterManager.loadStyle(value);
+						parameterManager.loadStyle(value, parameterManager
+								.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_EXPORT_DELTA_SWITCH));
 						updateParameters();
 						console.getVisor().updateParameters();
 					} catch (IOException e1) {

@@ -93,7 +93,7 @@ public class Controller implements Organ {
 			instrumentSession.setParamStyle(paramStyle);
 			instrumentSession.setMode(InstrumentSessionMode.JOB);
 			if (paramStyle != null && !paramStyle.equals("default")) {
-				parameterManager.loadStyle(paramStyle);
+				parameterManager.loadStyle(paramStyle, false);
 			}
 			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
 			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
