@@ -18,8 +18,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 
 public class NoteTracker {
 
-	record SynthChordParameters(int chordSource, int chordMeasure, int chordPattern, int chordOctave, int chordOffset,
-			boolean chordInvert) {
+	record SynthChordParameters(int chordSource, double chordMeasure, int chordPattern, int chordOctave,
+			int chordOffset, boolean chordInvert) {
 	};
 
 	record SynthBeatParameters(int beatSource, int beatDrum, int beatOffset, int beatPattern) {
@@ -52,7 +52,7 @@ public class NoteTracker {
 
 	private int synthBasePattern;
 
-	private int synthBaseMeasure;
+	private double synthBaseMeasure;
 
 	private int synthTimeSignature;
 
@@ -60,23 +60,11 @@ public class NoteTracker {
 
 	private int incrementTime;
 
-	private int synthChordBeat;
-
-	private int synthChordPattern;
-
-	private int synthChordOctave;
-
-	private int synthBeat1Measure;
-
 	private int synthBeat1Offset;
 
 	private int synthBeat1Pattern;
 
-	private int synthBeatTiming;
-
 	private int synthBeat1Source;
-
-	private int synthBeat2Measure;
 
 	private int synthBeat2Offset;
 
@@ -92,17 +80,15 @@ public class NoteTracker {
 
 	private int synthBeat4Drum;
 
-	private int synthChord1Measure;
+	private double synthChord1Measure;
 
 	private int synthChord1Offset;
 
 	private int synthChord1Pattern;
 
-	private int synthChordTiming;
-
 	private int synthChord1Octave;
 
-	private int synthChord2Measure;
+	private double synthChord2Measure;
 
 	private int synthChord2Offset;
 
@@ -118,7 +104,7 @@ public class NoteTracker {
 
 	private int synthChord2Source;
 
-	private int synthChord3Measure;
+	private double synthChord3Measure;
 
 	private int synthChord3Offset;
 
@@ -130,7 +116,7 @@ public class NoteTracker {
 
 	private int synthChord3Octave;
 
-	private int synthChord4Measure;
+	private double synthChord4Measure;
 
 	private int synthChord4Offset;
 
@@ -140,21 +126,13 @@ public class NoteTracker {
 
 	private boolean synthChord4Invert;
 
-	private int chord4TimeSignature;
-
 	private int synthChord4Octave;
-
-	private int synthBeat3Measure;
 
 	private int synthBeat3Offset;
 
 	private int synthBeat3Pattern;
 
 	private int synthBeat3Source;
-
-	private int beat3TimeSignature;
-
-	private int synthBeat4Measure;
 
 	private int synthBeat4Offset;
 
@@ -387,7 +365,7 @@ public class NoteTracker {
 		synthTimeSignature = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_TIME_SIGNATURE);
 		synthBaseMeasure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_MEASURE);
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_MEASURE);
 		synthBasePattern = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN);
 		synthBaseOctave = toneMap.getParameterManager()
@@ -395,10 +373,8 @@ public class NoteTracker {
 		synthBaseSource = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_SOURCE);
 
-		synthChordTiming = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_TIMING);
 		synthChord1Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_MEASURE);
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_MEASURE);
 		synthChord1Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OFFSET);
 		synthChord1Pattern = toneMap.getParameterManager()
@@ -411,7 +387,7 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE);
 
 		synthChord2Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_MEASURE);
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_MEASURE);
 		synthChord2Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OFFSET);
 		synthChord2Pattern = toneMap.getParameterManager()
@@ -424,7 +400,7 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE);
 
 		synthChord3Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_MEASURE);
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_MEASURE);
 		synthChord3Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OFFSET);
 		synthChord3Pattern = toneMap.getParameterManager()
@@ -437,7 +413,7 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OCTAVE);
 
 		synthChord4Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_MEASURE);
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_MEASURE);
 		synthChord4Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OFFSET);
 		synthChord4Pattern = toneMap.getParameterManager()
@@ -449,11 +425,6 @@ public class NoteTracker {
 		synthChord4Octave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE);
 
-		synthBeatTiming = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING);
-
-		synthBeat1Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_MEASURE);
 		synthBeat1Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_OFFSET);
 		synthBeat1Pattern = toneMap.getParameterManager()
@@ -461,8 +432,6 @@ public class NoteTracker {
 		synthBeat1Source = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_SOURCE);
 
-		synthBeat2Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_MEASURE);
 		synthBeat2Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_OFFSET);
 		synthBeat2Pattern = toneMap.getParameterManager()
@@ -470,8 +439,6 @@ public class NoteTracker {
 		synthBeat2Source = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT2_SOURCE);
 
-		synthBeat3Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_MEASURE);
 		synthBeat3Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_OFFSET);
 		synthBeat3Pattern = toneMap.getParameterManager()
@@ -479,8 +446,6 @@ public class NoteTracker {
 		synthBeat3Source = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT3_SOURCE);
 
-		synthBeat4Measure = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_MEASURE);
 		synthBeat4Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT4_OFFSET);
 		synthBeat4Pattern = toneMap.getParameterManager()
@@ -676,6 +641,7 @@ public class NoteTracker {
 			ChordListElement chordListElement, PitchSet pitchSet) {
 		boolean isBar = track.getSize() % synthTimeSignature == 0;
 		int barNote = track.getSize() % synthTimeSignature + 1;
+		NoteListElement lastNote = track.getLastNote();
 
 		int note = 0;
 		double startTime = quantizeNote.startTime;
@@ -713,17 +679,51 @@ public class NoteTracker {
 			cnotes.add(note);
 		}
 		rootNote += synthBaseOctave * 12;
-		if (isBar) {
+
+		if (synthBasePattern <= 1) {
 			note = rootNote;
 			amplitude = rootAmp;
-		} else {
-			if (synthBasePattern == 1 || synthBasePattern == 2) {
+		} else if (synthBasePattern == 2) {
+			if (isBar) {
+				note = rootNote;
+				amplitude = rootAmp;
+			} else {
 				int noteIndex = 0;
 				if (cnotes.size() > barNote) {
 					noteIndex = barNote;
 				} else {
 					int r = (int) (Math.random() * (cnotes.size()));
 					noteIndex = r;
+				}
+				note = cnotes.get(noteIndex);
+				amplitude = camps.get(noteIndex);
+			}
+		} else if (synthBasePattern == 3) {
+			if (isBar) {
+				if (lastNote != null && lastNote.note > rootNote) {
+					note = cnotes.get(cnotes.size() - 1);
+					amplitude = camps.get(cnotes.size() - 1);
+				} else {
+					note = rootNote;
+					amplitude = rootAmp;
+				}
+			} else {
+				int noteIndex = 0;
+				NoteListElement penultimateNote = track.getPenultimateNote();
+				if (lastNote != null && penultimateNote != null && penultimateNote.note > lastNote.note) {
+					for (int i = 1; i < cnotes.size(); i++) {
+						if (cnotes.get(i) == lastNote.note) {
+							noteIndex = i - 1;
+							break;
+						}
+					}
+				} else {
+					for (int i = 0; i < cnotes.size() - 1; i++) {
+						if (cnotes.get(i) == lastNote.note) {
+							noteIndex = i + 1;
+							break;
+						}
+					}
 				}
 				note = cnotes.get(noteIndex);
 				amplitude = camps.get(noteIndex);
@@ -903,22 +903,53 @@ public class NoteTracker {
 				}
 			}
 		} else {
+			lastNote = track.getLastNote();
 			if (synthChordParameters.chordInvert) {
 				rootNote += 12 * rootOctave;
 			} else {
 				rootNote += 12 * synthChordParameters.chordOctave;
 			}
-			if (isBar) {
-				note = rootNote;
-				amplitude = rootAmp;
-			} else {
-				if (synthChordParameters.chordPattern == 2 || synthChordParameters.chordPattern == 3) {
+			if (synthChordParameters.chordPattern == 2) {
+				if (isBar) {
+					note = rootNote;
+					amplitude = rootAmp;
+				} else {
 					int noteIndex = 0;
 					if (cnotes.size() > barNote) {
 						noteIndex = barNote;
 					} else {
 						int r = (int) (Math.random() * (cnotes.size()));
 						noteIndex = r;
+					}
+					note = cnotes.get(noteIndex);
+					amplitude = camps.get(noteIndex);
+				}
+			} else if (synthChordParameters.chordPattern == 3) {
+				if (isBar) {
+					if (lastNote != null && lastNote.note > rootNote) {
+						note = cnotes.get(cnotes.size() - 1);
+						amplitude = camps.get(cnotes.size() - 1);
+					} else {
+						note = rootNote;
+						amplitude = rootAmp;
+					}
+				} else {
+					int noteIndex = 0;
+					NoteListElement penultimateNote = track.getPenultimateNote();
+					if (lastNote != null && penultimateNote != null && penultimateNote.note > lastNote.note) {
+						for (int i = 1; i < cnotes.size(); i++) {
+							if (cnotes.get(i) == lastNote.note) {
+								noteIndex = i - 1;
+								break;
+							}
+						}
+					} else {
+						for (int i = 0; i < cnotes.size() - 1; i++) {
+							if (cnotes.get(i) == lastNote.note) {
+								noteIndex = i + 1;
+								break;
+							}
+						}
 					}
 					note = cnotes.get(noteIndex);
 					amplitude = camps.get(noteIndex);

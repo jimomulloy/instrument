@@ -414,7 +414,6 @@ public class SynthPanel extends JPanel {
 
 		tuningPanel.add(new JLabel(" "));
 		tuningPanel.add(new JLabel(" "));
-		tuningPanel.add(new JLabel(" "));
 
 		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
 		synthesisChordTimingInput = new JTextField(4);
@@ -449,9 +448,6 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING));
 		tuningPanel.add(synthesisBeatTimingLabel);
 		tuningPanel.add(synthesisBeatTimingInput);
-
-		tuningPanel.add(new JLabel(""));
-		tuningPanel.add(new JLabel(""));
 
 		JLabel synthesisChord1MeasureLabel = new JLabel("Synthesis Chord1 Measure: ");
 		synthesisChord1MeasureInput = new JTextField(4);

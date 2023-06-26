@@ -25,7 +25,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);

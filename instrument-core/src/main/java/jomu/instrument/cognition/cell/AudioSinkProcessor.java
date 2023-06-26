@@ -23,7 +23,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.severe(">>AudioSinkProcessor accept: " + sequence + ", streamId: " + streamId);
 
 		int persistenceMode = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE);

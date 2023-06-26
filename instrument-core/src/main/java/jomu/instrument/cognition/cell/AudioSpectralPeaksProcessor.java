@@ -30,8 +30,6 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SIGNAL_MINIMUM);
 		float pdLowThreshold = parameterManager
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD);
-		double normaliseThreshold = parameterManager
-				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_NORMALISE_THRESHOLD);
 		double decibelLevel = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_DECIBEL_LEVEL);
 		float compression = parameterManager
@@ -44,8 +42,6 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_LOW_THRESHOLD);
 		boolean switchDecibel = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_DECIBEL);
-		boolean switchNormalise = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_SWITCH_NORMALISE);
 		boolean tpSwitchPeaks = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SWITCH_PEAKS);
 		double toneMapMinFrequency = parameterManager
@@ -58,6 +54,7 @@ public class AudioSpectralPeaksProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_FORWARD_SWITCH);
 		double calibrateRange = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_RANGE);
+
 		LOG.finer(">>AudioSpectralPeaksProcessor accept: " + sequence + ", streamId: " + streamId);
 		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);

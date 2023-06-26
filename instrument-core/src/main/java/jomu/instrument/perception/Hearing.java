@@ -303,7 +303,6 @@ public class Hearing implements Organ {
 			bs.close();
 			is.close();
 			String wavFilePath = convertToWav(filePath);
-			LOG.severe(">>MP3/OGG file converted: " + wavFilePath);
 			is = new FileInputStream(wavFilePath);
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, wavFilePath);
 			bs = new BufferedInputStream(is);
@@ -325,7 +324,7 @@ public class Hearing implements Organ {
 
 		filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
 
-		LOG.severe(">>!!Start Audio file path: " + filePath);
+		LOG.severe(">>Start Audio file path: " + filePath);
 
 		is = new FileInputStream(filePath);
 		bs = new BufferedInputStream(is);

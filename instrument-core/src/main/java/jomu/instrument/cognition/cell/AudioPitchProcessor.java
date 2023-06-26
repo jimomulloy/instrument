@@ -35,12 +35,8 @@ public class AudioPitchProcessor extends ProcessorCommon {
 		LOG.finer(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
 		int harmonics = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS);
-		float compression = parameterManager
-				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_COMPRESSION);
 		float pdLowThreshold = parameterManager
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD);
-		boolean pdSwitchCompress = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_COMPRESS);
 		boolean pdSwitchWhitener = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_SWITCH_WHITENER);
 		boolean pdSwitchKlapuri = parameterManager
