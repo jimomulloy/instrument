@@ -167,7 +167,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 	}
 
 	public void clear(String streamId) {
-		LOG.finer(">>MIDI clear");
+		LOG.severe(">>MIDI clear");
 		if (midiStreams.containsKey(streamId)) {
 			MidiStream ms = midiStreams.get(streamId);
 			ms.close();
