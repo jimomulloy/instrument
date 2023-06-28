@@ -14,6 +14,7 @@
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <dependency.version.lombok>1.18.22</dependency.version.lombok>
     <dependency.version.mapstruct>1.4.2.Final</dependency.version.mapstruct>
+    <docker-plugin.version>0.28.0</docker-plugin.version>
     <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
     <imageName>instrument</imageName>
     <jandex-maven-plugin.version>1.2.3</jandex-maven-plugin.version>
@@ -93,15 +94,23 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-metrics</artifactId>
     </dependency>
-     <!--dependency>
-		  <groupId>io.quarkus</groupId>
-		  <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
-		</dependency-->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-kubernetes</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-container-image-docker</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+   	 <groupId>org.jboss.logmanager</groupId>
+   	 <artifactId>log4j2-jboss-logmanager</artifactId> 
+	</dependency>
     <dependency>
       <groupId>one.microstream</groupId>
       <artifactId>microstream-storage-embedded-configuration</artifactId>
@@ -268,6 +277,32 @@
           </execution>
         </executions>
       </plugin>
+      <!--plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>docker-start</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>stop</goal>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>docker-stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <skip>${skipTests}</skip>
+          <images></images>
+        </configuration>
+      </plugin-->
     </plugins>
   </build>
   <profiles>
