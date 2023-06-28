@@ -8,17 +8,26 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.Tag;
+import org.eclipse.microprofile.metrics.annotation.RegistryType;
+import org.eclipse.microprofile.metrics.annotation.Timed;
+
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.common.annotation.Blocking;
+import io.vertx.core.Vertx;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jomu.instrument.Instrument;
+import jomu.instrument.InstrumentException;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.ParameterManager;
 import jomu.instrument.store.InstrumentSession;
@@ -29,8 +38,6 @@ import jomu.instrument.workspace.Workspace;
 public class InstrumentRunner {
 
 	private static final Logger LOG = Logger.getLogger(InstrumentRunner.class.getName());
-
-	public static final String CAN_ONLY_GREET_NICKNAMES = "Can only greet nicknames";
 
 	@Inject
 	Instrument instrument;
@@ -47,59 +54,83 @@ public class InstrumentRunner {
 	@Inject
 	Workspace workspace;
 
+	@Inject
+	Vertx vertx;
+
+	@Inject
+	@RegistryType(type = MetricRegistry.Type.APPLICATION)
+	MetricRegistry metricRegistry;
+
+	boolean isReady = false;
+
 	void onStart(@Observes StartupEvent ev) {
 		Instrument.setInstance(instrument);
 		instrument.initialise();
 		instrument.start();
+		isReady = true;
+		vertx.exceptionHandler(e -> LOG.log(Level.SEVERE, "Vertx exception: " + e.getMessage(), e));
 	}
 
+	@Timed(name = "InstrumentRunnerTimer", displayName = "Instrument Runner Consumer Handler Timer", description = "Time spent handling consume process", absolute = true, unit = MetricUnits.NANOSECONDS)
 	@ConsumeEvent("upload")
 	@Blocking
-	public void consume(String uploadId) {
+	public void consume(String id) {
 		instrument.reset();
 		File paramsFile = null;
 		File audioFile = null;
 		java.nio.file.Path audioInputPath = Paths
 				.get(System.getProperty("user.home") + File.separator + ".instrumentuploads" + File.separator + "input"
-						+ File.separator + uploadId + File.separator + "audio" + File.separator);
+						+ File.separator + id + File.separator + "audio" + File.separator);
+		if (!Files.exists(audioInputPath)) {
+			LOG.log(Level.SEVERE, "InstrumentController consume error missing audio file folder for id: " + id);
+			throw new InstrumentException("InstrumentController consume error missing audio file folder for id: " + id);
+		}
+
 		List<String> audioFiles = new ArrayList<>();
 		try {
 			audioFiles = Files.list(audioInputPath).filter(Files::isRegularFile).map(p -> p.getFileName().toString())
 					.collect(Collectors.toList());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.log(Level.SEVERE, "InstrumentController consume error for id: " + id + ", error: " + e.getMessage(), e);
+			throw new InstrumentException(
+					"InstrumentController consume error for id: " + id + ", error: " + e.getMessage());
 		}
 
 		if (audioFiles.size() > 0) {
 			audioFile = new File(audioInputPath + File.separator + audioFiles.get(0));
+		} else {
+			LOG.log(Level.SEVERE, "InstrumentController consume error missing audio files for id: " + id);
+			throw new InstrumentException("InstrumentController consume error missing audio files for id: " + id);
 		}
 
 		java.nio.file.Path paramsInputPath = Paths
 				.get(System.getProperty("user.home") + File.separator + ".instrumentuploads" + File.separator + "input"
-						+ File.separator + uploadId + File.separator + "params" + File.separator);
-		List<String> paramsFiles = new ArrayList<>();
-		try {
-			paramsFiles = Files.list(paramsInputPath).filter(Files::isRegularFile).map(p -> p.getFileName().toString())
-					.collect(Collectors.toList());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+						+ File.separator + id + File.separator + "params" + File.separator);
+		if (Files.exists(paramsInputPath)) {
+			List<String> paramsFiles = new ArrayList<>();
+			try {
+				paramsFiles = Files.list(paramsInputPath).filter(Files::isRegularFile)
+						.map(p -> p.getFileName().toString()).collect(Collectors.toList());
+			} catch (IOException e) {
+				LOG.log(Level.SEVERE, "InstrumentController consume error for id: " + id + ", error: " + e.getMessage(),
+						e);
+				throw new InstrumentException(
+						"InstrumentController consume  for id: " + id + ", error: " + e.getMessage());
+			}
 
-		if (paramsFiles.size() > 0) {
-			paramsFile = new File(paramsInputPath + File.separator + paramsFiles.get(0));
-			System.out.println(">>PARAMS FILE: " + paramsFile.getAbsolutePath());
+			if (paramsFiles.size() > 0) {
+				paramsFile = new File(paramsInputPath + File.separator + paramsFiles.get(0));
+			}
 		}
 		boolean instrumentRun = false;
 		if (audioFile != null && audioFile.exists()) {
-			instrumentRun = controller.run(uploadId, audioFile.getAbsolutePath(), "default");
+			instrumentRun = controller.run(id, audioFile.getAbsolutePath(), "default");
 		}
 
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
 
 		java.nio.file.Path resultOutputPath = Paths.get(System.getProperty("user.home") + File.separator
-				+ ".instrumentuploads" + File.separator + "output" + File.separator + uploadId + File.separator);
+				+ ".instrumentuploads" + File.separator + "output" + File.separator + id + File.separator);
 
 		if (!instrumentRun) {
 			LOG.severe(">>InstrumentRunner error");
@@ -112,8 +143,10 @@ public class InstrumentRunner {
 				java.nio.file.Path originalPath = errorMidi.toPath();
 				Files.copy(originalPath, copied, StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.log(Level.SEVERE, "InstrumentController consume error for id: " + id + ", error: " + e.getMessage(),
+						e);
+				throw new InstrumentException(
+						"InstrumentController consume  for id: " + id + ", error: " + e.getMessage());
 			}
 			return;
 		}
@@ -125,8 +158,10 @@ public class InstrumentRunner {
 			try {
 				Files.createDirectories(resultOutputPath);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.log(Level.SEVERE, "InstrumentController consume error for id: " + id + ", error: " + e.getMessage(),
+						e);
+				throw new InstrumentException(
+						"InstrumentController consume  for id: " + id + ", error: " + e.getMessage());
 			}
 			if (midiFilePath.lastIndexOf("/") > -1) {
 				midiFileFolder = midiFilePath.substring(0, midiFilePath.lastIndexOf("/"));
@@ -146,8 +181,10 @@ public class InstrumentRunner {
 					try {
 						Files.copy(originalPath, copied, StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						LOG.log(Level.SEVERE,
+								"InstrumentController consume error for id: " + id + ", error: " + e.getMessage(), e);
+						throw new InstrumentException(
+								"InstrumentController consume  for id: " + id + ", error: " + e.getMessage());
 					}
 					LOG.severe(">>InstrumentRunner store: " + midiFileFolder + File.separator + fileName + ", "
 							+ midiFile.length());
@@ -156,9 +193,9 @@ public class InstrumentRunner {
 				}
 			}
 			LOG.severe(">>InstrumentRunner OK3");
-
 		}
-		LOG.severe(">>InstrumentRunner OK4");
+
+		metricRegistry.counter("runner", new Tag("instrument_runner_id", "" + id)).inc();
 
 		return;
 	}
@@ -166,5 +203,9 @@ public class InstrumentRunner {
 	private Set<String> listFiles(String dir) {
 		return Stream.of(new File(dir).listFiles()).filter(file -> !file.isDirectory()).map(File::getName)
 				.collect(Collectors.toSet());
+	}
+
+	public boolean isReady() {
+		return isReady;
 	}
 }
