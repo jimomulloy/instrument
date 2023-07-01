@@ -54,8 +54,9 @@ public class ParametersPanel extends JPanel {
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "vocal-male",
 			"vocal-female", "birds", "blackbird", "bird-alt1", "bird-best", "bird-scaled", "bird-mix", "classical",
-			"folk", "folky", "beethoven", "brass", "compresschord", "epiano", "epiano-arp", "epiano-chords",
-			"epiano-chords-staccato", "guitarstrum", "hpschord", "neon", "neon-peaked", "neon-synth" };
+			"folk", "folky", "folky-clean", "folk-pluck", "beethoven", "brass", "compresschord", "epiano", "epiano-arp",
+			"epiano-chords", "epiano-chords-staccato", "guitarstrum", "eguitar", "hpschord", "neon", "neon-peaked",
+			"neon-synth" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;
@@ -350,6 +351,8 @@ public class ParametersPanel extends JPanel {
 	private JCheckBox pidSwitchCB;
 
 	private JCheckBox tunerClearNotesOnCreateSwitchCB;
+
+	private JTextField tunerClearVibratoNotesTimeRangeInput;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -3798,6 +3801,24 @@ public class ParametersPanel extends JPanel {
 		cqParamsPanel.add(noteTimbreVibratoRatioLabel);
 		cqParamsPanel.add(noteTimbreVibratoRatioInput);
 
+		JLabel tunerClearVibratoNotesTimeRangeLabel = new JLabel("Tuner Clear Vibrato Notes Time Range: ");
+		tunerClearVibratoNotesTimeRangeInput = new JTextField(4);
+		tunerClearVibratoNotesTimeRangeInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerClearVibratoNotesTimeRangeInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_TIME_RANGE, newValue);
+				tunerClearVibratoNotesTimeRangeLabel
+						.setText(String.format("Tuner Clear Vibrato Notes Time Range (%s):", newValue));
+				tunerClearVibratoNotesTimeRangeInput.setText(newValue);
+			}
+		});
+		tunerClearVibratoNotesTimeRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_TIME_RANGE));
+		cqParamsPanel.add(tunerClearVibratoNotesTimeRangeLabel);
+		cqParamsPanel.add(tunerClearVibratoNotesTimeRangeInput);
+
 		JLabel notateCompressionLevelLabel = new JLabel("Notate Compression Level: ");
 		notateCompressionLevelInput = new JTextField(4);
 		notateCompressionLevelInput.addActionListener(new ActionListener() {
@@ -4666,6 +4687,8 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_PITCH_RANGE));
 		tunerClearIsolatedNotesTimeRangeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_TIME_RANGE));
+		tunerClearVibratoNotesTimeRangeInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_TIME_RANGE));
 	}
 
 	class SortedStoreProperties extends Properties {

@@ -632,6 +632,36 @@ public class NoteTracker {
 				}
 			} else if (synthBaseSource == 5) {
 				return addBaseNote(baseTrack, quantizeNote, chordListElement, pitchSet);
+			} else if (synthBaseSource == 6) {
+				NoteTrack[] tracks = getTracks();
+				Set<NoteListElement> nles = new HashSet<>();
+				double startTime = Double.MAX_VALUE;
+				double endTime = Double.MIN_VALUE;
+				for (NoteTrack track : tracks) {
+					NoteListElement note = track.getLastNote();
+					if (note != null) {
+						nles.add(note);
+						if (note.startTime < startTime) {
+							startTime = note.startTime;
+						}
+						if (note.endTime > endTime) {
+							endTime = note.endTime;
+						}
+					}
+				}
+
+				if (nles.size() > 0) {
+					Set<ChordNote> cns = new HashSet<>();
+					for (NoteListElement nle : nles) {
+						int pitchClass = (int) nle.note % 12;
+						ChordNote cn = new ChordNote(pitchClass, pitchClass, nle.maxAmp, nle.note / 12, 0);
+						cns.add(cn);
+					}
+					ChordListElement cle = new ChordListElement(startTime, endTime,
+							cns.toArray(new ChordNote[cns.size()]));
+					return addBaseNote(baseTrack, quantizeNote, cle, pitchSet);
+
+				}
 			}
 		}
 		return null;

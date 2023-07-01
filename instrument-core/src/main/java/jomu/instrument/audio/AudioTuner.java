@@ -43,6 +43,7 @@ public class AudioTuner implements ToneMapConstants {
 
 	double clearIsolatedNoteFactor = 0.25;
 	double clearIsolatedNoteTimeRange = 400;
+	double clearVibratoNoteTimeRange = 1000;
 	int clearIsolatedNotePitchRange = 4;
 
 	boolean clearHeadNotesSwitch;
@@ -179,6 +180,9 @@ public class AudioTuner implements ToneMapConstants {
 				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_TIME_RANGE);
 		clearIsolatedNotePitchRange = parameterManager
 				.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_ISOLATED_NOTES_PITCH_RANGE);
+
+		clearVibratoNoteTimeRange = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_CLEAR_VIBRATO_NOTES_TIME_RANGE);
 
 		harmonic1Setting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC1_SETTING);
 		harmonic2Setting = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC2_SETTING);
@@ -1148,10 +1152,8 @@ public class AudioTuner implements ToneMapConstants {
 		NoteListElement currentNote = noteListElement;
 		candidateNotes.add(currentNote);
 		Map<Integer, Double> accumulatedNoteLengthMap = new HashMap<Integer, Double>();
-		LOG.finer(">>clearVibratoNotes: " + noteListElement);
 
 		if (seekVibratoElements(toneMap, processedNotes, candidateNotes)) {
-			LOG.finer(">>clearVibratoNotes seeked: " + noteListElement);
 
 			int lowNote = Integer.MAX_VALUE;
 			int highNote = Integer.MIN_VALUE;
@@ -1287,9 +1289,8 @@ public class AudioTuner implements ToneMapConstants {
 			if (rootNote == null) {
 				rootNote = currentNote;
 			}
-			LOG.finer(">>Seeker: " + rootNote + ", " + currentNote);
-			double fromTime = currentNote.startTime - currentNote.incrementTime - clearIsolatedNoteTimeRange > 0
-					? currentNote.startTime - currentNote.incrementTime - clearIsolatedNoteTimeRange
+			double fromTime = currentNote.startTime - currentNote.incrementTime - clearVibratoNoteTimeRange > 0
+					? currentNote.startTime - currentNote.incrementTime - clearVibratoNoteTimeRange
 					: 0;
 			double toTime = currentNote.endTime;
 
@@ -1313,7 +1314,7 @@ public class AudioTuner implements ToneMapConstants {
 										+ ttfElements[pi].noteListElement.incrementTime >= currentNote.startTime)
 								&& ((ttfElements[pi].noteListElement.endTime
 										+ ttfElements[pi].noteListElement.incrementTime
-										- ttfElements[pi].noteListElement.startTime <= clearIsolatedNoteTimeRange)
+										- ttfElements[pi].noteListElement.startTime <= clearVibratoNoteTimeRange)
 										|| rootNote.note == ttfElements[pi].noteListElement.note)) {
 							candidateNotes.add(ttfElements[pi].noteListElement);
 						}
