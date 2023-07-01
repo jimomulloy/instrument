@@ -1,0 +1,109 @@
+package jomu.instrument.audio.features;
+
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
+import be.tarsos.dsp.pitch.PitchDetectionResult;
+import jomu.instrument.Instrument;
+import jomu.instrument.control.ParameterManager;
+import jomu.instrument.workspace.tonemap.PitchSet;
+import jomu.instrument.workspace.tonemap.TimeSet;
+import jomu.instrument.workspace.tonemap.ToneMap;
+import jomu.instrument.workspace.tonemap.ToneMapConstants;
+import jomu.instrument.workspace.tonemap.ToneTimeFrame;
+
+public class PhaseDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> implements ToneMapConstants {
+
+	private static final Logger LOG = Logger.getLogger(PhaseDetectorFeatures.class.getName());
+
+	public boolean logSwitch = true;
+	public int powerHigh = 100;
+	public int powerLow = 0;
+	private AudioFeatureFrame audioFeatureFrame;
+
+	private ParameterManager parameterManager;
+
+	public float[] getSpectrum(double lowThreshold) {
+		float[] spectrum = null;
+		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
+			float[] phaseOffsets = entry.getValue().getPhaseOffsets();
+			if (spectrum == null) {
+				spectrum = new float[phaseOffsets.length];
+			}
+			for (int i = 0; i < phaseOffsets.length; i++) {
+				if (getSource().isPowerSquared()) {
+					if (getSource().isMicroToneSwitch()) {
+						if (spectrum[i] < phaseOffsets[i] * phaseOffsets[i]) {
+							spectrum[i] = phaseOffsets[i] * phaseOffsets[i];
+						}
+					} else {
+						spectrum[i] += phaseOffsets[i] * phaseOffsets[i];
+					}
+				} else {
+					if (getSource().isMicroToneSwitch()) {
+						if (spectrum[i] < phaseOffsets[i]) {
+							spectrum[i] = phaseOffsets[i];
+						}
+					} else {
+						spectrum[i] += phaseOffsets[i];
+					}
+					spectrum[i] += phaseOffsets[i];
+				}
+			}
+		}
+		if (spectrum == null) {
+			spectrum = new float[0];
+		}
+		for (int i = 0; i < spectrum.length; i++) {
+			if (spectrum[i] < lowThreshold) {
+				spectrum[i] = 0;
+			}
+		}
+		return spectrum;
+	}
+
+	public void buildToneMapFrame(ToneMap toneMap) {
+
+		if (features.size() > 0) {
+			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
+			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
+			PitchSet pitchSet = new PitchSet();
+
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
+
+			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
+				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
+				float pitch = pitchDetect.getPitch();
+				if (pitch > -1) {
+					int tmIndex = pitchSet.getIndex(pitch);
+					if (tmIndex > -1) {
+						ttf.getElement(tmIndex).isPeak = true;
+					}
+				}
+			}
+		} else {
+			double timeStart = this.audioFeatureFrame.getStart() / 1000.0;
+			double timeEnd = this.audioFeatureFrame.getEnd() / 1000.0;
+
+			TimeSet timeSet = new TimeSet(timeStart, timeEnd, getSource().getSampleRate(), timeEnd - timeStart);
+			PitchSet pitchSet = new PitchSet();
+
+			ToneTimeFrame ttf = new ToneTimeFrame(toneMap, timeSet, pitchSet);
+			toneMap.addTimeFrame(ttf);
+		}
+	}
+
+	void initialise(AudioFeatureFrame audioFeatureFrame) {
+		this.audioFeatureFrame = audioFeatureFrame;
+		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPhaseDetectorSource());
+		this.features = getSource().getAndClearFeatures();
+	}
+
+	@Override
+	public PhaseDetectorSource getSource() {
+		return (PhaseDetectorSource) source;
+	}
+}

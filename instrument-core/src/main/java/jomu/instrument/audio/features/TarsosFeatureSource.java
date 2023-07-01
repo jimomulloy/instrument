@@ -11,6 +11,7 @@ public class TarsosFeatureSource {
 	private ConstantQSource constantQSource;
 	private PercussionSource percussionSource;
 	private PitchDetectorSource pitchDetectorSource;
+	private PhaseDetectorSource phaseDetectorSource;
 	private YINSource yinSource;
 	private ResynthSource resynthSource;
 	private SACFSource sacfSource;
@@ -44,6 +45,10 @@ public class TarsosFeatureSource {
 		return pitchDetectorSource;
 	}
 
+	public PhaseDetectorSource getPhaseDetectorSource() {
+		return phaseDetectorSource;
+	}
+
 	public YINSource getYINSource() {
 		return yinSource;
 	}
@@ -73,6 +78,7 @@ public class TarsosFeatureSource {
 		percussionSource = new PercussionSource(dispatcher);
 		spectralPeaksSource = new SpectralPeaksSource(dispatcher);
 		pitchDetectorSource = new PitchDetectorSource(dispatcher);
+		phaseDetectorSource = new PhaseDetectorSource(dispatcher);
 		yinSource = new YINSource(dispatcher);
 		resynthSource = new ResynthSource(dispatcher);
 		sacfSource = new SACFSource(dispatcher);
@@ -83,6 +89,7 @@ public class TarsosFeatureSource {
 		percussionSource.initialise();
 		spectralPeaksSource.initialise();
 		pitchDetectorSource.initialise();
+		phaseDetectorSource.initialise();
 		yinSource.initialise();
 		resynthSource.initialise();
 		sacfSource.initialise();

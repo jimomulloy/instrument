@@ -20,6 +20,8 @@ public class Generator {
 			return createAudioSinkTypeCell();
 		case AUDIO_PITCH:
 			return createAudioPitchTypeCell();
+		case AUDIO_PHASE:
+			return createAudioPhaseTypeCell();
 		case AUDIO_YIN:
 			return createAudioYINTypeCell();
 		case AUDIO_SACF:
@@ -88,6 +90,12 @@ public class Generator {
 	private static NuCell createAudioPitchTypeCell() {
 		NuCell cell = new NuCell(CellTypes.AUDIO_PITCH);
 		cell.setProcessor(getAudioPitchProcessor(cell));
+		return cell;
+	}
+
+	private static NuCell createAudioPhaseTypeCell() {
+		NuCell cell = new NuCell(CellTypes.AUDIO_PHASE);
+		cell.setProcessor(getAudioPhaseProcessor(cell));
 		return cell;
 	}
 
@@ -211,6 +219,10 @@ public class Generator {
 
 	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioPitchProcessor(NuCell cell) {
 		return new AudioPitchProcessor(cell);
+	}
+
+	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioPhaseProcessor(NuCell cell) {
+		return new AudioPhaseProcessor(cell);
 	}
 
 	private static ThrowingConsumer<List<NuMessage>, InstrumentException> getAudioYINProcessor(NuCell cell) {

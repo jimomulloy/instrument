@@ -11,7 +11,7 @@ import jomu.instrument.audio.analysis.PolyphonicPitchDetection;
 import jomu.instrument.audio.analysis.Whitener;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
-import jomu.instrument.audio.features.PitchDetectorFeatures;
+import jomu.instrument.audio.features.PhaseDetectorFeatures;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.workspace.tonemap.CalibrationMap;
 import jomu.instrument.workspace.tonemap.FFTSpectrum;
@@ -32,7 +32,7 @@ public class AudioPhaseProcessor extends ProcessorCommon {
 	public void accept(List<NuMessage> messages) throws InstrumentException {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
-		LOG.finer(">>AudioPitchProcessor accept: " + sequence + ", streamId: " + streamId);
+		LOG.finer(">>AudioPhaseProcessor accept: " + sequence + ", streamId: " + streamId);
 		int harmonics = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_HARMONICS);
 		float pdLowThreshold = parameterManager
@@ -60,7 +60,7 @@ public class AudioPhaseProcessor extends ProcessorCommon {
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-		PitchDetectorFeatures pdf = aff.getPitchDetectorFeatures();
+		PhaseDetectorFeatures pdf = aff.getPhaseDetectorFeatures();
 
 		pdf.buildToneMapFrame(toneMap);
 		float[] spectrum = pdf.getSpectrum(pdLowThreshold);
