@@ -888,7 +888,7 @@ public class NoteTracker {
 //				note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));// octave;
 //			}
 			if (synthChordParameters.chordInvert) {
-				note += 12 * octave + synthChordParameters.chordOctave;
+				note += 12 * (octave + synthChordParameters.chordOctave);
 			} else {
 				note += 12 * synthChordParameters.chordOctave;
 			}
@@ -943,7 +943,7 @@ public class NoteTracker {
 		} else {
 			lastNote = track.getLastNote();
 			if (synthChordParameters.chordInvert) {
-				rootNote += 12 * rootOctave;
+				rootNote += 12 * (rootOctave + synthChordParameters.chordOctave);
 			} else {
 				rootNote += 12 * synthChordParameters.chordOctave;
 			}
