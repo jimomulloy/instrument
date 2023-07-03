@@ -770,7 +770,7 @@ public class AudioTuner implements ToneMapConstants {
 
 				int step = 0;
 				for (int index = candidateNote.pitchIndex + 1; index < ttfElements.length
-						|| index < candidateNote.pitchIndex + 12; index++) {
+						&& index < candidateNote.pitchIndex + 12; index++) {
 					if (ttfElements[index].noteListElement != null) {
 						if (ttfElements[index].noteListElement != null && (ttfElements[index].noteListElement.endTime
 								- ttfElements[index].noteListElement.startTime) < harmonicSweep) {
