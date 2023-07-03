@@ -888,13 +888,13 @@ public class NoteTracker {
 //				note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));// octave;
 //			}
 			if (synthChordParameters.chordInvert) {
-				note += 12 * octave;
+				note += 12 * octave + synthChordParameters.chordOctave;
 			} else {
 				note += 12 * synthChordParameters.chordOctave;
 			}
 			camps.add(amplitude);
 			cnotes.add(note);
-			if (synthChordParameters.chordPattern == 0) {
+			if (synthChordParameters.chordPattern == 0 || synthChordParameters.chordPattern == 1) {
 				NoteListElement cnle = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 						amplitude, amplitude, amplitude, 0, false, incrementTime);
 				newNotes.add(cnle);
@@ -910,12 +910,20 @@ public class NoteTracker {
 						cnle.endTime = endTime;
 					}
 				}
-				for (NoteListElement cnle : newNotes) {
-					if (!currentNoteSet.contains(cnle.note)) {
-						LOG.finer(">>NT added chord notes: " + time + ", " + currentNotes.length + ", " + cnle.startTime
-								+ ", " + cnle.endTime + ", " + note + ", " + track.getSize() + ", " + synthTimeSignature
-								+ ", " + startTime + ", " + endTime + ", " + cnle);
-						track.addNote(cnle);
+				for (NoteListElement nnle : newNotes) {
+					if (!currentNoteSet.contains(nnle.note)) {
+						LOG.finer(">>NT added chord notes: " + time + ", " + currentNotes.length + ", " + nnle.startTime
+								+ ", " + nnle.endTime + ", " + note + ", " + track.getSize() + ", " + synthTimeSignature
+								+ ", " + startTime + ", " + endTime + ", " + nnle);
+						track.addNote(nnle);
+					}
+				}
+			} else {
+				for (NoteListElement cnle : currentNotes) {
+					for (NoteListElement nnle : newNotes) {
+						if (nnle.note == cnle.note && (cnle.endTime <= nnle.startTime)) {
+							track.addNote(nnle);
+						}
 					}
 				}
 			}
