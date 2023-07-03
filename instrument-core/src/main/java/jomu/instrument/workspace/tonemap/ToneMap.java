@@ -33,7 +33,7 @@ public class ToneMap {
 
 	private static final Logger LOG = Logger.getLogger(ToneMap.class.getName());
 
-	CopyOnWriteArrayList<Double> frameIndex = new CopyOnWriteArrayList<>();
+	CopyOnWriteArrayList<Integer> frameIndex = new CopyOnWriteArrayList<>();
 
 	String key;
 
@@ -82,13 +82,18 @@ public class ToneMap {
 
 	public ToneTimeFrame addTimeFrame(ToneTimeFrame toneTimeFrame) {
 		toneTimeFrame.setToneMap(this);
-		frameCache.put(getFrameKey(toneTimeFrame.getStartTime()), toneTimeFrame);
-		frameIndex.addIfAbsent(toneTimeFrame.getStartTime());
+		int indexTime = buildTimeIndex(toneTimeFrame.getStartTime());
+		frameCache.put(getFrameKey(indexTime), toneTimeFrame);
+		frameIndex.addIfAbsent(indexTime);
 		return toneTimeFrame;
 	}
 
-	private String getFrameKey(Double startTime) {
-		return getKey() + ":" + startTime;
+	private int buildTimeIndex(double time) {
+		return (int) Math.floor(time * 1000);
+	}
+
+	private String getFrameKey(int indexTime) {
+		return getKey() + ":" + indexTime;
 	}
 
 	public final static String buildToneMapKey(CellTypes cellType, String streamId) {
@@ -115,25 +120,27 @@ public class ToneMap {
 
 	public void deleteTimeFrame() {
 		if (frameIndex.size() > 0) {
-			double fk = frameIndex.get(0);
+			int fk = frameIndex.get(0);
 			frameCache.remove(getFrameKey(fk));
 			frameIndex.remove(fk);
 		}
 	}
 
 	public void deleteTimeFrame(double time) {
-		if (frameIndex.contains(time)) {
-			double fk = frameIndex.get(frameIndex.indexOf(time));
+		int indexTime = buildTimeIndex(time);
+		if (frameIndex.contains(indexTime)) {
+			int fk = frameIndex.get(frameIndex.indexOf(indexTime));
 			frameCache.remove(getFrameKey(fk));
 			frameIndex.remove(fk);
 		}
 	}
 
 	public ToneTimeFrame getNextTimeFrame(double time) {
-		if (frameIndex.contains(time)) {
-			int index = frameIndex.indexOf(time);
+		int indexTime = buildTimeIndex(time);
+		if (frameIndex.contains(indexTime)) {
+			int index = frameIndex.indexOf(indexTime);
 			if (index < frameIndex.size() - 1) {
-				double fk = frameIndex.get(index + 1);
+				int fk = frameIndex.get(index + 1);
 				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 				if (result.isPresent()) {
 					return result.get();
@@ -145,7 +152,7 @@ public class ToneMap {
 
 	public ToneTimeFrame getPreviousTimeFrame() {
 		if (frameIndex.size() > 1) {
-			double fk = frameIndex.get(frameIndex.size() - 2);
+			int fk = frameIndex.get(frameIndex.size() - 2);
 			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 			if (result.isPresent()) {
 				return result.get();
@@ -155,10 +162,11 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getPreviousTimeFrame(double time) {
-		if (frameIndex.contains(time)) {
-			int index = frameIndex.indexOf(time);
+		int indexTime = buildTimeIndex(time);
+		if (frameIndex.contains(indexTime)) {
+			int index = frameIndex.indexOf(indexTime);
 			if (index > 0) {
-				double fk = frameIndex.get(index - 1);
+				int fk = frameIndex.get(index - 1);
 				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 				if (result.isPresent()) {
 					return result.get();
@@ -174,7 +182,7 @@ public class ToneMap {
 
 	public ToneTimeFrame getFirstTimeFrame() {
 		if (!frameIndex.isEmpty()) {
-			double fk = frameIndex.get(0);
+			int fk = frameIndex.get(0);
 			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 			if (result.isPresent()) {
 				return result.get();
@@ -185,7 +193,7 @@ public class ToneMap {
 
 	public ToneTimeFrame getLastTimeFrame() {
 		if (!frameIndex.isEmpty()) {
-			double fk = frameIndex.get(frameIndex.size() - 1);
+			int fk = frameIndex.get(frameIndex.size() - 1);
 			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 			if (result.isPresent()) {
 				return result.get();
@@ -195,9 +203,10 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame getTimeFrame(double time) {
-		if (frameIndex.contains(time)) {
-			int index = frameIndex.indexOf(time);
-			double fk = frameIndex.get(index);
+		int indexTime = buildTimeIndex(time);
+		if (frameIndex.contains(indexTime)) {
+			int index = frameIndex.indexOf(indexTime);
+			int fk = frameIndex.get(index);
 			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 			if (result.isPresent()) {
 				return result.get();
@@ -208,7 +217,7 @@ public class ToneMap {
 
 	public ToneTimeFrame getTimeFrame(int sequence) {
 		if (frameIndex.size() >= sequence) {
-			double fk = frameIndex.get(sequence - 1);
+			int fk = frameIndex.get(sequence - 1);
 			Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 			if (result.isPresent()) {
 				return result.get();
@@ -218,9 +227,10 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame[] getTimeFramesFrom(double time) {
+		int indexTime = buildTimeIndex(time);
 		List<ToneTimeFrame> tailMap = new ArrayList<>();
-		for (double fk : frameIndex) {
-			if (fk >= time) {
+		for (int fk : frameIndex) {
+			if (fk >= indexTime) {
 				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 				if (result.isPresent()) {
 					tailMap.add(result.get());
@@ -231,9 +241,10 @@ public class ToneMap {
 	}
 
 	public ToneTimeFrame[] getTimeFramesTo(double time) {
+		int indexTime = buildTimeIndex(time);
 		List<ToneTimeFrame> tailMap = new ArrayList<>();
-		for (double fk : frameIndex) {
-			if (fk <= time) {
+		for (int fk : frameIndex) {
+			if (fk <= indexTime) {
 				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 				if (result.isPresent()) {
 					tailMap.add(result.get());
@@ -251,8 +262,8 @@ public class ToneMap {
 		frameIndex = new CopyOnWriteArrayList<>();
 	}
 
-	public void clearOldFrames(Double time) {
-		ToneTimeFrame[] ttfs = getTimeFramesTo(time);
+	public void clearOldFrames(double frameStartTime) {
+		ToneTimeFrame[] ttfs = getTimeFramesTo(frameStartTime);
 		for (ToneTimeFrame ttf : ttfs) {
 			deleteTimeFrame(ttf.getStartTime());
 		}
