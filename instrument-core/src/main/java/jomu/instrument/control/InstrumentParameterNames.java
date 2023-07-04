@@ -179,24 +179,28 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_SOURCE = "perception.hearing.synthesis.chord1Source";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_INVERT = "perception.hearing.synthesis.chord1Invert";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE = "perception.hearing.synthesis.chord1Octave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD1_QUANTIZE_SOURCE = "perception.hearing.synthesis.chord1QuantizeSource";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_OFFSET = "perception.hearing.synthesis.chord2Offset";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_MEASURE = "perception.hearing.synthesis.chord2Measure";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_PATTERN = "perception.hearing.synthesis.chord2Pattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_SOURCE = "perception.hearing.synthesis.chord2Source";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_INVERT = "perception.hearing.synthesis.chord2Invert";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE = "perception.hearing.synthesis.chord2Octave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD2_QUANTIZE_SOURCE = "perception.hearing.synthesis.chord3QuantizeSource";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD3_OFFSET = "perception.hearing.synthesis.chord3Offset";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD3_MEASURE = "perception.hearing.synthesis.chord3Measure";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD3_PATTERN = "perception.hearing.synthesis.chord3Pattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD3_SOURCE = "perception.hearing.synthesis.chord3Source";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD3_INVERT = "perception.hearing.synthesis.chord3Invert";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD3_OCTAVE = "perception.hearing.synthesis.chord3Octave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD3_QUANTIZE_SOURCE = "perception.hearing.synthesis.chord3QuantizeSource";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_OFFSET = "perception.hearing.synthesis.chord4Offset";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_MEASURE = "perception.hearing.synthesis.chord4Measure";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_PATTERN = "perception.hearing.synthesis.chord4Pattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_SOURCE = "perception.hearing.synthesis.chord4Source";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_INVERT = "perception.hearing.synthesis.chord4Invert";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE = "perception.hearing.synthesis.chord4Octave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_QUANTIZE_SOURCE = "perception.hearing.synthesis.chord4QuantizeSource";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING = "perception.hearing.synthesis.beatTiming";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT1_SOURCE = "perception.hearing.synthesis.beat1Source";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT1_PATTERN = "perception.hearing.synthesis.beat1Pattern";
@@ -219,6 +223,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_SOURCE = "perception.hearing.synthesis.baseSource";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_PATTERN = "perception.hearing.synthesis.basePattern";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE = "perception.hearing.synthesis.baseOctave";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BASE_QUANTIZE_SOURCE = "perception.hearing.synthesis.baseQuantizeSource";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD1_OCTAVE = "perception.hearing.synthesis.pad1Octave";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_PAD2_OCTAVE = "perception.hearing.synthesis.pad2Octave";
 

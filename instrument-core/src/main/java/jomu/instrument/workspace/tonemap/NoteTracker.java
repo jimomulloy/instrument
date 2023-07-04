@@ -18,8 +18,8 @@ import jomu.instrument.control.InstrumentParameterNames;
 
 public class NoteTracker {
 
-	record SynthChordParameters(int chordSource, double chordMeasure, int chordPattern, int chordOctave,
-			int chordOffset, boolean chordInvert) {
+	record SynthChordParameters(int quantizeSource, int chordSource, double chordMeasure, int chordPattern,
+			int chordOctave, int chordOffset, boolean chordInvert) {
 	};
 
 	record SynthBeatParameters(int beatSource, int beatDrum, int beatOffset, int beatPattern) {
@@ -98,11 +98,15 @@ public class NoteTracker {
 
 	private int synthChord1Source;
 
+	private int synthChord1QuantizeSource;
+
 	private boolean synthChord1Invert;
 
 	private boolean synthChord2Invert;
 
 	private int synthChord2Source;
+
+	private int synthChord2QuantizeSource;
 
 	private double synthChord3Measure;
 
@@ -111,6 +115,8 @@ public class NoteTracker {
 	private int synthChord3Pattern;
 
 	private int synthChord3Source;
+
+	private int synthChord3QuantizeSource;
 
 	private boolean synthChord3Invert;
 
@@ -123,6 +129,8 @@ public class NoteTracker {
 	private int synthChord4Pattern;
 
 	private int synthChord4Source;
+
+	private int synthChord4QuantizeSource;
 
 	private boolean synthChord4Invert;
 
@@ -141,6 +149,10 @@ public class NoteTracker {
 	private int synthBeat4Source;
 
 	private int synthBaseSource;
+
+	private int synthBaseQuantizeSource;
+
+	private int synthQuantizeSource;
 
 	public class NoteTrack {
 
@@ -372,6 +384,8 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_OCTAVE);
 		synthBaseSource = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_SOURCE);
+		synthBaseQuantizeSource = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BASE_QUANTIZE_SOURCE);
 
 		synthChord1Measure = toneMap.getParameterManager()
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_MEASURE);
@@ -385,6 +399,8 @@ public class NoteTracker {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_INVERT);
 		synthChord1Octave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_OCTAVE);
+		synthChord1QuantizeSource = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD1_QUANTIZE_SOURCE);
 
 		synthChord2Measure = toneMap.getParameterManager()
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_MEASURE);
@@ -398,6 +414,8 @@ public class NoteTracker {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_INVERT);
 		synthChord2Octave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_OCTAVE);
+		synthChord2QuantizeSource = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD2_QUANTIZE_SOURCE);
 
 		synthChord3Measure = toneMap.getParameterManager()
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_MEASURE);
@@ -411,6 +429,8 @@ public class NoteTracker {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_INVERT);
 		synthChord3Octave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_OCTAVE);
+		synthChord3QuantizeSource = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD3_QUANTIZE_SOURCE);
 
 		synthChord4Measure = toneMap.getParameterManager()
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_MEASURE);
@@ -424,6 +444,8 @@ public class NoteTracker {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_INVERT);
 		synthChord4Octave = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE);
+		synthChord4QuantizeSource = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_QUANTIZE_SOURCE);
 
 		synthBeat1Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_OFFSET);
@@ -463,6 +485,9 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BEAT_4);
 		incrementTime = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
+
+		synthQuantizeSource = toneMap.getParameterManager()
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_SOURCE);
 	}
 
 	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes, int retryCount) {
@@ -596,12 +621,16 @@ public class NoteTracker {
 		return salientTrack;
 	}
 
-	public NoteListElement trackBase(NoteListElement quantizeNote, ChordListElement chordListElement,
+	public NoteListElement trackBase(NoteListElement synthQuantizeNote, ChordListElement chordListElement,
 			ToneTimeFrame toneTimeFrame) {
 		if (baseTrack == null) {
 			baseTrack = new NoteTrack(1);
 		}
-
+		NoteListElement quantizeNote = synthQuantizeNote;
+		if (synthBaseQuantizeSource != synthQuantizeSource) {
+			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker().getBeatTrack(synthBaseQuantizeSource);
+			quantizeNote = quantizeBeatTrack.getLastNote();
+		}
 		NoteListElement lastNote = baseTrack.getLastNote();
 		if (quantizeNote == null || lastNote == null || quantizeNote.startTime >= lastNote.endTime) {
 			PitchSet pitchSet = toneTimeFrame.getPitchSet();
@@ -768,18 +797,27 @@ public class NoteTracker {
 
 	public void trackChords(NoteListElement quantizeNote, ChordListElement chordListElement,
 			ToneTimeFrame toneTimeFrame) {
-		processChordTrack(1, toneTimeFrame, quantizeNote, chordListElement, new SynthChordParameters(synthChord1Source,
-				synthChord1Measure, synthChord1Pattern, synthChord1Octave, synthChord1Offset, synthChord1Invert));
-		processChordTrack(2, toneTimeFrame, quantizeNote, chordListElement, new SynthChordParameters(synthChord2Source,
-				synthChord2Measure, synthChord2Pattern, synthChord2Octave, synthChord2Offset, synthChord2Invert));
-		processChordTrack(3, toneTimeFrame, quantizeNote, chordListElement, new SynthChordParameters(synthChord3Source,
-				synthChord3Measure, synthChord3Pattern, synthChord3Octave, synthChord3Offset, synthChord3Invert));
-		processChordTrack(4, toneTimeFrame, quantizeNote, chordListElement, new SynthChordParameters(synthChord4Source,
-				synthChord4Measure, synthChord4Pattern, synthChord4Octave, synthChord4Offset, synthChord4Invert));
+		processChordTrack(1, toneTimeFrame, quantizeNote, chordListElement,
+				new SynthChordParameters(synthChord1QuantizeSource, synthChord1Source, synthChord1Measure,
+						synthChord1Pattern, synthChord1Octave, synthChord1Offset, synthChord1Invert));
+		processChordTrack(2, toneTimeFrame, quantizeNote, chordListElement,
+				new SynthChordParameters(synthChord2QuantizeSource, synthChord2Source, synthChord2Measure,
+						synthChord2Pattern, synthChord2Octave, synthChord2Offset, synthChord2Invert));
+		processChordTrack(3, toneTimeFrame, quantizeNote, chordListElement,
+				new SynthChordParameters(synthChord3QuantizeSource, synthChord3Source, synthChord3Measure,
+						synthChord3Pattern, synthChord3Octave, synthChord3Offset, synthChord3Invert));
+		processChordTrack(4, toneTimeFrame, quantizeNote, chordListElement,
+				new SynthChordParameters(synthChord4QuantizeSource, synthChord4Source, synthChord4Measure,
+						synthChord4Pattern, synthChord4Octave, synthChord4Offset, synthChord4Invert));
 	}
 
-	private void processChordTrack(int trackNumber, ToneTimeFrame toneTimeFrame, NoteListElement quantizeNote,
+	private void processChordTrack(int trackNumber, ToneTimeFrame toneTimeFrame, NoteListElement synthQuantizeNote,
 			ChordListElement chordListElement, SynthChordParameters synthChordParameters) {
+		NoteListElement quantizeNote = synthQuantizeNote;
+		if (synthChordParameters.quantizeSource != synthQuantizeSource) {
+			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker().getBeatTrack(synthChordParameters.quantizeSource);
+			quantizeNote = quantizeBeatTrack.getLastNote();
+		}
 		NoteTrack chordTrack;
 		if (!chordTracks.containsKey(trackNumber)) {
 			chordTrack = new NoteTrack(trackNumber);
@@ -904,40 +942,34 @@ public class NoteTracker {
 		if (synthChordParameters.chordPattern == 0) {
 			if (!newNotes.stream().allMatch(nle -> currentNoteSet.contains(nle.note))) {
 				for (NoteListElement cnle : currentNotes) {
-					if (!newNoteSet.contains(cnle.note)) {
+					if (cnle.endTime + incrementTime >= startTime) {
 						cnle.endTime = startTime - incrementTime;
-					} else {
-						cnle.endTime = endTime;
 					}
 				}
 				for (NoteListElement nnle : newNotes) {
-					if (!currentNoteSet.contains(nnle.note)) {
-						LOG.finer(">>NT added chord notes: " + time + ", " + currentNotes.length + ", " + nnle.startTime
-								+ ", " + nnle.endTime + ", " + note + ", " + track.getSize() + ", " + synthTimeSignature
-								+ ", " + startTime + ", " + endTime + ", " + nnle);
-						track.addNote(nnle);
-					}
+					track.addNote(nnle);
 				}
 			} else {
-				for (NoteListElement cnle : currentNotes) {
-					for (NoteListElement nnle : newNotes) {
-						if (nnle.note == cnle.note && (cnle.endTime <= nnle.startTime)) {
-							track.addNote(nnle);
+				for (NoteListElement nnle : newNotes) {
+					for (NoteListElement cnle : currentNotes) {
+						if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+							cnle.endTime = startTime - incrementTime;
 						}
 					}
+					track.addNote(nnle);
 				}
 			}
 		} else if (synthChordParameters.chordPattern == 1) {
-			for (NoteListElement cnle : currentNotes) {
-				if (newNoteSet.contains(cnle.note)) {
-					cnle.endTime = startTime - incrementTime;
-				} else {
-					cnle.endTime = endTime;
-				}
-			}
 			for (NoteListElement nnle : newNotes) {
 				if (!currentNoteSet.contains(nnle.note)) {
 					track.addNote(nnle);
+				} else {
+					for (NoteListElement cnle : currentNotes) {
+						if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)
+								&& (cnle.endTime < nnle.endTime)) {
+							cnle.endTime = nnle.endTime;
+						}
+					}
 				}
 			}
 		} else {
@@ -1367,7 +1399,7 @@ public class NoteTracker {
 		double lastTime = Double.NEGATIVE_INFINITY;
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteTrack> discardedTracks = new HashSet<>();
-		if (tracks.size() > maxTracksLower) {
+		if (tracks.size() > 1) {
 			for (NoteTrack track : tracks.values()) {
 				boolean hasDiscarded = false;
 				do {
