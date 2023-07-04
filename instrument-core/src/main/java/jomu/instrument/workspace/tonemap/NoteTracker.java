@@ -1400,6 +1400,7 @@ public class NoteTracker {
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteTrack> discardedTracks = new HashSet<>();
 		if (tracks.size() > 1) {
+			LOG.severe(">>NT CLEAR: " + clearRangeLower + ", " + clearRangeUpper);
 			for (NoteTrack track : tracks.values()) {
 				boolean hasDiscarded = false;
 				do {
@@ -1417,7 +1418,7 @@ public class NoteTracker {
 							discardedNotes.add(nle);
 							notesToDelete.add(nle);
 							hasDiscarded = true;
-							LOG.finer(">>NoteTracker cleanTracks note A: " + nle);
+							LOG.severe(">>NoteTracker cleanTracks note A: " + nle);
 							if (track.getNotes().size() == notesToDelete.size()) {
 								break;
 							}
@@ -1429,7 +1430,7 @@ public class NoteTracker {
 									discardedNotes.add(lastNote);
 									notesToDelete.add(lastNote);
 									hasDiscarded = true;
-									LOG.finer(">>NoteTracker cleanTracks note B: " + nle);
+									LOG.severe(">>NoteTracker cleanTracks note B: " + nle);
 									if (track.getNotes().size() == notesToDelete.size()) {
 										break;
 									}
@@ -1437,7 +1438,7 @@ public class NoteTracker {
 									discardedNotes.add(nle);
 									notesToDelete.add(nle);
 									hasDiscarded = true;
-									LOG.finer(">>NoteTracker cleanTracks note C: " + nle);
+									LOG.severe(">>NoteTracker cleanTracks note C: " + nle);
 									if (track.getNotes().size() == notesToDelete.size()) {
 										break;
 									}
@@ -1447,7 +1448,7 @@ public class NoteTracker {
 									discardedNotes.add(lastNote);
 									notesToDelete.add(lastNote);
 									hasDiscarded = true;
-									LOG.finer(">>NoteTracker cleanTracks note B: " + nle);
+									LOG.severe(">>NoteTracker cleanTracks note B: " + nle);
 									if (track.getNotes().size() == notesToDelete.size()) {
 										break;
 									}
@@ -1455,7 +1456,7 @@ public class NoteTracker {
 									discardedNotes.add(nle);
 									notesToDelete.add(nle);
 									hasDiscarded = true;
-									LOG.finer(">>NoteTracker cleanTracks note C: " + nle);
+									LOG.severe(">>NoteTracker cleanTracks note C: " + nle);
 									if (track.getNotes().size() == notesToDelete.size()) {
 										break;
 									}
@@ -1465,10 +1466,10 @@ public class NoteTracker {
 						lastNote = nle;
 					}
 					for (NoteListElement nle : notesToDelete) {
-						LOG.finer(">>NT clean remove: " + track.getNumber() + ", " + fromTime + ", " + nle.startTime);
+						LOG.severe(">>NT clean remove: " + track.getNumber() + ", " + fromTime + ", " + nle.startTime);
 						track.removeNote(nle);
 						if (track.getNotes().size() == 0) {
-							LOG.finer(">>NoteTracker cleanTracks track: " + track);
+							LOG.severe(">>NoteTracker cleanTracks track: " + track);
 							discardedTracks.add(track);
 						}
 					}

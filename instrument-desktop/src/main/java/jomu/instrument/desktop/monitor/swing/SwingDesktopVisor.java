@@ -166,8 +166,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 	static final Integer[] fftWindowSizes = { 256, 512, 1024, 2048, 4096, 8192 };
 	static final Integer[] inputSampleRate = { 8000, 11025, 22050, 44100, 48000, 96000, 192000 };
 
-	static final String[] toneMapViewTypesMode3 = new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(),
-			Cell.CellTypes.AUDIO_CQ.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
+	static final String[] toneMapViewTypesMode3 = new String[] { Cell.CellTypes.AUDIO_CQ.name(),
+			Cell.CellTypes.AUDIO_SYNTHESIS.name(), Cell.CellTypes.AUDIO_CQ_ORIGIN.name(),
 			Cell.CellTypes.AUDIO_CQ_MICRO_TONE.name(), Cell.CellTypes.AUDIO_TUNER_PEAKS.name(),
 			Cell.CellTypes.AUDIO_SPECTRAL_PEAKS.name(), Cell.CellTypes.AUDIO_PITCH.name(),
 			Cell.CellTypes.AUDIO_PHASE.name(), Cell.CellTypes.AUDIO_YIN.name(), Cell.CellTypes.AUDIO_SACF.name(),
@@ -181,8 +181,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			Cell.CellTypes.AUDIO_HPS.name() + "_PERCUSSION", Cell.CellTypes.AUDIO_PRE_CHROMA.name(),
 			Cell.CellTypes.AUDIO_POST_CHROMA.name(), Cell.CellTypes.AUDIO_BEAT.name() };
 
-	static final String[] toneMapViewTypesMode2 = new String[] { Cell.CellTypes.AUDIO_SYNTHESIS.name(),
-			Cell.CellTypes.AUDIO_INTEGRATE.name(), Cell.CellTypes.AUDIO_CQ.name() };
+	static final String[] toneMapViewTypesMode2 = new String[] { Cell.CellTypes.AUDIO_CQ.name(),
+			Cell.CellTypes.AUDIO_SYNTHESIS.name(), Cell.CellTypes.AUDIO_INTEGRATE.name() };
 
 	File inputFile;
 
@@ -816,9 +816,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		}
 
 		toneMapViewComboBox.setEnabled(false);
-		toneMapViewComboBox.setSelectedItem(Cell.CellTypes.AUDIO_SYNTHESIS.name());
+		toneMapViewComboBox.setSelectedItem(Cell.CellTypes.AUDIO_CQ.name());
 		toneMapViewComboBox.setEnabled(true);
-		currentToneMapViewType = Cell.CellTypes.AUDIO_SYNTHESIS.name();
+		currentToneMapViewType = Cell.CellTypes.AUDIO_CQ.name();
 
 		toneMapViewComboBox.addActionListener(new ActionListener() {
 			@Override
