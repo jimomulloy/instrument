@@ -789,7 +789,7 @@ public class ToneTimeFrame implements Serializable {
 
 	}
 
-	public ToneTimeFrame chromaQuantize() {
+	public ToneTimeFrame chromaQuantize(double threshold) {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null) {
 				double value = elements[i].amplitude;
@@ -801,7 +801,7 @@ public class ToneTimeFrame implements Serializable {
 					value = 0.5;
 				} else if (value > 0.1) {
 					value = 0.25;
-				} else if (value > 0.05) {
+				} else if (value >= threshold) {
 					value = 0.1;
 				} else {
 					value = AMPLITUDE_FLOOR;
@@ -858,7 +858,7 @@ public class ToneTimeFrame implements Serializable {
 			int index = i % OCTAVE_LENGTH;
 			if (elements[i] != null) {
 				double value = elements[i].amplitude;
-				if (value == 0.25) {
+				if (value == 0.25 || value == 0.1) {
 					fourthCandidates.add(index);
 				}
 			}

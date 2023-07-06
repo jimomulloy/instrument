@@ -192,7 +192,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 					.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(), preChromaTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
-					.chromaQuantize()
+					.chromaQuantize(chromaChordifyThreshold)
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
 					.chordNoteOctivate(new ToneTimeFrame[] { preChromaTimeFrame });
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name(), chroma.getChord());
@@ -209,7 +209,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 					.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(), hpsHarmonicTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
-					.chromaQuantize()
+					.chromaQuantize(chromaChordifyThreshold)
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
 					.chordNoteOctivate(new ToneTimeFrame[] { hpsHarmonicTimeFrame });
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC", chroma.getChord());
@@ -225,7 +225,7 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 					.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(), onsetSmoothedTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
-					.chromaQuantize()
+					.chromaQuantize(chromaChordifyThreshold)
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
 					.chordNoteOctivate(new ToneTimeFrame[] { onsetSmoothedTimeFrame });
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", chroma.getChord());

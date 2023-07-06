@@ -34,6 +34,8 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH);
 		boolean chromaHpsSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HPS_SWITCH);
+		double chromaChordifyThreshold = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CHORDIFY_THRESHOLD);
 
 		ToneMap cqToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
@@ -58,7 +60,7 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 				.chroma(chromaRootNote, sourceTimeFrame.getPitchLow(), sourceTimeFrame.getPitchHigh(),
 						chromaHarmonicsSwitch)
 				.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
-				.chromaQuantize());
+				.chromaQuantize(chromaChordifyThreshold));
 
 		console.getVisor()
 				.updateToneMapView(chromaToneMap, this.cell.getCellType()
