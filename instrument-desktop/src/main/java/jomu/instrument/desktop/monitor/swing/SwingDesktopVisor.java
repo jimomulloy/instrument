@@ -272,6 +272,18 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField audioPitchShiftInput;
 
+	private JDialog parameterDialog;
+
+	private boolean parameterDialogOpen;
+
+	private ParametersPanel parameterPanel;
+
+	private JDialog synthDialog;
+
+	private boolean synthDialogOpen;
+
+	protected SynthPanel synthPanel;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1265,66 +1277,24 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				}
 			}
 		});
-
-		parametersButton = new JButton("Parameters");
-
-		parametersButton.addActionListener(new ActionListener() {
-
-			private boolean parameterDialogOpen;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String s = e.getActionCommand();
-				if (s.equals("Parameters")) {
-
-					if (!parameterDialogOpen) {
-						// create a dialog Box
-						JDialog d = new JDialog(mainframe, "Parameters");
-
-						d.addWindowListener(new WindowAdapter() {
-							public void windowClosed(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-
-							public void windowClosing(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-						});
-
-						JPanel dialogPanel = new JPanel(new BorderLayout());
-
-						JPanel parameterPanel = new ParametersPanel();
-						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
-								new EtchedBorder()));
-
-						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
-
-						d.add(dialogPanel);
-
-						Toolkit myScreen = Toolkit.getDefaultToolkit();
-						Dimension screenSize = myScreen.getScreenSize();
-						int screenHeight = screenSize.height;
-						int screenWidth = screenSize.width;
-
-						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
-
-						// set visibility of dialog
-						d.setVisible(true);
-
-						parameterDialogOpen = true;
-
-					}
-				}
-			}
-		});
 		actionWestPanel.add(helpButton);
 
 		parametersButton = new JButton("Parameters");
 
-		parametersButton.addActionListener(new ActionListener() {
+		parameterDialog = new JDialog(mainframe, "Parameters");
+		parameterDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		parameterDialog.addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e) {
+				parameterDialogOpen = false;
+			}
 
-			private boolean parameterDialogOpen;
+			public void windowClosing(WindowEvent e) {
+				parameterDialogOpen = false;
+				parameterDialog.getContentPane().removeAll();
+				parameterDialog.dispose();
+			}
+		});
+		parametersButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1332,39 +1302,30 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				if (s.equals("Parameters")) {
 
 					if (!parameterDialogOpen) {
-						// create a dialog Box
-						JDialog d = new JDialog(mainframe, "Parameters");
-
-						d.addWindowListener(new WindowAdapter() {
-							public void windowClosed(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-
-							public void windowClosing(WindowEvent e) {
-								parameterDialogOpen = false;
-							}
-						});
+						parameterDialog.getContentPane().removeAll();
 
 						JPanel dialogPanel = new JPanel(new BorderLayout());
 
-						JPanel parameterPanel = new ParametersPanel();
+						parameterPanel = new ParametersPanel();
+
 						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
 								new EtchedBorder()));
 
 						dialogPanel.add(new JScrollPane(parameterPanel), BorderLayout.CENTER);
 
-						d.add(dialogPanel);
+						parameterDialog.add(dialogPanel);
 
 						Toolkit myScreen = Toolkit.getDefaultToolkit();
 						Dimension screenSize = myScreen.getScreenSize();
 						int screenHeight = screenSize.height;
 						int screenWidth = screenSize.width;
 
-						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.9), (int) ((double) screenHeight * 0.8));
+						parameterDialog.setSize((int) ((double) screenWidth * 0.7),
+								(int) ((double) screenHeight * 0.7));
 
-						// set visibility of dialog
-						d.setVisible(true);
+						parameterDialog.setVisible(true);
+
+						parameterDialog.pack();
 
 						parameterDialogOpen = true;
 
@@ -1377,9 +1338,20 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 		synthButton = new JButton("Synth Controls");
 
-		synthButton.addActionListener(new ActionListener() {
+		synthDialog = new JDialog(mainframe, "Synth");
+		synthDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		synthDialog.addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e) {
+				synthDialogOpen = false;
+			}
 
-			private boolean synthDialogOpen;
+			public void windowClosing(WindowEvent e) {
+				synthDialogOpen = false;
+				synthDialog.getContentPane().removeAll();
+				synthDialog.dispose();
+			}
+		});
+		synthButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1387,39 +1359,28 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				if (s.equals("Synth Controls")) {
 
 					if (!synthDialogOpen) {
-						// create a dialog Box
-						JDialog d = new JDialog(mainframe, "Synth");
-
-						d.addWindowListener(new WindowAdapter() {
-							public void windowClosed(WindowEvent e) {
-								synthDialogOpen = false;
-							}
-
-							public void windowClosing(WindowEvent e) {
-								synthDialogOpen = false;
-							}
-						});
+						synthDialog.getContentPane().removeAll();
 
 						JPanel dialogPanel = new JPanel(new BorderLayout());
 
-						JPanel synthPanel = new SynthPanel();
+						synthPanel = new SynthPanel();
 						dialogPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(20, 20, 20, 20),
 								new EtchedBorder()));
 
 						dialogPanel.add(new JScrollPane(synthPanel), BorderLayout.CENTER);
 
-						d.add(dialogPanel);
+						synthDialog.add(dialogPanel);
 
 						Toolkit myScreen = Toolkit.getDefaultToolkit();
 						Dimension screenSize = myScreen.getScreenSize();
 						int screenHeight = screenSize.height;
 						int screenWidth = screenSize.width;
 
-						// setsize of dialog
-						d.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
+						synthDialog.setSize((int) ((double) screenWidth * 0.7), (int) ((double) screenHeight * 0.7));
 
-						// set visibility of dialog
-						d.setVisible(true);
+						synthDialog.setVisible(true);
+
+						synthDialog.pack();
 
 						synthDialogOpen = true;
 

@@ -112,6 +112,7 @@ public class Hearing implements Organ {
 	}
 
 	public void closeAudioStream(String streamId) {
+		LOG.severe(">>Close Audio Stream: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
 			return;
@@ -123,7 +124,7 @@ public class Hearing implements Organ {
 			// workspace.getAtlas().removeMapsByStreamId(streamId);
 			LOG.finer(">>Clear MAPS in Audio Stream: " + streamId);
 		}
-		LOG.finer(">>Closed Audio Stream: " + streamId);
+		LOG.severe(">>Closed Audio Stream: " + streamId);
 	}
 
 	public void removeAudioStream(String streamId) {
@@ -131,6 +132,7 @@ public class Hearing implements Organ {
 		if (audioStream == null) {
 			return;
 		}
+		LOG.severe(">>Removed Audio Stream: " + streamId);
 		audioStreams.remove(streamId);
 	}
 
@@ -196,6 +198,7 @@ public class Hearing implements Organ {
 			LOG.severe(">>HEARING startAudioFileStream clear old stream: " + getStreamId());
 			workspace.getAtlas().removeMapsByStreamId(getStreamId());
 			voice.reset();
+			removeAudioStream(getStreamId());
 			System.gc();
 			LOG.severe(">>HEARING startAudioFileStream cleared old stream: " + getStreamId());
 		}
@@ -597,6 +600,7 @@ public class Hearing implements Organ {
 			LOG.severe(">>HEARING startAudioLineStream clear old stream: " + getStreamId());
 			workspace.getAtlas().removeMapsByStreamId(getStreamId());
 			voice.reset();
+			removeAudioStream(getStreamId());
 			System.gc();
 			LOG.severe(">>HEARING startAudioLineStream cleared old stream: " + getStreamId());
 		}
