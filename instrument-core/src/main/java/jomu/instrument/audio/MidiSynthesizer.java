@@ -138,17 +138,18 @@ public class MidiSynthesizer implements ToneMapConstants {
 	boolean synthesizerRunning = false;
 
 	public void onStartup(@Observes Startup startupEvent) {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime()
+				.addShutdownHook(new Thread("Thread-MidiSynthesizer-ShutdownHook-" + System.currentTimeMillis()) {
 
-			@Override
-			public void run() {
-				for (Entry<String, MidiStream> entry : midiStreams.entrySet()) {
-					close(entry.getKey());
-					entry.getValue().close();
-				}
-				close();
-			}
-		});
+					@Override
+					public void run() {
+						for (Entry<String, MidiStream> entry : midiStreams.entrySet()) {
+							close(entry.getKey());
+							entry.getValue().close();
+						}
+						close();
+					}
+				});
 	}
 
 	/**
@@ -3667,7 +3668,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			consumer = new MidiQueueConsumer(bq, this);
 			// TODO LOOM Thread.startVirtualThread(consumer);
 			LOG.severe(">>Start MidiQueueConsumer Stream: " + streamId);
-			new Thread(consumer).start();
+			new Thread(consumer, "Thread-MidiSynthesizer-MidiStream-" + streamId + "-" + System.currentTimeMillis())
+					.start();
 		}
 
 		public void setPaused(boolean paused) {

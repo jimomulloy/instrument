@@ -250,7 +250,8 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 			bq = new LinkedBlockingQueue<>();
 			consumer = new AudioQueueConsumer(bq, this);
 			// TODO LOOM Thread.startVirtualThread(consumer);
-			new Thread(new AudioQueueConsumer(bq, this)).start();
+			new Thread(new AudioQueueConsumer(bq, this),
+					"Thread-ResynthAudioSynthesizer-MidiStream-" + streamId + "-" + System.currentTimeMillis()).start();
 			resynthProcessor = new ResynthProcessor();
 			generator = new AudioGenerator(ResynthAudioSynthesizer.this.getWindowSize(), 0);
 			try {

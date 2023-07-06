@@ -75,7 +75,8 @@ public class NuCell extends Cell implements Serializable {
 		axon = new Axon(this);
 		bq = new LinkedBlockingQueue<>();
 		// TODO LOOM Thread.startVirtualThread(new QueueConsumer());
-		queueConsumerThread = new Thread(new QueueConsumer());
+		queueConsumerThread = new Thread(new QueueConsumer(),
+				"Thread-NuCell-" + cellType.toString() + "-" + System.currentTimeMillis());
 		queueConsumerThread.start();
 	}
 
@@ -565,7 +566,8 @@ public class NuCell extends Cell implements Serializable {
 		bq.clear();
 		messageMap.clear();
 		messageReceivedMap.clear();
-		queueConsumerThread = new Thread(new QueueConsumer());
+		queueConsumerThread = new Thread(new QueueConsumer(),
+				"Thread-NuCell-" + this.getCellType().toString() + "-" + System.currentTimeMillis());
 		queueConsumerThread.start();
 	}
 } // end NuCell

@@ -1150,7 +1150,8 @@ public class Hearing implements Organ {
 
 		public void start() {
 			if (dispatcher != null) {
-				new Thread(dispatcher, "Audio dispatching").start();
+				new Thread(dispatcher, "Thread-Hearing-AudioDispatching-" + streamId + "-" + System.currentTimeMillis())
+						.start();
 			}
 		}
 
@@ -1232,7 +1233,7 @@ public class Hearing implements Organ {
 		audioPlayerDispatcher.addAudioProcessor(gainProcessor);
 		audioPlayerDispatcher.addAudioProcessor(audioPlayer);
 
-		Thread t = new Thread(audioPlayerDispatcher, "Audio Player Thread");
+		Thread t = new Thread(audioPlayerDispatcher, "Thread-Hearing-AudioPlayer" + System.currentTimeMillis());
 		t.start();
 		return true;
 	}

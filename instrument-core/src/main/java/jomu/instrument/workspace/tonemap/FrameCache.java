@@ -48,7 +48,8 @@ public class FrameCache {
 		this.queue = new ConcurrentLinkedQueue<>();
 		bq = new LinkedBlockingQueue<>();
 		// TODO LOOM Thread.startVirtualThread(new QueueConsumer());
-		queueConsumerThread = new Thread(new QueueConsumer());
+		queueConsumerThread = new Thread(new QueueConsumer(),
+				"Thread-FrameCache-Consumer-" + System.currentTimeMillis());
 		queueConsumerThread.start();
 	}
 

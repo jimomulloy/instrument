@@ -425,7 +425,8 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			bq = new LinkedBlockingQueue<>();
 			consumer = new AudioQueueConsumer(bq, this);
 			// TODO LOOM Thread.startVirtualThread(consumer);
-			new Thread(new AudioQueueConsumer(bq, this)).start();
+			new Thread(new AudioQueueConsumer(bq, this),
+					"Thread-TarsosAudioSynthesizer-MidiStream-" + streamId + "-" + System.currentTimeMillis()).start();
 
 			float frequency = baseFrequency;
 
