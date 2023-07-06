@@ -41,8 +41,10 @@ public class Workspace implements Organ {
 
 	@Override
 	public void processException(InstrumentException exception) throws InstrumentException {
-		instrumentSessionManager.getCurrentSession().setException(exception);
-		instrumentSessionManager.getCurrentSession().setState(InstrumentSessionState.FAILED);
+		instrumentSessionManager.getCurrentSession()
+				.setException(exception);
+		instrumentSessionManager.getCurrentSession()
+				.setState(InstrumentSessionState.FAILED);
 	}
 
 }

@@ -39,8 +39,11 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 	public BeatSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
-		this.sampleRate = dispatcher.getFormat().getSampleRate();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.sampleRate = dispatcher.getFormat()
+				.getSampleRate();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		this.microToneSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH);
@@ -70,8 +73,9 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 	/**
 	 * Guess the beats using the populated list of onsets.
 	 * 
-	 * @param beatHandler Use this handler to get the time of the beats. The
-	 *                    salience of the beat is not calculated: -1 is returned.
+	 * @param beatHandler
+	 *            Use this handler to get the time of the beats. The
+	 *            salience of the beat is not calculated: -1 is returned.
 	 */
 	public void trackBeats(OnsetHandler beatHandler) {
 		AgentList agents = null;
@@ -96,8 +100,10 @@ public class BeatSource extends AudioEventSource<OnsetInfo[]> implements OnsetHa
 	/**
 	 * Creates a new Event object representing an onset or beat.
 	 * 
-	 * @param time    The time of the beat in seconds
-	 * @param beatNum The index of the beat or onset.
+	 * @param time
+	 *            The time of the beat in seconds
+	 * @param beatNum
+	 *            The index of the beat or onset.
 	 * @return The Event object representing the beat or onset.
 	 */
 	private Event newEvent(double time, int beatNum) {

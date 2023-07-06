@@ -68,13 +68,20 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		double envelopeWhitenDecayFactor = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_DECAY_FACTOR);
 
-		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-		ToneMap pitchToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
-		ToneMap sacfToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SACF, streamId));
-		ToneMap spToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
-		ToneMap tpToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
-		ToneMap yinToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId));
-		ToneMap mfccToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId));
+		ToneMap cqToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap pitchToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId));
+		ToneMap sacfToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_SACF, streamId));
+		ToneMap spToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId));
+		ToneMap tpToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId));
+		ToneMap yinToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId));
+		ToneMap mfccToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId));
 		ToneMap hpsMaskToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC_MASK", streamId));
 		ToneMap percussionToneMap = workspace.getAtlas()
@@ -85,22 +92,26 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 		ToneMap integrateSpectralToneMap = null;
 
 		if (integrateCQSwitch) {
-			integrateToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+			integrateToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		}
 		if (integratePeaksSwitch) {
 			integratePeaksToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(this.cell.getCellType().toString() + "_PEAKS", streamId));
+					.getToneMap(buildToneMapKey(this.cell.getCellType()
+							.toString() + "_PEAKS", streamId));
 		}
 		if (integrateSpectralSwitch) {
 			integrateSpectralToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(this.cell.getCellType().toString() + "_SPECTRAL", streamId));
+					.getToneMap(buildToneMapKey(this.cell.getCellType()
+							.toString() + "_SPECTRAL", streamId));
 		}
 
 		if (integrateToneMap == null && integratePeaksToneMap == null && integrateSpectralToneMap == null) {
 			throw new InstrumentException("AudioIntegrateProcessor has no options");
 		}
 		if (integrateCQSwitch) {
-			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			integrateToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence)
+					.clone());
 			ToneTimeFrame ittf = integrateToneMap.getTimeFrame();
 			if (integrateHpsSwitch) {
 				ittf.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
@@ -117,95 +128,128 @@ public class AudioIntegrateProcessor extends ProcessorCommon {
 			}
 		}
 		if (integratePeaksSwitch) {
-			integratePeaksToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			integratePeaksToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence)
+					.clone());
 			if (integrateHpsSwitch) {
-				integratePeaksToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence), false);
+				integratePeaksToneMap.getTimeFrame()
+						.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
 			}
 			if (integratePercussionSwitch) {
-				integratePeaksToneMap.getTimeFrame().mask(percussionToneMap.getTimeFrame(sequence), true);
+				integratePeaksToneMap.getTimeFrame()
+						.mask(percussionToneMap.getTimeFrame(sequence), true);
 			}
 		}
 		if (integrateSpectralSwitch) {
-			integrateSpectralToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+			integrateSpectralToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence)
+					.clone());
 			if (integrateHpsSwitch) {
-				integrateSpectralToneMap.getTimeFrame().mask(hpsMaskToneMap.getTimeFrame(sequence), false);
+				integrateSpectralToneMap.getTimeFrame()
+						.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
 			}
 			if (integratePercussionSwitch) {
-				integrateSpectralToneMap.getTimeFrame().mask(percussionToneMap.getTimeFrame(sequence), false);
+				integrateSpectralToneMap.getTimeFrame()
+						.mask(percussionToneMap.getTimeFrame(sequence), false);
 			}
 		}
 
 		if (integrateCQSwitch) {
-			integrateToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+			integrateToneMap.getTimeFrame()
+					.filter(toneMapMinFrequency, toneMapMaxFrequency);
 			ToneTimeFrame ttf = integrateToneMap.getTimeFrame();
 			ttf.reset();
-			console.getVisor().updateToneMapView(integrateToneMap, this.cell.getCellType().toString());
+			console.getVisor()
+					.updateToneMapView(integrateToneMap, this.cell.getCellType()
+							.toString());
 		}
 
 		if (integratePeaksSwitch) {
-			integratePeaksToneMap.getTimeFrame().clear();
+			integratePeaksToneMap.getTimeFrame()
+					.clear();
 			if (integratePitchSwitch) {
-				integratePeaksToneMap.getTimeFrame().integratePeaks(pitchToneMap.getTimeFrame(sequence));
+				integratePeaksToneMap.getTimeFrame()
+						.integratePeaks(pitchToneMap.getTimeFrame(sequence));
 			}
 			if (integrateSACFSwitch) {
-				integratePeaksToneMap.getTimeFrame().integratePeaks(sacfToneMap.getTimeFrame(sequence));
+				integratePeaksToneMap.getTimeFrame()
+						.integratePeaks(sacfToneMap.getTimeFrame(sequence));
 			}
 			if (integrateTPSwitch) {
-				integratePeaksToneMap.getTimeFrame().integratePeaks(tpToneMap.getTimeFrame(sequence));
+				integratePeaksToneMap.getTimeFrame()
+						.integratePeaks(tpToneMap.getTimeFrame(sequence));
 			}
 			if (integrateYINSwitch) {
-				integratePeaksToneMap.getTimeFrame().integratePeaks(yinToneMap.getTimeFrame(sequence));
+				integratePeaksToneMap.getTimeFrame()
+						.integratePeaks(yinToneMap.getTimeFrame(sequence));
 			}
 			if (integrateMFCCSwitch) {
-				integratePeaksToneMap.getTimeFrame().integratePeaks(mfccToneMap.getTimeFrame(sequence));
+				integratePeaksToneMap.getTimeFrame()
+						.integratePeaks(mfccToneMap.getTimeFrame(sequence));
 			}
 			if (integrateSPSwitch) {
-				integratePeaksToneMap.getTimeFrame().integratePeaks(spToneMap.getTimeFrame(sequence));
+				integratePeaksToneMap.getTimeFrame()
+						.integratePeaks(spToneMap.getTimeFrame(sequence));
 			}
 
-			integratePeaksToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+			integratePeaksToneMap.getTimeFrame()
+					.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 			ToneTimeFrame ipttf = integratePeaksToneMap.getTimeFrame();
 
-			if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-				CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
-				ipttf.calibrate(integratePeaksToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
+			if (workspace.getAtlas()
+					.hasCalibrationMap(streamId) && calibrateSwitch) {
+				CalibrationMap cm = workspace.getAtlas()
+						.getCalibrationMap(streamId);
+				ipttf.calibrate(integratePeaksToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold,
+						false);
 			}
-			console.getVisor().updateToneMapView(integratePeaksToneMap, this.cell.getCellType().toString() + "_PEAKS");
+			console.getVisor()
+					.updateToneMapView(integratePeaksToneMap, this.cell.getCellType()
+							.toString() + "_PEAKS");
 		}
 
 		if (integrateSpectralSwitch) {
-			integrateSpectralToneMap.getTimeFrame().clear();
+			integrateSpectralToneMap.getTimeFrame()
+					.clear();
 			if (integratePitchSwitch) {
-				integrateSpectralToneMap.getTimeFrame().merge(pitchToneMap.getTimeFrame(sequence));
+				integrateSpectralToneMap.getTimeFrame()
+						.merge(pitchToneMap.getTimeFrame(sequence));
 			}
 			if (integrateSACFSwitch) {
-				integrateSpectralToneMap.getTimeFrame().merge(sacfToneMap.getTimeFrame(sequence));
+				integrateSpectralToneMap.getTimeFrame()
+						.merge(sacfToneMap.getTimeFrame(sequence));
 			}
 			if (integrateTPSwitch) {
-				integrateSpectralToneMap.getTimeFrame().merge(tpToneMap.getTimeFrame(sequence));
+				integrateSpectralToneMap.getTimeFrame()
+						.merge(tpToneMap.getTimeFrame(sequence));
 			}
 			if (integrateSPSwitch) {
-				integrateSpectralToneMap.getTimeFrame().merge(spToneMap.getTimeFrame(sequence));
+				integrateSpectralToneMap.getTimeFrame()
+						.merge(spToneMap.getTimeFrame(sequence));
 			}
 			if (integrateYINSwitch) {
-				integrateSpectralToneMap.getTimeFrame().merge(yinToneMap.getTimeFrame(sequence));
+				integrateSpectralToneMap.getTimeFrame()
+						.merge(yinToneMap.getTimeFrame(sequence));
 			}
 			if (integrateMFCCSwitch) {
-				integrateSpectralToneMap.getTimeFrame().merge(mfccToneMap.getTimeFrame(sequence));
+				integrateSpectralToneMap.getTimeFrame()
+						.merge(mfccToneMap.getTimeFrame(sequence));
 			}
 
-			integrateSpectralToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+			integrateSpectralToneMap.getTimeFrame()
+					.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 			ToneTimeFrame isttf = integrateSpectralToneMap.getTimeFrame();
 
-			if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-				CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			if (workspace.getAtlas()
+					.hasCalibrationMap(streamId) && calibrateSwitch) {
+				CalibrationMap cm = workspace.getAtlas()
+						.getCalibrationMap(streamId);
 				isttf.calibrate(integrateSpectralToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold,
 						false);
 			}
-			console.getVisor().updateToneMapView(integrateSpectralToneMap,
-					this.cell.getCellType().toString() + "_SPECTRAL");
+			console.getVisor()
+					.updateToneMapView(integrateSpectralToneMap, this.cell.getCellType()
+							.toString() + "_SPECTRAL");
 		}
 
 		cell.send(streamId, sequence);

@@ -46,15 +46,18 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		boolean onsetHpsSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_HPS_SWITCH);
 
-		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap cqToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (onsetCQOriginSwitch) {
-			cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
+			cqToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
 		}
 
 		ToneMap hpsMaskToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_PERCUSSION_MASK", streamId));
 
-		ToneMap onsetToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap onsetToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		ToneMap onsetSmoothedToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_SMOOTHED", streamId));
 
@@ -63,7 +66,8 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 		if (onsetHpsSwitch) {
 			onsetTimeFrame.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
 		}
-		onsetSmoothedToneMap.addTimeFrame(cqTimeFrame.clone()).reset();
+		onsetSmoothedToneMap.addTimeFrame(cqTimeFrame.clone())
+				.reset();
 
 		if (sequence > 1) {
 			ToneTimeFrame currentFrame = onsetSmoothedToneMap.getTimeFrame(sequence);
@@ -85,14 +89,20 @@ public class AudioOnsetProcessor extends ProcessorCommon {
 
 		ToneTimeFrame ottf = onsetToneMap.getTimeFrame();
 		ToneTimeFrame osttf = onsetSmoothedToneMap.getTimeFrame();
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+		if (workspace.getAtlas()
+				.hasCalibrationMap(streamId) && calibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			ottf.calibrate(onsetToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 			osttf.calibrate(onsetSmoothedToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
-		console.getVisor().updateToneMapView(onsetToneMap, this.cell.getCellType().toString());
-		console.getVisor().updateToneMapView(onsetSmoothedToneMap, this.cell.getCellType().toString() + "_SMOOTHED");
+		console.getVisor()
+				.updateToneMapView(onsetToneMap, this.cell.getCellType()
+						.toString());
+		console.getVisor()
+				.updateToneMapView(onsetSmoothedToneMap, this.cell.getCellType()
+						.toString() + "_SMOOTHED");
 
 		cell.send(streamId, sequence);
 	}

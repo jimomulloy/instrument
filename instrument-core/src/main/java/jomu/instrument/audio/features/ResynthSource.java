@@ -58,8 +58,11 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 	public ResynthSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
-		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.sampleRate = (int) dispatcher.getFormat()
+				.getSampleRate();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		envelopeFollower = new EnvelopeFollower(samplerate, 0.005, 0.01);
 		this.followEnvelope = true;
@@ -134,7 +137,8 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 
 			@Override
 			public boolean process(AudioEvent audioEvent) {
-				float[] audioFloatBuffer = audioEvent.getFloatBuffer().clone();
+				float[] audioFloatBuffer = audioEvent.getFloatBuffer()
+						.clone();
 				ResynthInfo ri = new ResynthInfo(audioFloatBuffer, envelopeAudioBuffer);
 				putFeature(audioEvent.getTimeStamp(), ri);
 				return true;
@@ -173,7 +177,8 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		}
 
 		final double twoPiF = 2 * Math.PI * frequency;
-		envelopeAudioBuffer = audioEvent.getFloatBuffer().clone(); // !!TODO CLONED
+		envelopeAudioBuffer = audioEvent.getFloatBuffer()
+				.clone(); // !!TODO CLONED
 		float[] envelope = null;
 		if (followEnvelope) {
 			envelope = envelopeAudioBuffer.clone();

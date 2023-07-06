@@ -65,16 +65,18 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 			inv_deltat = 1.0 / dt;
 			inv_2pideltat = inv_deltat * inv_2pi;
 
-			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0,
+					audioFloatBuffer.length);
 
-			fft.powerPhaseFFT(transformbuffer, amplitudes, currentPhaseOffsets);
+			fft.powerPhaseFFT(transformbuffer, amplitudes,
+					currentPhaseOffsets);
 			// fft.forwardTransform(transformbuffer);
 			// fft.modulus(transformbuffer, amplitudes);
 
 			calculateFrequencyEstimates();
 
-			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, currentPhaseOffsets,
-					frequencyEstimates);
+			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult,
+					amplitudes, currentPhaseOffsets, frequencyEstimates);
 			YINSource.this.putFeature(audioEvent.getTimeStamp(), si);
 			return true;
 		}
@@ -91,11 +93,14 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 			// Tonality and Audio Morphing
 			// * Laroche and Dolson 1999
 			if (previousPhaseOffsets != null) {
-				float phaseDelta = currentPhaseOffsets[binIndex] - previousPhaseOffsets[binIndex];
+				float phaseDelta = currentPhaseOffsets[binIndex]
+						- previousPhaseOffsets[binIndex];
 				long k = Math.round(cbin * binIndex - inv_2pi * phaseDelta);
-				frequencyInHertz = (float) (inv_2pideltat * phaseDelta + inv_deltat * k);
+				frequencyInHertz = (float) (inv_2pideltat * phaseDelta
+						+ inv_deltat * k);
 			} else {
-				frequencyInHertz = (float) fft.binToHz(binIndex, sampleRate);
+				frequencyInHertz = (float) fft.binToHz(binIndex,
+						sampleRate);
 			}
 			return frequencyInHertz;
 		}
@@ -126,8 +131,11 @@ public class YINSource extends AudioEventSource<SpectrogramInfo> implements Pitc
 	public YINSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
-		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.sampleRate = (int) dispatcher.getFormat()
+				.getSampleRate();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW)
 				* 4;
 		this.lowPassFrequency = parameterManager

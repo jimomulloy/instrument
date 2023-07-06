@@ -24,7 +24,8 @@ public abstract class Cell {
 	 * <code>ECM<</code>. Every cell is identified by a unique cellID number.
 	 */
 	public Cell(CellTypes cellType) {
-		ID = UUID.randomUUID().toString();
+		ID = UUID.randomUUID()
+				.toString();
 		this.cellType = cellType;
 	}
 
@@ -105,7 +106,8 @@ public abstract class Cell {
 	 * Send this Bead a message. Typically if another Bead was sending the message,
 	 * it would send itself as the argument.
 	 *
-	 * @param message the Bead is the message.
+	 * @param message
+	 *            the Bead is the message.
 	 */
 
 	public final void message(Cell message) {
@@ -116,7 +118,8 @@ public abstract class Cell {
 	/**
 	 * Toggle the paused state of the Bead.
 	 *
-	 * @param paused true to pause Bead.
+	 * @param paused
+	 *            true to pause Bead.
 	 */
 	public void pause(boolean paused) {
 		this.paused = paused;
@@ -126,7 +129,8 @@ public abstract class Cell {
 	 * Sets this Bead's kill listener. The kill listener will receive a message
 	 * containing this Bead as an argument when this Bead is killed.
 	 *
-	 * @param killListener the new kill listener.
+	 * @param killListener
+	 *            the new kill listener.
 	 */
 	public void setKillListener(Cell killListener) {
 		this.killListener = killListener;
@@ -157,7 +161,8 @@ public abstract class Cell {
 	 * handle incoming messages. Typically a Bead would send a message to another
 	 * Bead with itself as the arugment.
 	 *
-	 * @param message the message
+	 * @param message
+	 *            the message
 	 */
 	protected void messageReceived(Cell message) {
 		/*
@@ -166,10 +171,7 @@ public abstract class Cell {
 	}
 
 	public static enum CellTypes {
-		AUDIO_CQ, AUDIO_CQ_ORIGIN, AUDIO_CQ_MICRO_TONE, AUDIO_TUNER_PEAKS, AUDIO_BEAT, AUDIO_ONSET, AUDIO_PERCUSSION,
-		AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_PHASE, AUDIO_YIN, AUDIO_SACF, AUDIO_MFCC, AUDIO_CEPSTRUM,
-		AUDIO_SYNTHESIS, AUDIO_HPS, AUDIO_SPECTRAL_PEAKS, AUDIO_SINK, AUDIO_PRE_CHROMA, AUDIO_POST_CHROMA, JUNCTION,
-		PASS_THROUGH, SINK, SOURCE
+		AUDIO_CQ, AUDIO_CQ_ORIGIN, AUDIO_CQ_MICRO_TONE, AUDIO_TUNER_PEAKS, AUDIO_BEAT, AUDIO_ONSET, AUDIO_PERCUSSION, AUDIO_INTEGRATE, AUDIO_NOTATE, AUDIO_PITCH, AUDIO_PHASE, AUDIO_YIN, AUDIO_SACF, AUDIO_MFCC, AUDIO_CEPSTRUM, AUDIO_SYNTHESIS, AUDIO_HPS, AUDIO_SPECTRAL_PEAKS, AUDIO_SINK, AUDIO_PRE_CHROMA, AUDIO_POST_CHROMA, JUNCTION, PASS_THROUGH, SINK, SOURCE
 
 	}
 

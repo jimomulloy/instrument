@@ -35,17 +35,22 @@ public class AudioBeatProcessor extends ProcessorCommon {
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 
 		LOG.finer(">>AudioBeatProcessor accept seq: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap toneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		BeatFeatures features = aff.getBeatFeatures();
 		features.buildToneMapFrame(toneMap);
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+		if (workspace.getAtlas()
+				.hasCalibrationMap(streamId) && calibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
-		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+		console.getVisor()
+				.updateToneMapView(toneMap, this.cell.getCellType()
+						.toString());
 		cell.send(streamId, sequence);
 	}
 }

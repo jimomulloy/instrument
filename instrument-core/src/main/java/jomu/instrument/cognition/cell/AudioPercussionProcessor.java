@@ -38,21 +38,27 @@ public class AudioPercussionProcessor extends ProcessorCommon {
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap toneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		PercussionFeatures features = aff.getPercussionFeatures();
 		features.buildToneMapFrame(toneMap);
 
-		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+		toneMap.getTimeFrame()
+				.filter(toneMapMinFrequency, toneMapMaxFrequency);
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+		if (workspace.getAtlas()
+				.hasCalibrationMap(streamId) && calibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
-		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+		console.getVisor()
+				.updateToneMapView(toneMap, this.cell.getCellType()
+						.toString());
 		cell.send(streamId, sequence);
 	}
 }

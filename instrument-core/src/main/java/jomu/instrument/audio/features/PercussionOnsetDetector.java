@@ -72,7 +72,6 @@ import be.tarsos.dsp.util.fft.FFT;
  *  use or other dealings in this Software without prior written
  *  authorization.
  * </pre>
- * 
  * </p>
  * 
  * @author Joren Six
@@ -105,7 +104,6 @@ public class PercussionOnsetDetector implements AudioProcessor, OnsetDetector {
 	/**
 	 * Energy rise within a frequency bin necessary to count toward broadband total
 	 * (dB). In [0-20].
-	 * 
 	 */
 	private final double threshold;
 
@@ -113,11 +111,14 @@ public class PercussionOnsetDetector implements AudioProcessor, OnsetDetector {
 	 * Create a new percussion onset detector. With a default sensitivity and
 	 * threshold.
 	 * 
-	 * @param sampleRate    The sample rate in Hz (used to calculate timestamps)
-	 * @param bufferSize    The size of the buffer in samples.
-	 * @param bufferOverlap The overlap of buffers in samples.
-	 * @param handler       An interface implementor to handle percussion onset
-	 *                      events.
+	 * @param sampleRate
+	 *            The sample rate in Hz (used to calculate timestamps)
+	 * @param bufferSize
+	 *            The size of the buffer in samples.
+	 * @param bufferOverlap
+	 *            The overlap of buffers in samples.
+	 * @param handler
+	 *            An interface implementor to handle percussion onset events.
 	 */
 	public PercussionOnsetDetector(float sampleRate, int bufferSize, int bufferOverlap, OnsetHandler handler) {
 		this(sampleRate, bufferSize, handler, DEFAULT_SENSITIVITY, DEFAULT_THRESHOLD);
@@ -126,14 +127,18 @@ public class PercussionOnsetDetector implements AudioProcessor, OnsetDetector {
 	/**
 	 * Create a new percussion onset detector.
 	 * 
-	 * @param sampleRate  The sample rate in Hz (used to calculate timestamps)
-	 * @param bufferSize  The size of the buffer in samples.
-	 * @param handler     An interface implementor to handle percussion onset
-	 *                    events.
-	 * @param sensitivity Sensitivity of the peak detector applied to broadband
-	 *                    detection function (%). In [0-100].
-	 * @param threshold   Energy rise within a frequency bin necessary to count
-	 *                    toward broadband total (dB). In [0-20].
+	 * @param sampleRate
+	 *            The sample rate in Hz (used to calculate timestamps)
+	 * @param bufferSize
+	 *            The size of the buffer in samples.
+	 * @param handler
+	 *            An interface implementor to handle percussion onset events.
+	 * @param sensitivity
+	 *            Sensitivity of the peak detector applied to broadband
+	 *            detection function (%). In [0-100].
+	 * @param threshold
+	 *            Energy rise within a frequency bin necessary to count toward
+	 *            broadband total (dB). In [0-20].
 	 */
 	public PercussionOnsetDetector(float sampleRate, int bufferSize, OnsetHandler handler, double sensitivity,
 			double threshold) {
@@ -149,7 +154,8 @@ public class PercussionOnsetDetector implements AudioProcessor, OnsetDetector {
 
 	@Override
 	public boolean process(AudioEvent audioEvent) {
-		float[] audioFloatBuffer = audioEvent.getFloatBuffer().clone();
+		float[] audioFloatBuffer = audioEvent.getFloatBuffer()
+				.clone();
 		this.processedSamples += audioFloatBuffer.length;
 		this.processedSamples -= audioEvent.getOverlap();
 

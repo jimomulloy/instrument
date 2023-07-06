@@ -42,7 +42,8 @@ public class SpectrogramInfo {
 
 	@Override
 	public SpectrogramInfo clone() {
-		return new SpectrogramInfo(pitchDetectionResult.clone(), amplitudes.clone(), phaseOffsets, frequencyEstimates);
+		return new SpectrogramInfo(pitchDetectionResult.clone(), amplitudes.clone(), phaseOffsets,
+				frequencyEstimates);
 	}
 
 	public float[] getAmplitudes() {

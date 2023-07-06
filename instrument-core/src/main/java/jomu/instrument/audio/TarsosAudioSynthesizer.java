@@ -82,7 +82,9 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	 */
 	public TarsosAudioSynthesizer(ParameterManager parameterManager) {
 		this.parameterManager = parameterManager;
-		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
+		this.hearing = Instrument.getInstance()
+				.getCoordinator()
+				.getHearing();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
@@ -369,16 +371,20 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 							lastAmps[toneMapElement.getIndex()] = 0F;
 						}
 					}
-					AudioEvent audioEvent = this.audioStream.getGenerator().getAudioEvent();
+					AudioEvent audioEvent = this.audioStream.getGenerator()
+							.getAudioEvent();
 					while (audioEvent.getEndTimeStamp() < time) {
-						this.audioStream.getGenerator().process();
+						this.audioStream.getGenerator()
+								.process();
 						LOG.finer(">>Audio gen process: " + time + ", " + audioEvent.getTimeStamp());
-						audioEvent = this.audioStream.getGenerator().getAudioEvent();
+						audioEvent = this.audioStream.getGenerator()
+								.getAudioEvent();
 					}
 
 				}
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				Thread.currentThread()
+						.interrupt();
 			}
 			this.audioStream.close();
 

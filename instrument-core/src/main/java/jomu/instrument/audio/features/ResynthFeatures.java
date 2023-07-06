@@ -14,7 +14,9 @@ public class ResynthFeatures extends AudioEventFeatures<ResynthInfo> implements 
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getResynthSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getResynthSource());
 		TreeMap<Double, ResynthInfo> newFeatures = getSource().getAndClearFeatures();
 		for (Entry<Double, ResynthInfo> entry : newFeatures.entrySet()) {
 			this.features.put(entry.getKey(), entry.getValue());

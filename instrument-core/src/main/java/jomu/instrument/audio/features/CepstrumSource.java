@@ -44,8 +44,11 @@ public class CepstrumSource extends AudioEventSource<CepstrumInfo> {
 	public CepstrumSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
-		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.sampleRate = (int) dispatcher.getFormat()
+				.getSampleRate();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		this.microToneSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_MICRO_TONE_SWITCH);
@@ -102,8 +105,9 @@ public class CepstrumSource extends AudioEventSource<CepstrumInfo> {
 
 	void initialise() {
 
-		boolean undertoneRemove = parameterManager.getBooleanParameter(
-				InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_REMOVE_SWITCH);
+		boolean undertoneRemove = parameterManager
+				.getBooleanParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_UNDERTONE_REMOVE_SWITCH);
 		boolean sacfSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUTOCORRELATION_SACF_SWITCH);
 		int maxLag = parameterManager

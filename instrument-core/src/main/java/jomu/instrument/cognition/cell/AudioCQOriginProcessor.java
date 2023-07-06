@@ -25,7 +25,8 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.finer(">>AudioCQOriginProcessor accept: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap toneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		double lowThreshold = parameterManager
@@ -84,60 +85,76 @@ public class AudioCQOriginProcessor extends ProcessorCommon {
 		cqf.buildToneMapFrame(toneMap);
 		ToneMap cqAdaptiveWhitenControlMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_WHITENER", streamId));
-		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
+		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence)
+				.clone());
 
 		if (cqSwitchPreSharpen) {
-			toneMap.getTimeFrame().sharpen(cqSharpenThreshold);
+			toneMap.getTimeFrame()
+					.sharpen(cqSharpenThreshold);
 		}
 
 		if (cqSwitchCompress) {
-			toneMap.getTimeFrame().compress(compression);
+			toneMap.getTimeFrame()
+					.compress(compression);
 		}
 		if (cqSwitchSquare) {
-			toneMap.getTimeFrame().square();
+			toneMap.getTimeFrame()
+					.square();
 		}
 
 		if (cqSwitchLowThreshold) {
-			toneMap.getTimeFrame().lowThreshold(lowThreshold, signalMinimum);
+			toneMap.getTimeFrame()
+					.lowThreshold(lowThreshold, signalMinimum);
 		}
 
 		if (cqSwitchAdaptiveWhiten) {
-			toneMap.getTimeFrame().adaptiveWhiten(cqAdaptiveWhitenControlMap,
-					toneMap.getPreviousTimeFrame(toneMap.getTimeFrame().getStartTime()), cqAdaptiveWhitenFactor,
-					cqAdaptiveWhitenThreshold, cqSwitchWhitenCompensate);
+			toneMap.getTimeFrame()
+					.adaptiveWhiten(cqAdaptiveWhitenControlMap, toneMap.getPreviousTimeFrame(toneMap.getTimeFrame()
+							.getStartTime()), cqAdaptiveWhitenFactor, cqAdaptiveWhitenThreshold,
+							cqSwitchWhitenCompensate);
 		}
 
 		if (cqSwitchWhiten) {
-			toneMap.getTimeFrame().whiten(48, cqWhitenFactor);
+			toneMap.getTimeFrame()
+					.whiten(48, cqWhitenFactor);
 		}
 
 		if (cqSwitchDecibel) {
-			toneMap.getTimeFrame().decibel(decibelLevel);
+			toneMap.getTimeFrame()
+					.decibel(decibelLevel);
 		}
 
 		if (cqSwitchPostSharpen) {
-			toneMap.getTimeFrame().sharpen(cqSharpenThreshold);
+			toneMap.getTimeFrame()
+					.sharpen(cqSharpenThreshold);
 		}
 
-		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+		toneMap.getTimeFrame()
+				.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+		if (workspace.getAtlas()
+				.hasCalibrationMap(streamId) && calibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
 		if (cqSwitchScale) {
 			ttf.scale(lowThreshold, highThreshold, cqSwitchCompressLog);
 		} else {
-			if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-				CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+			if (workspace.getAtlas()
+					.hasCalibrationMap(streamId) && calibrateSwitch) {
+				CalibrationMap cm = workspace.getAtlas()
+						.getCalibrationMap(streamId);
 				ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 			}
 		}
 
-		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+		console.getVisor()
+				.updateToneMapView(toneMap, this.cell.getCellType()
+						.toString());
 		cell.send(streamId, sequence);
 
 	}

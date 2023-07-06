@@ -55,7 +55,8 @@ public class PhaseDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 		@Override
 		public boolean process(AudioEvent audioEvent) {
 			fft = new FFT(windowSize, new HammingWindow());
-			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
+			float[] audioFloatBuffer = audioEvent
+					.getFloatBuffer();
 			float[] transformbuffer = new float[windowSize];
 
 			float[] amplitudes = new float[windowSize / 2];
@@ -69,35 +70,44 @@ public class PhaseDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 			inv_deltat = 1.0 / dt;
 			inv_2pideltat = inv_deltat * inv_2pi;
 
-			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer,
+					0, audioFloatBuffer.length);
 
-			fft.powerPhaseFFT(transformbuffer, amplitudes, currentPhaseOffsets);
+			fft.powerPhaseFFT(transformbuffer, amplitudes,
+					currentPhaseOffsets);
 
 			calculateFrequencyEstimates();
 
-			SpectrogramInfo si = new SpectrogramInfo(pitchDetectionResult, amplitudes, currentPhaseOffsets,
-					frequencyEstimates);
+			SpectrogramInfo si = new SpectrogramInfo(
+					pitchDetectionResult, amplitudes,
+					currentPhaseOffsets, frequencyEstimates);
 			putFeature(audioEvent.getTimeStamp(), si);
 			return true;
 		}
 
 		private float getFrequencyForBin(int binIndex) {
 			final float frequencyInHertz;
-			// use the phase delta information to get a more precise
+			// use the phase delta information to get a more
+			// precise
 			// frequency estimate
 			// if the phase of the previous frame is available.
 			// See
 			// * Moore 1976
-			// "The use of phase vocoder in computer music applications"
+			// "The use of phase vocoder in computer music
+			// applications"
 			// * Sethares et al. 2009 - Spectral Tools for Dynamic
 			// Tonality and Audio Morphing
 			// * Laroche and Dolson 1999
 			if (previousPhaseOffsets != null) {
-				float phaseDelta = currentPhaseOffsets[binIndex] - previousPhaseOffsets[binIndex];
-				long k = Math.round(cbin * binIndex - inv_2pi * phaseDelta);
-				frequencyInHertz = (float) (inv_2pideltat * phaseDelta + inv_deltat * k);
+				float phaseDelta = currentPhaseOffsets[binIndex]
+						- previousPhaseOffsets[binIndex];
+				long k = Math.round(
+						cbin * binIndex - inv_2pi * phaseDelta);
+				frequencyInHertz = (float) (inv_2pideltat
+						* phaseDelta + inv_deltat * k);
 			} else {
-				frequencyInHertz = (float) fft.binToHz(binIndex, sampleRate);
+				frequencyInHertz = (float) fft.binToHz(binIndex,
+						sampleRate);
 			}
 			return frequencyInHertz;
 		}
@@ -126,8 +136,11 @@ public class PhaseDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 	public PhaseDetectorSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
-		this.sampleRate = (int) dispatcher.getFormat().getSampleRate();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.sampleRate = (int) dispatcher.getFormat()
+				.getSampleRate();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		this.isPowerSquared = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_POWER_SQUARED_SWITCH);

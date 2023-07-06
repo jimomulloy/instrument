@@ -28,11 +28,14 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 					.getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
 		if ((time < audioFeatureFrame.getStart() / 1000.0) && previousFrame != null) {
-			previousFrame.getConstantQFeatures().addFeature(time, values);
+			previousFrame.getConstantQFeatures()
+					.addFeature(time, values);
 		} else {
 			this.features.put(time, values);
-			if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
-				previousFrame.getConstantQFeatures().commit();
+			if (previousFrame != null && !previousFrame.getConstantQFeatures()
+					.isCommitted()) {
+				previousFrame.getConstantQFeatures()
+						.commit();
 			}
 		}
 	}
@@ -96,7 +99,8 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 			previousFrame = audioFeatureFrame.getAudioFeatureProcessor()
 					.getAudioFeatureFrame(audioFeatureFrame.getFrameSequence() - 1);
 		}
-		if (previousFrame != null && !previousFrame.getConstantQFeatures().isCommitted()) {
+		if (previousFrame != null && !previousFrame.getConstantQFeatures()
+				.isCommitted()) {
 			previousFrame.close();
 		}
 		commit();
@@ -108,12 +112,15 @@ public class ConstantQFeatures extends AudioEventFeatures<float[]> implements To
 
 	private void commit() {
 		isCommitted = true;
-		audioFeatureFrame.getAudioFeatureProcessor().audioFeatureFrameChanged(audioFeatureFrame);
+		audioFeatureFrame.getAudioFeatureProcessor()
+				.audioFeatureFrameChanged(audioFeatureFrame);
 	}
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getConstantQSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getConstantQSource());
 		TreeMap<Double, float[]> newFeatures = getSource().getAndClearFeatures();
 		for (Entry<Double, float[]> entry : newFeatures.entrySet()) {
 			addFeature(entry.getKey(), entry.getValue());

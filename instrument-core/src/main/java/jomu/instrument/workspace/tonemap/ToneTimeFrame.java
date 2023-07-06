@@ -637,15 +637,16 @@ public class ToneTimeFrame implements Serializable {
 					maxAmpTime = tf.getStartTime();
 				}
 				tf = toneMap.getPreviousTimeFrame(tf.getStartTime());
-//				if (tf != null) {
-//					maxAmpTime = tf.getStartTime();
-//				}
+				// if (tf != null) {
+				// maxAmpTime = tf.getStartTime();
+				// }
 			}
 			if (cm.getPower(maxAmpTime) > lowThreshold) {
 				double maxFutureAmp = 0;
 				double maxFuturePower = cm.getMaxPower(getStartTime(), lastTime);
 				if (maxAmp > lowThreshold && calibrateFuture) {
-					double maxPastPower = cm.getPower(maxAmpTime) > lowThreshold ? cm.getPower(maxAmpTime)
+					double maxPastPower = cm.getPower(maxAmpTime) > lowThreshold
+							? cm.getPower(maxAmpTime)
 							: lowThreshold;
 					if (maxPastPower > 0) {
 						maxFutureAmp = maxFuturePower * maxAmp / maxPastPower;
@@ -744,7 +745,8 @@ public class ToneTimeFrame implements Serializable {
 		double amp = 0;
 		ToneMapElement[] originElements = originFrame.getElements();
 		for (int i = 0; i < originElements.length; i++) {
-			int note = originFrame.getPitchSet().getNote(i);
+			int note = originFrame.getPitchSet()
+					.getNote(i);
 			int chromaClass = note % OCTAVE_LENGTH;
 			ToneMapElement chromaElement = null;
 			int chromaOctaveMax = 0;
@@ -901,7 +903,8 @@ public class ToneTimeFrame implements Serializable {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
+								chordNotes
+										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 							}
 						}
 					}
@@ -947,12 +950,14 @@ public class ToneTimeFrame implements Serializable {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
+								chordNotes
+										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 							}
 							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 								elements[i].amplitude = 0.75;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
+								chordNotes
+										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
 							}
 						}
 					}
@@ -975,20 +980,23 @@ public class ToneTimeFrame implements Serializable {
 							if (level1Singles.contains(index) || level1Pairs.contains(index)) {
 								elements[i].amplitude = 1.0;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
+								chordNotes
+										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
 								counter++;
 							}
 							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
 								counter++;
 								elements[i].amplitude = 0.75;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
+								chordNotes
+										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
 							}
 							if (level3Singles.contains(index) || level3Pairs.contains(index)) {
 								counter++;
 								elements[i].amplitude = 0.5;
 								int note = pitchSet.getNote(i);
-								chordNotes.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 3));
+								chordNotes
+										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 3));
 							}
 						}
 					}
@@ -1011,7 +1019,8 @@ public class ToneTimeFrame implements Serializable {
 		for (ToneTimeFrame originFrame : originFrames) {
 			ToneMapElement[] originElements = originFrame.getElements();
 			for (int i = 0; i < originElements.length; i++) {
-				int note = originFrame.getPitchSet().getNote(i);
+				int note = originFrame.getPitchSet()
+						.getNote(i);
 				int chromaClass = note % OCTAVE_LENGTH;
 				ToneMapElement chromaElement = null;
 				int chromaOctaveMax = 0;
@@ -1333,7 +1342,10 @@ public class ToneTimeFrame implements Serializable {
 			i--;
 		}
 		if (frames.size() > 2) {
-			timeSet = new TimeSet(tfStart.getTimeSet().getStartTime(), tfEnd.getTimeSet().getEndTime(),
+			timeSet = new TimeSet(tfStart.getTimeSet()
+					.getStartTime(),
+					tfEnd.getTimeSet()
+							.getEndTime(),
 					timeSet.getSampleRate(), timeSet.getSampleTimeSize());
 
 			pitchSet = new PitchSet(getPitchLow(), getPitchHigh());
@@ -1371,7 +1383,8 @@ public class ToneTimeFrame implements Serializable {
 		int startIndex = 0, endIndex = 0;
 
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			startIndex = elementIndex >= hpsPercussionMedianFactor / 2 ? elementIndex - hpsPercussionMedianFactor / 2
+			startIndex = elementIndex >= hpsPercussionMedianFactor / 2
+					? elementIndex - hpsPercussionMedianFactor / 2
 					: 0;
 			endIndex = elementIndex + hpsPercussionMedianFactor / 2 < elements.length
 					? elementIndex + hpsPercussionMedianFactor / 2
@@ -1429,7 +1442,8 @@ public class ToneTimeFrame implements Serializable {
 
 					if (hpsMedianSwitch) {
 						List<ToneMapElement> sortedElements = subElements.stream()
-								.sorted(Comparator.comparingDouble(tm -> tm.amplitude)).collect(Collectors.toList());
+								.sorted(Comparator.comparingDouble(tm -> tm.amplitude))
+								.collect(Collectors.toList());
 						if (sortedElements.size() > 0) {
 							if (sortedElements.size() == 1) {
 								hpsElements[elementIndex].amplitude = sortedElements.get(0).amplitude;
@@ -1522,10 +1536,10 @@ public class ToneTimeFrame implements Serializable {
 
 	public ToneTimeFrame onsetWhiten(ToneTimeFrame previousFrame, double onsetFactor) {
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			elements[elementIndex].amplitude = Math.max(
-					((previousFrame.elements[elementIndex].amplitude * onsetFactor)
+			elements[elementIndex].amplitude = Math
+					.max(((previousFrame.elements[elementIndex].amplitude * onsetFactor)
 							+ (elements[elementIndex].amplitude * (1 - onsetFactor))),
-					elements[elementIndex].amplitude);
+							elements[elementIndex].amplitude);
 		}
 		reset();
 		return this;
@@ -1557,7 +1571,8 @@ public class ToneTimeFrame implements Serializable {
 			double controlFactor = onsetAttackFactor;
 			double onsetThresholdFactor = onsetFactor * config.thresholdFactor;
 			int rangeStart = elementIndex - config.range / 2 > 0 ? elementIndex - config.range / 2 : 0;
-			int rangeEnd = elementIndex + config.range / 2 <= elements.length ? elementIndex + config.range / 2
+			int rangeEnd = elementIndex + config.range / 2 <= elements.length
+					? elementIndex + config.range / 2
 					: elements.length;
 			if (previousFrame != null
 					&& previousFrame.getElements()[elementIndex].amplitude > toneMapElement.amplitude) {
@@ -1623,7 +1638,8 @@ public class ToneTimeFrame implements Serializable {
 								- decayWhitenValue) {
 							LOG.finer(">>TTF envelopeWhiten decayWhitenValue before: " + getStartTime() + ", "
 									+ previousFrame.getStartTime() + ", " + elementIndex + ", " + decayWhitenValue
-									+ ", " + elements[elementIndex].amplitude + ", "
+									+ ", "
+									+ elements[elementIndex].amplitude + ", "
 									+ previousFrame.getElement(elementIndex).amplitude);
 							elements[elementIndex].amplitude = previousFrame.getElement(elementIndex).amplitude
 									- decayWhitenValue;
@@ -1898,8 +1914,8 @@ public class ToneTimeFrame implements Serializable {
 					+ ", " + newNoteListElement.startTime + ", " + newNoteListElement.endTime);
 		}
 		if (lastNoteListElement != null) {
-			LOG.finer(">>TTF merge X3: " + elementIndex + ", " + getStartTime() + ", " + lastNoteListElement.note + ", "
-					+ lastNoteListElement.startTime + ", " + lastNoteListElement.endTime);
+			LOG.finer(">>TTF merge X3: " + elementIndex + ", " + getStartTime() + ", " + lastNoteListElement.note
+					+ ", " + lastNoteListElement.startTime + ", " + lastNoteListElement.endTime);
 			if (lastNoteListElement.endTime > newNoteListElement.endTime) {
 				newNoteListElement.endTime = lastNoteListElement.endTime;
 			}
@@ -1981,7 +1997,8 @@ public class ToneTimeFrame implements Serializable {
 		double totalAmp = 0;
 		while (sf != null && i > 0) {
 			totalAmp += sf.getTotalAmplitude();
-			sf = sf.getToneMap().getPreviousTimeFrame(sf.getStartTime());
+			sf = sf.getToneMap()
+					.getPreviousTimeFrame(sf.getStartTime());
 			i--;
 		}
 

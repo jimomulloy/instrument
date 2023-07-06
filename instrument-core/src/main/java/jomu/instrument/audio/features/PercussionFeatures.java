@@ -23,9 +23,13 @@ public class PercussionFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPercussionSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getPercussionSource());
 		features = getSource().getAndClearFeatures();
-		this.visor = Instrument.getInstance().getConsole().getVisor();
+		this.visor = Instrument.getInstance()
+				.getConsole()
+				.getVisor();
 	}
 
 	public void buildToneMapFrame(ToneMap toneMap) {

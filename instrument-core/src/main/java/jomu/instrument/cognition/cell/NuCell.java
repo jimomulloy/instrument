@@ -13,7 +13,8 @@ import jomu.instrument.InstrumentException;
 
 public class NuCell extends Cell implements Serializable {
 
-	private static final Logger LOG = Logger.getLogger(NuCell.class.getName());
+	private static final Logger LOG = Logger
+			.getLogger(NuCell.class.getName());
 
 	private static final long serialVersionUID = 1002;
 
@@ -81,7 +82,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param double
 	 * @return double
 	 */
@@ -91,7 +91,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return Double
 	 */
 	public Double computeNetInput() {
@@ -101,7 +100,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return double
 	 */
 	public double computeOutputFunction(double d) {
@@ -127,7 +125,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 */
 	public void connectInput(NuCell NuCell) {
@@ -139,7 +136,6 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	/**
-	 *
 	 * @param NuCell
 	 * @param d
 	 */
@@ -149,7 +145,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 */
 	public void connectOutput(NuCell NuCell) {
@@ -173,7 +168,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 */
 	public void disconnectInput(NuCell NuCell) {
@@ -185,7 +179,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 */
 	public void disconnectOutput(NuCell NuCell) {
@@ -200,7 +193,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return ActivationFunctionEnum
 	 */
 	public ActivationFunctionEnum getActivationFunctionSelection() {
@@ -216,7 +208,6 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	/**
-	 *
 	 * @return Axon
 	 */
 	public Axon getAxon() {
@@ -224,7 +215,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return
 	 */
 	public Dendrites getDendrites() {
@@ -240,7 +230,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return
 	 */
 	public Double getExternalInputSignal() {
@@ -248,7 +237,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return
 	 */
 	public java.util.Set<NuCell> getInputs() {
@@ -256,7 +244,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 * @return
 	 */
@@ -265,7 +252,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return
 	 */
 	public LayerClassification getLayerClassification() {
@@ -273,7 +259,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return MorphologyEnum
 	 */
 	public MorphologyEnum getMorphology() {
@@ -281,7 +266,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return Set<NuCell>
 	 */
 	// public java.util.Set<NuCell> getOutputs()
@@ -300,7 +284,6 @@ public class NuCell extends Cell implements Serializable {
 
 	/**
 	 * Returns true if this is explicitly or implicitly connected to NuCellB.<br>
-	 *
 	 * Explicit case is if this NuCell is directly connected to NuCellB.<br>
 	 * Implicit case is if this NuCell is connected to NuCellB through a feedback
 	 * loop
@@ -326,8 +309,10 @@ public class NuCell extends Cell implements Serializable {
 	 * isCircularConnectionFound is a recursive method used to find out if a NuCell
 	 * has a circular connection in its network.<br>
 	 *
-	 * @param visitedNuCells type List<NuCell>
-	 * @param n              type NuCell
+	 * @param visitedNuCells
+	 *            type List<NuCell>
+	 * @param n
+	 *            type NuCell
 	 * @return boolean
 	 */
 	public boolean isCircularConnectionFound(List<NuCell> visitedNuCells, NuCell n) {
@@ -374,9 +359,8 @@ public class NuCell extends Cell implements Serializable {
 
 		return axon.isConnectedTo(NuCell);
 		/*
-		 * Double d = axon.isFound(NuCell);
-		 *
-		 * if( d == null ) return false; else return true;
+		 * Double d = axon.isFound(NuCell); if( d == null ) return false; else return
+		 * true;
 		 */
 	}
 
@@ -401,7 +385,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param selection
 	 */
 	public void setActivationFunctionSelection(ActivationFunctionEnum selection) {
@@ -414,7 +397,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param axon
 	 */
 	public void setAxon(Axon axon) {
@@ -426,7 +408,6 @@ public class NuCell extends Cell implements Serializable {
 	// ==========================================
 
 	/**
-	 *
 	 * @param dendrites
 	 */
 	public void setDendrites(Dendrites dendrites) {
@@ -438,7 +419,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param d
 	 */
 	public void setExternalInputSignal(Double d) {
@@ -446,7 +426,6 @@ public class NuCell extends Cell implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 * @param d
 	 */
@@ -462,7 +441,8 @@ public class NuCell extends Cell implements Serializable {
 		this.processor = processor;
 	}
 
-	public void setProcessorExceptionHandler(ProcessorExceptionHandler<InstrumentException> processorExceptionHandler) {
+	public void setProcessorExceptionHandler(
+			ProcessorExceptionHandler<InstrumentException> processorExceptionHandler) {
 		this.processorExceptionHandler = processorExceptionHandler;
 	}
 
@@ -557,7 +537,8 @@ public class NuCell extends Cell implements Serializable {
 					}
 				}
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				Thread.currentThread()
+						.interrupt();
 			}
 		}
 	}
@@ -566,8 +547,8 @@ public class NuCell extends Cell implements Serializable {
 		bq.clear();
 		messageMap.clear();
 		messageReceivedMap.clear();
-		queueConsumerThread = new Thread(new QueueConsumer(),
-				"Thread-NuCell-" + this.getCellType().toString() + "-" + System.currentTimeMillis());
+		queueConsumerThread = new Thread(new QueueConsumer(), "Thread-NuCell-" + this.getCellType()
+				.toString() + "-" + System.currentTimeMillis());
 		queueConsumerThread.start();
 	}
 } // end NuCell

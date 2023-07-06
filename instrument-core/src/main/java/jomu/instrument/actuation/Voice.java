@@ -33,11 +33,46 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 @ApplicationScoped
 public class Voice implements Organ {
 
+	/**
+	 * The Class SendMessage.
+	 */
+	class SendMessage {
+
+		/** The sequence. */
+		public int sequence;
+
+		/** The stream id. */
+		public String streamId;
+
+		/** The tone time frame. */
+		public ToneTimeFrame toneTimeFrame;
+
+		/**
+		 * Instantiates a new send message.
+		 *
+		 * @param toneTimeFrame
+		 *            the tone time frame
+		 * @param streamId
+		 *            the stream id
+		 * @param sequence
+		 *            the sequence
+		 */
+		public SendMessage(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
+			this.toneTimeFrame = toneTimeFrame;
+			this.streamId = streamId;
+			this.sequence = sequence;
+		}
+	}
+
 	private static final Logger LOG = Logger.getLogger(Voice.class.getName());
 
-	AudioSynthesizer resynthSynthesizer;
-
 	AudioSynthesizer audioSynthesizer;
+
+	@Inject
+	Controller controller;
+
+	/** The dead streams. */
+	Set<String> deadStreams = ConcurrentHashMap.newKeySet();
 
 	@Inject
 	MidiSynthesizer midiSynthesizer;
@@ -45,8 +80,9 @@ public class Voice implements Organ {
 	@Inject
 	ParameterManager parameterManager;
 
-	@Inject
-	Controller controller;
+	AudioSynthesizer resynthSynthesizer;
+
+	ConcurrentLinkedQueue<SendMessage> smq = new ConcurrentLinkedQueue<>();
 
 	@Inject
 	Storage storage;
@@ -54,41 +90,14 @@ public class Voice implements Organ {
 	@Inject
 	Workspace workspace;
 
-	ConcurrentLinkedQueue<SendMessage> smq = new ConcurrentLinkedQueue<>();
-
-	/** The dead streams. */
-	Set<String> deadStreams = ConcurrentHashMap.newKeySet();
-
 	/**
 	 * Builds the audio synthesizer.
 	 *
 	 * @return the audio synthesizer
 	 */
 	public AudioSynthesizer buildAudioSynthesizer() {
-		audioSynthesizer = new TarsosAudioSynthesizer(parameterManager);
+		this.audioSynthesizer = new TarsosAudioSynthesizer(this.parameterManager);
 		return this.audioSynthesizer;
-	}
-
-	/**
-	 * Builds the resynth audio synthesizer.
-	 *
-	 * @return the audio synthesizer
-	 */
-	public AudioSynthesizer buildResynthAudioSynthesizer() {
-		resynthSynthesizer = new ResynthAudioSynthesizer(parameterManager);
-		return this.resynthSynthesizer;
-	}
-
-	public void setResynthSynthesizer(AudioSynthesizer resynthSynthesizer) {
-		this.resynthSynthesizer = resynthSynthesizer;
-	}
-
-	public void setAudioSynthesizer(AudioSynthesizer audioSynthesizer) {
-		this.audioSynthesizer = audioSynthesizer;
-	}
-
-	public void setMidiSynthesizer(MidiSynthesizer midiSynthesizer) {
-		this.midiSynthesizer = midiSynthesizer;
 	}
 
 	/**
@@ -98,7 +107,7 @@ public class Voice implements Organ {
 	 */
 	public MidiSynthesizer buildMidiSynthesizer() {
 		LOG.severe(">>Voice buildMidiSynthesizer");
-		if (!midiSynthesizer.open()) {
+		if (!this.midiSynthesizer.open()) {
 			LOG.severe(">>Voice Open MidiSynthesizer error");
 			throw new InstrumentException(">>Voice Open MidiSynthesizer error");
 		}
@@ -106,49 +115,70 @@ public class Voice implements Organ {
 	}
 
 	/**
+	 * Builds the resynth audio synthesizer.
+	 *
+	 * @return the audio synthesizer
+	 */
+	public AudioSynthesizer buildResynthAudioSynthesizer() {
+		this.resynthSynthesizer = new ResynthAudioSynthesizer(this.parameterManager);
+		return this.resynthSynthesizer;
+	}
+
+	/**
+	 * Clear.
+	 *
+	 * @param streamId
+	 *            the stream id
+	 */
+	public void clear(final String streamId) {
+		LOG.severe(">>VOICE clear: ");
+		// ?? deadStreams.add(streamId);
+		this.resynthSynthesizer.clear(streamId);
+		this.audioSynthesizer.clear(streamId);
+		this.midiSynthesizer.clear(streamId);
+	}
+
+	/**
 	 * Close.
 	 *
-	 * @param streamId the stream id
+	 * @param streamId
+	 *            the stream id
 	 */
-	public void close(String streamId) {
-		if (!smq.isEmpty()) {
-			for (SendMessage sm : smq) {
+	public void close(final String streamId) {
+		if (!this.smq.isEmpty()) {
+			for (final SendMessage sm : this.smq) {
 				sendMessage(sm);
 			}
-			smq.clear();
+			this.smq.clear();
 		}
-		deadStreams.remove(streamId);
+		this.deadStreams.remove(streamId);
 
 		waitForPlayers();
 
-		resynthSynthesizer.close(streamId);
-		audioSynthesizer.close(streamId);
-		LOG.severe(">>Voice CLOSE, midi running: " + midiSynthesizer.isSynthesizerRunning());
-		midiSynthesizer.close(streamId);
+		this.resynthSynthesizer.close(streamId);
+		this.audioSynthesizer.close(streamId);
+		LOG.severe(">>Voice CLOSE, midi running: " + this.midiSynthesizer.isSynthesizerRunning());
+		this.midiSynthesizer.close(streamId);
 		int counter = 60;
-		while (counter > 0 && midiSynthesizer.isSynthesizerRunning()) {
+		while (counter > 0 && this.midiSynthesizer.isSynthesizerRunning()) {
 			try {
 				counter--;
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		midiSynthesizer.reset();
-		LOG.severe(">>Voice CLOSED, midi running: " + midiSynthesizer.isSynthesizerRunning() + ", "
-				+ ", Frame Cache Size: " + workspace.getAtlas().getFrameCache().getSize());
-		if (controller.isCountDownLatch()) {
+		this.midiSynthesizer.reset();
+		LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
+				+ ", Frame Cache Size: " + this.workspace.getAtlas()
+						.getFrameCache()
+						.getSize());
+		if (this.controller.isCountDownLatch()) {
 			LOG.severe(">>Voice CLOSE JOB");
-			controller.getCountDownLatch().countDown();
+			this.controller.getCountDownLatch()
+					.countDown();
 		}
-	}
-
-	/**
-	 * Wait for players.
-	 */
-	private void waitForPlayers() {
-		LOG.severe(">>Voice wait for players");
 	}
 
 	/**
@@ -166,7 +196,7 @@ public class Voice implements Organ {
 	 * @return the audio synthesizer
 	 */
 	public AudioSynthesizer getAudioSynthesizer() {
-		return audioSynthesizer;
+		return this.audioSynthesizer;
 	}
 
 	/**
@@ -175,7 +205,7 @@ public class Voice implements Organ {
 	 * @return the resynth audio synthesizer
 	 */
 	public AudioSynthesizer getResynthAudioSynthesizer() {
-		return resynthSynthesizer;
+		return this.resynthSynthesizer;
 	}
 
 	/**
@@ -184,33 +214,59 @@ public class Voice implements Organ {
 	@Override
 	public void initialise() {
 		LOG.severe(">>Voice initialise");
-		midiSynthesizer = buildMidiSynthesizer();
-		audioSynthesizer = buildAudioSynthesizer();
-		resynthSynthesizer = buildResynthAudioSynthesizer();
+		this.midiSynthesizer = buildMidiSynthesizer();
+		this.audioSynthesizer = buildAudioSynthesizer();
+		this.resynthSynthesizer = buildResynthAudioSynthesizer();
+	}
+
+	/**
+	 * Process exception.
+	 *
+	 * @param exception
+	 *            the exception
+	 * @throws InstrumentException
+	 *             the instrument exception
+	 */
+	@Override
+	public void processException(final InstrumentException exception) throws InstrumentException {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * Reset.
+	 */
+	public void reset() {
+		LOG.severe(">>VOICE reset: ");
+		this.midiSynthesizer.reset();
 	}
 
 	/**
 	 * Send.
 	 *
-	 * @param toneTimeFrame the tone time frame
-	 * @param streamId      the stream id
-	 * @param sequence      the sequence
-	 * @param pause         the pause
+	 * @param toneTimeFrame
+	 *            the tone time frame
+	 * @param streamId
+	 *            the stream id
+	 * @param sequence
+	 *            the sequence
+	 * @param pause
+	 *            the pause
 	 */
-	public void send(ToneTimeFrame toneTimeFrame, String streamId, int sequence, boolean pause) {
-		if (deadStreams.contains(streamId)) {
+	public void send(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence,
+			final boolean pause) {
+		if (this.deadStreams.contains(streamId))
 			return;
-		}
 		if (pause) {
-			smq.add(new SendMessage(toneTimeFrame, streamId, sequence));
+			this.smq.add(new SendMessage(toneTimeFrame, streamId, sequence));
 		} else {
-			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
+			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
 				writeMidi(toneTimeFrame, streamId, sequence);
 			}
-			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
+			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
 				writeAudio(toneTimeFrame, streamId, sequence);
 			}
-			if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
+			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
 				writeResynthAudio(toneTimeFrame, streamId, sequence);
 			}
 		}
@@ -219,21 +275,33 @@ public class Voice implements Organ {
 	/**
 	 * Send message.
 	 *
-	 * @param message the message
+	 * @param message
+	 *            the message
 	 */
-	private void sendMessage(SendMessage message) {
-		if (deadStreams.contains(message.streamId)) {
+	private void sendMessage(final SendMessage message) {
+		if (this.deadStreams.contains(message.streamId))
 			return;
-		}
-		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
+		if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
 			writeMidi(message.toneTimeFrame, message.streamId, message.sequence);
 		}
-		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
+		if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
 			writeAudio(message.toneTimeFrame, message.streamId, message.sequence);
 		}
-		if (parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
+		if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
 			writeResynthAudio(message.toneTimeFrame, message.streamId, message.sequence);
 		}
+	}
+
+	public void setAudioSynthesizer(final AudioSynthesizer audioSynthesizer) {
+		this.audioSynthesizer = audioSynthesizer;
+	}
+
+	public void setMidiSynthesizer(final MidiSynthesizer midiSynthesizer) {
+		this.midiSynthesizer = midiSynthesizer;
+	}
+
+	public void setResynthSynthesizer(final AudioSynthesizer resynthSynthesizer) {
+		this.resynthSynthesizer = resynthSynthesizer;
 	}
 
 	/**
@@ -246,47 +314,25 @@ public class Voice implements Organ {
 	}
 
 	/**
-	 * Write audio.
+	 * Start stream player.
 	 *
-	 * @param toneTimeFrame the tone time frame
-	 * @param streamId      the stream id
-	 * @param sequence      the sequence
+	 * @param streamId
+	 *            the stream id
+	 * @return true, if successful
 	 */
-	private void writeAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
-		audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
-
-	}
-
-	/**
-	 * Write resynth audio.
-	 *
-	 * @param toneTimeFrame the tone time frame
-	 * @param streamId      the stream id
-	 * @param sequence      the sequence
-	 */
-	private void writeResynthAudio(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
-		resynthSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
-
-	}
-
-	/**
-	 * Write midi.
-	 *
-	 * @param toneTimeFrame the tone time frame
-	 * @param streamId      the stream id
-	 * @param sequence      the sequence
-	 */
-	public void writeMidi(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
-		try {
-			midiSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
-		} catch (InvalidMidiDataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MidiUnavailableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public boolean startStreamPlayer(final String streamId) {
+		final ToneMap synthToneMap = this.workspace.getAtlas()
+				.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
+		if (synthToneMap == null)
+			return false;
+		int sequence = 1;
+		ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
+		while (frame != null) {
+			send(frame, streamId, sequence, false);
+			sequence++;
+			frame = synthToneMap.getTimeFrame(sequence);
 		}
-
+		return true;
 	}
 
 	/**
@@ -299,93 +345,70 @@ public class Voice implements Organ {
 	}
 
 	/**
-	 * Clear.
-	 *
-	 * @param streamId the stream id
-	 */
-	public void clear(String streamId) {
-		LOG.severe(">>VOICE clear: ");
-		// ?? deadStreams.add(streamId);
-		resynthSynthesizer.clear(streamId);
-		audioSynthesizer.clear(streamId);
-		midiSynthesizer.clear(streamId);
-	}
-
-	/**
-	 * Reset.
-	 */
-	public void reset() {
-		LOG.severe(">>VOICE reset: ");
-		midiSynthesizer.reset();
-	}
-
-	/**
-	 * The Class SendMessage.
-	 */
-	class SendMessage {
-
-		/** The tone time frame. */
-		public ToneTimeFrame toneTimeFrame;
-
-		/** The stream id. */
-		public String streamId;
-
-		/** The sequence. */
-		public int sequence;
-
-		/**
-		 * Instantiates a new send message.
-		 *
-		 * @param toneTimeFrame the tone time frame
-		 * @param streamId      the stream id
-		 * @param sequence      the sequence
-		 */
-		public SendMessage(ToneTimeFrame toneTimeFrame, String streamId, int sequence) {
-			this.toneTimeFrame = toneTimeFrame;
-			this.streamId = streamId;
-			this.sequence = sequence;
-		}
-	}
-
-	/**
-	 * Process exception.
-	 *
-	 * @param exception the exception
-	 * @throws InstrumentException the instrument exception
-	 */
-	@Override
-	public void processException(InstrumentException exception) throws InstrumentException {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * Start stream player.
-	 *
-	 * @param streamId the stream id
-	 * @return true, if successful
-	 */
-	public boolean startStreamPlayer(String streamId) {
-		ToneMap synthToneMap = workspace.getAtlas()
-				.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
-		if (synthToneMap == null) {
-			return false;
-		}
-		int sequence = 1;
-		ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
-		while (frame != null) {
-			send(frame, streamId, sequence, false);
-			sequence++;
-			frame = synthToneMap.getTimeFrame(sequence);
-		}
-		return true;
-	}
-
-	/**
 	 * Stop stream player.
 	 */
 	public void stopStreamPlayer() {
 		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * Wait for players.
+	 */
+	private void waitForPlayers() {
+		LOG.severe(">>Voice wait for players");
+	}
+
+	/**
+	 * Write audio.
+	 *
+	 * @param toneTimeFrame
+	 *            the tone time frame
+	 * @param streamId
+	 *            the stream id
+	 * @param sequence
+	 *            the sequence
+	 */
+	private void writeAudio(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
+		this.audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
+
+	}
+
+	/**
+	 * Write midi.
+	 *
+	 * @param toneTimeFrame
+	 *            the tone time frame
+	 * @param streamId
+	 *            the stream id
+	 * @param sequence
+	 *            the sequence
+	 */
+	public void writeMidi(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
+		try {
+			this.midiSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
+		} catch (final InvalidMidiDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (final MidiUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Write resynth audio.
+	 *
+	 * @param toneTimeFrame
+	 *            the tone time frame
+	 * @param streamId
+	 *            the stream id
+	 * @param sequence
+	 *            the sequence
+	 */
+	private void writeResynthAudio(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
+		this.resynthSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
 
 	}
 }

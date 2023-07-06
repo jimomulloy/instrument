@@ -112,12 +112,15 @@ public class Klapuri {
 				for (int i = -1; i <= 1; ++i) {
 					if (tempCancelled[pppContext.f0index[index].get(j) + i] == 0
 							&& pppContext.f0index[index].get(j) + i < resultsk.length) {
-						resultsk[pppContext.f0index[index].get(j) + i] = resultsk[pppContext.f0index[index].get(j) + i]
-								+ (pppContext.samplingRate * pppContext.freq[pppContext.f0index[index].get(j) + i]
-										+ alpha)
-										/ (((double) pppContext.f0indHarm[index].get(j)) * pppContext.samplingRate
-												* pppContext.freq[pppContext.f0index[index].get(j) + i] + beta)
-										* spectrumData[pppContext.f0index[index].get(j) + i];
+						resultsk[pppContext.f0index[index].get(j)
+								+ i] = resultsk[pppContext.f0index[index].get(j) + i]
+										+ (pppContext.samplingRate
+												* pppContext.freq[pppContext.f0index[index].get(j) + i]
+												+ alpha)
+												/ (((double) pppContext.f0indHarm[index].get(j))
+														* pppContext.samplingRate
+														* pppContext.freq[pppContext.f0index[index].get(j) + i] + beta)
+												* spectrumData[pppContext.f0index[index].get(j) + i];
 						if (spectrumData[pppContext.f0index[index].get(j) + i]
 								- resultsk[pppContext.f0index[index].get(j) + i] > 0) {
 							spectrumData[pppContext.f0index[index].get(j)

@@ -56,7 +56,8 @@ public class AudioPhaseProcessor extends ProcessorCommon {
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_LOW_THRESHOLD);
 
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap toneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
@@ -65,50 +66,67 @@ public class AudioPhaseProcessor extends ProcessorCommon {
 		pdf.buildToneMapFrame(toneMap);
 		float[] spectrum = pdf.getSpectrum(pdLowThreshold);
 
-		FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getSource().getSampleRate(), pdf.getSource().getBufferSize(),
+		FFTSpectrum fftSpectrum = new FFTSpectrum(pdf.getSource()
+				.getSampleRate(),
+				pdf.getSource()
+						.getBufferSize(),
 				spectrum);
 
-		toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+		toneMap.getTimeFrame()
+				.loadFFTSpectrum(fftSpectrum);
 		ToneTimeFrame ttf = toneMap.getTimeFrame();
 		if (pdSwitchWhitener) {
 			Whitener whitener = new Whitener(fftSpectrum);
 			whitener.whiten();
 			fftSpectrum = new FFTSpectrum(fftSpectrum.getSampleRate(), fftSpectrum.getWindowSize(),
 					whitener.getWhitenedSpectrum());
-			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+			toneMap.getTimeFrame()
+					.loadFFTSpectrum(fftSpectrum);
 		}
 
 		if (pdSwitchKlapuri) {
-			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getSource().getSampleRate(),
-					fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
+			PolyphonicPitchDetection ppp = new PolyphonicPitchDetection(pdf.getSource()
+					.getSampleRate(), fftSpectrum.getWindowSize(), harmonics, pdLowThreshold);
 			Klapuri klapuri = new Klapuri(convertFloatsToDoubles(spectrum), ppp);
 			for (int i = 0; i < klapuri.processedSpectrumData.length; i++) {
 				spectrum[i] = (float) klapuri.processedSpectrumData[i];
 			}
-			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+			toneMap.getTimeFrame()
+					.loadFFTSpectrum(fftSpectrum);
 			processKlapuriPeaks(fftSpectrum.getSpectrum(), new ArrayList<Double>(klapuri.f0s),
-					new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame().getElements());
-			toneMap.getTimeFrame().reset();
+					new ArrayList<Double>(klapuri.f0saliences), toneMap.getTimeFrame()
+							.getElements());
+			toneMap.getTimeFrame()
+					.reset();
 		} else if (pdSwitchTarsos) {
-			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), pdf.getSource().getSampleRate(),
-					toneMap.getTimeFrame().getPitches());
+			PitchDetect pd = new PitchDetect(fftSpectrum.getWindowSize(), pdf.getSource()
+					.getSampleRate(),
+					toneMap.getTimeFrame()
+							.getPitches());
 			// pd.whiten(fftSpectrum.getSpectrum());
 			pd.detect(fftSpectrum.getSpectrum());
 			// Arrays.stream(convertFloatsToDoubles(pd.fzeros)).boxed().collect(Collectors.toList()),
-			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
-			processTarsosPeaks(fftSpectrum.getSpectrum(), pd.fzeros, pd.fzeroSaliences,
-					toneMap.getTimeFrame().getElements());
-			toneMap.getTimeFrame().reset();
+			toneMap.getTimeFrame()
+					.loadFFTSpectrum(fftSpectrum);
+			processTarsosPeaks(fftSpectrum.getSpectrum(), pd.fzeros, pd.fzeroSaliences, toneMap.getTimeFrame()
+					.getElements());
+			toneMap.getTimeFrame()
+					.reset();
 		}
 
-		toneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+		toneMap.getTimeFrame()
+				.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+		if (workspace.getAtlas()
+				.hasCalibrationMap(streamId) && calibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
-		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+		console.getVisor()
+				.updateToneMapView(toneMap, this.cell.getCellType()
+						.toString());
 		cell.send(streamId, sequence);
 	}
 

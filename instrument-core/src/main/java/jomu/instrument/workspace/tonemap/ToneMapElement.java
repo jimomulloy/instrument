@@ -73,7 +73,10 @@ public class ToneMapElement implements Serializable {
 	}
 
 	public int[] getHarmonics() {
-		return harmonicWeights.keySet().stream().mapToInt(num -> Integer.valueOf(num)).toArray();
+		return harmonicWeights.keySet()
+				.stream()
+				.mapToInt(num -> Integer.valueOf(num))
+				.toArray();
 	}
 
 	@Override

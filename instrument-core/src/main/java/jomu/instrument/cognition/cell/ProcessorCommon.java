@@ -28,11 +28,19 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 	public ProcessorCommon(NuCell cell) {
 		super();
 		this.cell = cell;
-		this.workspace = Instrument.getInstance().getWorkspace();
-		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
-		this.console = Instrument.getInstance().getConsole();
-		this.iss = Instrument.getInstance().getStorage().getInstrumentStoreService();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.workspace = Instrument.getInstance()
+				.getWorkspace();
+		this.hearing = Instrument.getInstance()
+				.getCoordinator()
+				.getHearing();
+		this.console = Instrument.getInstance()
+				.getConsole();
+		this.iss = Instrument.getInstance()
+				.getStorage()
+				.getInstrumentStoreService();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
 	}
 
 	@Override
@@ -54,7 +62,9 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 	}
 
 	final String getMessagesStreamId(List<NuMessage> messages) {
-		Optional<String> streamId = messages.stream().findAny().map(message -> message.streamId);
+		Optional<String> streamId = messages.stream()
+				.findAny()
+				.map(message -> message.streamId);
 		if (!streamId.isPresent()) {
 			throw new InstrumentException("Missing messages in: " + this.cell.getCellType());
 		}
@@ -62,7 +72,9 @@ public abstract class ProcessorCommon implements ThrowingConsumer<List<NuMessage
 	}
 
 	final int getMessagesSequence(List<NuMessage> messages) {
-		Optional<Integer> sequence = messages.stream().findAny().map(message -> message.sequence);
+		Optional<Integer> sequence = messages.stream()
+				.findAny()
+				.map(message -> message.sequence);
 		if (!sequence.isPresent()) {
 			throw new InstrumentException("Missing messages in: " + this.cell.getCellType());
 		}

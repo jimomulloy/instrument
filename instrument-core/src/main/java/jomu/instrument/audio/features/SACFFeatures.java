@@ -22,7 +22,9 @@ public class SACFFeatures extends AudioEventFeatures<SACFInfo> implements ToneMa
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSACFSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getSACFSource());
 		this.features = getSource().getAndClearFeatures();
 	}
 

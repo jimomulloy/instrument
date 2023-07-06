@@ -135,7 +135,8 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	/**
 	 * Calculates a frequency for a bin using phase info, if available.
 	 *
-	 * @param binIndex The FFT bin index.
+	 * @param binIndex
+	 *            The FFT bin index.
 	 * @return a frequency, in Hz, calculated using available phase info.
 	 */
 	private float getFrequencyForBin(int binIndex) {
@@ -162,12 +163,16 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	/**
 	 * Calculate a noise floor for an array of magnitudes.
 	 *
-	 * @param magnitudes         The magnitudes of the current frame.
-	 * @param medianFilterLength The length of the median filter used to determine
-	 *                           the noise floor.
-	 * @param noiseFloorFactor   The noise floor is multiplied with this factor to
-	 *                           determine if the information is either noise or an
-	 *                           interesting spectral peak.
+	 * @param magnitudes
+	 *            The magnitudes of the current frame.
+	 * @param medianFilterLength
+	 *            The length of the median filter used to determine
+	 *            the noise floor.
+	 * @param noiseFloorFactor
+	 *            The noise floor is multiplied with this factor to
+	 *            determine if the information is either noise or an interesting
+	 *            spectral
+	 *            peak.
 	 * @return a float array representing the noise floor.
 	 */
 	public static float[] calculateNoiseFloor(float[] magnitudes, int medianFilterLength, float noiseFloorFactor) {
@@ -227,8 +232,10 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	/**
 	 * Finds the local magintude maxima and stores them in the given list.
 	 *
-	 * @param magnitudes The magnitudes.
-	 * @param noisefloor The noise floor.
+	 * @param magnitudes
+	 *            The magnitudes.
+	 * @param noisefloor
+	 *            The noise floor.
 	 * @return a list of local maxima.
 	 */
 	public static List<Integer> findLocalMaxima(float[] magnitudes, float[] noisefloor) {
@@ -245,7 +252,8 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	}
 
 	/**
-	 * @param magnitudes the magnitudes.
+	 * @param magnitudes
+	 *            the magnitudes.
 	 * @return the index for the maximum magnitude.
 	 */
 	private static int findMaxMagnitudeIndex(float[] magnitudes) {
@@ -261,12 +269,16 @@ public class SpectralPeakProcessor extends SpectralPeakDetector implements Audio
 	}
 
 	/**
-	 *
-	 * @param magnitudes         the magnitudes..
-	 * @param frequencyEstimates The frequency estimates for each bin.
-	 * @param localMaximaIndexes The indexes of the local maxima.
-	 * @param numberOfPeaks      The requested number of peaks.
-	 * @param minDistanceInCents The minimum distance in cents between the peaks
+	 * @param magnitudes
+	 *            the magnitudes..
+	 * @param frequencyEstimates
+	 *            The frequency estimates for each bin.
+	 * @param localMaximaIndexes
+	 *            The indexes of the local maxima.
+	 * @param numberOfPeaks
+	 *            The requested number of peaks.
+	 * @param minDistanceInCents
+	 *            The minimum distance in cents between the peaks
 	 * @return A list with spectral peaks.
 	 */
 	public static List<SpectralPeak> findPeaks(float[] magnitudes, float[] frequencyEstimates,

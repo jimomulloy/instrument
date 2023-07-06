@@ -76,7 +76,8 @@ public final class FileUtils {
 	 * Joins path elements using the systems path separator. e.g. "/tmp" and
 	 * "test.wav" combined together should yield /tmp/test.wav on UNIX.
 	 * 
-	 * @param path The path parts part.
+	 * @param path
+	 *            The path parts part.
 	 * @return Each element from path joined by the systems path separator.
 	 */
 	public static String combine(final String... path) {
@@ -104,8 +105,10 @@ public final class FileUtils {
 	 * Writes a file to disk. Uses the string contents as content. Failures are
 	 * logged.
 	 * 
-	 * @param contents The contents of the file.
-	 * @param name     The name of the file to create.
+	 * @param contents
+	 *            The contents of the file.
+	 * @param name
+	 *            The name of the file to create.
 	 */
 	/**
 	 * @param contents
@@ -145,8 +148,10 @@ public final class FileUtils {
 	/**
 	 * Appends a string to a file on disk. Fails silently.
 	 * 
-	 * @param contents The contents of the file.
-	 * @param name     The name of the file to create.
+	 * @param contents
+	 *            The contents of the file.
+	 * @param name
+	 *            The name of the file to create.
 	 */
 	public static void appendFile(final String contents, final String name) {
 		writeFile(contents, name, true);
@@ -155,7 +160,8 @@ public final class FileUtils {
 	/**
 	 * Reads the contents of a file.
 	 * 
-	 * @param name the name of the file to read
+	 * @param name
+	 *            the name of the file to read
 	 * @return the contents of the file if successful, an empty string otherwise.
 	 */
 	public static String readFile(final String name) {
@@ -170,7 +176,8 @@ public final class FileUtils {
 			final BufferedReader reader = new BufferedReader(fileReader);
 			String inputLine = reader.readLine();
 			while (inputLine != null) {
-				contents.append(inputLine).append("\n");
+				contents.append(inputLine)
+						.append("\n");
 				inputLine = reader.readLine();
 			}
 			reader.close();
@@ -183,7 +190,8 @@ public final class FileUtils {
 	/**
 	 * Reads the contents of a file in a jar.
 	 * 
-	 * @param path the path to read e.g. /package/name/here/help.html
+	 * @param path
+	 *            the path to read e.g. /package/name/here/help.html
 	 * @return the contents of the file when successful, an empty string otherwise.
 	 */
 	public static String readFileFromJar(final String path) {
@@ -197,7 +205,8 @@ public final class FileUtils {
 			String inputLine;
 			inputLine = reader.readLine();
 			while (inputLine != null) {
-				contents.append(new String(inputLine.getBytes(), "UTF-8")).append("\n");
+				contents.append(new String(inputLine.getBytes(), "UTF-8"))
+						.append("\n");
 				inputLine = reader.readLine();
 			}
 			reader.close();
@@ -212,12 +221,15 @@ public final class FileUtils {
 	/**
 	 * Copy a file from a jar.
 	 * 
-	 * @param source The path to read e.g. /package/name/here/help.html
-	 * @param target The target to save the file to.
+	 * @param source
+	 *            The path to read e.g. /package/name/here/help.html
+	 * @param target
+	 *            The target to save the file to.
 	 */
 	public static void copyFileFromJar(final String source, final String target) {
 		try {
-			final InputStream inputStream = new FileUtils().getClass().getResourceAsStream(source);
+			final InputStream inputStream = new FileUtils().getClass()
+					.getResourceAsStream(source);
 			OutputStream out;
 			out = new FileOutputStream(target);
 			final byte[] buffer = new byte[4096];
@@ -236,7 +248,8 @@ public final class FileUtils {
 	}
 
 	public static void copyDirFromJar(String source, String target) {
-		CodeSource src = FileUtils.class.getProtectionDomain().getCodeSource();
+		CodeSource src = FileUtils.class.getProtectionDomain()
+				.getCodeSource();
 		if (src != null) {
 			URL jar = src.getLocation();
 			if (FileUtils.exists(FileUtils.combine(jar.getFile(), source))) {
@@ -266,16 +279,21 @@ public final class FileUtils {
 	/**
 	 * Reads a CSV-file from disk. The separator can be chosen.
 	 * 
-	 * @param fileName        the filename, an exception if thrown if the file does
-	 *                        not exist
-	 * @param separator       the separator, e.g. ";" or ","
-	 * @param expectedColumns The expected number of columns, user -1 if the number
-	 *                        is unknown. An exception is thrown if there is a row
-	 *                        with an unexpected row length.
+	 * @param fileName
+	 *            the filename, an exception if thrown if the file does not
+	 *            exist
+	 * @param separator
+	 *            the separator, e.g. ";" or ","
+	 * @param expectedColumns
+	 *            The expected number of columns, user -1 if the number
+	 *            is unknown. An exception is thrown if there is a row with an
+	 *            unexpected
+	 *            row length.
 	 * @return a List of string arrays. The data of the CSV-file can be found in the
 	 *         arrays. Each row corresponds with an array.
 	 */
-	public static List<String[]> readCSVFile(final String fileName, final String separator, final int expectedColumns) {
+	public static List<String[]> readCSVFile(final String fileName, final String separator,
+			final int expectedColumns) {
 		final List<String[]> data = new ArrayList<String[]>();
 		FileReader fileReader = null;
 
@@ -391,18 +409,19 @@ public final class FileUtils {
 	 * <code>foobar.wav</code>
 	 * </p>
 	 * 
-	 * @param directory A readable directory.
-	 * @param pattern   A valid regular expression.
-	 * @param recursive A boolean defining if directories should be traversed
-	 *                  recursively.
+	 * @param directory
+	 *            A readable directory.
+	 * @param pattern
+	 *            A valid regular expression.
+	 * @param recursive
+	 *            A boolean defining if directories should be traversed
+	 *            recursively.
 	 * @return a list of filenames matching the pattern for directory.
-	 * @exception Error                                  an error is thrown if the
-	 *                                                   directory is not ... a
-	 *                                                   directory.
-	 * @exception java.util.regex.PatternSyntaxException Unchecked exception thrown
-	 *                                                   to indicate a syntax error
-	 *                                                   in a regular-expression
-	 *                                                   pattern.
+	 * @exception Error
+	 *                an error is thrown if the directory is not ... a directory.
+	 * @exception java.util.regex.PatternSyntaxException
+	 *                Unchecked exception thrown
+	 *                to indicate a syntax error in a regular-expression pattern.
 	 */
 	public static List<String> glob(final String directory, final String pattern, final boolean recursive) {
 		final List<String> matchingFiles = new ArrayList<String>();
@@ -425,7 +444,8 @@ public final class FileUtils {
 			if (recursive && filePath.isDirectory()) {
 				glob(filePath, pattern, recursive, matchingFiles);
 			} else {
-				if (pattern.matcher(file).matches() && file != null) {
+				if (pattern.matcher(file)
+						.matches() && file != null) {
 					matchingFiles.add(filePath.getAbsolutePath());
 				}
 			}
@@ -435,7 +455,8 @@ public final class FileUtils {
 	/**
 	 * Return the extension of a file.
 	 * 
-	 * @param fileName the file to get the extension for
+	 * @param fileName
+	 *            the file to get the extension for
 	 * @return the extension. E.g. TXT or JPEG.
 	 */
 	public static String extension(final String fileName) {
@@ -467,7 +488,8 @@ public final class FileUtils {
 	 * Uses the correct pathSeparator depending on the operating system. On windows
 	 * c:/test/ is not c:\test\
 	 * 
-	 * @param fileName the name of the file using correct path separators.
+	 * @param fileName
+	 *            the name of the file using correct path separators.
 	 * @return the path of the file.
 	 */
 	public static String path(final String fileName) {
@@ -478,7 +500,8 @@ public final class FileUtils {
 	/**
 	 * Checks if a file exists.
 	 * 
-	 * @param fileName the name of the file to check.
+	 * @param fileName
+	 *            the name of the file to check.
 	 * @return true if and only if the file or directory denoted by this abstract
 	 *         pathname exists; false otherwise
 	 */
@@ -489,7 +512,8 @@ public final class FileUtils {
 	/**
 	 * Creates a directory and parent directories if needed.
 	 * 
-	 * @param path the path of the directory to create
+	 * @param path
+	 *            the path of the directory to create
 	 * @return true if the directory was created (possibly with parent directories)
 	 *         , false otherwise
 	 */
@@ -500,8 +524,10 @@ public final class FileUtils {
 	/**
 	 * Copy from source to target. Traverses the directory recursively.
 	 * 
-	 * @param source the source file.
-	 * @param target the target file.
+	 * @param source
+	 *            the source file.
+	 * @param target
+	 *            the target file.
 	 */
 	public static void cp(final String source, final String target) {
 		File fileToCopy = new File(source);
@@ -545,7 +571,8 @@ public final class FileUtils {
 	/**
 	 * Removes a file from disk.
 	 * 
-	 * @param fileName the file to remove
+	 * @param fileName
+	 *            the file to remove
 	 * @return true if and only if the file or directory is successfully deleted;
 	 *         false otherwise
 	 */
@@ -556,7 +583,8 @@ public final class FileUtils {
 	/**
 	 * Tests whether the file denoted by this abstract pathname is a directory.
 	 * 
-	 * @param inputFile A pathname string.
+	 * @param inputFile
+	 *            A pathname string.
 	 * @return true if and only if the file denoted by this abstract pathname exists
 	 *         and is a directory; false otherwise.
 	 */

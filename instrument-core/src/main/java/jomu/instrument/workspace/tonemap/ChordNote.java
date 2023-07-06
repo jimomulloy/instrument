@@ -5,7 +5,6 @@ import java.util.Objects;
 
 /**
  * @author User
- *
  */
 public class ChordNote implements Comparable<ChordNote>, Serializable {
 	/**

@@ -26,7 +26,8 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 	public float[] getSpectrum(double lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-			float[] spectralEnergy = entry.getValue().getAmplitudes();
+			float[] spectralEnergy = entry.getValue()
+					.getAmplitudes();
 			if (spectrum == null) {
 				spectrum = new float[spectralEnergy.length];
 			}
@@ -74,7 +75,8 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 			toneMap.addTimeFrame(ttf);
 
 			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
+				PitchDetectionResult pitchDetect = entry.getValue()
+						.getPitchDetectionResult();
 				float pitch = pitchDetect.getPitch();
 				if (pitch > -1) {
 					int tmIndex = pitchSet.getIndex(pitch);
@@ -97,8 +99,12 @@ public class PitchDetectorFeatures extends AudioEventFeatures<SpectrogramInfo> i
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getPitchDetectorSource());
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getPitchDetectorSource());
 		this.features = getSource().getAndClearFeatures();
 	}
 

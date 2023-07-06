@@ -101,7 +101,8 @@ public class AudioGenerator {
 	/**
 	 * Adds an AudioProcessor to the chain of processors.
 	 * 
-	 * @param audioProcessor The AudioProcessor to add.
+	 * @param audioProcessor
+	 *            The AudioProcessor to add.
 	 */
 	public void addAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.add(audioProcessor);
@@ -120,7 +121,8 @@ public class AudioGenerator {
 	 * Removes an AudioProcessor to the chain of processors and calls
 	 * processingFinished.
 	 * 
-	 * @param audioProcessor The AudioProcessor to remove.
+	 * @param audioProcessor
+	 *            The AudioProcessor to remove.
 	 */
 	public void removeAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.remove(audioProcessor);
@@ -177,7 +179,6 @@ public class AudioGenerator {
 	}
 
 	/**
-	 * 
 	 * @return The currently processed number of seconds.
 	 */
 	public float secondsProcessed() {
@@ -189,11 +190,12 @@ public class AudioGenerator {
 	 * with this method: it should be called after a batch of samples is processed,
 	 * not during.
 	 * 
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
+	 * @param audioBufferSize
+	 *            The size of the buffer defines how much samples are
+	 *            processed in one step. Common values are 1024,2048.
+	 * @param bufferOverlap
+	 *            How much consecutive buffers overlap (in samples). Half
+	 *            of the AudioBufferSize is common (512, 1024) for an FFT.
 	 */
 	public void setStepSizeAndOverlap(final int audioBufferSize, final int bufferOverlap) {
 		audioFloatBuffer = new float[audioBufferSize];
@@ -215,12 +217,9 @@ public class AudioGenerator {
 	 * Reads the next audio block. It tries to read the number of bytes defined by
 	 * the audio buffer size minus the overlap. If the expected number of bytes
 	 * could not be read either the end of the stream is reached or something went
-	 * wrong.
-	 * 
-	 * The behavior for the first and last buffer is defined by their corresponding
-	 * the zero pad settings. The method also handles the case if the first buffer
-	 * is also the last.
-	 * 
+	 * wrong. The behavior for the first and last buffer is defined by their
+	 * corresponding the zero pad settings. The method also handles the case if the
+	 * first buffer is also the last.
 	 */
 	private void generateNextAudioBlock() {
 		// assert floatOverlap < audioFloatBuffer.length;
@@ -241,7 +240,8 @@ public class AudioGenerator {
 	 * Constructs the target audio format. The audio format is one channel signed
 	 * PCM of a given sample rate.
 	 * 
-	 * @param targetSampleRate The sample rate to convert to.
+	 * @param targetSampleRate
+	 *            The sample rate to convert to.
 	 * @return The audio format after conversion.
 	 */
 	private TarsosDSPAudioFormat getTargetAudioFormat(int targetSampleRate) {

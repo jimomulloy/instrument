@@ -96,13 +96,13 @@ public class PitchDetect {
 				fzeroSaliences[(int) fzeroInfo[2]] = fzeroInfo[1];
 			}
 		}
-//		for (int i = 0; i < spec.length; i++) {
-//			if (fzeroBins.containsKey(i)) {
-//				spec[i] = fzeroBins.get(i);
-//			} else {
-//				spec[i] = 0;
-//			}
-//		}
+		// for (int i = 0; i < spec.length; i++) {
+		// if (fzeroBins.containsKey(i)) {
+		// spec[i] = fzeroBins.get(i);
+		// } else {
+		// spec[i] = 0;
+		// }
+		// }
 
 	}
 
@@ -245,8 +245,8 @@ final class SpecWhitener {
 				compCoef = (bwCompCoefSteps[bankCount] * (bandFreq - cenFreqs[bankCount - 1])
 						/ cenFreqsSteps[bankCount]) + bwCompCoef[bankCount - 1];
 			} else {
-				compCoef = (-bwCompCoefSteps[bankCount] * (cenFreqs[bankCount] - bandFreq) / cenFreqsSteps[bankCount])
-						+ bwCompCoef[bankCount];
+				compCoef = (-bwCompCoefSteps[bankCount] * (cenFreqs[bankCount] - bandFreq)
+						/ cenFreqsSteps[bankCount]) + bwCompCoef[bankCount];
 			}
 			// wSpec[i] = spec[i] * compCoef;
 			spec[i] = spec[i] * compCoef;

@@ -78,7 +78,8 @@ public class Autocorrelation {
 	public double[] getMagnitudes() {
 		double[] magnitudes = new double[fft.length];
 		for (int i = 0; i < fft.length; i++) {
-			magnitudes[i] = fft[i].getReal() * fft[i].getReal() + fft[i].getImaginary() * fft[i].getImaginary();
+			magnitudes[i] = fft[i].getReal() * fft[i].getReal()
+					+ fft[i].getImaginary() * fft[i].getImaginary();
 		}
 		return magnitudes;
 	}
@@ -115,7 +116,8 @@ public class Autocorrelation {
 
 		double max = 0;
 		for (int i = 0; i < fft.length; i++) {
-			double magnitude = fft[i].getReal() * fft[i].getReal() + fft[i].getImaginary() * fft[i].getImaginary();
+			double magnitude = fft[i].getReal() * fft[i].getReal()
+					+ fft[i].getImaginary() * fft[i].getImaginary();
 			if (magnitude <= lowFFTThreshold) {
 				fft[i] = Complex.ZERO;
 			}
@@ -130,7 +132,8 @@ public class Autocorrelation {
 
 		// Multiply by complex conjugate
 		for (int i = 0; i < fft.length; i++) {
-			double magnitude = fft[i].getReal() * fft[i].getReal() + fft[i].getImaginary() * fft[i].getImaginary();
+			double magnitude = fft[i].getReal() * fft[i].getReal()
+					+ fft[i].getImaginary() * fft[i].getImaginary();
 			if (magnitude < lowFFTThreshold) {
 				fft[i] = Complex.ZERO;
 			}

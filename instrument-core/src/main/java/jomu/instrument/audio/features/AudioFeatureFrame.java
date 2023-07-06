@@ -23,7 +23,8 @@ public class AudioFeatureFrame {
 	private SpectralPeaksFeatures spectralPeaksFeatures;
 	private double start;
 
-	public AudioFeatureFrame(AudioFeatureProcessor audioFeatureProcessor, int frameSequence, double start, double end) {
+	public AudioFeatureFrame(AudioFeatureProcessor audioFeatureProcessor, int frameSequence, double start,
+			double end) {
 		this.audioFeatureProcessor = audioFeatureProcessor;
 		this.frameSequence = frameSequence;
 		this.start = start;

@@ -35,17 +35,21 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 		boolean chromaHpsSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_HPS_SWITCH);
 
-		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap cqToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (chromaCQOriginSwitch) {
-			cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
+			cqToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
 		}
 
 		ToneMap hpsMaskToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.toString() + "_HARMONIC_MASK", streamId));
 
-		ToneMap chromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap chromaToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
-		ToneTimeFrame sourceTimeFrame = cqToneMap.getTimeFrame(sequence).clone();
+		ToneTimeFrame sourceTimeFrame = cqToneMap.getTimeFrame(sequence)
+				.clone();
 		if (chromaHpsSwitch) {
 			sourceTimeFrame.mask(hpsMaskToneMap.getTimeFrame(sequence), false);
 		}
@@ -53,9 +57,12 @@ public class AudioChromaPreProcessor extends ProcessorCommon {
 		chromaToneMap.addTimeFrame(sourceTimeFrame
 				.chroma(chromaRootNote, sourceTimeFrame.getPitchLow(), sourceTimeFrame.getPitchHigh(),
 						chromaHarmonicsSwitch)
-				.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch).chromaQuantize());
+				.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
+				.chromaQuantize());
 
-		console.getVisor().updateToneMapView(chromaToneMap, this.cell.getCellType().toString());
+		console.getVisor()
+				.updateToneMapView(chromaToneMap, this.cell.getCellType()
+						.toString());
 		cell.send(streamId, sequence);
 	}
 }

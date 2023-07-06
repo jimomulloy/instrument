@@ -118,8 +118,10 @@ public class Hearing implements Organ {
 			return;
 		}
 		audioStream.close();
-		console.getVisor().audioStopped();
-		console.getVisor().updateStatusMessage("Ready");
+		console.getVisor()
+				.audioStopped();
+		console.getVisor()
+				.updateStatusMessage("Ready");
 		if (streamId != null) {
 			// workspace.getAtlas().removeMapsByStreamId(streamId);
 			LOG.finer(">>Clear MAPS in Audio Stream: " + streamId);
@@ -138,7 +140,8 @@ public class Hearing implements Organ {
 
 	public AudioFeatureProcessor getAudioFeatureProcessor(String streamId) {
 		if (audioStreams.containsKey(streamId)) {
-			return audioStreams.get(streamId).getAudioFeatureProcessor();
+			return audioStreams.get(streamId)
+					.getAudioFeatureProcessor();
 		} else {
 			return null;
 		}
@@ -159,7 +162,8 @@ public class Hearing implements Organ {
 		if (lineInfo instanceof DataLine.Info) {
 			final DataLine.Info dataLineInfo = (DataLine.Info) lineInfo;
 
-			Arrays.stream(dataLineInfo.getFormats()).forEach(format -> LOG.finer("    " + format.toString()));
+			Arrays.stream(dataLineInfo.getFormats())
+					.forEach(format -> LOG.finer("    " + format.toString()));
 		}
 	}
 
@@ -169,7 +173,8 @@ public class Hearing implements Organ {
 			for (int i = 0; i < mixers.length; i++) {
 				LOG.finer((i + 1) + ". " + mixers[i].getName() + " --> " + mixers[i].getDescription());
 
-				Line.Info[] sourceLines = AudioSystem.getMixer(mixers[i]).getSourceLineInfo();
+				Line.Info[] sourceLines = AudioSystem.getMixer(mixers[i])
+						.getSourceLineInfo();
 				LOG.finer("\tSource Lines:");
 				for (int j = 0; j < sourceLines.length; j++) {
 					LOG.finer("\t" + (j + 1) + ". " + sourceLines[j].toString());
@@ -177,7 +182,8 @@ public class Hearing implements Organ {
 				}
 				LOG.finer("\n");
 
-				Line.Info[] targetLines = AudioSystem.getMixer(mixers[i]).getTargetLineInfo();
+				Line.Info[] targetLines = AudioSystem.getMixer(mixers[i])
+						.getTargetLineInfo();
 				LOG.finer("\tTarget Lines:");
 				for (int j = 0; j < targetLines.length; j++) {
 					LOG.finer("\t" + (j + 1) + ". " + targetLines[j].toString());
@@ -196,23 +202,28 @@ public class Hearing implements Organ {
 		LOG.severe(">>HEARING startAudioFileStream: " + inputFileName);
 		if (getStreamId() != null) {
 			LOG.severe(">>HEARING startAudioFileStream clear old stream: " + getStreamId());
-			workspace.getAtlas().removeMapsByStreamId(getStreamId());
+			workspace.getAtlas()
+					.removeMapsByStreamId(getStreamId());
 			voice.reset();
 			removeAudioStream(getStreamId());
 			System.gc();
 			LOG.severe(">>HEARING startAudioFileStream cleared old stream: " + getStreamId());
 		}
 
-		workspace.getAtlas().clear();
+		workspace.getAtlas()
+				.clear();
 
 		// Get current size of heap in bytes
-		long heapSize = Runtime.getRuntime().totalMemory();
+		long heapSize = Runtime.getRuntime()
+				.totalMemory();
 		// Get maximum size of heap in bytes. The heap cannot grow beyond this size.//
 		// Any attempt will result in an OutOfMemoryException.
-		long heapMaxSize = Runtime.getRuntime().maxMemory();
+		long heapMaxSize = Runtime.getRuntime()
+				.maxMemory();
 		// Get amount of free memory within the heap in bytes. This size will increase
 		// // after garbage collection and decrease as new objects are created.
-		long heapFreeSize = Runtime.getRuntime().freeMemory();
+		long heapFreeSize = Runtime.getRuntime()
+				.freeMemory();
 		LOG.severe(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
 
 		showAudioMixerInfo();
@@ -223,13 +234,15 @@ public class Hearing implements Organ {
 			throw new Exception("Audio system WAV file not supported");
 		}
 
-		streamId = UUID.randomUUID().toString();
+		streamId = UUID.randomUUID()
+				.toString();
 		LOG.severe(">>HEARING startAudioFileStream new stream: " + getStreamId());
 
 		AudioStream audioStream = new AudioStream(getStreamId());
 		audioStreams.put(getStreamId(), audioStream);
 
-		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager().getCurrentSession();
+		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager()
+				.getCurrentSession();
 		instrumentSession.setInputAudioFilePath(fileName);
 		instrumentSession.setStreamId(getStreamId());
 		instrumentSession.setState(InstrumentSessionState.RUNNING);
@@ -238,7 +251,10 @@ public class Hearing implements Organ {
 		boolean isResample = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE);
 
-		if (fileName.toLowerCase().endsWith(".mp3") || fileName.toLowerCase().endsWith(".ogg")) {
+		if (fileName.toLowerCase()
+				.endsWith(".mp3")
+				|| fileName.toLowerCase()
+						.endsWith(".ogg")) {
 			String wavFilePath = convertToWav(fileName);
 			if (isResample) {
 				String resampleFilePath = resample(wavFilePath);
@@ -299,10 +315,13 @@ public class Hearing implements Organ {
 		filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
 		bs = new BufferedInputStream(is);
 
-		AudioFormat format = AudioSystem.getAudioFileFormat(bs).getFormat();
+		AudioFormat format = AudioSystem.getAudioFileFormat(bs)
+				.getFormat();
 		LOG.severe(">>Start Audio file: " + fileName + ", path: " + filePath + ", streamId: " + getStreamId() + ", "
 				+ format);
-		if (!format.getEncoding().toString().startsWith("PCM")) {
+		if (!format.getEncoding()
+				.toString()
+				.startsWith("PCM")) {
 			bs.close();
 			is.close();
 			String wavFilePath = convertToWav(filePath);
@@ -341,8 +360,10 @@ public class Hearing implements Organ {
 			throw new Exception("Audio file init error: " + ex.getMessage());
 		}
 
-		audioStream.getAudioFeatureProcessor().addObserver(cortex);
-		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
+		audioStream.getAudioFeatureProcessor()
+				.addObserver(cortex);
+		audioStream.getAudioFeatureProcessor()
+				.addObserver(console.getVisor());
 		audioStream.start();
 	}
 
@@ -365,7 +386,8 @@ public class Hearing implements Organ {
 	 * Invoke this function to convert to a playable file.
 	 */
 	public String padAudio(String fileName) throws UnsupportedAudioFileException, IOException {
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 		String folder = Paths
 				.get(baseDir,
 						parameterManager
@@ -387,7 +409,8 @@ public class Hearing implements Organ {
 		AudioInputStream sourceFileStream = AudioSystem.getAudioInputStream(new File(fileName));
 
 		while (padBefore > 0) {
-			InputStream ssis = getClass().getClassLoader().getResourceAsStream("secondSilence.wav");
+			InputStream ssis = getClass().getClassLoader()
+					.getResourceAsStream("secondSilence.wav");
 			AudioInputStream secondSilenceStream = AudioSystem.getAudioInputStream(ssis);
 
 			AudioInputStream appendedFileStream = new AudioInputStream(
@@ -402,7 +425,8 @@ public class Hearing implements Organ {
 		}
 
 		while (padAfter > 0) {
-			InputStream ssis = getClass().getClassLoader().getResourceAsStream("secondSilence.wav");
+			InputStream ssis = getClass().getClassLoader()
+					.getResourceAsStream("secondSilence.wav");
 			AudioInputStream secondSilenceStream = AudioSystem.getAudioInputStream(ssis);
 
 			AudioInputStream appendedFileStream = new AudioInputStream(
@@ -425,7 +449,8 @@ public class Hearing implements Organ {
 	 * Invoke this function to convert to a playable file.
 	 */
 	public String convertToWav(String fileName) throws UnsupportedAudioFileException, IOException {
-		BufferedInputStream bis = new BufferedInputStream(storage.getObjectStorage().read(fileName));
+		BufferedInputStream bis = new BufferedInputStream(storage.getObjectStorage()
+				.read(fileName));
 		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
 
 		AudioFormat sourceFormat = stream.getFormat();
@@ -439,7 +464,8 @@ public class Hearing implements Organ {
 		// create stream that delivers the desired format
 		AudioInputStream converted = AudioSystem.getAudioInputStream(convertFormat, stream);
 		// write stream into a file with file format wav
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 		String folder = Paths
 				.get(baseDir,
 						parameterManager
@@ -462,7 +488,8 @@ public class Hearing implements Organ {
 
 	public String timeStretch(String fileName, double audioTimeStretch)
 			throws UnsupportedAudioFileException, IOException {
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 		String folder = Paths
 				.get(baseDir,
 						parameterManager
@@ -478,7 +505,8 @@ public class Hearing implements Organ {
 		String tsFilePath = folder + System.getProperty("file.separator") + tsFileName;
 
 		File inputFile = new File(fileName);
-		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
+		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile)
+				.getFormat();
 		WaveformSimilarityBasedOverlapAdd wsola = new WaveformSimilarityBasedOverlapAdd(
 				WaveformSimilarityBasedOverlapAdd.Parameters.musicDefaults(audioTimeStretch, format.getSampleRate()));
 		WaveformWriter writer = new WaveformWriter(format, tsFilePath);
@@ -493,7 +521,8 @@ public class Hearing implements Organ {
 
 	public String pitchShift(String fileName, double audioPitchShift)
 			throws UnsupportedAudioFileException, IOException {
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 		String folder = Paths
 				.get(baseDir,
 						parameterManager
@@ -509,7 +538,8 @@ public class Hearing implements Organ {
 		String psFilePath = folder + System.getProperty("file.separator") + psFileName;
 
 		File inputFile = new File(fileName);
-		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile).getFormat();
+		AudioFormat format = AudioSystem.getAudioFileFormat(inputFile)
+				.getFormat();
 
 		double sampleRate = format.getSampleRate();
 		double factor = 1 / Math.pow(Math.E, audioPitchShift * Math.log(2) / 1200 / Math.log(Math.E));
@@ -521,8 +551,8 @@ public class Hearing implements Organ {
 
 		AudioDispatcher dispatcher;
 		if (format.getChannels() != 1) {
-			dispatcher = AudioDispatcherFactory.fromFile(inputFile, wsola.getInputBufferSize() * format.getChannels(),
-					wsola.getOverlap() * format.getChannels());
+			dispatcher = AudioDispatcherFactory.fromFile(inputFile,
+					wsola.getInputBufferSize() * format.getChannels(), wsola.getOverlap() * format.getChannels());
 			dispatcher.addAudioProcessor(new MultichannelToMono(format.getChannels(), true));
 		} else {
 			dispatcher = AudioDispatcherFactory.fromFile(inputFile, wsola.getInputBufferSize(), wsola.getOverlap());
@@ -538,12 +568,14 @@ public class Hearing implements Organ {
 
 	public String cacheFile(String fileName) throws UnsupportedAudioFileException, IOException {
 		LOG.severe(">>cacheFile: " + fileName);
-		BufferedInputStream bis = new BufferedInputStream(storage.getObjectStorage().read(fileName));
+		BufferedInputStream bis = new BufferedInputStream(storage.getObjectStorage()
+				.read(fileName));
 		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
 
 		LOG.severe(">>cacheFile 2: " + fileName);
 
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 		String folder = Paths
 				.get(baseDir,
 						parameterManager
@@ -575,7 +607,8 @@ public class Hearing implements Organ {
 		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
 
 		// write stream into a file with file format wav
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 		String folder = Paths
 				.get(baseDir,
 						parameterManager
@@ -598,33 +631,41 @@ public class Hearing implements Organ {
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
 		if (getStreamId() != null) {
 			LOG.severe(">>HEARING startAudioLineStream clear old stream: " + getStreamId());
-			workspace.getAtlas().removeMapsByStreamId(getStreamId());
+			workspace.getAtlas()
+					.removeMapsByStreamId(getStreamId());
 			voice.reset();
 			removeAudioStream(getStreamId());
 			System.gc();
 			LOG.severe(">>HEARING startAudioLineStream cleared old stream: " + getStreamId());
 		}
-		workspace.getAtlas().clear();
+		workspace.getAtlas()
+				.clear();
 
 		// Get current size of heap in bytes
-		long heapSize = Runtime.getRuntime().totalMemory();
+		long heapSize = Runtime.getRuntime()
+				.totalMemory();
 		// Get maximum size of heap in bytes. The heap cannot grow beyond this size.//
 		// Any attempt will result in an OutOfMemoryException.
-		long heapMaxSize = Runtime.getRuntime().maxMemory();
+		long heapMaxSize = Runtime.getRuntime()
+				.maxMemory();
 		// Get amount of free memory within the heap in bytes. This size will increase
 		// // after garbage collection and decrease as new objects are created.
-		long heapFreeSize = Runtime.getRuntime().freeMemory();
+		long heapFreeSize = Runtime.getRuntime()
+				.freeMemory();
 		LOG.finer(">>heapSize: " + heapSize + ", heapMaxSize: " + heapMaxSize + ", heapFreeSize: " + heapFreeSize);
 
-		streamId = UUID.randomUUID().toString();
+		streamId = UUID.randomUUID()
+				.toString();
 		LOG.finer(">>Start Audio Stream: " + getStreamId());
 		AudioStream audioStream = new AudioStream(getStreamId());
 		audioStreams.put(getStreamId(), audioStream);
 
 		audioStream.processMicrophoneStream(recordFile);
 
-		audioStream.getAudioFeatureProcessor().addObserver(cortex);
-		audioStream.getAudioFeatureProcessor().addObserver(console.getVisor());
+		audioStream.getAudioFeatureProcessor()
+				.addObserver(cortex);
+		audioStream.getAudioFeatureProcessor()
+				.addObserver(console.getVisor());
 		audioStream.start();
 	}
 
@@ -634,7 +675,8 @@ public class Hearing implements Organ {
 		if (audioStream != null) {
 			audioStream.stop();
 			if (audioStream.getAudioFeatureProcessor() != null) {
-				audioStream.getAudioFeatureProcessor().removeObserver(cortex);
+				audioStream.getAudioFeatureProcessor()
+						.removeObserver(cortex);
 			}
 			closeAudioStream(getStreamId());
 			// coordinator.getVoice().clear(streamId);
@@ -696,7 +738,8 @@ public class Hearing implements Organ {
 			this.sampleRate = sampleRate;
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE,
 					Integer.toString(sampleRate));
-			console.getVisor().updateParameters();
+			console.getVisor()
+					.updateParameters();
 
 		}
 
@@ -805,7 +848,8 @@ public class Hearing implements Organ {
 
 			int range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
 
-			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
+			CalibrationMap calibrationMap = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 
 				@Override
@@ -859,7 +903,8 @@ public class Hearing implements Organ {
 
 		private void processAudioFileStream(BufferedInputStream inputStream, AudioFormat format)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-			console.getVisor().clearView();
+			console.getVisor()
+					.clearView();
 			this.setIsFile(true);
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
 			double audioOffset = parameterManager
@@ -980,20 +1025,24 @@ public class Hearing implements Organ {
 		}
 
 		private void processMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
-			console.getVisor().clearView();
+			console.getVisor()
+					.clearView();
 			this.setIsFile(false);
 			Info[] mixerInfo = AudioSystem.getMixerInfo();
 			for (Info info : mixerInfo) {
 				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
 				Mixer m = AudioSystem.getMixer(info);
-				LOG.severe(">>processMicrophoneStream mixer: " + m.getMixerInfo().toString());
+				LOG.severe(">>processMicrophoneStream mixer: " + m.getMixerInfo()
+						.toString());
 				Line[] sl = m.getSourceLines();
 				for (Line l : sl) {
-					LOG.severe(">>processMicrophoneStream source line: " + l.getLineInfo().toString());
+					LOG.severe(">>processMicrophoneStream source line: " + l.getLineInfo()
+							.toString());
 				}
 				Line[] tl = m.getTargetLines();
 				for (Line l : tl) {
-					LOG.severe(">>processMicrophoneStream target line: " + l.getLineInfo().toString());
+					LOG.severe(">>processMicrophoneStream target line: " + l.getLineInfo()
+							.toString());
 				}
 				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
 			}
@@ -1108,7 +1157,8 @@ public class Hearing implements Organ {
 
 			int range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
 
-			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
+			CalibrationMap calibrationMap = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 
 				@Override
@@ -1150,8 +1200,8 @@ public class Hearing implements Organ {
 
 		public void start() {
 			if (dispatcher != null) {
-				new Thread(dispatcher, "Thread-Hearing-AudioDispatching-" + streamId + "-" + System.currentTimeMillis())
-						.start();
+				new Thread(dispatcher,
+						"Thread-Hearing-AudioDispatching-" + streamId + "-" + System.currentTimeMillis()).start();
 			}
 		}
 

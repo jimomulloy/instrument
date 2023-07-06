@@ -47,7 +47,6 @@ import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
  * processingFinished method is called it prepends the raw file with a header to
  * make it a legal WAV-file.
  * </p>
- * 
  * <p>
  * Writing a RAW file first and then a header is needed because the header
  * contains fields for the size of the file, which is unknown beforehand. See
@@ -55,7 +54,6 @@ import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
  * <a href="https://ccrma.stanford.edu/courses/422/projects/WaveFormat/">wav
  * file reference</a>.
  * </p>
- * 
  */
 public class WaveformWriter implements AudioProcessor {
 	private final AudioFormat format;
@@ -78,8 +76,10 @@ public class WaveformWriter implements AudioProcessor {
 	/**
 	 * Initialize the writer.
 	 * 
-	 * @param format   The format of the received bytes.
-	 * @param fileName The name of the wav file to store.
+	 * @param format
+	 *            The format of the received bytes.
+	 * @param fileName
+	 *            The name of the wav file to store.
 	 */
 	public WaveformWriter(final AudioFormat format, final String fileName) {
 		this.format = format;
@@ -111,8 +111,8 @@ public class WaveformWriter implements AudioProcessor {
 			LOG.severe(">>WaveformWriter writer: " + byteStepSize);
 			rawOutputStream.write(audioEvent.getByteBuffer(), byteOverlap, byteStepSize);
 		} catch (IOException e) {
-			LOG.severe(String.format("Failure while writing temporary file: %1s: %2s", rawOutputFile.getAbsolutePath(),
-					e.getMessage()));
+			LOG.severe(String.format("Failure while writing temporary file: %1s: %2s",
+					rawOutputFile.getAbsolutePath(), e.getMessage()));
 		}
 		return true;
 	}

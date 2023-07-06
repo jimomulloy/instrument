@@ -82,11 +82,13 @@ public class Controller implements Organ {
 	}
 
 	public boolean run(String userId, String fileName, String paramStyle) {
-		LOG.severe(">>INSTRUMENT Run started userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
+		LOG.severe(
+				">>INSTRUMENT Run started userId: " + userId + ", fileName: " + fileName + ", styel: " + paramStyle);
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		setCountDownLatch(countDownLatch);
 		InstrumentSession instrumentSession = workspace.getInstrumentSessionManager()
-				.getInstrumentSession(UUID.randomUUID().toString());
+				.getInstrumentSession(UUID.randomUUID()
+						.toString());
 		try {
 			instrumentSession.setUserId(userId);
 			instrumentSession.setDateTime(Instant.now());
@@ -98,7 +100,8 @@ public class Controller implements Organ {
 			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH, "true");
 			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY, "true");
 			getParameterManager().setParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE, "true");
-			coordinator.getHearing().startAudioFileStream(fileName);
+			coordinator.getHearing()
+					.startAudioFileStream(fileName);
 			LOG.severe(">>INSTRUMENT Run userId: " + userId + ", fileName: " + fileName + ", style: " + paramStyle);
 			countDownLatch.await(TIMEOUT, TimeUnit.SECONDS);
 			if (!InstrumentSession.InstrumentSessionState.FAILED.equals(instrumentSession.getState())) {
@@ -135,7 +138,8 @@ public class Controller implements Organ {
 	}
 
 	public String dumpStatusInfo() {
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 		String folder = Paths
 				.get(baseDir,
 						parameterManager
@@ -145,7 +149,9 @@ public class Controller implements Organ {
 
 		try (BufferedWriter bwr = new BufferedWriter(new FileWriter(new File(dumpFileName)))) {
 			StringBuilder buff = new StringBuilder();
-			Throwable t = workspace.getInstrumentSessionManager().getCurrentSession().getException();
+			Throwable t = workspace.getInstrumentSessionManager()
+					.getCurrentSession()
+					.getException();
 			buff.append("Intrument Status Dump on: " + java.time.LocalDateTime.now() + "\n");
 			buff.append("=======================================================\n");
 			buff.append("\n");
@@ -183,7 +189,8 @@ public class Controller implements Organ {
 	 */
 	public void configureDirectories() {
 
-		String baseDir = storage.getObjectStorage().getBasePath();
+		String baseDir = storage.getObjectStorage()
+				.getBasePath();
 
 		String audioRecordDirectory = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_DIRECTORY);

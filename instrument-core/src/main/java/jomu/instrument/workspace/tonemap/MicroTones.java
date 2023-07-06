@@ -22,7 +22,8 @@ public class MicroTones implements Serializable {
 	public MicroTones clone() {
 		MicroTones copy = new MicroTones();
 		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
-			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
+			for (Entry<Integer, Double> mtpm : mtm.getValue()
+					.entrySet()) {
 				copy.putMicroTone(mtm.getKey(), mtpm.getKey(), mtpm.getValue());
 			}
 		}
@@ -51,8 +52,10 @@ public class MicroTones implements Serializable {
 	public Map<Double, Double> getMicroTones(int subPitchIndex) {
 		Map<Double, Double> microToneAmplitudeMap = new ConcurrentHashMap<>();
 		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
-			if (mtm.getValue().containsKey(subPitchIndex)) {
-				for (Double amplitude : mtm.getValue().values()) {
+			if (mtm.getValue()
+					.containsKey(subPitchIndex)) {
+				for (Double amplitude : mtm.getValue()
+						.values()) {
 					microToneAmplitudeMap.put(mtm.getKey(), amplitude);
 				}
 			}
@@ -67,7 +70,8 @@ public class MicroTones implements Serializable {
 	public double getPower() {
 		double power = 0;
 		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
-			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
+			for (Entry<Integer, Double> mtpm : mtm.getValue()
+					.entrySet()) {
 				power += mtpm.getValue();
 			}
 		}
@@ -77,7 +81,8 @@ public class MicroTones implements Serializable {
 	public double getPowerCeiling() {
 		double power = 0;
 		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
-			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
+			for (Entry<Integer, Double> mtpm : mtm.getValue()
+					.entrySet()) {
 				if (power < mtpm.getValue()) {
 					power = mtpm.getValue();
 				}
@@ -89,7 +94,8 @@ public class MicroTones implements Serializable {
 	public double getPowerFloor() {
 		double power = Double.MAX_VALUE;
 		for (Entry<Double, Map<Integer, Double>> mtm : microToneMap.entrySet()) {
-			for (Entry<Integer, Double> mtpm : mtm.getValue().entrySet()) {
+			for (Entry<Integer, Double> mtpm : mtm.getValue()
+					.entrySet()) {
 				if (power > mtpm.getValue()) {
 					power = mtpm.getValue();
 				}

@@ -23,14 +23,17 @@ public class CepstrumFeatures extends AudioEventFeatures<CepstrumInfo> implement
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getCepstrumSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getCepstrumSource());
 		this.features = getSource().getAndClearFeatures();
 	}
 
 	public float[] getSpectrum(double lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, CepstrumInfo> entry : features.entrySet()) {
-			double[] spectralEnergy = entry.getValue().getMagnitudes();
+			double[] spectralEnergy = entry.getValue()
+					.getMagnitudes();
 			if (spectrum == null) {
 				spectrum = new float[spectralEnergy.length];
 			}

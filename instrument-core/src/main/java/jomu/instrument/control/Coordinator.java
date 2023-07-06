@@ -88,9 +88,11 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 		cortex.processException(exception);
 		hearing.processException(exception);
 		console.processException(exception);
-		instrumentSessionManager.getCurrentSession().setState(InstrumentSessionState.FAILED);
+		instrumentSessionManager.getCurrentSession()
+				.setState(InstrumentSessionState.FAILED);
 		if (controller.isCountDownLatch()) {
-			controller.getCountDownLatch().countDown();
+			controller.getCountDownLatch()
+					.countDown();
 		}
 	}
 

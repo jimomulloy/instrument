@@ -109,7 +109,9 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 	 */
 	public ResynthAudioSynthesizer(ParameterManager parameterManager) {
 		this.parameterManager = parameterManager;
-		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
+		this.hearing = Instrument.getInstance()
+				.getCoordinator()
+				.getHearing();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 	}
 
@@ -145,7 +147,8 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
-		TreeMap<Double, ResynthInfo> features = aff.getResynthFeatures().getFeatures();
+		TreeMap<Double, ResynthInfo> features = aff.getResynthFeatures()
+				.getFeatures();
 
 		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(toneTimeFrame, features, sequence);
 
@@ -202,13 +205,16 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 					double time = toneTimeFrame.getStartTime();
 
 					for (Entry<Double, ResynthInfo> entry : aqm.features.entrySet()) {
-						audioStream.getResynthProcessor().setResynthInfo(entry.getKey(), entry.getValue());
-						this.audioStream.getGenerator().process();
+						audioStream.getResynthProcessor()
+								.setResynthInfo(entry.getKey(), entry.getValue());
+						this.audioStream.getGenerator()
+								.process();
 					}
 
 				}
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				Thread.currentThread()
+						.interrupt();
 			}
 			this.audioStream.close();
 		}

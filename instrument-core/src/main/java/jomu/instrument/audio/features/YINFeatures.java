@@ -22,8 +22,10 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 	public float[] getSpectrum(float lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-			PitchDetectionResult pdr = entry.getValue().getPitchDetectionResult();
-			float[] spectralEnergy = entry.getValue().getAmplitudes();
+			PitchDetectionResult pdr = entry.getValue()
+					.getPitchDetectionResult();
+			float[] spectralEnergy = entry.getValue()
+					.getAmplitudes();
 			if (spectrum == null) {
 				spectrum = new float[spectralEnergy.length];
 			}
@@ -71,7 +73,8 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 			toneMap.addTimeFrame(ttf);
 
 			for (Entry<Double, SpectrogramInfo> entry : features.entrySet()) {
-				PitchDetectionResult pitchDetect = entry.getValue().getPitchDetectionResult();
+				PitchDetectionResult pitchDetect = entry.getValue()
+						.getPitchDetectionResult();
 				float pitch = pitchDetect.getPitch();
 				if (pitch > -1) {
 					int tmIndex = pitchSet.getIndex(pitch);
@@ -93,7 +96,9 @@ public class YINFeatures extends AudioEventFeatures<SpectrogramInfo> implements 
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getYINSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getYINSource());
 		this.features = getSource().getAndClearFeatures();
 	}
 

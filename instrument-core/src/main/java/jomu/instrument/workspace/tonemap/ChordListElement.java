@@ -37,10 +37,13 @@ public class ChordListElement {
 
 	public void merge(ChordListElement source) {
 		if (source != null) {
-			ChordNote[] sourceNotes = source.getChordNotes().toArray(new ChordNote[source.getChordNotes().size()]);
+			ChordNote[] sourceNotes = source.getChordNotes()
+					.toArray(new ChordNote[source.getChordNotes()
+							.size()]);
 			Arrays.sort(sourceNotes, new Comparator<ChordNote>() {
 				public int compare(ChordNote c1, ChordNote c2) {
-					return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
+					return Double.valueOf(c2.getAmplitude())
+							.compareTo(Double.valueOf(c1.getAmplitude()));
 				}
 			});
 
@@ -61,11 +64,14 @@ public class ChordListElement {
 	}
 
 	public boolean hasChordNote(int pitchClass) {
-		return chordNotes.stream().anyMatch(c -> c.pitchClass == pitchClass);
+		return chordNotes.stream()
+				.anyMatch(c -> c.pitchClass == pitchClass);
 	}
 
 	public Optional<ChordNote> getChordNote(int pitchClass) {
-		return chordNotes.stream().filter(c -> c.pitchClass == pitchClass).findAny();
+		return chordNotes.stream()
+				.filter(c -> c.pitchClass == pitchClass)
+				.findAny();
 	}
 
 	public double getEndTime() {

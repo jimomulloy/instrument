@@ -9,11 +9,12 @@ public class ColorUtil {
 	 */
 	public final static ColorSpace sRGB = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 
-	private static int[][] toneMapColorsRainbow = { { 255, 255, 255 }, { 255, 200, 0 }, { 255, 50, 0 }, { 150, 100, 0 },
-			{ 100, 150, 0 }, { 0, 250, 0 }, { 0, 150, 80 }, { 0, 30, 150 }, { 0, 0, 200 }, { 0, 0, 0 }, };
+	private static int[][] toneMapColorsRainbow = { { 255, 255, 255 }, { 255, 200, 0 }, { 255, 50, 0 },
+			{ 150, 100, 0 }, { 100, 150, 0 }, { 0, 250, 0 }, { 0, 150, 80 }, { 0, 30, 150 }, { 0, 0, 200 },
+			{ 0, 0, 0 }, };
 
-	private static int[][] toneMapColors = { { 255, 255, 255 }, { 255, 255, 0 }, { 255, 0, 0 }, { 0, 255, 255 },
-			{ 0, 255, 0 }, { 0, 0, 255 }, { 0, 0, 0 } };
+	private static int[][] toneMapColors = { { 255, 255, 255 }, { 255, 255, 0 }, { 255, 0, 0 },
+			{ 0, 255, 255 }, { 0, 255, 0 }, { 0, 0, 255 }, { 0, 0, 0 } };
 
 	private static int[][] toneMapBAWColors = { { 255, 255, 255 }, { 235, 235, 235 }, { 220, 220, 220 },
 			{ 210, 210, 210 }, { 200, 200, 200 }, { 180, 180, 180 }, { 150, 150, 150 }, { 0, 0, 0 } };
@@ -95,12 +96,18 @@ public class ColorUtil {
 	/**
 	 * Generates a rainbow color table (HSV ramp) of the specified size.
 	 * 
-	 * @param saturation saturation factor (from 0 to 1).
-	 * @param brightness brightness factor (from 0 to 1).
-	 * @param size       the size of rainbow color table.
-	 * @param black      if true the table will also contains a black color entry.
-	 * @param white      if true the table will also contains a white color entry.
-	 * @param gray       if true the table will also contains a gray color entry.
+	 * @param saturation
+	 *            saturation factor (from 0 to 1).
+	 * @param brightness
+	 *            brightness factor (from 0 to 1).
+	 * @param size
+	 *            the size of rainbow color table.
+	 * @param black
+	 *            if true the table will also contains a black color entry.
+	 * @param white
+	 *            if true the table will also contains a white color entry.
+	 * @param gray
+	 *            if true the table will also contains a gray color entry.
 	 */
 	public static Color[] generateRainbow(float saturation, float brightness, int size, boolean black, boolean white,
 			boolean gray) {
@@ -127,10 +134,14 @@ public class ColorUtil {
 	/**
 	 * Generates a rainbow color table (HSV ramp) of the specified size.
 	 * 
-	 * @param size  the size of the rainbow color table.
-	 * @param black if true the table will also contains a black color entry.
-	 * @param white if true the table will also contains a white color entry.
-	 * @param gray  if true the table will also contains a gray color entry.
+	 * @param size
+	 *            the size of the rainbow color table.
+	 * @param black
+	 *            if true the table will also contains a black color entry.
+	 * @param white
+	 *            if true the table will also contains a white color entry.
+	 * @param gray
+	 *            if true the table will also contains a gray color entry.
 	 */
 	public static Color[] generateRainbow(int size, boolean black, boolean white, boolean gray) {
 		return generateRainbow(1f, 1f, size, black, white, gray);
@@ -139,7 +150,8 @@ public class ColorUtil {
 	/**
 	 * Generates a rainbow color table (HSV ramp) of the specified size.
 	 * 
-	 * @param size the size of the HSV color table.
+	 * @param size
+	 *            the size of the HSV color table.
 	 */
 	public static Color[] generateRainbow(int size) {
 		return generateRainbow(size, false, false, false);
@@ -388,36 +400,36 @@ public class ColorUtil {
 		t = v * (1f - (s * (1 - f)));
 
 		switch (i) {
-		case 0:
-			r = v;
-			g = t;
-			b = p;
-			break;
-		case 1:
-			r = q;
-			g = v;
-			b = p;
-			break;
-		case 2:
-			r = p;
-			g = v;
-			b = t;
-			break;
-		case 3:
-			r = p;
-			g = q;
-			b = v;
-			break;
-		case 4:
-			r = t;
-			g = p;
-			b = v;
-			break;
-		default:
-			r = v;
-			g = p;
-			b = q;
-			break;
+			case 0:
+				r = v;
+				g = t;
+				b = p;
+				break;
+			case 1:
+				r = q;
+				g = v;
+				b = p;
+				break;
+			case 2:
+				r = p;
+				g = v;
+				b = t;
+				break;
+			case 3:
+				r = p;
+				g = q;
+				b = v;
+				break;
+			case 4:
+				r = t;
+				g = p;
+				b = v;
+				break;
+			default:
+				r = v;
+				g = p;
+				b = q;
+				break;
 		}
 
 		return new float[] { r, g, b };
@@ -491,9 +503,12 @@ public class ColorUtil {
 	 * The LAB distance returns a positive value where > 2.3 value is considered a
 	 * significant distance.
 	 * 
-	 * @param c1  first color
-	 * @param c2  second color
-	 * @param hsv If set to true we use the HSV color space to compute the color
+	 * @param c1
+	 *            first color
+	 * @param c2
+	 *            second color
+	 * @param hsv
+	 *            If set to true we use the HSV color space to compute the color
 	 *            distance otherwise we use the LAB color space.
 	 */
 	public static double getDistance(Color c1, Color c2, boolean hsv) {
@@ -538,8 +553,10 @@ public class ColorUtil {
 	 * The dominant color is calculated by computing the color histogram from a
 	 * rainbow gradient and returning the color corresponding to the highest bin.
 	 * 
-	 * @param colors    Color array we want to retrieve the dominant color from.
-	 * @param binNumber the number of bin to construct the rainbow gradient.
+	 * @param colors
+	 *            Color array we want to retrieve the dominant color from.
+	 * @param binNumber
+	 *            the number of bin to construct the rainbow gradient.
 	 */
 	public static Color getDominantColor(Color colors[], int binNumber) {
 		final Color[] baseColors = generateRainbow(1f, 1f, binNumber, false, false, true);
@@ -592,7 +609,8 @@ public class ColorUtil {
 	 * <a href="http://www.efg2.com/Lab/ScienceAndEngineering/Spectra.htm">Spectra
 	 * Lab Report</a>
 	 * 
-	 * @param wavelength the wavelength to convert (in nanometers)
+	 * @param wavelength
+	 *            the wavelength to convert (in nanometers)
 	 * @return a {@link Color} object representing the specified wavelength
 	 */
 	public static Color getColorFromWavelength(double wavelength) {

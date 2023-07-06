@@ -16,7 +16,8 @@ import jomu.instrument.perception.Hearing;
 
 public class AudioFeatureProcessor implements AudioProcessor {
 
-	private static final Logger LOG = Logger.getLogger(AudioFeatureProcessor.class.getName());
+	private static final Logger LOG = Logger
+			.getLogger(AudioFeatureProcessor.class.getName());
 
 	private Map<Double, AudioFeatureFrame> audioFeatureFrames = new Hashtable<>();
 	private Map<Integer, AudioFeatureFrame> audioFeatureFrameSequence = new Hashtable<>();
@@ -44,8 +45,12 @@ public class AudioFeatureProcessor implements AudioProcessor {
 	public AudioFeatureProcessor(String streamId, TarsosFeatureSource tarsosFeatures) {
 		this.streamId = streamId;
 		this.tarsosFeatures = tarsosFeatures;
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
-		this.hearing = Instrument.getInstance().getCoordinator().getHearing();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
+		this.hearing = Instrument.getInstance()
+				.getCoordinator()
+				.getHearing();
 		this.interval = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 		this.range = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RANGE);
@@ -134,8 +139,8 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				}
 				if (startTimeMS - lastTimeStamp >= (double) (interval + lag)) {
 					frameSequence++;
-					LOG.finer(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: " + firstTimeStamp
-							+ ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
+					LOG.finer(">>process audioEvent startTimeMS: " + startTimeMS + ", firstTimeStamp: "
+							+ firstTimeStamp + ", lastTimeStamp: " + lastTimeStamp + ", endTimeStamp: " + endTimeStamp
 							+ ", frameSequence: " + frameSequence);
 					createAudioFeatureFrame(frameSequence, firstTimeStamp, endTimeStamp);
 					lastTimeStamp = startTimeMS;
@@ -157,7 +162,10 @@ public class AudioFeatureProcessor implements AudioProcessor {
 				+ lastTimeStamp + ", endTimeStamp: " + endTimeStamp + ", frameSequence: " + frameSequence);
 		AudioFeatureFrame lastPitchFrame = createAudioFeatureFrame(frameSequence, lastTimeStamp, currentProcessTime);
 		lastPitchFrame.close();
-		Instrument.getInstance().getCoordinator().getHearing().closeAudioStream(streamId);
+		Instrument.getInstance()
+				.getCoordinator()
+				.getHearing()
+				.closeAudioStream(streamId);
 	}
 
 	public void removeObserver(AudioFeatureFrameObserver observer) {

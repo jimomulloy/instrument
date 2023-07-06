@@ -20,8 +20,14 @@ public class FileInstrumentStoreService implements InstrumentStoreService {
 	String root = "testing";
 
 	public void initialise() {
-		Instrument.getInstance().getController().getParameterManager().reset();
-		this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
+		Instrument.getInstance()
+				.getController()
+				.getParameterManager()
+				.reset();
+		this.setParameters(Instrument.getInstance()
+				.getController()
+				.getParameterManager()
+				.getParameters());
 	}
 
 	public void addToneMap(ToneMap toneMap) {

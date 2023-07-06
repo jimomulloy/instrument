@@ -29,7 +29,9 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getSpectralPeaksSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getSpectralPeaksSource());
 		spectralInfo = getSource().getSpectralInfo();
 		features = getSource().getAndClearFeatures();
 	}
@@ -37,7 +39,8 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 	public float[] getSpectrum(double lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
-			float[] spectralEnergy = entry.getValue().getMagnitudes();
+			float[] spectralEnergy = entry.getValue()
+					.getMagnitudes();
 			if (spectrum == null) {
 				spectrum = new float[spectralEnergy.length];
 			}
@@ -87,9 +90,9 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 			toneMap.addTimeFrame(ttf);
 
 			for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
-				List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(
-						getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),
-						getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
+				List<SpectralPeak> spectralPeaks = entry.getValue()
+						.getPeakList(getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),
+								getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
 				for (SpectralPeak peak : spectralPeaks) {
 					int index = pitchSet.getIndex(peak.getFrequencyInHertz());
 					if (index > 0 && index < ttf.getElements().length) {
@@ -103,7 +106,8 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 			FFTSpectrum fftSpectrum = new FFTSpectrum(getSource().getSampleRate(), getSource().getBufferSize(),
 					spectrum);
 
-			toneMap.getTimeFrame().loadFFTSpectrum(fftSpectrum);
+			toneMap.getTimeFrame()
+					.loadFFTSpectrum(fftSpectrum);
 
 			ToneMapElement[] elements = ttf.getElements();
 			for (int i = 0; i < elements.length; i++) {
@@ -135,9 +139,9 @@ public class SpectralPeaksFeatures extends AudioEventFeatures<SpectralInfo> {
 	private float[] processPeaks(float[] spectrum) {
 		float[] peakSpectrum = new float[spectrum.length];
 		for (Entry<Double, SpectralInfo> entry : features.entrySet()) {
-			List<SpectralPeak> spectralPeaks = entry.getValue().getPeakList(
-					getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),
-					getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
+			List<SpectralPeak> spectralPeaks = entry.getValue()
+					.getPeakList(getSource().getNoiseFloorMedianFilterLenth(), getSource().getNoiseFloorFactor(),
+							getSource().getNumberOfSpectralPeaks(), getSource().getMinPeakSize());
 			for (SpectralPeak sp : spectralPeaks) {
 				for (int i = 0; i < peakSpectrum.length; i++) {
 					if (sp.getBin() == i) {

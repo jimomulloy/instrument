@@ -92,11 +92,12 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	/**
 	 * Create a new dispatcher junction processor
 	 *
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
+	 * @param audioBufferSize
+	 *            The size of the buffer defines how much samples are
+	 *            processed in one step. Common values are 1024,2048.
+	 * @param bufferOverlap
+	 *            How much consecutive buffers overlap (in samples). Half
+	 *            of the AudioBufferSize is common (512, 1024) for an FFT.
 	 */
 	public DispatchJunctionProcessor(final TarsosDSPAudioFormat format, final int audioBufferSize,
 			final int bufferOverlap) {
@@ -125,7 +126,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	/**
 	 * Adds an AudioProcessor to the chain of processors.
 	 *
-	 * @param audioProcessor The AudioProcessor to add.
+	 * @param audioProcessor
+	 *            The AudioProcessor to add.
 	 */
 	public void addAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.add(audioProcessor);
@@ -247,7 +249,8 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * Removes an AudioProcessor to the chain of processors and calls its
 	 * <code>processingFinished</code> method.
 	 *
-	 * @param audioProcessor The AudioProcessor to remove.
+	 * @param audioProcessor
+	 *            The AudioProcessor to remove.
 	 */
 	public void removeAudioProcessor(final AudioProcessor audioProcessor) {
 		audioProcessors.remove(audioProcessor);
@@ -256,7 +259,6 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	}
 
 	/**
-	 *
 	 * @return The currently processed number of seconds.
 	 */
 	public float secondsProcessed() {
@@ -276,11 +278,12 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * with this method: it should be called after a batch of samples is processed,
 	 * not during.
 	 *
-	 * @param audioBufferSize The size of the buffer defines how much samples are
-	 *                        processed in one step. Common values are 1024,2048.
-	 * @param bufferOverlap   How much consecutive buffers overlap (in samples).
-	 *                        Half of the AudioBufferSize is common (512, 1024) for
-	 *                        an FFT.
+	 * @param audioBufferSize
+	 *            The size of the buffer defines how much samples are
+	 *            processed in one step. Common values are 1024,2048.
+	 * @param bufferOverlap
+	 *            How much consecutive buffers overlap (in samples). Half
+	 *            of the AudioBufferSize is common (512, 1024) for an FFT.
 	 */
 	public void setStepSizeAndOverlap(final int audioBufferSize, final int bufferOverlap) {
 		audioFloatBuffer = new float[audioBufferSize];
@@ -297,8 +300,9 @@ public class DispatchJunctionProcessor implements AudioProcessor {
 	 * hop size E.g. if the buffer is 2048 and the hop size is 48 then you get
 	 * 2000x0 and 48 filled audio samples
 	 *
-	 * @param zeroPadFirstBuffer true if the buffer should be zeroPadFirstBuffer,
-	 *                           false otherwise.
+	 * @param zeroPadFirstBuffer
+	 *            true if the buffer should be zeroPadFirstBuffer,
+	 *            false otherwise.
 	 */
 	public void setZeroPadFirstBuffer(boolean zeroPadFirstBuffer) {
 		this.zeroPadFirstBuffer = zeroPadFirstBuffer;

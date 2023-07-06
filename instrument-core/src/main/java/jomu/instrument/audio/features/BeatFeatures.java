@@ -22,9 +22,13 @@ public class BeatFeatures extends AudioEventFeatures<OnsetInfo[]> {
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getBeatSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getBeatSource());
 		features = getSource().getAndClearFeatures();
-		this.visor = Instrument.getInstance().getConsole().getVisor();
+		this.visor = Instrument.getInstance()
+				.getConsole()
+				.getVisor();
 	}
 
 	public void buildToneMapFrame(ToneMap toneMap) {

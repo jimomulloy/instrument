@@ -327,7 +327,8 @@ public class ToneMap {
 		}
 
 		ToneMapStatistics statisticsBand = null;
-		for (Entry<Integer, ToneMapStatistics> entry : frame.getStatisticsBands().entrySet()) {
+		for (Entry<Integer, ToneMapStatistics> entry : frame.getStatisticsBands()
+				.entrySet()) {
 			int bandIndex = entry.getKey();
 			ToneMapStatistics frameStatisticsBand = entry.getValue();
 			if (!statisticsBands.containsKey(bandIndex)) {
@@ -355,7 +356,8 @@ public class ToneMap {
 				ToneMapStatistics pfStatisticsBand = null;
 				for (ToneTimeFrame pf : prevFrames) {
 					if (!pf.isSilent) {
-						pfStatisticsBand = pf.getStatisticsBands().get(bandIndex);
+						pfStatisticsBand = pf.getStatisticsBands()
+								.get(bandIndex);
 						sum += pfStatisticsBand.sum;
 						count++;
 					}
@@ -367,15 +369,17 @@ public class ToneMap {
 				sum = 0;
 				for (ToneTimeFrame pf : prevFrames) {
 					if (!pf.isSilent) {
-						pfStatisticsBand = pf.getStatisticsBands().get(bandIndex);
+						pfStatisticsBand = pf.getStatisticsBands()
+								.get(bandIndex);
 						sum += (pfStatisticsBand.sum - mean) * (pfStatisticsBand.sum - mean);
 					}
 				}
 				sum += (frameStatisticsBand.sum - mean) * (frameStatisticsBand.sum - mean);
 
 				statisticsBand.variance = sum / count;
-				LOG.finer(">>TM Update BAND stats NON SILENT FRAME variance: " + statisticsBand.variance + ", "
-						+ bandIndex);
+				LOG.finer(
+						">>TM Update BAND stats NON SILENT FRAME variance: " + statisticsBand.variance + ", "
+								+ bandIndex);
 			}
 		}
 

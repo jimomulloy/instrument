@@ -52,9 +52,12 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 		double lowThreshold = parameterManager
 				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SP_LOW_THRESHOLD);
 
-		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
-		ToneMap tpToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
-		tpToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence).clone());
+		ToneMap cqToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap tpToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		tpToneMap.addTimeFrame(cqToneMap.getTimeFrame(sequence)
+				.clone());
 
 		AudioTuner tuner = new AudioTuner();
 
@@ -78,16 +81,21 @@ public class AudioTunerPeaksProcessor extends ProcessorCommon {
 			}
 		}
 
-		tpToneMap.getTimeFrame().filter(toneMapMinFrequency, toneMapMaxFrequency);
+		tpToneMap.getTimeFrame()
+				.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
 		ToneTimeFrame ttf = tpToneMap.getTimeFrame();
 
-		if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
-			CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
+		if (workspace.getAtlas()
+				.hasCalibrationMap(streamId) && calibrateSwitch) {
+			CalibrationMap cm = workspace.getAtlas()
+					.getCalibrationMap(streamId);
 			ttf.calibrate(tpToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 		}
 
-		console.getVisor().updateToneMapView(tpToneMap, this.cell.getCellType().toString());
+		console.getVisor()
+				.updateToneMapView(tpToneMap, this.cell.getCellType()
+						.toString());
 		cell.send(streamId, sequence);
 	}
 }

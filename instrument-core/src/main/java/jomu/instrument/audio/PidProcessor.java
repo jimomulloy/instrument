@@ -5,7 +5,6 @@ import be.tarsos.dsp.AudioProcessor;
 
 /**
  * This class processes PID control feedback on the audio signal
- *
  */
 public class PidProcessor implements AudioProcessor {
 
@@ -24,7 +23,8 @@ public class PidProcessor implements AudioProcessor {
 
 	@Override
 	public boolean process(AudioEvent audioEvent) {
-		float[] samplesT0 = audioEvent.getFloatBuffer().clone();
+		float[] samplesT0 = audioEvent.getFloatBuffer()
+				.clone();
 		for (int n = 0; n < samplesT0.length; n++) {
 			float pTerm = samplesT0[n];
 			float dTerm = 0;

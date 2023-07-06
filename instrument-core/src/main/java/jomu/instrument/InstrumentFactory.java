@@ -8,44 +8,44 @@ import jomu.instrument.workspace.Workspace;
 
 /**
  * A factory for creating Instrument objects.
- * 
+ *
  * @author Jim O'Mulloy
  */
 public interface InstrumentFactory {
-
-	/**
-	 * Gets the controller.
-	 *
-	 * @return the controller
-	 */
-	public Controller getController();
-
-	/**
-	 * Gets the coordinator.
-	 *
-	 * @return the coordinator
-	 */
-	public Coordinator getCoordinator();
 
 	/**
 	 * Gets the console.
 	 *
 	 * @return the console
 	 */
-	public Console getConsole();
+	Console getConsole();
 
 	/**
-	 * Gets the workspace.
+	 * Gets the controller.
 	 *
-	 * @return the workspace
+	 * @return the controller
 	 */
-	public Workspace getWorkspace();
+	Controller getController();
+
+	/**
+	 * Gets the coordinator.
+	 *
+	 * @return the coordinator
+	 */
+	Coordinator getCoordinator();
 
 	/**
 	 * Gets the storage.
 	 *
 	 * @return the storage
 	 */
-	public Storage getStorage();
+	Storage getStorage();
+
+	/**
+	 * Gets the workspace.
+	 *
+	 * @return the workspace
+	 */
+	Workspace getWorkspace();
 
 }

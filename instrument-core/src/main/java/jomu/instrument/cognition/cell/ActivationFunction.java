@@ -4,12 +4,10 @@ import java.io.Serializable;
 
 /**
  * This final nonextendable class will execute the appropriate activation
- * function, depending on the selection
- *
- * GAUSSIAN LINEAR PIECEWISE_LINEAR SIGMOIDAL UNIT_STEP
+ * function, depending on the selection GAUSSIAN LINEAR PIECEWISE_LINEAR
+ * SIGMOIDAL UNIT_STEP
  *
  * @author Lance Dooley, Robotic Systems Design (rsd)
- *
  */
 public final class ActivationFunction implements Serializable {
 	/**
@@ -27,23 +25,22 @@ public final class ActivationFunction implements Serializable {
 	/**
 	 * Default constructor creates an instance of ActivationFunction set to use
 	 * ActivationFunctionEnum.SIGMOIDAL
-	 *
 	 */
 	public ActivationFunction() {
 		this.afe = ActivationFunctionEnum.UNIT_STEP;
 	}
 
 	/**
-	 *
-	 * @param afe ActivationFunctionEnum
+	 * @param afe
+	 *            ActivationFunctionEnum
 	 */
 	public ActivationFunction(ActivationFunctionEnum afe) {
 		this.afe = afe;
 	}
 
 	/**
-	 *
-	 * @param d double
+	 * @param d
+	 *            double
 	 * @return
 	 */
 	public double compute(double d) {
@@ -52,24 +49,24 @@ public final class ActivationFunction implements Serializable {
 		// use a switch statement to determine which
 		// activation function to use
 		switch (afe) {
-		case GAUSSIAN:
-			output = gaussian(d);
-			break;
-		case LINEAR:
-			output = linear(d);
-			break;
-		case PIECEWISE_LINEAR:
-			output = pieceWiseLinear(d);
-			break;
-		case SIGMOIDAL:
-			output = sigmoidal(d);
-			break;
-		case UNIT_STEP:
-			output = unitStep(d);
-			break;
-		default:
-			output = sigmoidal(d);
-			break;
+			case GAUSSIAN:
+				output = gaussian(d);
+				break;
+			case LINEAR:
+				output = linear(d);
+				break;
+			case PIECEWISE_LINEAR:
+				output = pieceWiseLinear(d);
+				break;
+			case SIGMOIDAL:
+				output = sigmoidal(d);
+				break;
+			case UNIT_STEP:
+				output = unitStep(d);
+				break;
+			default:
+				output = sigmoidal(d);
+				break;
 		}
 
 		return output; // dendrites.computeNetInput();
@@ -86,7 +83,6 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 *
 	 * @return ActivationFunctionEnum
 	 */
 	public ActivationFunctionEnum getSelection() {
@@ -94,7 +90,6 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param threshold
 	 */
 	public double getThreshold() {
@@ -102,7 +97,6 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param x
 	 * @return
 	 */
@@ -111,7 +105,6 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param x
 	 * @return
 	 */
@@ -126,7 +119,6 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param afe
 	 */
 	public void setSelection(ActivationFunctionEnum afe) {
@@ -134,7 +126,6 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param threshold
 	 */
 	public void setThreshold(double threshold) {
@@ -142,7 +133,6 @@ public final class ActivationFunction implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param x
 	 * @return
 	 */
@@ -155,7 +145,8 @@ public final class ActivationFunction implements Serializable {
 	 * Unit Step with a threshold. If input x is equal or greater than threshold,
 	 * then method returns a 1. Otherwise, method returns a 0.
 	 *
-	 * @param x double
+	 * @param x
+	 *            double
 	 * @return
 	 */
 	public double unitStep(double x) {

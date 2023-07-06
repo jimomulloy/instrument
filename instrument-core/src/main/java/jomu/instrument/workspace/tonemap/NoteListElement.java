@@ -36,7 +36,8 @@ public class NoteListElement {
 	public NoteListElement(int note, int pitchIndex, double startTime, double endTime, int startTimeIndex,
 			int endTimeIndex, double avgAmp, double maxAmp, double minAmp, double percentMin, boolean isContinuation,
 			double incrementTime) {
-		this.id = UUID.randomUUID().toString();
+		this.id = UUID.randomUUID()
+				.toString();
 		this.note = note;
 		this.pitchIndex = pitchIndex;
 		this.startTime = startTime;
@@ -71,7 +72,8 @@ public class NoteListElement {
 	public String toString() {
 		return "NoteListElement [id=" + id + ", avgAmp=" + avgAmp + ", endTime=" + endTime + ", endTimeIndex="
 				+ endTimeIndex + ", maxAmp=" + maxAmp + ", minAmp=" + minAmp + ", note=" + note + ", overTone="
-				+ overTone + ", percentMin=" + percentMin + ", pitchIndex=" + pitchIndex + ", startTime=" + startTime
+				+ overTone
+				+ ", percentMin=" + percentMin + ", pitchIndex=" + pitchIndex + ", startTime=" + startTime
 				+ ", startTimeIndex=" + startTimeIndex + ", underTone=" + underTone + "]";
 	}
 

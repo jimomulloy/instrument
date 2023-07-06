@@ -42,8 +42,11 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 	public ConstantQSource(AudioDispatcher dispatcher) {
 		super();
 		this.dispatcher = dispatcher;
-		this.sampleRate = dispatcher.getFormat().getSampleRate();
-		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
+		this.sampleRate = dispatcher.getFormat()
+				.getSampleRate();
+		this.parameterManager = Instrument.getInstance()
+				.getController()
+				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		this.hearingMinimumFrequencyInCents = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS);
@@ -155,7 +158,8 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 		djp.setName("CQ");
 		dispatcher.addAudioProcessor(djp);
 
-		constantQLag = size / djp.getFormat().getSampleRate() - binWidth / 2.0;
+		constantQLag = size / djp.getFormat()
+				.getSampleRate() - binWidth / 2.0;
 		LOG.finer(">>CQ size: " + size);
 		LOG.finer(">>CQ lag: " + constantQLag);
 
@@ -164,7 +168,8 @@ public class ConstantQSource extends AudioEventSource<float[]> {
 
 			@Override
 			public boolean process(AudioEvent audioEvent) {
-				float[] values = constantQ.getMagnitudes().clone();
+				float[] values = constantQ.getMagnitudes()
+						.clone();
 				if (audioEvent.getTimeStamp() >= (binWidth / 2)) {
 					putFeature(audioEvent.getTimeStamp() - (binWidth / 2), values);
 				} else {

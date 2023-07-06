@@ -148,7 +148,8 @@ public class NoteTimbre {
 	public String toString() {
 		return "NoteTimbre [frequency=" + frequency + ", range=" + range + ", median=" + median + ", frequencyRange="
 				+ frequencyRange + ", frequencyRatio=" + frequencyRatio + ", medianRange=" + medianRange
-				+ ", medianRatio=" + medianRatio + "]";
+				+ ", medianRatio="
+				+ medianRatio + "]";
 	}
 
 }

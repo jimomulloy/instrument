@@ -205,9 +205,11 @@ public class NoteTracker {
 		public NoteListElement[] getEndNotes(double time) {
 			List<NoteListElement> noteList = new ArrayList<>();
 			for (NoteListElement note : notes) {
-				LOG.finer(">>NoteTracker getEndNotes: " + time + ", " + note.note + ", "
-						+ (note.endTime + note.incrementTime) + ", " + number + ", " + note.startTime + " ,"
-						+ note.endTime + " ," + note.incrementTime);
+				LOG.finer(
+						">>NoteTracker getEndNotes: " + time + ", " + note.note + ", "
+								+ (note.endTime + note.incrementTime)
+								+ ", " + number + ", " + note.startTime + " ," + note.endTime + " ,"
+								+ note.incrementTime);
 				if (Math.floor(note.endTime + note.incrementTime) == Math.floor(time)) {
 					LOG.finer(">>NoteTracker GOT getEndNotes: " + time + ", " + note.note + ", " + number + ", "
 							+ note.startTime + " ," + note.endTime + ", " + (note.endTime + note.incrementTime));
@@ -330,7 +332,8 @@ public class NoteTracker {
 
 		public NoteListElement getNote(double startTime, double endTime) {
 			for (NoteListElement nle : notes) {
-				if ((nle.startTime <= startTime && Math.floor(nle.endTime + nle.incrementTime) >= Math.floor(endTime))
+				if ((nle.startTime <= startTime
+						&& Math.floor(nle.endTime + nle.incrementTime) >= Math.floor(endTime))
 						|| (nle.startTime > startTime
 								&& Math.floor(nle.endTime + nle.incrementTime) < Math.floor(endTime))) {
 					return nle;
@@ -513,10 +516,12 @@ public class NoteTracker {
 				if (pendingOverlappingSalientTrack == salientTrack) {
 					LOG.finer(">>NoteTracker trackNote B: " + noteListElement.note);
 					if (synthFillLegatoSwitch) {
-						LOG.finer(">>NoteTracker addLegato for nle B: "
-								+ pendingOverlappingSalientTrack.getLastNote().note + ", " + noteListElement + ", "
-								+ pendingOverlappingSalientTrack.getLastNote());
-						pendingOverlappingSalientTrack.getLastNote().addLegato(noteListElement);
+						LOG.finer(
+								">>NoteTracker addLegato for nle B: "
+										+ pendingOverlappingSalientTrack.getLastNote().note
+										+ ", " + noteListElement + ", " + pendingOverlappingSalientTrack.getLastNote());
+						pendingOverlappingSalientTrack.getLastNote()
+								.addLegato(noteListElement);
 					}
 				}
 				if (salientTrack != null) {
@@ -628,7 +633,8 @@ public class NoteTracker {
 		}
 		NoteListElement quantizeNote = synthQuantizeNote;
 		if (synthBaseQuantizeSource != synthQuantizeSource) {
-			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker().getBeatTrack(synthBaseQuantizeSource);
+			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
+					.getBeatTrack(synthBaseQuantizeSource);
 			quantizeNote = quantizeBeatTrack.getLastNote();
 		}
 		NoteListElement lastNote = baseTrack.getLastNote();
@@ -713,10 +719,12 @@ public class NoteTracker {
 		List<Integer> cnotes = new ArrayList<>();
 
 		ChordNote[] chordNotes = chordListElement.getChordNotes()
-				.toArray(new ChordNote[chordListElement.getChordNotes().size()]);
+				.toArray(new ChordNote[chordListElement.getChordNotes()
+						.size()]);
 		Arrays.sort(chordNotes, new Comparator<ChordNote>() {
 			public int compare(ChordNote c1, ChordNote c2) {
-				return Double.valueOf(c2.getAmplitude()).compareTo(Double.valueOf(c1.getAmplitude()));
+				return Double.valueOf(c2.getAmplitude())
+						.compareTo(Double.valueOf(c1.getAmplitude()));
 			}
 		});
 		int rootNote = -1;
@@ -815,7 +823,8 @@ public class NoteTracker {
 			ChordListElement chordListElement, SynthChordParameters synthChordParameters) {
 		NoteListElement quantizeNote = synthQuantizeNote;
 		if (synthChordParameters.quantizeSource != synthQuantizeSource) {
-			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker().getBeatTrack(synthChordParameters.quantizeSource);
+			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
+					.getBeatTrack(synthChordParameters.quantizeSource);
 			quantizeNote = quantizeBeatTrack.getLastNote();
 		}
 		NoteTrack chordTrack;
@@ -895,10 +904,12 @@ public class NoteTracker {
 		List<Integer> cnotes = new ArrayList<>();
 
 		ChordNote[] chordNotes = chordListElement.getChordNotes()
-				.toArray(new ChordNote[chordListElement.getChordNotes().size()]);
+				.toArray(new ChordNote[chordListElement.getChordNotes()
+						.size()]);
 		Arrays.sort(chordNotes, new Comparator<ChordNote>() {
 			public int compare(ChordNote c1, ChordNote c2) {
-				return Integer.valueOf(c1.getOctave()).compareTo(Integer.valueOf(c2.getOctave()));
+				return Integer.valueOf(c1.getOctave())
+						.compareTo(Integer.valueOf(c2.getOctave()));
 			}
 		});
 		int rootNote = -1;
@@ -920,11 +931,12 @@ public class NoteTracker {
 			// if (rootOctave != 0 && octave > rootOctave) {
 			// octave = rootOctave + 1;
 			// }
-//			if (synthChordParameters.chordPattern > 0) {
-//				note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));
-//			} else {
-//				note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));// octave;
-//			}
+			// if (synthChordParameters.chordPattern > 0) {
+			// note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));
+			// } else {
+			// note += 12 * (synthChordParameters.chordOctave + (octave - rootOctave));//
+			// octave;
+			// }
 			if (synthChordParameters.chordInvert) {
 				note += 12 * (octave + synthChordParameters.chordOctave);
 			} else {
@@ -940,7 +952,8 @@ public class NoteTracker {
 			}
 		}
 		if (synthChordParameters.chordPattern == 0) {
-			if (!newNotes.stream().allMatch(nle -> currentNoteSet.contains(nle.note))) {
+			if (!newNotes.stream()
+					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
 				for (NoteListElement cnle : currentNotes) {
 					if (cnle.endTime + incrementTime >= startTime) {
 						cnle.endTime = startTime - incrementTime;
@@ -1029,9 +1042,10 @@ public class NoteTracker {
 			NoteListElement chordNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 					amplitude, amplitude, amplitude, 0, false, incrementTime);
 			track.addNote(chordNote);
-			LOG.finer(">>NT added chord arp note: " + time + ", " + chordNote.startTime + ", " + chordNote.endTime
-					+ ", " + note + ", " + track.getSize() + ", " + synthTimeSignature + ", " + startTime + ", "
-					+ endTime);
+			LOG.finer(
+					">>NT added chord arp note: " + time + ", " + chordNote.startTime + ", " + chordNote.endTime + ", "
+							+ note + ", " + track.getSize() + ", " + synthTimeSignature + ", " + startTime + ", "
+							+ endTime);
 		}
 	}
 
@@ -1174,7 +1188,8 @@ public class NoteTracker {
 		return beatNote;
 	}
 
-	private NoteTrack getPendingOverlappingSalientTrack(NoteTrack[] candidateTracks, NoteListElement noteListElement) {
+	private NoteTrack getPendingOverlappingSalientTrack(NoteTrack[] candidateTracks,
+			NoteListElement noteListElement) {
 		NoteTrack pitchSalientTrack = null;
 		int pitchProximity = Integer.MAX_VALUE;
 		for (NoteTrack track : candidateTracks) {
@@ -1214,7 +1229,8 @@ public class NoteTracker {
 	}
 
 	public NoteTrack[] getTracks() {
-		return tracks.values().toArray(new NoteTrack[tracks.size()]);
+		return tracks.values()
+				.toArray(new NoteTrack[tracks.size()]);
 	}
 
 	public NoteTrack getTrack(int number) {
@@ -1419,7 +1435,8 @@ public class NoteTracker {
 							notesToDelete.add(nle);
 							hasDiscarded = true;
 							LOG.severe(">>NoteTracker cleanTracks note A: " + nle);
-							if (track.getNotes().size() == notesToDelete.size()) {
+							if (track.getNotes()
+									.size() == notesToDelete.size()) {
 								break;
 							}
 						}
@@ -1431,7 +1448,8 @@ public class NoteTracker {
 									notesToDelete.add(lastNote);
 									hasDiscarded = true;
 									LOG.severe(">>NoteTracker cleanTracks note B: " + nle);
-									if (track.getNotes().size() == notesToDelete.size()) {
+									if (track.getNotes()
+											.size() == notesToDelete.size()) {
 										break;
 									}
 								} else {
@@ -1439,7 +1457,8 @@ public class NoteTracker {
 									notesToDelete.add(nle);
 									hasDiscarded = true;
 									LOG.severe(">>NoteTracker cleanTracks note C: " + nle);
-									if (track.getNotes().size() == notesToDelete.size()) {
+									if (track.getNotes()
+											.size() == notesToDelete.size()) {
 										break;
 									}
 								}
@@ -1449,7 +1468,8 @@ public class NoteTracker {
 									notesToDelete.add(lastNote);
 									hasDiscarded = true;
 									LOG.severe(">>NoteTracker cleanTracks note B: " + nle);
-									if (track.getNotes().size() == notesToDelete.size()) {
+									if (track.getNotes()
+											.size() == notesToDelete.size()) {
 										break;
 									}
 								} else {
@@ -1457,7 +1477,8 @@ public class NoteTracker {
 									notesToDelete.add(nle);
 									hasDiscarded = true;
 									LOG.severe(">>NoteTracker cleanTracks note C: " + nle);
-									if (track.getNotes().size() == notesToDelete.size()) {
+									if (track.getNotes()
+											.size() == notesToDelete.size()) {
 										break;
 									}
 								}
@@ -1466,14 +1487,17 @@ public class NoteTracker {
 						lastNote = nle;
 					}
 					for (NoteListElement nle : notesToDelete) {
-						LOG.severe(">>NT clean remove: " + track.getNumber() + ", " + fromTime + ", " + nle.startTime);
+						LOG.severe(
+								">>NT clean remove: " + track.getNumber() + ", " + fromTime + ", " + nle.startTime);
 						track.removeNote(nle);
-						if (track.getNotes().size() == 0) {
+						if (track.getNotes()
+								.size() == 0) {
 							LOG.severe(">>NoteTracker cleanTracks track: " + track);
 							discardedTracks.add(track);
 						}
 					}
-				} while (hasDiscarded && track.getNotes().size() > 0);
+				} while (hasDiscarded && track.getNotes()
+						.size() > 0);
 			}
 		}
 		for (NoteTrack track : discardedTracks) {
@@ -1510,7 +1534,8 @@ public class NoteTracker {
 			}
 		}
 		if (notes.size() > 0) {
-			ChordListElement cle = new ChordListElement(startTime, endTime, notes.toArray(new ChordNote[notes.size()]));
+			ChordListElement cle = new ChordListElement(startTime, endTime,
+					notes.toArray(new ChordNote[notes.size()]));
 			return cle;
 		} else {
 			return null;

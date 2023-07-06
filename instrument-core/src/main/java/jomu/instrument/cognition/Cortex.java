@@ -52,15 +52,16 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
-		sourceAddCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
-				audioFeatureFrame.getFrameSequence());
+		sourceAddCell.send(audioFeatureFrame.getAudioFeatureProcessor()
+				.getStreamId(), audioFeatureFrame.getFrameSequence());
 	}
 
 	@Override
 	public void audioFeatureFrameChanged(AudioFeatureFrame audioFeatureFrame) {
-		if (audioFeatureFrame.getConstantQFeatures().isCommitted()) {
-			sourceUpdateCell.send(audioFeatureFrame.getAudioFeatureProcessor().getStreamId(),
-					audioFeatureFrame.getFrameSequence());
+		if (audioFeatureFrame.getConstantQFeatures()
+				.isCommitted()) {
+			sourceUpdateCell.send(audioFeatureFrame.getAudioFeatureProcessor()
+					.getStreamId(), audioFeatureFrame.getFrameSequence());
 		}
 	}
 

@@ -28,7 +28,8 @@ public class AudioMFCCProcessor extends ProcessorCommon {
 				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_PITCH_DETECT_LOW_THRESHOLD);
 
 		LOG.finer(">>AudioMFCCProcessor accept: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap toneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 
@@ -37,10 +38,15 @@ public class AudioMFCCProcessor extends ProcessorCommon {
 		features.buildToneMapFrame(toneMap);
 		float[] spectrum = features.getSpectrum(pdLowThreshold);
 
-		FFTSpectrum fftSpectrum = new FFTSpectrum(features.getSource().getSampleRate(),
-				features.getSource().getBufferSize(), spectrum);
+		FFTSpectrum fftSpectrum = new FFTSpectrum(features.getSource()
+				.getSampleRate(),
+				features.getSource()
+						.getBufferSize(),
+				spectrum);
 		features.buildToneMapFrame(toneMap);
-		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
+		console.getVisor()
+				.updateToneMapView(toneMap, this.cell.getCellType()
+						.toString());
 		cell.send(streamId, sequence);
 	}
 }

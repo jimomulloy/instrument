@@ -54,7 +54,8 @@ public abstract class AudioEventSource<T> {
 	void removeFeatures(double endTime) {
 		lock.lock();
 		try {
-			features.keySet().removeIf(key -> key <= endTime);
+			features.keySet()
+					.removeIf(key -> key <= endTime);
 		} finally {
 			lock.unlock();
 		}

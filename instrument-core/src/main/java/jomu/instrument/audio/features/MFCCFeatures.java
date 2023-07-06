@@ -23,14 +23,17 @@ public class MFCCFeatures extends AudioEventFeatures<MFCCInfo> implements ToneMa
 
 	void initialise(AudioFeatureFrame audioFeatureFrame) {
 		this.audioFeatureFrame = audioFeatureFrame;
-		initialise(audioFeatureFrame.getAudioFeatureProcessor().getTarsosFeatures().getMFCCSource());
+		initialise(audioFeatureFrame.getAudioFeatureProcessor()
+				.getTarsosFeatures()
+				.getMFCCSource());
 		this.features = getSource().getAndClearFeatures();
 	}
 
 	public float[] getSpectrum(double lowThreshold) {
 		float[] spectrum = null;
 		for (Entry<Double, MFCCInfo> entry : features.entrySet()) {
-			double[] spectralEnergy = entry.getValue().getMagnitudes();
+			double[] spectralEnergy = entry.getValue()
+					.getMagnitudes();
 			if (spectrum == null) {
 				spectrum = new float[spectralEnergy.length];
 			}

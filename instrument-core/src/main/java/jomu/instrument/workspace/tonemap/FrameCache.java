@@ -64,24 +64,31 @@ public class FrameCache {
 	}
 
 	protected Set<String> getExpiredKeys() {
-		return this.cacheMap.keySet().parallelStream().filter(this::isExpired).collect(Collectors.toSet());
+		return this.cacheMap.keySet()
+				.parallelStream()
+				.filter(this::isExpired)
+				.collect(Collectors.toSet());
 	}
 
 	protected boolean isExpired(String key) {
-		LocalDateTime expirationDateTime = this.cacheMap.get(key).getCreatedAt().plus(this.cacheTimeout,
-				ChronoUnit.MILLIS);
-		return LocalDateTime.now().isAfter(expirationDateTime);
+		LocalDateTime expirationDateTime = this.cacheMap.get(key)
+				.getCreatedAt()
+				.plus(this.cacheTimeout, ChronoUnit.MILLIS);
+		return LocalDateTime.now()
+				.isAfter(expirationDateTime);
 	}
 
 	public void clear() {
 		this.cacheMap = new ConcurrentHashMap<>();
 		this.queue = new ConcurrentLinkedQueue<>();
-		this.storeage.getFrameStore().clear();
+		this.storeage.getFrameStore()
+				.clear();
 	}
 
 	public Optional<ToneTimeFrame> get(String key) {
 		// this.clean();
-		Optional<ToneTimeFrame> result = Optional.ofNullable(this.cacheMap.get(key)).map(CacheValue::getValue);
+		Optional<ToneTimeFrame> result = Optional.ofNullable(this.cacheMap.get(key))
+				.map(CacheValue::getValue);
 		if (result.isEmpty()) {
 			LOG.finer(">>FC GET empty: " + this.cacheMap.size() + ", " + this.queue.size() + ", " + key);
 			// Optional<ToneTimeFrame> v = this.storeage.getFrameStore().read(key);
@@ -107,8 +114,8 @@ public class FrameCache {
 			if (oldTm.isPresent()) {
 				bq.add(new FrameCacheMessage(fk, oldTm.get()));
 			} else {
-				LOG.finer(">>FC PUT Remove NULL: " + this.cacheMap.size() + ", " + this.queue.size() + ", " + fk + ", "
-						+ key);
+				LOG.finer(">>FC PUT Remove NULL: " + this.cacheMap.size() + ", " + this.queue.size() + ", " + fk
+						+ ", " + key);
 			}
 		}
 	}
@@ -194,7 +201,8 @@ public class FrameCache {
 					FrameCache.this.queue.remove(fcm.key);
 				}
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				Thread.currentThread()
+						.interrupt();
 			}
 		}
 	}

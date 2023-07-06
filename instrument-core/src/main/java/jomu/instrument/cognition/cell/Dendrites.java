@@ -87,7 +87,6 @@ public class Dendrites implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 * @return
 	 */
@@ -96,7 +95,6 @@ public class Dendrites implements Serializable {
 	}
 
 	/**
-	 *
 	 * @param NuCell
 	 * @param d
 	 */

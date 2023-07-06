@@ -15,7 +15,6 @@ import be.tarsos.dsp.io.TarsosDSPAudioFormat;
 
 /**
  * This class writes the ongoing sound to an output specified by the programmer
- *
  */
 public class FileWriterProcessor implements AudioProcessor {
 
@@ -25,9 +24,10 @@ public class FileWriterProcessor implements AudioProcessor {
 	private static final int HEADER_LENGTH = 44;// byte
 
 	/**
-	 *
-	 * @param audioFormat which this processor is attached to
-	 * @param output      randomaccessfile of the output file
+	 * @param audioFormat
+	 *            which this processor is attached to
+	 * @param output
+	 *            randomaccessfile of the output file
 	 */
 	public FileWriterProcessor(TarsosDSPAudioFormat audioFormat, final File out) {
 		this.out = out;
@@ -38,7 +38,8 @@ public class FileWriterProcessor implements AudioProcessor {
 	public boolean process(AudioEvent audioEvent) {
 		audioLen += audioEvent.getByteBuffer().length;
 		AudioFormat outFormat = new AudioFormat(audioFormat.getSampleRate(), 16, 1, true, false);
-		try (ByteArrayInputStream bais = new ByteArrayInputStream(audioEvent.getByteBuffer());
+		try (
+				ByteArrayInputStream bais = new ByteArrayInputStream(audioEvent.getByteBuffer());
 				AudioInputStream outAudioStream = new AudioInputStream(bais, outFormat,
 						audioLen / audioFormat.getFrameSize())) {
 			audioLen += audioEvent.getByteBuffer().length;

@@ -33,12 +33,15 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		boolean chromaCQOriginSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CHROMA_CQ_ORIGIN_SWITCH);
 
-		ToneMap originToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap originToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 		if (chromaCQOriginSwitch) {
-			originToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
+			originToneMap = workspace.getAtlas()
+					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId));
 		}
 
-		ToneMap postChromaToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap postChromaToneMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
 		ToneMap preChromaToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId));
@@ -53,7 +56,9 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 		if (tmIndex > 0) {
 			timeFrame = postChromaToneMap.getTimeFrame(tmIndex);
 			if (timeFrame != null) {
-				console.getVisor().updateToneMapView(postChromaToneMap, timeFrame, this.cell.getCellType().toString());
+				console.getVisor()
+						.updateToneMapView(postChromaToneMap, timeFrame, this.cell.getCellType()
+								.toString());
 			}
 			cell.send(streamId, tmIndex);
 		}
@@ -65,8 +70,9 @@ public class AudioChromaPostProcessor extends ProcessorCommon {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				timeFrame = postChromaToneMap.getTimeFrame(i);
 				if (timeFrame != null) {
-					console.getVisor().updateToneMapView(postChromaToneMap, timeFrame,
-							this.cell.getCellType().toString());
+					console.getVisor()
+							.updateToneMapView(postChromaToneMap, timeFrame, this.cell.getCellType()
+									.toString());
 				}
 				cell.send(streamId, i);
 			}

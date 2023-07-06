@@ -12,54 +12,54 @@ public class Generator {
 
 	public static NuCell createNuCell(CellTypes cellType) {
 		switch (cellType) {
-		case SOURCE:
-			return createSourceTypeCell();
-		case SINK:
-			return createSinkTypeCell();
-		case AUDIO_SINK:
-			return createAudioSinkTypeCell();
-		case AUDIO_PITCH:
-			return createAudioPitchTypeCell();
-		case AUDIO_PHASE:
-			return createAudioPhaseTypeCell();
-		case AUDIO_YIN:
-			return createAudioYINTypeCell();
-		case AUDIO_SACF:
-			return createAudioSACFTypeCell();
-		case AUDIO_MFCC:
-			return createAudioMFCCTypeCell();
-		case AUDIO_CEPSTRUM:
-			return createAudioCepstrumTypeCell();
-		case AUDIO_SYNTHESIS:
-			return createAudioSyntesisTypeCell();
-		case AUDIO_TUNER_PEAKS:
-			return createAudioTunerPeaksTypeCell();
-		case AUDIO_SPECTRAL_PEAKS:
-			return createAudioSpectralPeaksTypeCell();
-		case AUDIO_CQ:
-			return createAudioCQTypeCell();
-		case AUDIO_CQ_ORIGIN:
-			return createAudioCQOriginTypeCell();
-		case AUDIO_BEAT:
-			return createAudioBeatTypeCell();
-		case AUDIO_ONSET:
-			return createAudioOnsetTypeCell();
-		case AUDIO_PERCUSSION:
-			return createAudioPercussionTypeCell();
-		case AUDIO_HPS:
-			return createAudioHpsTypeCell();
-		case AUDIO_PRE_CHROMA:
-			return createAudioPreChromaTypeCell();
-		case AUDIO_POST_CHROMA:
-			return createAudioPostChromaTypeCell();
-		case AUDIO_INTEGRATE:
-			return createAudioIntegrateTypeCell();
-		case AUDIO_NOTATE:
-			return createAudioNotateTypeCell();
-		case JUNCTION:
-			return createJunctionTypeCell();
-		default:
-			throw new InstrumentException("NuCell createNuCell undefined type: " + cellType);
+			case SOURCE:
+				return createSourceTypeCell();
+			case SINK:
+				return createSinkTypeCell();
+			case AUDIO_SINK:
+				return createAudioSinkTypeCell();
+			case AUDIO_PITCH:
+				return createAudioPitchTypeCell();
+			case AUDIO_PHASE:
+				return createAudioPhaseTypeCell();
+			case AUDIO_YIN:
+				return createAudioYINTypeCell();
+			case AUDIO_SACF:
+				return createAudioSACFTypeCell();
+			case AUDIO_MFCC:
+				return createAudioMFCCTypeCell();
+			case AUDIO_CEPSTRUM:
+				return createAudioCepstrumTypeCell();
+			case AUDIO_SYNTHESIS:
+				return createAudioSyntesisTypeCell();
+			case AUDIO_TUNER_PEAKS:
+				return createAudioTunerPeaksTypeCell();
+			case AUDIO_SPECTRAL_PEAKS:
+				return createAudioSpectralPeaksTypeCell();
+			case AUDIO_CQ:
+				return createAudioCQTypeCell();
+			case AUDIO_CQ_ORIGIN:
+				return createAudioCQOriginTypeCell();
+			case AUDIO_BEAT:
+				return createAudioBeatTypeCell();
+			case AUDIO_ONSET:
+				return createAudioOnsetTypeCell();
+			case AUDIO_PERCUSSION:
+				return createAudioPercussionTypeCell();
+			case AUDIO_HPS:
+				return createAudioHpsTypeCell();
+			case AUDIO_PRE_CHROMA:
+				return createAudioPreChromaTypeCell();
+			case AUDIO_POST_CHROMA:
+				return createAudioPostChromaTypeCell();
+			case AUDIO_INTEGRATE:
+				return createAudioIntegrateTypeCell();
+			case AUDIO_NOTATE:
+				return createAudioNotateTypeCell();
+			case JUNCTION:
+				return createJunctionTypeCell();
+			default:
+				throw new InstrumentException("NuCell createNuCell undefined type: " + cellType);
 		}
 	}
 

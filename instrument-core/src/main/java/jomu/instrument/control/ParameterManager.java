@@ -15,7 +15,8 @@ import jomu.instrument.InstrumentException;
 @ApplicationScoped
 public class ParameterManager {
 
-	private static final Logger LOG = Logger.getLogger(ParameterManager.class.getName());
+	private static final Logger LOG = Logger
+			.getLogger(ParameterManager.class.getName());
 
 	private static String PARAMETER_CONFIG_FILE_PREFIX = "instrument";
 	private static String PARAMETER_CONFIG_CLIENT_FILE_INFIX = "client";
@@ -38,12 +39,14 @@ public class ParameterManager {
 			InputStream is = getClass().getClassLoader()
 					.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 			parameters.load(is);
-			is = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "-"
-					+ PARAMETER_CONFIG_CLIENT_FILE_INFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+			is = getClass().getClassLoader()
+					.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "-" + PARAMETER_CONFIG_CLIENT_FILE_INFIX + "."
+							+ PARAMETER_CONFIG_FILE_POSTFIX);
 			Properties clientParameters = new Properties();
 			clientParameters.load(is);
 			parameters.putAll(clientParameters);
-			InputStream isv = getClass().getClassLoader().getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
+			InputStream isv = getClass().getClassLoader()
+					.getResourceAsStream(PARAMETER_CONFIG_VALIDATION_FILE);
 			parameterValidator.load(isv);
 			validateAll();
 			LOG.severe("ParameterManager reset");
@@ -146,8 +149,9 @@ public class ParameterManager {
 		Properties styleParameters = new Properties();
 		InputStream is = null;
 		if (paramStyle != null && !paramStyle.equals("default")) {
-			is = getClass().getClassLoader().getResourceAsStream(
-					PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+			is = getClass().getClassLoader()
+					.getResourceAsStream(
+							PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 			try {
 				styleParameters.load(is);
 			} catch (IOException e) {
@@ -156,8 +160,9 @@ public class ParameterManager {
 			}
 			mergeProperties(styleParameters);
 			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
-			LOG.finer(">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
-					+ PARAMETER_CONFIG_FILE_POSTFIX);
+			LOG.finer(
+					">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
+							+ PARAMETER_CONFIG_FILE_POSTFIX);
 		}
 	}
 
