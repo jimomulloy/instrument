@@ -636,6 +636,12 @@ public class NoteTracker {
 			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
 					.getBeatTrack(synthBaseQuantizeSource);
 			quantizeNote = quantizeBeatTrack.getLastNote();
+			if (quantizeNote == null) {
+				quantizeNote = synthQuantizeNote;
+			}
+		}
+		if (quantizeNote == null) {
+			return null;
 		}
 		NoteListElement lastNote = baseTrack.getLastNote();
 		if (quantizeNote == null || lastNote == null || quantizeNote.startTime >= lastNote.endTime) {
@@ -709,7 +715,7 @@ public class NoteTracker {
 		NoteListElement lastNote = track.getLastNote();
 
 		int note = 0;
-		double startTime = quantizeNote.startTime;
+		double startTime = quantizeNote == null ? 0 : quantizeNote.startTime;
 		double endTime = startTime;
 		double range = endTime - startTime;
 		endTime += range > 0 ? range * synthBaseMeasure : synthBaseMeasure * 200;
@@ -826,6 +832,12 @@ public class NoteTracker {
 			NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
 					.getBeatTrack(synthChordParameters.quantizeSource);
 			quantizeNote = quantizeBeatTrack.getLastNote();
+			if (quantizeNote == null) {
+				quantizeNote = synthQuantizeNote;
+			}
+		}
+		if (quantizeNote == null) {
+			return;
 		}
 		NoteTrack chordTrack;
 		if (!chordTracks.containsKey(trackNumber)) {
@@ -893,10 +905,10 @@ public class NoteTracker {
 
 		int note = 0;
 		int octave = 0;
-		double startTime = quantizeNote.startTime;
+		double startTime = quantizeNote == null ? 0 : quantizeNote.startTime;
 		double endTime = startTime;
 		double range = quantizeNote.endTime - quantizeNote.startTime;
-		endTime += range > 0 ? range * synthChordParameters.chordMeasure : synthChordParameters.chordMeasure * 200;
+		endTime += range > 0 ? range * synthChordParameters.chordMeasure : synthChordParameters.chordMeasure * 1000;
 
 		double amplitude = 1.0;
 

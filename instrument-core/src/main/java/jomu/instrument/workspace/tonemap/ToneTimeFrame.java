@@ -848,7 +848,7 @@ public class ToneTimeFrame implements Serializable {
 			int index = i % OCTAVE_LENGTH;
 			if (elements[i] != null) {
 				double value = elements[i].amplitude;
-				if (value == 0.5) {
+				if (value <= 0.5 && value >= 0.25) {
 					thirdCandidates.add(index);
 				}
 			}
@@ -1062,7 +1062,7 @@ public class ToneTimeFrame implements Serializable {
 	}
 
 	public void sharpenChord() {
-		LOG.finer(">>Sharpen: " + getStartTime() + ", " + chordNotes);
+		LOG.severe(">>Sharpen: " + getStartTime() + ", " + chordNotes.size());
 		TreeSet<ChordNote> result = new TreeSet<>();
 		ChordNote lastCandidate = null;
 		int pass = 0;
@@ -1076,13 +1076,13 @@ public class ToneTimeFrame implements Serializable {
 					if (candidate.pitchClass - lastCandidate.pitchClass == 1) {
 						result.add(lastCandidate);
 						result.add(candidate);
-						LOG.finer(">>Sharpen A semi: " + lastCandidate + " ," + candidate);
+						LOG.severe(">>Sharpen A semi: " + getStartTime() + " ," + lastCandidate + " ," + candidate);
 						break;
 					}
 					if (candidate.pitchClass == 11 && chordNotes.first().pitchClass == 0) {
 						result.add(chordNotes.first());
 						result.add(candidate);
-						LOG.finer(">>Sharpen B semi: " + lastCandidate + " ," + candidate);
+						LOG.severe(">>Sharpen B semi: " + getStartTime() + " ," + lastCandidate + " ," + candidate);
 						break;
 					}
 				}
@@ -1093,16 +1093,17 @@ public class ToneTimeFrame implements Serializable {
 				if (result.first().amplitude >= result.last().amplitude) {
 					chordNotes.remove(result.last());
 					elements[result.last().index].amplitude = AMPLITUDE_FLOOR;
-					LOG.finer(">>Sharpened chord note remove: " + result.last());
+					LOG.severe(">>Sharpened chord note remove: " + result.last());
 				} else {
 					elements[result.first().index].amplitude = AMPLITUDE_FLOOR;
 					chordNotes.remove(result.first());
-					LOG.finer(">>Sharpened chord note remove: " + result.first());
+					LOG.severe(">>Sharpened chord note remove: " + result.first());
 				}
-				LOG.finer(">>Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
+				chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
+						chordNotes.toArray(new ChordNote[chordNotes.size()]));
+				LOG.severe(">>Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
 			}
 		} while (result.size() > 0);
-		LOG.finer(">>EXIT Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
 	}
 
 	public void sharpenChord(ChordListElement cle) {

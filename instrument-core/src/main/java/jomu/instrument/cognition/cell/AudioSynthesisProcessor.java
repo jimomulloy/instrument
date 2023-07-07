@@ -189,15 +189,18 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		if (preChromaTimeFrame != null) {
 			ToneTimeFrame chroma = preChromaTimeFrame
-					.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(), preChromaTimeFrame.getPitchHigh(),
+					.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(),
+							preChromaTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
 					.chromaQuantize(chromaChordifyThreshold)
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
 					.chordNoteOctivate(new ToneTimeFrame[] { preChromaTimeFrame });
-			chordSynthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name(), chroma.getChord());
+			chordSynthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name(),
+					chroma.getChord());
 			chroma = preChromaTimeFrame
-					.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(), preChromaTimeFrame.getPitchHigh(),
+					.chroma(chromaRootNote, preChromaTimeFrame.getPitchLow(),
+							preChromaTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_PRE_CHROMA.name() + "_PADS",
@@ -206,15 +209,18 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 
 		if (hpsHarmonicTimeFrame != null) {
 			ToneTimeFrame chroma = hpsHarmonicTimeFrame
-					.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(), hpsHarmonicTimeFrame.getPitchHigh(),
+					.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(),
+							hpsHarmonicTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
 					.chromaQuantize(chromaChordifyThreshold)
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
 					.chordNoteOctivate(new ToneTimeFrame[] { hpsHarmonicTimeFrame });
-			chordSynthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC", chroma.getChord());
+			chordSynthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_HARMONIC",
+					chroma.getChord());
 			chroma = hpsHarmonicTimeFrame
-					.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(), hpsHarmonicTimeFrame.getPitchHigh(),
+					.chroma(chromaRootNote, hpsHarmonicTimeFrame.getPitchLow(),
+							hpsHarmonicTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_HPS.name() + "_PADS",
@@ -222,15 +228,18 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		}
 		if (onsetSmoothedTimeFrame != null) {
 			ToneTimeFrame chroma = onsetSmoothedTimeFrame
-					.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(), onsetSmoothedTimeFrame.getPitchHigh(),
+					.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(),
+							onsetSmoothedTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch)
 					.chromaQuantize(chromaChordifyThreshold)
 					.chromaChordify(chromaChordifyThreshold, chromaChordifySharpenSwitch)
 					.chordNoteOctivate(new ToneTimeFrame[] { onsetSmoothedTimeFrame });
-			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", chroma.getChord());
+			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED",
+					chroma.getChord());
 			chroma = onsetSmoothedTimeFrame
-					.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(), onsetSmoothedTimeFrame.getPitchHigh(),
+					.chroma(chromaRootNote, onsetSmoothedTimeFrame.getPitchLow(),
+							onsetSmoothedTimeFrame.getPitchHigh(),
 							chromaHarmonicsSwitch)
 					.normaliseEuclidian(normaliseThreshold, chromaCeilingSwitch);
 			chordSynthesisFrame.putChordList(CellTypes.AUDIO_ONSET.name() + "_PADS",
