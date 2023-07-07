@@ -292,7 +292,7 @@ public class BeatsView extends JComponent implements ComponentListener {
 				bufferedGraphics.fillOval(timeCoordinate, (int) ((4.5 / 5.0) * height), 6, 6);
 			}
 			if (obop.isPresent() && obop.get().getAmplitude() > 0.001) {
-				color = new Color(0x90422d); // sienna-ish
+				color = Color.WHITE;
 				bufferedGraphics.setColor(color);
 				bufferedGraphics.fillOval(timeCoordinate, (int) ((2.9 / 5.0) * height), 6, 6);
 			}

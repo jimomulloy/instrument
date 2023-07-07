@@ -581,7 +581,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				Color color = Color.BLACK;
 				NoteTrack track = toneMap.getNoteTracker().getChordTrack(1);
 				if (track != null) {
-					color = Color.YELLOW;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						int cents = nle.note * 100;
@@ -592,12 +591,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						if (minPitchCents > cents) {
 							minPitchCents = cents;
 						}
+						color = Color.YELLOW;
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
 							color = new Color(0xff7f50); // coral
 							bufferedGraphics.setColor(color);
-							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6,
+									6);
 						}
 					}
 				}
@@ -605,7 +606,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				track = toneMap.getNoteTracker().getChordTrack(2);
 				color = Color.BLACK;
 				if (track != null) {
-					color = Color.PINK;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						int cents = nle.note * 100;
@@ -616,12 +616,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						if (minPitchCents > cents) {
 							minPitchCents = cents;
 						}
+						color = Color.PINK;
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
 							color = new Color(0xff7f50); // coral
 							bufferedGraphics.setColor(color);
-							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6,
+									6);
 						}
 					}
 				}
@@ -629,7 +631,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				track = toneMap.getNoteTracker().getChordTrack(3);
 				color = Color.BLACK;
 				if (track != null) {
-					color = Color.ORANGE;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						int cents = nle.note * 100;
@@ -640,12 +641,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						if (minPitchCents > cents) {
 							minPitchCents = cents;
 						}
+						color = Color.ORANGE;
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
 							color = new Color(0xff7f50); // coral
 							bufferedGraphics.setColor(color);
-							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6,
+									6);
 						}
 					}
 				}
@@ -653,7 +656,6 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 				track = toneMap.getNoteTracker().getChordTrack(4);
 				color = Color.BLACK;
 				if (track != null) {
-					color = Color.CYAN;
 					NoteListElement[] nles = track.getNotes(timeStart);
 					for (NoteListElement nle : nles) {
 						int cents = nle.note * 100;
@@ -664,12 +666,14 @@ public class ToneMapView extends JComponent implements ComponentListener, ToneMa
 						if (minPitchCents > cents) {
 							minPitchCents = cents;
 						}
+						color = Color.CYAN;
 						bufferedGraphics.setColor(color);
 						bufferedGraphics.fillRect(timeCoordinate, centsCoordinate - height, width, height);
 						if (nle.startTime == timeStart) {
 							color = new Color(0xff7f50); // coral
 							bufferedGraphics.setColor(color);
-							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6, 6);
+							bufferedGraphics.fillOval(timeCoordinate, centsCoordinate - height - 2, 6,
+									6);
 						}
 					}
 				}

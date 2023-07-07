@@ -640,9 +640,7 @@ public class NoteTracker {
 				quantizeNote = synthQuantizeNote;
 			}
 		}
-		if (quantizeNote == null) {
-			return null;
-		}
+
 		NoteListElement lastNote = baseTrack.getLastNote();
 		if (quantizeNote == null || lastNote == null || quantizeNote.startTime >= lastNote.endTime) {
 			PitchSet pitchSet = toneTimeFrame.getPitchSet();
@@ -713,12 +711,15 @@ public class NoteTracker {
 		boolean isBar = track.getSize() % synthTimeSignature == 0;
 		int barNote = track.getSize() % synthTimeSignature + 1;
 		NoteListElement lastNote = track.getLastNote();
+		if (quantizeNote != null & lastNote != null && quantizeNote.startTime < lastNote.endTime) {
+			return null;
+		}
 
 		int note = 0;
-		double startTime = quantizeNote == null ? 0 : quantizeNote.startTime;
+		double startTime = quantizeNote == null ? chordListElement.getStartTime() : quantizeNote.startTime;
 		double endTime = startTime;
-		double range = endTime - startTime;
-		endTime += range > 0 ? range * synthBaseMeasure : synthBaseMeasure * 200;
+		double range = quantizeNote == null ? 0 : quantizeNote.endTime - quantizeNote.startTime;
+		endTime += range > 0 ? range * synthBaseMeasure : synthBaseMeasure * 1000;
 		double amplitude = 1.0;
 
 		List<Double> camps = new ArrayList<>();
@@ -836,9 +837,6 @@ public class NoteTracker {
 				quantizeNote = synthQuantizeNote;
 			}
 		}
-		if (quantizeNote == null) {
-			return;
-		}
 		NoteTrack chordTrack;
 		if (!chordTracks.containsKey(trackNumber)) {
 			chordTrack = new NoteTrack(trackNumber);
@@ -888,10 +886,6 @@ public class NoteTracker {
 	private void addChordNotes(NoteTrack track, NoteListElement quantizeNote, double time,
 			ChordListElement chordListElement, PitchSet pitchSet, SynthChordParameters synthChordParameters) {
 		NoteListElement lastNote = track.getLastNote();
-		if (synthChordParameters.chordPattern > 0 && (lastNote != null && quantizeNote.startTime < lastNote.endTime)) {
-			return;
-		}
-
 		NoteListElement[] currentNotes = track.getCurrentNotes(time * 1000);
 		Set<Integer> currentNoteSet = new HashSet<>();
 		for (NoteListElement nle : currentNotes) {
@@ -905,10 +899,14 @@ public class NoteTracker {
 
 		int note = 0;
 		int octave = 0;
-		double startTime = quantizeNote == null ? 0 : quantizeNote.startTime;
+		double startTime = quantizeNote == null ? time * 1000 : quantizeNote.startTime;
 		double endTime = startTime;
-		double range = quantizeNote.endTime - quantizeNote.startTime;
-		endTime += range > 0 ? range * synthChordParameters.chordMeasure : synthChordParameters.chordMeasure * 1000;
+		double range = quantizeNote == null ? 0 : quantizeNote.endTime - quantizeNote.startTime;
+		endTime += range > 0 ? range * synthChordParameters.chordMeasure : synthChordParameters.chordMeasure * 100;
+
+		if (lastNote != null && lastNote.endTime >= startTime) {
+			return;
+		}
 
 		double amplitude = 1.0;
 

@@ -969,11 +969,10 @@ public class ToneTimeFrame implements Serializable {
 
 				Set<Integer> level3Singles = censGetSingles(thirdCandidates);
 				int level3CandidateNumber = level3Pairs.size() / 2 + level3Singles.size();
-				if (level3CandidateNumber + level2CandidateNumber + level1CandidateNumber >= 2) {
+				if (level3CandidateNumber + level2CandidateNumber + level1CandidateNumber >= 4) {
 					for (int i = 0; i < elements.length; i++) {
 						elements[i].amplitude = AMPLITUDE_FLOOR;
 					}
-					int counter = 0;
 					for (int i = 0; i < elements.length; i++) {
 						int index = i % OCTAVE_LENGTH;
 						if (elements[i] != null) {
@@ -982,21 +981,98 @@ public class ToneTimeFrame implements Serializable {
 								int note = pitchSet.getNote(i);
 								chordNotes
 										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 1));
-								counter++;
 							}
 							if (level2Singles.contains(index) || level2Pairs.contains(index)) {
-								counter++;
 								elements[i].amplitude = 0.75;
 								int note = pitchSet.getNote(i);
 								chordNotes
 										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 2));
 							}
 							if (level3Singles.contains(index) || level3Pairs.contains(index)) {
-								counter++;
 								elements[i].amplitude = 0.5;
 								int note = pitchSet.getNote(i);
 								chordNotes
 										.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH, 3));
+							}
+						}
+					}
+				} else {
+
+					if (censHasClusters(fourthCandidates, 4)) {
+						for (int i = 0; i < elements.length; i++) {
+							elements[i].amplitude = AMPLITUDE_FLOOR;
+						}
+						for (int i = 0; i < elements.length; i++) {
+							int index = i % OCTAVE_LENGTH;
+							if (elements[i] != null) {
+								if (level1Singles.contains(index) || level1Pairs.contains(index)) {
+									elements[i].amplitude = 1.0;
+									int note = pitchSet.getNote(i);
+									chordNotes
+											.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH,
+													1));
+								}
+								if (level2Singles.contains(index) || level2Pairs.contains(index)) {
+									elements[i].amplitude = 0.75;
+									int note = pitchSet.getNote(i);
+									chordNotes
+											.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH,
+													2));
+								}
+								if (level3Singles.contains(index) || level3Pairs.contains(index)) {
+									elements[i].amplitude = 0.5;
+									int note = pitchSet.getNote(i);
+									chordNotes
+											.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH,
+													3));
+								}
+							}
+						}
+					}
+
+					censRemoveClusters(fourthCandidates, 3, true);
+
+					Set<Integer> level4Pairs = censGetPairs(fourthCandidates);
+					thirdCandidates.removeAll(level3Pairs);
+
+					Set<Integer> level4Singles = censGetSingles(fourthCandidates);
+					int level4CandidateNumber = level4Pairs.size() / 2 + level4Singles.size();
+					if (level4CandidateNumber + level3CandidateNumber + level2CandidateNumber
+							+ level1CandidateNumber >= 2) {
+						for (int i = 0; i < elements.length; i++) {
+							elements[i].amplitude = AMPLITUDE_FLOOR;
+						}
+						for (int i = 0; i < elements.length; i++) {
+							int index = i % OCTAVE_LENGTH;
+							if (elements[i] != null) {
+								if (level1Singles.contains(index) || level1Pairs.contains(index)) {
+									elements[i].amplitude = 1.0;
+									int note = pitchSet.getNote(i);
+									chordNotes
+											.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH,
+													1));
+								}
+								if (level2Singles.contains(index) || level2Pairs.contains(index)) {
+									elements[i].amplitude = 0.75;
+									int note = pitchSet.getNote(i);
+									chordNotes
+											.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH,
+													2));
+								}
+								if (level3Singles.contains(index) || level3Pairs.contains(index)) {
+									elements[i].amplitude = 0.5;
+									int note = pitchSet.getNote(i);
+									chordNotes
+											.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH,
+													3));
+								}
+								if (level4Singles.contains(index) || level4Pairs.contains(index)) {
+									elements[i].amplitude = 0.25;
+									int note = pitchSet.getNote(i);
+									chordNotes
+											.add(new ChordNote(i, index, elements[i].amplitude, note / OCTAVE_LENGTH,
+													3));
+								}
 							}
 						}
 					}
@@ -1062,13 +1138,11 @@ public class ToneTimeFrame implements Serializable {
 	}
 
 	public void sharpenChord() {
-		LOG.severe(">>Sharpen: " + getStartTime() + ", " + chordNotes.size());
 		TreeSet<ChordNote> result = new TreeSet<>();
 		ChordNote lastCandidate = null;
 		int pass = 0;
 		do {
 			pass++;
-			LOG.finer(">>Sharpen pass: " + pass);
 			result.clear();
 			lastCandidate = null;
 			for (ChordNote candidate : chordNotes) {
@@ -1076,13 +1150,11 @@ public class ToneTimeFrame implements Serializable {
 					if (candidate.pitchClass - lastCandidate.pitchClass == 1) {
 						result.add(lastCandidate);
 						result.add(candidate);
-						LOG.severe(">>Sharpen A semi: " + getStartTime() + " ," + lastCandidate + " ," + candidate);
 						break;
 					}
 					if (candidate.pitchClass == 11 && chordNotes.first().pitchClass == 0) {
 						result.add(chordNotes.first());
 						result.add(candidate);
-						LOG.severe(">>Sharpen B semi: " + getStartTime() + " ," + lastCandidate + " ," + candidate);
 						break;
 					}
 				}
@@ -1093,15 +1165,12 @@ public class ToneTimeFrame implements Serializable {
 				if (result.first().amplitude >= result.last().amplitude) {
 					chordNotes.remove(result.last());
 					elements[result.last().index].amplitude = AMPLITUDE_FLOOR;
-					LOG.severe(">>Sharpened chord note remove: " + result.last());
 				} else {
 					elements[result.first().index].amplitude = AMPLITUDE_FLOOR;
 					chordNotes.remove(result.first());
-					LOG.severe(">>Sharpened chord note remove: " + result.first());
 				}
 				chordListElement = new ChordListElement(getStartTime(), getTimeSet().getEndTime(),
 						chordNotes.toArray(new ChordNote[chordNotes.size()]));
-				LOG.severe(">>Sharpened chord: " + chordNotes.size() + ", " + chordNotes);
 			}
 		} while (result.size() > 0);
 	}
