@@ -35,6 +35,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 
 	private int quantizeSource;
 
+	private boolean synthAggregateChordsSwitch;
+
 	public ToneSynthesiser(ToneMap toneMap) {
 		this.toneMap = toneMap;
 		minTimeIncrement = toneMap.getParameterManager()
@@ -57,6 +59,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CLEAN_TRACKS_SWITCH);
 		synthChordFirstSwitch = toneMap.getParameterManager()
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH);
+		synthAggregateChordsSwitch = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_AGGREGATE_CHORDS_SWITCH);
 
 	}
 
@@ -76,11 +80,6 @@ public class ToneSynthesiser implements ToneMapConstants {
 		NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
 				.getBeatTrack(quantizeSource);
 		NoteListElement quantizeBeatNote = quantizeBeatTrack.getLastNote();
-		// if (quantizeBeatNote == null) {
-		// quantizeBeatNote = new NoteListElement(0, 0, toneTimeFrame.getStartTime() *
-		// 1000,
-		// toneTimeFrame.getStartTime() * 1000 + 100, 0, 0, 1, 1, 1, 0, false, 0);
-		// }
 		ChordListElement chord = toneTimeFrame.getChord();
 		if (synthChordFirstSwitch) {
 			if (chord != null) {
@@ -93,7 +92,8 @@ public class ToneSynthesiser implements ToneMapConstants {
 				toneTimeFrame.setChord(chord);
 			}
 			if (chord != null) {
-				quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange, quantizePercent, quantizeBeat);
+				chord = quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange, quantizePercent,
+						quantizeBeat);
 			}
 		}
 		Set<NoteListElement> discardedNotes = new HashSet<>();
@@ -120,12 +120,15 @@ public class ToneSynthesiser implements ToneMapConstants {
 					toneTimeFrame.setChord(chord);
 				}
 				if (chord != null) {
-					quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange, quantizePercent,
+					chord = quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange, quantizePercent,
 							quantizeBeat);
 				}
 			}
 		}
-		ChordListElement ac = aggregateChords(toneTimeFrame, chord);
+		ChordListElement ac = chord;
+		if (synthAggregateChordsSwitch) {
+			ac = aggregateChords(toneTimeFrame, chord);
+		}
 		NoteListElement nle = toneMap.getNoteTracker()
 				.trackBase(quantizeBeatNote, ac, toneTimeFrame);
 		if (nle != null && synthFillLegatoSwitch) {
@@ -530,10 +533,11 @@ public class ToneSynthesiser implements ToneMapConstants {
 		element.noteState = ToneMapConstants.START;
 	}
 
-	private void quantizeChord(ChordListElement chord, CalibrationMap calibrationMap, NoteListElement quantizeNote,
+	private ChordListElement quantizeChord(ChordListElement chord, CalibrationMap calibrationMap,
+			NoteListElement quantizeNote,
 			double quantizeRange, double quantizePercent, int quantizeBeat) {
 		if (chord == null || quantizeNote == null) {
-			return;
+			return chord;
 		}
 		double time = chord.getStartTime();
 
@@ -550,20 +554,21 @@ public class ToneSynthesiser implements ToneMapConstants {
 			double timeDiff = ((time - beatBeforeTime) / quantizeBeat) * (quantizePercent / 100.0);
 			if (timeDiff > MIN_TIME_INCREMENT) {
 				targetTime = time - timeDiff;
-				quantizeChord(chord, targetTime);
+				return quantizeChord(chord, targetTime);
 			}
 		} else if (beatAfterTime > 0) {
 			double targetTime = 0;
 			double timeDiff = ((beatAfterTime - time) / quantizeBeat) * (quantizePercent / 100.0);
 			if (timeDiff > MIN_TIME_INCREMENT) {
 				targetTime = time + timeDiff;
-				quantizeChord(chord, targetTime);
+				return quantizeChord(chord, targetTime);
 			}
 		}
+		return chord;
 
 	}
 
-	private void quantizeChord(ChordListElement cle, double targetTime) {
+	private ChordListElement quantizeChord(ChordListElement cle, double targetTime) {
 		double frameTime = cle.getStartTime();
 		removeChord(cle);
 		ToneTimeFrame frame = toneMap.getTimeFrame(frameTime);
@@ -589,6 +594,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		}
 		cle.setStartTime(frameTime);
 		addChord(cle);
+		return cle;
 	}
 
 	private ChordListElement fillChord(ToneTimeFrame targetFrame, ChordListElement chord) {

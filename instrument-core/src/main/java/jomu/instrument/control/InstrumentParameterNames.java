@@ -169,6 +169,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_CHORDS_SWITCH = "perception.hearing.synthesis.fillChordsSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH = "perception.hearing.synthesis.fillLegatoSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH = "perception.hearing.synthesis.chordFirstSwitch";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_AGGREGATE_CHORDS_SWITCH = "perception.hearing.synthesis.aggregateChordsSwitch";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_MIN_TIME_INCREMENT = "perception.hearing.synthesis.minTimeIncrement";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_TIME_SIGNATURE = "perception.hearing.synthesis.timeSignature";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE = "perception.hearing.synthesis.sweepRange";

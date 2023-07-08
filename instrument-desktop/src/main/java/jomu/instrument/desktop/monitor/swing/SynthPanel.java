@@ -10,6 +10,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.logging.Logger;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -180,6 +181,8 @@ public class SynthPanel extends JPanel {
 
 	private JTextField synthesisBaseQuantizeSourceInput;
 
+	private AbstractButton synthesisAggregateChordsSwitchCB;
+
 	public SynthPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -326,6 +329,23 @@ public class SynthPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH));
 		tuningPanel.add(synthesisLegatoSwitchCB);
 
+		synthesisAggregateChordsSwitchCB = new JCheckBox("synthesisAggregateChordsSwitchCB");
+		synthesisAggregateChordsSwitchCB.setText("Synthesis Aggregate Chords");
+		synthesisAggregateChordsSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_AGGREGATE_CHORDS_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisAggregateChordsSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_AGGREGATE_CHORDS_SWITCH));
+		tuningPanel.add(synthesisAggregateChordsSwitchCB);
+
 		synthesisChordFirstSwitchCB = new JCheckBox("synthesisChordFirstSwitchCB");
 		synthesisChordFirstSwitchCB.setText("Synthesis Chord First");
 		synthesisChordFirstSwitchCB.addItemListener(new ItemListener() {
@@ -422,7 +442,6 @@ public class SynthPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD_CHORDS_SWITCH));
 		tuningPanel.add(synthesisPadChordsSwitchCB);
 
-		tuningPanel.add(new JLabel(" "));
 		tuningPanel.add(new JLabel(" "));
 
 		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
