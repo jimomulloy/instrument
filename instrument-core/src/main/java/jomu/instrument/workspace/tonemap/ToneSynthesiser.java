@@ -74,7 +74,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 		chords.put(cle.getStartTime(), cle);
 	}
 
-	public void synthesise(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap, boolean isClosing) {
+	public void synthesiseNotes(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
 		toneMap.getNoteTracker()
 				.trackBeats(toneTimeFrame);
 		NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
@@ -125,6 +125,16 @@ public class ToneSynthesiser implements ToneMapConstants {
 				}
 			}
 		}
+	}
+
+	public void synthesiseChords(ToneTimeFrame toneTimeFrame) {
+		NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
+				.getBeatTrack(quantizeSource);
+		NoteListElement quantizeBeatNote = quantizeBeatTrack.getNote(toneTimeFrame.getStartTime() * 1000);
+		if (quantizeBeatNote != null) {
+			quantizeBeatNote = quantizeBeatTrack.getPreviousNote(quantizeBeatNote);
+		}
+		ChordListElement chord = toneTimeFrame.getChord();
 		ChordListElement ac = chord;
 		if (synthAggregateChordsSwitch) {
 			ac = aggregateChords(toneTimeFrame, chord);

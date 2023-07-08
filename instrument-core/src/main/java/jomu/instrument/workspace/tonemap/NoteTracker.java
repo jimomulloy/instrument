@@ -916,9 +916,7 @@ public class NoteTracker {
 			startTime = chordListElement.getStartTime() * 1000;
 			endTime = chordListElement.getEndTime() * 1000 + incrementTime;
 		}
-		if (lastNote != null && lastNote.endTime >= startTime) {
-			return;
-		}
+
 		double amplitude = 1.0;
 
 		List<Double> camps = new ArrayList<>();
@@ -972,7 +970,7 @@ public class NoteTracker {
 				newNoteSet.add(cnle.note);
 			}
 		}
-		if (synthChordParameters.chordPattern == 0 && quantizeNote != null) {
+		if (synthChordParameters.chordPattern == 0 && quantizeNote != null || quantizeNote == null) {
 			if (!newNotes.stream()
 					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
 				for (NoteListElement cnle : currentNotes) {
@@ -982,16 +980,32 @@ public class NoteTracker {
 				}
 				for (NoteListElement nnle : newNotes) {
 					track.addNote(nnle);
+					if (lastNote != null && lastNote.endTime >= startTime) {
+						if (track.number == 1) {
+							LOG.severe(">>CN 2: " + time + ", " + startTime + ", " + lastNote.endTime + ", "
+									+ nnle.startTime);
+
+						}
+						return;
+					}
 				}
 			} else {
 				if (quantizeNote != null) {
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
-							if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
-								cnle.endTime = startTime - incrementTime;
+							if (lastNote != null && lastNote.endTime >= startTime) {
+								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+									cnle.endTime = nnle.endTime;
+								}
+							} else {
+								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+									cnle.endTime = startTime - incrementTime;
+								}
 							}
 						}
-						track.addNote(nnle);
+						if (lastNote != null && lastNote.endTime < startTime) {
+							track.addNote(nnle);
+						}
 					}
 				}
 			}
@@ -1001,8 +1015,7 @@ public class NoteTracker {
 					track.addNote(nnle);
 				} else {
 					for (NoteListElement cnle : currentNotes) {
-						if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)
-								&& (cnle.endTime < nnle.endTime)) {
+						if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
 							cnle.endTime = nnle.endTime;
 						}
 					}
