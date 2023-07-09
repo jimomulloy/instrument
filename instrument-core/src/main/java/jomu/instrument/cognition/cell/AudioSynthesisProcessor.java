@@ -323,13 +323,14 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 		}
 
 		ToneSynthesiser synthesiser = synthesisToneMap.getToneSynthesiser();
+		synthesisFrame = synthesisToneMap.getTimeFrame(sequence);
+		synthesiser.synthesiseNotes(synthesisFrame, cm);
 
 		int tmIndex = sequence - synthSweepRange;
 
 		if (tmIndex > 0) {
 			synthesisFrame = synthesisToneMap.getTimeFrame(tmIndex);
 			if (synthesisFrame != null) {
-				synthesiser.synthesiseNotes(synthesisFrame, cm);
 				synthesiser.synthesiseChords(synthesisFrame);
 				console.getVisor()
 						.updateToneMapView(synthesisToneMap, synthesisFrame, this.cell.getCellType()
@@ -348,7 +349,6 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 			for (int i = tmIndex + 1; i <= sequence; i++) {
 				synthesisFrame = synthesisToneMap.getTimeFrame(i);
 				if (synthesisFrame != null) {
-					synthesiser.synthesiseNotes(synthesisFrame, cm);
 					synthesiser.synthesiseChords(synthesisFrame);
 					console.getVisor()
 							.updateToneMapView(synthesisToneMap, synthesisFrame, this.cell.getCellType()
