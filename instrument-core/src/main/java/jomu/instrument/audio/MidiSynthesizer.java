@@ -268,7 +268,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		boolean useSynthesizer = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
-		
+
 		String midiDeviceName = parameterManager
 				.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_NAME);
 		try {
@@ -277,19 +277,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 			LOG.severe(">>MidiSynth dev searched");
 			for (Info midiDev : midiDevs) {
 				LOG.severe(">>MidiSynth dev: " + midiDev.getName());
-				if (midiDeviceName != null && !midiDeviceName.isEmpty() && midiDev.getName().startsWith(midiDeviceName) && midiOut == null) {
+				if (midiDeviceName != null && !midiDeviceName.isEmpty() && midiDev.getName().startsWith(midiDeviceName)
+						&& midiOut == null) {
 					midiOut = midiDev;
+					midiDevice = MidiSystem.getMidiDevice(midiOut);
 					LOG.severe(">>MidiSynth midiOut: " + midiOut);
 				}
 			}
 
 			MidiChannel[] midiChannels = new MidiChannel[0];
 			Soundbank sb = null;
-			
-			midiDevice = MidiSystem.getMidiDevice(midiOut);
-			
-			LOG.severe(">>MidiSynth out: " + midiDevice);
-			
+
 			if (useSynthesizer && midiDevice != null) {
 				midiDevice.open();
 			} else if (useSynthesizer) {
@@ -303,7 +301,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 
 				midiDevice = midiSynthesizer;
-				
+
 				midiSynthesizer.open();
 
 				try {
@@ -317,8 +315,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 						File file = new File(fileName);
 						if (file.exists()) {
 							sb = MidiSystem.getSoundbank(file);
-							((Synthesizer)midiSynthesizer).loadAllInstruments(sb);
-							instruments = ((Synthesizer)midiSynthesizer).getLoadedInstruments();
+							((Synthesizer) midiSynthesizer).loadAllInstruments(sb);
+							instruments = ((Synthesizer) midiSynthesizer).getLoadedInstruments();
 							LOG.severe(">>MidiSynth CustomSoundbank!!: " + instruments.length);
 						}
 					} else {
@@ -330,14 +328,14 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 
 				if (instruments == null || instruments.length == 0) {
-					sb = ((Synthesizer)midiSynthesizer).getDefaultSoundbank();
+					sb = ((Synthesizer) midiSynthesizer).getDefaultSoundbank();
 					if (sb != null) {
 						LOG.finer(">>MidiSynth DefaultSoundbank!!");
-						instruments =((Synthesizer)midiSynthesizer).getDefaultSoundbank()
+						instruments = ((Synthesizer) midiSynthesizer).getDefaultSoundbank()
 								.getInstruments();
 					} else {
 						LOG.finer(">>MidiSynth AvailableSoundbank!!");
-						instruments = ((Synthesizer)midiSynthesizer).getAvailableInstruments();
+						instruments = ((Synthesizer) midiSynthesizer).getAvailableInstruments();
 					}
 				}
 				if (instruments == null || instruments.length == 0) {
@@ -1229,7 +1227,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					try {
 						midiDevice.getReceiver()
 								.send(mm, -1);
-						LOG.severe(">>PLAY SYNTH TRACKS: " + midiDevice.getDeviceInfo() +", "+ midiDevice.getReceiver().toString() + ", " + mm.getChannel());
+						LOG.severe(">>PLAY SYNTH TRACKS: " + midiDevice.getDeviceInfo() + ", "
+								+ midiDevice.getReceiver().toString() + ", " + mm.getChannel());
 					} catch (MidiUnavailableException e) {
 						LOG.log(Level.SEVERE, "Send MIDI Voice Channel1 error ", e);
 						throw new InstrumentException("Send MIDI Voice Channel1 error: " + e.getMessage(), e);
