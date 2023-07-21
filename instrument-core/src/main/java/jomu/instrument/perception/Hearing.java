@@ -200,11 +200,11 @@ public class Hearing implements Organ {
 	public void startAudioFileStream(String inputFileName) throws Exception {
 		String fileName = inputFileName;
 		LOG.severe(">>HEARING startAudioFileStream: " + inputFileName);
+		voice.reset();
 		if (getStreamId() != null) {
 			LOG.severe(">>HEARING startAudioFileStream clear old stream: " + getStreamId());
 			workspace.getAtlas()
 					.removeMapsByStreamId(getStreamId());
-			voice.reset();
 			removeAudioStream(getStreamId());
 			System.gc();
 			LOG.severe(">>HEARING startAudioFileStream cleared old stream: " + getStreamId());
@@ -629,11 +629,11 @@ public class Hearing implements Organ {
 	}
 
 	public void startAudioLineStream(String recordFile) throws LineUnavailableException, IOException {
+		voice.reset();
 		if (getStreamId() != null) {
 			LOG.severe(">>HEARING startAudioLineStream clear old stream: " + getStreamId());
 			workspace.getAtlas()
 					.removeMapsByStreamId(getStreamId());
-			voice.reset();
 			removeAudioStream(getStreamId());
 			System.gc();
 			LOG.severe(">>HEARING startAudioLineStream cleared old stream: " + getStreamId());

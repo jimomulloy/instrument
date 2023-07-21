@@ -276,15 +276,12 @@ public class MidiSynthesizer implements ToneMapConstants {
 		try {
 			MidiDevice.Info midiOut = null;
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
-			LOG.severe(">>MidiSynth dev searched");
 			for (Info midiDev : midiDevs) {
-				LOG.severe(">>MidiSynth dev: " + midiDev.getName());
 				if (useMidiDevice && midiDeviceName != null && !midiDeviceName.isEmpty()
 						&& midiDev.getName().startsWith(midiDeviceName)
 						&& midiOut == null) {
 					midiOut = midiDev;
 					midiDevice = MidiSystem.getMidiDevice(midiOut);
-					LOG.severe(">>MidiSynth midiOut: " + midiOut);
 				}
 			}
 
@@ -356,10 +353,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 				channels = new ChannelData[16];
 				for (int i = 0; i < channels.length; i++) {
 					if (midiDevice instanceof Synthesizer) {
-						LOG.severe(">>MidiSynth MISSING CHANNELS Synth!!");
 						channels[i] = new ChannelData(null, i);
 					} else {
-						LOG.severe(">>MidiSynth MISSING CHANNELS MIDI Device!!");
 						channels[i] = new ChannelData(null, 0);
 					}
 				}
@@ -1230,8 +1225,6 @@ public class MidiSynthesizer implements ToneMapConstants {
 					try {
 						midiDevice.getReceiver()
 								.send(mm, -1);
-						LOG.severe(">>PLAY SYNTH TRACKS: " + midiDevice.getDeviceInfo() + ", "
-								+ midiDevice.getReceiver().toString() + ", " + mm.getChannel());
 					} catch (MidiUnavailableException e) {
 						LOG.log(Level.SEVERE, "Send MIDI Voice Channel1 error ", e);
 						throw new InstrumentException("Send MIDI Voice Channel1 error: " + e.getMessage(), e);
