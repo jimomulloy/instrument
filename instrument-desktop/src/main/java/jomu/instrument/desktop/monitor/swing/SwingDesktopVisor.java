@@ -284,6 +284,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	protected SynthPanel synthPanel;
 
+	private JCheckBox playMidiDeviceSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1841,6 +1843,23 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
 		voicePanel.add(playMidiSwitchCB);
 
+		playMidiDeviceSwitchCB = new JCheckBox("playMidiDeviceSwitchCB");
+		playMidiDeviceSwitchCB.setText("Device");
+		playMidiDeviceSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		playMidiDeviceSwitchCB
+				.setSelected(parameterManager
+						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
+		voicePanel.add(playMidiDeviceSwitchCB);
+
 		playAudioSwitchCB = new JCheckBox("playAudioSwitchCB");
 		playAudioSwitchCB.setText("Audio");
 		playAudioSwitchCB.addItemListener(new ItemListener() {
@@ -2713,6 +2732,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE));
 		playMidiSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
+		playMidiDeviceSwitchCB
+				.setSelected(parameterManager
+						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
 		playAudioSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY));
 		playResynthSwitchCB.setSelected(

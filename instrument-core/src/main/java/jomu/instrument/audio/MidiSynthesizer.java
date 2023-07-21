@@ -268,6 +268,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		boolean useSynthesizer = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
+		boolean useMidiDevice = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH);
 
 		String midiDeviceName = parameterManager
 				.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_NAME);
@@ -277,7 +279,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 			LOG.severe(">>MidiSynth dev searched");
 			for (Info midiDev : midiDevs) {
 				LOG.severe(">>MidiSynth dev: " + midiDev.getName());
-				if (midiDeviceName != null && !midiDeviceName.isEmpty() && midiDev.getName().startsWith(midiDeviceName)
+				if (useMidiDevice && midiDeviceName != null && !midiDeviceName.isEmpty()
+						&& midiDev.getName().startsWith(midiDeviceName)
 						&& midiOut == null) {
 					midiOut = midiDev;
 					midiDevice = MidiSystem.getMidiDevice(midiOut);
