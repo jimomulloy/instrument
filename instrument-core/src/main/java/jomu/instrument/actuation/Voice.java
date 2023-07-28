@@ -137,6 +137,9 @@ public class Voice implements Organ {
 		this.audioSynthesizer.clear(streamId);
 		this.midiSynthesizer.clear(streamId);
 	}
+	
+	public void replay(final String streamId) {
+	}
 
 	/**
 	 * Close.
@@ -178,7 +181,7 @@ public class Voice implements Organ {
 			LOG.severe(">>Voice CLOSE JOB");
 			this.controller.getCountDownLatch()
 					.countDown();
-		}
+		} 
 	}
 
 	/**
@@ -325,13 +328,18 @@ public class Voice implements Organ {
 				.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
 		if (synthToneMap == null)
 			return false;
-		int sequence = 1;
-		ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
-		while (frame != null) {
-			send(frame, streamId, sequence, false);
-			sequence++;
-			frame = synthToneMap.getTimeFrame(sequence);
-		}
+		
+		do {
+			int sequence = 1;
+			ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
+			while (frame != null) {
+				send(frame, streamId, sequence, false);
+				sequence++;
+				frame = synthToneMap.getTimeFrame(sequence);
+			}
+			close(streamId);
+		} while (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
+		
 		return true;
 	}
 

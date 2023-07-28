@@ -277,11 +277,13 @@ public class MidiSynthesizer implements ToneMapConstants {
 			MidiDevice.Info midiOut = null;
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
 			for (Info midiDev : midiDevs) {
+				LOG.severe(">>MidiSynth Devs: " + midiDev.getName());
 				if (useMidiDevice && midiDeviceName != null && !midiDeviceName.isEmpty()
-						&& midiDev.getName().startsWith(midiDeviceName)
+						&& midiDev.getName().toLowerCase().startsWith(midiDeviceName.toLowerCase())
 						&& midiOut == null) {
 					midiOut = midiDev;
 					midiDevice = MidiSystem.getMidiDevice(midiOut);
+					LOG.severe(">>MidiSynth Dev: " + midiDev.getName());
 				}
 			}
 
