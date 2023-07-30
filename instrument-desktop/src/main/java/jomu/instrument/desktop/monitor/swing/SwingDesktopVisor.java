@@ -286,6 +286,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JCheckBox playMidiDeviceSwitchCB;
 
+	private JCheckBox streamSaveSwitchCB;
+
+	private JTextField streamIndexInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1554,8 +1558,16 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (coordinator.getHearing().getStreamId() != null) {
-					boolean started = coordinator.getVoice().startStreamPlayer(coordinator.getHearing().getStreamId());
-					stopListeningButton.setEnabled(true);
+					int index = parameterManager
+							.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX);
+					final ToneMap synthToneMap = workspace.getAtlas().getSavedToneMap(index);
+					LOG.severe(">>PLAY ST: " + index + ", " + synthToneMap);
+					if (synthToneMap != null) {
+						new Thread(() -> coordinator.getVoice()
+								.startStreamPlayer(coordinator.getHearing().getStreamId(), synthToneMap))
+										.start();
+						stopListeningButton.setEnabled(true);
+					}
 				}
 			}
 		});
@@ -1565,6 +1577,39 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionCenterPanel.add(stopListeningButton);
 		actionCenterPanel.add(playAudioButton);
 		actionCenterPanel.add(playStreamButton);
+
+		streamSaveSwitchCB = new JCheckBox("streamSaveSwitchCB");
+		streamSaveSwitchCB.setText("Save");
+		streamSaveSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH,
+						Boolean.toString(newValue));
+				refreshMapViews();
+			}
+		});
+		streamSaveSwitchCB
+				.setSelected(parameterManager
+						.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
+		actionCenterPanel.add(streamSaveSwitchCB);
+
+		JLabel streamIndexLabel = new JLabel("Index: ");
+		streamIndexInput = new JTextField(4);
+		streamIndexInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = streamIndexInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX, newValue);
+				streamIndexInput.setText(newValue);
+			}
+		});
+		streamIndexInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
+		actionCenterPanel.add(streamIndexLabel);
+		actionCenterPanel.add(streamIndexInput);
 
 		JLabel persistenceModeLabel = new JLabel("Persistence Mode: ");
 		persistenceModeInput = new JTextField(4);
@@ -2767,6 +2812,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE));
 		trackWriteSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH));
+		streamSaveSwitchCB
+				.setSelected(parameterManager
+						.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
+		streamIndexInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
 		int sampleRateParam = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
 		int i = 0;

@@ -1,7 +1,9 @@
 package jomu.instrument.workspace;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,6 +18,8 @@ public class Atlas {
 
 	private static final Logger LOG = Logger.getLogger(Atlas.class.getName());
 
+	private static final int MAX_SAVED_TONEMAPS = 4;
+
 	@Inject
 	ParameterManager parameterManager;
 
@@ -23,6 +27,8 @@ public class Atlas {
 	FrameCache frameCache;
 
 	Map<String, ToneMap> toneMaps = new ConcurrentHashMap<>();
+
+	List<ToneMap> savedToneMaps = new CopyOnWriteArrayList<>();
 
 	Map<String, CalibrationMap> calibrationMaps = new ConcurrentHashMap<>();
 
@@ -39,6 +45,21 @@ public class Atlas {
 			putToneMap(key, new ToneMap(key, parameterManager, frameCache));
 		}
 		return toneMaps.get(key);
+	}
+
+	public ToneMap getSavedToneMap(int index) {
+		if (savedToneMaps.size() > index) {
+			return savedToneMaps.get(index);
+		}
+		return null;
+	}
+
+	public void saveToneMap(ToneMap toneMap) {
+		if (savedToneMaps.size() >= MAX_SAVED_TONEMAPS) {
+			ToneMap tm = savedToneMaps.remove(0);
+			tm.clear();
+		}
+		savedToneMaps.add(toneMap);
 	}
 
 	public boolean hasCalibrationMap(String key) {
@@ -80,7 +101,9 @@ public class Atlas {
 		for (String key : toneMaps.keySet()) {
 			if (streamId.equals(key.substring(key.indexOf(":") + 1))) {
 				ToneMap tm = this.toneMaps.remove(key);
-				tm.clear();
+				if (!savedToneMaps.contains(tm)) {
+					tm.clear();
+				}
 			}
 		}
 		for (String key : calibrationMaps.keySet()) {

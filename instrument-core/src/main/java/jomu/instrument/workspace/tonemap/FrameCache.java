@@ -26,7 +26,7 @@ public class FrameCache {
 	private static final int MAX_CACHE_SIZE = 100000;
 
 	@Inject
-	Storage storeage;
+	Storage storage;
 
 	private BlockingQueue<Object> bq;
 
@@ -81,7 +81,7 @@ public class FrameCache {
 	public void clear() {
 		this.cacheMap = new ConcurrentHashMap<>();
 		this.queue = new ConcurrentLinkedQueue<>();
-		this.storeage.getFrameStore()
+		this.storage.getFrameStore()
 				.clear();
 	}
 

@@ -22,6 +22,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_MINIMUM_PEAK_SIZE = "perception.hearing.minPeakSize";
 	public static final String PERCEPTION_HEARING_AUDIO_LOWPASS = "perception.hearing.audioLowPass";
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
+	public static final String PERCEPTION_HEARING_STREAM_SAVE_SWITCH = "perception.hearing.streamSaveSwitch";
+	public static final String PERCEPTION_HEARING_STREAM_SAVE_INDEX = "perception.hearing.streamSaveIndex";
 
 	public static final String PERCEPTION_HEARING_AUDIO_PITCH_SHIFT = "perception.hearing.audioPitchShift";
 	public static final String PERCEPTION_HEARING_AUDIO_TIME_STRETCH = "perception.hearing.audioTimeStretch";

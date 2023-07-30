@@ -210,8 +210,8 @@ public class Hearing implements Organ {
 			LOG.severe(">>HEARING startAudioFileStream cleared old stream: " + getStreamId());
 		}
 
-		workspace.getAtlas()
-				.clear();
+		// !! TODO workspace.getAtlas()
+		// .clear();
 
 		// Get current size of heap in bytes
 		long heapSize = Runtime.getRuntime()

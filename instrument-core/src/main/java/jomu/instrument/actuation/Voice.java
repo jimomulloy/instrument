@@ -16,7 +16,6 @@ import jomu.instrument.audio.AudioSynthesizer;
 import jomu.instrument.audio.MidiSynthesizer;
 import jomu.instrument.audio.ResynthAudioSynthesizer;
 import jomu.instrument.audio.TarsosAudioSynthesizer;
-import jomu.instrument.cognition.cell.Cell.CellTypes;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
@@ -137,7 +136,7 @@ public class Voice implements Organ {
 		this.audioSynthesizer.clear(streamId);
 		this.midiSynthesizer.clear(streamId);
 	}
-	
+
 	public void replay(final String streamId) {
 	}
 
@@ -148,6 +147,7 @@ public class Voice implements Organ {
 	 *            the stream id
 	 */
 	public void close(final String streamId) {
+		LOG.severe(">>!!close 1");
 		if (!this.smq.isEmpty()) {
 			for (final SendMessage sm : this.smq) {
 				sendMessage(sm);
@@ -157,21 +157,23 @@ public class Voice implements Organ {
 		this.deadStreams.remove(streamId);
 
 		waitForPlayers();
-
+		LOG.severe(">>!!close 2");
 		this.resynthSynthesizer.close(streamId);
 		this.audioSynthesizer.close(streamId);
 		LOG.severe(">>Voice CLOSE, midi running: " + this.midiSynthesizer.isSynthesizerRunning());
 		this.midiSynthesizer.close(streamId);
-		int counter = 60;
+		int counter = 600;
+		LOG.severe(">>!!close 3");
 		while (counter > 0 && this.midiSynthesizer.isSynthesizerRunning()) {
 			try {
 				counter--;
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (final InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		LOG.severe(">>!!close 4");
 		this.midiSynthesizer.reset();
 		LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
 				+ ", Frame Cache Size: " + this.workspace.getAtlas()
@@ -181,7 +183,7 @@ public class Voice implements Organ {
 			LOG.severe(">>Voice CLOSE JOB");
 			this.controller.getCountDownLatch()
 					.countDown();
-		} 
+		}
 	}
 
 	/**
@@ -323,12 +325,8 @@ public class Voice implements Organ {
 	 *            the stream id
 	 * @return true, if successful
 	 */
-	public boolean startStreamPlayer(final String streamId) {
-		final ToneMap synthToneMap = this.workspace.getAtlas()
-				.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
-		if (synthToneMap == null)
-			return false;
-		
+	public boolean startStreamPlayer(final String streamId, ToneMap synthToneMap) {
+		LOG.severe(">>SSP ");
 		do {
 			int sequence = 1;
 			ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
@@ -337,9 +335,10 @@ public class Voice implements Organ {
 				sequence++;
 				frame = synthToneMap.getTimeFrame(sequence);
 			}
+			LOG.severe(">>SSP 2");
 			close(streamId);
 		} while (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
-		
+		LOG.severe(">>SSP 3");
 		return true;
 	}
 

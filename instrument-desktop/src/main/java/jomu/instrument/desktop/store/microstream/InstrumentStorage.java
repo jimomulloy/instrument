@@ -16,16 +16,18 @@ public class InstrumentStorage {
 
 	private static final Logger LOG = Logger.getLogger(InstrumentStorage.class.getName());
 
-	final List<ToneMap> toneMapList = new ArrayList<>();
-	Properties parameters = new Properties();
+	class InstrumentStorageRoot {
+		public List<ToneMap> toneMapList = new ArrayList<>();
+		public Properties parameters = new Properties();
+	}
 
-	String root = "testing";
+	InstrumentStorageRoot root = new InstrumentStorageRoot();
 
 	@Inject
 	transient StorageManagerController storageManagerController;
 
 	public List<ToneMap> findAllToneMaps() {
-		return this.toneMapList;
+		return this.root.toneMapList;
 	}
 
 	private StorageManager getStorageManager() {
@@ -33,27 +35,27 @@ public class InstrumentStorage {
 	}
 
 	public void removeAllToneMaps() {
-		this.toneMapList.clear();
-		getStorageManager().store(toneMapList);
+		this.root.toneMapList.clear();
+		getStorageManager().store(root.toneMapList);
 		getStorageManager().storeRoot();
 	}
 
 	public void addToneMap(final ToneMap toneMap) {
-		this.toneMapList.add(toneMap);
-		getStorageManager().store(toneMapList);
+		this.root.toneMapList.add(toneMap);
+		getStorageManager().store(root.toneMapList);
 		getStorageManager().storeRoot();
 	}
 
 	public void setParameters(final Properties parameters) {
-		this.parameters = parameters;
-		getStorageManager().store(this.parameters);
+		this.root.parameters = parameters;
+		getStorageManager().store(this.root.parameters);
 		getStorageManager().storeRoot();
 		LOG.severe(">>Store params");
 	}
 
 	public Properties getParameters() {
 		LOG.severe(">>Get params");
-		return parameters;
+		return root.parameters;
 	}
 
 	public void shutdown() {
@@ -64,7 +66,7 @@ public class InstrumentStorage {
 		if (isInitRequired) {
 			Instrument.getInstance().getController().getParameterManager().reset();
 			this.setParameters(Instrument.getInstance().getController().getParameterManager().getParameters());
-			getStorageManager().setRoot(parameters);
+			getStorageManager().setRoot(this.root.parameters);
 			getStorageManager().storeRoot();
 			LOG.severe(">>Initialise Store");
 		} else {

@@ -29,6 +29,8 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE);
 		boolean pausePlay = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_PAUSE_PLAY_SWITCH);
+		boolean saveToneMap = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH);
 		int sinkSweepRange = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE);
 
@@ -69,7 +71,15 @@ public class AudioSinkProcessor extends ProcessorCommon {
 					commitMaps(streamId, i, persistenceMode);
 				}
 			}
-			voice.close(streamId);
+
+			final ToneMap synthToneMap = this.workspace.getAtlas()
+					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
+			if (synthToneMap != null && saveToneMap) {
+				LOG.severe(">>SINK SAVE TM");
+				this.workspace.getAtlas().saveToneMap(synthToneMap);
+			}
+
+			new Thread(() -> voice.close(streamId)).start();
 			// console.getVisor().updateViewThresholds();
 			LOG.severe(">>AudioSinkProcessor CLOSE");
 		}
