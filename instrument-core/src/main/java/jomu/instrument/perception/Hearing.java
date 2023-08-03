@@ -457,7 +457,7 @@ public class Hearing implements Organ {
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
 		AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16,
-				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
+				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), true);
 		// AudioFormat convertFormat = new AudioFormat(sourceFormat.getSampleRate(), 16,
 		// 1, true, true);
 
@@ -572,6 +572,18 @@ public class Hearing implements Organ {
 				.read(fileName));
 		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
 
+		AudioFormat sourceFormat = stream.getFormat();
+		// create audio format object for the desired stream/audio format
+		// this is *not* the same as the file format (wav)
+		AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16,
+				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), true);
+		// AudioFormat convertFormat = new AudioFormat(sourceFormat.getSampleRate(), 16,
+		// 1, true, true);
+
+		// create stream that delivers the desired format
+		AudioInputStream converted = AudioSystem.getAudioInputStream(convertFormat, stream);
+		// write stream into a file with file format wav
+
 		LOG.severe(">>cacheFile 2: " + fileName);
 
 		String baseDir = storage.getObjectStorage()
@@ -591,9 +603,10 @@ public class Hearing implements Organ {
 		String cacheFileName = fileName.substring(startIndex, fileName.lastIndexOf(".")) + ".wav";
 		String cacheFilePath = folder + System.getProperty("file.separator") + "cache_" + cacheFileName;
 		File cacheFile = new File(cacheFilePath);
-		AudioSystem.write(stream, AudioFileFormat.Type.WAVE, cacheFile);
+		AudioSystem.write(converted, AudioFileFormat.Type.WAVE, cacheFile);
 		bis.close();
 		stream.close();
+		converted.close();
 		return cacheFilePath;
 	}
 
@@ -1273,9 +1286,13 @@ public class Hearing implements Organ {
 			return false;
 		}
 		stopAudioPlayer();
-		File file = new File(audioStream.getAudioFileName());
+		String audioSourceFile = parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
+		File file = new File(audioSourceFile);
+		LOG.severe(">>PLAY :" + audioSourceFile);
 		AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(file);
 		AudioFormat format = fileFormat.getFormat();
+		LOG.severe(">>PLAY :" + audioSourceFile + ", " + format);
 
 		GainProcessor gainProcessor = new GainProcessor(1.0);
 		AudioPlayer audioPlayer = new AudioPlayer(format);
@@ -1285,6 +1302,7 @@ public class Hearing implements Organ {
 		audioPlayerDispatcher.addAudioProcessor(audioPlayer);
 
 		Thread t = new Thread(audioPlayerDispatcher, "Thread-Hearing-AudioPlayer" + System.currentTimeMillis());
+		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
 		return true;
 	}
