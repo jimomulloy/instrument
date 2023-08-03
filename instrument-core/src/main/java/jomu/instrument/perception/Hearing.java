@@ -212,7 +212,7 @@ public class Hearing implements Organ {
 
 		// !! TODO workspace.getAtlas()
 		// .clear();
-
+		this.console.getVisor().setPlayerState(false);
 		// Get current size of heap in bytes
 		long heapSize = Runtime.getRuntime()
 				.totalMemory();
@@ -638,9 +638,10 @@ public class Hearing implements Organ {
 			System.gc();
 			LOG.severe(">>HEARING startAudioLineStream cleared old stream: " + getStreamId());
 		}
-		workspace.getAtlas()
-				.clear();
 
+		// !! TODO workspace.getAtlas()
+		// .clear();
+		this.console.getVisor().setPlayerState(false);
 		// Get current size of heap in bytes
 		long heapSize = Runtime.getRuntime()
 				.totalMemory();

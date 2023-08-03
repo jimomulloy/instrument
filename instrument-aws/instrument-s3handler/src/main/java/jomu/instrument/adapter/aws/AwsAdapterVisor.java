@@ -108,4 +108,8 @@ public class AwsAdapterVisor implements Visor {
 
 	}
 
+	@Override
+	public void setPlayerState(boolean enabled) {
+	}
+
 }

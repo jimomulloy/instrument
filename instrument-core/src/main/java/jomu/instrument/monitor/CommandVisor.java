@@ -105,4 +105,8 @@ public class CommandVisor implements Visor {
 
 	}
 
+	@Override
+	public void setPlayerState(boolean enabled) {
+	}
+
 }

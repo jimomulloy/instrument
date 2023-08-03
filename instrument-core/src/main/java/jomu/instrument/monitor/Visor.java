@@ -30,6 +30,8 @@ public interface Visor extends AudioFeatureFrameObserver {
 
 	void updateParameters();
 
+	void setPlayerState(boolean enabled);
+
 	void updateStatusMessage(String string);
 
 	void showException(InstrumentException exception);

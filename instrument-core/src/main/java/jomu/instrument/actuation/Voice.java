@@ -19,6 +19,7 @@ import jomu.instrument.audio.TarsosAudioSynthesizer;
 import jomu.instrument.control.Controller;
 import jomu.instrument.control.InstrumentParameterNames;
 import jomu.instrument.control.ParameterManager;
+import jomu.instrument.monitor.Console;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
 import jomu.instrument.workspace.tonemap.ToneMap;
@@ -79,6 +80,9 @@ public class Voice implements Organ {
 	@Inject
 	ParameterManager parameterManager;
 
+	@Inject
+	Console console;
+
 	AudioSynthesizer resynthSynthesizer;
 
 	ConcurrentLinkedQueue<SendMessage> smq = new ConcurrentLinkedQueue<>();
@@ -137,9 +141,6 @@ public class Voice implements Organ {
 		this.midiSynthesizer.clear(streamId);
 	}
 
-	public void replay(final String streamId) {
-	}
-
 	/**
 	 * Close.
 	 *
@@ -147,7 +148,6 @@ public class Voice implements Organ {
 	 *            the stream id
 	 */
 	public void close(final String streamId) {
-		LOG.severe(">>!!close 1");
 		if (!this.smq.isEmpty()) {
 			for (final SendMessage sm : this.smq) {
 				sendMessage(sm);
@@ -156,26 +156,14 @@ public class Voice implements Organ {
 		}
 		this.deadStreams.remove(streamId);
 
-		waitForPlayers();
-		LOG.severe(">>!!close 2");
 		this.resynthSynthesizer.close(streamId);
 		this.audioSynthesizer.close(streamId);
 		LOG.severe(">>Voice CLOSE, midi running: " + this.midiSynthesizer.isSynthesizerRunning());
 		this.midiSynthesizer.close(streamId);
-		int counter = 600;
-		LOG.severe(">>!!close 3");
-		while (counter > 0 && this.midiSynthesizer.isSynthesizerRunning()) {
-			try {
-				counter--;
-				Thread.sleep(100);
-			} catch (final InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		LOG.severe(">>!!close 4");
+		waitForPlayers();
 		this.midiSynthesizer.reset();
-		LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
+		this.console.getVisor().setPlayerState(true);
+		this.LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
 				+ ", Frame Cache Size: " + this.workspace.getAtlas()
 						.getFrameCache()
 						.getSize());
@@ -354,8 +342,8 @@ public class Voice implements Organ {
 	/**
 	 * Stop stream player.
 	 */
-	public void stopStreamPlayer() {
-		// TODO Auto-generated method stub
+	public void stopStreamPlayer(final String streamId) {
+		close(streamId);
 
 	}
 
@@ -363,7 +351,16 @@ public class Voice implements Organ {
 	 * Wait for players.
 	 */
 	private void waitForPlayers() {
-		LOG.severe(">>Voice wait for players");
+		int counter = 600;
+		while (counter > 0 && this.midiSynthesizer.isSynthesizerRunning()) {
+			try {
+				counter--;
+				Thread.sleep(100);
+			} catch (final InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**

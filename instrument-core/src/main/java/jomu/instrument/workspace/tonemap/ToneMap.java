@@ -112,6 +112,7 @@ public class ToneMap {
 	 * Clear current ToneMap objects after Reset
 	 */
 	public void clear() {
+		clearOldFrames(Double.MAX_VALUE);
 		frameIndex = new CopyOnWriteArrayList<>();
 		statistics = new ToneMapStatistics();
 		noteTracker = new NoteTracker(this);
@@ -131,7 +132,7 @@ public class ToneMap {
 		if (frameIndex.contains(indexTime)) {
 			int fk = frameIndex.get(frameIndex.indexOf(indexTime));
 			frameCache.remove(getFrameKey(fk));
-			frameIndex.remove(fk);
+			// frameIndex.remove(fk);
 		}
 	}
 
@@ -242,16 +243,16 @@ public class ToneMap {
 
 	public ToneTimeFrame[] getTimeFramesTo(double time) {
 		int indexTime = buildTimeIndex(time);
-		List<ToneTimeFrame> tailMap = new ArrayList<>();
+		List<ToneTimeFrame> tMap = new ArrayList<>();
 		for (int fk : frameIndex) {
 			if (fk <= indexTime) {
 				Optional<ToneTimeFrame> result = frameCache.get(getFrameKey(fk));
 				if (result.isPresent()) {
-					tailMap.add(result.get());
+					tMap.add(result.get());
 				}
 			}
 		}
-		return tailMap.toArray(new ToneTimeFrame[tailMap.size()]);
+		return tMap.toArray(new ToneTimeFrame[tMap.size()]);
 	}
 
 	public int getNumberOfTimeFrames() {

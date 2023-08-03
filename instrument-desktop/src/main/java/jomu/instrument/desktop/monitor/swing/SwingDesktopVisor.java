@@ -1525,7 +1525,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				coordinator.getHearing().stopAudioStream();
 				coordinator.getHearing().stopAudioPlayer();
 				coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
-				coordinator.getVoice().stopStreamPlayer();
+				coordinator.getVoice().stopStreamPlayer(coordinator.getHearing().getStreamId());
 				startFileProcessingButton.setEnabled(true);
 				startListeningButton.setEnabled(true);
 				playAudioButton.setEnabled(true);
@@ -1563,6 +1563,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					final ToneMap synthToneMap = workspace.getAtlas().getSavedToneMap(index);
 					LOG.severe(">>PLAY ST: " + index + ", " + synthToneMap);
 					if (synthToneMap != null) {
+						playStreamButton.setEnabled(false);
 						new Thread(() -> coordinator.getVoice()
 								.startStreamPlayer(coordinator.getHearing().getStreamId(), synthToneMap))
 										.start();
@@ -1577,6 +1578,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		actionCenterPanel.add(stopListeningButton);
 		actionCenterPanel.add(playAudioButton);
 		actionCenterPanel.add(playStreamButton);
+		playStreamButton.setEnabled(false);
 
 		streamSaveSwitchCB = new JCheckBox("streamSaveSwitchCB");
 		streamSaveSwitchCB.setText("Save");
@@ -2856,6 +2858,11 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		synthButton.setEnabled(false);
 		resetSystemButton.setForeground(Color.RED);
 		updateStatusMessage("Instument System Error: " + exception.getMessage());
+	}
+
+	@Override
+	public void setPlayerState(boolean enabled) {
+		playStreamButton.setEnabled(enabled);
 	}
 
 }
