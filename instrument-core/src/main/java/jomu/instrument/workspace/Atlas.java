@@ -56,10 +56,10 @@ public class Atlas {
 
 	public void saveToneMap(ToneMap toneMap) {
 		if (savedToneMaps.size() >= MAX_SAVED_TONEMAPS) {
-			ToneMap tm = savedToneMaps.remove(0);
+			ToneMap tm = savedToneMaps.remove(savedToneMaps.size() - 1);
 			tm.clear();
 		}
-		savedToneMaps.add(toneMap);
+		savedToneMaps.add(0, toneMap);
 	}
 
 	public boolean hasCalibrationMap(String key) {
