@@ -1738,16 +1738,12 @@ public class ToneTimeFrame implements Serializable {
 
 	public ToneTimeFrame whiten(int centroid, double whitenFactor) {
 		reset();
-		LOG.finer(">>CQ WHITEN: " + getStartTime() + ", " + whitenFactor);
-
+	
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			if (element.amplitude > AMPLITUDE_FLOOR) {
 				int note = pitchSet.getNote(element.pitchIndex);
 				double whitening = 1 + ((double) ((note - centroid) * (note - centroid)) / (4.0 * whitenFactor));
-				if (element.amplitude > 0.1) {
-					LOG.finer(">>CQ WHITENED note : " + getStartTime() + ", " + note + ", " + whitening);
-				}
 				element.amplitude *= whitening;
 			}
 		}

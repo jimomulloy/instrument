@@ -12,7 +12,7 @@ public class OvertoneSet {
 	public static double[][] GUITAR_FORMANTS = { { 0, 1.0 }, { 1000, 1.2 }, { 2000, 1.0 } };
 	// public static double[] GUITAR_HARMONICS = {0.1, 0.05, 0.02, 0.01, 0.01,
 	// 0.01};
-	public static double[] GUITAR_HARMONICS = { 0.7, 0.5, 0.4, 0.3, 0.2, 0.1 };
+	public static double[] GUITAR_HARMONICS = { 0.7, 0.5, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2 };
 	static {
 
 	}

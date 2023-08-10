@@ -993,7 +993,8 @@ public class AudioTuner implements ToneMapConstants {
 		overtoneSet = new OvertoneSet();
 		if (!harmonicsGuitar) {
 			double[] initHarmonics = { harmonic1Setting / 100.0, harmonic2Setting / 100.0, harmonic3Setting / 100.0,
-					harmonic4Setting / 100.0, harmonic5Setting / 100.0, harmonic6Setting / 100.0 };
+					harmonic4Setting / 100.0, harmonic5Setting / 100.0, harmonic6Setting / 100.0,
+					harmonic6Setting / 100.0, harmonic6Setting / 100.0 };
 			overtoneSet.setHarmonics(initHarmonics);
 		}
 	}
