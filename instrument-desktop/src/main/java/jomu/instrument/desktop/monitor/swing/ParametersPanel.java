@@ -355,6 +355,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField tunerClearVibratoNotesTimeRangeInput;
 
+	private JTextField tunerHysteresisWeightInput;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1345,7 +1347,7 @@ public class ParametersPanel extends JPanel {
 		});
 
 		cqAdaptiveWhitenSwitchCB.setSelected(parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ADAPTIVE_WHITEN_FACTOR));
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_ADAPTIVE_WHITEN));
 		cqSwitchPanel.add(cqAdaptiveWhitenSwitchCB);
 
 		cqWhitenCompensateSwitchCB = new JCheckBox("cqWhitenCompensateSwitchCB");
@@ -4126,6 +4128,23 @@ public class ParametersPanel extends JPanel {
 		tunerParamsPanel.add(tunerNormalisePeakLabel);
 		tunerParamsPanel.add(tunerNormalisePeakInput);
 
+		JLabel tunerHysteresisWeightLabel = new JLabel("Audio Tuner Hysteresis Weight: ");
+		tunerHysteresisWeightInput = new JTextField(4);
+		tunerHysteresisWeightInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = tunerHysteresisWeightInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.AUDIO_TUNER_HYSTERESIS_WEIGHT,
+						newValue);
+				tunerHysteresisWeightLabel.setText(String.format("Audio Tuner Hysteresis Weight  (%s):", newValue));
+				tunerHysteresisWeightInput.setText(newValue);
+			}
+		});
+		tunerHysteresisWeightInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HYSTERESIS_WEIGHT));
+		tunerParamsPanel.add(tunerHysteresisWeightLabel);
+		tunerParamsPanel.add(tunerHysteresisWeightInput);
+
 		JLabel tunerHarmonicDriftFactorLabel = new JLabel("Audio Tuner Harmonic Drift Factor: ");
 		tunerHarmonicDriftFactorInput = new JTextField(4);
 		tunerHarmonicDriftFactorInput.addActionListener(new ActionListener() {
@@ -4530,6 +4549,8 @@ public class ParametersPanel extends JPanel {
 
 		tunerNormaliseThresholdInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_THRESHOLD));
+		tunerHysteresisWeightInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_HYSTERESIS_WEIGHT));
 		tunerNormaliseTroughInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.AUDIO_TUNER_NORMALISE_TROUGH));
 		tunerHarmonicDriftFactorInput

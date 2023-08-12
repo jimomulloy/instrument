@@ -1632,6 +1632,7 @@ public class ToneTimeFrame implements Serializable {
 			double threshold, boolean compensate) {
 		ToneTimeFrame controlFrame = controlMap.getTimeFrame();
 		ToneTimeFrame previousControlFrame = controlMap.getPreviousTimeFrame(controlFrame.getStartTime());
+		LOG.severe(">>AW IN: " + threshold + ", " + onsetFactor);
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement toneMapElement = elements[elementIndex];
 			int note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -1738,7 +1739,7 @@ public class ToneTimeFrame implements Serializable {
 
 	public ToneTimeFrame whiten(int centroid, double whitenFactor) {
 		reset();
-	
+
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement element = elements[elementIndex];
 			if (element.amplitude > AMPLITUDE_FLOOR) {

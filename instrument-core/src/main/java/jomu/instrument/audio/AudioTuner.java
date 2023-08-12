@@ -87,8 +87,8 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean noteScanAttenuateUndertones;
 	private boolean noteScanAttenuateSemitones;
 
-	private int noteHigh = INIT_NOTE_HIGH;
-	private int noteLow = INIT_NOTE_LOW;
+	private double noteHigh = INIT_NOTE_HIGH;
+	private double noteLow = INIT_NOTE_LOW;
 
 	private int noteSustain = INIT_NOTE_SUSTAIN;
 	private boolean peakSwitch;
@@ -120,6 +120,8 @@ public class AudioTuner implements ToneMapConstants {
 	private boolean noteTimbreCQSwitch;
 
 	private boolean noteTimbreNotateSwitch;
+
+	private double hysteresisWeight;
 
 	private static int thresholdHysteresisBaseNote = 12;
 	private static double[][] thresholdHysteresis = new double[][] { { 0.5, 0.3 }, { 0.6, 0.3 },
@@ -265,6 +267,7 @@ public class AudioTuner implements ToneMapConstants {
 		noteTimbreNotateSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.AUDIO_TUNER_NOTE_TIMBRE_NOTATE_SWITCH);
 		harmonicSweep = parameterManager.getIntParameter(InstrumentParameterNames.AUDIO_TUNER_HARMONIC_SWEEP);
+		hysteresisWeight = parameterManager.getDoubleParameter(InstrumentParameterNames.AUDIO_TUNER_HYSTERESIS_WEIGHT);
 
 	}
 
@@ -485,9 +488,12 @@ public class AudioTuner implements ToneMapConstants {
 					throw new InstrumentException(
 							"AudioTuner NoteSacn error thresholdHysteresisIndex: " + thresholdHysteresisIndex);
 				}
-				noteOnThresholdWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][0];
-				noteOffThresholdhWithHysteresis = noteLow * thresholdHysteresis[thresholdHysteresisIndex][1];
-				noteHighThresholdhWithHysteresis = noteHigh * thresholdHysteresis[thresholdHysteresisIndex][0];
+				noteOnThresholdWithHysteresis = noteLow
+						* getHysteresis(thresholdHysteresis[thresholdHysteresisIndex][0]);
+				noteOnThresholdWithHysteresis = noteLow
+						* getHysteresis(thresholdHysteresis[thresholdHysteresisIndex][1]);
+				noteHighThresholdhWithHysteresis = noteHigh
+						* getHysteresis(thresholdHysteresis[thresholdHysteresisIndex][0]);
 			}
 
 			previousNoteStatusElement = previousNoteStatus.getNoteStatusElement(note);
@@ -744,6 +750,10 @@ public class AudioTuner implements ToneMapConstants {
 
 		LOG.finer(">>NOTESCAN EXIT");
 		return true;
+	}
+
+	private double getHysteresis(double hysteresisFactor) {
+		return 1.0 - (hysteresisFactor * hysteresisWeight);
 	}
 
 	private void clearTailNotes(ToneMap toneMap) {

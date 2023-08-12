@@ -286,6 +286,7 @@ public class InstrumentParameterNames {
 	public static final String AUDIO_TUNER_HARMONIC_GUITAR_SWITCH = "audio.tuner.harmonicGuitarSwitch";
 	public static final String AUDIO_TUNER_HARMONIC_ACCUMULATE_SWITCH = "audio.tuner.harmonicAccumulateSwitch";
 	public static final String AUDIO_TUNER_HARMONIC_ATTENUATE_SWITCH = "audio.tuner.harmonicAttenuateSwitch";
+	public static final String AUDIO_TUNER_HYSTERESIS_WEIGHT = "audio.tuner.hysteresisWeight";
 	public static final String AUDIO_TUNER_NORMALISE_THRESHOLD = "audio.tuner.normalizeThreshold";
 	public static final String AUDIO_TUNER_NORMALISE_TROUGH = "audio.tuner.normalizeTrough";
 	public static final String AUDIO_TUNER_NORMALISE_PEAK = "audio.tuner.normalizePeak";
