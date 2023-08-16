@@ -59,7 +59,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		boolean cqSwitchWhiten = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
 		boolean cqSwitchAdaptiveWhiten = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_WHITEN);
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_ADAPTIVE_WHITEN);
 		boolean cqSwitchWhitenCompensate = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_ADAPTIVE_WHITEN);
 		double cqWhitenFactor = parameterManager

@@ -1632,7 +1632,6 @@ public class ToneTimeFrame implements Serializable {
 			double threshold, boolean compensate) {
 		ToneTimeFrame controlFrame = controlMap.getTimeFrame();
 		ToneTimeFrame previousControlFrame = controlMap.getPreviousTimeFrame(controlFrame.getStartTime());
-		LOG.severe(">>AW IN: " + threshold + ", " + onsetFactor);
 		for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 			ToneMapElement toneMapElement = elements[elementIndex];
 			int note = pitchSet.getNote(toneMapElement.getPitchIndex());
@@ -1640,7 +1639,7 @@ public class ToneTimeFrame implements Serializable {
 			double onsetAttackFactor = onsetFactor * config.attackFactor;
 			double onsetDecayFactor = onsetFactor * config.decayFactor;
 			double controlFactor = onsetAttackFactor;
-			double onsetThresholdFactor = onsetFactor * config.thresholdFactor;
+			double onsetThresholdFactor = threshold * config.thresholdFactor;
 			int rangeStart = elementIndex - config.range / 2 > 0 ? elementIndex - config.range / 2 : 0;
 			int rangeEnd = elementIndex + config.range / 2 <= elements.length
 					? elementIndex + config.range / 2
@@ -1670,6 +1669,8 @@ public class ToneTimeFrame implements Serializable {
 			} else {
 				controlAmplitude = Math.max(onsetThresholdFactor, elements[elementIndex].amplitude);
 			}
+
+			double samp = elements[elementIndex].amplitude;
 			elements[elementIndex].amplitude = elements[elementIndex].amplitude / controlAmplitude;
 			controlFrame.getElement(elementIndex).amplitude = controlAmplitude;
 		}
