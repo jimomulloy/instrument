@@ -314,7 +314,6 @@ public class Voice implements Organ {
 	 * @return true, if successful
 	 */
 	public boolean startStreamPlayer(final String streamId, ToneMap synthToneMap) {
-		LOG.severe(">>SSP ");
 		do {
 			int sequence = 1;
 			ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
@@ -323,10 +322,8 @@ public class Voice implements Organ {
 				sequence++;
 				frame = synthToneMap.getTimeFrame(sequence);
 			}
-			LOG.severe(">>SSP 2");
 			close(streamId);
 		} while (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
-		LOG.severe(">>SSP 3");
 		return true;
 	}
 

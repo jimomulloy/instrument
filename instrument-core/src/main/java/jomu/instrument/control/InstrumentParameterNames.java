@@ -390,6 +390,7 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_PLAY_BEAT4_SWITCH = "actuation.voice.midiPlayBeat4Switch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH = "actuation.voice.midiPlayBaseSwitch";
 	public static final String ACTUATION_VOICE_MIDI_SYNTH_TRACKS_SWITCH = "actuation.voice.midiSynthTracksSwitch";
+	public static final String ACTUATION_VOICE_AUDIO_PLAYBACK_LOOP_SWITCH = "actuation.voice.audioPlaybackLoopSwitch";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_1 = "actuation.voice.midiInstrumentVoice1";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_2 = "actuation.voice.midiInstrumentVoice2";
 	public static final String ACTUATION_VOICE_MIDI_INSTRUMENT_VOICE_3 = "actuation.voice.midiInstrumentVoice3";
@@ -416,5 +417,6 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_VOLUME_BEAT_3 = "actuation.voice.midiVolumeBeat3";
 	public static final String ACTUATION_VOICE_MIDI_VOLUME_BEAT_4 = "actuation.voice.midiVolumeBeat4";
 	public static final String ACTUATION_VOICE_MIDI_VOLUME_BASE_1 = "actuation.voice.midiVolumeBase1";
-
+	public static final String ACTUATION_VOICE_AUDIO_VOLUME_PLAYBACK = "actuation.voice.audioVolumePlayback";
+	
 }

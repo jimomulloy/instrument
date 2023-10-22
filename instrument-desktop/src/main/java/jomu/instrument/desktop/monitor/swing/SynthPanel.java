@@ -251,6 +251,9 @@ public class SynthPanel extends JPanel {
 				.add(buildTrackControlPanel("Base ", InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_BASE_SWITCH,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_INSTRUMENT_BASE_1,
 						InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BASE_1));
+		parameterPanel
+				.add(buildAudioPlaybackControlPanel("Audio ", InstrumentParameterNames.ACTUATION_VOICE_AUDIO_VOLUME_PLAYBACK));
+
 
 		parameterPanel.add(synthTuningPanel());
 
@@ -1463,6 +1466,58 @@ public class SynthPanel extends JPanel {
 		trackInput.setPreferredSize(new Dimension(40, 30));
 		leftPanel.add(midiPlaySwitchCB, BorderLayout.WEST);
 		leftPanel.add(trackInput, BorderLayout.CENTER);
+
+		JSlider volumeSlider = new JSlider(0, 1000);
+		final JLabel volumeLabel = new JLabel("Volume :");
+		volumeSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				int newValue = source.getValue();
+				volumeLabel.setText(String.format("Volume   (%d):", newValue));
+				parameterManager.setParameter(volumeParam, Integer.toString(newValue));
+			}
+		});
+		volumeSlider.setValue(parameterManager.getIntParameter(volumeParam));
+		volumeLabel.setPreferredSize(new Dimension(100, 30));
+		volumeSlider.setPreferredSize(new Dimension(400, 30));
+
+		centerPanel.add(volumeLabel, BorderLayout.WEST);
+		centerPanel.add(volumeSlider, BorderLayout.CENTER);
+
+		trackControlPanel.add(leftPanel, BorderLayout.WEST);
+		trackControlPanel.add(centerPanel, BorderLayout.CENTER);
+
+		containerPanel.add(trackControlPanel, BorderLayout.NORTH);
+		return containerPanel;
+
+	}
+
+	private JPanel buildAudioPlaybackControlPanel(String name, String volumeParam) {
+
+		JPanel containerPanel = new JPanel(new BorderLayout());
+
+		BorderLayout bl = new BorderLayout();
+		bl.setHgap(20);
+		JPanel trackControlPanel = new JPanel(bl);
+
+		JPanel leftPanel = new JPanel(new BorderLayout());
+		JPanel centerPanel = new JPanel(new BorderLayout());
+
+		JCheckBox midiPlaySwitchCB = new JCheckBox(name + "SwitchCB");
+		midiPlaySwitchCB.setText(name);
+		midiPlaySwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAYBACK_LOOP_SWITCH, Boolean.toString(newValue));
+			}
+		});
+
+		midiPlaySwitchCB.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAYBACK_LOOP_SWITCH));
+		midiPlaySwitchCB.setPreferredSize(new Dimension(100, 30));
+		leftPanel.add(midiPlaySwitchCB, BorderLayout.WEST);
 
 		JSlider volumeSlider = new JSlider(0, 1000);
 		final JLabel volumeLabel = new JLabel("Volume :");

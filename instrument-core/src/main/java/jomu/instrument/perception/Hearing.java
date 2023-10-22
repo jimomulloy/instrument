@@ -1293,14 +1293,40 @@ public class Hearing implements Organ {
 		AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(file);
 		AudioFormat format = fileFormat.getFormat();
 		LOG.severe(">>PLAY :" + audioSourceFile + ", " + format);
-
-		GainProcessor gainProcessor = new GainProcessor(1.0);
+		int audioVolumeFactor = parameterManager
+				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_VOLUME_PLAYBACK);
+		GainProcessor gainProcessor = new GainProcessor((double)audioVolumeFactor/100.0);
+		LOG.severe(">>PLAY :" + audioVolumeFactor  + ", "+ audioSourceFile + ", " + format);
 		AudioPlayer audioPlayer = new AudioPlayer(format);
 
 		audioPlayerDispatcher = AudioDispatcherFactory.fromFile(file, audioStream.getBufferSize(), 0);
 		audioPlayerDispatcher.addAudioProcessor(gainProcessor);
 		audioPlayerDispatcher.addAudioProcessor(audioPlayer);
+		
+		audioPlayerDispatcher.addAudioProcessor(new AudioProcessor() {
 
+			@Override
+			public boolean process(AudioEvent audioEvent) {
+				return true;
+			}
+
+			@Override
+			public void processingFinished() {
+				boolean isAudioPlaybackLoop = parameterManager
+						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAYBACK_LOOP_SWITCH);
+				if (isAudioPlaybackLoop) {
+					stopAudioPlayer();
+					try {
+						startAudioPlayer();
+					} catch (Exception e) {
+						LOG.log(Level.SEVERE, "Error starting listener", e);
+						coordinator.getHearing().stopAudioStream();
+						console.getVisor().updateStatusMessage("Error playing audio :" + e.getMessage());
+					}
+				}
+			}
+		});
+		
 		Thread t = new Thread(audioPlayerDispatcher, "Thread-Hearing-AudioPlayer" + System.currentTimeMillis());
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
