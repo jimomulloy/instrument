@@ -1,0 +1,1 @@
+/* * Copyright (C) Jerry Huxtable 1998 */package com.jhlabs.math;public interface Function1D {	public float evaluate(float v);}

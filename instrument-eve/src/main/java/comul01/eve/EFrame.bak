@@ -1,0 +1,589 @@
+package comul01.eve;
+
+import java.awt.*;
+import javax.media.*;
+import javax.media.control.TrackControl;
+import javax.media.Format;
+import javax.media.format.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import javax.media.util.*;
+import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.renderable.RenderedImageFactory;
+import javax.media.util.*;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.RenderableOp;
+import javax.media.jai.*;
+
+/*
+* Class EFrame
+*/
+public class EFrame {
+
+	public static final int RED = 2;
+	public static final int GREEN = 1;
+   	public static final int BLUE = 0;
+
+	int[] pixelData = null;
+    byte[] byteData = null;
+	int[] pixelAge = null;
+	private int currentPixel;
+	private BufferedImage bi, bimg;
+	private Image image;
+	private BufferToImage btoi;
+	private ImageToBuffer itob;
+	private Buffer buffer;
+	private Format format;
+	private VideoFormat videoFormat;
+	private RGBFormat rgbFormat;
+	private int bufferLength;
+	private int length;
+	private int offset;
+	private long seqnum;
+	private Dimension size;
+	private int pixelStride;
+	private int lineStride;
+	private int age;
+	private int maxDataLength;
+	private float frameRate;
+	private int flipped;
+	private int endian;
+	private int height;
+	private int width;
+
+	static public Color getColor(int band) {
+		if (band == RED ) return Color.red;
+		if (band == GREEN) return Color.green;
+		if (band == BLUE) return Color.blue;
+		return Color.white;
+	}
+   	public EFrame() {
+	      super();
+		}
+
+	public EFrame(Buffer buffer) {
+		super();
+		this.buffer = new Buffer();
+		this.buffer.copy(buffer);
+		format = buffer.getFormat();
+		videoFormat = (VideoFormat)buffer.getFormat();
+		bufferLength = buffer.getLength();
+		length = buffer.getLength()/3;
+		offset = buffer.getOffset();
+		seqnum = buffer.getSequenceNumber();
+		byte[] getData = (byte[])buffer.getData();
+		byteData = new byte[buffer.getLength()];
+		for (int i = offset; i < buffer.getLength() ;i++) {
+			byteData[i] = getData[i];
+		}
+		if (format instanceof RGBFormat) {
+			rgbFormat = (RGBFormat)format;
+			size = rgbFormat.getSize();
+			pixelStride = rgbFormat.getPixelStride();
+			lineStride = rgbFormat.getLineStride();
+			maxDataLength = rgbFormat.getMaxDataLength();
+			frameRate = rgbFormat.getFrameRate();
+			flipped = rgbFormat.getFlipped();
+			endian = rgbFormat.getEndian();
+			if (size != null) {
+				width = size.width;
+				height = size.height;
+			    maxDataLength = size.width * size.height * 3;
+				if (lineStride < size.width * 3)
+				    lineStride = size.width * 3;
+				if (flipped != Format.FALSE)
+	    			flipped = Format.FALSE;
+			}
+		}
+		resetPixelAge();
+		System.out.println("EFrame construct 1 " + seqnum );
+
+	}
+	/*
+	public EFrame(byte[] byteData, Format format, int length, int offset, long seqnum) {
+		super();
+
+		this.byteData = new byte[byteData.length];
+		System.arraycopy(byteData, 0, this.byteData, 0, byteData.length);
+		this.format = (Format)format.clone();
+		this.length = length;
+		this.offset = offset;
+		this.seqnum = seqnum;
+		if (format instanceof RGBFormat) {
+			rgbFormat = (RGBFormat)format;
+			size = rgbFormat.getSize();
+			pixelStride = rgbFormat.getPixelStride();
+			lineStride = rgbFormat.getLineStride();
+		}
+		resetPixelAge();
+
+	}
+	*/
+	public Buffer getBuffer() {
+		refreshBuffer();
+		return buffer;
+	}
+
+	public void setFormat(Format format) {
+		this.format = (Format)format.clone();
+		if (format instanceof RGBFormat) {
+			rgbFormat = (RGBFormat)format;
+			size = rgbFormat.getSize();
+			pixelStride = rgbFormat.getPixelStride();
+			lineStride = rgbFormat.getLineStride();
+			maxDataLength = rgbFormat.getMaxDataLength();
+			frameRate = rgbFormat.getFrameRate();
+			flipped = rgbFormat.getFlipped();
+			endian = rgbFormat.getEndian();
+			if (size != null) {
+				width = size.width;
+				height = size.height;
+			    maxDataLength = size.width * size.height * 3;
+				if (lineStride < size.width * 3)
+				    lineStride = size.width * 3;
+				if (flipped != Format.FALSE)
+		   			flipped = Format.FALSE;
+			}
+		}
+	}
+
+	public int getBufferlength() {
+		return bufferLength;
+	}
+
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+    public int getPixelStride() {
+        return pixelStride;
+    }
+    public int getLineStride() {
+        return lineStride;
+    }
+
+
+	public void resetPixelAge() {
+		pixelAge = new int[getLength()];
+	}
+
+	public int getPixelAge(int p) {
+		return pixelAge[p];
+	}
+
+	public void setPixelAge(int p, int age) {
+		pixelAge[p] = age;
+	}
+
+	public String toString() {
+		return ("length: "+length+" offset: "+offset+" seqnum: "+seqnum+" pixelStride: "+pixelStride+" lineStride "+lineStride) ;
+	}
+
+	public Format getFormat() {
+		return format;
+	}
+
+	public VideoFormat getVideoFormat() {
+		return videoFormat;
+	}
+
+
+	public int getLength() {
+		return length;
+	}
+
+	public int getOffset() {
+		return offset;
+	}
+
+	public long getSeqnum() {
+		return seqnum;
+	}
+
+	public byte[] getData() {
+		return byteData;
+	}
+
+	public byte[] getDataReverse() {
+		int len = byteData.length;
+		byte[] reverse = new byte[len];
+		for (int y=0; y<height; y++) {
+			for (int x=0; x<width*pixelStride; x+=pixelStride) {
+				for (int p=0; p<pixelStride; p++) {
+					reverse[(x+(pixelStride-1-p))+((height-1-y)*lineStride)] = byteData[(x+p)+(y*lineStride)];
+				}
+			}
+		}
+		return reverse;
+	}
+
+
+	public int[] getPixelData() {
+		return pixelData;
+	}
+
+	public int getBufferLength() {
+		return bufferLength;
+	}
+
+	public void refreshBuffer(){
+		buffer.setData(getData());
+	}
+
+
+	public BufferedImage getBufferedImage() {
+		buffer.setData(getData());
+		BufferToImage btoi = new BufferToImage(videoFormat);
+		Image image = btoi.createImage(buffer);
+		int iw = image.getWidth(null);
+		int ih = image.getHeight(null);
+		BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_RGB);
+		bi.createGraphics().drawImage(image ,0 ,0 , null);
+		return bi;
+	}
+	
+	public Graphics2D getGraphics() {
+		buffer.setData(getData());
+		BufferToImage btoi = new BufferToImage(videoFormat);
+		Image image = btoi.createImage(buffer);
+		int iw = image.getWidth(null);
+		int ih = image.getHeight(null);
+		BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = bi.createGraphics();
+		g2d.drawImage(image ,0 ,0 , null);
+		return g2d;
+	}
+
+
+
+	public Image getImage() {
+		buffer.setData(getData());
+		if (videoFormat == null) return null;
+		BufferToImage btoi = new BufferToImage(videoFormat);
+		Image image = btoi.createImage(buffer);
+		return image;
+	}
+
+	public RenderedOp getRenderedOp() {
+		Image image = getImage();
+		if (image == null) return null;
+		RenderedOp rop = JAI.create("AWTImage", image);
+		return rop;
+	}
+	
+	public RenderedImage getRenderedImage() {
+		Image image = getImage();
+		if (image == null) return null;
+		RenderedImage rimg = (RenderedImage)JAI.create("AWTImage", image);
+		return rimg;
+	}
+
+
+	public PlanarImage getPlanarImage() {
+		Image image = getImage();
+		if (image == null) return null;
+		PlanarImage rop = (PlanarImage)JAI.create("AWTImage", image);
+		return rop;
+	}
+
+	public void setRasterPixels(int[] pixels) {
+		for (int i = 0; i < pixels.length && i < bufferLength; i++ ) {
+			byteData[bufferLength-1-i] = (byte)pixels[i];
+		}
+		buffer.setData(getData());
+	}
+
+	public void setRaster(Raster raster) {
+		try {
+			for (int x = 0; x < getWidth(); x++ ) {
+				for (int y = 0; y < getHeight() ; y++) {
+					for( int b = 0; b < 3; b++ ) {
+						setPixel(b, x, getHeight()-1-y, raster.getSampleDouble(x, y, 2-b));
+					}
+				}
+			}
+		} catch (Exception e) {
+		}
+		buffer.setData(getData());
+	}
+
+	public void clearBuffer() {
+		for (int i = 0; i < byteData.length; i++ ) {
+			byteData[i] = 0;
+		}
+		buffer.setData(getData());
+	}
+	
+	public void setImage(Image image) {
+	
+		int iw = image.getWidth(null);
+		int ih = image.getHeight(null);
+		BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_RGB);
+		bi.createGraphics().drawImage(image ,0 ,0 , null);
+		int[] intarray = null;
+		Raster raster = bimg.getRaster();
+		setRaster(raster);
+	}
+
+	public void setBufferedImage(BufferedImage bimg) {
+		int[] intarray = null;
+		int iw = bimg.getWidth();
+		int ih = bimg.getHeight();
+		//int[] pixels = bimg.getRaster().getPixels(0, 0, iw, ih, intarray);
+		Raster raster = bimg.getRaster();
+		setRaster(raster);
+	}
+
+	public void setRenderedOp(RenderedOp rop) {
+		Raster raster = rop.getData();
+		setRaster(raster);
+	}
+
+	public void setRenderedImage(RenderedImage rop) {
+		Raster raster = rop.getData();
+		setRaster(raster);
+	}
+
+	public void setPlanarImage(PlanarImage rop) {
+		Raster raster = rop.getData();
+		setRaster(raster);
+	}
+
+
+	public void setRenderedOpPixels(RenderedOp rop) {
+		int[] intarray = null;
+		int iw = rop.getWidth();
+		int ih = rop.getHeight();
+		int[] pixels = rop.getData().getPixels(0, 0, iw, ih, intarray);
+		setRasterPixels(pixels);
+	}
+
+	public void composite(Image broll, Image mask, double[] alphaControls, int xoffset, int yoffset) {
+		int wb=0, hb=0, wm=0, hm=0;
+		BufferedImage bib=null, bim=null;
+		Raster rb=null, rm=null;
+		if (broll != null) {
+			wb = broll.getWidth(null);
+			hb = broll.getHeight(null);
+			bib = new BufferedImage(wb, hb, BufferedImage.TYPE_INT_RGB);
+			bib.createGraphics().drawImage(broll ,0 ,0 , null);
+			rb = bib.getRaster();
+		}
+
+		if (mask != null) {
+			wm = mask.getWidth(null);
+			hm = mask.getHeight(null);
+			bim = new BufferedImage(wm, hm, BufferedImage.TYPE_INT_RGB);
+			bim.createGraphics().drawImage(mask ,0 ,0 , null);
+			rm = bim.getRaster();
+
+		}
+
+		double pixela=0.0, pixelb=0.0, pixelm=0.0;
+		try {
+			for (int x = 0; x < getWidth(); x++ ) {
+				for (int y = 0; y < getHeight() ; y++) {
+					for( int b = 0; b < 3; b++ ) {
+
+						pixela = getPixelDouble(b,x+xoffset,y+yoffset);
+						if (rb != null && x <rb.getWidth() && y < rb.getHeight()) {
+
+							pixelb = rb.getSampleDouble(x, rb.getHeight()-1-y, 2-b);
+						}
+
+						if (rm != null && x <rm.getWidth() && y < rm.getHeight()) {
+							pixelm = rm.getSampleDouble(x, rm.getHeight()-1-y, 2-b);
+						}
+						setPixel(b, x+xoffset, y+yoffset,(pixela+pixelb+pixelm));
+
+					}
+				}
+			}
+		} catch (Exception e) {
+		}
+		buffer.setData(getData());
+	}
+
+	public void setPixel(int b, int x, int y, double i) {
+		if (i > 255) i = 255;
+		if (i < 0) i = 0;
+		setPixel(b, x, y, (byte)i);
+	}
+
+	public void setPixel(int b, int p, double i) {
+		if (i > 255) i = 255;
+		if (i < 0) i = 0;
+		setPixel(b, p, (byte)i);
+	}
+
+	public void setPixel(int b, int x, int y, int i) {
+		if (i > 255) i = 255;
+		if (i < 0) i = 0;
+		setPixel(b, x, y, (byte)i);
+	}
+
+	public void setPixel(int b, int p, int i) {
+		if (i > 255) i = 255;
+		if (i < 0) i = 0;
+		setPixel(b, p, (byte)i);
+	}
+
+	public void setPixel(int b, int x, int y, byte i) {
+		if ((byteData.length <= (x*3 + y*lineStride+b))||((x*3 + y*lineStride+b)<0)) return;
+		currentPixel = x + y*lineStride/3;
+		byteData[x*3 + y*lineStride+b] = (byte)i;
+	}
+
+	public void setPixel(int b, int p, byte i) {
+		if ((byteData.length <= (p*3 + b))||((p*3 + b)<0)) return;
+		currentPixel = p;
+		byteData[p*3+b] = (byte)i;
+	}
+
+	public void setPixel(int p, int i) {
+
+		if ((byteData.length <= (p*3+3))||((p*3+3)<0)) return;
+		currentPixel = p;
+		byteData[p*3+RED] = (byte)((i >> 16 ) & 0xFF);
+		byteData[p*3+GREEN] = (byte)((i >> 8 ) & 0xFF);
+		byteData[p*3+BLUE] = (byte)((i >> 0 ) & 0xFF);
+	}
+
+	public int getPixel(int p) {
+		currentPixel = p;
+		int i, ir, ig, ib;
+
+		ir = 0;
+		i = 0;
+		i = byteData[p*3+RED]<< 8;
+		ir = i>>>8 & 0xFF;
+
+		ig = 0;
+		i = 0;
+		i = byteData[p*3+GREEN]<< 8;
+		ig = i>>>8 & 0xFF;
+
+		ib = 0;
+		i = 0;
+		i = byteData[p*3+BLUE]<< 8;
+		ib = i>>>8 & 0xFF;
+
+		return (i & 0xFF000000) | (ir<<16) | (ig<<8 ) | (ib<<0) ;
+
+	}
+
+	public boolean comparePixel ( EFrame other, int p, int bandDiff, int totalDiff){
+
+		int tr = getPixel(RED, p);
+		int tb = getPixel(BLUE, p);
+		int tg = getPixel(GREEN, p);
+		int or = other.getPixel(RED, p);
+		int ob = other.getPixel(BLUE, p);
+		int og = other.getPixel(GREEN, p);
+		int dr, dg, db;
+		if (tr > or) dr = tr - or; else dr = or - tr;
+		if (tb > ob) db = tb - ob; else db = ob - tb;
+		if (tg > og) dg = tg - og; else dg = og - tg;
+
+		if (dr > bandDiff || dg > bandDiff || db > bandDiff) return false;
+
+		if ((dr+dg+db) > totalDiff) return false;
+
+		return true;
+	}
+
+	public byte getPixelByte(int b, int x, int y) {
+		if ((byteData.length <= (x*3 + y*lineStride+b))||((x*3 + y*lineStride+b)<0)) return 0;
+		currentPixel = x+y*lineStride/3;
+		return byteData[x*3 + y*lineStride+b];
+	}
+
+	public byte getPixelByte(int b, int p) {
+		if ((byteData.length <= (p*3+b))||((p*3+b)<0)) return 0;
+		currentPixel = p;
+		return byteData[p*3+b];
+	}
+
+	public int getPixelInt(int b, int x, int y) {
+		byte bytePixel = getPixelByte(b, x, y);
+		int temp, intPixel;
+		temp = bytePixel<<8;
+		intPixel = temp>>>8 & 0xFF;
+		return intPixel;
+	}
+
+	public int getPixelInt(int b, int p) {
+		byte bytePixel = getPixelByte(b, p);
+		int temp, intPixel;
+		temp = bytePixel<<8;
+		intPixel = temp>>>8 & 0xFF;
+		return intPixel;
+	}
+
+	public double getPixelDouble(int b, int x, int y) {
+		byte bytePixel = getPixelByte(b, x, y);
+		int temp, intPixel;
+		temp = bytePixel<<8;
+		intPixel = temp>>>8 & 0xFF;
+		return (double)intPixel;
+	}
+
+	public double getPixelDouble(int b, int p) {
+		byte bytePixel = getPixelByte(b, p);
+		int temp, intPixel;
+		temp = bytePixel<<8;
+		intPixel = temp>>>8 & 0xFF;
+		return (double)intPixel;
+	}
+
+	public int getPixel(int b, int x, int y) {
+		return getPixelInt(b, x , y);
+	}
+
+	public int getPixel(int b, int p) {
+		return getPixelInt(b, p);
+	}
+
+	public double getPixelGrey(int x, int y) {
+		double greyValue =(0.299*getPixelDouble(RED, x , y) +
+						0.587*getPixelDouble(GREEN, x, y) +
+						0.114*getPixelDouble(BLUE, x, y));
+		if (greyValue > 255.0) return 255.0;
+		return greyValue;
+	}
+
+	public EFrame copy() {
+
+		EFrame copyEFrame = new EFrame(buffer);
+		System.arraycopy(pixelAge, 0, copyEFrame.pixelAge, 0 , pixelAge.length);
+		System.out.println("EFrame copy 1 " + copyEFrame.getSeqnum()+", "+copyEFrame.pixelAge.length );
+
+		return copyEFrame;
+	}
+
+	public void setBuffer(Buffer buffer) {
+		this.buffer = buffer;
+		byteData = (byte[])buffer.getData();
+		format = buffer.getFormat();
+		videoFormat = (VideoFormat)buffer.getFormat();
+		length = buffer.getLength()/3;
+		offset = buffer.getOffset();
+		seqnum = buffer.getSequenceNumber();
+		if (format instanceof RGBFormat) {
+			rgbFormat = (RGBFormat)format;
+			size = rgbFormat.getSize();
+			pixelStride = rgbFormat.getPixelStride();
+			lineStride = rgbFormat.getLineStride();
+		}
+	}
+}
+
+

@@ -1,0 +1,1 @@
+package com.jhlabs.image;import java.awt.image.ImageFilter;public interface MutatableFilter {	public void mutate(int amount, ImageFilter dst, boolean keepShape, boolean keepColors);}

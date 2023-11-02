@@ -1,0 +1,4100 @@
+/* * EJEffects.java */ package comul01.eve;
+
+import java.awt.*;
+import java.util.*;
+import javax.media.*;
+import javax.media.control.TrackControl;
+import javax.media.Format;
+import javax.media.format.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import javax.media.util.*;
+import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.renderable.RenderedImageFactory;
+import javax.media.util.*;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.operator.*;
+import javax.media.jai.RenderedOp;
+import java.awt.RenderingHints;
+import javax.media.jai.RenderableOp;
+import javax.media.jai.RenderableOp;
+import javax.media.jai.*;
+import java.awt.image.renderable.RenderableImage;
+import java.awt.image.renderable.RenderContext;
+import java.awt.color.*;
+
+public class EJEffects {
+
+	EFrameSet eFrameIn = null;
+	EFrameSet eFrameFilter = null;
+	EFrameSet eFrameOut = null;
+
+	EFrame thisFrame = null;
+	EFrame prevFrame = null;
+	EFrame interFrame = null;
+	EFrame nextFrame = null;
+
+	EFrame thisFrameA = null;
+	EFrame nextFrameA = null;
+
+	EFrame thisFrameB = null;
+	EFrame nextFrameB = null;
+
+	private EJMain ejMain = null;
+	private EJSettings ejSettings = null;
+
+	private EJSettings.EffectContext effectContext = null;
+	private EJSettings.EffectParam effectParam = null;
+	private EJSettings.EffectModulator effectModulator = null;
+
+	private double[] effectParams;
+
+	public int seqNumber = 0;
+
+	double duration;
+	double currentTime;
+	float compoRatio;
+
+	WarpImagePath warpPath;
+	WaterRipple waterRipple;
+	WarpImageGenerator warpGen;
+
+	/** selected Parameter1 **/
+	protected float parameter1 = 1.2F;
+
+	/**
+	* initialize the formats
+	*/
+	public EJEffects(EJMain ejMain) {
+
+		this.ejMain = ejMain;
+		ejSettings = ejMain.getEJSettings();
+		this.duration = ejSettings.getDuration();
+
+		eFrameIn = new EFrameSet(4);
+		eFrameFilter = new EFrameSet(4);
+		eFrameOut = new EFrameSet(4);
+		System.out.println("EJEffects after init EFrames");
+
+	}
+
+	// Utility methods.
+	Format matches(Format in, Format outs[]) {
+		for (int i = 0; i < outs.length; i++) {
+			if (in.matches(outs[i]))
+				return outs[i];
+		}
+
+		return null;
+	}
+
+	byte[] validateByteArraySize(Buffer buffer, int newSize) {
+		Object objectArray = buffer.getData();
+		byte[] typedArray;
+		if (objectArray instanceof byte[]) { // is correct type AND not null
+			typedArray = (byte[]) objectArray;
+			if (typedArray.length >= newSize) { // is sufficient capacity
+				return typedArray;
+			}
+
+			byte[] tempArray = new byte[newSize]; // re-alloc array
+			System.arraycopy(typedArray, 0, tempArray, 0, typedArray.length);
+			typedArray = tempArray;
+		}
+		else {
+			typedArray = new byte[newSize];
+		}
+
+		buffer.setData(typedArray);
+		return typedArray;
+	}
+
+	/**
+	* utility: update the output buffer fields
+	*/
+	protected void updateOutput(
+		Buffer outputBuffer,
+		Format format,
+		int length,
+		int offset) {
+
+		outputBuffer.setFormat(format);
+		outputBuffer.setLength(length);
+		outputBuffer.setOffset(offset);
+	}
+
+	/**
+	* Callback to access individual video frames.
+	*/
+	public void processFrame(Buffer frame) {
+
+		// For demo, we'll just print out the frame #, time &
+		// data length.
+
+		long t = (long) (frame.getTimeStamp() / 10000000f);
+		currentTime = (double) (frame.getTimeStamp());
+
+		System.err.println(
+			"EJEffects Testinge: frame #: "
+			+ frame.getSequenceNumber()
+			+ ", time: "
+			+ ((float) t) / 100f
+			+ ", "
+			+ currentTime
+			+ ", len: "
+			+ frame.getLength()
+			+ ", offset: "
+			+ frame.getOffset());
+
+		if (frame.getLength() == 0)
+			return;
+		thisFrame = new EFrame(frame);
+		interFrame = new EFrame(frame);
+		nextFrame = new EFrame(frame);
+		eFrameIn.put(thisFrame);
+		seqNumber = (int) frame.getSequenceNumber();
+
+		int i = 0;
+		for (i = 0; i < ejSettings.effectList.size(); i++) {
+			effectContext = (EJSettings.EffectContext) ejSettings.effectList.get(i);
+			if (effectContext.enabled
+				&& effectContext.type == EJSettings.PRE_PROCESS
+				&& !effectContext.compo) {
+				getParameters();
+				if (effectParams[0] == 1.0) {
+					nextFrame = doEffect(nextFrame);
+				}
+				else {
+					interFrame = doEffect(nextFrame);
+					nextFrame =
+						doJAIAdd(
+						doJAIMultiplyConst(effectParams[0], interFrame),
+						doJAIMultiplyConst((1.0 - effectParams[0]), nextFrame));
+				}
+			}
+		}
+
+		//eFrameFilter.put(nextFrame);
+
+		System.gc();
+
+		eFrameOut.put(nextFrame);
+
+		updateOutput(
+			frame,
+			nextFrame.getBuffer().getFormat(),
+			nextFrame.getBuffer().getLength(),
+			nextFrame.getBuffer().getOffset());
+		validateByteArraySize(frame, nextFrame.getBuffer().getLength());
+		frame.setData(nextFrame.getData());
+
+	}
+
+	/**
+	* Callback to access individual video frames.
+	*/
+	public void processFrame(Buffer frameInA, Buffer frameInB, float compoRatio) {
+
+		this.compoRatio = compoRatio;
+
+		long t = (long) (frameInA.getTimeStamp() / 10000000f);
+		currentTime = (double) (frameInA.getTimeStamp());
+
+		System.err.println(
+			"EJEffect Compo Testing: frame #: "
+			+ frameInA.getSequenceNumber()
+			+ ", time: "
+			+ ((float) t) / 100f
+			+ ", current: "
+			+ currentTime
+			+ ", len: "
+			+ frameInA.getLength()
+			+ ", offset: "
+			+ frameInA.getOffset()
+			+ ", ratio: "
+			+ compoRatio);
+
+		if (frameInA.getLength() == 0 || frameInA.getLength() == 0)
+			return;
+
+		thisFrameA = new EFrame(frameInA);
+		thisFrameB = new EFrame(frameInB);
+
+		nextFrameA = new EFrame(frameInA);
+		nextFrameB = new EFrame(frameInB);
+		eFrameIn.put(thisFrameA);
+		seqNumber = (int) frameInA.getSequenceNumber();
+
+		int i = 0;
+		for (i = 0; i < ejSettings.effectList.size(); i++) {
+			effectContext = (EJSettings.EffectContext) ejSettings.effectList.get(i);
+			System.out.println(
+				"EJEffect Compo before effect: "
+				+ effectContext.enabled
+				+ ", "
+				+ effectContext.type
+				+ ", "
+				+ effectContext.name
+				+ " ,"
+				+ effectContext.compo);
+
+			if (effectContext.enabled
+				&& effectContext.type == EJSettings.PRE_PROCESS
+				&& effectContext.compo) {
+				getParameters();
+				nextFrameA = doComboEffect(nextFrameA, nextFrameB);
+				System.out.println("EJEffect Compo After effect");
+				break;
+			}
+		}
+
+		//eFrameFilter.put(nextFrameA);
+
+		System.gc();
+
+		eFrameOut.put(nextFrameA);
+
+		updateOutput(
+			frameInA,
+			nextFrameA.getBuffer().getFormat(),
+			nextFrameA.getBuffer().getLength(),
+			nextFrameA.getBuffer().getOffset());
+		validateByteArraySize(frameInA, nextFrameA.getBuffer().getLength());
+		frameInA.setData(nextFrameA.getDataReverse());
+		System.out.println("EJEffect Compo end");
+
+	}
+
+	private void getParameters() {
+
+		effectParams = new double[effectContext.params.size()];
+		double pValue,
+			lowVFactor,
+			highVFactor,
+			midVFactor,
+			midPFactor,
+			mid2VFactor,
+			mid2PFactor;
+		for (int i = 0; i < effectContext.params.size(); i++) {
+			effectParam = (EJSettings.EffectParam) effectContext.params.get(i);
+			if (effectParam.modulator == null) {
+				effectParams[i] = ((double) (effectParam.value)) / 100.0;
+				System.out.println("Plain param " + effectParams[i]);
+			}
+			else {
+				lowVFactor = ((double) effectParam.modulator.lowValue) / 100.000;
+				highVFactor = ((double) effectParam.modulator.highValue) / 100.000;
+				midPFactor = ((double) effectParam.modulator.midPoint) / 100.000;
+				mid2PFactor = ((double) effectParam.modulator.mid2Point) / 100.000;
+				midVFactor = ((double) effectParam.modulator.midValue) / 100.000;
+				mid2VFactor = ((double) effectParam.modulator.mid2Value) / 100.000;
+				if (mid2PFactor < midPFactor) {
+					mid2PFactor = ((double) effectParam.modulator.midPoint) / 100.000;
+					midPFactor = ((double) effectParam.modulator.mid2Point) / 100.000;
+				}
+				pValue = ((double) (effectParam.value)) / 100.0;
+				if ((currentTime / duration) < midPFactor) {
+					effectParams[i] =
+						(lowVFactor * pValue
+						+ (midVFactor * pValue - lowVFactor * pValue)
+						* (currentTime / (duration * midPFactor)));
+				}
+				else if ((currentTime / duration) > mid2PFactor) {
+					effectParams[i] =
+						(highVFactor * pValue
+						+ (mid2VFactor * pValue - highVFactor * pValue)
+						* ((duration - currentTime) / (duration * (1.0 - mid2PFactor))));
+				}
+				else {
+					effectParams[i] =
+						(midVFactor * pValue
+						+ (mid2VFactor * pValue - midVFactor * pValue)
+						* (((currentTime / duration) - midPFactor) / (mid2PFactor - midPFactor)));
+
+				}
+
+				System.out.println(
+					"modulator "
+					+ lowVFactor
+					+ ", "
+					+ midVFactor
+					+ ", "
+					+ highVFactor
+					+ ", "
+					+ midPFactor
+					+ ":: "
+					+ effectParams[i]
+					+ ", "
+					+ pValue
+					+ ":: "
+					+ currentTime
+					+ ", "
+					+ duration);
+			}
+		}
+	}
+
+	private EFrame doEffect(EFrame in) {
+		EFrame out;
+		String effectName = effectContext.name;
+		if (effectName == "deltaframes") {
+			out = doDeltaFrames(in);
+			return out;
+		}
+		if (effectName == "passtime") {
+			out = doPassTime(in);
+			return out;
+		}
+		if (effectName == "timeframes") {
+			out = doTimeFrames(in);
+			return out;
+		}
+		if (effectName == "timeframework") {
+			out = doTimeFrameWork(in);
+			return out;
+		}
+		if (effectName == "maxtime") {
+			out = doMaxTime(in);
+			return out;
+		}
+		if (effectName == "mintime") {
+			out = doMinTime(in);
+			return out;
+		}
+		if (effectName == "imagine") {
+			out = doJAIImagine(in);
+			return out;
+		}
+		if (effectName == "jaiscale") {
+			out = doJAIScale(in);
+			return out;
+		}
+		if (effectName == "jaiscaleaffine") {
+			out = doJAIScaleAffine(in);
+			return out;
+		}
+		if (effectName == "j2dscale") {
+			out = doJ2DScale(in);
+			return out;
+		}
+		if (effectName == "jaiscaleaffine2") {
+			out = doJAIScaleAffine2(in);
+			return out;
+		}
+		if (effectName == "scale") {
+			out = doJ2DScale(in);
+			return out;
+		}
+		if (effectName == "invert") {
+			out = doJAIInvert(in);
+			return out;
+		}
+		if (effectName == "framemean") {
+			out = doFrameMeanFilter();
+			return out;
+		}
+		if (effectName == "zebra") {
+			out = doZebra(in);
+			return out;
+		}
+		if (effectName == "passfilter") {
+			out = doFramePassFilter();
+			return out;
+		}
+		if (effectName == "dft") {
+			out = doJAIdft(in);
+			return out;
+		}
+		if (effectName == "dct") {
+			out = doJAIdctidct(in);
+			return out;
+		}
+		if (effectName == "dctfilter") {
+			out = doJAIdctidct(in);
+			return out;
+		}
+		if (effectName == "idct") {
+			out = doJAIidct(in);
+			return out;
+		}
+		if (effectName == "bandcombine") {
+			out = doJAIdft(in);
+			return out;
+		}
+		if (effectName == "dct") {
+			out = doJAIdctidct(in);
+			return out;
+		}
+		if (effectName == "dctfilter") {
+			out = doJAIdctidct(in);
+			return out;
+		}
+		if (effectName == "idct") {
+			out = doJAIidct(in);
+			return out;
+		}
+		if (effectName == "bandcombine") {
+			out = doJAIBandCombine(in);
+			return out;
+		}
+		if (effectName == "colourconvert") {
+			out = doJAIColorConvert(in);
+			return out;
+		}
+		if (effectName == "triplethreshold") {
+			out = doJAIThreshold(in);
+			return out;
+		}
+		if (effectName == "laplace") {
+			out = doJAILaplaceFilter(in);
+			return out;
+		}
+		if (effectName == "sharpen") {
+			out = doJAISharpenFilter(in);
+			return out;
+		}
+		if (effectName == "emboss") {
+			out = doJAIEmboss(in);
+			return out;
+		}
+		if (effectName == "robertsedge") {
+			out = doJAIRobertsEdge(in);
+			return out;
+		}
+		if (effectName == "freichenedge") {
+			out = doJAIFreichenEdge(in);
+			return out;
+		}
+		if (effectName == "prewittedge") {
+			out = doJAIPrewittEdge(in);
+			return out;
+		}
+		if (effectName == "sobeledge") {
+			out = doJAISobelEdge(in);
+			return out;
+		}
+		if (effectName == "median") {
+			out = doJAIMedian(in);
+			return out;
+		}
+		if (effectName == "timeconvolve") {
+			out = doTimeConvolve(timeMean);
+			return out;
+		}
+		if (effectName == "convolve") {
+			out = doConvolve(in, embossData);
+			return out;
+		}
+		if (effectName == "convolvespread") {
+			out = doConvolveSpread(in, blurMoreData);
+			return out;
+		}
+		if (effectName == "brownian") {
+			out = doBrownian(in, edgeMatrix);
+			return out;
+		}
+		if (effectName == "histogram") {
+			out = doHistogram(in);
+			return out;
+		}
+		if (effectName == "zerox") {
+			out = doZerox(in);
+			return out;
+		}
+		if (effectName == "texturemix") {
+			out = new EFrame(in.getBuffer());
+			return out;
+		}
+		if (effectName == "equalise") {
+			out = doEqualise(in);
+			return out;
+		}
+		if (effectName == "movie") {
+			out = doMovie(in);
+			return out;
+		}
+
+		if (effectName == "hough") {
+			out = doHough(in);
+			return out;
+		}
+		if (effectName == "ihough") {
+			out = doHoughInverse(in);
+			return out;
+		}
+		if (effectName == "multiplyconst") {
+			out = doJAIMultiplyConst(2, in);
+			return out;
+		}
+
+		if (effectName == "threshold") {
+			out = doThreshold(in);
+			return out;
+		}
+		if (effectName == "localhistogram") {
+			out = doLocalHistogram(in);
+			return out;
+		}
+		if (effectName == "contrast") {
+			out = doContrast(in);
+			return out;
+		}
+
+		if (effectName == "lin") {
+			out = doLIN(in);
+			return out;
+		}
+		if (effectName == "sin") {
+			out = doSIN(in);
+			return out;
+		}
+		if (effectName == "dolps") {
+			out = doDOLPS(in);
+			return out;
+		}
+		if (effectName == "crackdetect") {
+			out = doCrackDetect(in);
+			return out;
+		}
+
+		if (effectName == "centroid") {
+			out = doCentroid(in);
+			return out;
+		}
+
+		if (effectName == "grassfire") {
+			out = doGrassFire(in);
+			return out;
+		}
+
+		if (effectName == "limb") {
+			out = doLimb(in);
+			return out;
+		}
+		if (effectName == "junction") {
+			out = doJunction(in);
+			return out;
+		}
+		if (effectName == "chamfer") {
+			out = doChamfer(in);
+			return out;
+		}
+
+		if (effectName == "zerocrossing") {
+			out = doZeroCrossing(in);
+			return out;
+		}
+
+		if (effectName == "clearwhite") {
+			out = doClearWhite(in);
+			return out;
+		}
+
+
+		if (effectName == "dilation") {
+			out = doDilation(in, dilationMatrix);
+			return out;
+		}
+
+		if (effectName == "erosion") {
+			out = doErosion(in, erosionMatrix);
+			return out;
+		}
+
+		if (effectName == "opening") {
+			out = doOpening(in);
+			return out;
+		}
+
+		if (effectName == "closing") {
+			out = doClosing(in);
+			return out;
+		}
+
+		if (effectName == "internalgradient") {
+			out = doInternalGradient(in);
+			return out;
+		}
+
+		if (effectName == "externalgradient") {
+			out = doExternalGradient(in);
+			return out;
+		}
+
+		if (effectName == "morphgradient") {
+			out = doMorphGradient(in);
+			return out;
+		}
+
+		if (effectName == "reconstruct") {
+			out = doReconstruct(in);
+			return out;
+		}
+
+		if (effectName == "watermark") {
+			out = doWaterMark(in);
+			return out;
+		}
+
+		if (effectName == "walkline") {
+			out = doWalkLine(in);
+			return out;
+		}
+
+		if (effectName == "fill") {
+			out = doFill(in);
+			return out;
+		}
+
+		if (effectName == "leader") {
+			out = doLeader(in);
+			return out;
+		}
+
+		if (effectName == "compose") {
+			out = doCompose(in);
+			return out;
+		}
+
+		if (effectName == "warppath") {
+			out = doWarpPath(in);
+			return out;
+		}
+
+		if (effectName == "waterripple") {
+			out = doWaterRipple(in);
+			return out;
+		}
+
+		if (effectName == "coco") {
+			out = doCoco(in);
+			return out;
+		}
+
+		if (effectName == "normalise") {
+			out = doNormalise(in);
+			return out;
+		}
+
+		if (effectName == "thinning") {
+			out = doThinning(in);
+			return out;
+		}
+
+
+		if (effectName == "band") {
+			out = doBand(in);
+			return out;
+		}
+
+
+		if (effectName == "bits") {
+			out = doBits(in);
+			return out;
+		}
+
+		if (effectName == "warpgen") {
+			out = doWarpGen(in);
+			return out;
+		}
+
+
+		out = new EFrame(in.getBuffer());
+		return out;
+
+	}
+
+	private EFrame doComboEffect(EFrame inA, EFrame inB) {
+		EFrame out;
+		String effectName = effectContext.name;
+		if (effectName == "add") {
+			out = doJAIAdd(inA, inB);
+			return out;
+		}
+		if (effectName == "dummy") {
+			out = doDummy(inA, inB);
+			return out;
+		}
+		if (effectName == "subtract") {
+			out = doJAISubtract(inA, inB);
+			return out;
+		}
+		if (effectName == "subtractmean") {
+			out = doJAISubtractM(inA, inB);
+			return out;
+		}
+		if (effectName == "multiply") {
+			out = doJAIMultiply(inA, inB);
+			return out;
+		}
+		if (effectName == "max") {
+			out = doJAIMax(inA, inB);
+			return out;
+		}
+		if (effectName == "min") {
+			out = doJAIMin(inA, inB);
+			return out;
+		}
+
+
+		out = new EFrame(inA.getBuffer());
+		return out;
+	}
+
+	private EFrame doDeltaFrames(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		prevFrame = null;
+		int frameOffset = 0;
+		int age = 0;
+		double newpixelr = 0, newpixelg = 0, newpixelb = 0;
+		for (int p = frameIn.getOffset(); p < frameIn.getLength(); p++) {
+
+			newpixelr = 0;
+			newpixelg = 0;
+			newpixelb = 0;
+
+			prevFrame = eFrameIn.get(1);
+			if (prevFrame != null) {
+				//if (!frameIn.comparePixel(prevFrame, p, 20, 40)) {
+				// Reverse is interesting temporal edge effect
+				if (frameIn.comparePixel(prevFrame, p, 20, 40)) {
+
+					age = prevFrame.getPixelAge(p);
+					age++;
+					frameIn.setPixelAge(p, age);
+					newpixelr =
+						newpixelr + (getGrowthFactor(age)) * ((double) frameIn.getPixel(EFrame.RED, p));
+					newpixelg =
+						newpixelg
+						+ (getGrowthFactor(age)) * ((double) frameIn.getPixel(EFrame.GREEN, p));
+					newpixelb =
+						newpixelb
+						+ (getGrowthFactor(age)) * ((double) frameIn.getPixel(EFrame.BLUE, p));
+
+				}
+				else {
+					frameIn.setPixelAge(p, 0);
+					newpixelr =
+						newpixelr + (getGrowthFactor(0)) * (frameIn.getPixelDouble(EFrame.RED, p));
+					newpixelg =
+						newpixelg + (getGrowthFactor(0)) * (frameIn.getPixelDouble(EFrame.GREEN, p));
+					newpixelb =
+						newpixelb + (getGrowthFactor(0)) * (frameIn.getPixelDouble(EFrame.BLUE, p));
+				}
+
+			}
+			else {
+
+				frameIn.setPixelAge(p, 0);
+				newpixelr =
+					newpixelr + (getGrowthFactor(0)) * (frameIn.getPixelDouble(EFrame.RED, p));
+				newpixelg =
+					newpixelg + (getGrowthFactor(0)) * (frameIn.getPixelDouble(EFrame.GREEN, p));
+				newpixelb =
+					newpixelb + (getGrowthFactor(0)) * (frameIn.getPixelDouble(EFrame.BLUE, p));
+			}
+
+			int count = eFrameIn.getCount();
+			int nextAge = frameIn.getPixelAge(p);
+			int lastAge = 0;
+
+			EFrame saveFrame = null;
+			saveFrame = eFrameIn.get(0);
+			System.out.println("Eframe testing1 " + count);
+			for (int offset = 1; offset < count; offset++) {
+				prevFrame = eFrameIn.get(offset);
+				if (prevFrame == null)
+					break;
+				lastAge = prevFrame.getPixelAge(p);
+				if (lastAge >= nextAge) {
+					newpixelr =
+						newpixelr
+						+ (getDecayFactor(offset) * getGrowthFactor(lastAge))
+						* ((double) prevFrame.getPixel(EFrame.RED, p));
+					newpixelg =
+						newpixelg
+						+ (getDecayFactor(offset) * getGrowthFactor(lastAge))
+						* ((double) prevFrame.getPixel(EFrame.GREEN, p));
+					newpixelb =
+						newpixelb
+						+ (getDecayFactor(offset) * getGrowthFactor(lastAge))
+						* ((double) prevFrame.getPixel(EFrame.BLUE, p));
+
+					//newpixelr = newpixelr + (getDecayFactor(offset)*getGrowthFactor(lastAge))*((double)(prevFrame.getPixel(EFrame.RED, p)-saveFrame.getPixel(EFrame.RED, p)));
+					//newpixelg = newpixelg + (getDecayFactor(offset)*getGrowthFactor(lastAge))*((double)(prevFrame.getPixel(EFrame.GREEN, p)-saveFrame.getPixel(EFrame.GREEN, p)));
+					//newpixelb = newpixelb + (getDecayFactor(offset)*getGrowthFactor(lastAge))*((double)(prevFrame.getPixel(EFrame.BLUE, p)-saveFrame.getPixel(EFrame.BLUE, p)));
+
+					saveFrame = eFrameIn.get(offset);
+					//break;
+					//Or no growth factor here??
+				}
+				nextAge = lastAge;
+			}
+
+			frameOut.setPixel(EFrame.RED, p, newpixelr);
+			frameOut.setPixel(EFrame.GREEN, p, newpixelg);
+			frameOut.setPixel(EFrame.BLUE, p, newpixelb);
+
+		}
+
+		return frameOut;
+	}
+
+	private EFrame doPassTime(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double z;
+		double k = 4.0;
+		double dt = 0.1;
+		double qfactor = 50.0;
+		IIRBandpassFilterDesign bpfd =
+			new IIRBandpassFilterDesign((int) (k), (int) (1.0 / dt), qfactor);
+		bpfd.doFilterDesign();
+		double alpha = bpfd.getAlpha();
+		double beta = bpfd.getBeta();
+		double gamma = bpfd.getGamma();
+		System.out.println("Before filtering a");
+		int count = eFrameIn.getCount();
+		System.out.println(
+			"Before filtering b " + count + ", " + alpha + ", " + beta + ", " + gamma);
+		beta = 0.8;
+		alpha = 0.1;
+		gamma = -0.8;
+		double mfactor = 1.0;
+		if (count < 3)
+			return frameOut;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				for (int band = 0; band < numBands; band++) {
+					z = 2.0 * alpha * eFrameIn.get(1).getPixelDouble(band, x, y);
+					z = z + (alpha * eFrameIn.get(0).getPixelDouble(band, x, y));
+					z = z + (alpha * eFrameIn.get(2).getPixelDouble(band, x, y));
+					z = z + (beta * eFrameOut.get(1).getPixelDouble(band, x, y));
+					z = z + (gamma * eFrameOut.get(0).getPixelDouble(band, x, y));
+					z = z * mfactor;
+					if (z > 255)
+						z = 255;
+					if (z < -255)
+						z = -255;
+					if (z < 0)
+						z = 255 - z;
+					//if (z < 0) z = -z;
+					//if (z < 0 ) z = 0;
+					frameOut.setPixel(band, x, y, z);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doTimeFrames(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		EFrame newFrame = null;
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double z, lastSample, newSample, sampleDelta;
+		int count = eFrameIn.getCount();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				for (int band = 0; band < numBands; band++) {
+					z = frameIn.getPixelDouble(band, x, y);
+					lastSample = z;
+					for (int offset = 1; offset < count; offset += 4) {
+						newFrame = eFrameIn.get(offset);
+						if (newFrame == null)
+							break;
+						newSample = newFrame.getPixelDouble(band, x, y);
+						sampleDelta = newSample - lastSample;
+						if (sampleDelta != 0.0) {
+							// ??
+							sampleDelta = newSample - z;
+							if (sampleDelta > -255.0) {
+								z += sampleDelta / (2 + (offset - 1) * 0.2);
+								//z += sampleDelta/(2 + (offset%4));
+								//z += sampleDelta/2;
+							}
+						}
+						lastSample = newSample;
+					}
+					frameOut.setPixel(band, x, y, z);
+				}
+			}
+		}
+		return frameOut;
+	}
+	private EFrame doTimeFrameWork(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		EFrame newFrame = null;
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double z, lastSample, newSample, sampleDelta;
+		int count = eFrameIn.getCount();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				for (int band = 0; band < numBands; band++) {
+					//z = frameIn.getPixelDouble(band, x, y);
+					z = eFrameFilter.get(0).getPixelDouble(band, x, y);
+
+					lastSample = z;
+					for (int offset = 1; offset < count; offset += 4) {
+						newFrame = eFrameFilter.get(offset);
+						if (newFrame == null)
+							break;
+						newSample = newFrame.getPixelDouble(band, x, y);
+						sampleDelta = newSample - lastSample;
+						if (sampleDelta != 0.0) {
+							// ??
+							sampleDelta = newSample - z;
+							if (sampleDelta > -255.0) {
+								//z += sampleDelta/(2 + (offset-1)*0.2);
+								//z += sampleDelta/(2 + (offset%4));
+								//z += sampleDelta/2;
+								z += newSample / (1 + (offset - 1) * 0.2);
+							}
+						}
+						lastSample = newSample;
+					}
+					frameOut.setPixel(band, x, y, z);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doMaxTime(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int count = eFrameIn.getCount();
+		EFrame newFrame = null;
+		for (int offset = 1; offset < count; offset++) {
+			newFrame = eFrameIn.get(offset);
+			if (newFrame == null)
+				break;
+			frameOut =
+				doJAIMax(frameOut, doJAIMultiplyConst(1.0 / (count * 0.2 + 1.0), newFrame));
+			// ?? frameOut = doJAIMax(frameOut, newFrame);
+
+		}
+		return frameOut;
+	}
+
+	private EFrame doMinTime(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int count = eFrameIn.getCount();
+		EFrame newFrame = null;
+		for (int offset = 1; offset < count; offset++) {
+			newFrame = eFrameIn.get(offset);
+			if (newFrame == null)
+				break;
+			frameOut =
+				doJAIMin(frameOut, doJAIMultiplyConst((count * 0.2 + 1.0), newFrame));
+			// ?? frameOut = doJAIMin(frameOut, newFrame);
+
+		}
+		return frameOut;
+	}
+
+	private EFrame doJAIImagine(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		Imagine imagine = new Imagine();
+		pb.add(imagine);
+		pb.add(ropIn.getWidth());
+		pb.add(ropIn.getHeight());
+		pb.add(0.0F);
+		pb.add(0.0F);
+		pb.add(0.0F);
+		pb.add(0.0F);
+		RenderedOp ropOut = JAI.create("imagefunction", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIScaleAffine(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		PlanarImage ropIn = (PlanarImage) frameIn.getPlanarImage();
+		Interpolation interp = new InterpolationBicubic2(16);
+		ParameterBlock pb = new ParameterBlock();
+		AffineTransform at = new AffineTransform(1.2, 0.0, 0.0, 1.0, 0.0, 0.0);
+		//pb.addSource(ropIn);
+		//pb.add(2.5F);
+		//pb.add(2.5F);
+		//pb.add(0.0F);
+		//pb.add(0.0F);
+		//pb.add(interp);
+		RenderingHints rh =
+			new RenderingHints(
+			JAI.KEY_BORDER_EXTENDER,
+			BorderExtender.createInstance(BorderExtender.BORDER_COPY));
+		PlanarImage ropOut = (PlanarImage) JAI.create("affine", ropIn, at, interp, rh);
+
+		int width = ropOut.getWidth();
+		int height = ropOut.getHeight();
+		Dimension size = new Dimension(width, height);
+		RGBFormat newFormat = (RGBFormat) frameIn.getFormat();
+		float frameRate = newFormat.getFrameRate();
+		int flipped = newFormat.getFlipped();
+		int endian = newFormat.getEndian();
+		int maxDataLength = size.width * size.height * 3;
+		int lineStride = size.width * 3;
+		newFormat =
+			new RGBFormat(
+			size,
+			maxDataLength,
+			Format.byteArray,
+			frameRate,
+			24,
+			3,
+			2,
+			1,
+			3,
+			lineStride,
+			flipped,
+			endian);
+
+		Buffer newBuffer = new Buffer();
+		newBuffer.copy(frameIn.getBuffer());
+		newBuffer.setFormat(newFormat);
+		newBuffer.setLength(maxDataLength);
+		newBuffer.setOffset(0);
+		validateByteArraySize(newBuffer, maxDataLength);
+		System.out.println(
+			"scale buffer: "
+			+ maxDataLength
+			+ ", "
+			+ width
+			+ ", "
+			+ height
+			+ ", "
+			+ newFormat);
+		frameOut = new EFrame(newBuffer);
+		frameOut.setPlanarImage(ropOut);
+		return frameOut;
+	}
+
+	private EFrame doJ2DScale(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		BufferedImage biIn = frameIn.getBufferedImage();
+		Interpolation interp = new InterpolationBilinear();
+		int iw = frameIn.getWidth() * 3;
+		int ih = frameIn.getHeight() * 3;
+		BufferedImage biOut = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_RGB);
+		AffineTransform at = new AffineTransform(3.0, 0.0, 0.0, 3.0, 0.0, 0.0);
+		/*
+		RenderingHints rh =
+		new RenderingHints( JAI.KEY_BORDER_EXTENDER,
+						BorderExtender.createInstance(BorderExtender.BORDER_COPY));
+		AffineTransformOp aop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+		*/
+		RenderingHints rh =
+			new RenderingHints(
+			RenderingHints.KEY_ANTIALIASING,
+			RenderingHints.VALUE_ANTIALIAS_ON);
+		rh.put(
+			RenderingHints.KEY_INTERPOLATION,
+			RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+		AffineTransformOp aop = new AffineTransformOp(at, rh);
+
+		aop.filter(biIn, biOut);
+		int width = biOut.getWidth();
+		int height = biOut.getHeight();
+		Dimension size = new Dimension(width, height);
+		RGBFormat newFormat = (RGBFormat) frameIn.getFormat();
+		float frameRate = newFormat.getFrameRate();
+		int flipped = newFormat.getFlipped();
+		int endian = newFormat.getEndian();
+		int maxDataLength = size.width * size.height * 3;
+		int lineStride = size.width * 3;
+		newFormat =
+			new RGBFormat(
+			size,
+			maxDataLength,
+			Format.byteArray,
+			frameRate,
+			24,
+			3,
+			2,
+			1,
+			3,
+			lineStride,
+			flipped,
+			endian);
+
+		Buffer newBuffer = new Buffer();
+		newBuffer.copy(frameIn.getBuffer());
+		newBuffer.setFormat(newFormat);
+		newBuffer.setLength(maxDataLength);
+		newBuffer.setOffset(0);
+		validateByteArraySize(newBuffer, maxDataLength);
+		frameOut = new EFrame(newBuffer);
+		frameOut.setBufferedImage(biOut);
+		return frameOut;
+	}
+
+	private EFrame doJAIScale(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		PlanarImage jaiImage;
+		RenderedImage src = null;
+		System.out.println("In JAI Scale 1 !");
+		// Create a BufferedImage source directly from JMF data if possible.
+		if (frameIn.getBuffer().getFormat() instanceof RGBFormat
+			&& (int[].class).isInstance(frameIn.getBuffer().getData())) {
+			System.out.println("In JAI Scale 2 - got INT buffer");
+			RGBFormat rgbFormat = (RGBFormat) frameIn.getBuffer().getFormat();
+			int redMask = rgbFormat.getRedMask();
+			int greenMask = rgbFormat.getGreenMask();
+			int blueMask = rgbFormat.getBlueMask();
+			if (rgbFormat.getBitsPerPixel() <= 32 && rgbFormat.getPixelStride() == 1) {
+				System.out.println("In JAI Scale 3 - got rgb format");
+				Dimension size = rgbFormat.getSize();
+				SampleModel sm =
+					new SinglePixelPackedSampleModel(
+					DataBuffer.TYPE_INT,
+					size.width,
+					size.height,
+					rgbFormat.getLineStride(),
+					new int[] {
+					redMask, greenMask, blueMask 
+				});
+				int[] data = (int[]) frameIn.getBuffer().getData();
+				WritableRaster wr =
+					Raster.createWritableRaster(
+					sm,
+					new DataBufferInt(data, data.length),
+					new Point(0, 0));
+				ColorModel cm = new DirectColorModel(32, redMask, greenMask, blueMask);
+				src = new BufferedImage(cm, wr, false, null);
+			}
+		}
+
+		// If an image couldn't be created directly use the AWT image route.
+		BufferToImage frameConverter =
+			new BufferToImage((VideoFormat) frameIn.getBuffer().getFormat());
+		if (src == null) {
+			System.out.println("In JAI Scale 4 - creating AWT Image");
+			// Convert the Buffer to an AWT Image.
+			Image frameImage = frameConverter.createImage(frameIn.getBuffer());
+
+			// Derive a JAI image from the AWT image.
+			src = JAI.create("AWTImage", frameImage);
+		}
+
+		// Ensure the source has a ComponentSampleModel.
+		ParameterBlock pb;
+		if (!(src.getSampleModel() instanceof ComponentSampleModel)) {
+			System.out.println("In JAI Scale 5 - creating samplemodel");
+			SampleModel sampleModel =
+				RasterFactory.createPixelInterleavedSampleModel(
+				DataBuffer.TYPE_BYTE,
+				src.getWidth(),
+				src.getHeight(),
+				3);
+			ImageLayout layout = new ImageLayout();
+			layout.setSampleModel(sampleModel);
+			//layout.setTileWidth(640).setTileHeight(480);
+			RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+			pb = (new ParameterBlock()).addSource(src);
+			src = JAI.create("format", pb, hints);
+		}
+		// Scale the image by the specified factor.
+		float scale = 2.0F;
+		pb = (new ParameterBlock()).addSource(src);
+		pb.add((float) scale).add((float) scale);
+		//pb.add(-imagePanel.getWidth()/2.0F);
+		//pb.add(-imagePanel.getHeight()/2.0F);
+		pb.add(0.0F).add(0.0F);
+		Interpolation interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
+		pb.add(interp);
+		BorderExtender extender =
+			BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+		RenderingHints hints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, extender);
+		jaiImage = JAI.create("Scale", pb, hints);
+
+		//int iw = frameIn.getWidth()*3;
+		//int ih = frameIn.getHeight()*3;
+		BufferedImage biOut = jaiImage.getAsBufferedImage();
+		int height = biOut.getHeight();
+		int width = biOut.getWidth();
+		Dimension size = new Dimension(width, height);
+		RGBFormat newFormat = (RGBFormat) frameIn.getBuffer().getFormat();
+		float frameRate = newFormat.getFrameRate();
+		int flipped = newFormat.getFlipped();
+		int endian = newFormat.getEndian();
+		int maxDataLength = size.width * size.height * 3;
+		int lineStride = size.width * 3;
+		newFormat =
+			new RGBFormat(
+			size,
+			maxDataLength,
+			Format.byteArray,
+			frameRate,
+			24,
+			3,
+			2,
+			1,
+			3,
+			lineStride,
+			flipped,
+			endian);
+
+		Buffer newBuffer = new Buffer();
+		newBuffer.copy(frameIn.getBuffer());
+		newBuffer.setFormat(newFormat);
+		newBuffer.setLength(maxDataLength);
+		newBuffer.setOffset(0);
+		validateByteArraySize(newBuffer, maxDataLength);
+		frameOut = new EFrame(newBuffer);
+		frameOut.setBufferedImage(biOut);
+		return frameOut;
+	}
+
+	private EFrame doJAIScaleAffine2(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		Interpolation interp = new InterpolationBilinear();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		pb.add(null).add(null).add(null).add(null).add(null);
+
+		RenderableImage rimg = JAI.createRenderable("renderable", pb);
+		AffineTransform at = new AffineTransform(0.8, 0.0, 0.0, 1.0, 0.0, 0.0);
+		RenderingHints rh =
+			new RenderingHints(
+			JAI.KEY_BORDER_EXTENDER,
+			BorderExtender.createInstance(BorderExtender.BORDER_COPY));
+		RenderContext rc = new RenderContext(at);
+		RenderedImage ropOut = rimg.createRendering(rc);
+
+		int width = ropOut.getWidth();
+		int height = ropOut.getHeight();
+		Dimension size = new Dimension(width, height);
+		RGBFormat newFormat = (RGBFormat) frameIn.getFormat();
+		float frameRate = newFormat.getFrameRate();
+		int flipped = newFormat.getFlipped();
+		int endian = newFormat.getEndian();
+		int maxDataLength = size.width * size.height * 3;
+		int lineStride = size.width * 3;
+		newFormat =
+			new RGBFormat(
+			size,
+			maxDataLength,
+			Format.byteArray,
+			frameRate,
+			24,
+			3,
+			2,
+			1,
+			3,
+			lineStride,
+			flipped,
+			endian);
+
+		Buffer newBuffer = new Buffer();
+		newBuffer.copy(frameIn.getBuffer());
+		newBuffer.setFormat(newFormat);
+		newBuffer.setLength(maxDataLength);
+		newBuffer.setOffset(0);
+		validateByteArraySize(newBuffer, maxDataLength);
+		frameOut = new EFrame(newBuffer);
+		frameOut.setRenderedImage(ropOut);
+		return frameOut;
+	}
+
+	private EFrame doJAIInvert(EFrame frameIn) {
+
+		System.out.println(
+			"Effect Context: "
+			+ effectContext.name
+			+ ", "
+			+ effectContext.enabled
+			+ ", "
+			+ effectContext.type
+			+ ", "
+			+ effectContext.interp
+			+ ", "
+			+ effectContext.convolve);
+		for (int i = 0; i < effectParams.length; i++) {
+			System.out.println("Paramater " + i + ", " + effectParams[i]);
+		}
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		RenderedOp ropOut = JAI.create("invert", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+	}
+
+	private EFrame doFrameMeanFilter() {
+		EFrame frame0, frame1, frame2, frame3;
+		int count = eFrameIn.getCount();
+		if (count > 4) {
+			frame0 = doJAIMultiplyConst(0.25, eFrameIn.get(0));
+			frame1 = doJAIMultiplyConst(0.25, eFrameIn.get(1));
+			frame2 = doJAIMultiplyConst(0.25, eFrameIn.get(2));
+			frame3 = doJAIMultiplyConst(0.25, eFrameIn.get(3));
+			frame0 = doJAIAdd(frame0, frame1);
+			frame2 = doJAIAdd(frame2, frame3);
+			nextFrame = doJAIAdd(frame0, frame2);
+		}
+		return nextFrame;
+	}
+
+	private EFrame doZebra(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		EFrame frame0, frame1;
+		int count = eFrameOut.getCount();
+		if (count > 4) {
+			frame0 = eFrameOut.get(4);
+			if (frame0 == null)
+				return frameOut;
+			frame1 = doJAIInvert(frame0);
+			frameOut = doJAIMin(frame1, frameIn);
+
+			//frame1 = doJAIInvert(doJAISubtract(frameIn, frame0));
+			//frameOut = doJAIMin(frame1, frameIn);
+			//frameOut = doJAIAdd(frameIn, frame1);
+			//frameOut = doJAIAdd(frameIn, doJAIInvert(frameOut));
+
+		}
+		return frameOut;
+	}
+
+	private EFrame doFramePassFilter() {
+		double k = 4.0;
+		double dt = 0.1;
+		double qfactor = 50.0;
+		IIRBandpassFilterDesign bpfd =
+			new IIRBandpassFilterDesign((int) (k), (int) (1.0 / dt), qfactor);
+		bpfd.doFilterDesign();
+		double alpha = bpfd.getAlpha();
+		double beta = bpfd.getBeta();
+		double gamma = bpfd.getGamma();
+		EFrame frame0, frame0a, frame0b, frame0c, frame1, frame2;
+		System.out.println("Before filtering a");
+		int count = eFrameIn.getCount();
+		System.out.println(
+			"Before filtering b " + count + ", " + alpha + ", " + beta + ", " + gamma);
+		beta = 0.1;
+		alpha = 0.2;
+		gamma = 0.1;
+		double mfactor = 1.0;
+		if (count > 2) {
+			System.out.println("Processing filters!");
+			frame2 = doJAIMultiplyConst(beta, eFrameOut.get(1));
+			frame1 = doJAIMultiplyConst(gamma, eFrameOut.get(0));
+			frame0a = doJAIMultiplyConst(2.0 * alpha, eFrameIn.get(1));
+			frame0b = doJAIMultiplyConst(alpha, eFrameIn.get(0));
+			frame0c = doJAIMultiplyConst(alpha, eFrameIn.get(2));
+			frame0 = doJAIAdd(frame0a, frame0b);
+			frame0 = doJAIAdd(frame0, frame0c);
+			frame1 = doJAIAdd(frame1, frame2);
+			frame0 = doJAISubtractM(frame0, frame1);
+			nextFrame = doJAIMultiplyConst(mfactor, frame0);
+			System.out.println("Processed filters!");
+		}
+		return nextFrame;
+	}
+
+	private EFrame doJAIdft(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		pb.add(DFTDescriptor.SCALING_NONE);
+		pb.add(DFTDescriptor.REAL_TO_COMPLEX);
+		RenderedOp ropOut = JAI.create("dft", pb);
+		int width = ropOut.getWidth();
+		int height = ropOut.getHeight();
+		int[] pixels = null;
+		int numBands = ropOut.getSampleModel().getNumBands();
+		int dataType = ropOut.getSampleModel().getDataType();
+		Raster dftData = ropOut.getData();
+		pixels = dftData.getSamples(0, 0, width, height, 0, (int[]) null);
+		System.out.println(
+			"dft pixels: "
+			+ pixels.length
+			+ ", "
+			+ numBands
+			+ ", "
+			+ dataType
+			+ ", "
+			+ width
+			+ ", "
+			+ height
+			+ ", "
+			+ frameIn.getLength()
+			+ ", "
+			+ frameIn.getWidth()
+			+ ", "
+			+ frameIn.getHeight());
+		frameOut.setRasterPixels(pixels);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIdctidct(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		RenderedOp ropOut = JAI.create("dct", pb);
+		int width = ropOut.getWidth();
+		int height = ropOut.getHeight();
+		WritableRaster raster1 = (WritableRaster) ropOut.getData();
+
+		try {
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height / 40; y++) {
+					for (int b = 0; b < 3; b++) {
+						raster1.setSample(x, y, b, 0.0);
+					}
+				}
+			}
+		} catch (Exception e) {
+		}
+
+		pb = new ParameterBlock();
+		pb.addSource(ropOut);
+		RenderedOp ropOut1 = JAI.create("idct", pb);
+		frameOut.setRenderedOp(ropOut1);
+		return frameOut;
+	}
+
+	private EFrame doJAIidct(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		RenderedOp ropOut = JAI.create("idct", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	float edgeMatrix[] =
+        {
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            24.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f };
+
+	float edgeMatrix1[] =
+        { 0.0f, -1.0f, 0.0f, -1.0f, 10.0f, -1.0f, 0.0f, -1.0f, 0.0f, };
+
+	float edgeMatrix2[] =
+        { 0.0f, -1.0f, 0.0f, -1.0f, 5.0f, -1.0f, 0.0f, -1.0f, 0.0f, };
+	float[] embossMatrix =
+        { -5.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 5.0F };
+	float[] freichen_h_data =
+        { 1.0F, 0.0F, -1.0F, 1.414F, 0.0F, -1.414F, 1.0F, 0.0F, -1.0F };
+	float[] freichen_v_data =
+        { -1.0F, -1.414F, -1.0F, 0.0F, 0.0F, 0.0F, 1.0F, 1.414F, 1.0F };
+
+	float[] prewitt_h_data =
+        { 1.0F, 0.0F, -1.0F, 1.0F, 0.0F, -1.0F, 1.0F, 0.0F, -1.0F };
+	float[] prewitt_v_data =
+        { -1.0F, -1.0F, -1.0F, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F };
+
+	float[] roberts_h_data =
+        { 0.0F, 0.0F, -1.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F };
+	float[] roberts_v_data =
+        { -1.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F };
+
+	float[] normalData = { 1.0F };
+
+	float[] blurData =
+        {
+            0.0F,
+            1.0F / 8.0F,
+            0.0F,
+            1.0F / 8.0F,
+            4.0F / 8.0F,
+            1.0F / 8.0F,
+            0.0F,
+            1.0F / 8.0F,
+            0.0F };
+
+	float[] blurMoreData =
+        {
+            1.0F / 14.0F,
+            2.0F / 14.0F,
+            1.0F / 14.0F,
+            2.0F / 14.0F,
+            2.0F / 14.0F,
+            2.0F / 14.0F,
+            1.0F / 14.0F,
+            2.0F / 14.0F,
+            1.0F / 14.0F };
+
+	float[] sharpenData =
+        {
+            0.0F,
+            -1.0F / 4.0F,
+            0.0F,
+            -1.0F / 4.0F,
+            8.0F / 4.0F,
+            -1.0F / 4.0F,
+            0.0F,
+            -1.0F / 4.0F,
+            0.0F };
+
+	float[] sharpenMoreData =
+        {
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            12.0F / 4.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F };
+
+	float[] laplaceMatrix =
+        { 1.0F, -2.0F, 1.0F, -2.0F, 5.0F, -2.0F, 1.0F, -2.0F, 1.0F };
+
+	float[] edgeData = { 0.0F, -1.0F, 0.0F, -1.0F, 4.0F, -1.0F, 0.0F, -1.0F, 0.0F };
+
+	float[] embossData = { -5.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 5.0F };
+
+	float[] timeConvolve1 =
+        {
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            0.0F,
+            10.0F / 4.0F,
+            0.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F,
+            -1.0F / 4.0F };
+
+	float[] timePrewitt =
+        { -1.0F, -1.0F, -1.0F, 1.0F, 0.0F, -1.0F, 1.0F, 1.0F, 1.0F };
+
+	float[] timeBlur = { 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F };
+
+	float[] timeMean = { 0.0F, 1.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 1.0F, 0.0F };
+
+	float[] dilationMatrix = { 	0.0F, 25.0F, 0.0F,
+								25.0F, 50.0F, 25.0F,
+								0.0F, 25.0F, 0.0F };
+	float[] erosionMatrix = { 	0.0F, 25.0F, 0.0F,
+								25.0F, 50.0F, 25.0F,
+								0.0F, 25.0F, 0.0F };
+
+	float[] tophatMatrix = { 	0.0F, 1.0F, 0.0F,
+								1.0F, 1.0F, 1.0F,
+								0.0F, 1.0F, 0.0F };
+
+	// Invert center band.
+	double[][] bcMatrix1 = { { 1.0D, 0.0D, 0.0D, 0.0D }, {
+            0.0D, -1.0D, 0.0D, 255.0D }, {
+            0.0D, 0.0D, 1.0D, 0.0D }, };
+
+	// Identity.
+	double[][] bcMatrix2 = { { 1.0D, 0.0D, 0.0D, 0.0D }, {
+            0.0D, 1.0D, 0.0D, 0.0D }, {
+            0.0D, 0.0D, 1.0D, 0.0D }, };
+
+	// Luminance stored into red band (3 band).
+	double[][] bcMatrix3 = { { .114D, 0.587D, 0.299D, 0.0D }, {
+            .000D, 0.000D, 0.000D, 0.0D }, {
+            .000D, 0.000D, 0.000D, 0.0D }
+    };
+
+	// Luminance (single band output).
+	double[][] bcMatrix4 = { { .114D, 0.587D, 0.299D, 0.0D }
+    };
+
+	// Colour to B&W.
+	double[][] bcMatrix5 = { { .114D, 0.587D, 0.299D, 0.0D }, {
+            .114D, 0.587D, 0.299D, 0.0D }, {
+            .114D, 0.587D, 0.299D, 0.0D }
+    };
+
+	private KernelJAI makeGaussianKernel(int radius) {
+		int diameter = 2 * radius + 1;
+		float invrsq = 1.0F / (radius * radius);
+
+		float[] gaussianData = new float[diameter];
+
+		float sum = 0.0F;
+		for (int i = 0; i < diameter; i++) {
+			float d = i - radius;
+			float val = (float) Math.exp(-d * d * invrsq);
+			gaussianData[i] = val;
+			sum += val;
+		}
+
+		// Normalize
+		float invsum = 1.0F / sum;
+		for (int i = 0; i < diameter; i++) {
+			gaussianData[i] *= invsum;
+		}
+
+		return new KernelJAI(
+			diameter,
+			diameter,
+			radius,
+			radius,
+			gaussianData,
+			gaussianData);
+	}
+
+	private EFrame doJAIBandCombine(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		pb.add(bcMatrix5);
+		RenderedOp ropOut = JAI.create("bandcombine", pb, null);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doDummy(EFrame frameIn, EFrame frameIn2) {
+
+		EFrame frameOut = new EFrame(frameIn2.getBuffer());
+		RenderedOp ropIn = frameIn2.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		pb.add(bcMatrix5);
+		RenderedOp ropOut = JAI.create("bandcombine", pb, null);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIColorConvert(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+		pb.add(cs);
+		RenderedOp ropOut = JAI.create("ColorConvert", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIThreshold(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		double[] low, high, map;
+		int bands = 3;
+		double ht = effectParams[2] * 255.0;
+		double lt = effectParams[1] * 255.0;
+		double mt = effectParams[3] * 255.0;
+		System.out.println("JAIT "+lt+", "+ht+" ,"+mt);
+		low = new double[bands];
+		high = new double[bands];
+		map = new double[bands];
+		for (int i = 0; i < bands; i++) {
+			low[i] = lt;
+			high[i] = ht;
+			map[i] = mt;
+		}
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		pb.add(low);
+		pb.add(high);
+		pb.add(map);
+		RenderedOp ropOut = JAI.create("threshold", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAILaplaceFilter(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		KernelJAI kernel = new KernelJAI(3, 3, 1, 1, laplaceMatrix);
+		pb.add(kernel);
+		RenderedOp ropOut = JAI.create("convolve", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAISharpenFilter(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		KernelJAI kernel = new KernelJAI(3, 3, 1, 1, sharpenMoreData);
+		pb.add(kernel);
+		RenderedOp ropOut = JAI.create("convolve", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIEmboss(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		KernelJAI kernel = new KernelJAI(3, 3, 1, 1, embossMatrix);
+		pb.add(kernel);
+		RenderedOp ropOut = JAI.create("convolve", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIRobertsEdge(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		KernelJAI kern_h = new KernelJAI(3, 3, roberts_h_data);
+		KernelJAI kern_v = new KernelJAI(3, 3, roberts_v_data);
+		pb.add(kern_h);
+		pb.add(kern_v);
+		RenderedOp ropOut = JAI.create("gradientmagnitude", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIFreichenEdge(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		KernelJAI kern_h = new KernelJAI(3, 3, freichen_h_data);
+		KernelJAI kern_v = new KernelJAI(3, 3, freichen_v_data);
+		pb.add(kern_h);
+		pb.add(kern_v);
+		RenderedOp ropOut = JAI.create("gradientmagnitude", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIPrewittEdge(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		KernelJAI kern_h = new KernelJAI(3, 3, prewitt_h_data);
+		KernelJAI kern_v = new KernelJAI(3, 3, prewitt_v_data);
+		pb.add(kern_h);
+		pb.add(kern_v);
+		RenderedOp ropOut = JAI.create("gradientmagnitude", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAISobelEdge(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		pb.add(KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL);
+		pb.add(KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL);
+		RenderedOp ropOut = JAI.create("gradientmagnitude", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIMedian(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		pb.add(MedianFilterDescriptor.MEDIAN_MASK_SQUARE);
+		pb.add(5);
+		RenderedOp ropOut = JAI.create("medianfilter", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIMultiplyConst(double factor, EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		RenderedOp ropIn = frameIn.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		double[] constants = new double[3];
+		constants[0] = factor;
+		constants[1] = factor;
+		constants[2] = factor;
+		pb.add(constants);
+		RenderedOp ropOut = JAI.create("multiplyconst", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIAdd(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut = new EFrame(frameIn1.getBuffer());
+		RenderedOp ropIn1 = frameIn1.getRenderedOp();
+		RenderedOp ropIn2 = frameIn2.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn1);
+		pb.addSource(ropIn2);
+		RenderedOp ropOut = JAI.create("add", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAISubtract(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut = new EFrame(frameIn1.getBuffer());
+		RenderedOp ropIn1 = frameIn1.getRenderedOp();
+		RenderedOp ropIn2 = frameIn2.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn1);
+		pb.addSource(ropIn2);
+		RenderedOp ropOut = JAI.create("subtract", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doMergeFrame(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut =
+			doJAIAdd(
+			doJAIMultiplyConst(effectParams[0], frameIn1),
+			doJAIMultiplyConst(1.0 - effectParams[0], frameIn2));
+		return frameOut;
+
+	}
+
+	private EFrame doJAISubtractM(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut = doJAISubtract(frameIn1, frameIn2);
+		EFrame frameOut2 = doJAISubtract(frameIn2, frameIn1);
+		frameOut = doJAIAdd(frameOut, frameOut2);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIMultiply(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut = new EFrame(frameIn1.getBuffer());
+		RenderedOp ropIn1 = frameIn1.getRenderedOp();
+		RenderedOp ropIn2 = frameIn2.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn1);
+		pb.addSource(ropIn2);
+		RenderedOp ropOut = JAI.create("multiply", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIMax(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut = new EFrame(frameIn1.getBuffer());
+		RenderedOp ropIn1 = frameIn1.getRenderedOp();
+		RenderedOp ropIn2 = frameIn2.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn1);
+		pb.addSource(ropIn2);
+		RenderedOp ropOut = JAI.create("max", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doJAIMin(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut = new EFrame(frameIn1.getBuffer());
+		RenderedOp ropIn1 = frameIn1.getRenderedOp();
+		RenderedOp ropIn2 = frameIn2.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn1);
+		pb.addSource(ropIn2);
+		RenderedOp ropOut = JAI.create("min", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+	private EFrame doTimeConvolve(float[] mask) {
+		EFrame frameIn0 = eFrameIn.get(0);
+		EFrame frameIn1 = eFrameIn.get(1);
+		EFrame frameIn2 = eFrameIn.get(2);
+		EFrame frameOut = new EFrame(frameIn0.getBuffer());
+		if (frameIn1 == null || frameIn2 == null)
+			return frameOut;
+		int width = frameIn0.getWidth();
+		int height = frameIn0.getHeight();
+		int numBands = frameIn0.getPixelStride();
+		int maskSize = (int) Math.sqrt(mask.length);
+		int maskOffset = (maskSize - 1) / 2;
+		double z = 0;
+		double sum = 0;
+		for (int m = 0; m < mask.length; m++) {
+			if ((double) mask[m] != 0.0) {
+				sum += (double) mask[m];
+			}
+		}
+
+		System.out.println("effect sum :" + sum);
+
+		int my = 0;
+		for (int y = maskOffset; y < height - maskOffset; y++) {
+			for (int x = maskOffset; x < width - maskOffset; x++) {
+				for (int band = 0; band < numBands; band++) {
+					for (int mx = 0; mx < maskSize; mx++) {
+						my = 0;
+						if (mask[mx + (my * maskSize)] != 0.0) {
+							z += frameIn0.getPixelDouble(band, x + mx - maskOffset, y) * (double) mask[mx
+								+ (my * maskSize)];
+							z += frameIn0.getPixelDouble(band, x, y + mx - maskOffset) * (double) mask[mx
+								+ (my * maskSize)];
+
+						}
+						my = 1;
+						if (mask[mx + (my * maskSize)] != 0.0) {
+							z += frameIn1.getPixelDouble(band, x + mx - maskOffset, y) * (double) mask[mx
+								+ (my * maskSize)];
+							z += frameIn1.getPixelDouble(band, x, y + mx - maskOffset) * (double) mask[mx
+								+ (my * maskSize)];
+
+						}
+						my = 2;
+						if (mask[mx + (my * maskSize)] != 0.0) {
+							z += frameIn2.getPixelDouble(band, x + mx - maskOffset, y) * (double) mask[mx
+								+ (my * maskSize)];
+							z += frameIn2.getPixelDouble(band, x, y + mx - maskOffset) * (double) mask[mx
+								+ (my * maskSize)];
+
+						}
+
+					}
+					z = z / 2.0;
+					if (sum == 0.0)
+						z = ((255.0 / 2.0) + (z / 2.0));
+					if (sum > 1.0)
+						z = z / sum;
+					if (sum < 0.0)
+						z = 255.0 - (z / sum);
+					frameOut.setPixel(band, x, y, z);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doConvolve(EFrame frameIn, float[] mask) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int maskSize = (int) Math.sqrt(mask.length);
+		int maskOffset = (maskSize - 1) / 2;
+		double z = 0;
+		int sum = 0;
+		for (int m = 0; m < mask.length; m++) {
+			if ((int) mask[m] != 0) {
+				sum += (int) mask[m];
+			}
+		}
+
+		for (int y = maskOffset; y < height - maskOffset; y++) {
+			for (int x = maskOffset; x < width - maskOffset; x++) {
+				for (int band = 0; band < numBands; band++) {
+					z = 0;
+					for (int my = 0; my < maskSize; my++) {
+						for (int mx = 0; mx < maskSize; mx++) {
+							if (mask[mx + (my * maskSize)] != 0.0) {
+								z += frameIn.getPixelDouble(band, x + mx - maskOffset, y + my - maskOffset)
+									* (double) mask[mx
+									+ (my * maskSize)];
+							}
+						}
+					}
+					//if (sum == 0) z=((255>>1)+(z>>1));
+					if (sum > 1.0)
+						z = z / sum;
+					if (sum < 0)
+						z = 255 - (z / sum);
+					frameOut.setPixel(band, x, y, z);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doConvolveSpread(EFrame frameIn, float[] mask) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int maskSize = (int) Math.sqrt(mask.length);
+		int maskOffset = (maskSize - 1) / 2;
+		double z = 0;
+		double sum = 0;
+		for (int m = 0; m < mask.length; m++) {
+			if ((double) mask[m] != 0) {
+				sum += (double) mask[m];
+			}
+		}
+
+		for (int y = maskOffset; y < height - maskOffset; y++) {
+			for (int x = maskOffset; x < width - maskOffset; x++) {
+				for (int band = 0; band < numBands; band++) {
+					z = 0;
+					for (int my = 0; my < maskSize; my++) {
+						for (int mx = 0; mx < maskSize; mx++) {
+							if (mask[mx + (my * maskSize)] != 0.0) {
+								z += frameIn.getPixelDouble(band, x + mx - maskOffset, y + my - maskOffset)
+									* (double) mask[mx
+									+ (my * maskSize)];
+							}
+						}
+					}
+					if (sum == 0.0)
+						z = ((255 / 2.0) + (z / 2.0));
+					if (sum > 1.0)
+						z = z / sum;
+					if (sum < 0.0)
+						z = 255.0 - (z / sum);
+					frameOut.setPixel(band, x, y, z);
+					for (int my = 0; my < maskSize; my++) {
+						for (int mx = 0; mx < maskSize; mx++) {
+							frameOut.setPixel(band, x + mx - maskOffset, y + my - maskOffset, z);
+						}
+					}
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doBrownian(EFrame frameIn, float[] mask) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int maskSize = (int) Math.sqrt(mask.length);
+		int maskOffset = (maskSize - 1) / 2;
+		double z = 0;
+		int sum = 0;
+		ArrayList s = null;
+		Double dObject = null;
+		for (int y = maskOffset; y < height - maskOffset; y++) {
+			for (int x = maskOffset; x < width - maskOffset; x++) {
+				for (int band = 0; band < numBands; band++) {
+					s = new ArrayList();
+					for (int my = 0; my < maskSize; my++) {
+						for (int mx = 0; mx < maskSize; mx++) {
+							dObject =
+								new Double(
+								frameIn.getPixelDouble(band, x + mx - maskOffset, y + my - maskOffset));
+							s.add(dObject);
+						}
+					}
+					Collections.shuffle(s);
+					for (int my = 0; my < maskSize; my++) {
+						for (int mx = 0; mx < maskSize; mx++) {
+							dObject = (Double) s.remove(0);
+							frameOut.setPixel(band, x, y, dObject.doubleValue());
+						}
+					}
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doEqualise(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double a, b, c, d, e, f, g, h, i;
+		int count;
+		double[] sr=null;
+		for (int y = 1; y < height - 1; y++) {
+			for (int x = 1; x < width - 1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					count = 0;
+					/*
+					a = frameIn.getPixelDouble(band, x - 1, y - 1);
+					b = frameIn.getPixelDouble(band, x, y - 1);
+					c = frameIn.getPixelDouble(band, x + 1, y - 1);
+					d = frameIn.getPixelDouble(band, x - 1, y);
+					e = frameIn.getPixelDouble(band, x, y);
+					f = frameIn.getPixelDouble(band, x + 1, y);
+					g = frameIn.getPixelDouble(band, x - 1, y + 1);
+					h = frameIn.getPixelDouble(band, x, y + 1);
+					i = frameIn.getPixelDouble(band, x + 1, y + 1);
+					if (a < e)
+					count++;
+					if (b < e)
+					count++;
+					if (c < e)
+					count++;
+					if (d < e)
+					count++;
+					if (f < e)
+					count++;
+					if (g < e)
+					count++;
+					if (h < e)
+					count++;
+					if (i < e)
+					count++;
+					*/
+					sr = getSampleRegion33(frameIn, band, x, y);
+					if (sr[0] < sr[4])
+						count++;
+					if (sr[1] < sr[4])
+						count++;
+					if (sr[2] < sr[4])
+						count++;
+					if (sr[3] < sr[4])
+						count++;
+					if (sr[5] < sr[4])
+						count++;
+					if (sr[6] < sr[4])
+						count++;
+					if (sr[7] < sr[4])
+						count++;
+					if (sr[8] < sr[4])
+						count++;
+					frameOut.setPixel(band, x, y, ((double) count) * 255.0 / 8.0);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doHistogram(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int shades = 256;
+		int[][] histogram = new int[numBands][shades];
+		int[][] LUT = new int[numBands][shades];
+		int count, x, y, band, i;
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				for (band = 0; band < numBands; band++) {
+					histogram[band][frameIn.getPixelInt(band, x, y)]++;
+				}
+			}
+		}
+
+		for (i = 1; i < shades; i++) {
+			for (band = 0; band < numBands; band++) {
+				histogram[band][i] += histogram[band][i - 1];
+			}
+		}
+
+		int[] pixels = new int[numBands];
+		for (band = 0; band < numBands; band++) {
+			pixels[band] = histogram[band][shades - 1];
+		}
+
+		for (band = 0; band < numBands; band++) {
+			if (pixels[band] != 0) {
+				for (i = 0; i < shades; i++) {
+					LUT[band][i] = (int) ((histogram[band][i] * (shades - 1)) / pixels[band]);
+				}
+			}
+		}
+
+		for (y = 1; y < height - 1; y++) {
+			for (x = 1; x < width - 1; x++) {
+				for (band = 0; band < numBands; band++) {
+					frameOut.setPixel(
+						band,
+						x,
+						y,
+						(double) LUT[band][frameIn.getPixelInt(band, x, y)]);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doZerox(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int shades = 256;
+		double a, b, c, d, e, f, g, h, i;
+		int count;
+		double M = 122.0;
+		for (int y = 1; y < height - 1; y++) {
+			for (int x = 1; x < width - 1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					count = 0;
+					a = frameIn.getPixelDouble(band, x - 1, y - 1);
+					b = frameIn.getPixelDouble(band, x, y - 1);
+					c = frameIn.getPixelDouble(band, x + 1, y - 1);
+					d = frameIn.getPixelDouble(band, x - 1, y);
+					e = frameIn.getPixelDouble(band, x, y);
+					f = frameIn.getPixelDouble(band, x + 1, y);
+					g = frameIn.getPixelDouble(band, x - 1, y + 1);
+					h = frameIn.getPixelDouble(band, x, y + 1);
+					i = frameIn.getPixelDouble(band, x + 1, y + 1);
+					if (((d < M) && (f > M) && (e < f) && (e > d))
+						|| ((b < M) && (b > M) && (e < h) && (e > b))
+						|| ((d > M) && (f < M) && (e > f) && (e < d))
+						|| ((b > M) && (h < M) && (e > h) && (e < b)))
+						frameOut.setPixel(band, x, y, 255);
+					else
+						frameOut.setPixel(band, x, y, 0);
+
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+
+	private EFrame doFill(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int a = 0;
+		int x = 0, y = 0, band = 0;
+		double thres = effectParams[1]*255.0;
+		int fillband=-1;
+		for (y = 1; y < height - 1; y++) {
+			for (x = 1; x < width - 1; x++) {
+				a = (int)frameOut.getPixelGrey(x, y);
+				for (band = 0; band < numBands; band++) {
+					if (a < (int)thres) {
+						if (effectContext.option1) {
+							fillband++;
+							if (fillband >1) fillband =0;
+							System.out.println("before floodfill "+fillband);
+
+							floodfill(frameOut, band, x, y, 255, (int)thres, fillband);
+						}
+						else {
+							//boundaryFill(
+						}
+					}
+				}
+			}
+		}
+
+		return frameOut;
+
+	}
+
+	private void floodfill(EFrame frame, int b, int x, int y, int fill, int old, int fillband) {
+		try {
+			if (x>=0
+				&& x < frame.getWidth() 
+				&& y>=0
+				&& y<frame.getHeight()
+				&& frame.getPixelInt(b, x, y) < old 
+				&& frame.getPixelInt(fillband, x, y) < fill) {
+				frame.setPixel(fillband, x, y, fill);
+
+				floodfill(frame, b, x+1, y, fill, old, fillband);
+				floodfill(frame, b, x-1, y, fill, old, fillband);
+				floodfill(frame, b, x, y+1, fill, old, fillband);
+				floodfill(frame, b, x, y-1, fill, old, fillband);
+			}
+		} catch (Throwable t) {
+			System.out.println(t.getMessage());
+			t.printStackTrace();
+		}
+
+	}
+
+	private EFrame doWalkLine(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		EFrame frameOut1 = new EFrame(frameIn.getBuffer());
+		
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int a = 0, b=0;
+		int x = 0, y = 0, band = 0;
+		frameOut.clearBuffer();
+		ArrayList pathList = new ArrayList();
+		GeneralPath path = null;
+		frameOut1.clearBuffer();
+		BufferedImage bimg = frameOut1.getBufferedImage();
+		Graphics2D g2d = bimg.createGraphics();
+		double thres = effectParams[1]*255.0;
+		double fp1 = effectParams[2]*255.0;
+		double fp2 = effectParams[3];
+		System.out.println("walk "+thres+", "+fp1+", "+fp2);
+		int count=0;
+		int rd, gr, bl;
+		for (y = 1; y < height - 1; y++) {
+			for (x = 1; x < width - 1; x++) {
+				for (band = 0; band < numBands; band++) {
+					a = frameIn.getPixelInt(band, x, y);
+					b = frameOut.getPixelInt(band, x, y);
+					if (a >= (int)thres && b < 255) {
+						path = new GeneralPath();
+						count++;
+						rd = (int)((double)(count+100)%255.0);
+						gr = (int)((double)(count+140)%255.0);
+						bl = (int)((double)(count+160)%255.0);
+
+						System.out.println("into follow "+a+", "+b);
+                       	edgeFollow(frameOut, frameIn, x, y, (int)fp1, (int)thres, (int)fp2, path);
+							//path.closePath();
+							g2d.setColor(new Color(rd , gr , bl));
+							//g2d.setColor(Color.green);
+							g2d.fill(path); 
+							g2d.draw(path); //?? why need this
+					}
+				}
+			}
+		}
+		frameOut1.setBufferedImage(bimg);
+		return frameOut1;
+
+	}
+
+	private int edgeFollow(
+		EFrame frameOut,
+		EFrame frameIn,
+		int ka,
+		int la,
+		int T1,
+		int T,
+		int a,
+		GeneralPath path) {
+
+		//int valTest = frameIn.getPixelInt(EFrame.BLUE, ka, la);
+		int diff, mindiff, i, j, cont, l, k, ABS, label, lastx, lasty;
+		int valRed, valBlue, valGreen, val, valThis, maxValue;
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		boolean contLoop;
+		diff = 0;
+		mindiff = 0;
+		maxValue = 0;
+		cont = 0;
+		lastx = ka;
+		lasty = la;
+		boolean first = true;
+		int count=0;
+		int kafirst = ka;
+		int lafirst = la;
+		path.moveTo(ka, la);
+	
+		for (;;) {
+			k = ka;
+			l = la;
+			frameOut.setPixel(EFrame.RED, ka, la, 255);
+			frameOut.setPixel(EFrame.GREEN,ka,la,255);
+			frameOut.setPixel(EFrame.BLUE,ka,la,255);
+			path.lineTo(ka, la);
+			valRed = frameIn.getPixelInt(EFrame.RED, ka, la);
+			valBlue = frameIn.getPixelInt(EFrame.BLUE, ka, la);
+			valGreen = frameIn.getPixelInt(EFrame.GREEN, ka, la);
+
+			val = (int) (((double)(valRed + valBlue + valGreen)) / 3.0);
+			frameIn.setPixel(EFrame.RED, ka, la, 0);
+			frameIn.setPixel(EFrame.GREEN, ka, la, 0);
+			frameIn.setPixel(EFrame.BLUE, ka, la, 0);
+			mindiff = 300;
+			maxValue = 0;
+			contLoop = true;
+			cont = 0;
+			for (i = -1; i < 2 && contLoop; i++) {
+				for (j = -1; j < 2 && contLoop; j++) {
+					if (!(i == 0 && j == 0)
+						&& k + i >= 0
+						&& k + i < width
+						&& l + j >= 0
+						&& l + j < height
+						&& !(k + i == lastx && l + j == lasty)) {
+
+						valRed = frameIn.getPixelInt(EFrame.RED, k + i, l + j);
+						valBlue = frameIn.getPixelInt(EFrame.BLUE, k + i, l + j);
+						valGreen = frameIn.getPixelInt(EFrame.GREEN, k + i, l + j);
+
+						valThis = (int) (((double) (valRed + valBlue + valGreen)) / 3.0);
+						ABS = Math.abs(val - valThis);
+
+						//if (valThis > T && ABS < T1) {
+						if(valThis > T) {
+							cont = 1;
+
+							diff = ABS;
+							//diff = a * ABS;
+						
+							//if (diff < mindiff) {
+							if (valThis > maxValue) { 
+								//maxValue = valThis;
+								mindiff = diff;
+								lastx = ka;
+								lasty = la;
+								ka = k + i;
+								la = l + j;
+								valRed = frameIn.getPixelInt(EFrame.RED, ka, la);
+								valBlue = frameIn.getPixelInt(EFrame.BLUE, ka, la);
+								valGreen = frameIn.getPixelInt(EFrame.GREEN, ka, la);
+								//if (valRed == 0 && valBlue == 0 && valGreen == 0)
+								//	return (0);
+								//contLoop = false;
+							}
+							else {
+								cont = 1;
+							}
+						}
+					}
+				}
+			}
+			path.lineTo(ka, la);
+	
+			if (cont == 0)
+				break;
+		}
+		if (ka != kafirst || la != lafirst)
+			path.lineTo(kafirst, lafirst);
+	
+		return (0);
+	}
+
+	private EFrame doHough(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		double sine[] = new double[width];
+		double cosine[] = new double[width];
+
+		for (int theta = 0; theta < width; theta++) {
+			sine[theta] = Math.sin((theta * Math.PI) / width);
+			cosine[theta] = Math.cos((theta * Math.PI) / width);
+		}
+
+		int numBands = frameIn.getPixelStride();
+		for (int y = 1; y < height - 1; y++) {
+			for (int x = 1; x < width - 1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					double cp = frameIn.getPixelDouble(band, x, y);
+					if (cp > 240) {
+						for (int theta = 0; theta < width; theta++) {
+							double r = ((x * cosine[theta]) + (y * sine[theta]));
+							r = (double) height / 2 + (r / 3.0);
+							int c = theta + (int) (Math.floor(r) * width);
+
+							if ((c > 0) && (c < width * height)) {
+
+								if (frameOut.getPixelDouble(band, c) < 240) {
+
+									frameOut.setPixel(band, c, (frameOut.getPixelDouble(band, c) + 10));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doHoughInverse(EFrame frameIn) {
+		EFrame frameIn1 = new EFrame(frameIn.getBuffer());
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int maxx = 0;
+		int maxy = 0;
+		double r = 0;
+		double cons;
+		double m;
+		double max;
+		double thet;
+		int numBands = frameIn1.getPixelStride();
+		for (int band = 0; band < numBands; band++) {
+
+			maxx = 0;
+			maxy = 0;
+
+			for (int lines = 0; lines < 10; lines++) {
+
+				max = 0;
+
+				for (int y = 1; y < height - 1; y++) {
+					for (int x = 1; x < width - 1; x++) {
+						double cp = frameIn1.getPixelDouble(band, x, y);
+						if (cp > max) {
+							max = cp;
+							maxx = x;
+							maxy = y;
+						}
+					}
+					frameIn1.setPixel(band, maxx, maxy, 0);
+					r = (maxy - ((double) height / 2)) * 3.0;
+					thet = (maxx / ((double) width)) * Math.PI;
+					if (Math.abs(Math.sin(thet)) < Math.abs(Math.cos(thet))) {
+						m = -Math.sin(thet) / Math.cos(thet);
+						cons = r / Math.cos(thet);
+						for (int y1 = 0; y1 < height; y1++) {
+							int x1 = (int) (((double) y1 * m) + cons);
+							if (x1 > 0 && x1 < width)
+								frameOut.setPixel(band, x1, y1, frameOut.getPixelDouble(band, x1, y1) + 10);
+						}
+					}
+					else {
+						m = -Math.cos(thet) / Math.sin(thet);
+						cons = r / Math.sin(thet);
+						for (int x2 = 0; x2 < width; x2++) {
+							int y2 = (int) (((double) x2 * m) + cons);
+							if (y2 > 0 && y2 < height)
+								frameOut.setPixel(band, x2, y2, frameOut.getPixel(x2, y2) + 10);
+						}
+
+					}
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doMovie(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		EFrame frameIn0 = eFrameIn.get(0);
+		int width = frameIn0.getWidth();
+		int height = frameIn0.getHeight();
+		int numBands = frameIn0.getPixelStride();
+		int x, y, band;
+		MoviePoint moviePoint;
+
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				for (band = 0; band < numBands; band++) {
+					frameOut.setPixel(band, x, y, 0);
+				}
+			}
+		}
+
+		EFrame frameIn1 = eFrameIn.get(1);
+		if (frameIn1 == null || frameIn0 == null)
+			return frameOut;
+		BufferedImage biOut = frameOut.getBufferedImage();
+
+		int blockSize = 4;
+		int stepSize = 4;
+		double z = 0;
+		int sum = 0;
+		double dx, dy, dt;
+		double maxdx = 0, maxdy = 0, maxdt = 0, mindx = 0, mindy = 0, mindt = 0;
+		ArrayList[] list = new ArrayList[numBands];
+		for (int i = 0; i < numBands; i++) {
+			list[i] = new ArrayList();
+		}
+		System.out.println("in movie 2");
+
+		for (y = 0; y < height - blockSize; y += stepSize) {
+			for (x = 0; x < width - blockSize; x += stepSize) {
+				for (band = 0; band < numBands; band++) {
+					dt = 0;
+					dx = 0;
+					dy = 0;
+					for (int my = 0; my < blockSize - 1; my++) {
+						for (int mx = 0; mx < blockSize - 1; mx++) {
+							dt
+								+= Math.abs(
+								0.25
+								* (frameIn1.getPixelDouble(band, x + mx, y + my)
+								- frameIn0.getPixelDouble(band, x + mx, y + my)
+								+ frameIn1.getPixelDouble(band, x + mx + 1, y + my)
+								- frameIn0.getPixelDouble(band, x + mx + 1, y + my)
+								+ frameIn1.getPixelDouble(band, x + mx, y + my + 1)
+								- frameIn0.getPixelDouble(band, x + mx, y + my + 1)
+								+ frameIn1.getPixelDouble(band, x + mx + 1, y + my + 1)
+								- frameIn0.getPixelDouble(band, x + mx + 1, y + my + 1)));
+							dx += 0.25
+								* (frameIn1.getPixelDouble(band, x + mx + 1, y + my)
+								- frameIn1.getPixelDouble(band, x + mx, y + my)
+								+ frameIn1.getPixelDouble(band, x + mx + 1, y + my + 1)
+								- frameIn1.getPixelDouble(band, x + mx, y + my + 1)
+								+ frameIn0.getPixelDouble(band, x + mx + 1, y + my)
+								- frameIn0.getPixelDouble(band, x + mx, y + my)
+								+ frameIn0.getPixelDouble(band, x + mx + 1, y + my + 1)
+								- frameIn0.getPixelDouble(band, x + mx, y + my + 1));
+							dy += 0.25
+								* (frameIn1.getPixelDouble(band, x + mx, y + my + 1)
+								- frameIn1.getPixelDouble(band, x + mx, y + my)
+								+ frameIn1.getPixelDouble(band, x + mx + 1, y + my + 1)
+								- frameIn1.getPixelDouble(band, x + mx + 1, y + my)
+								+ frameIn0.getPixelDouble(band, x + mx, y + my + 1)
+								- frameIn0.getPixelDouble(band, x + mx, y + my)
+								+ frameIn0.getPixelDouble(band, x + mx + 1, y + my + 1)
+								- frameIn0.getPixelDouble(band, x + mx + 1, y + my));
+						}
+					}
+					moviePoint = new MoviePoint(x, y, dx, dy, dt);
+					if (maxdt < dt)
+						maxdt = dt;
+					if (maxdx < dx)
+						maxdx = dx;
+					if (maxdy < dy)
+						maxdy = dy;
+					if (mindt > dt)
+						mindt = dt;
+					if (mindx > dx)
+						mindx = dx;
+					if (mindy > dy)
+						mindy = dy;
+
+					list[band].add(moviePoint);
+				}
+			}
+		}
+		System.out.println("in movie 3");
+		System.out.println("in movie 4");
+		//Graphics2D g2d = biOut.createGraphics();
+
+		double dxScale = 255.0 / maxdx;
+		double dyScale = 255.0 / maxdy;
+		double dtScale = 255.0 / maxdt;
+
+		double sScale = 20.0 / maxdt;
+		double k, a, b, s;
+
+		for (band = 0; band < numBands; band++) {
+			for (int i = 0; i < list[band].size(); i++) {
+				moviePoint = (MoviePoint) list[band].get(i);
+				frameOut.setPixel(
+					band,
+					(moviePoint.x),
+					(moviePoint.y),
+					((moviePoint.dt) * dtScale));
+				k = (moviePoint.dy) / (moviePoint.dx);
+				s = (moviePoint.dt) * sScale;
+				b = Math.sqrt((s * s) / (k * k + 1));
+				a = Math.abs(b * k);
+				double aSign = 1.0;
+				double bSign = 1.0;
+				if (moviePoint.dy < 0)
+					aSign = -1.0;
+				if (moviePoint.dx < 0)
+					bSign = -1.0;
+				//System.out.println("SS1 "+s+", "+a+", "+b+", "+aSign+", "+bSign);
+				for (double ox = (double) (moviePoint.x), oy = (double) (moviePoint.y);
+					ox <= (double) (moviePoint.x + b) && oy <= (double) (moviePoint.y + a);
+					ox += (b / a), oy += (a / b)) {
+					if (((int) (ox * bSign)) >= 0
+						&& ((int) (ox * bSign)) < width
+						&& ((int) (oy * aSign)) >= 0
+						&& ((int) (oy * aSign)) < height) {
+						//System.out.println("SS2 "+s+", "+a+", "+b+", "+aSign+", "+bSign+", "+ox+", "+oy+", "+
+						//	moviePoint.x+", "+moviePoint.y);
+						//frameOut.setPixel(band,((int)(ox*bSign)),((int)(oy*aSign)),(250.0));
+						frameOut.setPixel(
+							band,
+							((int) (ox * bSign)),
+							((int) (oy * aSign)),
+							((moviePoint.dt) * dtScale));
+					}
+				}
+			}
+		}
+		/*
+		for (band=0; band<numBands; band++) {
+			for (int i=0; i <list[band].size(); i++) {
+				moviePoint = (MoviePoint)list[band].get(i);
+				g2d.setColor(EFrame.getColor(band));
+				k = (moviePoint.dy)/(moviePoint.dx);
+				s = (moviePoint.dt)*sScale;
+				b = Math.sqrt((s*s)/(k*k+1));
+				a = b*k;
+				if (s > 3.0) {
+					//g2d.drawLine(moviePoint.x,moviePoint.y,(int)(moviePoint.x + b), (int)(moviePoint.y + a));
+					g2d.drawLine(moviePoint.x,moviePoint.y,(int)(moviePoint.x + 1), (int)(moviePoint.y + 1));
+
+				}
+			}
+		}
+		*/
+		System.out.println("in movie 4");
+		//frameOut.setBufferedImage(biOut);
+		return frameOut;
+	}
+
+	class MoviePoint {
+		public int x, y;
+		public double dx;
+		public double dy;
+		public double dt;
+		public MoviePoint(int x, int y, double dx, double dy, double dt) {
+			this.x = x;
+			this.y = y;
+			this.dx = dx;
+			this.dy = dy;
+			this.dt = dt;
+		}
+	}
+
+	private EFrame doThreshold(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double highThres = effectParams[2] * 255.0;
+		double lowThres = effectParams[1] * 255.0;
+		double level, mean;
+		double[] sr=null;
+		System.out.println("high, low "+highThres+", "+lowThres);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						level = frameIn.getPixelDouble(band, x, y);
+					}
+
+					if (effectContext.option2) {
+						sr = getSampleRegion55(frameIn, band, x, y);
+						mean = 0.0;
+						for (int i=0; i<sr.length; i++) {
+							mean += sr[i];
+						}
+						mean = mean/sr.length;
+						lowThres = mean - effectParams[1]*255.0;
+					}
+
+					if((level <= highThres)&&(level >= lowThres)) {
+						frameOut.setPixel(band, x, y, 255);
+					}
+					else {
+						frameOut.setPixel(band, x, y, 0);
+					}
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doThreshold(EFrame frameIn, double lowThres, double highThres ) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double level, mean;
+		double[] sr=null;
+		System.out.println("high, low "+highThres+", "+lowThres);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						level = frameIn.getPixelDouble(band, x, y);
+					}
+
+					if((level <= highThres)&&(level >= lowThres)) {
+						frameOut.setPixel(band, x, y, 255);
+					}
+					else {
+						frameOut.setPixel(band, x, y, 0);
+					}
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doLowPass(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double level, mean;
+		double[] sr=null;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				sr = getSampleRegion33(frameIn, x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+					}
+					mean = 0.0;
+					for (int i=0; i<sr.length; i++) {
+						mean += sr[i];
+					}
+					mean = mean/sr.length;
+					frameOut.setPixel(band, x, y, mean);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doLIN(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double level, mean;
+		double[] sr=null;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				sr = getSampleRegion33(frameIn, x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+						level = frameIn.getPixelDouble(band, x, y);
+					}
+					level = Math.max(Math.max(Math.max(Math.max(sr[0], sr[1]),Math.max(sr[2],sr[3])),
+						Math.max(Math.max(sr[4],sr[5]),Math.max(sr[6],sr[7]))),sr[8]);
+					frameOut.setPixel(band, x, y, level);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doSIN(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double level, mean;
+		double[] sr=null;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				sr = getSampleRegion33(frameIn, x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+						level = frameIn.getPixelDouble(band, x, y);
+					}
+					level = Math.min(Math.min(Math.min(Math.min(sr[0], sr[1]),Math.min(sr[2],sr[3])),
+						Math.min(Math.min(sr[4],sr[5]),Math.min(sr[6],sr[7]))),sr[8]);
+					frameOut.setPixel(band, x, y, level);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doLocalHistogram(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int count;
+		double[] sr = null;
+		for (int y = 1; y < height - 1; y++) {
+			for (int x = 1; x < width - 1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					count = 0;
+					sr = getSampleRegion33(frameIn, band, x, y);
+					if (sr[0] < sr[4]) count++;
+					if (sr[1] < sr[4]) count++;
+					if (sr[2] < sr[4]) count++;
+					if (sr[3] < sr[4]) count++;
+					if (sr[5] < sr[4]) count++;
+					if (sr[6] < sr[4]) count++;
+					if (sr[7] < sr[4]) count++;
+					if (sr[8] < sr[4]) count++;
+					frameOut.setPixel(band, x, y, (((double)count)/8.0)*(frameIn.getPixelDouble(band, x, y)));
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doSubtract(EFrame frameIn1, EFrame frameIn2) {
+		EFrame frameOut = new EFrame(frameIn1.getBuffer());
+		int width = frameIn1.getWidth();
+		int height = frameIn1.getHeight();
+		int numBands = frameIn1.getPixelStride();
+		for (int y = 1; y < height - 1; y++) {
+			for (int x = 1; x < width - 1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					frameOut.setPixel(band, x, y, 10.0*Math.abs(frameIn1.getPixelDouble(band, x, y)-
+						frameIn2.getPixelDouble(band, x, y)));
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+
+	private EFrame doLimb(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		frameOut.clearBuffer();
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double ht = effectParams[2] * 255.0;
+		double lt = effectParams[1] * 255.0;
+		double[] sr=null;
+		double level=0.0;
+		for (int y = 1; y < height-1; y++) {
+			for (int x = 1; x < width-1; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				sr = getSampleRegion33(frameIn, x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+						level = frameIn.getPixelDouble(band, x, y);
+					}
+					if((sr[4]<=ht)&&(sr[3]>=lt)&&(sr[6]>=lt)&&(sr[7]>=lt)&&(sr[8]>=lt)&&(sr[5]>=lt)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[0]>=lt)&&(sr[1]>=lt)&&(sr[3]>=lt)&&(sr[6]>=lt)&&(sr[7]>=lt)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[1]>=lt)&&(sr[2]>=lt)&&(sr[5]>=lt)&&(sr[8]>=lt)&&(sr[7]>=lt)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[0]>=lt)&&(sr[1]>=lt)&&(sr[2]>=lt)&&(sr[3]>=lt)&&(sr[5]>=lt)) level = 255.0;
+					else
+						level = 0.0;
+					frameOut.setPixel(band, x, y, level);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+
+	private EFrame doJunction(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		frameOut.clearBuffer();
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double ht = effectParams[2] * 255.0;
+		double lt = effectParams[1] * 255.0;
+		double[] sr=null;
+		double level=0.0;
+		for (int y = 1; y < height-1; y++) {
+			for (int x = 1; x < width-1; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				sr = getSampleRegion33(frameIn, x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+						level = frameIn.getPixelDouble(band, x, y);
+					}
+					if((sr[4]<=ht)&&(sr[1]<=ht)&&(sr[6]<=ht)&&(sr[8]<=ht)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[0]<=ht)&&(sr[5]<=ht)&&(sr[6]<=ht)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[7]<=ht)&&(sr[0]<=ht)&&(sr[2]<=ht)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[3]<=ht)&&(sr[2]<=ht)&&(sr[8]<=ht)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[0]<=ht)&&(sr[8]<=ht)&&(sr[6]<=ht)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[0]<=ht)&&(sr[2]<=ht)&&(sr[6]<=ht)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[2]<=ht)&&(sr[6]<=ht)&&(sr[8]<=ht)) level = 255.0;
+					else if((sr[4]<=ht)&&(sr[0]<=ht)&&(sr[2]<=ht)&&(sr[8]<=ht)) level = 255.0;
+					else
+						level = 0.0;
+					frameOut.setPixel(band, x, y, level);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doZeroCrossing(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		frameOut.clearBuffer();
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double thres = effectParams[1] * 255.0;
+		double[] sr=null;
+		double level=0.0;
+		for (int y = 1; y < height-1; y++) {
+			for (int x = 1; x < width-1; x++) {
+				sr = getSampleRegion33(frameIn, x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+					}
+					if (((sr[3]<thres)&&(sr[5]>thres)&&(sr[4]<sr[5])&&(sr[4]>sr[3]))||
+						((sr[1]<thres)&&(sr[7]>thres)&&(sr[4]<sr[7])&&(sr[4]>sr[1]))||
+						((sr[3]>thres)&&(sr[5]<thres)&&(sr[4]>sr[5])&&(sr[4]<sr[3]))||
+						((sr[1]>thres)&&(sr[7]<thres)&&(sr[4]>sr[7])&&(sr[4]<sr[1])))
+						frameOut.setPixel(band, x, y, 255);
+					else
+						frameOut.setPixel(band, x, y, 0);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doClearWhite(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		frameOut.clearBuffer();
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double thres = effectParams[1] * 255.0;
+		double[] sr=null;
+		double level=0.0;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				sr = getSampleRegion33(frameIn, x, y);
+				for (int band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+					}
+					if(sr[4] >= thres) {
+						if ((sr[0]>= thres)||(sr[1]>= thres)||
+							(sr[2]>= thres)||(sr[3]>= thres)||
+							(sr[5]>= thres)||(sr[6]>= thres)||
+							(sr[7]>= thres)||(sr[8]>= thres)) {
+							frameOut.setPixel(band, x, y, 255);
+						}
+					}
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doLeader(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		frameOut.clearBuffer();
+		RenderedOp ropIn = frameOut.getRenderedOp();
+		ParameterBlock pb = new ParameterBlock();
+		pb.addSource(ropIn);
+		double[] constants = new double[3];
+		constants[0] = effectParams[1]*255.0;
+		constants[1] = effectParams[2]*255.0;
+		constants[2] = effectParams[3]*255.0;
+		pb.add(constants);
+		RenderedOp ropOut = JAI.create("addconst", pb);
+		frameOut.setRenderedOp(ropOut);
+		return frameOut;
+
+	}
+
+
+	private EFrame doChamfer(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		EFrame frameOut1 = new EFrame(frameIn.getBuffer());
+		EFrame frameOut2 = new EFrame(frameIn.getBuffer());
+		frameOut.clearBuffer();
+		frameOut1.clearBuffer();
+		frameOut2.clearBuffer();
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double ht = effectParams[2] * 255.0;
+		double lt = effectParams[1] * 255.0;
+		double[] sr=null;
+		double level=0.0;
+		int a,b,c,d,z,f,g,h,i;
+
+		for (int y = 1; y < height-1; y++) {
+			for (int x = 1; x < width-1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					level = frameIn.getPixelDouble(band, x, y);
+					if (level >= ht) {
+						frameOut1.setPixel(band, x, y, 1);
+						frameOut2.setPixel(band, x, y, 1);
+					}
+				}
+			}
+		}
+
+		for (int y = 1; y < height-1; y++) {
+			for (int x = 1; x < width-1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					if(frameOut1.getPixelInt(band,x,y) == 1) {
+						a = frameOut1.getPixelInt(band, x-1, y-1)+4;
+						b = frameOut1.getPixelInt(band, x, y-1)+3;
+						c = frameOut1.getPixelInt(band, x+1, y-1)+4;
+						d = frameOut1.getPixelInt(band, x-1, y)+3;
+						z = Math.min(Math.min(a,b),Math.min(c,d));
+						frameOut1.setPixel(band, x, y, z);
+					}
+				}
+			}
+		}
+
+		for (int y = height-1; y >= 0; y--) {
+			for (int x = width-1; x >= 0; x--) {
+				for (int band = 0; band < numBands; band++) {
+					if(frameOut2.getPixelInt(band,x,y) == 1) {
+						f = frameOut2.getPixelInt(band, x+1, y)+3;
+						g = frameOut2.getPixelInt(band, x-1, y+1)+4;
+						h = frameOut2.getPixelInt(band, x, y+1)+3;
+						i = frameOut2.getPixelInt(band, x+1, y+1)+4;
+						z = Math.min(Math.min(f,g),Math.min(h,i));
+						frameOut2.setPixel(band, x, y, z);
+					}
+				}
+			}
+		}
+
+
+		for (int y = 1; y < height-1; y++) {
+			for (int x = 1; x < width-1; x++) {
+				for (int band = 0; band < numBands; band++) {
+					frameOut.setPixel(band, x, y,
+						Math.min(frameOut1.getPixelInt(band,x,y),frameOut2.getPixelInt(band,x,y)));
+
+				}
+			}
+		}
+
+		return frameOut;
+
+	}
+
+
+	private EFrame doContrast(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int count;
+		double min, max;
+		min = 0.0;
+		max = 255.0;
+		double level;
+		double[] sr = null;
+		double[] LUT = new double[256];
+
+		for (int band = 0; band < numBands; band++) {
+			min = 255.0;
+			max = 0.0;
+			for (int y = 1; y < height - 1; y++) {
+				for (int x = 1; x < width - 1; x++) {
+					level = frameIn.getPixelDouble(band, x, y);
+					if (level < min)
+						min = level;
+					if (level  > max)
+						max = level;
+				}
+			}
+
+			min = min + (max-min)*(effectParams[1]);
+			max = max - (max-min)*(effectParams[2]);
+
+			for (int index=0; index<(int)min;index++)
+				LUT[index]=0.0;
+			for(int index=(int)max; index<=255; index++)
+				LUT[index]=255.0;
+			for(int index=(int)min; index<(int)max;index++)
+				LUT[index]=(255.0*((double)index-min)/(max-min));
+
+			for (int y = 1; y < height - 1; y++) {
+				for (int x = 1; x < width - 1; x++) {
+					frameOut.setPixel(band, x, y, LUT[frameIn.getPixelInt(band, x, y)]);
+				}
+			}
+
+
+		}
+		return frameOut;
+	}
+
+	private EFrame doCentroid(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int[] table = new int[256];
+		int[] cenx = new int[256];
+		int[] ceny = new int[256];
+
+		int cp, max, index, x_cent, y_cent;
+		int cnx=0, cny=0;
+
+		for (int i=0; i<=255; i++) {
+			table[i]=0;
+			cenx[i]=0;
+			ceny[i]=0;
+		}
+
+		for (int band = 0; band < numBands; band++) {
+			for (int y = 1; y < height - 1; y++) {
+				for (int x = 1; x < width - 1; x++) {
+					cp = frameIn.getPixelInt(band, x, y);
+					table[cp]++;
+					cenx[cp]+=x;
+					ceny[cp]+=y;
+				}
+			}
+
+			for (int n=1; n<=256; n++) {
+
+				max=0;
+				index=0;
+				for(int j=0; j<=255;j++) {
+					if(table[j]>max) {
+
+						max=table[j];
+						index=j;
+						cnx=cenx[j];
+						cny=ceny[j];
+					}
+				}
+				table[index] = 0;
+				if((max>0)&&(index>0)) {
+					x_cent = cnx/max;
+					y_cent = cny/max;
+					frameOut.setPixel(band, x_cent, y_cent, 255);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+
+	private EFrame doGrassFire(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		boolean done = false;
+		int greyLevel = 0;
+		int W = 255;
+		double thres = effectParams[1]*255.0;
+		double[] sr = null;
+		double level;
+
+		for (int band = 0; band < numBands; band++) {
+
+			while(!done && greyLevel<(int)thres) {
+
+				greyLevel++;
+				done = true;
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						sr = getSampleRegion33(frameIn, band, x, y);
+						if (sr[4] >= thres){
+							level = Math.min(sr[8],Math.min(Math.min
+								(Math.min(sr[0],sr[1]),Math.min(sr[2],sr[3])),
+								Math.min(Math.min(sr[4],sr[5]),Math.min(sr[6],sr[7]))));
+
+							if((int)level!=greyLevel && level<thres) {
+								//System.out.println("grassfire 2 "+greyLevel);
+								frameOut.setPixel(band, x, y, greyLevel);
+								done=false;
+							}
+						}
+					}
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doCrackDetect(EFrame frameIn) {
+		EFrame frameOut =
+			doJAIInvert(doLIN(doLIN(doJAIInvert(doLIN(doLIN(frameIn))))));
+		//frameOut = doThreshold(doJAIMultiplyConst(effectParams[3]*100.0, doSubtract(frameIn, frameOut)));
+		frameOut = doJAIMultiplyConst((effectParams[3]*100.0+1.0), doSubtract(frameIn, frameOut));
+
+		return frameOut;
+	}
+
+	private EFrame doDOLPS(EFrame frameIn) {
+		EFrame frameOut1 =
+			doLowPass(doLowPass(doLowPass(frameIn)));
+		EFrame frameOut2 =
+			doLowPass(doLowPass(doLowPass(frameOut1)));
+		frameOut1 = doThreshold(doJAIMultiplyConst((effectParams[3]*100.0+1.0), doSubtract(frameOut1, frameOut2)));
+		return frameOut1;
+	}
+
+	private EFrame doOpening(EFrame frameIn) {
+		EFrame frameOut = doDilation(doErosion(frameIn, erosionMatrix),dilationMatrix);
+		return frameOut;
+	}
+
+	private EFrame doClosing(EFrame frameIn) {
+		EFrame frameOut = doErosion(doDilation(frameIn, dilationMatrix),erosionMatrix);
+		return frameOut;
+	}
+
+	private EFrame doInternalGradient(EFrame frameIn) {
+		EFrame frameOut = doJAISubtract(frameIn, doErosion(frameIn, erosionMatrix));
+		return frameOut;
+	}
+
+	private EFrame doExternalGradient(EFrame frameIn) {
+		EFrame frameOut = doJAISubtract(doDilation(frameIn, dilationMatrix), frameIn);
+		return frameOut;
+	}
+
+	private EFrame doMorphGradient(EFrame frameIn) {
+		EFrame frameOut = doJAISubtract(doDilation(frameIn, dilationMatrix),
+			doErosion(frameIn, erosionMatrix));
+		return frameOut;
+	}
+
+
+	private EFrame doWhiteTopHat(EFrame frameIn) {
+		EFrame frameOut = doJAISubtract(frameIn, doDilation(doErosion(frameIn, tophatMatrix),tophatMatrix));
+		return frameOut;
+	}
+
+	private EFrame doBlackTopHat(EFrame frameIn) {
+		EFrame frameOut = doJAISubtract(doErosion(doDilation(frameIn, tophatMatrix),tophatMatrix),frameIn);
+		return frameOut;
+	}
+
+	private EFrame doReconstruct(EFrame frameIn) {
+
+		EFrame frameF = doThreshold(frameIn, 150.0, 200.0);
+		EFrame frameG = doThreshold(frameIn, 100.0, 250.0);
+		EFrame frameOut = doDilation(frameF, dilationMatrix);
+		frameOut = doJAIMin(frameOut, frameG);
+		return frameOut;
+	}
+
+	private EFrame doWaterMark(EFrame frameIn) {
+
+		EFrame frameOut = doWhiteTopHat(frameIn);
+		frameOut = doReconstruct(frameOut);
+		frameOut = doOpening(frameOut);
+		frameOut = doClosing(frameOut);
+		return frameOut;
+	}
+
+	private EFrame doDilation(EFrame frameIn, float[] mask) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+
+		int maskSize = (int) Math.sqrt(mask.length);
+		int maskOffset = (maskSize - 1) / 2;
+		double max;
+		double level;
+
+		for (int y = maskOffset; y < height - maskOffset; y++) {
+			for (int x = maskOffset; x < width - maskOffset; x++) {
+				for (int band = 0; band < numBands; band++) {
+					max = 0;
+					for (int my = 0; my < maskSize; my++) {
+						for (int mx = 0; mx < maskSize; mx++) {
+							level = frameIn.getPixelDouble(band, x + mx - maskOffset, y + my - maskOffset)
+								+ (double)mask[mx + (my * maskSize)];
+							if (level > max) max = level;
+						}
+					}
+					if (max < 0.0)
+						max = 0.0;
+					if (max > 255.0)
+						max = 255.0;
+					frameOut.setPixel(band, x, y, max);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doErosion(EFrame frameIn, float[] mask) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		int maskSize = (int) Math.sqrt(mask.length);
+		int maskOffset = (maskSize - 1) / 2;
+		double min;
+		double level=0;
+
+		for (int y = maskOffset; y < height - maskOffset; y++) {
+			for (int x = maskOffset; x < width - maskOffset; x++) {
+				for (int band = 0; band < numBands; band++) {
+					min = 255.0;
+					for (int my = 0; my < maskSize; my++) {
+						for (int mx = 0; mx < maskSize; mx++) {
+							level = frameIn.getPixelDouble(band, x + mx - maskOffset, y + my - maskOffset)
+								- (double)mask[mx + (my * maskSize)];
+							if (level < min) min = level;
+						}
+					}
+
+					if (min < 0.0)
+						min = 0.0;
+					if (min > 255.0)
+						min = 255.0;
+					frameOut.setPixel(band, x, y, min);
+				}
+			}
+		}
+		return frameOut;
+	}
+
+	private EFrame doCompose(EFrame frameIn) {
+
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+
+		double xoffp = effectParams[1];
+		double yoffp = effectParams[2];
+		double xscalep = effectParams[3];
+		double yscalep = effectParams[4];
+
+		double toffp = effectParams[5];
+		double alphap1 = effectParams[6];
+		double brollp = effectParams[7];
+
+		Image broll = null;
+		Image mask = null;
+		Time aStartTime = null;
+		Time aEndTime = null;
+		Time bStartTime = null;
+		Time bEndTime = null;
+		Time cStartTime = null;
+		Time cEndTime = null;
+
+		if (ejSettings.effectCompo.grabberA != null) {
+			aStartTime = ejSettings.effectCompo.grabberA.getBeginTime();
+			aEndTime = ejSettings.effectCompo.grabberA.getEndTime();
+			System.out.println("aroll times "+ aStartTime.getNanoseconds()+", "+
+				aEndTime.getNanoseconds()+", "+
+				(long)currentTime);
+		}
+		else {
+			System.out.println("no aroll !!");
+			return frameOut;
+		}
+
+		long aTimeLength = aEndTime.getNanoseconds()- aStartTime.getNanoseconds();
+		long aTimeOffset = (long)((double)aTimeLength * toffp);
+		long compoTime = aTimeOffset+aStartTime.getNanoseconds();
+
+		if (compoTime > (long)currentTime) {
+			System.out.println("before aroll time offset");
+			return frameOut;
+		}
+
+		if (ejSettings.effectCompo.grabberB != null) {
+
+			bStartTime = ejSettings.effectCompo.grabberB.getBeginTime();
+			bEndTime = ejSettings.effectCompo.grabberB.getEndTime();
+
+			broll = ejSettings.effectCompo.grabberB.grabImage(compoTime-(long)currentTime+bStartTime.getNanoseconds());
+			if (broll != null) {
+				System.out.println("DoCompose Scale broll");
+
+				broll = doJAIScale(broll,
+					(float)width*(float)xscalep/(float)broll.getWidth(null),
+					(float)height*(float)yscalep/(float)broll.getHeight(null));
+			}
+		}
+
+		if (ejSettings.effectCompo.grabberM != null) {
+
+			cStartTime = ejSettings.effectCompo.grabberM.getBeginTime();
+			cEndTime = ejSettings.effectCompo.grabberM.getEndTime();
+
+			mask = ejSettings.effectCompo.grabberM.grabImage(compoTime-(long)currentTime+bStartTime.getNanoseconds());
+			if (mask != null) {
+				System.out.println("DoCompose Scale mask");
+				mask = doJAIScale(mask,
+					(float)width*(float)xscalep/(float)mask.getWidth(null),
+					(float)height*(float)yscalep/(float)mask.getHeight(null));
+			}
+
+		}
+
+		double[] alphaControls = new double[1];
+		alphaControls[0] = alphap1;
+
+		System.out.println("DoCompose call mask");
+
+		frameOut.composite(broll, mask, alphaControls, (int)(xoffp*(double)width),(int)(yoffp*(double)height));
+
+		return frameOut;
+
+	}
+
+
+	private Image doJAIScale(Image imageIn, float scalex, float scaley) {
+
+		RenderedImage src = JAI.create("AWTImage", imageIn);
+		ParameterBlock pb;
+		if (!(src.getSampleModel() instanceof ComponentSampleModel)) {
+			System.out.println("In JAI Scale 5 - creating samplemodel");
+			SampleModel sampleModel =
+				RasterFactory.createPixelInterleavedSampleModel(
+				DataBuffer.TYPE_BYTE,
+				src.getWidth(),
+				src.getHeight(),
+				3);
+			ImageLayout layout = new ImageLayout();
+			layout.setSampleModel(sampleModel);
+			//layout.setTileWidth(640).setTileHeight(480);
+			RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+			pb = (new ParameterBlock()).addSource(src);
+			src = JAI.create("format", pb, hints);
+		}
+		// Scale the image by the specified factor.
+		pb = (new ParameterBlock()).addSource(src);
+		pb.add((float) scalex).add((float) scaley);
+		pb.add(0.0F).add(0.0F);
+		Interpolation interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
+		pb.add(interp);
+		BorderExtender extender =
+			BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+		RenderingHints hints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, extender);
+		PlanarImage jaiImage = JAI.create("Scale", pb, hints);
+		BufferedImage biOut = jaiImage.getAsBufferedImage();
+		return biOut;
+	}
+
+	private EFrame doWarpPath(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+
+		Image img = frameOut.getImage();
+		if (warpPath == null) {
+			warpPath = new WarpImagePath();
+		}
+		Dimension size = new Dimension(width, height);
+		warpPath.setSize(size);
+		warpPath.init(img);
+		frameOut.clearBuffer();
+		BufferedImage bimg = frameOut.getBufferedImage();
+		Graphics2D g2d = bimg.createGraphics();
+		warpPath.paint(g2d);
+		frameOut.setBufferedImage(bimg);
+		return frameOut;
+	}
+
+	private EFrame doWaterRipple(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+
+		Image img = frameOut.getImage();
+		if (waterRipple == null) {
+			waterRipple = new WaterRipple();
+			Dimension size = new Dimension(width, height);
+			waterRipple.setSize(size);
+			waterRipple.init();
+		}
+		frameOut.clearBuffer();
+		waterRipple.run(img);
+		BufferedImage bimg = waterRipple.getBufferedImage();
+		frameOut.setBufferedImage(bimg);
+		return frameOut;
+	}
+
+	private EFrame doCoco(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		frameOut.clearBuffer();
+		double level, mean;
+		double[] sr=null;
+		int coc_a, coc_b, coc_c;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				for (int band = 0; band < numBands; band++) {
+					coc_a = frameIn.getPixelInt(band, x-1, y);
+					coc_b = frameIn.getPixelInt(band, x, y);
+					coc_c = frameIn.getPixelInt(band, x+1, y);
+					frameOut.setPixel(band, coc_b, coc_c, frameOut.getPixelDouble(band, coc_b, coc_c)+1);
+					frameOut.setPixel(band, coc_b, coc_a, frameOut.getPixelDouble(band, coc_b, coc_a)+1);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doNormalise(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double[] thres = new double[numBands];
+		double[] bandMax = new double[numBands];
+		double[] bandMin = new double[numBands];
+
+		double level=0;
+		int x, y, band;
+		for (band = 0; band < numBands; band++) {
+			thres[band] = effectParams[band+1]*255.0;
+			bandMax[band] = 0;
+			bandMin[band] = 255.0;
+		}
+
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				for (band = 0; band < numBands; band++) {
+					level = frameIn.getPixelDouble(band, x, y);
+					if (bandMax[band] < level) bandMax[band] = level;
+					if (bandMin[band] > level) bandMin[band] = level;
+				}
+			}
+		}
+
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				for (band = 0; band < numBands; band++) {
+					level = frameIn.getPixelDouble(band, x, y);
+					frameOut.setPixel(band, x, y, (level-bandMin[band]) * thres[band]/(bandMax[band]-bandMin[band]));
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+
+	private EFrame doThinning(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		EFrame frameOut1 = new EFrame(frameIn.getBuffer());
+
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		boolean done = false;
+		int greyLevel = 0;
+		int W = 255;
+		double thres = effectParams[1]*255.0;
+		double[] sr = null;
+		double level;
+		int count=0;
+
+		int x, y, band;
+		frameOut1.clearBuffer();
+		boolean test = true;
+
+		for (band = 0; band < numBands; band++) {
+			for ( y = 0; y < height; y++) {
+				for ( x = 0; x < width; x++) {
+					sr = getSampleRegion33(frameOut, band, x, y);
+					count = 0;
+					if (sr[0] >= thres) count++;
+					if (sr[1] >= thres) count++;
+					if (sr[2] >= thres) count++;
+					if (sr[3] >= thres) count++;
+					if (sr[5] >= thres) count++;
+					if (sr[6] >= thres) count++;
+					if (sr[7] >= thres) count++;
+					if (sr[8] >= thres) count++;
+					if (count >= 6 || count <= 2) {
+						level = frameOut.getPixelDouble(band, x, y);
+						if (level >= thres) {
+
+							if (sr[1]<thres && sr[3]<thres && sr[5]<thres && sr[7]< thres) {
+								if (test ||(sr[0]>=thres && sr[2]<thres && sr[6]<thres && sr[8]<thres && sr[4]<thres)||
+									(sr[0]>=thres && sr[2]<thres && sr[6]<thres && sr[8]<thres )||
+									(sr[2]>=thres && sr[0]<thres && sr[6]<thres && sr[8]<thres )||
+									(sr[6]>=thres && sr[2]<thres && sr[0]<thres && sr[8]<thres )||
+									(sr[8]>=thres && sr[2]<thres && sr[6]<thres && sr[0]<thres )) {
+									System.out.println("cleared aa "+band+", "+x+", "+y+", "+count);
+									System.out.println(sr[0]+", "+sr[1]+", "+
+										sr[2]+", "+sr[3]+", "+
+										sr[4]+", "+sr[5]+", "+
+										sr[6]+", "+sr[7]+", "+sr[8]);
+
+									frameOut1.setPixel(band, x, y ,thres);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for (band = 0; band < numBands; band++) {
+			for (y = 0; y < height; y++) {
+				for (x = 0; x < width; x++) {
+					level = frameOut1.getPixelDouble(band, x, y);
+					if(level >= thres) {
+						frameOut.setPixel(band, x, y ,0);
+						System.out.println("cleared a "+band+", "+x+", "+y);
+
+					}
+				}
+			}
+		}
+
+		frameOut1.clearBuffer();
+
+		for ( band = 0; band < numBands; band++) {
+			for ( y = 0; y < height; y++) {
+				for ( x = 0; x < width; x++) {
+					sr = getSampleRegion33(frameOut, band, x, y);
+					count = 0;
+					if (sr[0] >= thres) count++;
+					if (sr[1] >= thres) count++;
+					if (sr[2] >= thres) count++;
+					if (sr[3] >= thres) count++;
+					if (sr[5] >= thres) count++;
+					if (sr[6] >= thres) count++;
+					if (sr[7] >= thres) count++;
+					if (sr[8] >= thres) count++;
+					if (count >= 6 || count <= 2) {
+						level = frameOut.getPixelDouble(band, x, y);
+						if (level >= thres) {
+							if (sr[1]<thres && sr[3]<thres && sr[5]<thres && sr[7]< thres) {
+								if (test ||(sr[0]>=thres && sr[2]<thres && sr[6]<thres && sr[8]<thres && sr[4]<thres)||
+									(sr[0]>=thres && sr[2]<thres && sr[6]<thres && sr[8]<thres )||
+									(sr[2]>=thres && sr[0]<thres && sr[6]<thres && sr[8]<thres )||
+									(sr[6]>=thres && sr[2]<thres && sr[0]<thres && sr[8]<thres )||
+									(sr[8]>=thres && sr[2]<thres && sr[6]<thres && sr[0]<thres )) {
+									System.out.println("cleared bb "+band+", "+x+", "+y+", "+count);
+
+									frameOut1.setPixel(band, x, y ,thres);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for ( band = 0; band < numBands; band++) {
+			for ( y = 0; y < height; y++) {
+				for (x = 0; x < width; x++) {
+					level = frameOut1.getPixelDouble(band, x, y);
+					if(level >= thres){
+						frameOut.setPixel(band, x, y ,0);
+						System.out.println("cleared b "+band+", "+x+", "+y);
+					}
+				}
+			}
+		}
+
+		return frameOut;
+	}
+
+
+	private EFrame doBand(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double[] thres = new double[numBands];
+		int x, y, band;
+		for (band = 0; band < numBands; band++) {
+			thres[band] = effectParams[band+1]*255.0;
+		}
+
+		double level, mean;
+		double[] sr=null;
+		for ( y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				level = frameIn.getPixelGrey(x, y);
+				for (band = 0; band < numBands; band++) {
+					if (!effectContext.option1) {
+						level = frameIn.getPixelDouble(band, x, y);
+					}
+
+					if (effectContext.option2) {
+						sr = getSampleRegion55(frameIn, band, x, y);
+					}
+
+					frameOut.setPixel(band, x, y, thres[band]);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+	private EFrame doBits(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		double[] thres = new double[numBands];
+		int x, y, band;
+		for (band = 0; band < numBands; band++) {
+			thres[band] = effectParams[band+1]*8.0;
+		}
+
+		int level;
+		byte byteLevel;
+		double[] sr=null;
+		for ( y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				for (band = 0; band < numBands; band++) {
+					level = frameIn.getPixelInt(band, x, y);
+					byteLevel = 0;
+					if (thres[band] >= 8.0) byteLevel = (byte)((level) & 0xFF);
+					else if (thres[band] >= 7.0) byteLevel = (byte)((level) & 0xFE);
+					else if (thres[band] >= 6.0) byteLevel = (byte)((level) & 0xFC);
+					else if (thres[band] >= 5.0) byteLevel = (byte)((level) & 0xF8);
+					else if (thres[band] >= 4.0) byteLevel = (byte)((level) & 0xF0);
+					else if (thres[band] >= 3.0) byteLevel = (byte)((level) & 0xE0);
+					else if (thres[band] >= 2.0) byteLevel = (byte)((level) & 0xC0);
+					else if (thres[band] >= 1.0) byteLevel = (byte)((level) & 0x80);
+
+					frameOut.setPixel(band, x, y, byteLevel);
+				}
+			}
+		}
+		return frameOut;
+
+	}
+
+
+	public int[] warpPoints = {10, 30, 40, 50, 60, 60 , 100, 100, 110, 120, 130, 30};
+
+	private EFrame doWarpGen(EFrame frameIn) {
+		EFrame frameOut = new EFrame(frameIn.getBuffer());
+		int width = frameIn.getWidth();
+		int height = frameIn.getHeight();
+		int numBands = frameIn.getPixelStride();
+		RenderedImage rimg = frameIn.getRenderedImage();
+		if (warpGen == null) {
+			warpGen = new WarpImageGenerator();
+		}
+
+		warpGen.setSourceImage(rimg);
+		warpGen.setPolyDegree(3);
+		warpGen.setPoints(warpPoints);
+		warpGen.generateImage();
+		PlanarImage pimg = warpGen.getDestImage();
+		if (pimg != null) {
+			frameOut.setPlanarImage(pimg);
+		}
+		else {
+			System.out.println("Null warp image");
+		}
+		return frameOut;
+	}
+
+
+
+
+	private double[] getSampleRegion33(EFrame frameIn, int band, int x, int y) {
+		double[] sr = new double[9];
+		sr[0] = frameIn.getPixelDouble(band, x-1, y-1);
+		sr[1] = frameIn.getPixelDouble(band, x, y-1);
+		sr[2] = frameIn.getPixelDouble(band, x+1, y-1);
+		sr[3] = frameIn.getPixelDouble(band, x-1, y);
+		sr[4] = frameIn.getPixelDouble(band, x, y);
+		sr[5] = frameIn.getPixelDouble(band, x+1, y);
+		sr[6] = frameIn.getPixelDouble(band, x-1, y+1);
+		sr[7] = frameIn.getPixelDouble(band, x, y+1);
+		sr[8] = frameIn.getPixelDouble(band, x+1, y+1);
+		return sr;
+	}
+
+	private double[] getSampleRegion55(EFrame frameIn, int band, int x, int y) {
+		double[] sr = new double[25];
+		sr[0] = frameIn.getPixelDouble(band, x-2, y-2);
+		sr[1] = frameIn.getPixelDouble(band, x-1, y-2);
+		sr[2] = frameIn.getPixelDouble(band , x, y-2);
+		sr[3] = frameIn.getPixelDouble(band, x+1, y-2);
+		sr[4] = frameIn.getPixelDouble(band, x+2, y-2);
+		sr[5] = frameIn.getPixelDouble(band, x-2, y-1);
+		sr[6] = frameIn.getPixelDouble(band, x-1, y-1);
+		sr[7] = frameIn.getPixelDouble(band, x, y-1);
+		sr[8] = frameIn.getPixelDouble(band, x+1, y-1);
+		sr[9] = frameIn.getPixelDouble(band, x+2, y-1);
+		sr[10] = frameIn.getPixelDouble(band, x-2, y);
+		sr[11] = frameIn.getPixelDouble(band, x-1, y);
+		sr[12] = frameIn.getPixelDouble(band, x, y);
+		sr[13] = frameIn.getPixelDouble(band, x+1, y);
+		sr[14] = frameIn.getPixelDouble(band, x+2, y);
+		sr[15] = frameIn.getPixelDouble(band, x-2, y+1);
+		sr[16] = frameIn.getPixelDouble(band, x-1, y+1);
+		sr[17] = frameIn.getPixelDouble(band, x, y+1);
+		sr[18] = frameIn.getPixelDouble(band, x+1, y+1);
+		sr[19] = frameIn.getPixelDouble(band, x+2, y+1);
+		sr[20] = frameIn.getPixelDouble(band, x-2, y+2);
+		sr[21] = frameIn.getPixelDouble(band, x-1, y+2);
+		sr[22] = frameIn.getPixelDouble(band, x, y+2);
+		sr[23] = frameIn.getPixelDouble(band, x+1, y+2);
+		sr[24] = frameIn.getPixelDouble(band, x+2, y+2);
+		return sr;
+	}
+
+	private double[] getSampleRegion33(EFrame frameIn, int x, int y) {
+		double[] sr = new double[9];
+		sr[0] = frameIn.getPixelGrey(x-1, y-1);
+		sr[1] = frameIn.getPixelGrey(x, y-1);
+		sr[2] = frameIn.getPixelGrey(x+1, y-1);
+		sr[3] = frameIn.getPixelGrey( x-1, y);
+		sr[4] = frameIn.getPixelGrey( x, y);
+		sr[5] = frameIn.getPixelGrey( x+1, y);
+		sr[6] = frameIn.getPixelGrey( x-1, y+1);
+		sr[7] = frameIn.getPixelGrey( x, y+1);
+		sr[8] = frameIn.getPixelGrey( x+1, y+1);
+		return sr;
+	}
+
+	private double[] getSampleRegion55(EFrame frameIn, int x, int y) {
+		double[] sr = new double[25];
+		sr[0] = frameIn.getPixelGrey( x-2, y-2);
+		sr[1] = frameIn.getPixelGrey( x-1, y-2);
+		sr[2] = frameIn.getPixelGrey( x, y-2);
+		sr[3] = frameIn.getPixelGrey( x+1, y-2);
+		sr[4] = frameIn.getPixelGrey( x+2, y-2);
+		sr[5] = frameIn.getPixelGrey( x-2, y-1);
+		sr[6] = frameIn.getPixelGrey( x-1, y-1);
+		sr[7] = frameIn.getPixelGrey( x, y-1);
+		sr[8] = frameIn.getPixelGrey( x+1, y-1);
+		sr[9] = frameIn.getPixelGrey( x+2, y-1);
+		sr[10] = frameIn.getPixelGrey( x-2, y);
+		sr[11] = frameIn.getPixelGrey( x-1, y);
+		sr[12] = frameIn.getPixelGrey( x, y);
+		sr[13] = frameIn.getPixelGrey( x+1, y);
+		sr[14] = frameIn.getPixelGrey( x+2, y);
+		sr[15] = frameIn.getPixelGrey( x-2, y+1);
+		sr[16] = frameIn.getPixelGrey( x-1, y+1);
+		sr[17] = frameIn.getPixelGrey( x, y+1);
+		sr[18] = frameIn.getPixelGrey( x+1, y+1);
+		sr[19] = frameIn.getPixelGrey( x+2, y+1);
+		sr[20] = frameIn.getPixelGrey( x-2, y+2);
+		sr[21] = frameIn.getPixelGrey( x-1, y+2);
+		sr[22] = frameIn.getPixelGrey( x, y+2);
+		sr[23] = frameIn.getPixelGrey( x+1, y+2);
+		sr[24] = frameIn.getPixelGrey( x+2, y+2);
+		return sr;
+	}
+
+	private double getGrowthFactor(int age) {
+		age = age + 1;
+		double f = ((double) age) * 0.1;
+		if (f <= 0 || f > 1.0)
+			return 1.0;
+		//return 1.0;
+		return f;
+	}
+
+	private double getDecayFactor(int offset) {
+		if (offset == 1)
+			return 1.0;
+		return (1.0 / (1.0 + ((double) offset) * 0.2));
+
+	}
+
+	public class Imagine implements ImageFunction {
+
+		public Imagine() {
+		}
+
+		public boolean isComplex() {
+			return false;
+		}
+		public int getNumElements() {
+			return 3;
+		}
+
+		public void getElements(
+			float startX,
+			float startY,
+			float deltaX,
+			float deltaY,
+			int countX,
+			int countY,
+			int element,
+			float[] real,
+			float[] imag) {
+
+			if (element == 1) {
+				for (int i = seqNumber * 300; i < (countX * countY); i += 3) {
+					real[i] = 255;
+				}
+			}
+			if (element == 2) {
+				for (int i = ((countX * countY - 1) - seqNumber * 300); i > 0; i -= 2) {
+					real[i] = 255;
+				}
+			}
+
+		}
+		public void getElements(
+			double startX,
+			double startY,
+			double deltaX,
+			double deltaY,
+			int countX,
+			int countY,
+			int element,
+			double[] real,
+			double[] imag) {
+
+			if (element == 1) {
+				for (int i = seqNumber * 300; i < (countX * countY); i += 3) {
+					real[i] = 255;
+				}
+			}
+			if (element == 2) {
+				for (int i = ((countX * countY - 1) - seqNumber * 300); i > 0; i -= 2) {
+					real[i] = 255;
+				}
+			}
+		}
+	}
+
+}

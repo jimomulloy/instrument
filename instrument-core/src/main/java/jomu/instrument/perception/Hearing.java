@@ -107,6 +107,8 @@ public class Hearing implements Organ {
 
 	private TarsosAudioDispatcherFactory audioDispatcherFactory = new TarsosAudioDispatcherFactory();
 
+	private boolean audioPlaybackRunning;
+
 	public void setAudioDispatcherFactory(TarsosAudioDispatcherFactory audioDispatcherFactory) {
 		this.audioDispatcherFactory = audioDispatcherFactory;
 	}
@@ -1314,7 +1316,7 @@ public class Hearing implements Organ {
 			public void processingFinished() {
 				boolean isAudioPlaybackLoop = parameterManager
 						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAYBACK_LOOP_SWITCH);
-				if (isAudioPlaybackLoop) {
+				if (Hearing.this.audioPlaybackRunning && isAudioPlaybackLoop) {
 					stopAudioPlayer();
 					try {
 						startAudioPlayer();
@@ -1327,6 +1329,7 @@ public class Hearing implements Organ {
 			}
 		});
 		
+		this.audioPlaybackRunning = true;
 		Thread t = new Thread(audioPlayerDispatcher, "Thread-Hearing-AudioPlayer" + System.currentTimeMillis());
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
@@ -1340,6 +1343,7 @@ public class Hearing implements Organ {
 			return;
 		}
 		audioPlayerDispatcher.stop();
+		this.audioPlaybackRunning = false;
 	}
 
 }

@@ -1,0 +1,1 @@
+package com.jhlabs.image.fill;public interface PixelOp {	public void apply(int x, int y);}

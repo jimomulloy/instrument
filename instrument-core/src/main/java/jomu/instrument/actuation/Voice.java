@@ -93,6 +93,8 @@ public class Voice implements Organ {
 	@Inject
 	Workspace workspace;
 
+	private boolean streamPlayerRunning;
+
 	/**
 	 * Builds the audio synthesizer.
 	 *
@@ -314,16 +316,18 @@ public class Voice implements Organ {
 	 * @return true, if successful
 	 */
 	public boolean startStreamPlayer(final String streamId, ToneMap synthToneMap) {
+		this.streamPlayerRunning = true;
 		do {
 			int sequence = 1;
 			ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
-			while (frame != null) {
+			while (frame != null && this.streamPlayerRunning) {
 				send(frame, streamId, sequence, false);
 				sequence++;
 				frame = synthToneMap.getTimeFrame(sequence);
 			}
 			close(streamId);
-		} while (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
+		} while (this.streamPlayerRunning && this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
+		this.streamPlayerRunning = false;
 		return true;
 	}
 
@@ -341,7 +345,7 @@ public class Voice implements Organ {
 	 */
 	public void stopStreamPlayer(final String streamId) {
 		close(streamId);
-
+		this.streamPlayerRunning = false;
 	}
 
 	/**
