@@ -75,13 +75,17 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			final ToneMap synthToneMap = this.workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
 			if (synthToneMap != null && saveToneMap) {
-				LOG.severe(">>SINK SAVE TM");
 				this.workspace.getAtlas().saveToneMap(synthToneMap);
 			}
 
-			new Thread(() -> voice.close(streamId)).start();
+			new Thread(() -> {
+				voice.close(streamId);
+				if (synthToneMap != null && this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE)) {
+					voice.startStreamPlayer(streamId, synthToneMap);
+				}					
+			}).start();
 			// console.getVisor().updateViewThresholds();
-			LOG.severe(">>AudioSinkProcessor CLOSE");
+			LOG.severe(">>AudioSinkProcessor CLOSE: " + saveToneMap);
 		}
 	}
 

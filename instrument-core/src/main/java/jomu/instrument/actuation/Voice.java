@@ -95,6 +95,8 @@ public class Voice implements Organ {
 
 	private boolean streamPlayerRunning;
 
+	private String streamPlayerId;
+
 	/**
 	 * Builds the audio synthesizer.
 	 *
@@ -233,7 +235,7 @@ public class Voice implements Organ {
 	 */
 	public void reset() {
 		LOG.severe(">>VOICE reset: ");
-		this.midiSynthesizer.reset();
+		//!!this.midiSynthesizer.reset();  // TODO ??
 	}
 
 	/**
@@ -250,6 +252,9 @@ public class Voice implements Organ {
 	 */
 	public void send(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence,
 			final boolean pause) {
+		if (this.streamPlayerRunning && streamId != this.streamPlayerId) {
+			stopStreamPlayer(this.streamPlayerId);
+		}	
 		if (this.deadStreams.contains(streamId))
 			return;
 		if (pause) {
@@ -317,6 +322,7 @@ public class Voice implements Organ {
 	 */
 	public boolean startStreamPlayer(final String streamId, ToneMap synthToneMap) {
 		this.streamPlayerRunning = true;
+		this.streamPlayerId = streamId;
 		do {
 			int sequence = 1;
 			ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
@@ -327,6 +333,7 @@ public class Voice implements Organ {
 			}
 			close(streamId);
 		} while (this.streamPlayerRunning && this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
+		this.streamPlayerId = null;
 		this.streamPlayerRunning = false;
 		return true;
 	}
@@ -344,8 +351,10 @@ public class Voice implements Organ {
 	 * Stop stream player.
 	 */
 	public void stopStreamPlayer(final String streamId) {
-		close(streamId);
+		System.out.println(">>!!stopStreamPlayer");
 		this.streamPlayerRunning = false;
+		this.streamPlayerId = null;
+		close(streamId);
 	}
 
 	/**
