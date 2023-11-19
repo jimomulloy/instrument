@@ -290,6 +290,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField streamIndexInput;
 
+	private JTextField playStartOffsetInput;
+
+	private JTextField playEndOffsetInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1525,7 +1529,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				coordinator.getHearing().stopAudioStream();
 				coordinator.getHearing().stopAudioPlayer();
 				coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
-				coordinator.getVoice().stopStreamPlayer(coordinator.getHearing().getStreamId());
+				coordinator.getVoice().stopStreamPlayer();
 				startFileProcessingButton.setEnabled(true);
 				startListeningButton.setEnabled(true);
 				playAudioButton.setEnabled(true);
@@ -1564,9 +1568,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					LOG.severe(">>PLAY ST: " + index + ", " + synthToneMap);
 					if (synthToneMap != null) {
 						playStreamButton.setEnabled(false);
-						new Thread(() -> coordinator.getVoice()
-								.startStreamPlayer(coordinator.getHearing().getStreamId(), synthToneMap))
-										.start();
+						new Thread(() -> {
+							coordinator.getVoice()
+								.startStreamPlayer(synthToneMap.getStreamId(), synthToneMap);
+							}).start();
 						stopListeningButton.setEnabled(true);
 					}
 				}
@@ -1612,6 +1617,38 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
 		actionCenterPanel.add(streamIndexLabel);
 		actionCenterPanel.add(streamIndexInput);
+
+		JLabel playStartOffsetLabel = new JLabel("Start Offset: ");
+		playStartOffsetInput = new JTextField(4);
+		playStartOffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = playStartOffsetInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_START_OFFSET, newValue);
+				playStartOffsetInput.setText(newValue);
+			}
+		});
+		playStartOffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_START_OFFSET));
+		actionCenterPanel.add(playStartOffsetLabel);
+		actionCenterPanel.add(playStartOffsetInput);
+		
+		JLabel playEndOffsetLabel = new JLabel("End Offset: ");
+		playEndOffsetInput = new JTextField(4);
+		playEndOffsetInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = playEndOffsetInput.getText();
+				newValue = parameterManager
+						.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET, newValue);
+				playEndOffsetInput.setText(newValue);
+			}
+		});
+		playEndOffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET));
+		actionCenterPanel.add(playEndOffsetLabel);
+		actionCenterPanel.add(playEndOffsetInput);
 
 		JLabel persistenceModeLabel = new JLabel("Persistence Mode: ");
 		persistenceModeInput = new JTextField(4);
@@ -2819,6 +2856,10 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
 		streamIndexInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
+		playStartOffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_START_OFFSET));
+		playEndOffsetInput.setText(
+				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET));
 		int sampleRateParam = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
 		int i = 0;

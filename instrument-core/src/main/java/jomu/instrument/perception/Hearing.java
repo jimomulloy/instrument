@@ -930,7 +930,7 @@ public class Hearing implements Organ {
 			}
 			LOG.severe(">>processAudioFileStream skip from secs: " + audioOffset / 1000.0);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
-			LOG.severe(">>processAudioFileStream: " + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
+			LOG.severe(">>processAudioFileStream length!!: " + ((double)audioStream.getFrameLength() / (audioStream.getFormat().getFrameRate())) + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
 			dispatcher = audioDispatcherFactory.getAudioDispatcher(audioStream, bufferSize, overlap);
 
 			int audioHighPass = parameterManager

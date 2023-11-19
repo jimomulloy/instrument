@@ -93,9 +93,9 @@ public class Voice implements Organ {
 	@Inject
 	Workspace workspace;
 
-	private boolean streamPlayerRunning;
-
 	private String streamPlayerId;
+
+	private String currentStreamId;
 
 	/**
 	 * Builds the audio synthesizer.
@@ -152,29 +152,33 @@ public class Voice implements Organ {
 	 *            the stream id
 	 */
 	public void close(final String streamId) {
-		if (!this.smq.isEmpty()) {
-			for (final SendMessage sm : this.smq) {
-				sendMessage(sm);
+		
+		if (this.currentStreamId != null && this.currentStreamId == streamId) {
+			System.out.println(">>CLOSE: " + streamId);
+			if (!this.smq.isEmpty()) {
+				for (final SendMessage sm : this.smq) {
+					sendMessage(sm);
+				}
+				this.smq.clear();
 			}
-			this.smq.clear();
-		}
-		this.deadStreams.remove(streamId);
-
-		this.resynthSynthesizer.close(streamId);
-		this.audioSynthesizer.close(streamId);
-		LOG.severe(">>Voice CLOSE, midi running: " + this.midiSynthesizer.isSynthesizerRunning());
-		this.midiSynthesizer.close(streamId);
-		waitForPlayers();
-		this.midiSynthesizer.reset();
-		this.console.getVisor().setPlayerState(true);
-		this.LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
-				+ ", Frame Cache Size: " + this.workspace.getAtlas()
-						.getFrameCache()
-						.getSize());
-		if (this.controller.isCountDownLatch()) {
-			LOG.severe(">>Voice CLOSE JOB");
-			this.controller.getCountDownLatch()
-					.countDown();
+			this.deadStreams.remove(streamId);
+	
+			this.resynthSynthesizer.close(streamId);
+			this.audioSynthesizer.close(streamId);
+			LOG.severe(">>Voice CLOSE, midi running: " + this.midiSynthesizer.isSynthesizerRunning());
+			this.midiSynthesizer.close(streamId);
+			waitForPlayers();
+			this.midiSynthesizer.reset();
+			this.console.getVisor().setPlayerState(true);
+			this.LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
+					+ ", Frame Cache Size: " + this.workspace.getAtlas()
+							.getFrameCache()
+							.getSize());
+			if (this.controller.isCountDownLatch()) {
+				LOG.severe(">>Voice CLOSE JOB");
+				this.controller.getCountDownLatch()
+						.countDown();
+			}
 		}
 	}
 
@@ -235,7 +239,7 @@ public class Voice implements Organ {
 	 */
 	public void reset() {
 		LOG.severe(">>VOICE reset: ");
-		//!!this.midiSynthesizer.reset();  // TODO ??
+		//this.midiSynthesizer.reset();  // TODO ??
 	}
 
 	/**
@@ -252,22 +256,34 @@ public class Voice implements Organ {
 	 */
 	public void send(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence,
 			final boolean pause) {
-		if (this.streamPlayerRunning && streamId != this.streamPlayerId) {
-			stopStreamPlayer(this.streamPlayerId);
+		
+		if (this.currentStreamId != null 
+				&& this.currentStreamId != streamId
+				&& this.currentStreamId == this.streamPlayerId) {
+			System.out.println(">>D - STOP STREAM PLAY 1: " + streamId + ", "+ this.streamPlayerId);
+			stopStreamPlayer();
 		}	
+		if (sequence == 10) {
+			System.out.println(">>SEND: " + streamId);
+		}	
+		this.currentStreamId = streamId;
+		
 		if (this.deadStreams.contains(streamId))
 			return;
 		if (pause) {
 			this.smq.add(new SendMessage(toneTimeFrame, streamId, sequence));
 		} else {
-			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
-				writeMidi(toneTimeFrame, streamId, sequence);
-			}
-			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
-				writeAudio(toneTimeFrame, streamId, sequence);
-			}
-			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
-				writeResynthAudio(toneTimeFrame, streamId, sequence);
+			if (sequence >= this.parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_START_OFFSET)
+					&& sequence <= this.parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET)) {
+				if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
+					writeMidi(toneTimeFrame, streamId, sequence);
+				}
+				if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
+					writeAudio(toneTimeFrame, streamId, sequence);
+				}
+				if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
+					writeResynthAudio(toneTimeFrame, streamId, sequence);
+				}
 			}
 		}
 	}
@@ -281,14 +297,18 @@ public class Voice implements Organ {
 	private void sendMessage(final SendMessage message) {
 		if (this.deadStreams.contains(message.streamId))
 			return;
-		if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
-			writeMidi(message.toneTimeFrame, message.streamId, message.sequence);
-		}
-		if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
-			writeAudio(message.toneTimeFrame, message.streamId, message.sequence);
-		}
-		if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
-			writeResynthAudio(message.toneTimeFrame, message.streamId, message.sequence);
+		if (message.sequence >= this.parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_START_OFFSET)
+				&& message.sequence <= this.parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET)) {
+	
+			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY)) {
+				writeMidi(message.toneTimeFrame, message.streamId, message.sequence);
+			}
+			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY)) {
+				writeAudio(message.toneTimeFrame, message.streamId, message.sequence);
+			}
+			if (this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_RESYNTH_PLAY)) {
+				writeResynthAudio(message.toneTimeFrame, message.streamId, message.sequence);
+			}
 		}
 	}
 
@@ -321,20 +341,28 @@ public class Voice implements Organ {
 	 * @return true, if successful
 	 */
 	public boolean startStreamPlayer(final String streamId, ToneMap synthToneMap) {
-		this.streamPlayerRunning = true;
+		if (this.streamPlayerId != null && this.streamPlayerId != streamId) {
+			System.out.println(">>A - STOP STREAM PLAY 1: " + streamId);
+			stopStreamPlayer();
+		}
 		this.streamPlayerId = streamId;
+		System.out.println(">>START STREAM PLAY: " + streamId);
 		do {
 			int sequence = 1;
 			ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
-			while (frame != null && this.streamPlayerRunning) {
+			while (frame != null && streamId == this.streamPlayerId) {
 				send(frame, streamId, sequence, false);
 				sequence++;
 				frame = synthToneMap.getTimeFrame(sequence);
 			}
-			close(streamId);
-		} while (this.streamPlayerRunning && this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
+			System.out.println(">>START STREAM PLAY CLOSING: " + streamId);
+			if (streamId == this.streamPlayerId) {
+				System.out.println(">>C - STOP STREAM PLAY 1: " + streamId);
+				close(streamId);
+			}	
+		} while (streamId == this.streamPlayerId 
+				&& parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
 		this.streamPlayerId = null;
-		this.streamPlayerRunning = false;
 		return true;
 	}
 
@@ -350,11 +378,14 @@ public class Voice implements Organ {
 	/**
 	 * Stop stream player.
 	 */
-	public void stopStreamPlayer(final String streamId) {
-		System.out.println(">>!!stopStreamPlayer");
-		this.streamPlayerRunning = false;
+	public void stopStreamPlayer() {
+		System.out.println(">>STOP STREAM PLAY");
+		String streamId = this.streamPlayerId;
 		this.streamPlayerId = null;
-		close(streamId);
+		if (streamId != null) {
+			System.out.println(">>B CLOSE STREAM PLAY: " + streamId);
+			close(streamId);
+		}	
 	}
 
 	/**

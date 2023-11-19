@@ -71,7 +71,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 					commitMaps(streamId, i, persistenceMode);
 				}
 			}
-
+			LOG.severe(">>AudioSinkProcessor last seq: " + sequence);
 			final ToneMap synthToneMap = this.workspace.getAtlas()
 					.getToneMap(ToneMap.buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
 			if (synthToneMap != null && saveToneMap) {

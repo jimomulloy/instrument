@@ -373,6 +373,8 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH = "actuation.voice.midiDevicePlaySwitch";
 	public static final String ACTUATION_VOICE_RESYNTH_PLAY = "actuation.voice.playResynth";
 	public static final String ACTUATION_VOICE_MIDI_SOUND_FONTS = "actuation.voice.midiSoundFonts";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_START_OFFSET = "actuation.voice.playStartOffset";
+	public static final String ACTUATION_VOICE_MIDI_PLAY_END_OFFSET = "actuation.voice.playEndOffset";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOLUME_SWITCH = "actuation.voice.midiPlayVolumeSwitch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_LOG_SWITCH = "actuation.voice.midiPlayLogSwitch";
 	public static final String ACTUATION_VOICE_MIDI_PLAY_VOICE1_SWITCH = "actuation.voice.midiPlayVoice1Switch";

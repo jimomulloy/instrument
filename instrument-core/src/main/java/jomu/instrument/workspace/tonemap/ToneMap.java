@@ -108,6 +108,10 @@ public class ToneMap {
 		return key;
 	}
 
+	public String getStreamId() {
+		return key.substring(key.indexOf(":") + 1);
+	}
+
 	/**
 	 * Clear current ToneMap objects after Reset
 	 */

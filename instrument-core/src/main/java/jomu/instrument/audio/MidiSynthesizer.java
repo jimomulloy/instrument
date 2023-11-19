@@ -346,9 +346,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 				}
 
 				midiChannels = midiSynthesizer.getChannels();
+				LOG.severe(">>MidiSynth midiChannels init: " + midiChannels.length);
 			}
-
 			numChannels = midiChannels.length;
+			LOG.severe(">>MidiSynth numChannels: " + numChannels);
 			if (numChannels == 0) {
 				LOG.severe(">>MidiSynth MISSING CHANNELS!!");
 				// return false;
@@ -3705,7 +3706,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		}
 
 		private void clearChannel(ChannelData channelData) {
-			if (channelData.channel != null) {
+			if (channelData != null && channelData.channel != null) {
 				channelData.channel.allNotesOff();
 				channelData.channel.allSoundOff();
 				channelData.channel.resetAllControllers();
