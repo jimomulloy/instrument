@@ -80,9 +80,10 @@ public class AudioSinkProcessor extends ProcessorCommon {
 
 			new Thread(() -> {
 				voice.close(streamId);
-				if (synthToneMap != null && this.parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE)) {
+				if (synthToneMap != null && this.parameterManager
+						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE)) {
 					voice.startStreamPlayer(streamId, synthToneMap);
-				}					
+				}
 			}).start();
 			// console.getVisor().updateViewThresholds();
 			LOG.severe(">>AudioSinkProcessor CLOSE: " + saveToneMap);

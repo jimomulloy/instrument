@@ -3771,6 +3771,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 		private MidiQueueConsumer consumer;
 
+		private boolean isClosing;
+
 		public MidiStream(String streamId) {
 			this.streamId = streamId;
 			bq = new LinkedBlockingQueue<>();

@@ -1526,10 +1526,12 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				coordinator.getHearing().stopAudioStream();
-				coordinator.getHearing().stopAudioPlayer();
-				coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
-				coordinator.getVoice().stopStreamPlayer();
+				new Thread(() -> {
+					coordinator.getHearing().stopAudioStream();
+					coordinator.getHearing().stopAudioPlayer();
+					coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
+					coordinator.getVoice().stopStreamPlayer();
+				}).start();
 				startFileProcessingButton.setEnabled(true);
 				startListeningButton.setEnabled(true);
 				playAudioButton.setEnabled(true);
@@ -1570,8 +1572,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 						playStreamButton.setEnabled(false);
 						new Thread(() -> {
 							coordinator.getVoice()
-								.startStreamPlayer(synthToneMap.getStreamId(), synthToneMap);
-							}).start();
+									.startStreamPlayer(synthToneMap.getStreamId(), synthToneMap);
+						}).start();
 						stopListeningButton.setEnabled(true);
 					}
 				}
@@ -1633,7 +1635,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_START_OFFSET));
 		actionCenterPanel.add(playStartOffsetLabel);
 		actionCenterPanel.add(playStartOffsetInput);
-		
+
 		JLabel playEndOffsetLabel = new JLabel("End Offset: ");
 		playEndOffsetInput = new JTextField(4);
 		playEndOffsetInput.addActionListener(new ActionListener() {
