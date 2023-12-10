@@ -175,15 +175,17 @@ public class MidiSynthesizer implements ToneMapConstants {
 	public void clear(String streamId) {
 		LOG.severe(">>MIDI clear");
 		if (midiStreams.containsKey(streamId)) {
+			LOG.severe(">>MIDI clear close");
 			MidiStream ms = midiStreams.get(streamId);
 			ms.close();
+			midiStreams.remove(streamId);
 		}
 		MidiSynthesizer.this.reset();
 		if (controller.isCountDownLatch()) {
 			controller.getCountDownLatch()
 					.countDown();
 		}
-		LOG.finer(">>MIDI cleared");
+		LOG.severe(">>MIDI cleared");
 	}
 
 	public void reset() {
@@ -200,7 +202,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		MidiQueueMessage midiQueueMessage = new MidiQueueMessage();
 		midiStream.getBq()
 				.add(midiQueueMessage);
-		midiStreams.remove(streamId);
+		// !!midiStreams.remove(streamId);
 		LOG.finer(">>MIDI close: " + streamId);
 	}
 
@@ -3796,7 +3798,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 			bq.clear();
 			bq.drainTo(new ArrayList<Object>());
 			consumer.stop();
-			LOG.finer(">>MidiStream close stop and reset!!");
+			LOG.severe(">>MidiStream close stop and reset!!");
 		}
 
 		public boolean isClosed() {

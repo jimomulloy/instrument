@@ -139,7 +139,7 @@ public class Voice implements Organ {
 	 */
 	public void clear(final String streamId) {
 		LOG.severe(">>VOICE clear: ");
-		// ?? deadStreams.add(streamId);
+		deadStreams.add(streamId);
 		this.resynthSynthesizer.clear(streamId);
 		this.audioSynthesizer.clear(streamId);
 		this.midiSynthesizer.clear(streamId);
@@ -161,13 +161,15 @@ public class Voice implements Organ {
 				}
 				this.smq.clear();
 			}
-			this.deadStreams.remove(streamId);
+			// this.deadStreams.add(streamId);
 
 			this.resynthSynthesizer.close(streamId);
 			this.audioSynthesizer.close(streamId);
 			LOG.severe(">>Voice CLOSE, midi running: " + this.midiSynthesizer.isSynthesizerRunning());
 			this.midiSynthesizer.close(streamId);
 			waitForPlayers();
+			this.deadStreams.remove(streamId);
+			this.midiSynthesizer.clear(streamId);
 			this.midiSynthesizer.reset();
 			this.console.getVisor().setPlayerState(true);
 			this.LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
@@ -268,8 +270,10 @@ public class Voice implements Organ {
 		}
 		this.currentStreamId = streamId;
 
-		if (this.deadStreams.contains(streamId))
+		if (this.deadStreams.contains(streamId)) {
+			LOG.severe(">>VOICE SEND DS");
 			return;
+		}
 		if (pause) {
 			this.smq.add(new SendMessage(toneTimeFrame, streamId, sequence));
 		} else {
@@ -366,7 +370,7 @@ public class Voice implements Organ {
 			}
 		} while (streamId == this.streamPlayerId
 				&& parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
-		this.streamPlayerId = null;
+		// this.streamPlayerId = null;
 		return true;
 	}
 
@@ -383,12 +387,12 @@ public class Voice implements Organ {
 	 * Stop stream player.
 	 */
 	public void stopStreamPlayer() {
-		System.out.println(">>STOP STREAM PLAY");
 		String streamId = this.streamPlayerId;
+		System.out.println(">>STOP STREAM PLAY: " + streamId);
 		this.streamPlayerId = null;
 		if (streamId != null) {
 			System.out.println(">>B CLOSE STREAM PLAY: " + streamId);
-			close(streamId);
+			clear(streamId);
 		}
 	}
 
