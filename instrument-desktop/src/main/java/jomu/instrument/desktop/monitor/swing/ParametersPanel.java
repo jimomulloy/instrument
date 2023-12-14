@@ -58,7 +58,8 @@ public class ParametersPanel extends JPanel {
 			"folk", "folky", "folky-clean", "folk-pluck", "bach", "birds-bach", "beethoven", "brass", "compresschord",
 			"epiano", "epiano-arp",
 			"epiano-chords", "epiano-chords-staccato", "guitarstrum", "eguitar", "hpschord", "neon", "neon-peaked",
-			"neon-synth", "billevans", "likesomeone", "likesomeone2", "jona", "beatles", "stpauls", "holst", "abide",
+			"neon-synth", "billevans", "likesomeone", "likesomeone2", "likesomeone3", "jona", "beatles", "stpauls",
+			"stpauls2", "holst", "abide",
 			"loopback", "loopmidi", "user" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
