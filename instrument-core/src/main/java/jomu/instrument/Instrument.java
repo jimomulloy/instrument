@@ -70,6 +70,8 @@ public class Instrument implements Organ, InstrumentFactory {
 	@Inject
 	Workspace workspace;
 
+	private boolean isAlive = false;
+
 	/**
 	 * Gets the console.
 	 *
@@ -178,6 +180,7 @@ public class Instrument implements Organ, InstrumentFactory {
 			this.workspace.start();
 			this.console.start();
 			this.coordinator.start();
+			this.setAlive(true);
 			LOG.severe(">>Started INSTRUMENT");
 		} catch (final Exception ex) {
 			LOG.log(Level.SEVERE, ">>Start INSTRUMENT exception: " + ex.getMessage(), ex);
@@ -196,6 +199,17 @@ public class Instrument implements Organ, InstrumentFactory {
 		this.workspace.stop();
 		this.console.stop();
 		this.coordinator.stop();
+		this.setAlive(false);
+	}
+
+	public boolean isAlive() {
+		return isAlive;
+
+	}
+
+	public void setAlive(boolean isAlive) {
+		this.isAlive = isAlive;
+
 	}
 
 }

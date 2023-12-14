@@ -10,6 +10,7 @@ import javax.sound.midi.MidiUnavailableException;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jomu.instrument.Instrument;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
 import jomu.instrument.audio.AudioSynthesizer;
@@ -79,6 +80,9 @@ public class Voice implements Organ {
 
 	@Inject
 	ParameterManager parameterManager;
+
+	@Inject
+	Instrument instrument;
 
 	@Inject
 	Console console;
@@ -171,15 +175,17 @@ public class Voice implements Organ {
 			this.deadStreams.remove(streamId);
 			this.midiSynthesizer.clear(streamId);
 			this.midiSynthesizer.reset();
-			this.console.getVisor().setPlayerState(true);
-			this.LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
-					+ ", Frame Cache Size: " + this.workspace.getAtlas()
-							.getFrameCache()
-							.getSize());
-			if (this.controller.isCountDownLatch()) {
-				LOG.severe(">>Voice CLOSE JOB");
-				this.controller.getCountDownLatch()
-						.countDown();
+			if (this.instrument.isAlive()) {
+				this.console.getVisor().setPlayerState(true);
+				this.LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
+						+ ", Frame Cache Size: " + this.workspace.getAtlas()
+								.getFrameCache()
+								.getSize());
+				if (this.controller.isCountDownLatch()) {
+					LOG.severe(">>Voice CLOSE JOB");
+					this.controller.getCountDownLatch()
+							.countDown();
+				}
 			}
 		}
 	}
