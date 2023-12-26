@@ -52,12 +52,13 @@ public class ParametersPanel extends JPanel {
 	private static final Logger LOG = Logger.getLogger(ParametersPanel.class.getName());
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "vocal-folk",
+	private final static String[] styles = { "default", "normalised", "ensemble", "guitar", "piano", "vocal",
+			"vocal-folk",
 			"vocal-male",
 			"vocal-female", "tapes", "robin", "birds", "blackbird", "bird-alt1", "bird-best", "bird-scaled", "bird-mix",
 			"classical",
 			"folk", "folky", "folky-clean", "folk-pluck", "bach", "birds-bach", "beethoven", "brass", "compresschord",
-			"epiano", "epiano-arp",
+			"piano-harp", "epiano", "epiano-arp",
 			"epiano-chords", "epiano-chords-staccato", "guitarstrum", "eguitar", "hpschord", "neon", "neon-peaked",
 			"neon-synth", "billevans", "inverted", "likesomeone", "likesomeone2", "likesomeone3", "jona", "beatles",
 			"stpauls",
