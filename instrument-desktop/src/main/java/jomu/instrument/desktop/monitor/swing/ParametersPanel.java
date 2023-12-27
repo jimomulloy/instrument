@@ -63,7 +63,7 @@ public class ParametersPanel extends JPanel {
 			"neon-synth", "billevans", "inverted", "likesomeone", "likesomeone2", "likesomeone3", "jona", "beatles",
 			"stpauls",
 			"stpauls2", "holst", "abide",
-			"loopback", "loopmidi", "user" };
+			"loopback", "loopmidi", "user", "ha1", "BB-SQ-1" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;
