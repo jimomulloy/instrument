@@ -24,6 +24,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AUDIO_HIGHPASS = "perception.hearing.audioHighPass";
 	public static final String PERCEPTION_HEARING_STREAM_SAVE_SWITCH = "perception.hearing.streamSaveSwitch";
 	public static final String PERCEPTION_HEARING_STREAM_SAVE_INDEX = "perception.hearing.streamSaveIndex";
+	public static final String PERCEPTION_HEARING_AI_PARAMETER_FILE = "perception.hearing.ai.parameterFile";
+	public static final String PERCEPTION_HEARING_AI_SEARCH_COUNT = "perception.hearing.ai.searchCount";
 
 	public static final String PERCEPTION_HEARING_AUDIO_PITCH_SHIFT = "perception.hearing.audioPitchShift";
 	public static final String PERCEPTION_HEARING_AUDIO_TIME_STRETCH = "perception.hearing.audioTimeStretch";
@@ -420,5 +422,5 @@ public class InstrumentParameterNames {
 	public static final String ACTUATION_VOICE_MIDI_VOLUME_BEAT_4 = "actuation.voice.midiVolumeBeat4";
 	public static final String ACTUATION_VOICE_MIDI_VOLUME_BASE_1 = "actuation.voice.midiVolumeBase1";
 	public static final String ACTUATION_VOICE_AUDIO_VOLUME_PLAYBACK = "actuation.voice.audioVolumePlayback";
-	
+
 }
