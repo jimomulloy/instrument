@@ -131,6 +131,40 @@ public class Hearing implements Organ {
 		LOG.severe(">>Closed Audio Stream: " + streamId);
 	}
 
+	public void replayAudioStream(String streamId) {
+		LOG.severe(">>Replay Audio Stream: " + streamId);
+		AudioStream audioStream = audioStreams.get(streamId);
+		if (audioStream == null) {
+			return;
+		}
+		voice.reset();
+		workspace.getAtlas()
+				.removeMapsByStreamId(streamId);
+
+		String filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
+
+		try {
+			is = new FileInputStream(filePath);
+			bs = new BufferedInputStream(is);
+			AudioFormat format = AudioSystem.getAudioFileFormat(bs)
+					.getFormat();
+			audioStream.setAudioFileName(
+					parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE));
+			audioStream.processAudioFileStream(bs, format);
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+			LOG.log(Level.SEVERE, "Audio file init error:" + filePath, ex);
+			return;
+			// throw new Exception("Audio file init error: " + ex.getMessage());
+		}
+
+		audioStream.getAudioFeatureProcessor()
+				.addObserver(cortex);
+		audioStream.getAudioFeatureProcessor()
+				.addObserver(console.getVisor());
+		LOG.severe(">>!!RESTART Audio Stream: " + streamId);
+		audioStream.start();
+	}
+
 	public void removeAudioStream(String streamId) {
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
@@ -930,7 +964,9 @@ public class Hearing implements Organ {
 			}
 			LOG.severe(">>processAudioFileStream skip from secs: " + audioOffset / 1000.0);
 			TarsosDSPAudioInputStream audioStream = new JVMAudioInputStream(stream);
-			LOG.severe(">>processAudioFileStream length!!: " + ((double)audioStream.getFrameLength() / (audioStream.getFormat().getFrameRate())) + bufferSize + ", " + overlap + ", " + audioStream.getFormat());
+			LOG.severe(">>processAudioFileStream length!!: "
+					+ ((double) audioStream.getFrameLength() / (audioStream.getFormat().getFrameRate())) + bufferSize
+					+ ", " + overlap + ", " + audioStream.getFormat());
 			dispatcher = audioDispatcherFactory.getAudioDispatcher(audioStream, bufferSize, overlap);
 
 			int audioHighPass = parameterManager
@@ -1297,14 +1333,14 @@ public class Hearing implements Organ {
 		LOG.severe(">>PLAY :" + audioSourceFile + ", " + format);
 		int audioVolumeFactor = parameterManager
 				.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_VOLUME_PLAYBACK);
-		GainProcessor gainProcessor = new GainProcessor((double)audioVolumeFactor/100.0);
-		LOG.severe(">>PLAY :" + audioVolumeFactor  + ", "+ audioSourceFile + ", " + format);
+		GainProcessor gainProcessor = new GainProcessor((double) audioVolumeFactor / 100.0);
+		LOG.severe(">>PLAY :" + audioVolumeFactor + ", " + audioSourceFile + ", " + format);
 		AudioPlayer audioPlayer = new AudioPlayer(format);
 
 		audioPlayerDispatcher = AudioDispatcherFactory.fromFile(file, audioStream.getBufferSize(), 0);
 		audioPlayerDispatcher.addAudioProcessor(gainProcessor);
 		audioPlayerDispatcher.addAudioProcessor(audioPlayer);
-		
+
 		audioPlayerDispatcher.addAudioProcessor(new AudioProcessor() {
 
 			@Override
@@ -1328,7 +1364,7 @@ public class Hearing implements Organ {
 				}
 			}
 		});
-		
+
 		this.audioPlaybackRunning = true;
 		Thread t = new Thread(audioPlayerDispatcher, "Thread-Hearing-AudioPlayer" + System.currentTimeMillis());
 		t.setPriority(Thread.MAX_PRIORITY);

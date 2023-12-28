@@ -119,7 +119,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);
 		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
 
-		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+		LOG.severe(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
 				+ ", " + ttf.getRmsPower());
 
 		ttf.reset();
@@ -207,7 +207,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		LOG.finer(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+		LOG.severe(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 				+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
 
 		if (cqSwitchScale) {
@@ -218,7 +218,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 				CalibrationMap cm = workspace.getAtlas()
 						.getCalibrationMap(streamId);
 				ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
-				LOG.finer(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+				LOG.severe(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 						+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
 			}
 		}

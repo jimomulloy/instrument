@@ -83,6 +83,8 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				if (synthToneMap != null && this.parameterManager
 						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE)) {
 					voice.startStreamPlayer(streamId, synthToneMap);
+				} else {
+					// hearing.replayAudioStream(streamId);
 				}
 			}).start();
 			// console.getVisor().updateViewThresholds();
