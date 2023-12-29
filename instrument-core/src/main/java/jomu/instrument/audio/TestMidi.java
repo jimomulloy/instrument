@@ -19,6 +19,12 @@ public class TestMidi {
 	public static final String[] NOTE_NAMES = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
 	public class Note {
+		@Override
+		public String toString() {
+			return "Note [notePitch=" + notePitch + ", start=" + start + ", end=" + end + ", velocity=" + velocity
+					+ "]";
+		}
+
 		public int notePitch;
 		public long start;
 		public long end;
@@ -26,10 +32,44 @@ public class TestMidi {
 	}
 
 	public boolean[][] buildMidiNoteArray(Map<Integer, List<Note>> noteMap, int timeDimension, int pitchDimension,
-			long timeFrame) throws Exception {
+			long timeFrame) {
 		boolean[][] midiNoteArray = new boolean[timeDimension - 1][pitchDimension - 1];
-
+		for (int p = 0; p < pitchDimension; p++) {
+			if (noteMap.containsKey(p)) {
+				System.out.println("buildMidiNoteArray P: " + p);
+				List<Note> noteList = noteMap.get(p);
+				for (Note note : noteList) {
+					int tStart = (int) ((double) note.start / (double) timeFrame);
+					int tEnd = (int) ((double) note.end / (double) timeFrame);
+					for (int t = tStart; t <= tEnd; t++) {
+						midiNoteArray[t][p] = true;
+						System.out.println("buildMidiNoteArray set TRUE: " + t + ", " + p);
+					}
+				}
+			}
+		}
+		System.out.println("buildMidiNoteArray " + midiNoteArray.length + ", " + midiNoteArray[0].length);
 		return midiNoteArray;
+	}
+
+	public int scoreMidiNoteArray(boolean[][] sourceMidiNoteArray, boolean[][] targetMidiNoteArray) {
+		int pitchDimension = sourceMidiNoteArray[0].length > targetMidiNoteArray[0].length
+				? targetMidiNoteArray[0].length - 1
+				: sourceMidiNoteArray[0].length - 1;
+		int timeDimension = sourceMidiNoteArray.length > targetMidiNoteArray.length ? targetMidiNoteArray.length - 1
+				: sourceMidiNoteArray.length - 1;
+		int score = 0;
+		for (int p = 0; p < pitchDimension; p++) {
+			for (int t = 0; t < timeDimension; t++) {
+				if (sourceMidiNoteArray[t][p] != targetMidiNoteArray[t][p]) {
+					score -= 1;
+				} else if (sourceMidiNoteArray[t][p] && targetMidiNoteArray[t][p]) {
+					score += 2;
+				}
+			}
+		}
+
+		return score;
 	}
 
 	public Map<Integer, List<Note>> extractMidiNotes(String midiFileName) throws Exception {
@@ -52,21 +92,23 @@ public class TestMidi {
 					ShortMessage sm = (ShortMessage) message;
 					System.out.print("Channel: " + sm.getChannel() + " ");
 					if (sm.getCommand() == NOTE_ON) {
-						int key = sm.getData1();
-						int octave = (key / 12) - 1;
-						int note = key % 12;
+						int notePitch = sm.getData1();
+						int octave = (notePitch / 12) - 1;
+						int note = notePitch % 12;
 						String noteName = NOTE_NAMES[note];
 						int velocity = sm.getData2();
-						addNoteOn(noteMap, event.getTick(), note, velocity);
-						System.out.println("Note on, " + noteName + octave + " key=" + key + " velocity: " + velocity);
+						addNoteOn(noteMap, event.getTick(), notePitch, velocity);
+						System.out.println(
+								" Note on, " + noteName + octave + " pitch=" + notePitch + " velocity: " + velocity);
 					} else if (sm.getCommand() == NOTE_OFF) {
-						int key = sm.getData1();
-						int octave = (key / 12) - 1;
-						int note = key % 12;
+						int notePitch = sm.getData1();
+						int octave = (notePitch / 12) - 1;
+						int note = notePitch % 12;
 						String noteName = NOTE_NAMES[note];
 						int velocity = sm.getData2();
-						addNoteOff(noteMap, event.getTick(), note);
-						System.out.println("Note off, " + noteName + octave + " key=" + key + " velocity: " + velocity);
+						addNoteOff(noteMap, event.getTick(), notePitch);
+						System.out.println(
+								" Note off, " + noteName + octave + " pitch=" + notePitch + " velocity: " + velocity);
 					} else {
 						System.out.println("Command:" + sm.getCommand());
 					}
@@ -102,6 +144,8 @@ public class TestMidi {
 		List<Note> noteList = new ArrayList<>();
 		if (noteMap.containsKey(notePitch)) {
 			noteList = noteMap.get(notePitch);
+		} else {
+			noteMap.put(notePitch, noteList);
 		}
 		noteList.add(note);
 
@@ -109,8 +153,13 @@ public class TestMidi {
 
 	public static void main(String[] args) throws Exception {
 		TestMidi testMidi = new TestMidi();
-		Map<Integer, List<Note>> noteMap = testMidi.extractMidiNotes("instrumentai/c3-1-3sec.mid");
-		testMidi.buildMidiNoteArray(noteMap, 10, 10, 100);
-
+		System.out.println("Source");
+		Map<Integer, List<Note>> noteMap = testMidi.extractMidiNotes("instrumentai/c3egchord-1-3sec.mid");
+		boolean[][] source = testMidi.buildMidiNoteArray(noteMap, 50, 100, 100);
+		System.out.println("Target");
+		noteMap = testMidi.extractMidiNotes("instrumentai/c3-1-3sec.mid");
+		boolean[][] target = testMidi.buildMidiNoteArray(noteMap, 50, 100, 100);
+		int score = testMidi.scoreMidiNoteArray(source, target);
+		System.out.println("Score: " + score);
 	}
 }
