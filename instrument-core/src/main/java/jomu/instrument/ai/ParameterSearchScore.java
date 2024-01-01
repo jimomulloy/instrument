@@ -1,10 +1,11 @@
-package jomu.instrument.audio;
+package jomu.instrument.ai;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
@@ -13,7 +14,7 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
-public class TestMidi {
+public class ParameterSearchScore {
 	public static final int NOTE_ON = 0x90;
 	public static final int NOTE_OFF = 0x80;
 	public static final String[] NOTE_NAMES = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
@@ -36,19 +37,20 @@ public class TestMidi {
 		boolean[][] midiNoteArray = new boolean[timeDimension - 1][pitchDimension - 1];
 		for (int p = 0; p < pitchDimension; p++) {
 			if (noteMap.containsKey(p)) {
-				System.out.println("buildMidiNoteArray P: " + p);
+				// System.out.println("buildMidiNoteArray P: " + p);
 				List<Note> noteList = noteMap.get(p);
 				for (Note note : noteList) {
 					int tStart = (int) ((double) note.start / (double) timeFrame);
 					int tEnd = (int) ((double) note.end / (double) timeFrame);
 					for (int t = tStart; t <= tEnd; t++) {
 						midiNoteArray[t][p] = true;
-						System.out.println("buildMidiNoteArray set TRUE: " + t + ", " + p);
+						// System.out.println("buildMidiNoteArray set TRUE: " + t + ", " + p);
 					}
 				}
 			}
 		}
-		System.out.println("buildMidiNoteArray " + midiNoteArray.length + ", " + midiNoteArray[0].length);
+		// System.out.println("buildMidiNoteArray " + midiNoteArray.length + ", " +
+		// midiNoteArray[0].length);
 		return midiNoteArray;
 	}
 
@@ -72,53 +74,68 @@ public class TestMidi {
 		return score;
 	}
 
-	public Map<Integer, List<Note>> extractMidiNotes(String midiFileName) throws Exception {
+	public Map<Integer, List<Note>> extractMidiNotes(String midiFileName, double tickFactor) throws Exception {
 
 		Map<Integer, List<Note>> noteMap = new HashMap<>();
-		ClassLoader classLoader = this.getClass().getClassLoader();
-		File file = new File(classLoader.getResource(midiFileName).getFile());
+		// ClassLoader classLoader = this.getClass().getClassLoader();
+		// File file = new File(classLoader.getResource(midiFileName).getFile());
+		File file = new File(midiFileName);
 		Sequence sequence = MidiSystem.getSequence(file);
 
 		int trackNumber = 0;
+		long lastTick = 0;
 		for (Track track : sequence.getTracks()) {
 			trackNumber++;
-			System.out.println("Track " + trackNumber + ": size = " + track.size());
-			System.out.println();
+			// System.out.println("Track " + trackNumber + ": size = " + track.size());
+			// System.out.println();
 			for (int i = 0; i < track.size(); i++) {
 				MidiEvent event = track.get(i);
-				System.out.print("@" + event.getTick() + " ");
+				lastTick = (long) (event.getTick() * tickFactor);
+				// System.out.print("@" + (event.getTick() * tickFactor) + " ");
 				MidiMessage message = event.getMessage();
 				if (message instanceof ShortMessage) {
 					ShortMessage sm = (ShortMessage) message;
-					System.out.print("Channel: " + sm.getChannel() + " ");
+					// System.out.print("Channel: " + sm.getChannel() + " ");
 					if (sm.getCommand() == NOTE_ON) {
 						int notePitch = sm.getData1();
 						int octave = (notePitch / 12) - 1;
 						int note = notePitch % 12;
 						String noteName = NOTE_NAMES[note];
 						int velocity = sm.getData2();
-						addNoteOn(noteMap, event.getTick(), notePitch, velocity);
-						System.out.println(
-								" Note on, " + noteName + octave + " pitch=" + notePitch + " velocity: " + velocity);
+						addNoteOn(noteMap, (long) (event.getTick() * tickFactor), notePitch, velocity);
+						// System.out.println(
+						// " Note on, " + noteName + octave + " pitch=" + notePitch + " velocity: " +
+						// velocity);
 					} else if (sm.getCommand() == NOTE_OFF) {
 						int notePitch = sm.getData1();
 						int octave = (notePitch / 12) - 1;
 						int note = notePitch % 12;
 						String noteName = NOTE_NAMES[note];
 						int velocity = sm.getData2();
-						addNoteOff(noteMap, event.getTick(), notePitch);
-						System.out.println(
-								" Note off, " + noteName + octave + " pitch=" + notePitch + " velocity: " + velocity);
+						addNoteOff(noteMap, (long) (event.getTick() * tickFactor), notePitch);
+						// System.out.println(
+						// " Note off, " + noteName + octave + " pitch=" + notePitch + " velocity: " +
+						// velocity);
 					} else {
-						System.out.println("Command:" + sm.getCommand());
+						// System.out.println("Command:" + sm.getCommand());
 					}
 				} else {
-					System.out.println("Other message: " + message.getClass());
+					// System.out.println("Other message: " + message.getClass());
 				}
 			}
 
-			System.out.println();
+			// System.out.println();
 		}
+		for (Entry<Integer, List<Note>> entry : noteMap.entrySet()) {
+			List<Note> noteList = entry.getValue();
+			if (noteList.size() > 0) {
+				Note lastNote = noteList.get(noteList.size() - 1);
+				if (lastNote.start >= lastNote.end) {
+					lastNote.end = lastTick;
+				}
+			}
+		}
+
 		return noteMap;
 	}
 
@@ -152,14 +169,15 @@ public class TestMidi {
 	}
 
 	public static void main(String[] args) throws Exception {
-		TestMidi testMidi = new TestMidi();
-		System.out.println("Source");
-		Map<Integer, List<Note>> noteMap = testMidi.extractMidiNotes("instrumentai/c3egchord-1-3sec.mid");
-		boolean[][] source = testMidi.buildMidiNoteArray(noteMap, 50, 100, 100);
-		System.out.println("Target");
-		noteMap = testMidi.extractMidiNotes("instrumentai/c3-1-3sec.mid");
-		boolean[][] target = testMidi.buildMidiNoteArray(noteMap, 50, 100, 100);
-		int score = testMidi.scoreMidiNoteArray(source, target);
-		System.out.println("Score: " + score);
+		ParameterSearchScore parameterSearchScore = new ParameterSearchScore();
+		// System.out.println("Source");
+		Map<Integer, List<Note>> noteMap = parameterSearchScore.extractMidiNotes("instrumentai/c3egchord-1-3sec.mid",
+				1);
+		boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 50, 100, 100);
+		// System.out.println("Target");
+		noteMap = parameterSearchScore.extractMidiNotes("instrumentai/c3-1-3sec.mid", 1);
+		boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 50, 100, 100);
+		int score = parameterSearchScore.scoreMidiNoteArray(source, target);
+		// System.out.println("Score: " + score);
 	}
 }

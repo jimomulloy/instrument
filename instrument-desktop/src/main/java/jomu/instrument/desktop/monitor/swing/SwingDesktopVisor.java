@@ -294,6 +294,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField playEndOffsetInput;
 
+	private JTextField searchCountInput;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1571,8 +1573,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					if (synthToneMap != null) {
 						playStreamButton.setEnabled(false);
 						new Thread(() -> {
-							coordinator.getVoice()
-									.startStreamPlayer(synthToneMap.getStreamId(), synthToneMap);
+							coordinator.getVoice().startStreamPlayer(synthToneMap.getStreamId(), synthToneMap);
 						}).start();
 						stopListeningButton.setEnabled(true);
 					}
@@ -1599,9 +1600,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				refreshMapViews();
 			}
 		});
-		streamSaveSwitchCB
-				.setSelected(parameterManager
-						.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
+		streamSaveSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
 		actionCenterPanel.add(streamSaveSwitchCB);
 
 		JLabel streamIndexLabel = new JLabel("Index: ");
@@ -1610,13 +1610,13 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = streamIndexInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX,
+						newValue);
 				streamIndexInput.setText(newValue);
 			}
 		});
-		streamIndexInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
+		streamIndexInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
 		actionCenterPanel.add(streamIndexLabel);
 		actionCenterPanel.add(streamIndexInput);
 
@@ -1642,13 +1642,13 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String newValue = playEndOffsetInput.getText();
-				newValue = parameterManager
-						.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET, newValue);
+				newValue = parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET,
+						newValue);
 				playEndOffsetInput.setText(newValue);
 			}
 		});
-		playEndOffsetInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET));
+		playEndOffsetInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET));
 		actionCenterPanel.add(playEndOffsetLabel);
 		actionCenterPanel.add(playEndOffsetInput);
 
@@ -1911,6 +1911,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		instrumentPanel.add(hearingMaxFreqCentsLabel);
 		instrumentPanel.add(hearingMaxFreqCentsInput);
 
+		JLabel searchLabel = new JLabel("Search: ");
+		searchCountInput = new JTextField(3);
+		searchCountInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newValue = searchCountInput.getText();
+				newValue = parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT,
+						newValue);
+				searchCountInput.setText(newValue);
+			}
+		});
+		searchCountInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT));
+		instrumentPanel.add(searchLabel);
+		instrumentPanel.add(searchCountInput);
+
 		panel.add(instrumentPanel, BorderLayout.CENTER);
 
 		playMidiSwitchCB = new JCheckBox("playMidiSwitchCB");
@@ -1941,9 +1957,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 			}
 		});
 
-		playMidiDeviceSwitchCB
-				.setSelected(parameterManager
-						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
+		playMidiDeviceSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
 		voicePanel.add(playMidiDeviceSwitchCB);
 
 		playAudioSwitchCB = new JCheckBox("playAudioSwitchCB");
@@ -2814,13 +2829,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
 		hearingMaxFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		searchCountInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT));
 		persistenceModeInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_PERSISTENCE_MODE));
 		playMidiSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
-		playMidiDeviceSwitchCB
-				.setSelected(parameterManager
-						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
+		playMidiDeviceSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
 		playAudioSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY));
 		playResynthSwitchCB.setSelected(
@@ -2853,15 +2869,14 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_SILENT_WRITE));
 		trackWriteSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH));
-		streamSaveSwitchCB
-				.setSelected(parameterManager
-						.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
-		streamIndexInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
+		streamSaveSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
+		streamIndexInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
 		playStartOffsetInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_START_OFFSET));
-		playEndOffsetInput.setText(
-				parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET));
+		playEndOffsetInput
+				.setText(parameterManager.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_END_OFFSET));
 		int sampleRateParam = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
 		int i = 0;

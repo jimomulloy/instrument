@@ -51,12 +51,9 @@ public class Voice implements Organ {
 		/**
 		 * Instantiates a new send message.
 		 *
-		 * @param toneTimeFrame
-		 *            the tone time frame
-		 * @param streamId
-		 *            the stream id
-		 * @param sequence
-		 *            the sequence
+		 * @param toneTimeFrame the tone time frame
+		 * @param streamId      the stream id
+		 * @param sequence      the sequence
 		 */
 		public SendMessage(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
 			this.toneTimeFrame = toneTimeFrame;
@@ -138,8 +135,7 @@ public class Voice implements Organ {
 	/**
 	 * Clear.
 	 *
-	 * @param streamId
-	 *            the stream id
+	 * @param streamId the stream id
 	 */
 	public void clear(final String streamId) {
 		LOG.severe(">>VOICE clear: ");
@@ -152,8 +148,7 @@ public class Voice implements Organ {
 	/**
 	 * Close.
 	 *
-	 * @param streamId
-	 *            the stream id
+	 * @param streamId the stream id
 	 */
 	public void close(final String streamId) {
 
@@ -178,13 +173,10 @@ public class Voice implements Organ {
 			if (this.instrument.isAlive()) {
 				this.console.getVisor().setPlayerState(true);
 				this.LOG.severe(">>Voice CLOSED, midi running: " + this.midiSynthesizer.isSynthesizerRunning() + ", "
-						+ ", Frame Cache Size: " + this.workspace.getAtlas()
-								.getFrameCache()
-								.getSize());
+						+ ", Frame Cache Size: " + this.workspace.getAtlas().getFrameCache().getSize());
 				if (this.controller.isCountDownLatch()) {
 					LOG.severe(">>Voice CLOSE JOB");
-					this.controller.getCountDownLatch()
-							.countDown();
+					this.controller.getCountDownLatch().countDown();
 				}
 			}
 		}
@@ -231,10 +223,8 @@ public class Voice implements Organ {
 	/**
 	 * Process exception.
 	 *
-	 * @param exception
-	 *            the exception
-	 * @throws InstrumentException
-	 *             the instrument exception
+	 * @param exception the exception
+	 * @throws InstrumentException the instrument exception
 	 */
 	@Override
 	public void processException(final InstrumentException exception) throws InstrumentException {
@@ -253,26 +243,18 @@ public class Voice implements Organ {
 	/**
 	 * Send.
 	 *
-	 * @param toneTimeFrame
-	 *            the tone time frame
-	 * @param streamId
-	 *            the stream id
-	 * @param sequence
-	 *            the sequence
-	 * @param pause
-	 *            the pause
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
+	 * @param pause         the pause
 	 */
 	public void send(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence,
 			final boolean pause) {
 
-		if (this.currentStreamId != null
-				&& this.currentStreamId != streamId
+		if (this.currentStreamId != null && this.currentStreamId != streamId
 				&& this.currentStreamId == this.streamPlayerId) {
 			System.out.println(">>D - STOP STREAM PLAY 1: " + streamId + ", " + this.streamPlayerId);
 			stopStreamPlayer();
-		}
-		if (sequence == 10) {
-			System.out.println(">>SEND: " + streamId);
 		}
 		this.currentStreamId = streamId;
 
@@ -303,8 +285,7 @@ public class Voice implements Organ {
 	/**
 	 * Send message.
 	 *
-	 * @param message
-	 *            the message
+	 * @param message the message
 	 */
 	private void sendMessage(final SendMessage message) {
 		if (this.deadStreams.contains(message.streamId))
@@ -350,8 +331,7 @@ public class Voice implements Organ {
 	/**
 	 * Start stream player.
 	 *
-	 * @param streamId
-	 *            the stream id
+	 * @param streamId the stream id
 	 * @return true, if successful
 	 */
 	public boolean startStreamPlayer(final String streamId, ToneMap synthToneMap) {
@@ -421,12 +401,9 @@ public class Voice implements Organ {
 	/**
 	 * Write audio.
 	 *
-	 * @param toneTimeFrame
-	 *            the tone time frame
-	 * @param streamId
-	 *            the stream id
-	 * @param sequence
-	 *            the sequence
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
 	 */
 	private void writeAudio(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
 		this.audioSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);
@@ -436,12 +413,9 @@ public class Voice implements Organ {
 	/**
 	 * Write midi.
 	 *
-	 * @param toneTimeFrame
-	 *            the tone time frame
-	 * @param streamId
-	 *            the stream id
-	 * @param sequence
-	 *            the sequence
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
 	 */
 	public void writeMidi(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
 		try {
@@ -459,12 +433,9 @@ public class Voice implements Organ {
 	/**
 	 * Write resynth audio.
 	 *
-	 * @param toneTimeFrame
-	 *            the tone time frame
-	 * @param streamId
-	 *            the stream id
-	 * @param sequence
-	 *            the sequence
+	 * @param toneTimeFrame the tone time frame
+	 * @param streamId      the stream id
+	 * @param sequence      the sequence
 	 */
 	private void writeResynthAudio(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence) {
 		this.resynthSynthesizer.playFrameSequence(toneTimeFrame, streamId, sequence);

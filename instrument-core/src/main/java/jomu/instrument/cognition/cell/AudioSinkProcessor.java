@@ -34,17 +34,13 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		int sinkSweepRange = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE);
 
-		Voice voice = Instrument.getInstance()
-				.getCoordinator()
-				.getVoice();
+		Voice voice = Instrument.getInstance().getCoordinator().getVoice();
 		ToneMap synthesisToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId));
-		ToneMap cqToneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
+		ToneMap cqToneMap = workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ, streamId));
 
-		console.getVisor()
-				.updateSpectrumView(cqToneMap.getTimeFrame(),
-						parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
+		console.getVisor().updateSpectrumView(cqToneMap.getTimeFrame(),
+				parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW));
 		ToneTimeFrame synthesisFrame = null;
 
 		int tmIndex = sequence - sinkSweepRange;
@@ -83,8 +79,9 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				if (synthToneMap != null && this.parameterManager
 						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE)) {
 					voice.startStreamPlayer(streamId, synthToneMap);
-				} else {
-					// hearing.replayAudioStream(streamId);
+				} else if (parameterManager
+						.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT) > 0) {
+					hearing.replayAudioStream(streamId);
 				}
 			}).start();
 			// console.getVisor().updateViewThresholds();
@@ -93,58 +90,36 @@ public class AudioSinkProcessor extends ProcessorCommon {
 	}
 
 	private void commitMaps(String streamId, int sequence, int persistenceMode) {
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId))
-					.commit(sequence);
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_BEAT, streamId)).commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_CEPSTRUM, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CEPSTRUM, streamId))
-					.commit(sequence);
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_CEPSTRUM, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CEPSTRUM, streamId)).commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId))
-					.commit(sequence);
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_MICRO_TONE, streamId)).commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId))
-					.commit(sequence);
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN, streamId)).commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS, streamId))
-					.commit(sequence);
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS, streamId)).commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK", streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC_MASK", streamId))
 					.commit(sequence);
 		}
 		if (workspace.getAtlas()
 				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", streamId))
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_PERCUSSION_MASK", streamId))
 					.commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_PERCUSSION", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_PERCUSSION", streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_PERCUSSION", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_PERCUSSION", streamId))
 					.commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC", streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_HPS.name() + "_HARMONIC", streamId))
 					.commit(sequence);
 		}
 		// if
@@ -153,100 +128,58 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		// workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE,
 		// streamId)).commit(sequence);
 		// }
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.name() + "_PEAKS", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.name() + "_PEAKS", streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.name() + "_PEAKS", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.name() + "_PEAKS", streamId))
 					.commit(sequence);
 		}
 		if (workspace.getAtlas()
 				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.name() + "_SPECTRAL", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.name() + "_SPECTRAL", streamId))
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE.name() + "_SPECTRAL", streamId))
 					.commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_MFCC, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", streamId))
 					.commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET, streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_PERCUSSION, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PERCUSSION, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_SACF, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SACF, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId)).commit(sequence);
+		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_PEAKS", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_PEAKS", streamId))
 					.commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_ONSET.name() + "_SMOOTHED", streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_PERCUSSION, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_PERCUSSION, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_PITCH, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_POST_CHROMA, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_PRE_CHROMA, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_SACF, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_SACF, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_SPECTRAL_PEAKS, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_TUNER_PEAKS, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_PEAKS", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_PEAKS", streamId))
-					.commit(sequence);
-		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_SPECTRAL", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_SPECTRAL", streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_SPECTRAL", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_SPECTRAL", streamId))
 					.commit(sequence);
 		}
 		// if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
@@ -254,30 +187,22 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		// workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ,
 		// streamId)).commit(sequence);
 		// }
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_ENVELOPE", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_ENVELOPE", streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_ENVELOPE", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_ENVELOPE", streamId))
 					.commit(sequence);
 		}
-		if (workspace.getAtlas()
-				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_WHITENER", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_WHITENER", streamId))
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_WHITENER", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_WHITENER", streamId))
 					.commit(sequence);
 		}
 		if (workspace.getAtlas()
 				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN.name() + "_WHITENER", streamId))) {
-			workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN.name() + "_WHITENER", streamId))
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN.name() + "_WHITENER", streamId))
 					.commit(sequence);
 		}
 		if (persistenceMode < 2) {
-			if (workspace.getAtlas()
-					.hasToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId))) {
-				workspace.getAtlas()
-						.getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId))
-						.commit(sequence);
+			if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId))) {
+				workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId)).commit(sequence);
 			}
 		}
 	}

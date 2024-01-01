@@ -1,6 +1,6 @@
 package jomu.instrument.ai;
 
-public class ParameterSearchRunner {
+public class ParameterSearchDimension {
 
 	String name;
 	String low;
@@ -8,6 +8,7 @@ public class ParameterSearchRunner {
 	String mean;
 	String value;
 	String increment;
+	boolean isBoolean;
 
 	/**
 	 * @return the name
@@ -91,5 +92,13 @@ public class ParameterSearchRunner {
 	 */
 	public void setIncrement(String increment) {
 		this.increment = increment;
+	}
+
+	public boolean isBoolean() {
+		return isBoolean;
+	}
+
+	public void setBoolean(boolean isBoolean) {
+		this.isBoolean = isBoolean;
 	}
 }

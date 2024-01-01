@@ -26,8 +26,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		String streamId = getMessagesStreamId(messages);
 		int sequence = getMessagesSequence(messages);
 		LOG.finer(">>AudioCQProcessor accept: " + sequence + ", streamId: " + streamId);
-		ToneMap toneMap = workspace.getAtlas()
-				.getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
+		ToneMap toneMap = workspace.getAtlas().getToneMap(buildToneMapKey(this.cell.getCellType(), streamId));
 
 		AudioFeatureProcessor afp = hearing.getAudioFeatureProcessor(streamId);
 		double lowThreshold = parameterManager
@@ -107,26 +106,23 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ToneMap cqAdaptiveWhitenControlMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_WHITENER", streamId));
-		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence)
-				.clone());
+		cqAdaptiveWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 		ToneMap cqEnvelopeWhitenControlMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_ENVELOPE", streamId));
-		cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence)
-				.clone());
+		cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 
 		AudioTuner tuner = new AudioTuner();
 
 		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);
 		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
 
-		LOG.severe(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
 				+ ", " + ttf.getRmsPower());
 
 		ttf.reset();
 
 		if (cqEnvelopeWhitenPreSwitch) {
-			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence)
-					.clone());
+			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 			ttf.envelopeWhiten(cqEnvelopeWhitenControlMap, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
 					cqEnvelopeWhitenAttackFactor, lowThreshold);
 		}
@@ -195,8 +191,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		}
 
 		if (cqEnvelopeWhitenPostSwitch && !cqEnvelopeWhitenPreSwitch) {
-			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence)
-					.clone());
+			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
 			ttf.envelopeWhiten(cqEnvelopeWhitenControlMap, cqEnvelopeWhitenThreshold, cqEnvelopeWhitenDecayFactor,
 					cqEnvelopeWhitenAttackFactor, lowThreshold);
 		}
@@ -207,32 +202,26 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		LOG.severe(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+		LOG.finer(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 				+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
 
 		if (cqSwitchScale) {
 			ttf.scale(lowThreshold, highThreshold, cqSwitchCompressLog);
 		} else {
-			if (workspace.getAtlas()
-					.hasCalibrationMap(streamId) && calibrateSwitch) {
-				CalibrationMap cm = workspace.getAtlas()
-						.getCalibrationMap(streamId);
+			if (workspace.getAtlas().hasCalibrationMap(streamId) && calibrateSwitch) {
+				CalibrationMap cm = workspace.getAtlas().getCalibrationMap(streamId);
 				ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
-				LOG.severe(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+				LOG.finer(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 						+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
 			}
 		}
 
 		toneMap.updateStatistics(ttf);
 
-		LOG.finer(
-				">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
-						+ ", " + ttf.getSpectralCentroid() + ", " + ttf.getMaxAmplitude() + ", "
-						+ ttf.getMinAmplitude());
+		LOG.finer(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
+				+ ", " + ttf.getSpectralCentroid() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude());
 
-		console.getVisor()
-				.updateToneMapView(toneMap, this.cell.getCellType()
-						.toString());
+		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 
 		cell.send(streamId, sequence);
 
