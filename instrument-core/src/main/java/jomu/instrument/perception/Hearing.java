@@ -258,6 +258,7 @@ public class Hearing implements Organ {
 		String fileName = inputFileName;
 		int searchCount = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT);
 		if (searchCount > 0) {
+			LOG.severe(">>HEARING start search: " + fileName);
 			parameterSearchModel.initialise();
 			fileName = parameterSearchModel.getSourceAudioFile();
 		}

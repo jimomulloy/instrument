@@ -59,6 +59,8 @@ public class ParameterSearchModel {
 
 	int highScore;
 
+	private int searchThreshold;
+
 	/**
 	 * @return the highScore
 	 */
@@ -69,6 +71,8 @@ public class ParameterSearchModel {
 	public void initialise() throws FileNotFoundException, IOException {
 		recordings = new HashMap<>();
 		searchCount = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT);
+		searchThreshold = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_THRESHOLD);
 		String sourceFileResource = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_PARAMETER_DIMENSIONS_SOURCE);
 		URL sourceFileUrl = getClass().getResource(sourceFileResource);
@@ -121,11 +125,11 @@ public class ParameterSearchModel {
 
 		LOG.severe(">>PSM score extract: " + sourceMidiFile);
 		Map<Integer, List<Note>> noteMap = parameterSearchScore.extractMidiNotes(sourceMidiFile, 1000.0 / 20.0);
-		boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 50, 130, 100);
+		boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
 
 		LOG.severe(">>PSM score extract: " + targetMidiFile);
 		noteMap = parameterSearchScore.extractMidiNotes(targetMidiFile, 1);
-		boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 50, 130, 100);
+		boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
 
 		int score = parameterSearchScore.scoreMidiNoteArray(source, target);
 		LOG.severe(">>PSM score: " + score + ", frame: " + frameCount + ", source: " + sourceMidiFile + ", target: "
@@ -134,7 +138,7 @@ public class ParameterSearchModel {
 		ParameterSearchRecord parameterSearchRecord = recordings.get(frameCount);
 		parameterSearchRecord.score = score;
 		frameCount++;
-		if (score > highScore) {
+		if (score > highScore && score > searchThreshold) {
 			exportParameters();
 			highScore = score;
 			LOG.severe(">>PSM !!! high score: " + score + ", frame: " + frameCount);
