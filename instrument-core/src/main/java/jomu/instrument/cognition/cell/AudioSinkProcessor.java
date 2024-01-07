@@ -1,6 +1,7 @@
 package jomu.instrument.cognition.cell;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jomu.instrument.Instrument;
@@ -81,7 +82,11 @@ public class AudioSinkProcessor extends ProcessorCommon {
 					voice.startStreamPlayer(streamId, synthToneMap);
 				} else if (parameterManager
 						.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT) > 0) {
-					hearing.replayAudioStream(streamId);
+					try {
+						hearing.replayAudioStream(streamId);
+					} catch (Exception e) {
+						LOG.log(Level.SEVERE, ">>AudioSinkProcessor hearing.replayAudioStream", e);
+					}
 				}
 			}).start();
 			// console.getVisor().updateViewThresholds();

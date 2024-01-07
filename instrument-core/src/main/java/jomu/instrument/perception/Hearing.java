@@ -3,6 +3,7 @@ package jomu.instrument.perception;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
@@ -133,7 +134,7 @@ public class Hearing implements Organ {
 		LOG.severe(">>Closed Audio Stream: " + streamId);
 	}
 
-	public void replayAudioStream(String streamId) {
+	public void replayAudioStream(String streamId) throws FileNotFoundException, IOException {
 		LOG.severe(">>Replay Audio Stream: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {

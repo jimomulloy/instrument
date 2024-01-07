@@ -101,7 +101,7 @@ public class ParameterSearchModel {
 		}
 	}
 
-	public void reset() {
+	public void reset() throws FileNotFoundException, IOException {
 		ParameterSearchRecord parameterSearchRecord = new ParameterSearchRecord();
 		for (Entry<String, ParameterSearchDimension> entry : dimensionMap.entrySet()) {
 			ParameterSearchDimension psDimension = entry.getValue();
@@ -177,8 +177,15 @@ public class ParameterSearchModel {
 		}
 	}
 
-	public void updateParameters() {
+	public void updateParameters() throws FileNotFoundException, IOException {
 		parameterManager.reset();
+		String styleFile = parameterManager
+				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_PARAMETER_STYLE_FILE);
+		if (styleFile != null && !styleFile.isBlank()) {
+			parameterManager.loadStyle(styleFile, false);
+		} else {
+			parameterManager.reset();
+		}
 		Properties searchParameters = new Properties();
 		ParameterSearchRecord parameterSearchRecord = recordings.get(frameCount);
 		for (Entry<String, String> entry : parameterSearchRecord.parameterMap.entrySet()) {

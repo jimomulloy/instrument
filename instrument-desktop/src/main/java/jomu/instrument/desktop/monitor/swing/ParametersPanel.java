@@ -59,7 +59,8 @@ public class ParametersPanel extends JPanel {
 			"epiano-chords-staccato", "guitarstrum", "eguitar", "hpschord", "neon", "neon-peaked", "neon-synth",
 			"billevans", "inverted", "likesomeone", "likesomeone2", "likesomeone3", "jona", "beatles", "stpauls",
 			"stpauls2", "holst", "abide", "loopback", "loopmidi", "user", "ha1", "BB-SQ-1", "harmonics", "ai-pc1",
-			"ai-pc2" };
+			"ai-pc2", "ai-pc2", "ai-c2eg-2-g", "ai-c2eg-g", "ai-c3eg-2-ep", "ai-c3eg-2-ng", "ai-c3eg-ep", "ai-c3eg-ng",
+			"ai-c3-ep", "ai-c3-ng" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;

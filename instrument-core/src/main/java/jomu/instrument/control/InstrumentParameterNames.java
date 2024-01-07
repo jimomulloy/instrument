@@ -28,6 +28,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_AI_PARAMETER_DIMENSIONS_FILE = "perception.hearing.ai.parameterDimensionsFile";
 	public static final String PERCEPTION_HEARING_AI_PARAMETER_DIMENSIONS_SOURCE = "perception.hearing.ai.parameterDimensionsSource";
 	public static final String PERCEPTION_HEARING_AI_PARAMETER_DIMENSIONS_TARGET = "perception.hearing.ai.parameterDimensionsTarget";
+	public static final String PERCEPTION_HEARING_AI_PARAMETER_STYLE_FILE = "perception.hearing.ai.parameterStyleFile";
 	public static final String PERCEPTION_HEARING_AI_SEARCH_COUNT = "perception.hearing.ai.searchCount";
 	public static final String PERCEPTION_HEARING_AI_SEARCH_THRESHOLD = "perception.hearing.ai.searchThreshold";
 
