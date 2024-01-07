@@ -59,7 +59,8 @@ public class ParametersPanel extends JPanel {
 			"epiano-chords-staccato", "guitarstrum", "eguitar", "hpschord", "neon", "neon-peaked", "neon-synth",
 			"billevans", "inverted", "likesomeone", "likesomeone2", "likesomeone3", "jona", "beatles", "stpauls",
 			"stpauls2", "holst", "abide", "loopback", "loopmidi", "user", "ha1", "BB-SQ-1", "harmonics", "ai-pc1",
-			"ai-pc2", "ai-pc2", "ai-c2eg-2-g-cq", "ai-c2eg-g-cq", "ai-c3eg-2-ep-cq", "ai-c3eg-2-ep-tuner",
+			"ai-pc2", "ai-pc2", "ai-c2eg-2-g-cq", "ai-c2eg-g-cq", "ai-c2eg-2-g-tuner", "ai-c2eg-g-tuner",
+			"ai-c3eg-2-ep-cq", "ai-c3eg-2-ep-tuner",
 			"ai-c3eg-2-ng-cq", "ai-c3eg-2-ng-tuner", "ai-c3eg-ep-cq", "ai-c3eg-ep-tuner", "ai-c3eg-ng-cq",
 			"ai-c3eg-ng-tuner",
 			"ai-c3-ep", "ai-c3-ng" };
