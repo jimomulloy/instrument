@@ -154,9 +154,9 @@ public class ParameterManager {
 							PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "." + PARAMETER_CONFIG_FILE_POSTFIX);
 			try {
 				styleParameters.load(is);
-			} catch (IOException e) {
-				LOG.finer(">>Error loading parameter styles :" + paramStyle);
-				return;
+			} catch (Exception e) {
+				LOG.severe(">>Error loading parameter styles :" + paramStyle + ", ex: " + e.getMessage());
+				throw e;
 			}
 			mergeProperties(styleParameters);
 			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
