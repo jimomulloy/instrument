@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -87,14 +88,20 @@ public class ParameterSearchModel {
 		InputStream isv = getClass().getClassLoader().getResourceAsStream(dimensionsFile);
 		dimensions.load(isv);
 		dimensionMap = new HashMap<>();
+		List<ParameterSearchDimension> dimensionList = new ArrayList<>();
 		for (Entry<Object, Object> entry : dimensions.entrySet()) {
 			ParameterSearchDimension psDimension = new ParameterSearchDimension();
 			psDimension.name = entry.getKey().toString();
+			psDimension.value = entry.getValue().toString();
 			if (entry.getValue().toString().equalsIgnoreCase("b")) {
 				psDimension.setBoolean(true);
 			}
 			dimensionMap.put(psDimension.name, psDimension);
+			dimensionList.add(psDimension);
 		}
+		Map<Integer, Properties> dimensionMap = new HashMap<>();
+		Properties properties = new Properties();
+		processDimensions(0, properties, dimensionList, dimensionMap);
 	}
 
 	public void reset() {
@@ -232,6 +239,28 @@ public class ParameterSearchModel {
 	 */
 	public int getSearchCount() {
 		return searchCount;
+	}
+
+	private void processDimensions(int offset, Properties properties, List<ParameterSearchDimension> dimensionList,
+			Map<Integer, Properties> dimensionMap) {
+		ParameterSearchDimension dimension = dimensionList.get(offset);
+		String[] values = dimension.getValue().split(",");
+		for (String value : values) {
+			if (offset == 0) {
+				properties = new Properties();
+			}
+			if (offset < dimensionList.size()) {
+				properties.put(dimension.getName(), value);
+				processDimensions(offset + 1, properties, dimensionList, dimensionMap);
+			} else {
+				Properties clonedProps = new Properties();
+				clonedProps.putAll(properties);
+				properties.put(dimension.getName(), value);
+				dimensionMap.put(dimensionMap.size(), properties);
+				properties = clonedProps;
+			}
+		}
+
 	}
 
 	class SortedStoreProperties extends Properties {
