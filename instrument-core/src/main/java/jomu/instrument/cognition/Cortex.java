@@ -2,12 +2,15 @@ package jomu.instrument.cognition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jomu.instrument.InstrumentException;
 import jomu.instrument.Organ;
+import jomu.instrument.actuation.Voice;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureFrameObserver;
 import jomu.instrument.cognition.cell.Cell.CellTypes;
@@ -16,6 +19,9 @@ import jomu.instrument.cognition.cell.NuCell;
 import jomu.instrument.cognition.cell.ProcessorExceptionHandler;
 import jomu.instrument.cognition.cell.Weaver;
 import jomu.instrument.control.Coordinator;
+import jomu.instrument.control.InstrumentParameterNames;
+import jomu.instrument.control.ParameterManager;
+import jomu.instrument.perception.Hearing;
 
 @ApplicationScoped
 public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExceptionHandler<InstrumentException> {
@@ -24,6 +30,15 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 
 	@Inject
 	Coordinator coordinator;
+
+	@Inject
+	Hearing hearing;
+
+	@Inject
+	Voice voice;
+
+	@Inject
+	ParameterManager parameterManager;
 
 	NuCell sourceAddCell;
 	NuCell sourceUpdateCell;
@@ -49,6 +64,10 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 	NuCell audioSynthesisCell;
 
 	NuCell[] cells;
+
+	private boolean isReplaying;
+
+	private boolean isRestarting;
 
 	@Override
 	public void audioFeatureFrameAdded(AudioFeatureFrame audioFeatureFrame) {
@@ -184,13 +203,42 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 
 	@Override
 	public void handleException(InstrumentException exception) {
-		coordinator.handleException(exception);
+		LOG.severe(">>!!Cortex handleException X");
+		if (parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT) > 0) {
+			if (!isRestarting) {
+				LOG.severe(">>!!Cortex restarting wait");
+				isRestarting = true;
+				processException(exception);
+				try {
+					TimeUnit.SECONDS.sleep(5);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				}
+				LOG.severe(">>!!Cortex restarting runner");
+				new Thread(() -> {
+					voice.close(hearing.getStreamId());
+					for (NuCell cell : cells) {
+						cell.reset();
+					}
+					try {
+						hearing.replayAudioStream(hearing.getStreamId(), true);
+					} catch (Exception e) {
+						LOG.log(Level.SEVERE, ">>Cortex - hearing.replayAudioStream", e);
+					}
+					isRestarting = false;
+				}).start();
+			}
+		} else {
+			coordinator.handleException(exception);
+		}
 	}
 
 	@Override
 	public void processException(InstrumentException exception) throws InstrumentException {
 		for (NuCell cell : cells) {
-			cell.clear();
+			cell.stop();
 		}
+		LOG.severe(">>!!Cortex processException Y");
 	}
 }

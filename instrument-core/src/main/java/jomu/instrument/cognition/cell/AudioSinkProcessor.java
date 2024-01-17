@@ -83,7 +83,7 @@ public class AudioSinkProcessor extends ProcessorCommon {
 				} else if (parameterManager
 						.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT) > 0) {
 					try {
-						hearing.replayAudioStream(streamId);
+						hearing.replayAudioStream(streamId, false);
 					} catch (Exception e) {
 						LOG.log(Level.SEVERE, ">>AudioSinkProcessor hearing.replayAudioStream", e);
 					}

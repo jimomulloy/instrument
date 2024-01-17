@@ -134,7 +134,7 @@ public class Hearing implements Organ {
 		LOG.severe(">>Closed Audio Stream: " + streamId);
 	}
 
-	public void replayAudioStream(String streamId) throws FileNotFoundException, IOException {
+	public void replayAudioStream(String streamId, boolean error) throws FileNotFoundException, IOException {
 		LOG.severe(">>Replay Audio Stream: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
@@ -145,7 +145,9 @@ public class Hearing implements Organ {
 			return;
 		}
 		try {
-			parameterSearchModel.score();
+			if (!error) {
+				parameterSearchModel.score();
+			}
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, "Replay Audio file error", e);
 			return;

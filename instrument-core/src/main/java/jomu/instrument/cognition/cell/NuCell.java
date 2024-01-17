@@ -62,6 +62,10 @@ public class NuCell extends Cell implements Serializable {
 
 	protected Thread queueConsumerThread;
 
+	private boolean isStopped;
+
+	private boolean started;
+
 	// Most NuCells receive many input signals throughout their dendritic trees.
 	// A single NuCell may have more than one set of dendrites, and may receive
 	// many thousands of input signals. Whether or not a NuCell is excited into
@@ -78,6 +82,7 @@ public class NuCell extends Cell implements Serializable {
 		// TODO LOOM Thread.startVirtualThread(new QueueConsumer());
 		queueConsumerThread = new Thread(new QueueConsumer(),
 				"Thread-NuCell-" + cellType.toString() + "-" + System.currentTimeMillis());
+		started = true;
 		queueConsumerThread.start();
 	}
 
@@ -485,7 +490,7 @@ public class NuCell extends Cell implements Serializable {
 		@Override
 		public void run() {
 			try {
-				while (true) {
+				while (true && started) {
 					NuMessage qe = (NuMessage) bq.take();
 					List<NuMessage> entries;
 					List<Integer> received;
@@ -513,26 +518,31 @@ public class NuCell extends Cell implements Serializable {
 							InstrumentException ie = new InstrumentException(
 									"NuCell QueueConsumer exception: " + e.getMessage(), e);
 							processorExceptionHandler.handleException(ie);
-							throw ie;
+							// TODO!! throw ie;
 						}
 						List<Integer> processed = new ArrayList<>();
 						try {
-							for (int sequence : messageReceivedMap.get(qe.streamId)) {
-								if (sequence <= qe.sequence) {
-									messageMap.remove(qe.streamId + sequence);
-									processed.add(Integer.valueOf(sequence));
+							if (messageReceivedMap.get(qe.streamId) != null) {
+								for (int sequence : messageReceivedMap.get(qe.streamId)) {
+									if (sequence <= qe.sequence) {
+										messageMap.remove(qe.streamId + sequence);
+										processed.add(Integer.valueOf(sequence));
+									}
 								}
-							}
-							for (int sequence : processed) {
-								received.remove(Integer.valueOf(sequence));
-							}
-							if (received.isEmpty()) {
-								messageReceivedMap.remove(qe.streamId);
+								for (int sequence : processed) {
+									received.remove(Integer.valueOf(sequence));
+								}
+								if (received.isEmpty()) {
+									messageReceivedMap.remove(qe.streamId);
+								}
 							}
 						} catch (Throwable t) {
 							LOG.log(Level.SEVERE,
 									">>NuCell QueueConsumer processor ERROR: " + NuCell.this.getCellType(), t);
-							throw t;
+							InstrumentException ie = new InstrumentException(
+									">>NuCell QueueConsumer processor ERROR: " + t.getMessage(), t);
+							processorExceptionHandler.handleException(ie);
+							// throw t;
 						}
 					}
 				}
@@ -543,12 +553,22 @@ public class NuCell extends Cell implements Serializable {
 		}
 	}
 
-	public void clear() {
+	public void stop() {
+		started = false;
 		bq.clear();
 		messageMap.clear();
 		messageReceivedMap.clear();
-		queueConsumerThread = new Thread(new QueueConsumer(), "Thread-NuCell-" + this.getCellType()
-				.toString() + "-" + System.currentTimeMillis());
+	}
+
+	public void reset() {
+		bq.clear();
+		messageMap.clear();
+		messageReceivedMap.clear();
+		queueConsumerThread = new Thread(new QueueConsumer(), "Thread-NuCell-" +
+				this.getCellType()
+						.toString()
+				+ "-" + System.currentTimeMillis());
+		started = true;
 		queueConsumerThread.start();
 	}
 } // end NuCell

@@ -90,6 +90,7 @@ public class Coordinator implements Organ, InstrumentExceptionHandler {
 		console.processException(exception);
 		instrumentSessionManager.getCurrentSession()
 				.setState(InstrumentSessionState.FAILED);
+		LOG.severe(">>!!Coordinator handleException A");
 		if (controller.isCountDownLatch()) {
 			controller.getCountDownLatch()
 					.countDown();
