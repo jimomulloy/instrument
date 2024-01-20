@@ -259,7 +259,6 @@ public class Voice implements Organ {
 		this.currentStreamId = streamId;
 
 		if (this.deadStreams.contains(streamId)) {
-			LOG.severe(">>VOICE SEND DS");
 			return;
 		}
 		if (pause) {
