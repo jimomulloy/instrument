@@ -60,7 +60,11 @@ public class ParameterSearchModel {
 
 	int highScore;
 
-	private int searchThreshold;
+	int searchThreshold;
+
+	boolean searchCombinations;
+
+	Map<Integer, Properties> propertyFrameMap;
 
 	/**
 	 * @return the highScore
@@ -74,6 +78,8 @@ public class ParameterSearchModel {
 		searchCount = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT);
 		searchThreshold = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_THRESHOLD);
+		searchCombinations = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COMBINATIONS);
 		String sourceFileResource = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_PARAMETER_DIMENSIONS_SOURCE);
 		URL sourceFileUrl = getClass().getResource(sourceFileResource);
@@ -103,19 +109,31 @@ public class ParameterSearchModel {
 			dimensionMap.put(psDimension.name, psDimension);
 			dimensionList.add(psDimension);
 		}
-		Map<Integer, Properties> dimensionMap = new HashMap<>();
-		Properties properties = new Properties();
-		processDimensions(0, properties, dimensionList, dimensionMap);
+
+		if (searchCombinations) {
+			propertyFrameMap = new HashMap<>();
+			Properties properties = new Properties();
+			processDimensions(0, properties, dimensionList);
+			searchCount = propertyFrameMap.size();
+			System.out.println(">>Size of property frame map: " + propertyFrameMap.size());
+		}
 	}
 
 	public void reset() throws FileNotFoundException, IOException {
 		ParameterSearchRecord parameterSearchRecord = new ParameterSearchRecord();
-		for (Entry<String, ParameterSearchDimension> entry : dimensionMap.entrySet()) {
-			ParameterSearchDimension psDimension = entry.getValue();
-			if (psDimension.isBoolean()) {
-				Random r = new Random();
-				boolean b = r.nextBoolean();
-				parameterSearchRecord.parameterMap.put(psDimension.name, Boolean.toString(b));
+		if (searchCombinations) {
+			Properties propertyFrame = propertyFrameMap.get(frameCount);
+			for (Entry<Object, Object> prop : propertyFrame.entrySet()) {
+				parameterSearchRecord.parameterMap.put(prop.getKey().toString(), prop.getValue().toString());
+			}
+		} else {
+			for (Entry<String, ParameterSearchDimension> entry : dimensionMap.entrySet()) {
+				ParameterSearchDimension psDimension = entry.getValue();
+				if (psDimension.isBoolean()) {
+					Random r = new Random();
+					boolean b = r.nextBoolean();
+					parameterSearchRecord.parameterMap.put(psDimension.name, Boolean.toString(b));
+				}
 			}
 		}
 		recordings.put(frameCount, parameterSearchRecord);
@@ -252,26 +270,19 @@ public class ParameterSearchModel {
 		return searchCount;
 	}
 
-	private void processDimensions(int offset, Properties properties, List<ParameterSearchDimension> dimensionList,
-			Map<Integer, Properties> dimensionMap) {
+	private void processDimensions(int offset, Properties properties, List<ParameterSearchDimension> dimensionList) {
 		ParameterSearchDimension dimension = dimensionList.get(offset);
 		String[] values = dimension.getValue().split(",");
 		for (String value : values) {
-			if (offset == 0) {
-				properties = new Properties();
-			}
-			if (offset < dimensionList.size()) {
-				properties.put(dimension.getName(), value);
-				processDimensions(offset + 1, properties, dimensionList, dimensionMap);
+			Properties clonedProps = new Properties();
+			clonedProps.putAll(properties);
+			clonedProps.put(dimension.getName(), value);
+			if (offset + 1 < dimensionList.size()) {
+				processDimensions(offset + 1, clonedProps, dimensionList);
 			} else {
-				Properties clonedProps = new Properties();
-				clonedProps.putAll(properties);
-				properties.put(dimension.getName(), value);
-				dimensionMap.put(dimensionMap.size(), properties);
-				properties = clonedProps;
+				propertyFrameMap.put(propertyFrameMap.size(), clonedProps);
 			}
 		}
-
 	}
 
 	class SortedStoreProperties extends Properties {
