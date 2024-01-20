@@ -147,18 +147,25 @@ public class ParameterSearchModel {
 
 		String sourceMidiFile = instrumentSession.getOutputMidiFilePath();
 		ParameterSearchScore parameterSearchScore = new ParameterSearchScore();
+		int score = 0;
 
-		LOG.severe(">>PSM score extract: " + sourceMidiFile);
+		LOG.severe(">>PSM score extract source: " + sourceMidiFile);
 		Map<Integer, List<Note>> noteMap = parameterSearchScore.extractMidiNotes(sourceMidiFile, 1000.0 / 20.0);
-		boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
+		int noteCount = countNotes(noteMap);
+		if (noteCount < 10) {
+			LOG.severe(">>PSM score extract source size: " + noteCount);
+			boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
 
-		LOG.severe(">>PSM score extract: " + targetMidiFile);
-		noteMap = parameterSearchScore.extractMidiNotes(targetMidiFile, 1);
-		boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
+			LOG.severe(">>PSM score extract target: " + targetMidiFile);
+			noteMap = parameterSearchScore.extractMidiNotes(targetMidiFile, 1);
+			noteCount = countNotes(noteMap);
+			LOG.severe(">>PSM score extract target size: " + noteCount);
+			boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
 
-		int score = parameterSearchScore.scoreMidiNoteArray(source, target);
-		LOG.severe(">>PSM score: " + score + ", frame: " + frameCount + ", source: " + sourceMidiFile + ", target: "
-				+ targetMidiFile);
+			score = parameterSearchScore.scoreMidiNoteArray(source, target);
+			LOG.severe(">>PSM score: " + score + ", frame: " + frameCount + ", source: " + sourceMidiFile + ", target: "
+					+ targetMidiFile);
+		}
 
 		ParameterSearchRecord parameterSearchRecord = recordings.get(frameCount);
 		parameterSearchRecord.score = score;
@@ -168,6 +175,14 @@ public class ParameterSearchModel {
 			highScore = score;
 			LOG.severe(">>PSM !!! high score: " + score + ", frame: " + frameCount);
 		}
+	}
+
+	private int countNotes(Map<Integer, List<Note>> noteMap) {
+		int count = 0;
+		for (List<Note> nl : noteMap.values()) {
+			count += nl.size();
+		}
+		return count;
 	}
 
 	public void exportParameters() {
