@@ -141,7 +141,7 @@ public class Hearing implements Organ {
 			return;
 		}
 		if (parameterSearchModel.getSearchCount() <= 0) {
-			LOG.severe(">>PSM final high score: " + parameterSearchModel.getHighScore());
+			System.out.println(">>PSM final high score: " + parameterSearchModel.getHighScore());
 			return;
 		}
 		try {
@@ -498,6 +498,7 @@ public class Hearing implements Organ {
 	 * Invoke this function to convert to a playable file.
 	 */
 	public String convertToWav(String fileName) throws UnsupportedAudioFileException, IOException {
+		System.out.println(">>Convert: " + storage.getObjectStorage() + ", " + fileName);
 		BufferedInputStream bis = new BufferedInputStream(storage.getObjectStorage().read(fileName));
 		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
 

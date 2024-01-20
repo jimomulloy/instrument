@@ -555,6 +555,7 @@ public class NuCell extends Cell implements Serializable {
 
 	public void stop() {
 		started = false;
+		queueConsumerThread.interrupt();
 		bq.clear();
 		messageMap.clear();
 		messageReceivedMap.clear();
@@ -562,6 +563,7 @@ public class NuCell extends Cell implements Serializable {
 
 	public void reset() {
 		bq.clear();
+		bq = new LinkedBlockingQueue<>();
 		messageMap.clear();
 		messageReceivedMap.clear();
 		queueConsumerThread = new Thread(new QueueConsumer(), "Thread-NuCell-" +
