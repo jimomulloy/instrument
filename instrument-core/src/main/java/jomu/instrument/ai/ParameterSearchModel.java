@@ -139,7 +139,7 @@ public class ParameterSearchModel {
 		recordings.put(frameCount, parameterSearchRecord);
 		updateParameters();
 		searchCount--;
-		LOG.severe(">>PSM update search count: " + searchCount);
+		System.out.println(">>PSM update search count: " + searchCount);
 	}
 
 	public void score() throws Exception {
@@ -170,10 +170,11 @@ public class ParameterSearchModel {
 		ParameterSearchRecord parameterSearchRecord = recordings.get(frameCount);
 		parameterSearchRecord.score = score;
 		frameCount++;
+		System.out.println(">>PSM !!! score: " + score + ", frame: " + frameCount);
 		if (score > highScore && score > searchThreshold) {
 			exportParameters();
 			highScore = score;
-			LOG.severe(">>PSM !!! high score: " + score + ", frame: " + frameCount);
+			System.out.println(">>PSM !!! high score: " + score + ", frame: " + frameCount);
 		}
 	}
 
@@ -228,9 +229,12 @@ public class ParameterSearchModel {
 		}
 		Properties searchParameters = new Properties();
 		ParameterSearchRecord parameterSearchRecord = recordings.get(frameCount);
+		System.out.print(">>Params: frame: " + frameCount);
 		for (Entry<String, String> entry : parameterSearchRecord.parameterMap.entrySet()) {
 			searchParameters.put(entry.getKey(), entry.getValue());
+			System.out.print(" [" + entry.getKey() + " - " + entry.getValue() + "] ,");
 		}
+		System.out.println("");
 		parameterManager.mergeProperties(searchParameters);
 		parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT,
 				Integer.toString(searchCount));
