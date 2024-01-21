@@ -141,7 +141,7 @@ public class Hearing implements Organ {
 			return;
 		}
 		if (parameterSearchModel.getSearchCount() <= 0) {
-			System.out.println(">>PSM final high score: " + parameterSearchModel.getHighScore());
+			System.out.println(">>PSM search count exit - final high score: " + parameterSearchModel.getHighScore());
 			return;
 		}
 		try {
@@ -154,7 +154,10 @@ public class Hearing implements Organ {
 			// throw new Exception("Replay Audio file calibrate error: " + ex.getMessage());
 		}
 
-		parameterSearchModel.reset();
+		if (!parameterSearchModel.reset()) {
+			System.out.println(">>PSM reset exit - final high score: " + parameterSearchModel.getHighScore());
+			return;
+		}
 		voice.reset();
 		workspace.getAtlas().removeMapsByStreamId(streamId);
 
@@ -262,7 +265,9 @@ public class Hearing implements Organ {
 		int searchCount = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT);
 		if (searchCount > 0) {
 			LOG.severe(">>HEARING start search: " + fileName);
-			parameterSearchModel.initialise();
+			if (!parameterSearchModel.initialise()) {
+				return;
+			}
 			fileName = parameterSearchModel.getSourceAudioFile();
 		}
 		LOG.severe(">>HEARING startAudioFileStream: " + fileName);

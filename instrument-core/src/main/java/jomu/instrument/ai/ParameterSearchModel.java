@@ -66,6 +66,8 @@ public class ParameterSearchModel {
 
 	Map<Integer, Properties> propertyFrameMap;
 
+	int searchOffset;
+
 	/**
 	 * @return the highScore
 	 */
@@ -73,11 +75,14 @@ public class ParameterSearchModel {
 		return highScore;
 	}
 
-	public void initialise() throws FileNotFoundException, IOException {
+	public boolean initialise() throws FileNotFoundException, IOException {
 		recordings = new HashMap<>();
 		searchCount = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT);
 		searchThreshold = parameterManager
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_THRESHOLD);
+		highScore = searchThreshold;
+		searchOffset = parameterManager
+				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_OFFSET);
 		searchCombinations = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COMBINATIONS);
 		String sourceFileResource = parameterManager
@@ -90,7 +95,7 @@ public class ParameterSearchModel {
 		targetMidiFile = new File(targetFileUrl.getFile()).getAbsolutePath();
 		loadDimensions(parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_PARAMETER_DIMENSIONS_FILE));
-		reset();
+		return reset();
 	}
 
 	private void loadDimensions(String dimensionsFile) throws IOException {
@@ -114,15 +119,21 @@ public class ParameterSearchModel {
 			propertyFrameMap = new HashMap<>();
 			Properties properties = new Properties();
 			processDimensions(0, properties, dimensionList);
-			searchCount = propertyFrameMap.size();
 			System.out.println(">>Size of property frame map: " + propertyFrameMap.size());
 		}
 	}
 
-	public void reset() throws FileNotFoundException, IOException {
+	public boolean reset() throws FileNotFoundException, IOException {
 		ParameterSearchRecord parameterSearchRecord = new ParameterSearchRecord();
 		if (searchCombinations) {
-			Properties propertyFrame = propertyFrameMap.get(frameCount);
+			Properties propertyFrame;
+			if (propertyFrameMap.size() > (frameCount + searchOffset)) {
+				propertyFrame = propertyFrameMap.get(frameCount + searchOffset);
+				System.out.println(">>reset frame: " + frameCount + ", " + searchOffset);
+			} else {
+				System.out.println(">>reset exit");
+				return false;
+			}
 			for (Entry<Object, Object> prop : propertyFrame.entrySet()) {
 				parameterSearchRecord.parameterMap.put(prop.getKey().toString(), prop.getValue().toString());
 			}
@@ -140,6 +151,7 @@ public class ParameterSearchModel {
 		updateParameters();
 		searchCount--;
 		System.out.println(">>PSM update search count: " + searchCount);
+		return true;
 	}
 
 	public void score() throws Exception {
@@ -147,12 +159,12 @@ public class ParameterSearchModel {
 
 		String sourceMidiFile = instrumentSession.getOutputMidiFilePath();
 		ParameterSearchScore parameterSearchScore = new ParameterSearchScore();
-		int score = 0;
+		int score = -1000;
 
 		LOG.severe(">>PSM score extract source: " + sourceMidiFile);
 		Map<Integer, List<Note>> noteMap = parameterSearchScore.extractMidiNotes(sourceMidiFile, 1000.0 / 20.0);
 		int noteCount = countNotes(noteMap);
-		if (noteCount < 10) {
+		if (noteCount < 20) {
 			LOG.severe(">>PSM score extract source size: " + noteCount);
 			boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
 
@@ -163,18 +175,19 @@ public class ParameterSearchModel {
 			boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
 
 			score = parameterSearchScore.scoreMidiNoteArray(source, target);
-			LOG.severe(">>PSM score: " + score + ", frame: " + frameCount + ", source: " + sourceMidiFile + ", target: "
-					+ targetMidiFile);
+			LOG.severe(
+					">>PSM score: " + score + ", frame: " + frameCount + ", source: " + sourceMidiFile + ", target: "
+							+ targetMidiFile);
 		}
 
 		ParameterSearchRecord parameterSearchRecord = recordings.get(frameCount);
 		parameterSearchRecord.score = score;
 		frameCount++;
-		System.out.println(">>PSM !!! score: " + score + ", frame: " + frameCount);
+		System.out.println(">>PSM !!! score: " + score + ", frame: " + (frameCount + searchOffset));
 		if (score > highScore && score > searchThreshold) {
 			exportParameters();
 			highScore = score;
-			System.out.println(">>PSM !!! high score: " + score + ", frame: " + frameCount);
+			System.out.println(">>PSM !!! high score: " + score + ", frame: " + (frameCount + searchOffset));
 		}
 	}
 
@@ -229,12 +242,11 @@ public class ParameterSearchModel {
 		}
 		Properties searchParameters = new Properties();
 		ParameterSearchRecord parameterSearchRecord = recordings.get(frameCount);
-		System.out.print(">>Params: frame: " + frameCount);
+		System.out.print(">>PSP: ");
 		for (Entry<String, String> entry : parameterSearchRecord.parameterMap.entrySet()) {
+			System.out.print(" [" + entry.getKey() + " - " + entry.getValue() + "] ");
 			searchParameters.put(entry.getKey(), entry.getValue());
-			System.out.print(" [" + entry.getKey() + " - " + entry.getValue() + "] ,");
 		}
-		System.out.println("");
 		parameterManager.mergeProperties(searchParameters);
 		parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT,
 				Integer.toString(searchCount));
