@@ -164,15 +164,15 @@ public class ParameterSearchModel {
 		LOG.severe(">>PSM score extract source: " + sourceMidiFile);
 		Map<Integer, List<Note>> noteMap = parameterSearchScore.extractMidiNotes(sourceMidiFile, 1000.0 / 20.0);
 		int noteCount = countNotes(noteMap);
-		if (noteCount < 20) {
+		if (noteCount < 40) {
 			LOG.severe(">>PSM score extract source size: " + noteCount);
-			boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
+			boolean[][] source = parameterSearchScore.buildMidiNoteArray(noteMap, 120, 140, 100);
 
 			LOG.severe(">>PSM score extract target: " + targetMidiFile);
 			noteMap = parameterSearchScore.extractMidiNotes(targetMidiFile, 1);
 			noteCount = countNotes(noteMap);
 			LOG.severe(">>PSM score extract target size: " + noteCount);
-			boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 60, 140, 100);
+			boolean[][] target = parameterSearchScore.buildMidiNoteArray(noteMap, 120, 140, 100);
 
 			score = parameterSearchScore.scoreMidiNoteArray(source, target);
 			LOG.severe(

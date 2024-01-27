@@ -42,7 +42,7 @@ public class ParameterSearchScore {
 				for (Note note : noteList) {
 					int tStart = (int) ((double) note.start / (double) timeFrame);
 					int tEnd = (int) ((double) note.end / (double) timeFrame);
-					for (int t = tStart; t <= tEnd; t++) {
+					for (int t = tStart; t <= tEnd && t < midiNoteArray.length; t++) {
 						midiNoteArray[t][p] = true;
 						// System.out.println("buildMidiNoteArray set TRUE: " + t + ", " + p);
 					}
