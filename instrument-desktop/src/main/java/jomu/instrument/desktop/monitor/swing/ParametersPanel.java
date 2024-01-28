@@ -63,7 +63,7 @@ public class ParametersPanel extends JPanel {
 			"ai-c3eg-2-ep-cq", "ai-c3eg-2-ep-tuner",
 			"ai-c3eg-2-ng-cq", "ai-c3eg-2-ng-tuner", "ai-c3eg-ep-cq", "ai-c3eg-ep-tuner", "ai-c3eg-ng-cq",
 			"ai-c3eg-ng-tuner",
-			"ai-c3-ep", "ai-c3-ng", "ai-c3eg-2-ep-best" };
+			"ai-c3-ep", "ai-c3-ng", "ai-c3eg-2-ep-best", "ai-voice-best", "ai-voice-male-best" };
 
 	private JTextField tunerHarmonicDriftFactorInput;
 	private ParameterManager parameterManager;

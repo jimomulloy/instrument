@@ -116,8 +116,9 @@ public class AudioCQProcessor extends ProcessorCommon {
 		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);
 		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
 
-		LOG.finer(">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
-				+ ", " + ttf.getRmsPower());
+		System.out.println(
+				">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
+						+ ", " + ttf.getRmsPower());
 
 		ttf.reset();
 
@@ -202,7 +203,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		LOG.finer(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
+		System.out.println(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 				+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
 
 		if (cqSwitchScale) {
@@ -218,7 +219,8 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		toneMap.updateStatistics(ttf);
 
-		LOG.finer(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", " + ttf.getSpectralFlux()
+		System.out.println(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", "
+				+ ttf.getSpectralFlux()
 				+ ", " + ttf.getSpectralCentroid() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude());
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());

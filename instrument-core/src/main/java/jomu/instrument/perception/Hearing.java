@@ -228,7 +228,7 @@ public class Hearing implements Organ {
 		if (lineInfo instanceof DataLine.Info) {
 			final DataLine.Info dataLineInfo = (DataLine.Info) lineInfo;
 
-			Arrays.stream(dataLineInfo.getFormats()).forEach(format -> LOG.finer("    " + format.toString()));
+			Arrays.stream(dataLineInfo.getFormats()).forEach(format -> LOG.severe("    " + format.toString()));
 		}
 	}
 
@@ -236,23 +236,23 @@ public class Hearing implements Organ {
 		try {
 			Mixer.Info[] mixers = AudioSystem.getMixerInfo();
 			for (int i = 0; i < mixers.length; i++) {
-				LOG.finer((i + 1) + ". " + mixers[i].getName() + " --> " + mixers[i].getDescription());
+				LOG.severe((i + 1) + ". " + mixers[i].getName() + " --> " + mixers[i].getDescription());
 
 				Line.Info[] sourceLines = AudioSystem.getMixer(mixers[i]).getSourceLineInfo();
-				LOG.finer("\tSource Lines:");
+				LOG.severe("\tSource Lines:");
 				for (int j = 0; j < sourceLines.length; j++) {
-					LOG.finer("\t" + (j + 1) + ". " + sourceLines[j].toString());
+					LOG.severe("\t" + (j + 1) + ". " + sourceLines[j].toString());
 					showLineInfoFormats(sourceLines[j]);
 				}
-				LOG.finer("\n");
+				LOG.severe("\n");
 
 				Line.Info[] targetLines = AudioSystem.getMixer(mixers[i]).getTargetLineInfo();
-				LOG.finer("\tTarget Lines:");
+				LOG.severe("\tTarget Lines:");
 				for (int j = 0; j < targetLines.length; j++) {
-					LOG.finer("\t" + (j + 1) + ". " + targetLines[j].toString());
+					LOG.severe("\t" + (j + 1) + ". " + targetLines[j].toString());
 					showLineInfoFormats(targetLines[j]);
 				}
-				LOG.finer("\n");
+				LOG.severe("\n");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1078,6 +1078,7 @@ public class Hearing implements Organ {
 		private void processMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			console.getVisor().clearView();
 			this.setIsFile(false);
+			showAudioMixerInfo();
 			Info[] mixerInfo = AudioSystem.getMixerInfo();
 			for (Info info : mixerInfo) {
 				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
@@ -1093,10 +1094,17 @@ public class Hearing implements Organ {
 				}
 				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
 			}
-			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
+			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
-			final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
-			line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+			DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+			try {
+				line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+			} catch (Exception ex) {
+				format = new AudioFormat(sampleRate, 16, 2, true, false);
+				// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
+				dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+				line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+			}
 			final int numberOfSamples = (int) (0.1 * sampleRate);
 			line.open(format, numberOfSamples);
 			line.start();
