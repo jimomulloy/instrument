@@ -51,6 +51,8 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
 		boolean cqSwitchNormaliseMax = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+		boolean cqSwitchNormaliseNotes = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_NOTES);
 		boolean cqSwitchCompressLog = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_COMPRESS_LOG);
 		boolean cqSwitchScale = parameterManager
@@ -110,15 +112,13 @@ public class AudioCQProcessor extends ProcessorCommon {
 		ToneMap cqEnvelopeWhitenControlMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_ENVELOPE", streamId));
 		cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
+		ToneMap cqNormalisedMap = workspace.getAtlas()
+				.getToneMap(buildToneMapKey(this.cell.getCellType() + "_NORMALISED", streamId));
 
 		AudioTuner tuner = new AudioTuner();
 
 		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);
 		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
-
-		System.out.println(
-				">>CQ TIME: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude()
-						+ ", " + ttf.getRmsPower());
 
 		ttf.reset();
 
@@ -152,7 +152,12 @@ public class AudioCQProcessor extends ProcessorCommon {
 			if (cqSwitchNormaliseMax) {
 				nt = ttf.getMaxAmplitude();
 			}
-			ttf.normalise(nt);
+			if (cqSwitchNormaliseNotes) {
+				cqNormalisedMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
+				cqNormalisedMap.getTimeFrame(sequence).normalise(highThreshold);
+			} else {
+				ttf.normalise(nt);
+			}
 		}
 		if (cqSwitchSquare) {
 			ttf.square();
@@ -203,9 +208,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ttf.filter(toneMapMinFrequency, toneMapMaxFrequency);
 
-		System.out.println(">>CQ Before calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
-				+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
-
 		if (cqSwitchScale) {
 			ttf.scale(lowThreshold, highThreshold, cqSwitchCompressLog);
 		} else {
@@ -218,10 +220,6 @@ public class AudioCQProcessor extends ProcessorCommon {
 		}
 
 		toneMap.updateStatistics(ttf);
-
-		System.out.println(">>CQ POST WHITEN: " + ttf.getStartTime() + ", " + ttf.getRmsPower() + ", "
-				+ ttf.getSpectralFlux()
-				+ ", " + ttf.getSpectralCentroid() + ", " + ttf.getMaxAmplitude() + ", " + ttf.getMinAmplitude());
 
 		console.getVisor().updateToneMapView(toneMap, this.cell.getCellType().toString());
 

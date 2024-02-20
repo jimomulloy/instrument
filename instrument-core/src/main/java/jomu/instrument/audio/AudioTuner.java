@@ -442,7 +442,8 @@ public class AudioTuner implements ToneMapConstants {
 	 * Scan through ToneMapMatrix extracting MIDI note data into NoteList object
 	 * Apply filtering and conversion processing on basis of Tuner Parameters
 	 */
-	public boolean noteScan(ToneMap toneMap, int sequence, int noteMinDuration, int noteMaxDuration) {
+	public boolean noteScan(ToneMap toneMap, ToneTimeFrame normalisedFrame, int sequence, int noteMinDuration,
+			int noteMaxDuration) {
 		if (toneMap.getTimeFrame() == null) {
 			return false;
 		}
@@ -476,6 +477,12 @@ public class AudioTuner implements ToneMapConstants {
 		time = timeSet.getStartTime() * 1000.0;
 
 		for (ToneMapElement toneMapElement : ttfElements) {
+			ToneMapElement normalisedElement = null;
+			if (normalisedFrame != null) {
+				normalisedElement = normalisedFrame.getElement(toneMapElement.getIndex());
+			} else {
+				normalisedElement = toneMapElement;
+			}
 			note = pitchSet.getNote(toneMapElement.getPitchIndex());
 
 			double noteOnThresholdWithHysteresis = noteLow;
@@ -505,6 +512,7 @@ public class AudioTuner implements ToneMapConstants {
 			}
 
 			double amplitude = toneMapElement.amplitude;
+			double normalisedAmplitude = normalisedElement.amplitude;
 
 			noteStatusElement.state = previousNoteStatusElement.state;
 			noteStatusElement.onTime = previousNoteStatusElement.onTime;
@@ -552,7 +560,8 @@ public class AudioTuner implements ToneMapConstants {
 					break;
 
 				case PENDING:
-					if (amplitude > noteOffThresholdhWithHysteresis / 100.0) {
+					if (normalisedAmplitude > noteOffThresholdhWithHysteresis / 100.0) {
+						// if (amplitude > noteOffThresholdhWithHysteresis / 100.0) {
 						LOG.finer(">>>Note scan PENDING high amp: " + sequence + ", " + note + ", " + time + ", "
 								+ amplitude + ", " + noteStatusElement.offTime + ", " + noteSustain
 								+ ", noteMaxDuration: "

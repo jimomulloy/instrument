@@ -18,7 +18,7 @@ class AudioTunerTest extends InstrumentTestBase {
 
 		AudioTuner tuner = new AudioTuner();
 
-		boolean result = tuner.noteScan(toneMap, 1, 100, 1000);
+		boolean result = tuner.noteScan(toneMap, null, 1, 100, 1000);
 
 		assertTrue(result, "AudioTuner noteScan failed");
 	}

@@ -1,6 +1,7 @@
 package jomu.instrument.audio;
 
 import java.io.ByteArrayInputStream;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
@@ -32,6 +33,9 @@ import jomu.instrument.workspace.tonemap.ToneTimeFrame;
 public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesizer {
 
 	private static final Logger LOG = Logger.getLogger(TarsosAudioSynthesizer.class.getName());
+
+	private static final int MAP_AVERAGE_COUNT = 6;
+	private static final int MAP_MAX_COUNT = 3;
 
 	public int gainSetting = INIT_VOLUME_SETTING;
 
@@ -69,6 +73,8 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 	private Map<String, AudioStream> audioStreams = new ConcurrentHashMap<>();
 	private double[] lastAmps;
 	private ParameterManager parameterManager;
+
+	private LinkedList<ToneTimeFrame> frameHistory = new LinkedList<>();
 
 	private Hearing hearing;
 
@@ -322,6 +328,11 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						break;
 					}
 
+					if (frameHistory.size() >= MAP_MAX_COUNT) {
+						frameHistory.removeLast();
+					}
+					frameHistory.addFirst(toneTimeFrame);
+
 					double lowVoiceThreshold = parameterManager
 							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
 					double highVoiceThreshold = parameterManager
@@ -343,16 +354,20 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						if (maxAmp < amp) {
 							maxAmp = amp;
 						}
+						audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0);
 					}
 
+					double totalGain = 0;
 					for (ToneMapElement toneMapElement : ttfElements) {
 						int note = pitchSet.getNote(toneMapElement.getPitchIndex());
 						noteStatusElement = noteStatus.getNoteStatusElement(note);
-						double amplitude = toneMapElement.amplitude;
+						double amplitude = getFilteredAmplitude(toneMapElement.getIndex());
+
+						// double amplitude = toneMapElement.amplitude;
 						double gain = 0.0F;
 						if (amplitude > highVoiceThreshold) {
 							gain = 1.0;
-						} else if (amplitude <= lowVoiceThreshold) {
+						} else if (amplitude <= 0.3) { // lowVoiceThreshold) {
 							gain = 0.0;
 						} else {
 							gain = Math
@@ -364,19 +379,27 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 						if (noteStatusElement.state != OFF) {
 							LOG.finer(">>Audio gen: " + time + ", " + toneMapElement.getIndex());
-							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.1); // GAIN
+							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(gain); // GAIN
+							totalGain += gain;
 							lastAmps[toneMapElement.getIndex()] = gain;
 						} else {
 							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0);
 							lastAmps[toneMapElement.getIndex()] = 0F;
 						}
 					}
+					if (totalGain > 1.0) {
+						for (ToneMapElement toneMapElement : ttfElements) {
+							double gain = audioStream.getSineGenerators()[toneMapElement.getIndex()].getGain();
+							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(gain / totalGain); // GAIN
+						}
+					}
 					AudioEvent audioEvent = this.audioStream.getGenerator()
 							.getAudioEvent();
-					while (audioEvent.getEndTimeStamp() < time) {
+					while (audioEvent.getEndTimeStamp() <= time) {
+						// if (audioEvent.getEndTimeStamp() == time) {
 						this.audioStream.getGenerator()
 								.process();
-						LOG.finer(">>Audio gen process: " + time + ", " + audioEvent.getTimeStamp());
+						LOG.severe(">>Audio gen process: " + time + ", " + audioEvent.getTimeStamp());
 						audioEvent = this.audioStream.getGenerator()
 								.getAudioEvent();
 					}
@@ -388,6 +411,15 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			}
 			this.audioStream.close();
 
+		}
+
+		private double getFilteredAmplitude(int index) {
+			int count = frameHistory.size();
+			double total = 0;
+			for (ToneTimeFrame frame : frameHistory) {
+				total += frame.getElement(index).amplitude;
+			}
+			return total / (double) count;
 		}
 
 		public void stop() {

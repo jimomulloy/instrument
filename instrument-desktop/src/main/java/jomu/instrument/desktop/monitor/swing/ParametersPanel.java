@@ -363,6 +363,8 @@ public class ParametersPanel extends JPanel {
 
 	private JTextField tunerHysteresisWeightInput;
 
+	private JCheckBox normaliseNotesSwitchCB;
+
 	public ParametersPanel() {
 		super(new BorderLayout());
 		this.parameterManager = Instrument.getInstance().getController().getParameterManager();
@@ -1114,6 +1116,23 @@ public class ParametersPanel extends JPanel {
 		normaliseMaxSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX));
 		cqSwitchPanel.add(normaliseMaxSwitchCB);
+
+		normaliseNotesSwitchCB = new JCheckBox("normaliseNotesSwitchCB");
+		normaliseNotesSwitchCB.setText("CQ Normalise Notes");
+		normaliseNotesSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_NOTES,
+						Boolean.toString(newValue));
+			}
+		});
+
+		normaliseNotesSwitchCB.setSelected(
+				parameterManager
+						.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_NOTES));
+		cqSwitchPanel.add(normaliseNotesSwitchCB);
 
 		cqScaleSwitchCB = new JCheckBox("cqScaleSwitchCB");
 		cqScaleSwitchCB.setText("CQ Scale");
@@ -4324,6 +4343,9 @@ public class ParametersPanel extends JPanel {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_DECIBEL));
 		normaliseSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE));
+		normaliseNotesSwitchCB.setSelected(
+				parameterManager
+						.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_NOTES));
 		normaliseMaxSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX));
 		cqScaleSwitchCB.setSelected(

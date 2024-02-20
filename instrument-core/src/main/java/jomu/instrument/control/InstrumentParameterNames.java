@@ -86,6 +86,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_LOW_THRESHOLD = "perception.hearing.cq.lowThresholdSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_DECIBEL = "perception.hearing.cq.decibelSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE = "perception.hearing.cq.normaliseSwitch";
+	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_NOTES = "perception.hearing.cq.normaliseNotesSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX = "perception.hearing.cq.normaliseMaxSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_SCALE = "perception.hearing.cq.scaleSwitch";
 	public static final String PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS = "perception.hearing.cq.preHarmonicsSwitch";
