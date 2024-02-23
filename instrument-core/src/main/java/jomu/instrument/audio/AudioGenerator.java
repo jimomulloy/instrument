@@ -23,10 +23,8 @@
 
 package jomu.instrument.audio;
 
-import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import be.tarsos.dsp.AudioEvent;
@@ -160,12 +158,18 @@ public class AudioGenerator {
 
 				// Read, convert and process consecutive overlapping buffers.
 				// Slide the buffer.
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				// try {
+				// double sleepTime = 1000
+				// * ((double) floatStepSize / format.getSampleRate() / (double)
+				// format.getChannels());
+				// System.out.println("SLEEP: " + sleepTime + ", " + floatStepSize + ", " +
+				// format.getSampleRate()
+				// + ", " + format.getChannels());
+				// TimeUnit.MILLISECONDS.sleep((long) sleepTime);
+				// } catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
 			}
 		}
 
@@ -245,9 +249,7 @@ public class AudioGenerator {
 	 * @return The audio format after conversion.
 	 */
 	private TarsosDSPAudioFormat getTargetAudioFormat(int targetSampleRate) {
-		TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(TarsosDSPAudioFormat.Encoding.PCM_SIGNED,
-				targetSampleRate, 2 * 8, 1, 2 * 1, targetSampleRate,
-				ByteOrder.BIG_ENDIAN.equals(ByteOrder.nativeOrder()));
+		TarsosDSPAudioFormat audioFormat = new TarsosDSPAudioFormat(targetSampleRate, 16, 1, true, false);
 		return audioFormat;
 	}
 

@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.sound.sampled.AudioFormat;
@@ -257,7 +258,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 		audioOutput.write(outAudioBytes, 0, outAudioBytes.length);
 
-		// AudioSystem.write(outAudioStream, AudioFileFormat.Type.WAVE, );
+		// AudioSystem.write(outAudioStream, AudioFileFormat.Type.WAVE, line);
 		return outAudioStream;
 	}
 
@@ -292,9 +293,9 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 		private AudioStream audioStream;
 		private BlockingQueue<AudioQueueMessage> bq;
-		double sampleTime = -1;
 		int counter = 0;
 		private boolean running = true;
+		double lastTime = 0;
 
 		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq, AudioStream audioStream) {
 			this.bq = bq;
@@ -318,15 +319,17 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						running = false;
 						break;
 					}
-
-					if (sampleTime != -1) {
-						// TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
-					}
-
 					if (audioStream.isClosed()) {
 						running = false;
 						break;
 					}
+
+					double time = toneTimeFrame.getStartTime();
+					if (lastTime > 0) {
+						TimeUnit.MILLISECONDS.sleep((long) (time - lastTime) * 1000);
+					}
+					lastTime = time;
+					// System.out.println(">>TIME: " + time);
 
 					if (frameHistory.size() >= MAP_MAX_COUNT) {
 						frameHistory.removeLast();
@@ -343,7 +346,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					NoteStatus noteStatus = toneTimeFrame.getNoteStatus();
 					NoteStatusElement noteStatusElement = null;
 					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
-					double time = toneTimeFrame.getStartTime();
 					if (lastAmps == null) {
 						lastAmps = new double[ttfElements.length];
 					}
@@ -395,15 +397,227 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					}
 					AudioEvent audioEvent = this.audioStream.getGenerator()
 							.getAudioEvent();
+					int count = 0;
 					while (audioEvent.getEndTimeStamp() <= time) {
 						// if (audioEvent.getEndTimeStamp() == time) {
 						this.audioStream.getGenerator()
 								.process();
-						LOG.severe(">>Audio gen process: " + time + ", " + audioEvent.getTimeStamp());
+						if (count > 0) {
+							LOG.severe(
+									">>Audio gen process: " + time + ", " + count + ", " +
+											audioEvent.getTimeStamp());
+						}
+						count++;
+						// LOG.severe(">>Audio gen process: " + time + ", " +
+						// audioEvent.getTimeStamp());
 						audioEvent = this.audioStream.getGenerator()
 								.getAudioEvent();
 					}
 
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread()
+						.interrupt();
+			}
+			this.audioStream.close();
+
+		}
+
+		private double getFilteredAmplitude(int index) {
+			int count = frameHistory.size();
+			double total = 0;
+			for (ToneTimeFrame frame : frameHistory) {
+				total += frame.getElement(index).amplitude;
+			}
+			return total / (double) count;
+		}
+
+		public void stop() {
+			running = false;
+		}
+	}
+
+	private class AudioQueueConsumer2 implements Runnable {
+
+		private AudioStream audioStream;
+		private BlockingQueue<AudioQueueMessage> bq;
+		int counter = 0;
+		private boolean running = true;
+		double lastTime = 0;
+
+		public AudioQueueConsumer2(BlockingQueue<AudioQueueMessage> bq, AudioStream audioStream) {
+			this.bq = bq;
+			this.audioStream = audioStream;
+		}
+
+		@Override
+		public void run() {
+			try {
+				while (running) {
+					if (audioStream.isClosed()) {
+						running = false;
+						break;
+					}
+					AudioQueueMessage aqm = bq.take();
+					counter++;
+
+					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
+
+					if (toneTimeFrame == null) {
+						running = false;
+						break;
+					}
+					if (audioStream.isClosed()) {
+						running = false;
+						break;
+					}
+
+					double time = toneTimeFrame.getStartTime();
+					if (lastTime > 0) {
+						// TimeUnit.MILLISECONDS.sleep((long) (time - lastTime) * 1000);
+					}
+					lastTime = time;
+					// System.out.println(">>TIME: " + time);
+
+					if (frameHistory.size() >= MAP_MAX_COUNT) {
+						frameHistory.removeLast();
+					}
+					frameHistory.addFirst(toneTimeFrame);
+
+					double lowVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
+					double highVoiceThreshold = parameterManager
+							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+
+					TimeSet timeSet = toneTimeFrame.getTimeSet();
+					PitchSet pitchSet = toneTimeFrame.getPitchSet();
+
+					int sampleLength = timeSet.getSampleWindow();
+					float[] audioOutSamples = new float[sampleLength];
+					for (int i = 0; i < sampleLength; i++) {
+						audioOutSamples[i] = 0;
+					}
+
+					double frequency;
+					double maxSumAmp = 0;
+					double minSumAmp = 0;
+					double sumAmp = 0;
+					int numPitches = 0;
+					boolean condition = false;
+
+					ToneMapElement[] ttfElements = toneTimeFrame.getElements();
+					sumAmp = 0;
+					numPitches = 0;
+
+					time = timeSet.getStartTime();
+					NoteListElement noteListElement;
+					for (ToneMapElement toneMapElement : ttfElements) {
+						frequency = pitchSet.getFreq(toneMapElement.getIndex());
+						noteListElement = toneMapElement.noteListElement;
+						if (osc1Switch) {
+							condition = (toneMapElement.amplitude == -1 || noteListElement == null
+									|| noteListElement.underTone);
+						} else {
+							condition = (toneMapElement.amplitude == -1);
+						}
+						if (!condition) {
+							sumAmp += toneMapElement.amplitude;
+						}
+						numPitches++;
+
+					}
+					if (maxSumAmp < sumAmp)
+						maxSumAmp = sumAmp;
+					if (minSumAmp > sumAmp)
+						minSumAmp = sumAmp;
+
+					if (lastAmps == null) {
+						lastAmps = new double[numPitches];
+					}
+
+					Oscillator[] oscillators = new Oscillator[numPitches];
+
+					int i, iStart, iEnd;
+					sumAmp = 0;
+					i = 0;
+					float sampleRate = timeSet.getSampleRate();
+					for (ToneMapElement toneMapElement : ttfElements) {
+						frequency = pitchSet.getFreq(toneMapElement.getIndex());
+						oscillators[i] = new Oscillator(oscType, (int) frequency, (int) sampleRate, 1);
+						i++;
+					}
+					iStart = 0;
+					iEnd = 0;
+					i = 0;
+
+					for (int j = 0; j < numPitches; j++) {
+						lastAmps[j] = 0;
+					}
+
+					double lastSample = 0;
+					double ampFactor = 0;
+					double ampAdjust = 0;
+					iStart = iEnd;
+					if (iStart > (int) (time * sampleRate))
+						iStart = (int) (time * sampleRate);
+					iEnd = iStart + (int) (timeSet.getSampleTimeSize() * sampleRate);
+					double power;
+					for (ToneMapElement toneMapElement : ttfElements) {
+						lastSample = 0;
+						ampAdjust = 0;
+						ampFactor = 0;
+						power = toneMapElement.amplitude;
+						frequency = pitchSet.getFreq(toneMapElement.getIndex());
+						noteListElement = toneMapElement.noteListElement;
+						if (osc1Switch) {
+							condition = (toneMapElement.amplitude == -1 || noteListElement == null
+									|| noteListElement.underTone);
+						} else {
+							// condition = (toneMapElement.amplitude == -1);
+							condition = (toneMapElement.amplitude < 0.2);
+						}
+						if (condition) {
+							power = 0;
+						}
+						if ((toneMapElement.getIndex() > 20 && toneMapElement.getIndex() < 40)
+								&& (power != 0 || lastAmps[toneMapElement.getIndex()] != 0)) {
+							for (i = iStart; i < iEnd; i++) {
+								ampFactor = (double) (i - iStart) / (double) (iEnd - iStart);
+								ampAdjust = lastAmps[toneMapElement.getIndex()]
+										+ ampFactor * (power - lastAmps[toneMapElement.getIndex()]);
+								oscillators[toneMapElement.getIndex()].setAmplitudeAdj(ampAdjust / (1000 * maxSumAmp));
+								oscillators[toneMapElement.getIndex()].setAmplitudeAdj(1.0);
+								lastSample = oscillators[toneMapElement.getIndex()].getSample();
+								audioOutSamples[i] += lastSample / 100.0;
+							}
+						}
+						if (ampAdjust == 0)
+							oscillators[toneMapElement.getIndex()].reset();
+						lastAmps[toneMapElement.getIndex()] = ampAdjust;
+					}
+
+					for (float sample : audioOutSamples) {
+						if (sample > 0) {
+							System.out.println(">>SAMPLE: " + sample);
+							break;
+						}
+					}
+					AudioFormat outFormat = new AudioFormat(timeSet.getSampleRate(), 16, 1, true, false);
+
+					byte[] outAudioBytes = getOutAudioBytes(audioOutSamples, outFormat);
+
+					ByteArrayInputStream bais = new ByteArrayInputStream(outAudioBytes);
+					AudioInputStream outAudioStream = new AudioInputStream(bais, outFormat,
+							outAudioBytes.length / outFormat.getFrameSize());
+
+					audioStream.getLine().write(outAudioBytes, 0, outAudioBytes.length);
+					// audioOutput.write(outAudioBytes, 0, outAudioBytes.length);
+
+					// AudioSystem.write(outAudioStream, AudioFileFormat.Type.WAVE, line);
+					// System.out.println(
+					// ">>WRIET: " + time + ", " + outAudioBytes.length + ", " +
+					// audioStream.getLine().toString());
+					// AudioSystem.write(outAudioStream, AudioFileFormat.Type.WAVE, line);
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread()
@@ -456,6 +670,10 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 		private AudioQueueConsumer consumer;
 
+		private SourceDataLine line;
+
+		private AudioFormat format;
+
 		public AudioStream(String streamId, PitchSet pitchSet) {
 			this.streamId = streamId;
 			this.baseFrequency = (float) pitchSet.getFreq(0);
@@ -463,11 +681,12 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			bq = new LinkedBlockingQueue<>();
 			consumer = new AudioQueueConsumer(bq, this);
 			// TODO LOOM Thread.startVirtualThread(consumer);
-			new Thread(new AudioQueueConsumer(bq, this),
-					"Thread-TarsosAudioSynthesizer-MidiStream-" + streamId + "-" + System.currentTimeMillis()).start();
-
+			Thread aqct = new Thread(new AudioQueueConsumer(bq, this),
+					"Thread-TarsosAudioSynthesizer-MidiStream-" + streamId + "-" + System.currentTimeMillis());
+			aqct.setPriority(Thread.MAX_PRIORITY);
+			aqct.start();
 			float frequency = baseFrequency;
-
+			format = new AudioFormat(44100, 16, 1, true, false);
 			generator = new AudioGenerator(TarsosAudioSynthesizer.this.getWindowSize(), 0);
 			sineGenerators = new SineGenerator[frequencies];
 			for (int i = 0; i < frequencies; i++) {
@@ -476,11 +695,31 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 				generator.addAudioProcessor(sineGenerators[i]);
 			}
 			try {
-				generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, false)));
+				generator.addAudioProcessor(new AudioPlayer(format));
 			} catch (LineUnavailableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			// final DataLine.Info info = new DataLine.Info(SourceDataLine.class,
+			// format, 1024);
+			// LOG.info("Opening data line" + info.toString());
+			// try {
+			// line = (SourceDataLine) AudioSystem.getLine(info);
+			// } catch (LineUnavailableException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// try {
+			// line.open(format, 2048);
+			// } catch (LineUnavailableException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// line.start();
+		}
+
+		public SourceDataLine getLine() {
+			return line;
 		}
 
 		public AudioGenerator getGenerator() {
