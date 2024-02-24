@@ -305,6 +305,13 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 		@Override
 		public void run() {
 			try {
+				double lowVoiceThreshold = parameterManager
+						.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
+				double highVoiceThreshold = parameterManager
+						.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
+				int playDelay = parameterManager.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_DELAY);
+				boolean doneDelay = false;
+
 				while (running) {
 					if (audioStream.isClosed()) {
 						running = false;
@@ -324,6 +331,13 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						break;
 					}
 
+					if (playDelay > 0 && !doneDelay) {
+						LOG.finer(">>MidiStream IN PLAY DELAY: " + System.currentTimeMillis());
+						TimeUnit.MILLISECONDS.sleep((long) playDelay);
+						LOG.finer(">>MidiStream AFTER PLAY DELAY: " + System.currentTimeMillis());
+						doneDelay = true;
+					}
+
 					double time = toneTimeFrame.getStartTime();
 					if (lastTime > 0) {
 						TimeUnit.MILLISECONDS.sleep((long) (time - lastTime) * 1000);
@@ -335,11 +349,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						frameHistory.removeLast();
 					}
 					frameHistory.addFirst(toneTimeFrame);
-
-					double lowVoiceThreshold = parameterManager
-							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_LOW_THRESHOLD);
-					double highVoiceThreshold = parameterManager
-							.getDoubleParameter(InstrumentParameterNames.ACTUATION_VOICE_HIGH_THRESHOLD);
 
 					TimeSet timeSet = toneTimeFrame.getTimeSet();
 					PitchSet pitchSet = toneTimeFrame.getPitchSet();

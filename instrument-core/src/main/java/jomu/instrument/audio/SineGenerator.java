@@ -50,14 +50,17 @@ public class SineGenerator implements AudioProcessor {
 		double twoPiF = 2 * Math.PI * frequency;
 		double time = 0;
 		double useGain = gain;
-		if (Math.sin(twoPiF * buffer.length / sampleRate + phase) != 0) {
-			useGain = lastGain;
-		} else {
-			lastGain = gain;
+		if (gain == lastGain) {
+			useGain = gain;
 		}
 		for (int i = 0; i < buffer.length; i++) {
 			time = i / sampleRate;
-			buffer[i] += (float) (gain * Math.sin(twoPiF * time + phase));
+			double factor = Math.sin(twoPiF * time + phase);
+			if (factor == 0) {
+				useGain = gain;
+				lastGain = gain;
+			}
+			buffer[i] += (float) (useGain * factor);
 		}
 		phase = twoPiF * buffer.length / sampleRate + phase;
 		return true;

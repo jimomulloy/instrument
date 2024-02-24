@@ -958,7 +958,7 @@ public class NoteTracker {
 				newNoteSet.add(cnle.note);
 			}
 		}
-		if (synthChordParameters.chordPattern == 0 && quantizeNote != null || quantizeNote == null) {
+		if (synthChordParameters.chordPattern == 0) {
 			if (!newNotes.stream()
 					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
 				for (NoteListElement cnle : currentNotes) {
@@ -997,7 +997,7 @@ public class NoteTracker {
 					}
 				}
 			}
-		} else if (synthChordParameters.chordPattern == 1 || quantizeNote == null) {
+		} else if (synthChordParameters.chordPattern == 1) {
 			for (NoteListElement nnle : newNotes) {
 				if (!currentNoteSet.contains(nnle.note)) {
 					track.addNote(nnle);
