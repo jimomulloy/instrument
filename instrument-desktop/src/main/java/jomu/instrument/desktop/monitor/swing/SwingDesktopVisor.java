@@ -1615,12 +1615,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				boolean newValue = cb.isSelected();
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_CORTEX_SHORT_CIRCUIT_SWITCH,
 						Boolean.toString(newValue));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE,
-						Integer.toString(10));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE,
-						Integer.toString(20));
-				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE,
-						Integer.toString(0));
+				if (newValue) {
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE,
+							Integer.toString(10));
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE,
+							Integer.toString(20));
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE,
+							Integer.toString(0));
+				} else {
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE,
+							Integer.toString(20));
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE,
+							Integer.toString(50));
+					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE,
+							Integer.toString(0));
+
+				}
 				refreshMapViews();
 			}
 		});
