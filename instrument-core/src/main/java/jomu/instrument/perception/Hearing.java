@@ -1078,7 +1078,7 @@ public class Hearing implements Organ {
 		private void processMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			console.getVisor().clearView();
 			this.setIsFile(false);
-			showAudioMixerInfo();
+			// showAudioMixerInfo();
 			Info[] mixerInfo = AudioSystem.getMixerInfo();
 			for (Info info : mixerInfo) {
 				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
@@ -1086,24 +1086,28 @@ public class Hearing implements Organ {
 				LOG.severe(">>processMicrophoneStream mixer: " + m.getMixerInfo().toString());
 				Line[] sl = m.getSourceLines();
 				for (Line l : sl) {
-					LOG.severe(">>processMicrophoneStream source line: " + l.getLineInfo().toString());
+					LOG.severe(">>processMicrophoneStream source line: " +
+							l.getLineInfo().toString());
 				}
 				Line[] tl = m.getTargetLines();
 				for (Line l : tl) {
 					LOG.severe(">>processMicrophoneStream target line: " + l.getLineInfo().toString());
 				}
-				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
 			}
 			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 			try {
+				LOG.severe(">>processMicrophoneStream: A: " + dataLineInfo);
 				line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+				LOG.severe(">>processMicrophoneStream: A GOT LINE: " + line.toString());
 			} catch (Exception ex) {
 				format = new AudioFormat(sampleRate, 16, 2, true, false);
 				// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
+				LOG.severe(">>processMicrophoneStream: B: " + dataLineInfo);
 				dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 				line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+				LOG.severe(">>processMicrophoneStream GOT : " + dataLineInfo);
 			}
 			final int numberOfSamples = (int) (0.1 * sampleRate);
 			line.open(format, numberOfSamples);

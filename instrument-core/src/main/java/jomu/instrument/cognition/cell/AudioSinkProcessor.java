@@ -200,6 +200,10 @@ public class AudioSinkProcessor extends ProcessorCommon {
 			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_WHITENER", streamId))
 					.commit(sequence);
 		}
+		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_NORMALISED", streamId))) {
+			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.name() + "_NORMALISED", streamId))
+					.commit(sequence);
+		}
 		if (workspace.getAtlas()
 				.hasToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN.name() + "_WHITENER", streamId))) {
 			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ_ORIGIN.name() + "_WHITENER", streamId))
