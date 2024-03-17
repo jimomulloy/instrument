@@ -86,6 +86,8 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 
 	@Override
 	public void initialise() {
+		boolean cortexShortCircuit = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_CORTEX_SHORT_CIRCUIT_SWITCH);
 		List<NuCell> cellList = new ArrayList<>();
 		sourceAddCell = Generator.createNuCell(CellTypes.SOURCE);
 		cellList.add(sourceAddCell);
@@ -135,53 +137,52 @@ public class Cortex implements Organ, AudioFeatureFrameObserver, ProcessorExcept
 		cells = cellList.toArray(new NuCell[cellList.size()]);
 		setProcessorExceptionHandlers();
 
-		//
-		Weaver.connect(sourceUpdateCell, audioBeatCell);
-		Weaver.connect(sourceUpdateCell, audioPercussionCell);
-		Weaver.connect(sourceUpdateCell, audioPitchCell);
-		Weaver.connect(sourceUpdateCell, audioPhaseCell);
-		Weaver.connect(sourceUpdateCell, audioYINCell);
 		Weaver.connect(sourceUpdateCell, audioCQCell);
-		Weaver.connect(sourceUpdateCell, audioCQOriginCell);
-		Weaver.connect(sourceUpdateCell, audioSpectralPeaksCell);
-		Weaver.connect(sourceUpdateCell, audioSACFCell);
-		Weaver.connect(sourceUpdateCell, audioCepstrumCell);
-		Weaver.connect(sourceUpdateCell, audioMFCCCell);
-		Weaver.connect(sourceUpdateCell, audioSinkCell);
-		//
-		Weaver.connect(audioCQCell, audioPreChromaCell);
-		Weaver.connect(audioCQOriginCell, audioPreChromaCell);
-		Weaver.connect(audioCQCell, audioHpsCell);
-		Weaver.connect(audioCQOriginCell, audioHpsCell);
-		Weaver.connect(audioCQCell, audioOnsetCell);
-		Weaver.connect(audioCQOriginCell, audioOnsetCell);
-		Weaver.connect(audioCQCell, audioTunerPeaksCell);
-		//
-		Weaver.connect(audioHpsCell, audioOnsetCell);
-		Weaver.connect(audioHpsCell, audioPreChromaCell);
-		//
-		Weaver.connect(audioHpsCell, audioIntegrateCell);
 		Weaver.connect(audioCQCell, audioIntegrateCell);
-		Weaver.connect(audioOnsetCell, audioIntegrateCell);
-		Weaver.connect(audioBeatCell, audioIntegrateCell);
-		Weaver.connect(audioPercussionCell, audioIntegrateCell);
-		Weaver.connect(audioPitchCell, audioIntegrateCell);
-		Weaver.connect(audioPhaseCell, audioIntegrateCell);
-		Weaver.connect(audioYINCell, audioIntegrateCell);
-		Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
-		Weaver.connect(audioSACFCell, audioIntegrateCell);
-		Weaver.connect(audioMFCCCell, audioIntegrateCell);
-		Weaver.connect(audioCepstrumCell, audioIntegrateCell);
-		Weaver.connect(audioTunerPeaksCell, audioIntegrateCell);
-		//
 		Weaver.connect(audioIntegrateCell, audioNotateCell);
-		//
 		Weaver.connect(audioNotateCell, audioSynthesisCell);
-		//
-		Weaver.connect(audioPreChromaCell, audioPostChromaCell);
-		Weaver.connect(audioPostChromaCell, audioSynthesisCell);
-		//
 		Weaver.connect(audioSynthesisCell, audioSinkCell);
+
+		if (!cortexShortCircuit) {
+			Weaver.connect(sourceUpdateCell, audioBeatCell);
+			Weaver.connect(sourceUpdateCell, audioPercussionCell);
+			Weaver.connect(sourceUpdateCell, audioPitchCell);
+			Weaver.connect(sourceUpdateCell, audioPhaseCell);
+			Weaver.connect(sourceUpdateCell, audioYINCell);
+			Weaver.connect(sourceUpdateCell, audioCQOriginCell);
+			Weaver.connect(sourceUpdateCell, audioSpectralPeaksCell);
+			Weaver.connect(sourceUpdateCell, audioSACFCell);
+			Weaver.connect(sourceUpdateCell, audioCepstrumCell);
+			Weaver.connect(sourceUpdateCell, audioMFCCCell);
+			Weaver.connect(sourceUpdateCell, audioSinkCell);
+			//
+			Weaver.connect(audioCQCell, audioPreChromaCell);
+			Weaver.connect(audioCQOriginCell, audioPreChromaCell);
+			Weaver.connect(audioCQCell, audioHpsCell);
+			Weaver.connect(audioCQOriginCell, audioHpsCell);
+			Weaver.connect(audioCQCell, audioOnsetCell);
+			Weaver.connect(audioCQOriginCell, audioOnsetCell);
+			Weaver.connect(audioCQCell, audioTunerPeaksCell);
+			//
+			Weaver.connect(audioHpsCell, audioOnsetCell);
+			Weaver.connect(audioHpsCell, audioPreChromaCell);
+			//
+			Weaver.connect(audioHpsCell, audioIntegrateCell);
+			Weaver.connect(audioOnsetCell, audioIntegrateCell);
+			Weaver.connect(audioBeatCell, audioIntegrateCell);
+			Weaver.connect(audioPercussionCell, audioIntegrateCell);
+			Weaver.connect(audioPitchCell, audioIntegrateCell);
+			Weaver.connect(audioPhaseCell, audioIntegrateCell);
+			Weaver.connect(audioYINCell, audioIntegrateCell);
+			Weaver.connect(audioSpectralPeaksCell, audioIntegrateCell);
+			Weaver.connect(audioSACFCell, audioIntegrateCell);
+			Weaver.connect(audioMFCCCell, audioIntegrateCell);
+			Weaver.connect(audioCepstrumCell, audioIntegrateCell);
+			Weaver.connect(audioTunerPeaksCell, audioIntegrateCell);
+			//
+			Weaver.connect(audioPreChromaCell, audioPostChromaCell);
+			Weaver.connect(audioPostChromaCell, audioSynthesisCell);
+		}
 	}
 
 	private void setProcessorExceptionHandlers() {

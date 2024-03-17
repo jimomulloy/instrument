@@ -296,6 +296,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JTextField searchCountInput;
 
+	private JCheckBox cortexShortCircuitSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1604,6 +1606,28 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
 		actionCenterPanel.add(streamSaveSwitchCB);
 
+		cortexShortCircuitSwitchCB = new JCheckBox("cortexShortCircuitSwitchCB");
+		cortexShortCircuitSwitchCB.setText("Short");
+		cortexShortCircuitSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_CORTEX_SHORT_CIRCUIT_SWITCH,
+						Boolean.toString(newValue));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE,
+						Integer.toString(10));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE,
+						Integer.toString(20));
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE,
+						Integer.toString(0));
+				refreshMapViews();
+			}
+		});
+		cortexShortCircuitSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_CORTEX_SHORT_CIRCUIT_SWITCH));
+		actionCenterPanel.add(cortexShortCircuitSwitchCB);
+
 		JLabel streamIndexLabel = new JLabel("Index: ");
 		streamIndexInput = new JTextField(4);
 		streamIndexInput.addActionListener(new ActionListener() {
@@ -2871,6 +2895,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH));
 		streamSaveSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_SWITCH));
+		cortexShortCircuitSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_CORTEX_SHORT_CIRCUIT_SWITCH));
 		streamIndexInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_STREAM_SAVE_INDEX));
 		playStartOffsetInput.setText(

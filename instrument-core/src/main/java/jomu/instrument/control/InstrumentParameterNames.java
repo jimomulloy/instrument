@@ -271,6 +271,8 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_NOTATE_SWEEP_RANGE = "perception.hearing.notate.sweepRange";
 	public static final String PERCEPTION_HEARING_NOTATE_PEAKS_SWITCH = "perception.hearing.notate.peaksSwitch";
 
+	public static final String PERCEPTION_CORTEX_SHORT_CIRCUIT_SWITCH = "perception.cortex.shortCircuitSwitch";
+
 	public static final String AUDIO_TUNER_N1_SETTING = "audio.tuner.n1Setting";
 	public static final String AUDIO_TUNER_N2_SETTING = "audio.tuner.n2Setting";
 	public static final String AUDIO_TUNER_N3_SETTING = "audio.tuner.n3Setting";
