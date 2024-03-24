@@ -176,9 +176,11 @@ public class AudioSinkProcessor extends ProcessorCommon {
 		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId))) {
 			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_YIN, streamId)).commit(sequence);
 		}
-		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId))) {
-			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId)).commit(sequence);
-		}
+		// if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE,
+		// streamId))) {
+		// workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE,
+		// streamId)).commit(sequence);
+		// }
 		if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_PEAKS", streamId))) {
 			workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE.name() + "_PEAKS", streamId))
 					.commit(sequence);
@@ -210,6 +212,9 @@ public class AudioSinkProcessor extends ProcessorCommon {
 					.commit(sequence);
 		}
 		if (persistenceMode < 2) {
+			if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId))) {
+				workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_NOTATE, streamId)).commit(sequence);
+			}
 			if (workspace.getAtlas().hasToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId))) {
 				workspace.getAtlas().getToneMap(buildToneMapKey(CellTypes.AUDIO_SYNTHESIS, streamId)).commit(sequence);
 			}

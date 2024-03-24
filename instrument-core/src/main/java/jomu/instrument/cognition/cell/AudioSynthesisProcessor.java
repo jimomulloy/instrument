@@ -154,8 +154,9 @@ public class AudioSynthesisProcessor extends ProcessorCommon {
 				.hasCalibrationMap(streamId) && calibrateSwitch) {
 			CalibrationMap cm = workspace.getAtlas()
 					.getCalibrationMap(streamId);
-			synthesisFrame.calibrate(synthesisToneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold,
-					false);
+			// --synthesisFrame.calibrate(synthesisToneMap, cm, calibrateRange,
+			// calibrateForwardSwitch, lowThreshold,
+			// false);
 		}
 
 		if (sequence > onsetPeaksSweep) {

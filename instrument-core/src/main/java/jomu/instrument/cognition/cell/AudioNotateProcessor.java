@@ -57,6 +57,8 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_PEAKS_SWITCH);
 		boolean cqSwitchNormaliseNotes = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_NOTES);
+		boolean cqSwitchNormalise = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
 
 		ToneMap integrateToneMap = workspace.getAtlas()
 				.getToneMap(buildToneMapKey(CellTypes.AUDIO_INTEGRATE, streamId));
@@ -113,11 +115,8 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				spTuner.applyFormants(notateSpectralTimeFrame);
 			}
 		}
+		ToneTimeFrame ttf = notateToneMap.getTimeFrame();
 
-		if (cqSwitchNormaliseNotes) {
-			ToneMap cqNormalisedToneMap = workspace.getAtlas()
-					.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.toString() + "_NORMALISED", streamId));
-		}
 		if (integrateCQSwitch) {
 			notateTimeFrame.reset();
 			if (notatePeaksSwitch) {
@@ -125,7 +124,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				notateTuner.processPeaks(notateToneMap, true);
 			}
 
-			if (cqSwitchNormaliseNotes) {
+			if (cqSwitchNormaliseNotes && cqSwitchNormalise) {
 				ToneMap cqNormalisedToneMap = workspace.getAtlas()
 						.getToneMap(buildToneMapKey(CellTypes.AUDIO_CQ.toString() + "_NORMALISED", streamId));
 				ToneTimeFrame normalisedFrame = cqNormalisedToneMap.getTimeFrame(sequence);
@@ -133,6 +132,7 @@ public class AudioNotateProcessor extends ProcessorCommon {
 			} else {
 				notateTuner.noteScan(notateToneMap, null, sequence, noteMinDuration, noteMaxDuration);
 			}
+
 			console.getVisor()
 					.updateToneMapView(notateToneMap, this.cell.getCellType()
 							.toString());

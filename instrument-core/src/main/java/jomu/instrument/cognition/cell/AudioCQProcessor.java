@@ -153,8 +153,9 @@ public class AudioCQProcessor extends ProcessorCommon {
 				nt = ttf.getMaxAmplitude();
 			}
 			if (cqSwitchNormaliseNotes) {
-				cqNormalisedMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
-				cqNormalisedMap.getTimeFrame(sequence).normalise(highThreshold);
+				cqNormalisedMap.addTimeFrame(ttf.clone());
+				ToneTimeFrame nmTtf = cqNormalisedMap.getTimeFrame(sequence);
+				nmTtf.normalise(nt);
 			} else {
 				ttf.normalise(nt);
 			}

@@ -38,6 +38,7 @@ public class ParameterManager {
 			LOG.severe("ParameterManager resetting..");
 			InputStream is = getClass().getClassLoader()
 					.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "." + PARAMETER_CONFIG_FILE_POSTFIX);
+			parameters.clear();
 			parameters.load(is);
 			is = getClass().getClassLoader()
 					.getResourceAsStream(PARAMETER_CONFIG_FILE_PREFIX + "-" + PARAMETER_CONFIG_CLIENT_FILE_INFIX + "."
@@ -160,6 +161,12 @@ public class ParameterManager {
 			}
 			mergeProperties(styleParameters);
 			setParameter(InstrumentParameterNames.CONTROL_PARAMETER_STYLE, paramStyle);
+			if (delta) {
+				setParameter(InstrumentParameterNames.PERCEPTION_HEARING_EXPORT_DELTA_SWITCH, Boolean.toString(true));
+			} else {
+				setParameter(InstrumentParameterNames.PERCEPTION_HEARING_EXPORT_DELTA_SWITCH, Boolean.toString(false));
+			}
+
 			LOG.finer(
 					">>Loaded :" + PARAMETER_CONFIG_FILE_PREFIX + "-" + paramStyle + "."
 							+ PARAMETER_CONFIG_FILE_POSTFIX);
