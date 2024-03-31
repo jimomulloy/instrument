@@ -134,10 +134,15 @@ public class Hearing implements Organ {
 		LOG.severe(">>Closed Audio Stream: " + streamId);
 	}
 
-	public void replayAudioStream(String streamId, boolean error) throws FileNotFoundException, IOException {
+	public void replayAudioStream(String streamId, boolean error)
+			throws FileNotFoundException, IOException, LineUnavailableException {
 		LOG.severe(">>Replay Audio Stream: " + streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
 		if (audioStream == null) {
+			return;
+		}
+		if (!audioStream.isFile()) {
+			startAudioLineStream(audioStream.getFile());
 			return;
 		}
 		if (parameterSearchModel.getSearchCount() <= 0) {
@@ -714,6 +719,7 @@ public class Hearing implements Organ {
 		LOG.finer(">>Start Audio Stream: " + getStreamId());
 		AudioStream audioStream = new AudioStream(getStreamId());
 		audioStreams.put(getStreamId(), audioStream);
+		audioStream.setFile(recordFile);
 
 		audioStream.processMicrophoneStream(recordFile);
 
@@ -756,12 +762,21 @@ public class Hearing implements Organ {
 		private TargetDataLine line;
 		private boolean isFile = true;
 		private String audioFileName;
+		private String file;
 
 		public AudioStream(String streamId) {
 			this.streamId = streamId;
 			sampleRate = parameterManager
 					.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
 			bufferSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
+		}
+
+		public void setFile(String file) {
+			this.file = file;
+		}
+
+		public String getFile() {
+			return file;
 		}
 
 		public void close() {

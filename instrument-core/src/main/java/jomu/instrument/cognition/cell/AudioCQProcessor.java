@@ -119,7 +119,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 
 		ToneTimeFrame ttf = toneMap.getTimeFrame(sequence);
 		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
-
+		ToneTimeFrame nmTtf = null;
 		ttf.reset();
 
 		if (cqEnvelopeWhitenPreSwitch) {
@@ -154,7 +154,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 			}
 			if (cqSwitchNormaliseNotes) {
 				cqNormalisedMap.addTimeFrame(ttf.clone());
-				ToneTimeFrame nmTtf = cqNormalisedMap.getTimeFrame(sequence);
+				nmTtf = cqNormalisedMap.getTimeFrame(sequence);
 				nmTtf.normalise(nt);
 			} else {
 				ttf.normalise(nt);
@@ -217,6 +217,12 @@ public class AudioCQProcessor extends ProcessorCommon {
 				ttf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
 				LOG.finer(">>CQ After calibrate: " + ttf.getStartTime() + ", " + ttf.getMaxAmplitude() + ", "
 						+ ttf.getMinAmplitude() + ", " + ttf.getRmsPower());
+				if (nmTtf != null) {
+					nmTtf.calibrate(toneMap, cm, calibrateRange, calibrateForwardSwitch, lowThreshold, false);
+					LOG.finer(
+							">>CQ NORM After calibrate: " + nmTtf.getStartTime() + ", " + nmTtf.getMaxAmplitude() + ", "
+									+ nmTtf.getMinAmplitude());
+				}
 			}
 		}
 

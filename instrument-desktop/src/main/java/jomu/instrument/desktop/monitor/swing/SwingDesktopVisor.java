@@ -1509,8 +1509,17 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					workspace.getInstrumentSessionManager().getCurrentSession().clearException();
 					parameterManager.setParameter(InstrumentParameterNames.MONITOR_VIEW_TIME_AXIS_OFFSET, "0");
 					toneMapViews.remove(currentToneMapViewType);
+
+					if (coordinator.getHearing().getStreamId() != null) {
+						coordinator.getHearing().stopAudioStream();
+						coordinator.getHearing().stopAudioPlayer();
+						coordinator.getVoice().clear(coordinator.getHearing().getStreamId());
+						coordinator.getVoice().stopStreamPlayer();
+					}
+
 					refreshMapViews();
 					resetToneMapView();
+
 					coordinator.getHearing().startAudioLineStream(filePath);
 					updateStatusMessage("Started listener: " + fileName);
 

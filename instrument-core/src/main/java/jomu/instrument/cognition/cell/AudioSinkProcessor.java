@@ -87,6 +87,13 @@ public class AudioSinkProcessor extends ProcessorCommon {
 					} catch (Exception e) {
 						LOG.log(Level.SEVERE, ">>AudioSinkProcessor hearing.replayAudioStream", e);
 					}
+				} else if (parameterManager
+						.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_PLAY_REPEAT) > 0) {
+					try {
+						hearing.replayAudioStream(streamId, false);
+					} catch (Exception e) {
+						LOG.log(Level.SEVERE, ">>AudioSinkProcessor hearing.replayAudioStream", e);
+					}
 				}
 			}).start();
 			// console.getVisor().updateViewThresholds();

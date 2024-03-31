@@ -541,7 +541,7 @@ public class AudioTuner implements ToneMapConstants {
 					break;
 
 				case ON:
-					if (amplitude <= noteOffThresholdhWithHysteresis / 100.0
+					if (normalisedAmplitude <= noteOffThresholdhWithHysteresis / 100.0
 							|| (time - noteStatusElement.onTime) > noteMaxDuration) {
 						noteStatusElement.state = PENDING;
 						LOG.finer(">>>Note scan ON - PENDING seq: " + sequence + ", " + note + ", " + time + ", "
@@ -549,7 +549,7 @@ public class AudioTuner implements ToneMapConstants {
 					} else {
 						LOG.finer(">>>Note scan ON - CONTINUE seq: " + sequence + ", " + note + ", " + time + ", "
 								+ amplitude + ", " + noteOffThresholdhWithHysteresis);
-						if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
+						if (normalisedAmplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 							noteStatusElement.highFlag = true;
 						}
 						noteStatusElement.offTime = time;
@@ -568,7 +568,7 @@ public class AudioTuner implements ToneMapConstants {
 								+ noteMaxDuration);
 						if ((time - noteStatusElement.onTime) > noteMaxDuration) {
 							noteStatusElement.state = CONTINUING;
-							if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
+							if (normalisedAmplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 								noteStatusElement.highFlag = true;
 							}
 							LOG.finer(">>PROCESS NEW NOTE X - Note scan ON - PENDING NEW NOTE PARTIAL CONTINUING seq: "
@@ -582,7 +582,7 @@ public class AudioTuner implements ToneMapConstants {
 							noteStatusElement.isContinuation = true;
 							noteStatusElement.onTime = time;
 							noteStatusElement.offTime = time;
-							if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
+							if (normalisedAmplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 								noteStatusElement.highFlag = true;
 							}
 							toneMapElement.noteState = ON;
@@ -600,7 +600,7 @@ public class AudioTuner implements ToneMapConstants {
 							noteStatusElement.state = ON;
 							noteStatusElement.offTime = time;
 							noteStatusElement.isContinuation = false;
-							if (amplitude >= noteHighThresholdhWithHysteresis / 100.0) {
+							if (normalisedAmplitude >= noteHighThresholdhWithHysteresis / 100.0) {
 								noteStatusElement.highFlag = true;
 							}
 							toneMapElement.noteState = ON;
