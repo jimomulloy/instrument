@@ -372,13 +372,6 @@ public class Hearing implements Organ {
 			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, padFilePath);
 		}
 
-		if (parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_BEFORE) > 0
-				|| parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PAD_AFTER) > 0) {
-			String padFilePath = padAudio(filePath);
-			is = new FileInputStream(padFilePath);
-			parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, padFilePath);
-		}
-
 		filePath = parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
 		bs = new BufferedInputStream(is);
 
@@ -917,6 +910,8 @@ public class Hearing implements Organ {
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 
+				private boolean firstTime;
+
 				@Override
 				public boolean process(AudioEvent audioEvent) {
 					double max = 0;
@@ -931,6 +926,13 @@ public class Hearing implements Organ {
 					}
 					double result = Math.sqrt(total / numSamples);
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
+
+					if (firstTime) {
+						result = 1.0;
+						firstTime = false;
+					}
+					calibrationMap.put(audioEvent.getTimeStamp(), result);
+					LOG.severe(">>CALIB FILE: " + result + ", " + audioEvent.getTimeStamp());
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {
@@ -1234,6 +1236,8 @@ public class Hearing implements Organ {
 			CalibrationMap calibrationMap = workspace.getAtlas().getCalibrationMap(streamId);
 			dispatcher.addAudioProcessor(new AudioProcessor() {
 
+				boolean firstTime = true;
+
 				@Override
 				public boolean process(AudioEvent audioEvent) {
 					double max = 0;
@@ -1247,7 +1251,13 @@ public class Hearing implements Organ {
 						}
 					}
 					double result = Math.sqrt(total / numSamples);
+
+					if (firstTime) {
+						result = 1.0;
+						firstTime = false;
+					}
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
+					LOG.severe(">>CALIB MIKE: " + result + ", " + audioEvent.getTimeStamp());
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {
