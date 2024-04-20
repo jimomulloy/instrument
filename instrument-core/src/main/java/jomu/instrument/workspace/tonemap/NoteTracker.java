@@ -969,11 +969,6 @@ public class NoteTracker {
 				for (NoteListElement nnle : newNotes) {
 					track.addNote(nnle);
 					if (lastNote != null && lastNote.endTime >= startTime) {
-						if (track.number == 1) {
-							LOG.severe(">>CN 2: " + time + ", " + startTime + ", " + lastNote.endTime + ", "
-									+ nnle.startTime);
-
-						}
 						return;
 					}
 				}
