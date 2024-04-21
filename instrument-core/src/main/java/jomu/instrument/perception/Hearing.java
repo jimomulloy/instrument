@@ -932,7 +932,6 @@ public class Hearing implements Organ {
 						firstTime = false;
 					}
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
-					LOG.severe(">>CALIB FILE: " + result + ", " + audioEvent.getTimeStamp());
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {
@@ -1257,7 +1256,6 @@ public class Hearing implements Organ {
 						firstTime = false;
 					}
 					calibrationMap.put(audioEvent.getTimeStamp(), result);
-					LOG.severe(">>CALIB MIKE: " + result + ", " + audioEvent.getTimeStamp());
 
 					double startTimeMS = audioEvent.getTimeStamp() * 1000;
 					if (startTimeMS > range) {
