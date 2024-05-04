@@ -380,10 +380,15 @@ public class ToneSynthesiser implements ToneMapConstants {
 		}
 		double beatRange = ((beatAfterTime - beatBeforeTime) / quantizeBeat) * 1000;
 		ToneTimeFrame lastFrame = null;
+		LOG.severe(">>synthesiseNote A: " + track.number + ", " + beatRange + ", " + time + ", " + fromTime + ", "
+				+ toTime + ", " + beatBeforeTime + ", "
+				+ beatAfterTime);
 
 		while (frame != null && time < (toTime / 1000)) {
 			if (calibrationMap.getBeat(time, (MIN_TIME_INCREMENT * 1000)) > -1) {
 				int counter = quantizeBeat;
+				LOG.severe(
+						">>synthesiseNote A1: " + counter + ", " + time + ", " + beatBeforeTime + ", " + beatAfterTime);
 				while (counter > 0 && frame != null && time < (toTime / 1000)) {
 					int r = (int) (Math.random() * (noteList.size()));
 					newNle = nle.clone();

@@ -154,6 +154,12 @@ public class NoteTracker {
 
 	private int synthQuantizeSource;
 
+	private double synthBeatMetronomeStart;
+
+	private double synthBeatMetronomeDistance;
+
+	private double synthBeatMetronomeLength;
+
 	public class NoteTrack {
 
 		int number;
@@ -449,6 +455,13 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE);
 		synthChord4QuantizeSource = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD4_QUANTIZE_SOURCE);
+
+		synthBeatMetronomeStart = toneMap.getParameterManager()
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_START);
+		synthBeatMetronomeDistance = toneMap.getParameterManager()
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_DISTANCE);
+		synthBeatMetronomeLength = toneMap.getParameterManager()
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_LENGTH);
 
 		synthBeat1Offset = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT1_OFFSET);
@@ -1148,6 +1161,14 @@ public class NoteTracker {
 					if (lastNote == null || beatListElement.getStartTime() * 1000 >= lastNote.endTime) {
 						addBeatNote(beatTrack, beatListElement, pitchSet, synthBeatParameters);
 					}
+				}
+			}
+		} else if (synthBeatParameters.beatSource == 6) {
+			double startTime = toneTimeFrame.getStartTime();
+			if (startTime >= synthBeatMetronomeStart) {
+				if (lastNote == null || (startTime - (lastNote.startTime / 1000.0)) >= synthBeatMetronomeDistance) {
+					BeatListElement beatListElement = new BeatListElement(1.0, startTime, synthBeatMetronomeLength);
+					addBeatNote(beatTrack, beatListElement, pitchSet, synthBeatParameters);
 				}
 			}
 		}
