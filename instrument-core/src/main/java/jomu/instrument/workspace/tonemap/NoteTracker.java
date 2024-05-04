@@ -1167,7 +1167,12 @@ public class NoteTracker {
 			double startTime = toneTimeFrame.getStartTime();
 			if (startTime >= synthBeatMetronomeStart) {
 				if (lastNote == null || (startTime - (lastNote.startTime / 1000.0)) >= synthBeatMetronomeDistance) {
-					BeatListElement beatListElement = new BeatListElement(1.0, startTime, synthBeatMetronomeLength);
+					double offset = 0;
+					// if (lastNote != null) {
+					// offset = (startTime - synthBeatMetronomeStart) % synthBeatMetronomeDistance;
+					// }
+					BeatListElement beatListElement = new BeatListElement(1.0, startTime - offset,
+							synthBeatMetronomeLength);
 					addBeatNote(beatTrack, beatListElement, pitchSet, synthBeatParameters);
 				}
 			}
