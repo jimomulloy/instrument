@@ -1230,6 +1230,7 @@ public class NoteTracker {
 		NoteListElement beatNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 				amplitude, amplitude, amplitude, 0, false, incrementTime);
 		track.addNote(beatNote);
+		LOG.finer(">>NoteTracker add beatNote: " + track.number + ", " + startTime);
 		return beatNote;
 	}
 

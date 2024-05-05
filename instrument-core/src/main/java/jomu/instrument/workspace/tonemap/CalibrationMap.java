@@ -126,6 +126,7 @@ public class CalibrationMap implements OnsetHandler {
 	@Override
 	public void handleOnset(double time, double salience) {
 		beatMap.put(time, salience);
+		LOG.severe(">>CM onset: " + time + ", " + salience);
 	}
 
 	public double getBeatBeforeTime(double time, double range) {
@@ -159,6 +160,17 @@ public class CalibrationMap implements OnsetHandler {
 			return he.getKey();
 		} else {
 			return -1;
+		}
+	}
+
+	public void calibrateMetronome(double metronomeStart, double metronomeDistance) {
+		double lastTime = audioFilePowerMap.lastEntry().getKey();
+		LOG.severe(">>CM metro: " + lastTime);
+		double time = metronomeStart;
+		while (time <= lastTime) {
+			beatMap.put(time, -1.0);
+			LOG.severe(">>CM metro put: " + time);
+			time += metronomeDistance;
 		}
 	}
 

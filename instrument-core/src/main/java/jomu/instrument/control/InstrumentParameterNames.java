@@ -215,6 +215,7 @@ public class InstrumentParameterNames {
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_OCTAVE = "perception.hearing.synthesis.chord4Octave";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_CHORD4_QUANTIZE_SOURCE = "perception.hearing.synthesis.chord4QuantizeSource";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING = "perception.hearing.synthesis.beatTiming";
+	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_CALIBRATE = "perception.hearing.synthesis.beatMetronomeCalibrate";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_START = "perception.hearing.synthesis.beatMetronomeStart";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_DISTANCE = "perception.hearing.synthesis.beatMetronomeDistance";
 	public static final String PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_LENGTH = "perception.hearing.synthesis.beatMetronomeLength";

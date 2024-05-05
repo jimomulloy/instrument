@@ -163,6 +163,8 @@ public class SynthPanel extends JPanel {
 
 	private JCheckBox synthesisPadChordsSwitchCB;
 
+	private JCheckBox synthesisMetronomeCalibrateSwitchCB;
+
 	private JTextField synthesisQuantizeSourceInput;
 
 	private JTextField synthesisTimeSignatureInput;
@@ -451,7 +453,22 @@ public class SynthPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY_PAD_CHORDS_SWITCH));
 		tuningPanel.add(synthesisPadChordsSwitchCB);
 
-		tuningPanel.add(new JLabel(" "));
+		synthesisMetronomeCalibrateSwitchCB = new JCheckBox("synthesisMetronomeCalibrateSwitchCB");
+		synthesisMetronomeCalibrateSwitchCB.setText("Metronome Calibrate");
+		synthesisMetronomeCalibrateSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_CALIBRATE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisMetronomeCalibrateSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_CALIBRATE));
+		tuningPanel.add(synthesisMetronomeCalibrateSwitchCB);
 
 		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
 		synthesisChordTimingInput = new JTextField(4);
@@ -470,7 +487,7 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisChordTimingLabel);
 		tuningPanel.add(synthesisChordTimingInput);
 
-		JLabel synthesisBeatMetronomeStartLabel = new JLabel("Synthesis Metronome Start: ");
+		JLabel synthesisBeatMetronomeStartLabel = new JLabel("Metronome Start: ");
 		synthesisBeatMetronomeStartInput = new JTextField(4);
 		synthesisBeatMetronomeStartInput.addActionListener(new ActionListener() {
 			@Override
@@ -479,7 +496,7 @@ public class SynthPanel extends JPanel {
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_START,
 								newValue);
-				synthesisBeatMetronomeStartLabel.setText(String.format("Synthesis Metronome Start (%s):", newValue));
+				synthesisBeatMetronomeStartLabel.setText(String.format("Metronome Start (%s):", newValue));
 				synthesisBeatMetronomeStartInput.setText(newValue);
 			}
 		});
@@ -489,7 +506,7 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisBeatMetronomeStartLabel);
 		tuningPanel.add(synthesisBeatMetronomeStartInput);
 
-		JLabel synthesisBeatMetronomeDistanceLabel = new JLabel("Synthesis Metronome Distance: ");
+		JLabel synthesisBeatMetronomeDistanceLabel = new JLabel("Metronome Distance: ");
 		synthesisBeatMetronomeDistanceInput = new JTextField(4);
 		synthesisBeatMetronomeDistanceInput.addActionListener(new ActionListener() {
 			@Override
@@ -499,7 +516,7 @@ public class SynthPanel extends JPanel {
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_DISTANCE,
 								newValue);
 				synthesisBeatMetronomeDistanceLabel
-						.setText(String.format("Synthesis Metronome Distance (%s):", newValue));
+						.setText(String.format("Metronome Distance (%s):", newValue));
 				synthesisBeatMetronomeDistanceInput.setText(newValue);
 			}
 		});
@@ -509,7 +526,7 @@ public class SynthPanel extends JPanel {
 		tuningPanel.add(synthesisBeatMetronomeDistanceLabel);
 		tuningPanel.add(synthesisBeatMetronomeDistanceInput);
 
-		JLabel synthesisBeatMetronomeLengthLabel = new JLabel("Synthesis Metronome Length: ");
+		JLabel synthesisBeatMetronomeLengthLabel = new JLabel("Metronome Length: ");
 		synthesisBeatMetronomeLengthInput = new JTextField(4);
 		synthesisBeatMetronomeLengthInput.addActionListener(new ActionListener() {
 			@Override
@@ -518,7 +535,7 @@ public class SynthPanel extends JPanel {
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_LENGTH,
 								newValue);
-				synthesisBeatMetronomeLengthLabel.setText(String.format("Synthesis Metronome Length (%s):", newValue));
+				synthesisBeatMetronomeLengthLabel.setText(String.format("Metronome Length (%s):", newValue));
 				synthesisBeatMetronomeLengthInput.setText(newValue);
 			}
 		});

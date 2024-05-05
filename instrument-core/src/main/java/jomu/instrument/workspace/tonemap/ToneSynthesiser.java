@@ -316,7 +316,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 					if (toTime - nle.endTime > beatRange) {
 						earlyTracks.add(track);
 					} else {
-						return;
+						// return;
 					}
 				}
 			}
@@ -334,7 +334,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 							}
 							currentTracks.add(track);
 						} else {
-							return;
+							// return;
 						}
 					} else {
 						currentTracks.add(track);
@@ -380,15 +380,17 @@ public class ToneSynthesiser implements ToneMapConstants {
 		}
 		double beatRange = ((beatAfterTime - beatBeforeTime) / quantizeBeat) * 1000;
 		ToneTimeFrame lastFrame = null;
-		LOG.severe(">>synthesiseNote A: " + track.number + ", " + beatRange + ", " + time + ", " + fromTime + ", "
+		LOG.finer(">>synthesiseNote A: " + track.number + ", " + beatRange + ", " + time + ", " + fromTime + ", "
 				+ toTime + ", " + beatBeforeTime + ", "
 				+ beatAfterTime);
+		LOG.finer(">>synthesiseNote AX: " + track.number + ", " + nle.startTime + ", " + nle.endTime);
 
-		while (frame != null && time < (toTime / 1000)) {
+		while (frame != null && time < (toTime / 1000) && time < (nle.startTime / 1000)) {
 			if (calibrationMap.getBeat(time, (MIN_TIME_INCREMENT * 1000)) > -1) {
 				int counter = quantizeBeat;
-				LOG.severe(
-						">>synthesiseNote A1: " + counter + ", " + time + ", " + beatBeforeTime + ", " + beatAfterTime);
+				LOG.finer(
+						">>synthesiseNote A1: " + track.number + ", " + counter + ", " + time + ", " + beatBeforeTime
+								+ ", " + beatAfterTime);
 				while (counter > 0 && frame != null && time < (toTime / 1000)) {
 					int r = (int) (Math.random() * (noteList.size()));
 					newNle = nle.clone();
@@ -397,12 +399,20 @@ public class ToneSynthesiser implements ToneMapConstants {
 					double length = beatRange < ((endFrame.getStartTime() * 1000) - newNle.startTime)
 							? beatRange
 							: beatRange - ((endFrame.getStartTime() * 1000) - newNle.startTime);
+					LOG.finer(
+							">>synthesiseNote A2 " + track.number + ", " + length + ", " + beatRange + ", "
+									+ endFrame.getStartTime() + ", "
+									+ newNle.startTime);
 					if (length < 100) {
 						lastFrame = frame;
 						frame = toneMap.getNextTimeFrame(time);
 						if (frame != null) {
 							time = frame.getStartTime();
 						}
+						LOG.finer(
+								">>synthesiseNote A2 SHORT " + track.number + ", " + length + ", " + beatRange + ", "
+										+ endFrame.getStartTime() + ", "
+										+ newNle.startTime);
 						break;
 					}
 					newNle.endTime = time * 1000;
@@ -415,6 +425,10 @@ public class ToneSynthesiser implements ToneMapConstants {
 					frame = toneMap.getNextTimeFrame(time);
 					if (frame != null) {
 						time = frame.getStartTime();
+						LOG.finer(
+								">>synthesiseNote A3: " + track.number + ", " + time + ", " + nle.startTime + ", "
+										+ newNle.startTime + ", "
+										+ frame);
 						while (frame != null && time < (nle.startTime / 1000)
 								&& time <= ((newNle.startTime + length) / 1000)) {
 							if (lastFrame.getElement(newNle.pitchIndex).noteState != START) {
@@ -423,7 +437,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 							frame.getElement(newNle.pitchIndex).noteListElement = newNle;
 							frame.getElement(newNle.pitchIndex).amplitude = newNle.maxAmp;
 							frame.getElement(newNle.pitchIndex).noteState = END;
-							LOG.finer(">>synthesiseNote B: " + time + ", " + newNle.maxAmp);
+							LOG.finer(">>synthesiseNote B: " + track.number + ", " + time + ", " + newNle.maxAmp);
 							newNle.endTime = time * 1000;
 							lastFrame = frame;
 							frame = toneMap.getNextTimeFrame(time);

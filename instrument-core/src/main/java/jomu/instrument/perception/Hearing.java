@@ -808,6 +808,7 @@ public class Hearing implements Organ {
 
 		private void calibrateAudioFileStream(BufferedInputStream inputStream)
 				throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+			LOG.severe(">>calibrateAudioFileStream....");
 			final AudioInputStream stream = AudioSystem.getAudioInputStream(inputStream);
 
 			double audioOffset = parameterManager
@@ -952,6 +953,15 @@ public class Hearing implements Organ {
 					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_INTERVAL);
 			double onsetSilenceThreshold = parameterManager
 					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_ONSET_SILENCE_THRESHOLD);
+			double synthBeatMetronomeStart = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_START);
+			double synthBeatMetronomeDistance = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_DISTANCE);
+			double synthBeatMetronomeLength = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_LENGTH);
+			boolean synthBeatMetronomeCalibrate = parameterManager
+					.getBooleanParameter(
+							InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_CALIBRATE);
 
 			ComplexOnsetDetector detector = new ComplexOnsetDetector(bufferSize, threshold, onsetInterval,
 					onsetSilenceThreshold);
@@ -960,10 +970,16 @@ public class Hearing implements Organ {
 
 			dispatcher.addAudioProcessor(detector);
 			dispatcher.run();
-			LOG.finer(">>Calibrate audio file");
-			dispatcher.run();
-			LOG.finer(">>Calibrated audio file");
-			handler.trackBeats(calibrationMap);
+			LOG.severe(">>Calibrating audio file .... ");
+			// dispatcher.run();
+			// LOG.finer(">>Calibrated audio file");
+			if (synthBeatMetronomeCalibrate) {
+				LOG.severe(">>Calibrated metronome");
+				calibrationMap.calibrateMetronome(synthBeatMetronomeStart, synthBeatMetronomeDistance);
+			} else {
+				LOG.severe(">>Calibrated beats");
+				handler.trackBeats(calibrationMap);
+			}
 
 		}
 
