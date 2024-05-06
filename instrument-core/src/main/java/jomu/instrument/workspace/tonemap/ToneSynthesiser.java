@@ -337,7 +337,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 							// return;
 						}
 					} else {
-						currentTracks.add(track);
+						// currentTracks.add(track);
 					}
 				}
 			}
@@ -392,7 +392,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 						">>synthesiseNote A1: " + track.number + ", " + counter + ", " + time + ", " + beatBeforeTime
 								+ ", " + beatAfterTime);
 				while (counter > 0 && frame != null && time < (toTime / 1000)) {
-					int r = (int) (Math.random() * (noteList.size()));
+					int r = (int) (Math.random() * (double) noteList.size());
 					newNle = nle.clone();
 					newNle.startTime = time * 1000;
 
@@ -409,7 +409,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 						if (frame != null) {
 							time = frame.getStartTime();
 						}
-						LOG.finer(
+						LOG.severe(
 								">>synthesiseNote A2 SHORT " + track.number + ", " + length + ", " + beatRange + ", "
 										+ endFrame.getStartTime() + ", "
 										+ newNle.startTime);
