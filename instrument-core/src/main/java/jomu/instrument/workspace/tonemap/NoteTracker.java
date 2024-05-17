@@ -164,7 +164,9 @@ public class NoteTracker {
 
 		int number;
 		double salience;
+		boolean chordPending;
 		List<NoteListElement> notes = new CopyOnWriteArrayList<>();
+		private NoteListElement quantizeNote;
 
 		public NoteTrack(int number) {
 			this.number = number;
@@ -356,6 +358,22 @@ public class NoteTracker {
 				}
 			}
 			return noteList.toArray(new NoteListElement[noteList.size()]);
+		}
+
+		public void setChordPending(boolean chordPending) {
+			this.chordPending = chordPending;
+		}
+
+		public boolean isChordPending() {
+			return this.chordPending;
+		}
+
+		public NoteListElement getQuantizeNote() {
+			return this.quantizeNote;
+		}
+
+		public void setQuantizeNote(NoteListElement quantizeNote) {
+			this.quantizeNote = quantizeNote;
 		}
 	}
 
@@ -893,6 +911,10 @@ public class NoteTracker {
 	private void addChordNotes(NoteTrack track, NoteListElement quantizeNote, double time,
 			ChordListElement chordListElement, PitchSet pitchSet, SynthChordParameters synthChordParameters) {
 		NoteListElement lastNote = track.getLastNote();
+		double lastNoteEndTime = 0;
+		if (lastNote != null) {
+			lastNoteEndTime = lastNote.endTime;
+		}
 		NoteListElement[] currentNotes = track.getCurrentNotes(time * 1000);
 		Set<Integer> currentNoteSet = new HashSet<>();
 		for (NoteListElement nle : currentNotes) {
@@ -906,18 +928,23 @@ public class NoteTracker {
 
 		int note = 0;
 		int octave = 0;
-		double startTime;
-		double endTime;
+		double startTime = 0;
+		double quantizeStartTime = 0;
+		double quantizeEndTime = 0;
+		double endTime = 0;
+		startTime = chordListElement.getStartTime() * 1000;
+		endTime = chordListElement.getEndTime() * 1000 + incrementTime;
 		if (quantizeNote != null) {
-			startTime = quantizeNote.startTime;
-			endTime = startTime;
-			double range = quantizeNote.endTime - quantizeNote.startTime;
-			endTime += range > 0 ? range * synthChordParameters.chordMeasure : synthChordParameters.chordMeasure * 100;
-		} else {
-			startTime = chordListElement.getStartTime() * 1000;
-			endTime = chordListElement.getEndTime() * 1000 + incrementTime;
+			NoteListElement trackQuantizeNote = track.getQuantizeNote();
+			if (trackQuantizeNote == null || trackQuantizeNote.startTime < quantizeNote.startTime) {
+				track.setQuantizeNote(quantizeNote);
+				quantizeStartTime = quantizeNote.startTime;
+				quantizeEndTime = quantizeStartTime;
+				double range = quantizeNote.endTime - quantizeNote.startTime;
+				quantizeEndTime += range > 0 ? range * synthChordParameters.chordMeasure
+						: synthChordParameters.chordMeasure * 100;
+			}
 		}
-
 		double amplitude = 1.0;
 
 		List<Double> camps = new ArrayList<>();
@@ -964,7 +991,8 @@ public class NoteTracker {
 			}
 			camps.add(amplitude);
 			cnotes.add(note);
-			if (synthChordParameters.chordPattern == 0 || synthChordParameters.chordPattern == 1) {
+			if (synthChordParameters.chordPattern == 0 || synthChordParameters.chordPattern == 1
+					|| synthChordParameters.chordPattern == 4) {
 				NoteListElement cnle = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
 						amplitude, amplitude, amplitude, 0, false, incrementTime);
 				newNotes.add(cnle);
@@ -972,36 +1000,110 @@ public class NoteTracker {
 			}
 		}
 		if (synthChordParameters.chordPattern == 0) {
+			LOG.severe("--SYNTH0: " + time + ", " + startTime + ", " + track.number + ", " + startTime + ", "
+					+ quantizeNote + ", " + time);
 			if (!newNotes.stream()
 					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
+				LOG.severe("--SYNTH0 X: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
 				for (NoteListElement cnle : currentNotes) {
+					LOG.severe("--SYNTH0 X1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
+							+ ", " + cnle.endTime);
 					if (cnle.endTime + incrementTime >= startTime) {
 						cnle.endTime = startTime - incrementTime;
 					}
 				}
 				for (NoteListElement nnle : newNotes) {
+					LOG.severe("--SYNTH0 X1 ADD NOTE: " + startTime + ", " + nnle.note);
 					track.addNote(nnle);
-					if (lastNote != null && lastNote.endTime >= startTime) {
-						return;
-					}
+					// if (lastNote != null && lastNote.endTime >= startTime) {
+					// return;
+					// }
 				}
 			} else {
-				if (quantizeNote != null) {
+				if (quantizeStartTime > 0) {
+					LOG.severe("--SYNTH0 Y: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
-							if (lastNote != null && lastNote.endTime >= startTime) {
+							LOG.severe("--SYNTH0 Y1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
+									+ ", " + cnle.endTime);
+							if (lastNote != null && lastNoteEndTime >= startTime) {
+								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+									cnle.endTime = nnle.endTime;
+									LOG.severe("--SYNTH0 Y2 CURR NOTE: " + startTime + ", " + cnle.note + ", "
+											+ cnle.startTime
+											+ ", " + cnle.endTime);
+								}
+							} else {
+								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+									cnle.endTime = startTime - incrementTime;
+									LOG.severe("--SYNTH0 Y3 CURR NOTE: " + startTime + ", " + cnle.note + ", "
+											+ cnle.startTime
+											+ ", " + cnle.endTime);
+								}
+							}
+						}
+						if (lastNote != null && lastNoteEndTime < startTime) {
+							LOG.severe("--SYNTH0 Y1 ADD NOTE: " + startTime + ", " + nnle.note);
+							track.addNote(nnle);
+						}
+					}
+				}
+			}
+		} else if (synthChordParameters.chordPattern == 4) {
+			LOG.severe(">>SYNTH: " + time + ", " + startTime + ", " + track.number + ", " + startTime + ", "
+					+ quantizeNote + ", "
+					+ track.isChordPending());
+			if (track.isChordPending() || !newNotes.stream()
+					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
+
+				LOG.severe(">>SYNTH X: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
+				if (quantizeStartTime > 0) {
+					track.setChordPending(false);
+					for (NoteListElement nnle : newNotes) {
+						nnle.startTime = quantizeStartTime;
+						track.addNote(nnle);
+						LOG.severe(">>SYNTH X1 ADD NOTE: " + startTime + ", " + nnle.note);
+						// if (lastNote != null && lastNote.endTime >= startTime) {
+						// return;
+						// }
+					}
+					for (NoteListElement cnle : currentNotes) {
+						LOG.severe(">>SYNTH X1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
+								+ ", " + cnle.endTime);
+						cnle.endTime = quantizeStartTime - incrementTime;
+					}
+				} else {
+					track.setChordPending(true);
+				}
+			} else {
+				LOG.severe(">>SYNTH Y: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
+				if (quantizeStartTime > 0) {
+					for (NoteListElement nnle : newNotes) {
+						for (NoteListElement cnle : currentNotes) {
+							LOG.severe(">>SYNTH Y1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
+									+ ", " + cnle.endTime);
+							if (lastNote != null && lastNoteEndTime >= startTime) {
 								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
 									cnle.endTime = nnle.endTime;
 								}
 							} else {
 								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
-									cnle.endTime = startTime - incrementTime;
+									cnle.endTime = nnle.startTime - incrementTime;
 								}
 							}
 						}
-						if (lastNote != null && lastNote.endTime < startTime) {
+						if (lastNote != null && lastNoteEndTime < startTime) {
+							LOG.severe(">>SYNTH Y1 ADD NOTE: " + startTime + ", " + nnle.note);
 							track.addNote(nnle);
 						}
+					}
+				} else {
+					for (NoteListElement cnle : currentNotes) {
+						LOG.severe(">>SYNTH Z1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
+								+ ", " + cnle.endTime);
+						cnle.endTime = endTime - incrementTime;// + incrementTime;
+						LOG.severe(">>SYNTH Z2 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
+								+ ", " + cnle.endTime + ", " + cnle.avgAmp + ", " + cnle);
 					}
 				}
 			}
@@ -1017,6 +1119,7 @@ public class NoteTracker {
 					}
 				}
 			}
+
 		} else {
 			lastNote = track.getLastNote();
 			if (synthChordParameters.chordInvert) {

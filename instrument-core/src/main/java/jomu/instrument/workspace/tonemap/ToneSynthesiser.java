@@ -91,11 +91,11 @@ public class ToneSynthesiser implements ToneMapConstants {
 			if (toneTimeFrame.getChord() == null) {
 				toneTimeFrame.setChord(chord);
 			}
-			// if (chord != null) {
-			// chord = quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange,
-			// quantizePercent,
-			// quantizeBeat);
-			// }
+			if (chord != null && quantizeSource == 1) {
+				chord = quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange,
+						quantizePercent,
+						quantizeBeat);
+			}
 		}
 		Set<NoteListElement> discardedNotes = new HashSet<>();
 		Set<NoteListElement> nles = addNotes(toneTimeFrame);
@@ -113,7 +113,10 @@ public class ToneSynthesiser implements ToneMapConstants {
 		}
 	}
 
-	public void synthesiseChords(ToneTimeFrame toneTimeFrame) {
+	public void synthesiseChords(ToneTimeFrame toneTimeFrame, CalibrationMap calibrationMap) {
+		NoteTrack quantizeBeatTrack = toneMap.getNoteTracker()
+				.getBeatTrack(quantizeSource);
+		NoteListElement quantizeBeatNote = quantizeBeatTrack.getLastNote();
 		ChordListElement chord = toneTimeFrame.getChord();
 		if (!synthChordFirstSwitch) {
 			if (chord != null) {
@@ -125,6 +128,11 @@ public class ToneSynthesiser implements ToneMapConstants {
 			if (toneTimeFrame.getChord() == null) {
 				toneTimeFrame.setChord(chord);
 				chord = toneTimeFrame.getChord();
+			}
+			if (chord != null && quantizeSource == 1) {
+				chord = quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange,
+						quantizePercent,
+						quantizeBeat);
 			}
 		}
 

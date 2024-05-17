@@ -169,7 +169,6 @@ public class CalibrationMap implements OnsetHandler {
 		double time = metronomeStart;
 		while (time <= lastTime) {
 			beatMap.put(time, -1.0);
-			LOG.severe(">>CM metro put: " + time);
 			time += metronomeDistance;
 		}
 	}
