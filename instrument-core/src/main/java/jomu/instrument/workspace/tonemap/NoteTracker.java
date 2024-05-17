@@ -1053,6 +1053,20 @@ public class NoteTracker {
 			LOG.severe(">>SYNTH: " + time + ", " + startTime + ", " + track.number + ", " + startTime + ", "
 					+ quantizeNote + ", "
 					+ track.isChordPending());
+			if (currentNoteSet.isEmpty() && newNotes.isEmpty()) {
+				double lastTime = 0;
+				if (lastNote != null) {
+					lastTime = lastNote.startTime;
+				}
+				NoteListElement[] lastNotes = track.getNotes(lastTime);
+				for (NoteListElement lnle : lastNotes) {
+					lnle.endTime = endTime - incrementTime;// + incrementTime;
+				}
+			} else if (!currentNoteSet.isEmpty() && newNotes.isEmpty()) {
+				for (NoteListElement cnle : currentNotes) {
+					cnle.endTime = endTime - incrementTime;// + incrementTime;
+				}
+			}
 			if (track.isChordPending() || !newNotes.stream()
 					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
 
@@ -1072,8 +1086,34 @@ public class NoteTracker {
 								+ ", " + cnle.endTime);
 						cnle.endTime = quantizeStartTime - incrementTime;
 					}
+					for (NoteListElement cnle : currentNotes) {
+						LOG.severe(">>SYNTH X1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
+								+ ", " + cnle.endTime);
+						cnle.endTime = quantizeStartTime - incrementTime;
+					}
+					for (NoteListElement nnle : newNotes) {
+						for (NoteListElement cnle : currentNotes) {
+							if (nnle.note == cnle.note) {
+								cnle.endTime = nnle.startTime - incrementTime;
+							}
+						}
+					}
 				} else {
 					track.setChordPending(true);
+					if (currentNoteSet.isEmpty()) {
+						double lastTime = 0;
+						if (lastNote != null) {
+							lastTime = lastNote.startTime;
+						}
+						NoteListElement[] lastNotes = track.getNotes(lastTime);
+						for (NoteListElement lnle : lastNotes) {
+							lnle.endTime = endTime - incrementTime;// + incrementTime;
+						}
+					} else {
+						for (NoteListElement cnle : currentNotes) {
+							cnle.endTime = endTime; // - incrementTime;// + incrementTime;
+						}
+					}
 				}
 			} else {
 				LOG.severe(">>SYNTH Y: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
@@ -1101,7 +1141,7 @@ public class NoteTracker {
 					for (NoteListElement cnle : currentNotes) {
 						LOG.severe(">>SYNTH Z1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
 								+ ", " + cnle.endTime);
-						cnle.endTime = endTime - incrementTime;// + incrementTime;
+						cnle.endTime = endTime; // - incrementTime;// + incrementTime;
 						LOG.severe(">>SYNTH Z2 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
 								+ ", " + cnle.endTime + ", " + cnle.avgAmp + ", " + cnle);
 					}
