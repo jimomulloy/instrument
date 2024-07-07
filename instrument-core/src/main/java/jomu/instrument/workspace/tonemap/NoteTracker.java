@@ -923,7 +923,7 @@ public class NoteTracker {
 		Set<NoteListElement> newNotes = new HashSet<>();
 		Set<Integer> newNoteSet = new HashSet<>();
 
-		boolean isBar = track.getSize() % synthTimeSignature == 0;
+		boolean isBar = false; // track.getSize() % synthTimeSignature == 0;
 		int barNote = track.getSize() % synthTimeSignature + 1;
 
 		int note = 0;
@@ -933,6 +933,7 @@ public class NoteTracker {
 		double quantizeEndTime = 0;
 		double endTime = 0;
 		startTime = chordListElement.getStartTime() * 1000;
+		double range = 100;
 		endTime = chordListElement.getEndTime() * 1000 + incrementTime;
 		if (quantizeNote != null) {
 			NoteListElement trackQuantizeNote = track.getQuantizeNote();
@@ -940,7 +941,7 @@ public class NoteTracker {
 				track.setQuantizeNote(quantizeNote);
 				quantizeStartTime = quantizeNote.startTime;
 				quantizeEndTime = quantizeStartTime;
-				double range = quantizeNote.endTime - quantizeNote.startTime;
+				range = quantizeNote.endTime - quantizeNote.startTime;
 				quantizeEndTime += range > 0 ? range * synthChordParameters.chordMeasure
 						: synthChordParameters.chordMeasure * 100;
 			}
@@ -1000,20 +1001,14 @@ public class NoteTracker {
 			}
 		}
 		if (synthChordParameters.chordPattern == 0) {
-			LOG.severe("--SYNTH0: " + time + ", " + startTime + ", " + track.number + ", " + startTime + ", "
-					+ quantizeNote + ", " + time);
 			if (!newNotes.stream()
 					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
-				LOG.severe("--SYNTH0 X: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
 				for (NoteListElement cnle : currentNotes) {
-					LOG.severe("--SYNTH0 X1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
-							+ ", " + cnle.endTime);
 					if (cnle.endTime + incrementTime >= startTime) {
 						cnle.endTime = startTime - incrementTime;
 					}
 				}
 				for (NoteListElement nnle : newNotes) {
-					LOG.severe("--SYNTH0 X1 ADD NOTE: " + startTime + ", " + nnle.note);
 					track.addNote(nnle);
 					// if (lastNote != null && lastNote.endTime >= startTime) {
 					// return;
@@ -1021,38 +1016,25 @@ public class NoteTracker {
 				}
 			} else {
 				if (quantizeStartTime > 0) {
-					LOG.severe("--SYNTH0 Y: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
-							LOG.severe("--SYNTH0 Y1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
-									+ ", " + cnle.endTime);
 							if (lastNote != null && lastNoteEndTime >= startTime) {
 								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
 									cnle.endTime = nnle.endTime;
-									LOG.severe("--SYNTH0 Y2 CURR NOTE: " + startTime + ", " + cnle.note + ", "
-											+ cnle.startTime
-											+ ", " + cnle.endTime);
 								}
 							} else {
 								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
 									cnle.endTime = startTime - incrementTime;
-									LOG.severe("--SYNTH0 Y3 CURR NOTE: " + startTime + ", " + cnle.note + ", "
-											+ cnle.startTime
-											+ ", " + cnle.endTime);
 								}
 							}
 						}
 						if (lastNote != null && lastNoteEndTime < startTime) {
-							LOG.severe("--SYNTH0 Y1 ADD NOTE: " + startTime + ", " + nnle.note);
 							track.addNote(nnle);
 						}
 					}
 				}
 			}
 		} else if (synthChordParameters.chordPattern == 4) {
-			LOG.severe(">>SYNTH: " + time + ", " + startTime + ", " + track.number + ", " + startTime + ", "
-					+ quantizeNote + ", "
-					+ track.isChordPending());
 			if (currentNoteSet.isEmpty() && newNotes.isEmpty()) {
 				double lastTime = 0;
 				if (lastNote != null) {
@@ -1070,25 +1052,19 @@ public class NoteTracker {
 			if (track.isChordPending() || !newNotes.stream()
 					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
 
-				LOG.severe(">>SYNTH X: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
 				if (quantizeStartTime > 0) {
 					track.setChordPending(false);
 					for (NoteListElement nnle : newNotes) {
 						nnle.startTime = quantizeStartTime;
 						track.addNote(nnle);
-						LOG.severe(">>SYNTH X1 ADD NOTE: " + startTime + ", " + nnle.note);
 						// if (lastNote != null && lastNote.endTime >= startTime) {
 						// return;
 						// }
 					}
 					for (NoteListElement cnle : currentNotes) {
-						LOG.severe(">>SYNTH X1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
-								+ ", " + cnle.endTime);
 						cnle.endTime = quantizeStartTime - incrementTime;
 					}
 					for (NoteListElement cnle : currentNotes) {
-						LOG.severe(">>SYNTH X1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
-								+ ", " + cnle.endTime);
 						cnle.endTime = quantizeStartTime - incrementTime;
 					}
 					for (NoteListElement nnle : newNotes) {
@@ -1116,12 +1092,9 @@ public class NoteTracker {
 					}
 				}
 			} else {
-				LOG.severe(">>SYNTH Y: " + startTime + ", " + currentNotes.length + ", " + newNotes.size());
 				if (quantizeStartTime > 0) {
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
-							LOG.severe(">>SYNTH Y1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
-									+ ", " + cnle.endTime);
 							if (lastNote != null && lastNoteEndTime >= startTime) {
 								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
 									cnle.endTime = nnle.endTime;
@@ -1133,17 +1106,12 @@ public class NoteTracker {
 							}
 						}
 						if (lastNote != null && lastNoteEndTime < startTime) {
-							LOG.severe(">>SYNTH Y1 ADD NOTE: " + startTime + ", " + nnle.note);
 							track.addNote(nnle);
 						}
 					}
 				} else {
 					for (NoteListElement cnle : currentNotes) {
-						LOG.severe(">>SYNTH Z1 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
-								+ ", " + cnle.endTime);
 						cnle.endTime = endTime; // - incrementTime;// + incrementTime;
-						LOG.severe(">>SYNTH Z2 CURR NOTE: " + startTime + ", " + cnle.note + ", " + cnle.startTime
-								+ ", " + cnle.endTime + ", " + cnle.avgAmp + ", " + cnle);
 					}
 				}
 			}
@@ -1203,9 +1171,11 @@ public class NoteTracker {
 						}
 					} else {
 						for (int i = 0; i < cnotes.size() - 1; i++) {
-							if (cnotes.get(i) == lastNote.note) {
-								noteIndex = i + 1;
-								break;
+							if (lastNote != null) {
+								if (cnotes.get(i) == lastNote.note) {
+									noteIndex = i + 1;
+									break;
+								}
 							}
 						}
 					}
@@ -1214,13 +1184,22 @@ public class NoteTracker {
 				}
 			}
 
-			NoteListElement chordNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
-					amplitude, amplitude, amplitude, 0, false, incrementTime);
-			track.addNote(chordNote);
-			LOG.finer(
-					">>NT added chord arp note: " + time + ", " + chordNote.startTime + ", " + chordNote.endTime + ", "
-							+ note + ", " + track.getSize() + ", " + synthTimeSignature + ", " + startTime + ", "
-							+ endTime);
+			if (lastNote != null && lastNote.note == note) {
+				lastNote.endTime = endTime;
+			} else {
+				if (lastNote != null) {
+					lastNote.endTime = startTime - incrementTime;
+					;
+				}
+				NoteListElement chordNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
+						amplitude, amplitude, amplitude, 0, false, incrementTime);
+				track.addNote(chordNote);
+				LOG.finer(
+						">>NT added chord arp note: " + time + ", " + chordNote.startTime + ", " + chordNote.endTime
+								+ ", "
+								+ note + ", " + track.getSize() + ", " + synthTimeSignature + ", " + startTime + ", "
+								+ endTime);
+			}
 		}
 	}
 
