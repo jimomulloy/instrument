@@ -48,6 +48,8 @@ public class NoteTracker {
 
 	private boolean synthFillLegatoSwitch;
 
+	private boolean synthChordStartTimeSwitch;
+
 	private NoteTrack baseTrack;
 
 	private int synthBasePattern;
@@ -163,6 +165,9 @@ public class NoteTracker {
 	public class NoteTrack {
 
 		int number;
+		boolean isBar;
+		int beat;
+		double quantizeRange;
 		double salience;
 		boolean chordPending;
 		List<NoteListElement> notes = new CopyOnWriteArrayList<>();
@@ -170,6 +175,22 @@ public class NoteTracker {
 
 		public NoteTrack(int number) {
 			this.number = number;
+		}
+
+		public boolean isBar() {
+			return isBar;
+		}
+
+		public void setBar(boolean isBar) {
+			this.isBar = isBar;
+		}
+
+		public int getBeat() {
+			return beat;
+		}
+
+		public void setBeat(int beat) {
+			this.beat = beat;
 		}
 
 		public int getNumber() {
@@ -375,6 +396,14 @@ public class NoteTracker {
 		public void setQuantizeNote(NoteListElement quantizeNote) {
 			this.quantizeNote = quantizeNote;
 		}
+
+		public double getQuantizeRange() {
+			return quantizeRange;
+		}
+
+		public void setQuantizeRange(double quantizeRange) {
+			this.quantizeRange = quantizeRange;
+		}
 	}
 
 	public NoteTracker(ToneMap toneMap) {
@@ -401,6 +430,8 @@ public class NoteTracker {
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTETRACKER_SALIENT_TIME_NOTE_FACTOR);
 		synthFillLegatoSwitch = toneMap.getParameterManager()
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_FILL_LEGATO_SWITCH);
+		synthChordStartTimeSwitch = toneMap.getParameterManager()
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_START_TIME_SWITCH);
 		synthTimeSignature = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_TIME_SIGNATURE);
 		synthBaseMeasure = toneMap.getParameterManager()
@@ -930,21 +961,49 @@ public class NoteTracker {
 		int octave = 0;
 		double startTime = 0;
 		double quantizeStartTime = 0;
-		double quantizeEndTime = 0;
+		// double quantizeEndTime = 0;
 		double endTime = 0;
-		startTime = chordListElement.getStartTime() * 1000;
+		if (synthChordStartTimeSwitch) {
+			startTime = chordListElement.getStartTime() * 1000;
+		} else {
+			startTime = time * 1000;
+		}
 		double range = 100;
 		endTime = chordListElement.getEndTime() * 1000 + incrementTime;
-		if (quantizeNote != null) {
-			NoteListElement trackQuantizeNote = track.getQuantizeNote();
-			if (trackQuantizeNote == null || trackQuantizeNote.startTime < quantizeNote.startTime) {
-				track.setQuantizeNote(quantizeNote);
-				quantizeStartTime = quantizeNote.startTime;
-				quantizeEndTime = quantizeStartTime;
-				range = quantizeNote.endTime - quantizeNote.startTime;
-				quantizeEndTime += range > 0 ? range * synthChordParameters.chordMeasure
-						: synthChordParameters.chordMeasure * 100;
+		boolean hasBeatNote = false;
+		NoteListElement trackQuantizeNote = track.getQuantizeNote();
+		if (quantizeNote != null &&
+				(trackQuantizeNote == null || trackQuantizeNote.startTime < quantizeNote.startTime)) {
+			range = quantizeNote.startTime;
+			if (trackQuantizeNote != null) {
+				range -= trackQuantizeNote.startTime;
 			}
+			track.setQuantizeNote(quantizeNote);
+			track.setQuantizeRange(range);
+			track.setBar(true);
+			track.setBeat(0);
+			barNote = 0;
+			hasBeatNote = true;
+			quantizeStartTime = quantizeNote.startTime;
+			// quantizeEndTime += range > 0 ? range * synthChordParameters.chordMeasure
+			// : synthChordParameters.chordMeasure * 100;
+		} else {
+			if (trackQuantizeNote != null) {
+				quantizeStartTime = trackQuantizeNote.startTime;
+				range = track.getQuantizeRange();
+				double barRange = range * synthChordParameters.chordMeasure;
+				double nextBeatTime = quantizeStartTime + ((track.getBeat() + 1) * barRange) / synthTimeSignature;
+				if (nextBeatTime < (time * 1000)) {
+					hasBeatNote = true;
+					track.setBeat(track.getBeat() + 1);
+					barNote = track.getBeat();
+					LOG.severe(
+							">>TRACKER T3 : " + time + ", " + nextBeatTime + ", " + barRange
+									+ ", "
+									+ quantizeStartTime);
+				}
+			}
+
 		}
 		double amplitude = 1.0;
 
@@ -1015,7 +1074,7 @@ public class NoteTracker {
 					// }
 				}
 			} else {
-				if (quantizeStartTime > 0) {
+				if (hasBeatNote && barNote == 0) {
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
 							if (lastNote != null && lastNoteEndTime >= startTime) {
@@ -1052,7 +1111,7 @@ public class NoteTracker {
 			if (track.isChordPending() || !newNotes.stream()
 					.allMatch(nle -> currentNoteSet.contains(nle.note))) {
 
-				if (quantizeStartTime > 0) {
+				if (hasBeatNote && barNote == 0) {
 					track.setChordPending(false);
 					for (NoteListElement nnle : newNotes) {
 						nnle.startTime = quantizeStartTime;
@@ -1092,7 +1151,7 @@ public class NoteTracker {
 					}
 				}
 			} else {
-				if (quantizeStartTime > 0) {
+				if (hasBeatNote && barNote == 0) {
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
 							if (lastNote != null && lastNoteEndTime >= startTime) {
@@ -1130,75 +1189,78 @@ public class NoteTracker {
 
 		} else {
 			lastNote = track.getLastNote();
-			if (synthChordParameters.chordInvert) {
-				rootNote += 12 * (rootOctave + synthChordParameters.chordOctave);
-			} else {
-				rootNote += 12 * synthChordParameters.chordOctave;
-			}
-			if (synthChordParameters.chordPattern == 2) {
-				if (isBar) {
-					note = rootNote;
-					amplitude = rootAmp;
+			if (hasBeatNote) {
+				if (synthChordParameters.chordInvert) {
+					rootNote += 12 * (rootOctave + synthChordParameters.chordOctave);
 				} else {
-					int noteIndex = 0;
-					if (cnotes.size() > barNote) {
-						noteIndex = barNote;
-					} else {
-						int r = (int) (Math.random() * (cnotes.size()));
-						noteIndex = r;
-					}
-					note = cnotes.get(noteIndex);
-					amplitude = camps.get(noteIndex);
+					rootNote += 12 * synthChordParameters.chordOctave;
 				}
-			} else if (synthChordParameters.chordPattern == 3) {
-				if (isBar) {
-					if (lastNote != null && lastNote.note > rootNote) {
-						note = cnotes.get(cnotes.size() - 1);
-						amplitude = camps.get(cnotes.size() - 1);
-					} else {
+				if (synthChordParameters.chordPattern == 2) {
+					if (isBar) {
 						note = rootNote;
 						amplitude = rootAmp;
+					} else {
+						int noteIndex = 0;
+						if (cnotes.size() > barNote) {
+							noteIndex = barNote;
+						} else {
+							int r = (int) (Math.random() * (cnotes.size()));
+							noteIndex = r;
+						}
+						note = cnotes.get(noteIndex);
+						amplitude = camps.get(noteIndex);
 					}
-				} else {
-					int noteIndex = 0;
-					NoteListElement penultimateNote = track.getPenultimateNote();
-					if (lastNote != null && penultimateNote != null && penultimateNote.note > lastNote.note) {
-						for (int i = 1; i < cnotes.size(); i++) {
-							if (cnotes.get(i) == lastNote.note) {
-								noteIndex = i - 1;
-								break;
-							}
+				} else if (synthChordParameters.chordPattern == 3) {
+					if (isBar) {
+						if (lastNote != null && lastNote.note > rootNote) {
+							note = cnotes.get(cnotes.size() - 1);
+							amplitude = camps.get(cnotes.size() - 1);
+						} else {
+							note = rootNote;
+							amplitude = rootAmp;
 						}
 					} else {
-						for (int i = 0; i < cnotes.size() - 1; i++) {
-							if (lastNote != null) {
+						int noteIndex = 0;
+						NoteListElement penultimateNote = track.getPenultimateNote();
+						if (lastNote != null && penultimateNote != null && penultimateNote.note > lastNote.note) {
+							for (int i = 1; i < cnotes.size(); i++) {
 								if (cnotes.get(i) == lastNote.note) {
-									noteIndex = i + 1;
+									noteIndex = i - 1;
 									break;
 								}
 							}
+						} else {
+							for (int i = 0; i < cnotes.size() - 1; i++) {
+								if (lastNote != null) {
+									if (cnotes.get(i) == lastNote.note) {
+										noteIndex = i + 1;
+										break;
+									}
+								}
+							}
 						}
+						note = cnotes.get(noteIndex);
+						amplitude = camps.get(noteIndex);
 					}
-					note = cnotes.get(noteIndex);
-					amplitude = camps.get(noteIndex);
 				}
-			}
 
-			if (lastNote != null && lastNote.note == note) {
-				lastNote.endTime = endTime;
-			} else {
-				if (lastNote != null) {
-					lastNote.endTime = startTime - incrementTime;
-					;
+				if (lastNote != null && lastNote.note == note) {
+					lastNote.endTime = endTime;
+				} else {
+					if (lastNote != null) {
+						lastNote.endTime = startTime - incrementTime;
+					}
+					NoteListElement chordNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime,
+							0, 0,
+							amplitude, amplitude, amplitude, 0, false, incrementTime);
+					track.addNote(chordNote);
+					LOG.finer(
+							">>NT added chord arp note: " + time + ", " + chordNote.startTime + ", " + chordNote.endTime
+									+ ", "
+									+ note + ", " + track.getSize() + ", " + synthTimeSignature + ", " + startTime
+									+ ", "
+									+ endTime);
 				}
-				NoteListElement chordNote = new NoteListElement(note, pitchSet.getIndex(note), startTime, endTime, 0, 0,
-						amplitude, amplitude, amplitude, 0, false, incrementTime);
-				track.addNote(chordNote);
-				LOG.finer(
-						">>NT added chord arp note: " + time + ", " + chordNote.startTime + ", " + chordNote.endTime
-								+ ", "
-								+ note + ", " + track.getSize() + ", " + synthTimeSignature + ", " + startTime + ", "
-								+ endTime);
 			}
 		}
 	}

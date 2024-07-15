@@ -111,6 +111,8 @@ public class SynthPanel extends JPanel {
 
 	private JCheckBox synthesisLegatoSwitchCB;
 
+	private JCheckBox synthesisChordStartTimeSwitchCB;
+
 	private JCheckBox synthesisChordFirstSwitchCB;
 
 	private JCheckBox synthesisChord1InvertSwitchCB;
@@ -373,6 +375,23 @@ public class SynthPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_FIRST_SWITCH));
 		tuningPanel.add(synthesisChordFirstSwitchCB);
 
+		synthesisChordStartTimeSwitchCB = new JCheckBox("synthesisChordStartTimeSwitchCB");
+		synthesisChordStartTimeSwitchCB.setText("Synthesis Chord Start Time");
+		synthesisChordStartTimeSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(
+						InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_START_TIME_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		synthesisChordStartTimeSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_CHORD_START_TIME_SWITCH));
+		tuningPanel.add(synthesisChordStartTimeSwitchCB);
+
 		synthesisChord1InvertSwitchCB = new JCheckBox("synthesisChord1InvertSwitchCB");
 		synthesisChord1InvertSwitchCB.setText("Synthesis Chord1 Invert");
 		synthesisChord1InvertSwitchCB.addItemListener(new ItemListener() {
@@ -470,6 +489,12 @@ public class SynthPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_METRONOME_CALIBRATE));
 		tuningPanel.add(synthesisMetronomeCalibrateSwitchCB);
 
+		tuningPanel.add(new JLabel(" "));
+		tuningPanel.add(new JLabel(" "));
+		tuningPanel.add(new JLabel(" "));
+		tuningPanel.add(new JLabel(" "));
+		tuningPanel.add(new JLabel(" "));
+
 		JLabel synthesisChordTimingLabel = new JLabel("Synthesis Chord Timing: ");
 		synthesisChordTimingInput = new JTextField(4);
 		synthesisChordTimingInput.addActionListener(new ActionListener() {
@@ -561,6 +586,9 @@ public class SynthPanel extends JPanel {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_BEAT_TIMING));
 		tuningPanel.add(synthesisBeatTimingLabel);
 		tuningPanel.add(synthesisBeatTimingInput);
+
+		tuningPanel.add(new JLabel(" "));
+		tuningPanel.add(new JLabel(" "));
 
 		JLabel synthesisChord1MeasureLabel = new JLabel("Synthesis Chord1 Measure: ");
 		synthesisChord1MeasureInput = new JTextField(4);
