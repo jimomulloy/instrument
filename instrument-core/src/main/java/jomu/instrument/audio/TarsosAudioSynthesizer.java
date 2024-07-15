@@ -690,6 +690,8 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 		private AudioQueueConsumer consumer;
 
+		// private AudioQueueConsumer2 consumer2;
+
 		private SourceDataLine line;
 
 		private AudioFormat format;
@@ -701,7 +703,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 			bq = new LinkedBlockingQueue<>();
 			consumer = new AudioQueueConsumer(bq, this);
 			// TODO LOOM Thread.startVirtualThread(consumer);
-			Thread aqct = new Thread(new AudioQueueConsumer(bq, this),
+			Thread aqct = new Thread(consumer,
 					"Thread-TarsosAudioSynthesizer-MidiStream-" + streamId + "-" + System.currentTimeMillis());
 			aqct.setPriority(Thread.MAX_PRIORITY);
 			aqct.start();

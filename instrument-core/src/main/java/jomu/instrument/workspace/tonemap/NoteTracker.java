@@ -997,10 +997,6 @@ public class NoteTracker {
 					hasBeatNote = true;
 					track.setBeat(track.getBeat() + 1);
 					barNote = track.getBeat();
-					LOG.severe(
-							">>TRACKER T3 : " + time + ", " + nextBeatTime + ", " + barRange
-									+ ", "
-									+ quantizeStartTime);
 				}
 			}
 
