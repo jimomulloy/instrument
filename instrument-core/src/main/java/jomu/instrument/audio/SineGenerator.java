@@ -23,10 +23,14 @@
 
 package jomu.instrument.audio;
 
+import java.util.logging.Logger;
+
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
 
 public class SineGenerator implements AudioProcessor {
+
+	private static final Logger LOG = Logger.getLogger(SineGenerator.class.getName());
 
 	private double gain;
 	private double frequency;
@@ -49,19 +53,21 @@ public class SineGenerator implements AudioProcessor {
 		double sampleRate = audioEvent.getSampleRate();
 		double twoPiF = 2 * Math.PI * frequency;
 		double time = 0;
-		double useGain = gain;
-		if (gain == lastGain) {
-			useGain = gain;
-		}
+		double useGain = lastGain;
+		boolean factorPositive = Math.sin(phase) > 0;
 		for (int i = 0; i < buffer.length; i++) {
 			time = i / sampleRate;
 			double factor = Math.sin(twoPiF * time + phase);
-			if (factor == 0) {
+			if (factorPositive) {
+				if (factor <= 0) {
+					useGain = gain;
+				}
+			} else if (factor >= 0) {
 				useGain = gain;
-				lastGain = gain;
 			}
 			buffer[i] += (float) (useGain * factor);
 		}
+		lastGain = useGain;
 		phase = twoPiF * buffer.length / sampleRate + phase;
 		return true;
 	}

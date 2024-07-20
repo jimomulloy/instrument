@@ -396,9 +396,14 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						}
 						gain = amplitude;
 						// if (noteStatusElement.state != OFF) {
-						audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(gain); // GAIN
-						totalGain += gain;
-						lastAmps[toneMapElement.getIndex()] = gain;
+						double newGain = lastAmps[toneMapElement.getIndex()]
+								+ (gain - lastAmps[toneMapElement.getIndex()]) / 2.0;
+						if (newGain < 0) {
+							newGain = 0;
+						}
+						totalGain += newGain;
+						lastAmps[toneMapElement.getIndex()] = newGain;
+						audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(newGain);
 						// } else {
 						// audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0);
 						// lastAmps[toneMapElement.getIndex()] = 0F;
@@ -423,13 +428,13 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						this.audioStream.getGenerator()
 								.process();
 						if (count > 0) {
-							// LOG.severe(
-							// ">>Audio gen process: " + time + ", " + count + ", " +
-							// audioEvent.getTimeStamp());
+							LOG.severe(
+									">>Audio gen process COUNT: " + time + ", " + count + ", " +
+											audioEvent.getTimeStamp());
 						}
 						count++;
-						// LOG.severe(">>Audio gen process: " + time + ", " +
-						// audioEvent.getTimeStamp());
+						LOG.severe(">>Audio gen process: " + time + ", " +
+								audioEvent.getTimeStamp());
 						audioEvent = this.audioStream.getGenerator()
 								.getAudioEvent();
 					}
