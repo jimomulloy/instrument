@@ -427,14 +427,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						// if (audioEvent.getEndTimeStamp() == time) {
 						this.audioStream.getGenerator()
 								.process();
-						if (count > 0) {
-							LOG.severe(
-									">>Audio gen process COUNT: " + time + ", " + count + ", " +
-											audioEvent.getTimeStamp());
-						}
 						count++;
-						LOG.severe(">>Audio gen process: " + time + ", " +
-								audioEvent.getTimeStamp());
 						audioEvent = this.audioStream.getGenerator()
 								.getAudioEvent();
 					}

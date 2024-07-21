@@ -222,7 +222,7 @@ public class PitchDetectorSource extends AudioEventSource<SpectrogramInfo> imple
 		binWidth = windowSize / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
 
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, false);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
 		djp.setName("PD");
 		dispatcher.addAudioProcessor(djp);

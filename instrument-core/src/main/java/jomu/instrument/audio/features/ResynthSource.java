@@ -69,7 +69,6 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		this.usePureSine = true;
 		previousFrequencies = new double[5];
 		previousFrequencyIndex = 0;
-		LOG.finer(">>RS window: " + this.windowSize);
 	}
 
 	public ResynthSource(AudioDispatcher dispatcher, int bufferSize) {
@@ -114,7 +113,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 	}
 
 	void initialise() {
-
+		LOG.severe(">>!!RS init: " + this.windowSize);
 		PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_YIN;
 
 		binStartingPointsInCents = new float[windowSize];
@@ -128,7 +127,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		binWidth = windowSize / sampleRate;
 		binHeight = 1200 / (float) binsPerOctave;
 
-		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, true);
+		TarsosDSPAudioFormat tarsosDSPFormat = new TarsosDSPAudioFormat(sampleRate, 16, 1, true, false);
 		DispatchJunctionProcessor djp = new DispatchJunctionProcessor(tarsosDSPFormat, windowSize, overlap);
 		djp.setName("RS");
 		dispatcher.addAudioProcessor(djp);
@@ -141,6 +140,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 						.clone();
 				ResynthInfo ri = new ResynthInfo(audioFloatBuffer, envelopeAudioBuffer);
 				putFeature(audioEvent.getTimeStamp(), ri);
+				LOG.severe(">>!!RS process");
 				return true;
 			}
 
@@ -156,7 +156,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 	@Override
 	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
 		double frequency = pitchDetectionResult.getPitch();
-
+		LOG.severe(">>!!RS handlePitch: " + audioEvent.getTimeStamp());
 		if (frequency == -1) {
 			frequency = prevFrequency;
 		} else {
@@ -180,6 +180,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		envelopeAudioBuffer = audioEvent.getFloatBuffer()
 				.clone(); // !!TODO CLONED
 		float[] envelope = null;
+		LOG.severe(">>!!RS handlePitch ENVELOP: " + audioEvent.getTimeStamp());
 		if (followEnvelope) {
 			envelope = envelopeAudioBuffer.clone();
 			envelopeFollower.calculateEnvelope(envelope);

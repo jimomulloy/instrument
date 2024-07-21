@@ -149,7 +149,7 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		TreeMap<Double, ResynthInfo> features = aff.getResynthFeatures()
 				.getFeatures();
-
+		
 		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(toneTimeFrame, features, sequence);
 
 		audioStream.bq.add(audioQueueMessage);
@@ -262,7 +262,7 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 			generator = new AudioGenerator(ResynthAudioSynthesizer.this.getWindowSize(), 0);
 			try {
 				generator.addAudioProcessor(resynthProcessor);
-				generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, true)));
+				generator.addAudioProcessor(new AudioPlayer(new AudioFormat(44100, 16, 1, true, false)));
 			} catch (LineUnavailableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
