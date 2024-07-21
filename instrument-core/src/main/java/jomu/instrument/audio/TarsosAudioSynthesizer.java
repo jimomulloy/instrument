@@ -396,14 +396,17 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 						}
 						gain = amplitude;
 						// if (noteStatusElement.state != OFF) {
-						double newGain = lastAmps[toneMapElement.getIndex()]
-								+ (gain - lastAmps[toneMapElement.getIndex()]) / 2.0;
-						if (newGain < 0) {
-							newGain = 0;
-						}
-						totalGain += newGain;
-						lastAmps[toneMapElement.getIndex()] = newGain;
-						audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(newGain);
+						// double newGain = lastAmps[toneMapElement.getIndex()]
+						// + (gain - lastAmps[toneMapElement.getIndex()]) / 2.0;
+						// if (newGain < 0) {
+						// newGain = 0;
+						// }
+						// totalGain += newGain;
+						// lastAmps[toneMapElement.getIndex()] = newGain;
+						// audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(newGain);
+						totalGain += gain;
+						lastAmps[toneMapElement.getIndex()] = gain;
+						audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(gain);
 						// } else {
 						// audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0);
 						// lastAmps[toneMapElement.getIndex()] = 0F;
@@ -413,7 +416,7 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					// if (totalGain > 1.0) {
 					for (ToneMapElement toneMapElement : ttfElements) {
 						double gain = audioStream.getSineGenerators()[toneMapElement.getIndex()].getGain();
-						if (gain > 0.01) {
+						if (gain > 0.1) {
 							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(gain / totalGain); // GAIN
 						} else {
 							audioStream.getSineGenerators()[toneMapElement.getIndex()].setGain(0.0); // GAIN

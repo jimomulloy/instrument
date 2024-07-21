@@ -65,8 +65,8 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
 		envelopeFollower = new EnvelopeFollower(samplerate, 0.005, 0.01);
-		this.followEnvelope = true;
-		this.usePureSine = true;
+		this.followEnvelope = false;
+		this.usePureSine = false;
 		previousFrequencies = new double[5];
 		previousFrequencyIndex = 0;
 	}
@@ -113,7 +113,6 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 	}
 
 	void initialise() {
-		LOG.severe(">>!!RS init: " + this.windowSize);
 		PitchEstimationAlgorithm algo = PitchEstimationAlgorithm.FFT_YIN;
 
 		binStartingPointsInCents = new float[windowSize];
@@ -140,7 +139,6 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 						.clone();
 				ResynthInfo ri = new ResynthInfo(audioFloatBuffer, envelopeAudioBuffer);
 				putFeature(audioEvent.getTimeStamp(), ri);
-				LOG.severe(">>!!RS process");
 				return true;
 			}
 
@@ -156,7 +154,6 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 	@Override
 	public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
 		double frequency = pitchDetectionResult.getPitch();
-		LOG.severe(">>!!RS handlePitch: " + audioEvent.getTimeStamp());
 		if (frequency == -1) {
 			frequency = prevFrequency;
 		} else {
@@ -177,29 +174,26 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		}
 
 		final double twoPiF = 2 * Math.PI * frequency;
-		envelopeAudioBuffer = audioEvent.getFloatBuffer()
-				.clone(); // !!TODO CLONED
-		float[] envelope = null;
-		LOG.severe(">>!!RS handlePitch ENVELOP: " + audioEvent.getTimeStamp());
+		float[] audioBuffer = audioEvent.getFloatBuffer();
+		envelopeAudioBuffer = audioBuffer.clone();
 		if (followEnvelope) {
-			envelope = envelopeAudioBuffer.clone();
-			envelopeFollower.calculateEnvelope(envelope);
+			envelopeFollower.calculateEnvelope(envelopeAudioBuffer);
 		}
 
-		for (int sample = 0; sample < envelopeAudioBuffer.length; sample++) {
+		for (int sample = 0; sample < audioBuffer.length; sample++) {
 			double time = sample / samplerate;
 			double wave = Math.sin(twoPiF * time + phase);
 			if (!usePureSine) {
 				wave += 0.05 * Math.sin(twoPiF * 4 * time + phaseFirst);
 				wave += 0.01 * Math.sin(twoPiF * 8 * time + phaseSecond);
 			}
-			envelopeAudioBuffer[sample] = (float) wave;
+			audioBuffer[sample] = (float) wave;
 			if (followEnvelope) {
-				envelopeAudioBuffer[sample] = envelopeAudioBuffer[sample] * envelope[sample];
+				audioBuffer[sample] = audioBuffer[sample] * envelopeAudioBuffer[sample];
 			}
 		}
 
-		double timefactor = twoPiF * envelopeAudioBuffer.length / samplerate;
+		double timefactor = twoPiF * audioBuffer.length / samplerate;
 		phase = timefactor + phase;
 		if (!usePureSine) {
 			phaseFirst = 4 * timefactor + phaseFirst;
