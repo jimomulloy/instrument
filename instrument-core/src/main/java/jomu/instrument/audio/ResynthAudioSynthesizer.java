@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.sound.sampled.AudioFormat;
@@ -17,7 +16,6 @@ import javax.sound.sampled.SourceDataLine;
 
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.AudioProcessor;
-import be.tarsos.dsp.io.jvm.AudioPlayer;
 import jomu.instrument.Instrument;
 import jomu.instrument.audio.features.AudioFeatureFrame;
 import jomu.instrument.audio.features.AudioFeatureProcessor;
@@ -44,6 +42,25 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 		@Override
 		public boolean process(AudioEvent audioEvent) {
 			audioEvent.setFloatBuffer(resynthInfo.getSourceBuffer());
+
+			float smin = 0;
+			float smax = 0;
+			for (int i = 0; i < audioEvent.getFloatBuffer().length; i++) {
+				float sample = audioEvent.getFloatBuffer()[i];
+				if (sample < smin) {
+					smin = sample;
+				}
+
+				if (sample > smax) {
+					smax = sample;
+				}
+
+			}
+
+			LOG.severe(">>>RP after: " + (System.currentTimeMillis() / 1000.0)
+					+ ", " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed()
+					+ ", min: " + smin +
+					", max: " + smax + ", len: " + audioEvent.getFloatBuffer().length);
 			return true;
 		}
 
@@ -149,7 +166,7 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 		AudioFeatureFrame aff = afp.getAudioFeatureFrame(sequence);
 		TreeMap<Double, ResynthInfo> features = aff.getResynthFeatures()
 				.getFeatures();
-		
+
 		AudioQueueMessage audioQueueMessage = new AudioQueueMessage(toneTimeFrame, features, sequence);
 
 		audioStream.bq.add(audioQueueMessage);
@@ -161,9 +178,8 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 
 		private AudioStream audioStream;
 		private BlockingQueue<AudioQueueMessage> bq;
-		double sampleTime = -1;
-		int counter = 0;
 		boolean running = true;
+		private double lastTime;
 
 		public AudioQueueConsumer(BlockingQueue<AudioQueueMessage> bq, AudioStream audioStream) {
 			this.bq = bq;
@@ -184,7 +200,6 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 					}
 
 					AudioQueueMessage aqm = bq.take();
-					counter++;
 
 					ToneTimeFrame toneTimeFrame = aqm.toneTimeFrame;
 
@@ -193,16 +208,10 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 						break;
 					}
 
-					if (sampleTime != -1) {
-						TimeUnit.MILLISECONDS.sleep((long) (sampleTime * 1000));
-					}
-
 					if (audioStream.isClosed()) {
 						running = false;
 						break;
 					}
-
-					double time = toneTimeFrame.getStartTime();
 
 					for (Entry<Double, ResynthInfo> entry : aqm.features.entrySet()) {
 						audioStream.getResynthProcessor()

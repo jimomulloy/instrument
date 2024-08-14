@@ -47,7 +47,6 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 	private double phaseFirst = 0;
 	private double phaseSecond = 0;
 	private double prevFrequency = 0;
-	private float samplerate;
 	private final EnvelopeFollower envelopeFollower;
 	private boolean usePureSine;
 	private boolean followEnvelope;
@@ -64,9 +63,9 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 				.getController()
 				.getParameterManager();
 		this.windowSize = parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_WINDOW);
-		envelopeFollower = new EnvelopeFollower(samplerate, 0.005, 0.01);
+		envelopeFollower = new EnvelopeFollower(sampleRate, 0.005, 0.01);
 		this.followEnvelope = false;
-		this.usePureSine = false;
+		this.usePureSine = true;
 		previousFrequencies = new double[5];
 		previousFrequencyIndex = 0;
 	}
@@ -172,6 +171,11 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 
 			prevFrequency = frequency;
 		}
+		if (frequency <= 0) {
+			// audioEvent.clearFloatBuffer();
+			envelopeAudioBuffer = audioEvent.getFloatBuffer().clone();
+			return;
+		}
 
 		final double twoPiF = 2 * Math.PI * frequency;
 		float[] audioBuffer = audioEvent.getFloatBuffer();
@@ -181,7 +185,7 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 		}
 
 		for (int sample = 0; sample < audioBuffer.length; sample++) {
-			double time = sample / samplerate;
+			double time = sample / sampleRate;
 			double wave = Math.sin(twoPiF * time + phase);
 			if (!usePureSine) {
 				wave += 0.05 * Math.sin(twoPiF * 4 * time + phaseFirst);
@@ -191,14 +195,16 @@ public class ResynthSource extends AudioEventSource<ResynthInfo> implements Pitc
 			if (followEnvelope) {
 				audioBuffer[sample] = audioBuffer[sample] * envelopeAudioBuffer[sample];
 			}
+
 		}
 
-		double timefactor = twoPiF * audioBuffer.length / samplerate;
+		double timefactor = twoPiF * audioBuffer.length / sampleRate;
 		phase = timefactor + phase;
 		if (!usePureSine) {
 			phaseFirst = 4 * timefactor + phaseFirst;
 			phaseSecond = 8 * timefactor + phaseSecond;
 		}
+
 	}
 
 	@Override

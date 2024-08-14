@@ -339,11 +339,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 					}
 
 					double time = toneTimeFrame.getStartTime();
-					if (lastTime > 0) {
-						TimeUnit.MILLISECONDS.sleep((long) (time - lastTime) * 1000);
-					}
-					lastTime = time;
-					// System.out.println(">>TIME: " + time);
 
 					if (frameHistory.size() >= MAP_MAX_COUNT) {
 						frameHistory.removeLast();
