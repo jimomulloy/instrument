@@ -16,12 +16,12 @@
 	<modules>
 		<module>instrument-core</module>
 		<module>instrument-desktop</module>
-		<module>instrument-ws</module>
-		<module>instrument-spring</module>
-		<!-- <module>instrument-command</module-->
-		<module>instrument-aws</module>
-		<module>instrument-st</module>
-		<module>instrument-eve</module>
+		<!-- module>instrument-ws</module-->
+		<!-- module>instrument-spring</module-->
+		<!-- module>instrument-command</module-->
+		<!-- module>instrument-aws</module-->
+		<!-- module>instrument-st</module-->
+		<!-- module>instrument-eve</module-->
 	</modules>
 
 	<properties>
