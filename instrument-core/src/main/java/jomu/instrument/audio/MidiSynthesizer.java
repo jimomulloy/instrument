@@ -274,18 +274,22 @@ public class MidiSynthesizer implements ToneMapConstants {
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_USER_SYNTHESIZER_SWITCH);
 		boolean useMidiDevice = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH);
+		boolean midiDeviceChannelSwitch = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_CHANNEL_SWITCH);
 
 		String midiDeviceName = parameterManager
 				.getParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_NAME);
 		try {
 			MidiDevice.Info midiOut = null;
 			Info[] midiDevs = MidiSystem.getMidiDeviceInfo();
+			boolean externalMidi = false;
 			for (Info midiDev : midiDevs) {
 				LOG.severe(">>MidiSynth Devs: " + midiDev.getName());
 				if (useMidiDevice && midiDeviceName != null && !midiDeviceName.isEmpty()
 						&& midiDev.getName().toLowerCase().startsWith(midiDeviceName.toLowerCase())
 						&& midiOut == null) {
 					midiOut = midiDev;
+					externalMidi = true;
 					midiDevice = MidiSystem.getMidiDevice(midiOut);
 					LOG.severe(">>MidiSynth Dev: " + midiDev.getName());
 				}
@@ -359,9 +363,10 @@ public class MidiSynthesizer implements ToneMapConstants {
 				for (int i = 0; i < channels.length; i++) {
 					if (midiDevice instanceof Synthesizer) {
 						channels[i] = new ChannelData(null, i);
+					} else if (midiDeviceChannelSwitch) {
+						channels[i] = new ChannelData(null, channelDeviceMap.getOrDefault(i, 0));
 					} else {
-						int channelNumber = channelDeviceMap.getOrDefault(i, 0);
-						channels[i] = new ChannelData(null, channelNumber);
+						channels[i] = new ChannelData(null, 0);
 					}
 				}
 			} else {

@@ -299,6 +299,8 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 
 	private JCheckBox cortexShortCircuitSwitchCB;
 
+	private JCheckBox playMidiDeviceChannelSwitchCB;
+
 	@Override
 	public void startUp() {
 		LOG.severe(">>Using SwingDesktopVisor");
@@ -1990,7 +1992,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(playMidiSwitchCB);
 
 		playMidiDeviceSwitchCB = new JCheckBox("playMidiDeviceSwitchCB");
-		playMidiDeviceSwitchCB.setText("Device");
+		playMidiDeviceSwitchCB.setText("DP");
 		playMidiDeviceSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
@@ -2004,6 +2006,23 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		playMidiDeviceSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
 		voicePanel.add(playMidiDeviceSwitchCB);
+
+		playMidiDeviceChannelSwitchCB = new JCheckBox("playMidiDeviceChannelSwitchCB");
+		playMidiDeviceChannelSwitchCB.setText("DC");
+		playMidiDeviceChannelSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_CHANNEL_SWITCH,
+						Boolean.toString(newValue));
+			}
+		});
+
+		playMidiDeviceChannelSwitchCB.setSelected(
+				parameterManager
+						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_CHANNEL_SWITCH));
+		voicePanel.add(playMidiDeviceChannelSwitchCB);
 
 		playAudioSwitchCB = new JCheckBox("playAudioSwitchCB");
 		playAudioSwitchCB.setText("Audio");
@@ -2881,6 +2900,9 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_PLAY));
 		playMidiDeviceSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_PLAY_SWITCH));
+		playMidiDeviceChannelSwitchCB.setSelected(
+				parameterManager
+						.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_CHANNEL_SWITCH));
 		playAudioSwitchCB
 				.setSelected(parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_AUDIO_PLAY));
 		playResynthSwitchCB.setSelected(
