@@ -933,7 +933,7 @@ public class NoteTracker {
 				addChordNotes(chordTrack, quantizeNote, toneTimeFrame.getStartTime(), oc.get(), pitchSet,
 						synthChordParameters);
 			}
-		} else if (synthChordParameters.chordSource == 5 && chordListElement != null) {
+		} else if (synthChordParameters.chordSource >= 5 && chordListElement != null) {
 			addChordNotes(chordTrack, quantizeNote, toneTimeFrame.getStartTime(), chordListElement, pitchSet,
 					synthChordParameters);
 		}
@@ -998,6 +998,8 @@ public class NoteTracker {
 					track.setBeat(track.getBeat() + 1);
 					barNote = track.getBeat();
 				}
+			} else {
+				track.setChordPending(true); // TODO only once ??
 			}
 
 		}

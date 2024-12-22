@@ -37,6 +37,7 @@ public class SynthPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = { "default", "ensemble", "guitar", "piano", "vocal", "birds", "beethoven",
+			"prog",
 			"folk" };
 
 	private ParameterManager parameterManager;
