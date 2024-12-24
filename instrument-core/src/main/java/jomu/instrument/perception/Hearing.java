@@ -513,10 +513,12 @@ public class Hearing implements Organ {
 		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
 
 		AudioFormat sourceFormat = stream.getFormat();
+		float sampleRate = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
 		AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16,
-				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), true);
+				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sampleRate, true);
 		// AudioFormat convertFormat = new AudioFormat(sourceFormat.getSampleRate(), 16,
 		// 1, true, true);
 
@@ -626,10 +628,13 @@ public class Hearing implements Organ {
 		AudioInputStream stream = AudioSystem.getAudioInputStream(bis);
 
 		AudioFormat sourceFormat = stream.getFormat();
+		float sampleRate = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
+
 		// create audio format object for the desired stream/audio format
 		// this is *not* the same as the file format (wav)
 		AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16,
-				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), true);
+				sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sampleRate, true);
 		// AudioFormat convertFormat = new AudioFormat(sourceFormat.getSampleRate(), 16,
 		// 1, true, true);
 
@@ -664,13 +669,14 @@ public class Hearing implements Organ {
 
 	public String resample(String fileName) throws UnsupportedAudioFileException, IOException {
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(fileName));
+		float sampleRate = parameterManager
+				.getFloatParameter(InstrumentParameterNames.PERCEPTION_HEARING_DEFAULT_SAMPLE_RATE);
 		AudioFormat sourceFormat = audioInputStream.getFormat();
-		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 192000,
+		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sampleRate,
 				sourceFormat.getSampleSizeInBits(), sourceFormat.getChannels(), sourceFormat.getFrameSize(),
 				sourceFormat.getFrameRate(), sourceFormat.isBigEndian());
 
 		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
-
 		// write stream into a file with file format wav
 		String baseDir = storage.getObjectStorage().getBasePath();
 		String folder = Paths
