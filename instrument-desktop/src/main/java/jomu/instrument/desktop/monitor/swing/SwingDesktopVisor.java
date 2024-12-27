@@ -2224,7 +2224,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(voicePlayerLogFactorLabel);
 		voicePanel.add(voicePlayerLogFactorInput);
 
-		JLabel voicePlayerGlissandoRangeLabel = new JLabel("Glissando: ");
+		JLabel voicePlayerGlissandoRangeLabel = new JLabel("Gls: ");
 		voicePlayerGlissandoRangeInput = new JTextField(4);
 		voicePlayerGlissandoRangeInput.addActionListener(new ActionListener() {
 			@Override
@@ -2245,7 +2245,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(new JLabel(" "));
 
 		midiSynthTracksSwitchCB = new JCheckBox("midiSynthTracksSwitchCB");
-		midiSynthTracksSwitchCB.setText("Synth");
+		midiSynthTracksSwitchCB.setText("Sy");
 		midiSynthTracksSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
@@ -2261,7 +2261,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(midiSynthTracksSwitchCB);
 
 		silentWriteSwitchCB = new JCheckBox("silentWriteCB");
-		silentWriteSwitchCB.setText("Silent Write");
+		silentWriteSwitchCB.setText("Sw");
 		silentWriteSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
@@ -2277,7 +2277,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 		voicePanel.add(silentWriteSwitchCB);
 
 		trackWriteSwitchCB = new JCheckBox("trackWriteCB");
-		trackWriteSwitchCB.setText("Track Write");
+		trackWriteSwitchCB.setText("Tw");
 		trackWriteSwitchCB.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
