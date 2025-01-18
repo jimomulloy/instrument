@@ -52,7 +52,7 @@ public class ParametersPanel extends JPanel {
 	private static final Logger LOG = Logger.getLogger(ParametersPanel.class.getName());
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private final static String[] styles = { "default", "genesis", "whiten",
+	private final static String[] styles = { "default", "yes", "genesis", "whiten",
 			"tapes-smoother", "tapes-busy", "tapes-fast",
 			"chords", "synth", "prog", "normalised", "ensemble",
 			"guitar",
@@ -4368,7 +4368,7 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_PRE_HARMONICS));
 		cqPostHarmonicsSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_POST_HARMONICS));
-		integrationEnvelopeWhitenSwitchCB.setSelected(parameterManager
+		cqEnvelopeWhitenPreSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH));
 		cqEnvelopeWhitenPostSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH));
@@ -4685,7 +4685,7 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_SACF_SWITCH));
 		integrateMFCCSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_MFCC_SWITCH));
-		cqEnvelopeWhitenPreSwitchCB.setSelected(parameterManager
+		integrationEnvelopeWhitenSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_INTEGRATION_ENVELOPE_WHITEN_SWITCH));
 
 		beatsThresholdInput
