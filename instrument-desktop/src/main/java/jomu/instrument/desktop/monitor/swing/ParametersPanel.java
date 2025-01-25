@@ -52,7 +52,7 @@ public class ParametersPanel extends JPanel {
 	private static final Logger LOG = Logger.getLogger(ParametersPanel.class.getName());
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
-	private final static String[] styles = { "default", "yes", "finzi", "vw", "genesis", "whiten",
+	private final static String[] styles = { "default", "yes", "finzi", "vaughn-williams", "vw", "genesis", "whiten",
 			"tapes-smoother", "tapes-busy", "tapes-fast",
 			"chords", "synth", "prog", "normalised", "ensemble",
 			"guitar",
