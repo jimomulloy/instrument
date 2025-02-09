@@ -53,7 +53,7 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = {
-			"default", "yes", "sustain", "metronome",
+			"default", "yes", "sustain", "metronome", "vw-hps-peaks",
 			"finzi", "vaughn-williams", "peaks", "vw",
 			"genesis",
 			"whiten",
