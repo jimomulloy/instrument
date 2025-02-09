@@ -1205,8 +1205,10 @@ public class NoteTracker {
 							int r = (int) (Math.random() * (cnotes.size()));
 							noteIndex = r;
 						}
-						note = cnotes.get(noteIndex);
-						amplitude = camps.get(noteIndex);
+						if (!cnotes.isEmpty() && noteIndex < cnotes.size()) {
+							note = cnotes.get(noteIndex);
+							amplitude = camps.get(noteIndex);
+						}
 					}
 				} else if (synthChordParameters.chordPattern == 3) {
 					if (isBar) {
@@ -1237,8 +1239,11 @@ public class NoteTracker {
 								}
 							}
 						}
-						note = cnotes.get(noteIndex);
-						amplitude = camps.get(noteIndex);
+						if (!cnotes.isEmpty() && noteIndex < cnotes.size()) {
+							note = cnotes.get(noteIndex);
+							amplitude = camps.get(noteIndex);
+						}
+
 					}
 				}
 
