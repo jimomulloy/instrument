@@ -268,6 +268,21 @@ public class NoteTracker {
 			return noteList.toArray(new NoteListElement[noteList.size()]);
 		}
 
+		public NoteListElement[] getAllNotes() {
+			List<NoteListElement> noteList = new ArrayList<>();
+			for (NoteListElement note : notes) {
+				noteList.add(note);
+			}
+			Collections.sort(noteList, new Comparator<NoteListElement>() {
+				@Override
+				public int compare(NoteListElement lhs, NoteListElement rhs) {
+					// -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+					return lhs.startTime < rhs.startTime ? -1 : (lhs.startTime > rhs.startTime) ? 1 : 0;
+				}
+			});
+			return noteList.toArray(new NoteListElement[noteList.size()]);
+		}
+
 		public NoteListElement getFirstNote() {
 			if (notes.size() > 0) {
 				return notes.get(0);
@@ -951,6 +966,8 @@ public class NoteTracker {
 		for (NoteListElement nle : currentNotes) {
 			currentNoteSet.add(nle.note);
 		}
+		NoteListElement[] allNotes = track.getAllNotes();
+
 		Set<NoteListElement> newNotes = new HashSet<>();
 		Set<Integer> newNoteSet = new HashSet<>();
 
@@ -1188,18 +1205,34 @@ public class NoteTracker {
 		} else {
 			lastNote = track.getLastNote();
 			if (hasBeatNote) {
+				Set<Integer> scn = new HashSet<>();
+				for (int cn : cnotes) {
+					scn.add(cn);
+				}
+				if (cnotes.size() < 4) {
+					for (NoteListElement an : allNotes) {
+						if (!scn.contains(an.note)) {
+							cnotes.add(an.note);
+							camps.add(1.0);
+						}
+						if (cnotes.size() >= 4) {
+							break;
+						}
+					}
+				}
 				if (synthChordParameters.chordInvert) {
 					rootNote += 12 * (rootOctave + synthChordParameters.chordOctave);
 				} else {
 					rootNote += 12 * synthChordParameters.chordOctave;
 				}
 				if (synthChordParameters.chordPattern == 2) {
+					isBar = false; // TODO !!
 					if (isBar) {
 						note = rootNote;
 						amplitude = rootAmp;
 					} else {
 						int noteIndex = 0;
-						if (cnotes.size() > barNote) {
+						if (barNote > 1 && (cnotes.size() > barNote)) {
 							noteIndex = barNote;
 						} else {
 							int r = (int) (Math.random() * (cnotes.size()));
@@ -1211,6 +1244,7 @@ public class NoteTracker {
 						}
 					}
 				} else if (synthChordParameters.chordPattern == 3) {
+					isBar = false; // TODO !!
 					if (isBar) {
 						if (lastNote != null && lastNote.note > rootNote) {
 							note = cnotes.get(cnotes.size() - 1);
