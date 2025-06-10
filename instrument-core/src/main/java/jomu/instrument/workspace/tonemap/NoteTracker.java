@@ -154,8 +154,6 @@ public class NoteTracker {
 
 	private int synthBaseQuantizeSource;
 
-	private int synthQuantizeSource;
-
 	private double synthBeatMetronomeStart;
 
 	private double synthBeatMetronomeDistance;
@@ -566,8 +564,6 @@ public class NoteTracker {
 		incrementTime = toneMap.getParameterManager()
 				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_FEATURE_INTERVAL);
 
-		synthQuantizeSource = toneMap.getParameterManager()
-				.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_QUANTIZE_SOURCE);
 	}
 
 	public NoteTrack trackNote(NoteListElement noteListElement, Set<NoteListElement> discardedNotes, int retryCount) {

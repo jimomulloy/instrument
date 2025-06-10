@@ -91,7 +91,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 			if (toneTimeFrame.getChord() == null) {
 				toneTimeFrame.setChord(chord);
 			}
-			if (chord != null && quantizeSource == 1) {
+			if (chord != null) {// && quantizeSource == 1) {
 				chord = quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange,
 						quantizePercent,
 						quantizeBeat);
@@ -129,7 +129,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 				toneTimeFrame.setChord(chord);
 				chord = toneTimeFrame.getChord();
 			}
-			if (chord != null && quantizeSource == 1) {
+			if (chord != null) { // && quantizeSource == 1) {
 				chord = quantizeChord(chord, calibrationMap, quantizeBeatNote, quantizeRange,
 						quantizePercent,
 						quantizeBeat);
@@ -468,7 +468,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 
 	private void quantizeNotes(Set<NoteListElement> nles, CalibrationMap calibrationMap, NoteListElement quantizeNote,
 			double quantizeRange, double quantizePercent, int quantizeBeat) {
-		if (nles.size() == 0 || quantizeNote == null) {
+		if (nles.size() == 0 || quantizePercent == 0) {
 			return;
 		}
 
@@ -566,7 +566,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 	private ChordListElement quantizeChord(ChordListElement chord, CalibrationMap calibrationMap,
 			NoteListElement quantizeNote,
 			double quantizeRange, double quantizePercent, int quantizeBeat) {
-		if (chord == null || quantizeNote == null) {
+		if (chord == null || quantizeNote == null || quantizePercent == 0) {
 			return chord;
 		}
 		double time = chord.getStartTime();
