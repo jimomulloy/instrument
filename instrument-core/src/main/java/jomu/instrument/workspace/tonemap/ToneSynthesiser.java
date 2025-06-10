@@ -566,7 +566,7 @@ public class ToneSynthesiser implements ToneMapConstants {
 	private ChordListElement quantizeChord(ChordListElement chord, CalibrationMap calibrationMap,
 			NoteListElement quantizeNote,
 			double quantizeRange, double quantizePercent, int quantizeBeat) {
-		if (chord == null || quantizeNote == null || quantizePercent == 0) {
+		if (chord == null || quantizePercent == 0) {
 			return chord;
 		}
 		double time = chord.getStartTime();
