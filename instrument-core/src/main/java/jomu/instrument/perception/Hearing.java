@@ -1123,10 +1123,10 @@ public class Hearing implements Organ {
 		private void processMicrophoneStream(String recordFile) throws LineUnavailableException, IOException {
 			console.getVisor().clearView();
 			this.setIsFile(false);
-			// showAudioMixerInfo();
+			showAudioMixerInfo();
 			Info[] mixerInfo = AudioSystem.getMixerInfo();
 			for (Info info : mixerInfo) {
-				LOG.severe(">>processMicrophoneStream: " + info.getDescription());
+				LOG.severe(">>processMicrophoneStream desc: " + info.getDescription());
 				Mixer m = AudioSystem.getMixer(info);
 				LOG.severe(">>processMicrophoneStream mixer: " + m.getMixerInfo().toString());
 				Line[] sl = m.getSourceLines();
@@ -1139,7 +1139,7 @@ public class Hearing implements Organ {
 					LOG.severe(">>processMicrophoneStream target line: " + l.getLineInfo().toString());
 				}
 			}
-			AudioFormat format = new AudioFormat(sampleRate, 16, 2, true, false);
+			AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			// AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
 			DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
 			try {
@@ -1221,6 +1221,18 @@ public class Hearing implements Organ {
 					}
 				});
 
+			}
+
+			double gainCompressFactor = parameterManager
+					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_GAIN_COMPRESS_FACTOR);
+
+			if (gainCompressFactor > 0) {
+				HaarWaveletCoder coder = new HaarWaveletCoder();
+				HaarWaveletDecoder decoder = new HaarWaveletDecoder();
+				GainProcessor gain = new GainProcessor(gainCompressFactor);
+				BitDepthProcessor bithDeptProcessor = new BitDepthProcessor();
+				bithDeptProcessor.setBitDepth(format.getSampleSizeInBits());
+				dispatcher.addAudioProcessor(gain);
 			}
 
 			int smoothFactor = parameterManager

@@ -204,10 +204,14 @@ public class ToneTimeFrame implements Serializable {
 		assert highThreshold > AMPLITUDE_FLOOR;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null && elements[i].amplitude > AMPLITUDE_FLOOR) {
-				elements[i].amplitude = elements[i].amplitude / highThreshold;
+				if (elements[i].amplitude > highThreshold) {
+					elements[i].amplitude = 1.0;
+				} else {
+					elements[i].amplitude = elements[i].amplitude / highThreshold;
+				}
 			}
 		}
-		setHighThreshold(1.0);
+		// TODO setHighThreshold(1.0);
 		reset();
 	}
 

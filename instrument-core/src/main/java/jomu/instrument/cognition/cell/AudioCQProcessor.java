@@ -50,7 +50,7 @@ public class AudioCQProcessor extends ProcessorCommon {
 		boolean cqSwitchNormalise = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
 		boolean cqSwitchNormaliseMax = parameterManager
-				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE);
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_MAX);
 		boolean cqSwitchNormaliseNotes = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_SWITCH_NORMALISE_NOTES);
 		boolean cqSwitchCompressLog = parameterManager
@@ -144,9 +144,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 			}
 		}
 
-		if (cqSwitchCompress) {
-			ttf.compress(compression);
+		if (cqSwitchLowThreshold) {
+			ttf.lowThreshold(lowThreshold, signalMinimum);
 		}
+
 		if (cqSwitchNormalise) {
 			double nt = highThreshold;
 			if (cqSwitchNormaliseMax) {
@@ -160,12 +161,11 @@ public class AudioCQProcessor extends ProcessorCommon {
 				ttf.normalise(nt);
 			}
 		}
+		if (cqSwitchCompress) {
+			ttf.compress(compression);
+		}
 		if (cqSwitchSquare) {
 			ttf.square();
-		}
-
-		if (cqSwitchLowThreshold) {
-			ttf.lowThreshold(lowThreshold, signalMinimum);
 		}
 
 		if (cqSwitchAdaptiveWhiten) {
