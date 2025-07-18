@@ -2119,7 +2119,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 		private int getNoteVolume(double lowVoiceThreshold, double highVoiceThreshold, boolean playLog,
 				double logFactor, boolean playPeaks, boolean isPeak, double amplitude) {
 			return getNoteVolume(lowVoiceThreshold, highVoiceThreshold, playLog, logFactor, playPeaks, isPeak,
-					amplitude);
+					amplitude, 100);
 		}
 
 		private int getNoteVolume(double lowVoiceThreshold, double highVoiceThreshold, boolean playLog,
