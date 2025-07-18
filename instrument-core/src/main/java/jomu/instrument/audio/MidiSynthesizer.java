@@ -1105,6 +1105,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					.getIntParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_VOLUME_BASE_1);
 			boolean writeTrack = parameterManager
 					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_TRACK_WRITE_SWITCH);
+			boolean midiDeviceChannelSwitch = parameterManager
+					.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_MIDI_DEVICE_CHANNEL_SWITCH);
 
 			ToneTimeFrame toneTimeFrame = mqm.toneTimeFrame;
 			if (toneTimeFrame == null) {
@@ -1121,7 +1123,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 
 			Set<NoteTrack> extraTracks = new HashSet<>();
 			for (NoteTrack track : tracks) {
-				if ((track.getNumber() == 1 && midiPlayVoice1Switch)) {
+				if ((track.getNumber() == 1 && midiPlayVoice1Switch && !midiDeviceChannelSwitch)) {
 					noteTrackChannel = channels[VOICE_1_CHANNEL];
 					if (voiceChannel1LastNotes == null) {
 						voiceChannel1LastNotes = new HashSet<>();
@@ -1135,7 +1137,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					playSynthNoteTracks(new NoteTrack[] { track }, noteTrackChannel, noteTrackChannelLastNotes,
 							midiTrack, toneTimeFrame, midiMessages, voice1VolumeFactor, true);
 				}
-				if ((track.getNumber() == 2 && midiPlayVoice2Switch)) {
+				if ((track.getNumber() == 2 && midiPlayVoice2Switch && !midiDeviceChannelSwitch)) {
 					noteTrackChannel = channels[VOICE_2_CHANNEL];
 					if (voiceChannel2LastNotes == null) {
 						voiceChannel2LastNotes = new HashSet<>();
@@ -1150,7 +1152,7 @@ public class MidiSynthesizer implements ToneMapConstants {
 					playSynthNoteTracks(new NoteTrack[] { track }, noteTrackChannel, noteTrackChannelLastNotes,
 							midiTrack, toneTimeFrame, midiMessages, voice2VolumeFactor, true);
 				}
-				if ((track.getNumber() == 3 && midiPlayVoice3Switch)) {
+				if ((track.getNumber() == 3 && midiPlayVoice3Switch && !midiDeviceChannelSwitch)) {
 					noteTrackChannel = channels[VOICE_3_CHANNEL];
 					if (voiceChannel3LastNotes == null) {
 						voiceChannel3LastNotes = new HashSet<>();
@@ -1165,7 +1167,8 @@ public class MidiSynthesizer implements ToneMapConstants {
 					playSynthNoteTracks(new NoteTrack[] { track }, noteTrackChannel, noteTrackChannelLastNotes,
 							midiTrack, toneTimeFrame, midiMessages, voice3VolumeFactor, true);
 				}
-				if ((track.getNumber() >= 4 && track.getNumber() <= maxTracksLower && midiPlayVoice4Switch)) {
+				if (midiDeviceChannelSwitch
+						|| (track.getNumber() >= 4 && track.getNumber() <= maxTracksLower && midiPlayVoice4Switch)) {
 					extraTracks.add(track);
 				}
 			}
