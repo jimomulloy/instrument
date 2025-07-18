@@ -329,7 +329,13 @@ public class Hearing implements Organ {
 		boolean isResample = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RESAMPLE);
 		String filePath = lastAudioPath;
-		if (!reuseFile || filePath == null) {
+		double audioPitchShift = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT);
+		double audioTimeStretch = parameterManager
+				.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH);
+
+		if (!reuseFile || filePath == null || audioPitchShift != 0
+				|| (audioTimeStretch != 0 && audioTimeStretch != 1.0)) {
 			if (fileName.toLowerCase().endsWith(".mp3") || fileName.toLowerCase().endsWith(".ogg")) {
 				String wavFilePath = convertToWav(fileName);
 				if (isResample) {
@@ -359,16 +365,12 @@ public class Hearing implements Organ {
 			filePath = parameterManager
 					.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
 
-			double audioTimeStretch = parameterManager
-					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_TIME_STRETCH);
 			if (audioTimeStretch != 0 && audioTimeStretch != 1.0) {
 				filePath = timeStretch(filePath, audioTimeStretch);
 				is = new FileInputStream(filePath);
 				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE, filePath);
 			}
 
-			double audioPitchShift = parameterManager
-					.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_PITCH_SHIFT);
 			if (audioPitchShift != 0) {
 				filePath = pitchShift(filePath, audioPitchShift);
 				is = new FileInputStream(filePath);
@@ -618,7 +620,6 @@ public class Hearing implements Organ {
 		dispatcher.addAudioProcessor(rateTransposer);
 		dispatcher.addAudioProcessor(writer);
 		dispatcher.run();
-
 		return psFilePath;
 	}
 
