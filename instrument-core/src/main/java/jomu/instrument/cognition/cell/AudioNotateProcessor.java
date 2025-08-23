@@ -115,7 +115,6 @@ public class AudioNotateProcessor extends ProcessorCommon {
 				spTuner.applyFormants(notateSpectralTimeFrame);
 			}
 		}
-		ToneTimeFrame ttf = notateToneMap.getTimeFrame();
 
 		if (integrateCQSwitch) {
 			notateTimeFrame.reset();

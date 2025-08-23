@@ -243,6 +243,21 @@ public class ToneTimeFrame implements Serializable {
 		reset();
 	}
 
+	public void clearMax() {
+		double max = 0;
+		for (int i = 0; i < elements.length; i++) {
+			if (max < elements[i].amplitude) {
+				max = elements[i].amplitude;
+			}
+		}
+		for (int i = 0; i < elements.length; i++) {
+			if (max > elements[i].amplitude) {
+				elements[i].amplitude = 0;
+			}
+		}
+		reset();
+	}
+
 	public void deNoise(double threshold) {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] != null && elements[i].amplitude < threshold) {

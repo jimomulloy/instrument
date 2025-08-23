@@ -53,7 +53,8 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = {
-			"default", "genesis-white", "envwhiten", "gencqsquare", "fnzy", "watcher", "beet", "dawson", "yes",
+			"default", "chords", "melody", "melody-clean", "melody-finzi", "chords-voice",
+			"genesis-white", "envwhiten", "gencqsquare", "fnzy", "watcher", "beet", "dawson", "yes",
 			"sustain", "metronome",
 			"vw-hps-peaks",
 			"finzi", "vaughn-williams", "peaks", "vw",
@@ -380,6 +381,10 @@ public class ParametersPanel extends JPanel {
 	private JTextField tunerHysteresisWeightInput;
 
 	private JCheckBox normaliseNotesSwitchCB;
+
+	private JCheckBox cqClearMaxPreSwitchCB;
+
+	private JCheckBox cqClearMaxPostSwitchCB;
 
 	public ParametersPanel() {
 		super(new BorderLayout());
@@ -1278,6 +1283,38 @@ public class ParametersPanel extends JPanel {
 		cqCalibrateSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH));
 		cqSwitchPanel.add(cqCalibrateSwitchCB);
+
+		cqClearMaxPreSwitchCB = new JCheckBox("cqClearMaxPreSwitchCB");
+		cqClearMaxPreSwitchCB.setText("Clear Max Pre Switch");
+		cqClearMaxPreSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_PRE,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqClearMaxPreSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_PRE));
+		cqSwitchPanel.add(cqClearMaxPreSwitchCB);
+
+		cqClearMaxPostSwitchCB = new JCheckBox("cqClearMaxPostSwitchCB");
+		cqClearMaxPostSwitchCB.setText("Clear Max Post Switch");
+		cqClearMaxPostSwitchCB.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				JCheckBox cb = (JCheckBox) e.getSource();
+				boolean newValue = cb.isSelected();
+				parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_POST,
+						Boolean.toString(newValue));
+			}
+		});
+
+		cqClearMaxPostSwitchCB.setSelected(
+				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_POST));
+		cqSwitchPanel.add(cqClearMaxPostSwitchCB);
 
 		cqCalibrateForwardSwitchCB = new JCheckBox("cqCalibrateForwardSwitchCB");
 		cqCalibrateForwardSwitchCB.setText("Calibrate Forward Switch");
@@ -4378,6 +4415,10 @@ public class ParametersPanel extends JPanel {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH));
 		cqEnvelopeWhitenPostSwitchCB.setSelected(parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH));
+		cqClearMaxPreSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_PRE));
+		cqClearMaxPostSwitchCB.setSelected(parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_POST));
 		cqCalibrateSwitchCB.setSelected(
 				parameterManager.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH));
 		cqMicroToneSwitchCB.setSelected(

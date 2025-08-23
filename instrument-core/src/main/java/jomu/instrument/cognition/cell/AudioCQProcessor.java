@@ -91,6 +91,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_PRE_SWITCH);
 		boolean cqEnvelopeWhitenPostSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_ENVELOPE_WHITEN_POST_SWITCH);
+		boolean cqClearMaxPre = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_PRE);
+		boolean cqClearMaxPost = parameterManager
+				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CQ_CLEAR_MAX_POST);
 		boolean calibrateSwitch = parameterManager
 				.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_CALIBRATE_SWITCH);
 		boolean calibrateForwardSwitch = parameterManager
@@ -121,6 +125,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 		ToneTimeFrame previousTimeFrame = toneMap.getPreviousTimeFrame(ttf.getStartTime());
 		ToneTimeFrame nmTtf = null;
 		ttf.reset();
+
+		if (cqClearMaxPre) {
+			ttf.clearMax();
+		}
 
 		if (cqEnvelopeWhitenPreSwitch) {
 			cqEnvelopeWhitenControlMap.addTimeFrame(toneMap.getTimeFrame(sequence).clone());
@@ -224,6 +232,10 @@ public class AudioCQProcessor extends ProcessorCommon {
 									+ nmTtf.getMinAmplitude());
 				}
 			}
+		}
+
+		if (cqClearMaxPost) {
+			ttf.clearMax();
 		}
 
 		toneMap.updateStatistics(ttf);
