@@ -160,7 +160,6 @@ public class Voice implements Organ {
 	public void close(final String streamId) {
 
 		if (this.currentStreamId != null && this.currentStreamId == streamId) {
-			System.out.println(">>CLOSE: " + streamId);
 			if (!this.smq.isEmpty()) {
 				for (final SendMessage sm : this.smq) {
 					sendMessage(sm);
@@ -263,10 +262,8 @@ public class Voice implements Organ {
 	 */
 	public void send(final ToneTimeFrame toneTimeFrame, final String streamId, final int sequence,
 			final boolean pause) {
-
 		if (this.currentStreamId != null && this.currentStreamId != streamId
 				&& this.currentStreamId == this.streamPlayerId) {
-			System.out.println(">>D - STOP STREAM PLAY 1: " + streamId + ", " + this.streamPlayerId);
 			stopStreamPlayer();
 		}
 		this.currentStreamId = streamId;
@@ -350,11 +347,12 @@ public class Voice implements Organ {
 	 */
 	public boolean startStreamPlayer(final String streamId, ToneMap synthToneMap) {
 		if (this.streamPlayerId != null && this.streamPlayerId != streamId) {
-			System.out.println(">>A - STOP STREAM PLAY 1: " + streamId);
 			stopStreamPlayer();
 		}
+		if (this.deadStreams.contains(streamId)) {
+			deadStreams.remove(streamId);
+		}
 		this.streamPlayerId = streamId;
-		System.out.println(">>START STREAM PLAY: " + streamId);
 		do {
 			int sequence = 1;
 			ToneTimeFrame frame = synthToneMap.getTimeFrame(sequence);
@@ -363,14 +361,11 @@ public class Voice implements Organ {
 				sequence++;
 				frame = synthToneMap.getTimeFrame(sequence);
 			}
-			System.out.println(">>START STREAM PLAY CLOSING: " + streamId);
 			if (streamId == this.streamPlayerId) {
-				System.out.println(">>C - STOP STREAM PLAY 1: " + streamId);
 				close(streamId);
 			}
 		} while (streamId == this.streamPlayerId
 				&& parameterManager.getBooleanParameter(InstrumentParameterNames.ACTUATION_VOICE_LOOP_SAVE));
-		// this.streamPlayerId = null;
 		return true;
 	}
 
@@ -388,10 +383,8 @@ public class Voice implements Organ {
 	 */
 	public void stopStreamPlayer() {
 		String streamId = this.streamPlayerId;
-		System.out.println(">>STOP STREAM PLAY: " + streamId);
 		this.streamPlayerId = null;
 		if (streamId != null) {
-			System.out.println(">>B CLOSE STREAM PLAY: " + streamId);
 			clear(streamId);
 		}
 	}
