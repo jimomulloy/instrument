@@ -1384,13 +1384,21 @@ public class Hearing implements Organ {
 	}
 
 	public boolean startAudioPlayer() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		LOG.severe(">>PLAY 1: " + streamId);
 		if (streamId == null) {
 			return false;
 		}
+		LOG.severe(">>PLAY 2: " + streamId +", " + audioStreams.size() + ", " + audioStreams.elements().nextElement().streamId);
 		AudioStream audioStream = audioStreams.get(streamId);
-		if (audioStream == null || audioStream.getAudioFileName() == null) {
+		LOG.severe(">>PLAY 2a: " + audioStream);
+		if (audioStream != null) { 
+			LOG.severe(">>PLAY 2b: " + audioStream.getAudioFileName());
+		}
+
+		if (audioStream == null) {
 			return false;
 		}
+		LOG.severe(">>PLAY 3 ");
 		stopAudioPlayer();
 		String audioSourceFile = parameterManager
 				.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_INPUT_FILE);
@@ -1442,7 +1450,7 @@ public class Hearing implements Organ {
 
 	public void stopAudioPlayer() {
 		AudioStream audioStream = audioStreams.get(streamId);
-		if (audioStream == null || audioStream.getAudioFileName() == null || audioPlayerDispatcher == null
+		if (audioStream == null || audioPlayerDispatcher == null
 				|| audioPlayerDispatcher.isStopped()) {
 			return;
 		}
