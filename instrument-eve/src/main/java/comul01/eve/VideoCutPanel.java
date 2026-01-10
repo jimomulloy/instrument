@@ -580,11 +580,30 @@ public class VideoCutPanel extends JPanel
 			if (mediaType == VIDEO) {
 				// Create an instance of a player for this media
 				try {
-					System.out.println("Create player for :"+url);
+					System.out.println("Creates player for :" + url);
 					Manager.setHint(Manager.LIGHTWEIGHT_RENDERER, new Boolean(true));
 					player = Manager.createPlayer(url);
+					System.out.println("Player created: " + player);
 				} catch (NoPlayerException e) {
-					System.err.println("Error creating player");
+					System.err.println("FMJ player failed, trying HumbleVideoPlayer: " + e.getMessage());
+					// Fall back to HumbleVideoPlayer for formats not supported by FMJ (e.g., R210)
+					try {
+						player = new HumbleVideoPlayer(url);
+						System.out.println("HumbleVideoPlayer created successfully");
+					} catch (Exception ex) {
+						System.err.println("HumbleVideoPlayer also failed: " + ex.getMessage());
+						ex.printStackTrace();
+					}
+				} catch (Exception e) {
+					System.err.println("Unexpected error creating player: " + e.getMessage());
+					// Fall back to HumbleVideoPlayer
+					try {
+						player = new HumbleVideoPlayer(url);
+						System.out.println("HumbleVideoPlayer created as fallback");
+					} catch (Exception ex) {
+						System.err.println("HumbleVideoPlayer also failed: " + ex.getMessage());
+						ex.printStackTrace();
+					}
 				}
 			}
 			else {

@@ -238,7 +238,7 @@ import javax.media.format.VideoFormat;
          */
         
         public int process(Buffer in, Buffer out) {
-
+	       System.out.println("!!process effects");
 	       // This is the "Callback" to access individual frames.
 	       //accessFrame(in);
 		   ejEffects.processFrame(in);

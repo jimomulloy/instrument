@@ -45,13 +45,13 @@
 	</properties>
 
 	<dependencies>
-		
+
+		<!-- FMJ (Freedom for Media in Java) - JMF replacement for modern Java -->
+		<!-- https://github.com/jitsi/fmj -->
 		<dependency>
-		    <groupId>javax.media</groupId>
-		    <artifactId>jmf</artifactId>
-		    <version>2.1.1e</version>
-		    <scope>system</scope>
-		    <systemPath>${pom.basedir}/jmf.jar</systemPath>
+		    <groupId>org.jitsi</groupId>
+		    <artifactId>fmj</artifactId>
+		    <version>1.0.2-jitsi</version>
 		</dependency>
 		<dependency>
 		    <groupId>javax.media.jai</groupId>
