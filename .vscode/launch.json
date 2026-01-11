@@ -7,7 +7,7 @@
             "request": "launch",
             "mainClass": "comul01.eve.EJMain",
             "projectName": "instrument-eve",
-            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED"
+            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED -Xmx16g -Xms1g"
         },
         {
             "type": "java",
@@ -15,14 +15,14 @@
             "request": "launch",
             "mainClass": "comul01.eve.VideoCutPanel",
             "projectName": "instrument-eve",
-            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED"
+            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED -Xmx16g -Xms1g"
         },
         {
             "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED"
+            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED -Xmx16g -Xms1g"
         }
     ]
 }
