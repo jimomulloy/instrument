@@ -270,13 +270,49 @@ public class EFrame {
 
 	public RenderedOp getRenderedOp() {
 		Image image = getImage();
+		if (image == null) {
+			// Fallback: create image directly from byte data if BufferToImage fails
+			image = createImageFromBytes();
+		}
 		if (image == null) return null;
 		RenderedOp rop = JAI.create("AWTImage", image);
 		return rop;
 	}
 
+	/**
+	 * Creates an Image directly from byte data, bypassing BufferToImage.
+	 * This is a fallback for when FMJ's BufferToImage doesn't work with certain formats.
+	 * Handles vertical flipping since video data is often stored bottom-up.
+	 */
+	private Image createImageFromBytes() {
+		if (byteData == null || width <= 0 || height <= 0) return null;
+
+		BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		int[] pixels = new int[width * height];
+
+		// Read pixels row by row, flipping vertically (bottom-up to top-down)
+		for (int y = 0; y < height; y++) {
+			int srcY = height - 1 - y;  // Read from bottom row first
+			for (int x = 0; x < width; x++) {
+				int srcIdx = (srcY * width + x) * 3;
+				if (srcIdx + 2 < byteData.length) {
+					int b = byteData[srcIdx] & 0xFF;
+					int g = byteData[srcIdx + 1] & 0xFF;
+					int r = byteData[srcIdx + 2] & 0xFF;
+					pixels[y * width + x] = (r << 16) | (g << 8) | b;
+				}
+			}
+		}
+
+		bi.setRGB(0, 0, width, height, pixels, 0, width);
+		return bi;
+	}
+
 	public RenderedImage getRenderedImage() {
 		Image image = getImage();
+		if (image == null) {
+			image = createImageFromBytes();
+		}
 		if (image == null) return null;
 		RenderedImage rimg = (RenderedImage)JAI.create("AWTImage", image);
 		return rimg;
@@ -285,6 +321,9 @@ public class EFrame {
 
 	public PlanarImage getPlanarImage() {
 		Image image = getImage();
+		if (image == null) {
+			image = createImageFromBytes();
+		}
 		if (image == null) return null;
 		PlanarImage rop = (PlanarImage)JAI.create("AWTImage", image);
 		return rop;

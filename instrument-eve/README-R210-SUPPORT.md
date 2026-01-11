@@ -86,6 +86,36 @@ Changed from JMF to FMJ dependency:
 </dependency>
 ```
 
+Added JAI (Java Advanced Imaging) codec dependency for effects like Sobel edge detection:
+
+```xml
+<dependency>
+    <groupId>javax.media.jai</groupId>
+    <artifactId>jai-core</artifactId>
+    <version>1.1.3</version>
+    <scope>system</scope>
+    <systemPath>${pom.basedir}/src/main/resources/library/jai_core.jar</systemPath>
+</dependency>
+<dependency>
+    <groupId>com.sun.media</groupId>
+    <artifactId>jai-codec</artifactId>
+    <version>1.1.3</version>
+    <scope>system</scope>
+    <systemPath>${pom.basedir}/src/main/resources/library/jai_codec.jar</systemPath>
+</dependency>
+```
+
+Added JVM arguments for Java 17+ compatibility with JAI:
+
+```xml
+<plugin>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <configuration>
+        <argLine>--add-opens java.desktop/sun.awt.image=ALL-UNNAMED</argLine>
+    </configuration>
+</plugin>
+```
+
 The humble-video dependencies were already present in the project.
 
 ### EJMain.java
@@ -125,6 +155,15 @@ Added HumbleVideoPlayer fallback for playback when FMJ fails.
 
 ### SuperGlueDataSource.java
 Added handling for non-RGB VideoFormat types like R210.
+
+### EFrame.java
+Added fallback image conversion for JAI effects compatibility with Humble video:
+
+- **`createImageFromBytes()`**: New private method that creates a BufferedImage directly from byte data, bypassing FMJ's `BufferToImage` which may return null for certain formats
+- **Updated `getRenderedOp()`**: Falls back to `createImageFromBytes()` when `getImage()` returns null
+- **Updated `getRenderedImage()`**: Same fallback mechanism
+- **Updated `getPlanarImage()`**: Same fallback mechanism
+- **Vertical flip handling**: The `createImageFromBytes()` method reads pixels bottom-up to correct for video data stored in bottom-up order
 
 ## Architecture
 
@@ -208,6 +247,9 @@ The effects system works as follows:
 - **humble-video**: FFmpeg Java bindings (already in project)
   - humble-video-all
   - humble-video-noarch
+- **JAI (Java Advanced Imaging)**: Required for image processing effects
+  - jai_core.jar
+  - jai_codec.jar (required for effects like Sobel edge detection)
 
 ## Supported Formats
 
@@ -224,6 +266,32 @@ Processed videos are exported as:
 - **Video Codec**: MJPEG
 - **Pixel Format**: YUVJ420P (full range)
 
+## Running the Application
+
+### VS Code
+A launch configuration is provided in `.vscode/launch.json` with the required JVM arguments for JAI compatibility:
+
+```json
+{
+    "type": "java",
+    "name": "EJMain (instrument-eve)",
+    "request": "launch",
+    "mainClass": "comul01.eve.EJMain",
+    "projectName": "instrument-eve",
+    "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED"
+}
+```
+
+### Command Line
+When running directly, include the JVM argument:
+
+```bash
+java --add-opens java.desktop/sun.awt.image=ALL-UNNAMED -jar instrument-eve.jar
+```
+
+### IntelliJ IDEA / Eclipse
+Add to VM options: `--add-opens java.desktop/sun.awt.image=ALL-UNNAMED`
+
 ## Troubleshooting
 
 ### Empty Output File
@@ -237,3 +305,27 @@ This indicates FMJ couldn't handle the format. The fallback to `HumbleVideoProce
 
 ### Frame Rate Issues
 Frame rate detection uses the stream time base. If incorrect, it defaults to 24 fps.
+
+### JAI IllegalAccessError
+If you see an error like:
+```
+java.lang.IllegalAccessError: class javax.media.jai.RasterAccessor cannot access class sun.awt.image.BytePackedRaster
+```
+This means the JVM argument `--add-opens java.desktop/sun.awt.image=ALL-UNNAMED` is missing. Add it to your run configuration.
+
+### JAI NoClassDefFoundError for SeekableStream
+If you see:
+```
+java.lang.NoClassDefFoundError: com.sun.media.jai.codec.SeekableStream
+```
+This means `jai_codec.jar` is missing. Ensure both `jai_core.jar` and `jai_codec.jar` are in `src/main/resources/library/` and declared in pom.xml.
+
+### Upside-down Video Frames
+If video frames appear upside down after effects processing, this is typically due to video data being stored in bottom-up order. The `EFrame.createImageFromBytes()` method handles this by flipping the image during conversion.
+
+### "null is supplied" Error for JAI Operations
+If you see errors like:
+```
+operation "GradientMagnitude" requires all source objects to be valid input; a null is supplied
+```
+This indicates FMJ's `BufferToImage` failed to convert the frame. The fallback `createImageFromBytes()` method in `EFrame.java` should handle this automatically.

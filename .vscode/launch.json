@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "EJMain (instrument-eve)",
+            "request": "launch",
+            "mainClass": "comul01.eve.EJMain",
+            "projectName": "instrument-eve",
+            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED"
+        },
+        {
+            "type": "java",
+            "name": "VideoCutPanel (instrument-eve)",
+            "request": "launch",
+            "mainClass": "comul01.eve.VideoCutPanel",
+            "projectName": "instrument-eve",
+            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "vmArgs": "--add-opens java.desktop/sun.awt.image=ALL-UNNAMED"
+        }
+    ]
+}
