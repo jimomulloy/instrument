@@ -504,7 +504,7 @@ public class EJSettings implements EJConstants , Serializable{
 				effectContext.sqIndex = seqCB.getSelectedIndex();
 
 				if (value.equals("N")) {
-					effectContext.seq = 0;
+					effectContext.seq = effectContext.index;
 				} else {
 					effectContext.seq = Integer.parseInt(value);
 				}
@@ -1435,6 +1435,7 @@ public class EJSettings implements EJConstants , Serializable{
 
 			effectContext = new EffectContext();
 			effectContext.index = i;
+			effectContext.seq = i;
 			effectList.add(effectContext);
 			eSelectControls[i] = (new ESelectControl(i));
 			p1.add(eSelectControls[i]);

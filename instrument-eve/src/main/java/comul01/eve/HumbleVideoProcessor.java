@@ -40,6 +40,7 @@ public class HumbleVideoProcessor implements Processor {
     private double frameRate;
     private long durationNanos;
     private long currentTimeNanos = 0;
+    private int currentFrame = 0;
 
     private MediaPicture picture;
     private MediaPictureConverter converter;
@@ -542,6 +543,7 @@ public class HumbleVideoProcessor implements Processor {
                             if (pts != Global.NO_PTS) {
                                 currentTimeNanos = pts * 1000;
                             }
+                            currentFrame++;
 
                             return true;
                         }
@@ -565,6 +567,22 @@ public class HumbleVideoProcessor implements Processor {
 
         } catch (Exception e) {
             System.err.println("HumbleVideoProcessor: Decode error - " + e.getMessage());
+            System.err.println("  Frame: " + currentFrame + ", Time: " + (currentTimeNanos / 1_000_000) + "ms");
+            if (packet != null) {
+                System.err.println("  Packet: size=" + packet.getSize() +
+                    ", pts=" + packet.getPts() +
+                    ", dts=" + packet.getDts() +
+                    ", streamIndex=" + packet.getStreamIndex() +
+                    ", isKey=" + packet.isKeyPacket() +
+                    ", isComplete=" + packet.isComplete());
+            }
+            if (videoDecoder != null) {
+                System.err.println("  Decoder: codec=" + videoDecoder.getCodec().getName() +
+                    ", pixelFormat=" + videoDecoder.getPixelFormat() +
+                    ", width=" + videoDecoder.getWidth() +
+                    ", height=" + videoDecoder.getHeight());
+            }
+            e.printStackTrace();
         }
 
         return false;

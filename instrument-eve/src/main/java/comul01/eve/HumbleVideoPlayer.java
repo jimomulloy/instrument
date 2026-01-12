@@ -574,6 +574,22 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
 
         } catch (Exception e) {
             System.err.println("HumbleVideoPlayer: Decode error - " + e.getMessage());
+            System.err.println("  Frame: " + currentFrame + ", Time: " + (currentTimeNanos / 1_000_000) + "ms");
+            if (packet != null) {
+                System.err.println("  Packet: size=" + packet.getSize() +
+                    ", pts=" + packet.getPts() +
+                    ", dts=" + packet.getDts() +
+                    ", streamIndex=" + packet.getStreamIndex() +
+                    ", isKey=" + packet.isKeyPacket() +
+                    ", isComplete=" + packet.isComplete());
+            }
+            if (videoDecoder != null) {
+                System.err.println("  Decoder: codec=" + videoDecoder.getCodec().getName() +
+                    ", pixelFormat=" + videoDecoder.getPixelFormat() +
+                    ", width=" + videoDecoder.getWidth() +
+                    ", height=" + videoDecoder.getHeight());
+            }
+            e.printStackTrace();
         }
 
         return false;
