@@ -4507,17 +4507,50 @@ public class EJEffects {
 			pi = true;
 		}
 
+		int width = ropIn.getWidth();
+		int height = ropIn.getHeight();
+
+		// Magnitude requires float/double data type - convert if needed
+		int dataType = ropIn.getSampleModel().getDataType();
+		if (dataType != java.awt.image.DataBuffer.TYPE_FLOAT &&
+			dataType != java.awt.image.DataBuffer.TYPE_DOUBLE) {
+			ParameterBlock pbFormat = new ParameterBlock();
+			pbFormat.addSource(ropIn);
+			pbFormat.add(java.awt.image.DataBuffer.TYPE_FLOAT);
+			ropIn = JAI.create("format", pbFormat);
+		}
+
+		// Magnitude requires even number of bands (real/imaginary pairs)
+		// If odd bands, add a zero-filled band to make it even
+		int numBands = ropIn.getSampleModel().getNumBands();
+		if (numBands % 2 != 0) {
+			// Create a constant float image with zero values for the extra band
+			Float[] bandValues = new Float[1];
+			bandValues[0] = 0.0f;
+			ParameterBlock pbConst = new ParameterBlock();
+			pbConst.add((float) width);
+			pbConst.add((float) height);
+			pbConst.add(bandValues);
+			RenderedOp zeroBand = JAI.create("constant", pbConst);
+
+			// Merge original image with zero band
+			ParameterBlock pbMerge = new ParameterBlock();
+			pbMerge.addSource(ropIn);
+			pbMerge.addSource(zeroBand);
+			ropIn = JAI.create("bandmerge", pbMerge);
+		}
+
 		ParameterBlock pb = new ParameterBlock();
 		pb.addSource(ropIn);
 		RenderedOp ropOut = JAI.create("magnitude", pb, null);
 		if (effectContext.option1) {
 			int owidth = ropOut.getWidth();
 			int oheight = ropOut.getHeight();
-			int width = frameIn.getWidth();
-			int height = frameIn.getHeight();
+			int inWidth = frameIn.getWidth();
+			int inHeight = frameIn.getHeight();
 			pb.addSource(ropOut);
-			pb.add((float) width / (float) owidth);
-			pb.add((float) height / (float) oheight);
+			pb.add((float) inWidth / (float) owidth);
+			pb.add((float) inHeight / (float) oheight);
 			pb.add(0.0F).add(0.0F);
 			Interpolation interp = Interpolation
 					.getInstance(Interpolation.INTERP_BILINEAR);
@@ -4705,9 +4738,21 @@ public class EJEffects {
 		}
 		int swidth = ropIn.getWidth();
 		int sheight = ropIn.getHeight();
+
+		// First apply DFT to convert to complex format
+		ParameterBlock pbDft = new ParameterBlock();
+		pbDft.addSource(ropIn);
+		pbDft.add(DFTDescriptor.SCALING_NONE);
+		pbDft.add(DFTDescriptor.REAL_TO_COMPLEX);
+		RenderedOp ropDft = JAI.create("dft", pbDft, null);
+
+		// Now apply IDFT on the complex data
 		ParameterBlock pb = new ParameterBlock();
-		pb.addSource(ropIn);
-		RenderedOp ropOut = JAI.create("idft", pb);
+		pb.addSource(ropDft);
+		pb.add(DFTDescriptor.SCALING_DIMENSIONS);
+		pb.add(DFTDescriptor.COMPLEX_TO_REAL);
+		RenderedOp ropOut = JAI.create("idft", pb, null);
+
 		BufferedImage image = ropOut.getAsBufferedImage();
 		RenderedOp ropOut1 = doJAIScaleRop(image, (float) 160 / (float) swidth,
 				(float) 120 / (float) sheight, 0.0F, 0.0F);
@@ -6234,28 +6279,40 @@ public class EJEffects {
 			int b, int x, int y, int fill, int old, int fillband, int count,
 			int max) {
 		try {
+			int width = frame.getWidth();
+			int height = frame.getHeight();
+			java.util.ArrayDeque<int[]> stack = new java.util.ArrayDeque<>();
+			stack.push(new int[]{x, y});
+			int fillCount = count;
 
-			int level = 0;
-			if (effectContext.option1) {
-				level = frameIn.getPixelInt(b, x, y);
-			} else {
-				level = (int) frameIn.getPixelGrey(x, y);
-			}
-			if (frameSave.getPixelInt(b, x, y) == 255)
-				return;
-			frameSave.setPixel(b, x, y, 255);
-			if (x >= 0 && x < frame.getWidth() && y >= 0
-					&& y < frame.getHeight() && level < old && count < max) {
-				frame.setPixel(fillband, x, y, fill);
-				count++;
-				floodfill(frameIn, frame, frameSave, b, x + 1, y, fill, old,
-						fillband, count, max);
-				floodfill(frameIn, frame, frameSave, b, x - 1, y, fill, old,
-						fillband, count, max);
-				floodfill(frameIn, frame, frameSave, b, x, y + 1, fill, old,
-						fillband, count, max);
-				floodfill(frameIn, frame, frameSave, b, x, y - 1, fill, old,
-						fillband, count, max);
+			while (!stack.isEmpty() && fillCount < max) {
+				int[] point = stack.pop();
+				int px = point[0];
+				int py = point[1];
+
+				if (px < 0 || px >= width || py < 0 || py >= height)
+					continue;
+				if (frameSave.getPixelInt(b, px, py) == 255)
+					continue;
+
+				int level = 0;
+				if (effectContext.option1) {
+					level = frameIn.getPixelInt(b, px, py);
+				} else {
+					level = (int) frameIn.getPixelGrey(px, py);
+				}
+
+				if (level >= old)
+					continue;
+
+				frameSave.setPixel(b, px, py, 255);
+				frame.setPixel(fillband, px, py, fill);
+				fillCount++;
+
+				stack.push(new int[]{px + 1, py});
+				stack.push(new int[]{px - 1, py});
+				stack.push(new int[]{px, py + 1});
+				stack.push(new int[]{px, py - 1});
 			}
 		} catch (Throwable t) {
 			System.out.println(t.getMessage());
@@ -6268,28 +6325,40 @@ public class EJEffects {
 			int b, int x, int y, int fill, int boundary, int fillband,
 			int count, int max) {
 		try {
+			int width = frame.getWidth();
+			int height = frame.getHeight();
+			java.util.ArrayDeque<int[]> stack = new java.util.ArrayDeque<>();
+			stack.push(new int[]{x, y});
+			int fillCount = count;
 
-			int level = 0;
-			if (effectContext.option1) {
-				level = frameIn.getPixelInt(b, x, y);
-			} else {
-				level = (int) frameIn.getPixelGrey(x, y);
-			}
+			while (!stack.isEmpty() && fillCount < max) {
+				int[] point = stack.pop();
+				int px = point[0];
+				int py = point[1];
 
-			if (x >= 0 && x < frame.getWidth() && y >= 0
-					&& y < frame.getHeight() && level < boundary
-					&& frameSave.getPixelInt(b, x, y) != fill && count < max) {
-				frameSave.setPixel(b, x, y, fill);
-				frame.setPixel(fillband, x, y, fill);
-				count++;
-				boundaryfill(frameIn, frame, frameSave, b, x + 1, y, fill,
-						boundary, fillband, count, max);
-				boundaryfill(frameIn, frame, frameSave, b, x - 1, y, fill,
-						boundary, fillband, count, max);
-				boundaryfill(frameIn, frame, frameSave, b, x, y + 1, fill,
-						boundary, fillband, count, max);
-				boundaryfill(frameIn, frame, frameSave, b, x, y - 1, fill,
-						boundary, fillband, count, max);
+				if (px < 0 || px >= width || py < 0 || py >= height)
+					continue;
+				if (frameSave.getPixelInt(b, px, py) == fill)
+					continue;
+
+				int level = 0;
+				if (effectContext.option1) {
+					level = frameIn.getPixelInt(b, px, py);
+				} else {
+					level = (int) frameIn.getPixelGrey(px, py);
+				}
+
+				if (level >= boundary)
+					continue;
+
+				frameSave.setPixel(b, px, py, fill);
+				frame.setPixel(fillband, px, py, fill);
+				fillCount++;
+
+				stack.push(new int[]{px + 1, py});
+				stack.push(new int[]{px - 1, py});
+				stack.push(new int[]{px, py + 1});
+				stack.push(new int[]{px, py - 1});
 			}
 		} catch (Throwable t) {
 			System.out.println(t.getMessage());
