@@ -241,6 +241,9 @@ public class EFrame {
 		buffer.setData(getData());
 		BufferToImage btoi = new BufferToImage(videoFormat);
 		Image image = btoi.createImage(buffer);
+		if (image == null) {
+			return new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		}
 		int iw = image.getWidth(null);
 		int ih = image.getHeight(null);
 		BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_RGB);
@@ -252,6 +255,10 @@ public class EFrame {
 		buffer.setData(getData());
 		BufferToImage btoi = new BufferToImage(videoFormat);
 		Image image = btoi.createImage(buffer);
+		if (image == null) {
+			BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			return bi.createGraphics();
+		}
 		int iw = image.getWidth(null);
 		int ih = image.getHeight(null);
 		BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_RGB);

@@ -272,9 +272,6 @@ public class EJEffects {
 		// For demo, we'll just print out the frame #, time &
 		// data length.
 
-		long t = (long) (frame.getTimeStamp() / 10000000f);
-		currentTime = (double) (frame.getTimeStamp());
-
 		Time startTime = ejSettings.effectCompo.grabberA.getBeginTime();
 		Time endTime = ejSettings.effectCompo.grabberA.getEndTime();
 
@@ -287,6 +284,10 @@ public class EJEffects {
 					- startTime.getNanoseconds());
 			seqnum++;
 		}
+
+		// Set currentTime and t AFTER adjusting for startTime to avoid negative values
+		long t = (long) (frame.getTimeStamp() / 10000000f);
+		currentTime = (double) (frame.getTimeStamp());
 
 		frame.setSequenceNumber(seqnum);
 
@@ -6812,6 +6813,9 @@ public class EJEffects {
 	private EFrame doMovie(EFrame frameIn) {
 		EFrame frameOut = new EFrame(frameIn.getBuffer());
 		EFrame frameIn0 = eFrameIn.get(0);
+		if (frameIn0 == null) {
+			return frameOut;
+		}
 		int width = frameIn0.getWidth();
 		int height = frameIn0.getHeight();
 		int numBands = frameIn0.getPixelStride();
@@ -6834,9 +6838,13 @@ public class EJEffects {
 			eFrameWork = eFrameOut;
 		}
 		int count = eFrameWork.getCount();
+		// Movie effect requires at least 2 frames for motion comparison
+		if (count < 2) {
+			return frameOut;
+		}
 		EFrame frameIn1 = eFrameWork.get(1);
 
-		if (frameIn1 == null || frameIn0 == null)
+		if (frameIn1 == null)
 			return frameOut;
 
 		BufferedImage biOut = frameOut.getBufferedImage();
@@ -10095,6 +10103,12 @@ public class EJEffects {
 		float yoffset = (float) ((height - yheight) * effectParams[4]);
 
 		Image image = frameIn.getImage();
+		if (image == null) {
+			image = frameIn.getBufferedImage();
+		}
+		if (image == null) {
+			return frameIn;
+		}
 		image = doJAICrop(image, xoffset, yoffset, xwidth, yheight);
 		image = doJAIScale(image, (float) width / xwidth, (float) height
 				/ yheight, 0.0F, 0.0F);
