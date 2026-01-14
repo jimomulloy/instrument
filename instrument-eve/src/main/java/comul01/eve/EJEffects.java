@@ -852,527 +852,527 @@ public class EJEffects {
 		);
 
 		String effectName = effectContext.name;
-		if (effectName == "deltaframes") {
+		if ("deltaframes".equals(effectName)) {
 			out = doDeltaFrames(in);
 			return out;
 		}
-		if (effectName == "deco") {
+		if ("deco".equals(effectName)) {
 			out = doDitherFrames(in);
 			return out;
 
 		}
-		if (effectName == "passtime") {
+		if ("passtime".equals(effectName)) {
 			out = doPassTime(in);
 			return out;
 		}
-		if (effectName == "timeframes") {
+		if ("timeframes".equals(effectName)) {
 			out = doTimeFrames(in);
 			return out;
 		}
-		if (effectName == "timeframework") {
+		if ("timeframework".equals(effectName)) {
 			out = doTimeFrameWork(in);
 			return out;
 		}
-		if (effectName == "maxtime") {
+		if ("maxtime".equals(effectName)) {
 			out = doMaxTime(in);
 			return out;
 		}
-		if (effectName == "mintime") {
+		if ("mintime".equals(effectName)) {
 			out = doMinTime(in);
 			return out;
 		}
-		if (effectName == "imagine") {
+		if ("imagine".equals(effectName)) {
 			out = doJAIImagine(in);
 			return out;
 		}
-		if (effectName == "jaiscale") {
+		if ("jaiscale".equals(effectName)) {
 			out = doJAIScale(in);
 			return out;
 		}
-		if (effectName == "scale") {
+		if ("scale".equals(effectName)) {
 			out = doJ2DScale(in);
 			return out;
 		}
-		if (effectName == "jaiinvert") {
+		if ("jaiinvert".equals(effectName)) {
 			out = doJAIInvert(in);
 			return out;
 		}
-		if (effectName == "intervene") {
+		if ("intervene".equals(effectName)) {
 			out = doIntervene(in);
 			return out;
 		}
-		if (effectName == "magnitude") {
+		if ("magnitude".equals(effectName)) {
 			out = doMagnitude(in);
 			return out;
 		}
 
-		if (effectName == "framemean") {
+		if ("framemean".equals(effectName)) {
 			out = doFrameMeanFilter(in);
 			return out;
 		}
-		if (effectName == "zebra") {
+		if ("zebra".equals(effectName)) {
 			out = doZebra(in);
 			return out;
 		}
-		if (effectName == "passfilter") {
+		if ("passfilter".equals(effectName)) {
 			out = doFramePassFilter();
 			return out;
 		}
-		if (effectName == "dft") {
+		if ("dft".equals(effectName)) {
 			out = doJAIdft(in);
 			return out;
 		}
-		if (effectName == "idft") {
+		if ("idft".equals(effectName)) {
 			out = doJAIidft(in);
 			return out;
 		}
-		if (effectName == "dctidct") {
+		if ("dctidct".equals(effectName)) {
 			out = doJAIdctidct(in);
 			return out;
 		}
-		if (effectName == "dctfilter") {
+		if ("dctfilter".equals(effectName)) {
 			out = doJAIdftidft(in);
 			return out;
 		}
-		if (effectName == "dct") {
+		if ("dct".equals(effectName)) {
 			out = doJAIdct(in);
 			return out;
 		}
 
-		if (effectName == "idct") {
+		if ("idct".equals(effectName)) {
 			out = doJAIidct(in);
 			return out;
 		}
-		if (effectName == "bandcombine") {
+		if ("bandcombine".equals(effectName)) {
 			out = doJAIBandCombine(in);
 			return out;
 		}
-		if (effectName == "colourconvert") {
+		if ("colourconvert".equals(effectName)) {
 			out = doJAIColorConvert(in);
 			return out;
 		}
-		if (effectName == "triplethreshold") {
+		if ("triplethreshold".equals(effectName)) {
 			out = doJAIThreshold(in);
 			return out;
 		}
-		if (effectName == "jailaplace") {
+		if ("jailaplace".equals(effectName)) {
 			out = doJAILaplaceFilter(in);
 			return out;
 		}
-		if (effectName == "sharpen") {
+		if ("sharpen".equals(effectName)) {
 			out = doJAISharpenFilter(in);
 			return out;
 		}
-		if (effectName == "emboss") {
+		if ("emboss".equals(effectName)) {
 			//??out = doJAIEmboss(in);
 			out = doCell(in);
 			return out;
 		}
-		if (effectName == "robertsedge") {
+		if ("robertsedge".equals(effectName)) {
 			out = doJAIRobertsEdge(in);
 			return out;
 		}
-		if (effectName == "freichenedge") {
+		if ("freichenedge".equals(effectName)) {
 			out = doJAIFreichenEdge(in);
 			return out;
 		}
-		if (effectName == "prewittedge") {
+		if ("prewittedge".equals(effectName)) {
 			out = doJAIPrewittEdge(in);
 			return out;
 		}
-		if (effectName == "sobeledge") {
+		if ("sobeledge".equals(effectName)) {
 			out = doJAISobelEdge(in);
 			return out;
 		}
-		if (effectName == "median") {
+		if ("median".equals(effectName)) {
 			out = doJAIMedian(in);
 			return out;
 		}
-		if (effectName == "timeconvolve") {
+		if ("timeconvolve".equals(effectName)) {
 			out = doTimeConvolve(in);
 			return out;
 		}
-		if (effectName == "convolve") {
+		if ("convolve".equals(effectName)) {
 			out = doConvolve(in);
 			return out;
 		}
-		if (effectName == "convolvespread") {
+		if ("convolvespread".equals(effectName)) {
 			out = doErrorDiffusion(in);
 
 			return out;
 		}
-		if (effectName == "brownian") {
+		if ("brownian".equals(effectName)) {
 			out = doBrownian(in);
 			return out;
 		}
-		if (effectName == "histogram") {
+		if ("histogram".equals(effectName)) {
 			out = doHistogram(in);
 			return out;
 		}
-		if (effectName == "zerox") {
+		if ("zerox".equals(effectName)) {
 			out = doZerox(in);
 			return out;
 		}
-		if (effectName == "texturemix") {
+		if ("texturemix".equals(effectName)) {
 			out = doPassTime2(in);
 			//out = new EFrame(in.getBuffer());
 			return out;
 		}
-		if (effectName == "equalise") {
+		if ("equalise".equals(effectName)) {
 			out = doEqualise(in);
 			return out;
 		}
-		if (effectName == "movie") {
+		if ("movie".equals(effectName)) {
 			out = doMovie(in);
 			return out;
 		}
 
-		if (effectName == "hough") {
+		if ("hough".equals(effectName)) {
 			out = doHough(in);
 			return out;
 		}
-		if (effectName == "ihough") {
+		if ("ihough".equals(effectName)) {
 			out = doHoughInverse(in);
 			return out;
 		}
-		if (effectName == "multiplyconst") {
+		if ("multiplyconst".equals(effectName)) {
 			out = doJAIMultiplyConst(in);
 			return out;
 		}
-		if (effectName == "divideconst") {
+		if ("divideconst".equals(effectName)) {
 			out = doJAIDivideConst(in);
 			return out;
 		}
-		if (effectName == "addconst") {
+		if ("addconst".equals(effectName)) {
 			out = doJAIAddConst(in);
 			return out;
 		}
-		if (effectName == "subtractconst") {
+		if ("subtractconst".equals(effectName)) {
 			out = doJAISubtractConst(in);
 			return out;
 		}
 
-		if (effectName == "threshold") {
+		if ("threshold".equals(effectName)) {
 			out = doThreshold(in);
 			return out;
 		}
-		if (effectName == "localhistogram") {
+		if ("localhistogram".equals(effectName)) {
 			out = doLocalHistogram(in);
 			return out;
 		}
-		if (effectName == "contrast") {
+		if ("contrast".equals(effectName)) {
 			//??
 			out = doContrast(in);
 			return out;
 		}
 
-		if (effectName == "lin") {
+		if ("lin".equals(effectName)) {
 			out = doLIN(in);
 			return out;
 		}
-		if (effectName == "sin") {
+		if ("sin".equals(effectName)) {
 			out = doSIN(in);
 			return out;
 		}
-		if (effectName == "dolps") {
+		if ("dolps".equals(effectName)) {
 			out = doDOLPS(in);
 			return out;
 		}
-		if (effectName == "crackdetect") {
+		if ("crackdetect".equals(effectName)) {
 			out = doCrackDetect(in);
 			return out;
 		}
 
-		if (effectName == "centroid") {
+		if ("centroid".equals(effectName)) {
 			out = doCentroid(in);
 			return out;
 		}
 
-		if (effectName == "grassfire") {
+		if ("grassfire".equals(effectName)) {
 			out = doGrassFire(in);
 			return out;
 		}
 
-		if (effectName == "limb") {
+		if ("limb".equals(effectName)) {
 			out = doLimb(in);
 			return out;
 		}
-		if (effectName == "junction") {
+		if ("junction".equals(effectName)) {
 			out = doJunction(in);
 			return out;
 		}
-		if (effectName == "chamfer") {
+		if ("chamfer".equals(effectName)) {
 			out = doChamfer(in);
 			return out;
 		}
 
-		if (effectName == "zerocrossing") {
+		if ("zerocrossing".equals(effectName)) {
 			out = doZeroCrossing(in);
 			return out;
 		}
 
-		if (effectName == "clearwhite") {
+		if ("clearwhite".equals(effectName)) {
 			out = doClearWhite(in);
 			return out;
 		}
 
-		if (effectName == "dilation") {
+		if ("dilation".equals(effectName)) {
 			out = doDilation(in, dilationMatrix);
 			return out;
 		}
 
-		if (effectName == "erosion") {
+		if ("erosion".equals(effectName)) {
 			out = doErosion(in, erosionMatrix);
 			return out;
 		}
 
-		if (effectName == "opening") {
+		if ("opening".equals(effectName)) {
 			out = doOpening(in);
 			return out;
 		}
 
-		if (effectName == "closing") {
+		if ("closing".equals(effectName)) {
 			out = doClosing(in);
 			return out;
 		}
 
-		if (effectName == "internalgradient") {
+		if ("internalgradient".equals(effectName)) {
 			out = doInternalGradient(in);
 			return out;
 		}
 
-		if (effectName == "externalgradient") {
+		if ("externalgradient".equals(effectName)) {
 			out = doExternalGradient(in);
 			return out;
 		}
 
-		if (effectName == "morphgradient") {
+		if ("morphgradient".equals(effectName)) {
 			out = doMorphGradient(in);
 			return out;
 		}
 
-		if (effectName == "whitetophat") {
+		if ("whitetophat".equals(effectName)) {
 			out = doWhiteTopHat(in);
 			return out;
 		}
 
-		if (effectName == "blacktophat") {
+		if ("blacktophat".equals(effectName)) {
 			out = doBlackTopHat(in);
 			return out;
 		}
 
-		if (effectName == "reconstruct") {
+		if ("reconstruct".equals(effectName)) {
 			out = doReconstruct(in);
 			return out;
 		}
 
-		if (effectName == "watermark") {
+		if ("watermark".equals(effectName)) {
 			out = doWaterMark(in);
 			return out;
 		}
 
-		if (effectName == "walkline") {
+		if ("walkline".equals(effectName)) {
 			out = doWalkLine(in);
 			return out;
 		}
 
-		if (effectName == "shade") {
+		if ("shade".equals(effectName)) {
 			out = doShade(in);
 			return out;
 		}
 
-		if (effectName == "fill") {
+		if ("fill".equals(effectName)) {
 			out = doFill(in);
 			return out;
 		}
 
-		if (effectName == "leader") {
+		if ("leader".equals(effectName)) {
 			out = doLeader(in);
 			return out;
 		}
 
-		if (effectName == "compose") {
+		if ("compose".equals(effectName)) {
 			out = doCompose(in);
 			return out;
 		}
 
-		if (effectName == "warppath") {
+		if ("warppath".equals(effectName)) {
 			out = doWarpPath(in);
 			return out;
 		}
 
-		if (effectName == "waterripple") {
+		if ("waterripple".equals(effectName)) {
 			out = doWaterRipple(in);
 			return out;
 		}
 
-		if (effectName == "coco") {
+		if ("coco".equals(effectName)) {
 			out = doCoco(in);
 			return out;
 		}
 
-		if (effectName == "coco2") {
+		if ("coco2".equals(effectName)) {
 			//out = doCoco2(in);
 			out = doPassTime3(in);
 			return out;
 		}
 
-		if (effectName == "normalise") {
+		if ("normalise".equals(effectName)) {
 			out = doNormalise(in);
 			return out;
 		}
 
-		if (effectName == "thinning") {
+		if ("thinning".equals(effectName)) {
 			out = doThinning2(in);
 			return out;
 		}
 
-		if (effectName == "band") {
+		if ("band".equals(effectName)) {
 			out = doBand(in);
 			return out;
 		}
 
-		if (effectName == "bits") {
+		if ("bits".equals(effectName)) {
 			out = doBits(in);
 			return out;
 		}
 
-		if (effectName == "warpgen") {
+		if ("warpgen".equals(effectName)) {
 			out = doWarpGen(in);
 			return out;
 		}
 
-		if (effectName == "border") {
+		if ("border".equals(effectName)) {
 			out = doBinaryBorder(in);
 			return out;
 		}
 
-		if (effectName == "dither") {
+		if ("dither".equals(effectName)) {
 			out = doDither(in);
 			return out;
 		}
 
-		if (effectName == "reco") {
+		if ("reco".equals(effectName)) {
 			out = doReconstruct1(in);
 			return out;
 		}
 
-		if (effectName == "crop") {
+		if ("crop".equals(effectName)) {
 			out = doCrop(in);
 			return out;
 		}
 
-		if (effectName == "laplace") {
+		if ("laplace".equals(effectName)) {
 			out = doLaplace(in);
 			return out;
 		}
 
-		if (effectName == "derive") {
+		if ("derive".equals(effectName)) {
 			out = doDerive(in);
 			return out;
 		}
 
-		if (effectName == "boundary") {
+		if ("boundary".equals(effectName)) {
 			out = doBoundary(in);
 			return out;
 		}
 
-		if (effectName == "disconnect") {
+		if ("disconnect".equals(effectName)) {
 			out = doDisconnect(in);
 			return out;
 		}
 
-		if (effectName == "pointillism") {
+		if ("pointillism".equals(effectName)) {
 			out = doPointy(in);
 			return out;
 		}
 
-		if (effectName == "pointy2") {
+		if ("pointy2".equals(effectName)) {
 			out = doPointy2(in);
 			return out;
 		}
 
-		if (effectName == "waves") {
+		if ("waves".equals(effectName)) {
 			out = doWaves(in);
 			return out;
 		}
-		if (effectName == "yiq") {
+		if ("yiq".equals(effectName)) {
 			out = doYiq(in);
 			return out;
 		}
-		if (effectName == "yiq2") {
+		if ("yiq2".equals(effectName)) {
 			out = doYiq2(in);
 			return out;
 		}
 
-		if (effectName == "rgbtohsi") {
+		if ("rgbtohsi".equals(effectName)) {
 			out = doRGBToHSI(in);
 			return out;
 		}
 
-		if (effectName == "hsitorgb") {
+		if ("hsitorgb".equals(effectName)) {
 			out = doHSIToRGB(in);
 			return out;
 		}
 
-		if (effectName == "invert") {
+		if ("invert".equals(effectName)) {
 			out = doInvert(in);
 			return out;
 		}
 
-		if (effectName == "hsi") {
+		if ("hsi".equals(effectName)) {
 			out = doHsi(in);
 			return out;
 		}
 
-		if (effectName == "timeflow") {
+		if ("timeflow".equals(effectName)) {
 			out = doTimeFlow(in);
 			return out;
 		}
 
-		if (effectName == "timecorelate") {
+		if ("timecorelate".equals(effectName)) {
 			out = doTimeCorelate(in);
 			return out;
 		}
-		if (effectName == "gaussian") {
+		if ("gaussian".equals(effectName)) {
 			out = doGaussian(in);
 			return out;
 		}
-		if (effectName == "sobelmax") {
+		if ("sobelmax".equals(effectName)) {
 			out = doSobelMax(in);
 			return out;
 		}
-		if (effectName == "hysteresis") {
+		if ("hysteresis".equals(effectName)) {
 			out = doHysteresis(in);
 			return out;
 		}
 
-		if (effectName == "marrhill") {
+		if ("marrhill".equals(effectName)) {
 			out = doMarrHill(in);
 			return out;
 		}
 
-		if (effectName == "timemix") {
+		if ("timemix".equals(effectName)) {
 			out = doTimeMix(in);
 			return out;
 		}
 
-		if (effectName == "jaitranslate") {
+		if ("jaitranslate".equals(effectName)) {
 			out = doJAITranslate(in);
 			return out;
 		}
 
-		if (effectName == "enhance") {
+		if ("enhance".equals(effectName)) {
 			out = doJAIEnhance(in);
 			return out;
 		}
 
-		if (effectName == "translate") {
+		if ("translate".equals(effectName)) {
 			out = doTranslate(in);
 			return out;
 		}
 
-		if (effectName == "jaiwarp") {
+		if ("jaiwarp".equals(effectName)) {
 			out = doJAIWarp(in);
 			return out;
 		}
@@ -1387,31 +1387,31 @@ public class EJEffects {
 	private EFrame doComboEffect(EFrame inA, EFrame inB) {
 		EFrame out;
 		String effectName = effectContext.name;
-		if (effectName == "add") {
+		if ("add".equals(effectName)) {
 			out = doJAIAdd(inA, inB);
 			return out;
 		}
-		if (effectName == "dummy") {
+		if ("dummy".equals(effectName)) {
 			out = doDummy(inA, inB);
 			return out;
 		}
-		if (effectName == "subtract") {
+		if ("subtract".equals(effectName)) {
 			out = doJAISubtract(inA, inB);
 			return out;
 		}
-		if (effectName == "subtractmean") {
+		if ("subtractmean".equals(effectName)) {
 			out = doJAISubtractM(inA, inB);
 			return out;
 		}
-		if (effectName == "multiply") {
+		if ("multiply".equals(effectName)) {
 			out = doJAIMultiply(inA, inB);
 			return out;
 		}
-		if (effectName == "max") {
+		if ("max".equals(effectName)) {
 			out = doJAIMax(inA, inB);
 			return out;
 		}
-		if (effectName == "min") {
+		if ("min".equals(effectName)) {
 			out = doJAIMin(inA, inB);
 			return out;
 		}
