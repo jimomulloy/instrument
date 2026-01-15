@@ -468,6 +468,13 @@ public class EFrame {
 			bib = new BufferedImage(wb, hb, BufferedImage.TYPE_INT_RGB);
 			bib.createGraphics().drawImage(broll ,0 ,0 , null);
 			rb = bib.getRaster();
+			System.out.println("EFrame.composite: broll=" + wb + "x" + hb +
+				", frame=" + getWidth() + "x" + getHeight() +
+				", offset=" + xoffset + "," + yoffset +
+				", alpha=[" + alpha[0] + "," + alpha[1] + "," + alpha[2] + "]" +
+				", mode=" + mode + ", opt1=" + option1 + ", opt2=" + option2);
+		} else {
+			System.out.println("EFrame.composite: broll is NULL");
 		}
 
 		if (mask != null) {

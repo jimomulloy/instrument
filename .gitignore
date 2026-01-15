@@ -21,3 +21,5 @@ buildNumber.properties
 .vscode/settings.json
 ejs/mod-normal-lut-short.avi
 ejs/mod-normal-lut.avi
+ejs/test-eve-short.avi
+ejs/test-eve-7secs.avi

@@ -309,20 +309,112 @@ public class VideoCutPanel extends JPanel
 		Image imageOut1 = null;
 		Image imageS = null;
 		Image imageE = null;
-		if (mediaType == VIDEO && player != null && fgc != null) {
-			Time offsetTime = new Time(grabTime+getBeginTime().getNanoseconds());
+		if (mediaType == VIDEO && player != null && fgc != null && fpc != null) {
+			// Check if HumbleVideoPlayer is ready before attempting to grab frames
+			if (player instanceof HumbleVideoPlayer) {
+				HumbleVideoPlayer hvp = (HumbleVideoPlayer) player;
+				if (!hvp.isReady()) {
+					System.err.println("VideoCutPanel.grabImage: HumbleVideoPlayer not ready for grabbing");
+					return null;
+				}
+			}
+
+			// grabTime appears to be in microseconds from the frame timestamp, convert to nanoseconds
+			// by multiplying by 1000 (if the value seems too small for nanoseconds)
+			long grabTimeNanos = grabTime;
+			if (grabTime > 0 && grabTime < 1000000000L) {
+				// Value is too small to be nanoseconds for any reasonable video duration
+				// Assume it's microseconds and convert to nanoseconds
+				grabTimeNanos = grabTime * 1000L;
+			}
+			Time offsetTime = new Time(grabTimeNanos + getBeginTime().getNanoseconds());
 			int offsetFrame = fpc.mapTimeToFrame(offsetTime);
 			Time actualOffsetTime = fpc.mapFrameToTime(offsetFrame);
+			System.out.println("VideoCutPanel.grabImage: grabTime=" + grabTime +
+				" (as nanos=" + grabTimeNanos + ")" +
+				", beginTime=" + getBeginTime().getNanoseconds() +
+				", offsetTime=" + offsetTime.getNanoseconds() +
+				", offsetFrame=" + offsetFrame +
+				", frameRate=" + (fpc instanceof HumbleVideoPlayer ? ((HumbleVideoPlayer)fpc).getFrameRate() : "unknown"));
 			Buffer frame = null;
 			VideoFormat format = null;
 			BufferToImage btoimg = null;
 			fpc.seek(offsetFrame);
 			frame = fgc.grabFrame();
+
+			// Validate frame before processing
+			if (frame == null || frame.getData() == null) {
+				System.err.println("VideoCutPanel.grabImage: Failed to grab frame at offset " + offsetFrame);
+				return null;
+			}
+
 			format = (VideoFormat)frame.getFormat();
+			if (format == null) {
+				System.err.println("VideoCutPanel.grabImage: Frame has no format");
+				return null;
+			}
+
 			btoimg = new BufferToImage(format);
 			imageOut = btoimg.createImage(frame);
-			System.out.println("vc grab Image "+grabTime+", "+actualOffsetTime.getNanoseconds()+", "+
-						offsetTime.getNanoseconds()+", "+offsetFrame);
+
+			// Fallback: if BufferToImage fails, create image directly from byte data
+			if (imageOut == null && format instanceof javax.media.format.RGBFormat) {
+				javax.media.format.RGBFormat rgbFormat = (javax.media.format.RGBFormat) format;
+				java.awt.Dimension size = rgbFormat.getSize();
+				if (size != null && frame.getData() instanceof byte[]) {
+					byte[] data = (byte[]) frame.getData();
+					int w = size.width;
+					int h = size.height;
+					int pixelStride = rgbFormat.getPixelStride();
+					int lineStride = rgbFormat.getLineStride();
+					int redMask = rgbFormat.getRedMask();
+
+					if (pixelStride == 3 && w > 0 && h > 0) {
+						java.awt.image.BufferedImage bi = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
+						int[] pixels = new int[w * h];
+
+						// Determine byte order from red mask position
+						boolean rgbOrder = (redMask == 1); // Red at offset 0 means RGB order
+
+						for (int y = 0; y < h; y++) {
+							// Video data is typically stored bottom-up, so flip vertically
+							int srcY = h - 1 - y;
+							for (int x = 0; x < w; x++) {
+								int srcIdx = srcY * lineStride + x * pixelStride;
+								if (srcIdx + 2 < data.length) {
+									int r, g, b;
+									if (rgbOrder) {
+										r = data[srcIdx] & 0xFF;
+										g = data[srcIdx + 1] & 0xFF;
+										b = data[srcIdx + 2] & 0xFF;
+									} else {
+										b = data[srcIdx] & 0xFF;
+										g = data[srcIdx + 1] & 0xFF;
+										r = data[srcIdx + 2] & 0xFF;
+									}
+									pixels[y * w + x] = (r << 16) | (g << 8) | b;
+								}
+							}
+						}
+						bi.setRGB(0, 0, w, h, pixels, 0, w);
+						imageOut = bi;
+						System.out.println("VideoCutPanel.grabImage: Created image using fallback method");
+					}
+				}
+			}
+
+			if (imageOut == null) {
+				System.err.println("VideoCutPanel.grabImage: Failed to create image (BufferToImage and fallback both failed)");
+				System.err.println("  Frame details: length=" + frame.getLength() +
+					", offset=" + frame.getOffset() +
+					", data=" + (frame.getData() != null ? frame.getData().getClass().getSimpleName() + "[" + java.lang.reflect.Array.getLength(frame.getData()) + "]" : "null") +
+					", discard=" + frame.isDiscard() +
+					", eom=" + frame.isEOM());
+				System.err.println("  Format: " + format);
+			}
+
+			System.out.println("vc grab Image [" + this.hashCode() + "] "+grabTime+", "+actualOffsetTime.getNanoseconds()+", "+
+						offsetTime.getNanoseconds()+", "+offsetFrame + ", imageOut=" + (imageOut != null));
 			long timeDiff = actualOffsetTime.getNanoseconds()-offsetTime.getNanoseconds();
 			return imageOut;
 	
@@ -400,25 +492,102 @@ public class VideoCutPanel extends JPanel
 		else if (mediaType == IMAGE) {
 			return image;
 		}
+		// Log why we're returning null
+		System.err.println("VideoCutPanel.grabImage: Returning null - mediaType=" + mediaType +
+			", player=" + (player != null) + ", fgc=" + (fgc != null) + ", fpc=" + (fpc != null));
 		return null;
 	}
 
 	public Image grabFrame(int frameNumber) {
 		Image imageOut = null;
-		if (mediaType == VIDEO && player != null && fgc != null) {
+		if (mediaType == VIDEO && player != null && fgc != null && fpc != null) {
+			// Check if HumbleVideoPlayer is ready before attempting to grab frames
+			if (player instanceof HumbleVideoPlayer) {
+				HumbleVideoPlayer hvp = (HumbleVideoPlayer) player;
+				if (!hvp.isReady()) {
+					System.err.println("VideoCutPanel.grabFrame: HumbleVideoPlayer not ready for grabbing");
+					return null;
+				}
+			}
+
 			Buffer frame = null;
 			VideoFormat format = null;
 			BufferToImage btoimg = null;
 			fpc.seek(frameNumber);
 			frame = fgc.grabFrame();
+
+			// Validate frame before processing
+			if (frame == null || frame.getData() == null) {
+				System.err.println("VideoCutPanel.grabFrame: Failed to grab frame " + frameNumber);
+				return null;
+			}
+
 			format = (VideoFormat)frame.getFormat();
+			if (format == null) {
+				System.err.println("VideoCutPanel.grabFrame: Frame has no format");
+				return null;
+			}
+
 			btoimg = new BufferToImage(format);
 			imageOut = btoimg.createImage(frame);
+
+			// Fallback: if BufferToImage fails, create image directly from byte data
+			if (imageOut == null && format instanceof javax.media.format.RGBFormat) {
+				javax.media.format.RGBFormat rgbFormat = (javax.media.format.RGBFormat) format;
+				java.awt.Dimension size = rgbFormat.getSize();
+				if (size != null && frame.getData() instanceof byte[]) {
+					byte[] data = (byte[]) frame.getData();
+					int w = size.width;
+					int h = size.height;
+					int pixelStride = rgbFormat.getPixelStride();
+					int lineStride = rgbFormat.getLineStride();
+					int redMask = rgbFormat.getRedMask();
+
+					if (pixelStride == 3 && w > 0 && h > 0) {
+						java.awt.image.BufferedImage bi = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
+						int[] pixels = new int[w * h];
+
+						// Determine byte order from red mask position
+						boolean rgbOrder = (redMask == 1); // Red at offset 0 means RGB order
+
+						for (int y = 0; y < h; y++) {
+							// Video data is typically stored bottom-up, so flip vertically
+							int srcY = h - 1 - y;
+							for (int x = 0; x < w; x++) {
+								int srcIdx = srcY * lineStride + x * pixelStride;
+								if (srcIdx + 2 < data.length) {
+									int r, g, b;
+									if (rgbOrder) {
+										r = data[srcIdx] & 0xFF;
+										g = data[srcIdx + 1] & 0xFF;
+										b = data[srcIdx + 2] & 0xFF;
+									} else {
+										b = data[srcIdx] & 0xFF;
+										g = data[srcIdx + 1] & 0xFF;
+										r = data[srcIdx + 2] & 0xFF;
+									}
+									pixels[y * w + x] = (r << 16) | (g << 8) | b;
+								}
+							}
+						}
+						bi.setRGB(0, 0, w, h, pixels, 0, w);
+						imageOut = bi;
+						System.out.println("VideoCutPanel.grabFrame: Created image using fallback method");
+					}
+				}
+			}
+
+			if (imageOut == null) {
+				System.err.println("VideoCutPanel.grabFrame: Failed to create image for frame " + frameNumber);
+			}
+
 			return imageOut;
 		}
 		else if (mediaType == IMAGE) {
 			return image;
 		}
+		System.err.println("VideoCutPanel.grabFrame: Returning null - mediaType=" + mediaType +
+			", player=" + (player != null) + ", fgc=" + (fgc != null) + ", fpc=" + (fpc != null));
 		return null;
 	}
 

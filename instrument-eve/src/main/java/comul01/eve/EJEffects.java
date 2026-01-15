@@ -337,6 +337,7 @@ public class EJEffects {
 		interFrame = null;
 		eFrameIn.put(thisFrame);
 		seqNumber = (int) frame.getSequenceNumber();
+		System.out.println("EJEffects.processFrame: frame seqNumber=" + seqNumber + " (from buffer sequenceNumber=" + frame.getSequenceNumber() + ")");
 
 		int i = 0;
 		int maxSeq = 0;
@@ -8728,11 +8729,25 @@ public class EJEffects {
 
 			bStartTime = ejSettings.effectCompo.grabberB.getBeginTime();
 			bEndTime = ejSettings.effectCompo.grabberB.getEndTime();
+
+			// Validate B-roll times before proceeding
+			if (bStartTime == null || bEndTime == null) {
+				System.err.println("DoCompose: B-roll start/end time is null, skipping B-roll");
+				return frameOut;
+			}
+
 			bStartFrame = ejSettings.effectCompo.grabberB.getBeginFrame();
 			bEndFrame = ejSettings.effectCompo.grabberB.getEndFrame();
 
 			bTimeLength = bEndTime.getNanoseconds()
 					- bStartTime.getNanoseconds();
+
+			// Validate time length
+			if (bTimeLength <= 0) {
+				System.err.println("DoCompose: B-roll time length is invalid (" + bTimeLength + "), skipping B-roll");
+				return frameOut;
+			}
+
 			bTimeOffset = (long) ((double) bTimeLength * tboffp);
 			bcompoTime = bTimeOffset + bStartTime.getNanoseconds();
 			System.out.println("broll :" + bcompoTime + ", " + bTimeOffset
@@ -8746,18 +8761,36 @@ public class EJEffects {
 
 			}
 			if (effectContext.option2) {
-
-				workFrame = (int) Math.abs((1 + ((int) Math.abs(seqNumber - 1))
-						/ (int) compoCount));
-				targetFrame = workFrame + (workFrame - 1) * (compoStep - 1)
-						+ bStartFrame;
+				// Calculate which B-roll frame to use based on A-roll sequence number
+				// Map A-roll frames to B-roll frames
+				int brollFrameCount = bEndFrame - bStartFrame + 1;
+				if (brollFrameCount > 0) {
+					// Use seqNumber to step through B-roll frames
+					// compoStep controls how many B-roll frames to advance per A-roll frame
+					targetFrame = bStartFrame + ((seqNumber - 1) * compoStep) % brollFrameCount;
+				} else {
+					targetFrame = bStartFrame;
+				}
 				if (targetFrame > bEndFrame)
 					targetFrame = bEndFrame;
-				// or set broll, to null ??
+				if (targetFrame < bStartFrame) {
+					targetFrame = bStartFrame;
+				}
+				System.out.println("Broll calc: seqNumber=" + seqNumber +
+						", brollFrameCount=" + brollFrameCount +
+						", compoStep=" + compoStep +
+						", targetFrame=" + targetFrame +
+						", bStartFrame=" + bStartFrame +
+						", bEndFrame=" + bEndFrame);
 				broll = ejSettings.effectCompo.grabberB.grabFrame(targetFrame);
 				System.out.println("Broll frames " + targetFrame + ", "
 						+ bStartFrame + ", " + bEndFrame + ", " + compoStep
 						+ ", " + compoCount + ", " + seqNumber);
+
+				// Check if frame grab failed
+				if (broll == null) {
+					System.err.println("DoCompose: Failed to grab B-roll frame " + targetFrame);
+				}
 
 			} else {
 				long nextTime = (long) currentTime + bcompoTime
@@ -8771,6 +8804,10 @@ public class EJEffects {
 				if (nextTime > bEndTime.getNanoseconds()) {
 					nextTime = bEndTime.getNanoseconds();
 				}
+				// Ensure nextTime is not negative
+				if (nextTime < 0) {
+					nextTime = 0;
+				}
 
 				broll = ejSettings.effectCompo.grabberB.grabImage(nextTime);
 				//broll =
@@ -8778,37 +8815,48 @@ public class EJEffects {
 				System.out.println("broll time:" + currentTime + ", "
 						+ bcompoTime + ", " + bStartTime.getNanoseconds());
 
-			}
-			if (broll != null) {
-				System.out.println("DoCompose Scale broll "
-						+ broll.getWidth(null) + ", " + broll.getHeight(null));
-				if (!squeeze) {
-					if ((float) (width * xscalep) != (float) broll
-							.getWidth(null)
-							|| (float) (height * yscalep) != (float) broll
-									.getHeight(null)) {
-						broll = doJAIScale(broll, (float) width
-								* (float) xscalep
-								/ (float) broll.getWidth(null), (float) height
-								* (float) yscalep
-								/ (float) broll.getHeight(null), 0.0F, 0.0F);
-					}
-				} else {
-					if ((float) ((effectParams[1]/effectParams[2])*width * xoffp) != broll.getWidth(null)
-							|| (float) (height * (effectParams[1]/effectParams[2])*yoffp) != (float) broll
-									.getHeight(null)) {
-						broll = doJAIScale(broll, (float) width * (float) (effectParams[1]/effectParams[2])*(float) xoffp
-								/ (float) broll.getWidth(null),
-								(float) height * (float) (effectParams[1]/effectParams[2])*(float) yoffp
-										/ (float) broll.getHeight(null), 0.0F,
-								0.0F);
-					}
+				// Check if image grab failed
+				if (broll == null) {
+					System.err.println("DoCompose: Failed to grab B-roll image at time " + nextTime);
 				}
 
-				//frameOut = doWarpCompo(frameOut,broll);
+			}
+			if (broll != null) {
+				// Validate broll dimensions before scaling
+				int brollWidth = broll.getWidth(null);
+				int brollHeight = broll.getHeight(null);
+				if (brollWidth <= 0 || brollHeight <= 0) {
+					System.err.println("DoCompose: B-roll has invalid dimensions (" + brollWidth + "x" + brollHeight + "), skipping");
+					broll = null;
+				} else {
+					System.out.println("DoCompose Scale broll " + brollWidth + ", " + brollHeight);
+					if (!squeeze) {
+						if ((float) (width * xscalep) != (float) brollWidth
+								|| (float) (height * yscalep) != (float) brollHeight) {
+							broll = doJAIScale(broll, (float) width
+									* (float) xscalep
+									/ (float) brollWidth, (float) height
+									* (float) yscalep
+									/ (float) brollHeight, 0.0F, 0.0F);
+						}
+					} else {
+						if ((float) ((effectParams[1]/effectParams[2])*width * xoffp) != brollWidth
+								|| (float) (height * (effectParams[1]/effectParams[2])*yoffp) != (float) brollHeight) {
+							broll = doJAIScale(broll, (float) width * (float) (effectParams[1]/effectParams[2])*(float) xoffp
+									/ (float) brollWidth,
+									(float) height * (float) (effectParams[1]/effectParams[2])*(float) yoffp
+											/ (float) brollHeight, 0.0F,
+									0.0F);
+						}
+					}
 
-				System.out.println("DoCompose After Scale broll "
-						+ broll.getWidth(null) + ", " + broll.getHeight(null));
+					//frameOut = doWarpCompo(frameOut,broll);
+
+					if (broll != null) {
+						System.out.println("DoCompose After Scale broll "
+								+ broll.getWidth(null) + ", " + broll.getHeight(null));
+					}
+				}
 			}
 		}
 		System.out.println("compose test a");
@@ -8870,8 +8918,13 @@ public class EJEffects {
 		if (compoNumber == 0) {
 			xoffset = (int) (xoffp * (double) width);
 			yoffset = (int) (yoffp * (double) height);
-			frameOut.composite(broll, mask, alphaControls, compoMode, xoffset,
-					yoffset, effectContext.option5, effectContext.option6);
+			// Only composite if broll is available
+			if (broll != null) {
+				frameOut.composite(broll, mask, alphaControls, compoMode, xoffset,
+						yoffset, effectContext.option5, effectContext.option6);
+			} else {
+				System.out.println("DoCompose: Skipping composite - no B-roll available");
+			}
 		} else {
 			if (effectContext.option6) {
 				xoffset = width - (int) Math.ceil((xoffp * (double) width));
@@ -8879,7 +8932,11 @@ public class EJEffects {
 			for (int i = 1; i <= compoNumber && yoffset < height; i++) {
 				System.out.println("compo offset " + xoffset + ", " + yoffset
 						+ ", " + i + ", " + compoNumber);
-				if (compoEffectList != null) {
+
+				// Skip this iteration if broll is null
+				if (broll == null) {
+					System.out.println("DoCompose: Skipping iteration " + i + " - no B-roll available");
+				} else if (compoEffectList != null) {
 					System.out.println("compo effct list "
 							+ compoEffectList.size());
 					newBuffer = frameIn.getBuffer();
@@ -8908,12 +8965,40 @@ public class EJEffects {
 					if (index >= compoEffectList.size())
 						index = compoEffectList.size() - 1;
 					compoEffect = (EJEffects) compoEffectList.get(index);
-					compoEffect.processFrame(newBuffer);
+					System.out.println("DoCompose: calling processFrame on compoEffect");
+					try {
+						compoEffect.processFrame(newBuffer);
+						System.out.println("DoCompose: processFrame completed");
+					} catch (Exception e) {
+						System.err.println("DoCompose: processFrame threw exception: " + e.getMessage());
+						e.printStackTrace();
+					}
+
+					System.out.println("DoCompose: creating BufferToImage");
 					BufferToImage btoi = new BufferToImage(
 							(VideoFormat) newBuffer.getFormat());
 					brolle = btoi.createImage(newBuffer);
-					frameOut.composite(brolle, mask, alphaControls, compoMode,
-							xoffset, yoffset);
+					System.out.println("DoCompose: BufferToImage.createImage returned " + (brolle != null ? "image" : "null"));
+
+					// Fallback if BufferToImage fails - use the processed frame directly
+					if (brolle == null) {
+						System.out.println("DoCompose: BufferToImage failed for processed frame, using EFrame fallback");
+						EFrame processedFrame = new EFrame(newBuffer);
+						RenderedOp rop = processedFrame.getRenderedOp();
+						if (rop != null) {
+							brolle = rop.getAsBufferedImage();
+							System.out.println("DoCompose: EFrame fallback returned " + (brolle != null ? "image" : "null"));
+						}
+					}
+
+					if (brolle != null) {
+						System.out.println("DoCompose: calling composite with brolle");
+						frameOut.composite(brolle, mask, alphaControls, compoMode,
+								xoffset, yoffset);
+						System.out.println("DoCompose: composite completed");
+					} else {
+						System.err.println("DoCompose: Failed to create image for composite, skipping");
+					}
 
 				} else {
 					frameOut.composite(broll, mask, alphaControls, compoMode,

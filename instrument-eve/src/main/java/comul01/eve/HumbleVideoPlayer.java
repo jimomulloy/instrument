@@ -50,10 +50,16 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
 
     private Component visualComponent;
     private Thread playbackThread;
-    private boolean playing = false;
+    private volatile boolean playing = false;
     private float rate = 1.0f;
 
     private Time stopTime = null;
+
+    // Lock for thread-safe access to decoder resources
+    private final Object decoderLock = new Object();
+
+    // Total frame count for bounds checking
+    private int totalFrames = 0;
 
     public HumbleVideoPlayer(URL url) {
         String urlStr = url.toExternalForm();
@@ -122,10 +128,12 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
                         long duration = demuxer.getDuration();
                         if (duration != Global.NO_PTS) {
                             durationNanos = duration * 1000;
+                            // Calculate total frames from duration and frame rate
+                            totalFrames = (int) (durationNanos / 1e9 * frameRate);
                         }
 
                         System.out.println("HumbleVideoPlayer: Video - " + videoWidth + "x" + videoHeight +
-                            " @ " + frameRate + " fps, codec: " + videoDecoder.getCodec().getName());
+                            " @ " + frameRate + " fps, frames: " + totalFrames + ", codec: " + videoDecoder.getCodec().getName());
 
                         // Create decode buffers
                         picture = MediaPicture.make(videoWidth, videoHeight, videoDecoder.getPixelFormat());
@@ -401,40 +409,62 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
 
     @Override
     public Buffer grabFrame() {
-        if (currentImage == null) return null;
+        synchronized (decoderLock) {
+            if (currentImage == null) return null;
 
-        Buffer buffer = new Buffer();
-        int w = currentImage.getWidth();
-        int h = currentImage.getHeight();
+            Buffer buffer = new Buffer();
+            int w = currentImage.getWidth();
+            int h = currentImage.getHeight();
 
-        int[] pixels = new int[w * h];
-        currentImage.getRGB(0, 0, w, h, pixels, 0, w);
+            int[] pixels = new int[w * h];
+            currentImage.getRGB(0, 0, w, h, pixels, 0, w);
 
-        byte[] data = new byte[w * h * 3];
-        for (int i = 0; i < pixels.length; i++) {
-            int pixel = pixels[i];
-            data[i * 3] = (byte) (pixel & 0xFF);           // Blue
-            data[i * 3 + 1] = (byte) ((pixel >> 8) & 0xFF);    // Green
-            data[i * 3 + 2] = (byte) ((pixel >> 16) & 0xFF);   // Red
+            // Store in RGB order (Red, Green, Blue) to match mask order 1, 2, 3
+            byte[] data = new byte[w * h * 3];
+            for (int i = 0; i < pixels.length; i++) {
+                int pixel = pixels[i];
+                data[i * 3] = (byte) ((pixel >> 16) & 0xFF);   // Red
+                data[i * 3 + 1] = (byte) ((pixel >> 8) & 0xFF);    // Green
+                data[i * 3 + 2] = (byte) (pixel & 0xFF);           // Blue
+            }
+
+            buffer.setData(data);
+            buffer.setOffset(0);
+            buffer.setLength(data.length);
+            // Use RGB order masks (1, 2, 3) to match data layout
+            buffer.setFormat(new RGBFormat(
+                new Dimension(w, h),
+                w * h * 3,
+                Format.byteArray,
+                (float) frameRate,
+                24,
+                1, 2, 3,    // Red=1, Green=2, Blue=3 (RGB order)
+                3,
+                w * 3,
+                Format.FALSE,
+                Format.NOT_SPECIFIED
+            ));
+
+            return buffer;
         }
+    }
 
-        buffer.setData(data);
-        buffer.setOffset(0);
-        buffer.setLength(data.length);
-        buffer.setFormat(new RGBFormat(
-            new Dimension(w, h),
-            w * h * 3,
-            Format.byteArray,
-            (float) frameRate,
-            24,
-            3, 2, 1,
-            3,
-            w * 3,
-            Format.FALSE,
-            Format.NOT_SPECIFIED
-        ));
+    /**
+     * Check if the player is ready for frame grabbing operations.
+     * @return true if the player has been initialized and has valid decode resources
+     */
+    public boolean isReady() {
+        synchronized (decoderLock) {
+            return demuxer != null && videoDecoder != null && packet != null && picture != null && state >= Prefetched;
+        }
+    }
 
-        return buffer;
+    /**
+     * Get total number of frames in the video.
+     * @return total frame count, or 0 if unknown
+     */
+    public int getTotalFrames() {
+        return totalFrames;
     }
 
     @Override
@@ -446,21 +476,31 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
 
     @Override
     public int seek(int frameNumber) {
-        if (demuxer == null) return 0;
+        synchronized (decoderLock) {
+            if (demuxer == null || videoDecoder == null) return 0;
 
-        try {
-            long timestamp = (long) (frameNumber / frameRate * 1000000); // to microseconds
-            demuxer.seek(videoStreamIndex, timestamp, timestamp, timestamp, 0);
-            currentFrame = frameNumber;
-            currentTimeNanos = (long) (frameNumber / frameRate * 1e9);
+            // Bounds checking - clamp frame number to valid range
+            if (frameNumber < 0) {
+                frameNumber = 0;
+            }
+            if (totalFrames > 0 && frameNumber >= totalFrames) {
+                frameNumber = totalFrames - 1;
+            }
 
-            // Decode to update current image
-            decodeNextFrame();
-        } catch (Exception e) {
-            System.err.println("HumbleVideoPlayer: Seek failed - " + e.getMessage());
+            try {
+                long timestamp = (long) (frameNumber / frameRate * 1000000); // to microseconds
+                demuxer.seek(videoStreamIndex, timestamp, timestamp, timestamp, 0);
+                currentFrame = frameNumber;
+                currentTimeNanos = (long) (frameNumber / frameRate * 1e9);
+
+                // Decode to update current image
+                decodeNextFrame();
+            } catch (Exception e) {
+                System.err.println("HumbleVideoPlayer: Seek failed - " + e.getMessage());
+            }
+
+            return currentFrame;
         }
-
-        return currentFrame;
     }
 
     @Override
@@ -486,7 +526,12 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
 
         while (playing) {
             try {
-                if (!decodeNextFrame()) {
+                boolean decoded;
+                synchronized (decoderLock) {
+                    decoded = decodeNextFrame();
+                }
+
+                if (!decoded) {
                     // End of media
                     playing = false;
                     notifyListeners(new EndOfMediaEvent(this, Started, Prefetched, Prefetched, getMediaTime()));
@@ -525,7 +570,13 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
     }
 
     private boolean decodeNextFrame() {
-        if (demuxer == null || videoDecoder == null) return false;
+        // Comprehensive null checks before any native operations
+        if (demuxer == null || videoDecoder == null || packet == null || picture == null) {
+            System.err.println("HumbleVideoPlayer: decodeNextFrame called with null resources - " +
+                "demuxer=" + (demuxer != null) + ", decoder=" + (videoDecoder != null) +
+                ", packet=" + (packet != null) + ", picture=" + (picture != null));
+            return false;
+        }
 
         try {
             while (demuxer.read(packet) >= 0) {
@@ -536,6 +587,13 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
                     do {
                         bytesRead += videoDecoder.decode(picture, packet, offset);
                         if (picture.isComplete()) {
+                            // Validate picture dimensions before conversion
+                            if (picture.getWidth() <= 0 || picture.getHeight() <= 0) {
+                                System.err.println("HumbleVideoPlayer: Invalid picture dimensions: " +
+                                    picture.getWidth() + "x" + picture.getHeight());
+                                return false;
+                            }
+
                             // Convert to BufferedImage
                             if (converter == null) {
                                 converter = MediaPictureConverterFactory.createConverter(
@@ -543,6 +601,13 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
                                     picture
                                 );
                             }
+
+                            // Validate converter before use
+                            if (converter == null) {
+                                System.err.println("HumbleVideoPlayer: Failed to create converter");
+                                return false;
+                            }
+
                             currentImage = converter.toImage(currentImage, picture);
 
                             // Update time
@@ -559,17 +624,29 @@ public class HumbleVideoPlayer implements Player, FrameGrabbingControl, FramePos
                 }
             }
 
-            // Flush decoder
-            videoDecoder.decode(picture, null, 0);
-            if (picture.isComplete()) {
-                if (converter == null) {
-                    converter = MediaPictureConverterFactory.createConverter(
-                        MediaPictureConverterFactory.HUMBLE_BGR_24,
-                        picture
-                    );
+            // Flush decoder - with null check
+            if (videoDecoder != null && picture != null) {
+                videoDecoder.decode(picture, null, 0);
+                if (picture.isComplete()) {
+                    // Validate picture dimensions before conversion
+                    if (picture.getWidth() <= 0 || picture.getHeight() <= 0) {
+                        System.err.println("HumbleVideoPlayer: Invalid picture dimensions on flush: " +
+                            picture.getWidth() + "x" + picture.getHeight());
+                        return false;
+                    }
+
+                    if (converter == null) {
+                        converter = MediaPictureConverterFactory.createConverter(
+                            MediaPictureConverterFactory.HUMBLE_BGR_24,
+                            picture
+                        );
+                    }
+
+                    if (converter != null) {
+                        currentImage = converter.toImage(currentImage, picture);
+                        return true;
+                    }
                 }
-                currentImage = converter.toImage(currentImage, picture);
-                return true;
             }
 
         } catch (Exception e) {
