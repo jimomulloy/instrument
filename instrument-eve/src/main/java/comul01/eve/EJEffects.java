@@ -6488,7 +6488,6 @@ public class EJEffects {
 			valRed = frameIn.getPixelInt(EFrame.RED, ka, la);
 			valBlue = frameIn.getPixelInt(EFrame.BLUE, ka, la);
 			valGreen = frameIn.getPixelInt(EFrame.GREEN, ka, la);
-			System.out.println("IN edge 1 " + ka + ", 2" + la);
 			count++;
 			val = (int) (((double) (valRed + valBlue + valGreen)) / 3.0);
 			frameIn.setPixel(EFrame.RED, ka, la, 0);
@@ -6528,16 +6527,12 @@ public class EJEffects {
 										la);
 								valGreen = frameIn.getPixelInt(EFrame.GREEN,
 										ka, la);
-								System.out.println("IN edge 2 " + ka + ", 2"
-										+ la);
-
+								
 								if (valRed == 0 && valBlue == 0
 										&& valGreen == 0)
 									return (count);
 								contLoop = false;
-								System.out.println("IN edge 3 " + ka + ", 2"
-										+ la);
-
+								
 							} else {
 								cont = 1;
 							}
@@ -6550,12 +6545,10 @@ public class EJEffects {
 					break;
 			}
 			path.lineTo(ka, la);
-			System.out.println("IN edge 4 " + ka + ", 2" + la);
-
+			
 			if (cont == 0 && contLoop)
 				break;
-			System.out.println("IN edge 5 " + ka + ", 2" + la);
-
+			
 		}
 		if (ka != kafirst || la != lafirst)
 			path.lineTo(kafirst, lafirst);
