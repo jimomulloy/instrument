@@ -1,203 +1,200 @@
-# Instrument-Eve (JAVED)
+# JAVED - Java Video Effects and Design
 
-Java Audio/Video Effects & Digital Processing Module
+JAVED (Java Advanced Video Effects Designer) is a comprehensive video effects processing and composition application built with Java Swing. It provides real-time visual effects processing, video composition, mixing, and rendering capabilities.
 
-## Overview
+## Features
 
-Instrument-Eve is a specialized audio and video effect processing engine that is part of the larger [Instrument](https://github.com/jimomulloy/instrument) project. It provides advanced image filtering, effect composition, and multimedia processing capabilities for creative music and film applications.
+- Load and process video files (AVI, MOV, QuickTime formats)
+- Apply 100+ real-time visual effects to video frames
+- Video composition, mixing, and joining operations
+- Interactive GUI for effect parameter configuration
+- Effect modulation and randomization
+- Save/load effect configurations
+- Video rendering and export to QuickTime format
+
+## Requirements
+
+- Java 17 or higher
+- Maven 3.x
+- Java Media Framework (JMF) - included as local dependency
+- Java Advanced Imaging (JAI) - included as local dependency
+
+## Building
+
+```bash
+mvn clean install
+```
+
+### Platform-Specific Builds
+
+Native application packages can be built using platform-specific profiles:
+
+```bash
+# Windows
+mvn install -Djpackage
+
+# macOS
+mvn install -Djpackage
+
+# Linux
+mvn install -Djpackage
+```
 
 ## Main Entry Points
 
-### 1. EJMain - Desktop Application
+### Primary Application
 
-**Location:** `src/main/java/comul01/eve/EJMain.java`
+**`comul01.eve.EJMain`** - Main application launcher
 
-The primary entry point for the ToneMap desktop application.
-
-**Usage:**
 ```bash
-# Run from compiled classes
-java -cp target/classes:target/lib/* comul01.eve.EJMain
-
-# Or with Maven
-mvn javafx:run
+java -cp target/instrument-eve-0.0.1-SNAPSHOT.jar comul01.eve.EJMain
 ```
 
-**Features:**
-- GUI-based video/audio effect processing
-- File menu for opening and saving media files
-- Toolbar with Reset, Blank, Effect, Mix, and Join operations
-- Settings panel for effect parameter configuration
-- Real-time status reporting
+Creates the main GUI window with:
+- Menu bar (File, Help, Options)
+- Toolbar with action buttons (Reset, Blank, Effect, Mix, Join)
+- Tabbed interface for different views
+- Video viewer with frame control
+- Effect settings panel
 
-### 2. OrchestratorService - Service Orchestration
+## Architecture
 
-**Location:** `src/main/java/OrchestratorService.java`
+### Core Components
 
-Orchestrates multi-service data aggregation for business workflows.
+| Component | Class | Description |
+|-----------|-------|-------------|
+| Main Window | `EJMain` | Application entry point and main window management |
+| Video Viewer | `EJView` | Video viewing/playback panel with effect preview |
+| Settings Panel | `EJSettings` | UI panel for effect parameter configuration |
+| Controls | `EJControls` | Playback and processing controls |
+| Video Source | `VideoCutPanel` | Video source selection and frame grabbing |
 
-**Key Method:**
-```java
-public WorklistInformation buildWorklistInformation(WorklistItemResponse worklistItem)
-```
+### Effect Processing Pipeline
 
-**Supported Service Types:**
-- Citizen Account Info
-- Property Search (FAP, FPI, INSPIRE)
-- Property Alerts
-- Map Search
-- Application Enquiry
-- Digital Registration Service (DRS)
-- Business Gateway
-- View Colleagues Applications
+| Component | Class | Description |
+|-----------|-------|-------------|
+| Effect Engine | `EJEffects` | Main effect processing engine with 30+ filter types |
+| Effect Control | `EffectControl` | JMF Effect interface implementation |
+| Effect Composition | `EffectCompo` | Effect composition with timing information |
+| Effect Context | `EffectContext` | Effect configuration state and parameters |
 
-### 3. TransactionService - Transaction Handling
+### Frame Handling
 
-**Location:** `src/main/java/TransactionService.java`
+| Component | Class | Description |
+|-----------|-------|-------------|
+| Frame | `EFrame` | Individual frame with pixel data manipulation |
+| Frame Set | `EFrameSet` | Circular buffer for frame history |
+| Frame Grabber | `EJFrameGrabber` | Interface for frame extraction |
 
-Handles transaction and application data retrieval.
+### Parameter System
 
-**REST Endpoints:**
-| Endpoint | Description |
-|----------|-------------|
-| `/transactions/map-search` | Map-based property search |
-| `/transactions/property-alert` | Property alert queries |
-| `/transactions/application-enquiry` | Application enquiries |
-| `/transactions/property-search` | Property search |
-| `/transactions/digital-registration-service` | DRS transactions |
-| `/transactions/view-colleagues-applications` | VCA queries |
-| `/transactions/application-channel/{ref}` | Application channel lookup |
+| Component | Class | Description |
+|-----------|-------|-------------|
+| Parameters | `EffectParam` | Effect parameter with value and modulation |
+| Modulator | `EffectModulator` | Parameter modulation control |
+| Randomiser | `EffectRandomiser` | Random variation of effect parameters |
 
-### 4. RegistrationService - Registry Operations
+## Supported Effects
 
-**Location:** `src/main/java/RegistrationService.java`
+### Color Processing
+- RGB to HSI conversion
+- Grayscale conversion
+- Color manipulation and adjustment
+- Contrast and brightness control
 
-Manages property register and title information via Digital Register API.
+### Image Filters
+- Blur (Gaussian, Box, Motion)
+- Sharpen and Emboss
+- Edge detection (Roberts, Sobel, Prewitt)
+- Dither and posterize
 
-**Key Methods:**
-```java
-// Async retrieval
-CompletableFuture<Map<String, Register>> getAsyncRegisters(List<String> titleNumbers)
+### Morphological Operations
+- Dilation and Erosion
+- Opening and Closing
+- Watershed segmentation
 
-// Sync retrieval
-Map<String, Register> getRegisters(List<String> titleNumbers)
-```
+### Generative Effects
+- Cellular automata
+- Brownian motion
+- Fractal noise
+- Water ripple/caustics
+
+### Transformations
+- Warp and Affine
+- Perspective transform
+- Scale and Translate
+- Rotation
+
+### Time-Based Effects
+- Frame delta
+- Time correlation
+- Temporal mixing
+
+### Analysis
+- DFT (Discrete Fourier Transform)
+- DCT (Discrete Cosine Transform)
+- Hough transform
+
+## File Formats
+
+### Project Files
+- `.ejs` - Serialized effect configuration files containing effect list, modulators, randomisers, composition, and transition data
+
+### Supported Video Formats
+- AVI
+- MOV (QuickTime)
+- Other formats supported by JMF
 
 ## Project Structure
 
 ```
 instrument-eve/
-├── src/main/java/
-│   ├── comul01/eve/           # Core application package
-│   │   ├── EJMain.java        # Main entry point
-│   │   ├── EJView.java        # Media view/playback panel
-│   │   ├── EJSettings.java    # Effect settings UI
-│   │   ├── EJData.java        # Serializable data container
-│   │   ├── EJConstants.java   # Configuration constants
-│   │   ├── EJFrameGrabber.java # Video frame extraction
-│   │   ├── effect/            # Effect system components
-│   │   │   ├── EffectContext.java
-│   │   │   ├── EffectParam.java
-│   │   │   ├── EffectModulator.java
-│   │   │   ├── EffectRandomiser.java
-│   │   │   └── EffectCompo.java
-│   │   └── ...
-│   ├── com/jhlabs/image/      # Image filter library (46 filters)
-│   ├── OrchestratorService.java
-│   ├── TransactionService.java
-│   └── RegistrationService.java
-├── src/main/resources/
-│   └── logo/                  # Application icons
-├── lib/                       # External JARs (JMF, JAI)
-└── pom.xml
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── comul01/eve/          # Main application code
+│   │   │   ├── com/jhlabs/image/     # Image processing filters
+│   │   │   └── javax/media/          # JMF classes
+│   │   └── resources/
+│   │       └── library/              # JAI libraries
+│   └── logo/                         # Platform-specific icons
+│       ├── linux/
+│       ├── macosx/
+│       └── windows/
+├── jmf.jar                           # Java Media Framework
+├── pom.xml                           # Maven configuration
+└── README.md
 ```
-
-## Available Effects
-
-The application provides 50+ effects including:
-
-| Category | Effects |
-|----------|---------|
-| **Image Processing** | Blur, Contrast, Sharpen, Invert, Edge Detection |
-| **Morphological** | Dilation, Erosion, Opening, Closing |
-| **Frequency Domain** | DFT, IDFT, DCT, IDCT |
-| **Special Effects** | Waterripple, Warp, Pointillism, Zebra |
-| **Time-based** | TimeConvolve, TimeFlow, TimeCorelate |
-| **Composite** | Compose, Combine, Mix |
-
-## Building
-
-### Prerequisites
-- Java 17+
-- Maven 3.x
-
-### Build Commands
-```bash
-# Build entire project
-cd instrument
-mvn clean install
-
-# Build only instrument-eve
-cd instrument-eve
-mvn clean package
-```
-
-## Configuration
-
-### Audio Settings (EJConstants)
-- Sample sizes: 8-bit, 16-bit
-- Duration: 0-60 seconds
-- Pan and volume controls
-
-### Video Settings
-- Supported formats: AVI, MOV
-- Frame-by-frame processing
-- Multiple processing modes (Blank, Effect, Mix, Join)
-
-### MIDI Parameters
-- Pitch range: 12-108
-- Default BPM: 120
-- Velocity control
-
-## File Formats
-
-| Format | Extension | Description |
-|--------|-----------|-------------|
-| AVI | .avi | Video container |
-| MOV | .mov | QuickTime video |
-| WAV | .wav | Audio |
-| EJS | .ejs | Serialized effect configurations |
 
 ## Dependencies
 
-- **Humble Video** (0.3.0) - Audio/video handling
-- **JAI** (1.1.3) - Java Advanced Imaging
-- **JMF** - Java Media Framework
-- **Spring Framework** - Service orchestration
-- **JHLabs Image** - Image filter library
+| Library | Version | Purpose |
+|---------|---------|---------|
+| JMF (Java Media Framework) | 2.1.1e | Video playback, capture, and processing |
+| JAI (Java Advanced Imaging) | 1.1.3 | Advanced image processing |
+| Humble Video | 0.3.0 | Video codec support |
+| jhlabs Image Filters | - | Bundled image filter library |
 
-## Native Libraries
+## Usage Examples
 
-The application uses JNI for wavelet transform operations:
-```java
-System.loadLibrary("WavletJNI");
-```
+### Basic Workflow
 
-Ensure the native library is available in your library path.
+1. Launch the application
+2. Use **File > Open** to load a video file
+3. Select effects from the settings panel
+4. Adjust effect parameters using sliders
+5. Preview effects in real-time in the viewer
+6. Use **Mix** or **Join** to combine video sources
+7. Export the result using the rendering options
+8. Save your effect configuration with **File > Save** (.ejs format)
+
+### Effect Configuration
+
+Effects can be configured with:
+- **Parameters**: Individual effect values (0-255 range)
+- **Modulation**: Low/mid/high value transitions over time
+- **Randomization**: Random variation for dynamic effects
 
 ## License
 
-MIT License
-
-## Related Modules
-
-- **instrument-core** - Core signal processing framework
-- **instrument-desktop** - Desktop UI with MicroStream DB
-- **instrument-command** - CLI implementation
-- **instrument-ws** - Web Services module
-- **instrument-aws** - AWS Cloud Services
-
-## Resources
-
-- [Project Wiki](https://github.com/jimomulloy/instrument/wiki)
-- [GitHub Repository](https://github.com/jimomulloy/instrument)
+Part of the instrument project suite.

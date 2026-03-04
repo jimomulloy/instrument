@@ -30,6 +30,9 @@ public class EJMain implements EJConstants , Serializable {
 		} catch (UnsatisfiedLinkError ex) {
 			JNIStatus = false;
 		}
+
+		// Register R210 codec for 10-bit RGB video support
+		R210Codec.register();
 	}
 
 	private int outputName = OUTPUT_NAME_DEFAULT;

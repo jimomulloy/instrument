@@ -33,7 +33,7 @@ import javax.media.*;
 import javax.media.protocol.*;
 import javax.media.control.*;
 import javax.media.datasink.*;
-import javax.media.bean.playerbean.*;
+// import javax.media.bean.playerbean.*;  // Removed - not available in FMJ and not used
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -357,6 +357,7 @@ public class EJView extends JPanel implements ControllerListener, DataSinkListen
 		if (pname.endsWith("Decoder")
 			|| pname.equals("com.ibm.media.codec.video.mpeg.MpegVideo")
 			|| pname.startsWith("com.sun.media.codec.video.colorspace")
+			|| pname.equals("comul01.eve.R210Codec")  // Keep R210 codec for 10-bit video support
 			/* pname.equals("com.ibm.media.codec.video.h263.NativeEncoder")*/
 			/* pname.equals("com.sun.media.codec.video.jpeg.NativeEncoder")*/) {
 			System.out.println("codec enabled");
@@ -379,8 +380,22 @@ public class EJView extends JPanel implements ControllerListener, DataSinkListen
 	    	sgds.setProgressListener(this);
 	    	p = Manager.createProcessor(sgds);
 		} else {
-			//!!!!
-			p = Manager.createProcessor(new MediaLocator(mediaFile1));
+			// Try standard FMJ processor first, fall back to HumbleVideoProcessor
+			try {
+				p = Manager.createProcessor(new MediaLocator(mediaFile1));
+			} catch (NoProcessorException e) {
+				System.out.println("FMJ processor failed, trying HumbleVideoProcessor: " + e.getMessage());
+				// Use HumbleVideoProcessor for formats not supported by FMJ (e.g., R210)
+				try {
+					HumbleVideoProcessor hvp = new HumbleVideoProcessor(new MediaLocator(mediaFile1));
+					p = hvp;
+					System.out.println("HumbleVideoProcessor created for: " + mediaFile1);
+				} catch (Exception ex) {
+					System.err.println("HumbleVideoProcessor creation also failed: " + ex.getMessage());
+					ex.printStackTrace();
+					throw ex;
+				}
+			}
 		}
 
 		p.addControllerListener(this);
@@ -463,6 +478,8 @@ public class EJView extends JPanel implements ControllerListener, DataSinkListen
 				    
 				    // !!!!!
 				    videoTrack.setCodecChain(codec);
+			    	System.out.println("!!SET CODEC CHAIN");
+			
 				} catch (UnsupportedPlugInException e) {
 				    System.err.println("The process does not support effects.");
 				}
@@ -564,17 +581,22 @@ public class EJView extends JPanel implements ControllerListener, DataSinkListen
 		try {
 			System.out.println("DS test 1 "+outputFile);
 
-		    filewriter = Manager.createDataSink(ds, new MediaLocator(outputFile));
-			System.out.println("DS test 2");
+			// Try FMJ DataSink first, fall back to HumbleDataSink
+			try {
+				filewriter = Manager.createDataSink(ds, new MediaLocator(outputFile));
+				System.out.println("DS test 2 - FMJ DataSink created");
+			} catch (NoDataSinkException e) {
+				System.out.println("FMJ DataSink failed, trying HumbleDataSink: " + e.getMessage());
+				filewriter = new HumbleDataSink(ds, new MediaLocator(outputFile));
+				System.out.println("DS test 2 - HumbleDataSink created");
+			}
 
 		    StreamWriterControl fwc = (StreamWriterControl)
 			filewriter.getControl("javax.media.control.StreamWriterControl");
 		    filewriter.open();
-		} catch (NoDataSinkException e) {
-		    System.out.println("NoDataSinkException");
-		    return;
 		} catch (IOException e) {
 		    System.out.println("IOException: " + e.getMessage());
+			e.printStackTrace();
 		    return;
 		} catch (SecurityException e) {
 		    System.out.println("SecurityException: " + e.getMessage());
@@ -604,6 +626,7 @@ public class EJView extends JPanel implements ControllerListener, DataSinkListen
 	} catch (Exception ex) {
 	    //buttonGo.setEnabled(true);
 	    System.out.println("Exception creating processor: " + ex);
+	    ex.printStackTrace();
 		return;
 	}
     }

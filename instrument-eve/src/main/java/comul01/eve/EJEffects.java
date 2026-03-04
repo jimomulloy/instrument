@@ -272,9 +272,6 @@ public class EJEffects {
 		// For demo, we'll just print out the frame #, time &
 		// data length.
 
-		long t = (long) (frame.getTimeStamp() / 10000000f);
-		currentTime = (double) (frame.getTimeStamp());
-
 		Time startTime = ejSettings.effectCompo.grabberA.getBeginTime();
 		Time endTime = ejSettings.effectCompo.grabberA.getEndTime();
 
@@ -287,6 +284,10 @@ public class EJEffects {
 					- startTime.getNanoseconds());
 			seqnum++;
 		}
+
+		// Set currentTime and t AFTER adjusting for startTime to avoid negative values
+		long t = (long) (frame.getTimeStamp() / 10000000f);
+		currentTime = (double) (frame.getTimeStamp());
 
 		frame.setSequenceNumber(seqnum);
 
@@ -336,6 +337,7 @@ public class EJEffects {
 		interFrame = null;
 		eFrameIn.put(thisFrame);
 		seqNumber = (int) frame.getSequenceNumber();
+		System.out.println("EJEffects.processFrame: frame seqNumber=" + seqNumber + " (from buffer sequenceNumber=" + frame.getSequenceNumber() + ")");
 
 		int i = 0;
 		int maxSeq = 0;
@@ -851,527 +853,527 @@ public class EJEffects {
 		);
 
 		String effectName = effectContext.name;
-		if (effectName == "deltaframes") {
+		if ("deltaframes".equals(effectName)) {
 			out = doDeltaFrames(in);
 			return out;
 		}
-		if (effectName == "deco") {
+		if ("deco".equals(effectName)) {
 			out = doDitherFrames(in);
 			return out;
 
 		}
-		if (effectName == "passtime") {
+		if ("passtime".equals(effectName)) {
 			out = doPassTime(in);
 			return out;
 		}
-		if (effectName == "timeframes") {
+		if ("timeframes".equals(effectName)) {
 			out = doTimeFrames(in);
 			return out;
 		}
-		if (effectName == "timeframework") {
+		if ("timeframework".equals(effectName)) {
 			out = doTimeFrameWork(in);
 			return out;
 		}
-		if (effectName == "maxtime") {
+		if ("maxtime".equals(effectName)) {
 			out = doMaxTime(in);
 			return out;
 		}
-		if (effectName == "mintime") {
+		if ("mintime".equals(effectName)) {
 			out = doMinTime(in);
 			return out;
 		}
-		if (effectName == "imagine") {
+		if ("imagine".equals(effectName)) {
 			out = doJAIImagine(in);
 			return out;
 		}
-		if (effectName == "jaiscale") {
+		if ("jaiscale".equals(effectName)) {
 			out = doJAIScale(in);
 			return out;
 		}
-		if (effectName == "scale") {
+		if ("scale".equals(effectName)) {
 			out = doJ2DScale(in);
 			return out;
 		}
-		if (effectName == "jaiinvert") {
+		if ("jaiinvert".equals(effectName)) {
 			out = doJAIInvert(in);
 			return out;
 		}
-		if (effectName == "intervene") {
+		if ("intervene".equals(effectName)) {
 			out = doIntervene(in);
 			return out;
 		}
-		if (effectName == "magnitude") {
+		if ("magnitude".equals(effectName)) {
 			out = doMagnitude(in);
 			return out;
 		}
 
-		if (effectName == "framemean") {
+		if ("framemean".equals(effectName)) {
 			out = doFrameMeanFilter(in);
 			return out;
 		}
-		if (effectName == "zebra") {
+		if ("zebra".equals(effectName)) {
 			out = doZebra(in);
 			return out;
 		}
-		if (effectName == "passfilter") {
+		if ("passfilter".equals(effectName)) {
 			out = doFramePassFilter();
 			return out;
 		}
-		if (effectName == "dft") {
+		if ("dft".equals(effectName)) {
 			out = doJAIdft(in);
 			return out;
 		}
-		if (effectName == "idft") {
+		if ("idft".equals(effectName)) {
 			out = doJAIidft(in);
 			return out;
 		}
-		if (effectName == "dctidct") {
+		if ("dctidct".equals(effectName)) {
 			out = doJAIdctidct(in);
 			return out;
 		}
-		if (effectName == "dctfilter") {
+		if ("dctfilter".equals(effectName)) {
 			out = doJAIdftidft(in);
 			return out;
 		}
-		if (effectName == "dct") {
+		if ("dct".equals(effectName)) {
 			out = doJAIdct(in);
 			return out;
 		}
 
-		if (effectName == "idct") {
+		if ("idct".equals(effectName)) {
 			out = doJAIidct(in);
 			return out;
 		}
-		if (effectName == "bandcombine") {
+		if ("bandcombine".equals(effectName)) {
 			out = doJAIBandCombine(in);
 			return out;
 		}
-		if (effectName == "colourconvert") {
+		if ("colourconvert".equals(effectName)) {
 			out = doJAIColorConvert(in);
 			return out;
 		}
-		if (effectName == "triplethreshold") {
+		if ("triplethreshold".equals(effectName)) {
 			out = doJAIThreshold(in);
 			return out;
 		}
-		if (effectName == "jailaplace") {
+		if ("jailaplace".equals(effectName)) {
 			out = doJAILaplaceFilter(in);
 			return out;
 		}
-		if (effectName == "sharpen") {
+		if ("sharpen".equals(effectName)) {
 			out = doJAISharpenFilter(in);
 			return out;
 		}
-		if (effectName == "emboss") {
+		if ("emboss".equals(effectName)) {
 			//??out = doJAIEmboss(in);
 			out = doCell(in);
 			return out;
 		}
-		if (effectName == "robertsedge") {
+		if ("robertsedge".equals(effectName)) {
 			out = doJAIRobertsEdge(in);
 			return out;
 		}
-		if (effectName == "freichenedge") {
+		if ("freichenedge".equals(effectName)) {
 			out = doJAIFreichenEdge(in);
 			return out;
 		}
-		if (effectName == "prewittedge") {
+		if ("prewittedge".equals(effectName)) {
 			out = doJAIPrewittEdge(in);
 			return out;
 		}
-		if (effectName == "sobeledge") {
+		if ("sobeledge".equals(effectName)) {
 			out = doJAISobelEdge(in);
 			return out;
 		}
-		if (effectName == "median") {
+		if ("median".equals(effectName)) {
 			out = doJAIMedian(in);
 			return out;
 		}
-		if (effectName == "timeconvolve") {
+		if ("timeconvolve".equals(effectName)) {
 			out = doTimeConvolve(in);
 			return out;
 		}
-		if (effectName == "convolve") {
+		if ("convolve".equals(effectName)) {
 			out = doConvolve(in);
 			return out;
 		}
-		if (effectName == "convolvespread") {
+		if ("convolvespread".equals(effectName)) {
 			out = doErrorDiffusion(in);
 
 			return out;
 		}
-		if (effectName == "brownian") {
+		if ("brownian".equals(effectName)) {
 			out = doBrownian(in);
 			return out;
 		}
-		if (effectName == "histogram") {
+		if ("histogram".equals(effectName)) {
 			out = doHistogram(in);
 			return out;
 		}
-		if (effectName == "zerox") {
+		if ("zerox".equals(effectName)) {
 			out = doZerox(in);
 			return out;
 		}
-		if (effectName == "texturemix") {
+		if ("texturemix".equals(effectName)) {
 			out = doPassTime2(in);
 			//out = new EFrame(in.getBuffer());
 			return out;
 		}
-		if (effectName == "equalise") {
+		if ("equalise".equals(effectName)) {
 			out = doEqualise(in);
 			return out;
 		}
-		if (effectName == "movie") {
+		if ("movie".equals(effectName)) {
 			out = doMovie(in);
 			return out;
 		}
 
-		if (effectName == "hough") {
+		if ("hough".equals(effectName)) {
 			out = doHough(in);
 			return out;
 		}
-		if (effectName == "ihough") {
+		if ("ihough".equals(effectName)) {
 			out = doHoughInverse(in);
 			return out;
 		}
-		if (effectName == "multiplyconst") {
+		if ("multiplyconst".equals(effectName)) {
 			out = doJAIMultiplyConst(in);
 			return out;
 		}
-		if (effectName == "divideconst") {
+		if ("divideconst".equals(effectName)) {
 			out = doJAIDivideConst(in);
 			return out;
 		}
-		if (effectName == "addconst") {
+		if ("addconst".equals(effectName)) {
 			out = doJAIAddConst(in);
 			return out;
 		}
-		if (effectName == "subtractconst") {
+		if ("subtractconst".equals(effectName)) {
 			out = doJAISubtractConst(in);
 			return out;
 		}
 
-		if (effectName == "threshold") {
+		if ("threshold".equals(effectName)) {
 			out = doThreshold(in);
 			return out;
 		}
-		if (effectName == "localhistogram") {
+		if ("localhistogram".equals(effectName)) {
 			out = doLocalHistogram(in);
 			return out;
 		}
-		if (effectName == "contrast") {
+		if ("contrast".equals(effectName)) {
 			//??
 			out = doContrast(in);
 			return out;
 		}
 
-		if (effectName == "lin") {
+		if ("lin".equals(effectName)) {
 			out = doLIN(in);
 			return out;
 		}
-		if (effectName == "sin") {
+		if ("sin".equals(effectName)) {
 			out = doSIN(in);
 			return out;
 		}
-		if (effectName == "dolps") {
+		if ("dolps".equals(effectName)) {
 			out = doDOLPS(in);
 			return out;
 		}
-		if (effectName == "crackdetect") {
+		if ("crackdetect".equals(effectName)) {
 			out = doCrackDetect(in);
 			return out;
 		}
 
-		if (effectName == "centroid") {
+		if ("centroid".equals(effectName)) {
 			out = doCentroid(in);
 			return out;
 		}
 
-		if (effectName == "grassfire") {
+		if ("grassfire".equals(effectName)) {
 			out = doGrassFire(in);
 			return out;
 		}
 
-		if (effectName == "limb") {
+		if ("limb".equals(effectName)) {
 			out = doLimb(in);
 			return out;
 		}
-		if (effectName == "junction") {
+		if ("junction".equals(effectName)) {
 			out = doJunction(in);
 			return out;
 		}
-		if (effectName == "chamfer") {
+		if ("chamfer".equals(effectName)) {
 			out = doChamfer(in);
 			return out;
 		}
 
-		if (effectName == "zerocrossing") {
+		if ("zerocrossing".equals(effectName)) {
 			out = doZeroCrossing(in);
 			return out;
 		}
 
-		if (effectName == "clearwhite") {
+		if ("clearwhite".equals(effectName)) {
 			out = doClearWhite(in);
 			return out;
 		}
 
-		if (effectName == "dilation") {
+		if ("dilation".equals(effectName)) {
 			out = doDilation(in, dilationMatrix);
 			return out;
 		}
 
-		if (effectName == "erosion") {
+		if ("erosion".equals(effectName)) {
 			out = doErosion(in, erosionMatrix);
 			return out;
 		}
 
-		if (effectName == "opening") {
+		if ("opening".equals(effectName)) {
 			out = doOpening(in);
 			return out;
 		}
 
-		if (effectName == "closing") {
+		if ("closing".equals(effectName)) {
 			out = doClosing(in);
 			return out;
 		}
 
-		if (effectName == "internalgradient") {
+		if ("internalgradient".equals(effectName)) {
 			out = doInternalGradient(in);
 			return out;
 		}
 
-		if (effectName == "externalgradient") {
+		if ("externalgradient".equals(effectName)) {
 			out = doExternalGradient(in);
 			return out;
 		}
 
-		if (effectName == "morphgradient") {
+		if ("morphgradient".equals(effectName)) {
 			out = doMorphGradient(in);
 			return out;
 		}
 
-		if (effectName == "whitetophat") {
+		if ("whitetophat".equals(effectName)) {
 			out = doWhiteTopHat(in);
 			return out;
 		}
 
-		if (effectName == "blacktophat") {
+		if ("blacktophat".equals(effectName)) {
 			out = doBlackTopHat(in);
 			return out;
 		}
 
-		if (effectName == "reconstruct") {
+		if ("reconstruct".equals(effectName)) {
 			out = doReconstruct(in);
 			return out;
 		}
 
-		if (effectName == "watermark") {
+		if ("watermark".equals(effectName)) {
 			out = doWaterMark(in);
 			return out;
 		}
 
-		if (effectName == "walkline") {
+		if ("walkline".equals(effectName)) {
 			out = doWalkLine(in);
 			return out;
 		}
 
-		if (effectName == "shade") {
+		if ("shade".equals(effectName)) {
 			out = doShade(in);
 			return out;
 		}
 
-		if (effectName == "fill") {
+		if ("fill".equals(effectName)) {
 			out = doFill(in);
 			return out;
 		}
 
-		if (effectName == "leader") {
+		if ("leader".equals(effectName)) {
 			out = doLeader(in);
 			return out;
 		}
 
-		if (effectName == "compose") {
+		if ("compose".equals(effectName)) {
 			out = doCompose(in);
 			return out;
 		}
 
-		if (effectName == "warppath") {
+		if ("warppath".equals(effectName)) {
 			out = doWarpPath(in);
 			return out;
 		}
 
-		if (effectName == "waterripple") {
+		if ("waterripple".equals(effectName)) {
 			out = doWaterRipple(in);
 			return out;
 		}
 
-		if (effectName == "coco") {
+		if ("coco".equals(effectName)) {
 			out = doCoco(in);
 			return out;
 		}
 
-		if (effectName == "coco2") {
+		if ("coco2".equals(effectName)) {
 			//out = doCoco2(in);
 			out = doPassTime3(in);
 			return out;
 		}
 
-		if (effectName == "normalise") {
+		if ("normalise".equals(effectName)) {
 			out = doNormalise(in);
 			return out;
 		}
 
-		if (effectName == "thinning") {
+		if ("thinning".equals(effectName)) {
 			out = doThinning2(in);
 			return out;
 		}
 
-		if (effectName == "band") {
+		if ("band".equals(effectName)) {
 			out = doBand(in);
 			return out;
 		}
 
-		if (effectName == "bits") {
+		if ("bits".equals(effectName)) {
 			out = doBits(in);
 			return out;
 		}
 
-		if (effectName == "warpgen") {
+		if ("warpgen".equals(effectName)) {
 			out = doWarpGen(in);
 			return out;
 		}
 
-		if (effectName == "border") {
+		if ("border".equals(effectName)) {
 			out = doBinaryBorder(in);
 			return out;
 		}
 
-		if (effectName == "dither") {
+		if ("dither".equals(effectName)) {
 			out = doDither(in);
 			return out;
 		}
 
-		if (effectName == "reco") {
+		if ("reco".equals(effectName)) {
 			out = doReconstruct1(in);
 			return out;
 		}
 
-		if (effectName == "crop") {
+		if ("crop".equals(effectName)) {
 			out = doCrop(in);
 			return out;
 		}
 
-		if (effectName == "laplace") {
+		if ("laplace".equals(effectName)) {
 			out = doLaplace(in);
 			return out;
 		}
 
-		if (effectName == "derive") {
+		if ("derive".equals(effectName)) {
 			out = doDerive(in);
 			return out;
 		}
 
-		if (effectName == "boundary") {
+		if ("boundary".equals(effectName)) {
 			out = doBoundary(in);
 			return out;
 		}
 
-		if (effectName == "disconnect") {
+		if ("disconnect".equals(effectName)) {
 			out = doDisconnect(in);
 			return out;
 		}
 
-		if (effectName == "pointillism") {
+		if ("pointillism".equals(effectName)) {
 			out = doPointy(in);
 			return out;
 		}
 
-		if (effectName == "pointy2") {
+		if ("pointy2".equals(effectName)) {
 			out = doPointy2(in);
 			return out;
 		}
 
-		if (effectName == "waves") {
+		if ("waves".equals(effectName)) {
 			out = doWaves(in);
 			return out;
 		}
-		if (effectName == "yiq") {
+		if ("yiq".equals(effectName)) {
 			out = doYiq(in);
 			return out;
 		}
-		if (effectName == "yiq2") {
+		if ("yiq2".equals(effectName)) {
 			out = doYiq2(in);
 			return out;
 		}
 
-		if (effectName == "rgbtohsi") {
+		if ("rgbtohsi".equals(effectName)) {
 			out = doRGBToHSI(in);
 			return out;
 		}
 
-		if (effectName == "hsitorgb") {
+		if ("hsitorgb".equals(effectName)) {
 			out = doHSIToRGB(in);
 			return out;
 		}
 
-		if (effectName == "invert") {
+		if ("invert".equals(effectName)) {
 			out = doInvert(in);
 			return out;
 		}
 
-		if (effectName == "hsi") {
+		if ("hsi".equals(effectName)) {
 			out = doHsi(in);
 			return out;
 		}
 
-		if (effectName == "timeflow") {
+		if ("timeflow".equals(effectName)) {
 			out = doTimeFlow(in);
 			return out;
 		}
 
-		if (effectName == "timecorelate") {
+		if ("timecorelate".equals(effectName)) {
 			out = doTimeCorelate(in);
 			return out;
 		}
-		if (effectName == "gaussian") {
+		if ("gaussian".equals(effectName)) {
 			out = doGaussian(in);
 			return out;
 		}
-		if (effectName == "sobelmax") {
+		if ("sobelmax".equals(effectName)) {
 			out = doSobelMax(in);
 			return out;
 		}
-		if (effectName == "hysteresis") {
+		if ("hysteresis".equals(effectName)) {
 			out = doHysteresis(in);
 			return out;
 		}
 
-		if (effectName == "marrhill") {
+		if ("marrhill".equals(effectName)) {
 			out = doMarrHill(in);
 			return out;
 		}
 
-		if (effectName == "timemix") {
+		if ("timemix".equals(effectName)) {
 			out = doTimeMix(in);
 			return out;
 		}
 
-		if (effectName == "jaitranslate") {
+		if ("jaitranslate".equals(effectName)) {
 			out = doJAITranslate(in);
 			return out;
 		}
 
-		if (effectName == "enhance") {
+		if ("enhance".equals(effectName)) {
 			out = doJAIEnhance(in);
 			return out;
 		}
 
-		if (effectName == "translate") {
+		if ("translate".equals(effectName)) {
 			out = doTranslate(in);
 			return out;
 		}
 
-		if (effectName == "jaiwarp") {
+		if ("jaiwarp".equals(effectName)) {
 			out = doJAIWarp(in);
 			return out;
 		}
@@ -1386,31 +1388,31 @@ public class EJEffects {
 	private EFrame doComboEffect(EFrame inA, EFrame inB) {
 		EFrame out;
 		String effectName = effectContext.name;
-		if (effectName == "add") {
+		if ("add".equals(effectName)) {
 			out = doJAIAdd(inA, inB);
 			return out;
 		}
-		if (effectName == "dummy") {
+		if ("dummy".equals(effectName)) {
 			out = doDummy(inA, inB);
 			return out;
 		}
-		if (effectName == "subtract") {
+		if ("subtract".equals(effectName)) {
 			out = doJAISubtract(inA, inB);
 			return out;
 		}
-		if (effectName == "subtractmean") {
+		if ("subtractmean".equals(effectName)) {
 			out = doJAISubtractM(inA, inB);
 			return out;
 		}
-		if (effectName == "multiply") {
+		if ("multiply".equals(effectName)) {
 			out = doJAIMultiply(inA, inB);
 			return out;
 		}
-		if (effectName == "max") {
+		if ("max".equals(effectName)) {
 			out = doJAIMax(inA, inB);
 			return out;
 		}
-		if (effectName == "min") {
+		if ("min".equals(effectName)) {
 			out = doJAIMin(inA, inB);
 			return out;
 		}
@@ -4506,17 +4508,50 @@ public class EJEffects {
 			pi = true;
 		}
 
+		int width = ropIn.getWidth();
+		int height = ropIn.getHeight();
+
+		// Magnitude requires float/double data type - convert if needed
+		int dataType = ropIn.getSampleModel().getDataType();
+		if (dataType != java.awt.image.DataBuffer.TYPE_FLOAT &&
+			dataType != java.awt.image.DataBuffer.TYPE_DOUBLE) {
+			ParameterBlock pbFormat = new ParameterBlock();
+			pbFormat.addSource(ropIn);
+			pbFormat.add(java.awt.image.DataBuffer.TYPE_FLOAT);
+			ropIn = JAI.create("format", pbFormat);
+		}
+
+		// Magnitude requires even number of bands (real/imaginary pairs)
+		// If odd bands, add a zero-filled band to make it even
+		int numBands = ropIn.getSampleModel().getNumBands();
+		if (numBands % 2 != 0) {
+			// Create a constant float image with zero values for the extra band
+			Float[] bandValues = new Float[1];
+			bandValues[0] = 0.0f;
+			ParameterBlock pbConst = new ParameterBlock();
+			pbConst.add((float) width);
+			pbConst.add((float) height);
+			pbConst.add(bandValues);
+			RenderedOp zeroBand = JAI.create("constant", pbConst);
+
+			// Merge original image with zero band
+			ParameterBlock pbMerge = new ParameterBlock();
+			pbMerge.addSource(ropIn);
+			pbMerge.addSource(zeroBand);
+			ropIn = JAI.create("bandmerge", pbMerge);
+		}
+
 		ParameterBlock pb = new ParameterBlock();
 		pb.addSource(ropIn);
 		RenderedOp ropOut = JAI.create("magnitude", pb, null);
 		if (effectContext.option1) {
 			int owidth = ropOut.getWidth();
 			int oheight = ropOut.getHeight();
-			int width = frameIn.getWidth();
-			int height = frameIn.getHeight();
+			int inWidth = frameIn.getWidth();
+			int inHeight = frameIn.getHeight();
 			pb.addSource(ropOut);
-			pb.add((float) width / (float) owidth);
-			pb.add((float) height / (float) oheight);
+			pb.add((float) inWidth / (float) owidth);
+			pb.add((float) inHeight / (float) oheight);
 			pb.add(0.0F).add(0.0F);
 			Interpolation interp = Interpolation
 					.getInstance(Interpolation.INTERP_BILINEAR);
@@ -4704,9 +4739,21 @@ public class EJEffects {
 		}
 		int swidth = ropIn.getWidth();
 		int sheight = ropIn.getHeight();
+
+		// First apply DFT to convert to complex format
+		ParameterBlock pbDft = new ParameterBlock();
+		pbDft.addSource(ropIn);
+		pbDft.add(DFTDescriptor.SCALING_NONE);
+		pbDft.add(DFTDescriptor.REAL_TO_COMPLEX);
+		RenderedOp ropDft = JAI.create("dft", pbDft, null);
+
+		// Now apply IDFT on the complex data
 		ParameterBlock pb = new ParameterBlock();
-		pb.addSource(ropIn);
-		RenderedOp ropOut = JAI.create("idft", pb);
+		pb.addSource(ropDft);
+		pb.add(DFTDescriptor.SCALING_DIMENSIONS);
+		pb.add(DFTDescriptor.COMPLEX_TO_REAL);
+		RenderedOp ropOut = JAI.create("idft", pb, null);
+
 		BufferedImage image = ropOut.getAsBufferedImage();
 		RenderedOp ropOut1 = doJAIScaleRop(image, (float) 160 / (float) swidth,
 				(float) 120 / (float) sheight, 0.0F, 0.0F);
@@ -6233,28 +6280,40 @@ public class EJEffects {
 			int b, int x, int y, int fill, int old, int fillband, int count,
 			int max) {
 		try {
+			int width = frame.getWidth();
+			int height = frame.getHeight();
+			java.util.ArrayDeque<int[]> stack = new java.util.ArrayDeque<>();
+			stack.push(new int[]{x, y});
+			int fillCount = count;
 
-			int level = 0;
-			if (effectContext.option1) {
-				level = frameIn.getPixelInt(b, x, y);
-			} else {
-				level = (int) frameIn.getPixelGrey(x, y);
-			}
-			if (frameSave.getPixelInt(b, x, y) == 255)
-				return;
-			frameSave.setPixel(b, x, y, 255);
-			if (x >= 0 && x < frame.getWidth() && y >= 0
-					&& y < frame.getHeight() && level < old && count < max) {
-				frame.setPixel(fillband, x, y, fill);
-				count++;
-				floodfill(frameIn, frame, frameSave, b, x + 1, y, fill, old,
-						fillband, count, max);
-				floodfill(frameIn, frame, frameSave, b, x - 1, y, fill, old,
-						fillband, count, max);
-				floodfill(frameIn, frame, frameSave, b, x, y + 1, fill, old,
-						fillband, count, max);
-				floodfill(frameIn, frame, frameSave, b, x, y - 1, fill, old,
-						fillband, count, max);
+			while (!stack.isEmpty() && fillCount < max) {
+				int[] point = stack.pop();
+				int px = point[0];
+				int py = point[1];
+
+				if (px < 0 || px >= width || py < 0 || py >= height)
+					continue;
+				if (frameSave.getPixelInt(b, px, py) == 255)
+					continue;
+
+				int level = 0;
+				if (effectContext.option1) {
+					level = frameIn.getPixelInt(b, px, py);
+				} else {
+					level = (int) frameIn.getPixelGrey(px, py);
+				}
+
+				if (level >= old)
+					continue;
+
+				frameSave.setPixel(b, px, py, 255);
+				frame.setPixel(fillband, px, py, fill);
+				fillCount++;
+
+				stack.push(new int[]{px + 1, py});
+				stack.push(new int[]{px - 1, py});
+				stack.push(new int[]{px, py + 1});
+				stack.push(new int[]{px, py - 1});
 			}
 		} catch (Throwable t) {
 			System.out.println(t.getMessage());
@@ -6267,28 +6326,40 @@ public class EJEffects {
 			int b, int x, int y, int fill, int boundary, int fillband,
 			int count, int max) {
 		try {
+			int width = frame.getWidth();
+			int height = frame.getHeight();
+			java.util.ArrayDeque<int[]> stack = new java.util.ArrayDeque<>();
+			stack.push(new int[]{x, y});
+			int fillCount = count;
 
-			int level = 0;
-			if (effectContext.option1) {
-				level = frameIn.getPixelInt(b, x, y);
-			} else {
-				level = (int) frameIn.getPixelGrey(x, y);
-			}
+			while (!stack.isEmpty() && fillCount < max) {
+				int[] point = stack.pop();
+				int px = point[0];
+				int py = point[1];
 
-			if (x >= 0 && x < frame.getWidth() && y >= 0
-					&& y < frame.getHeight() && level < boundary
-					&& frameSave.getPixelInt(b, x, y) != fill && count < max) {
-				frameSave.setPixel(b, x, y, fill);
-				frame.setPixel(fillband, x, y, fill);
-				count++;
-				boundaryfill(frameIn, frame, frameSave, b, x + 1, y, fill,
-						boundary, fillband, count, max);
-				boundaryfill(frameIn, frame, frameSave, b, x - 1, y, fill,
-						boundary, fillband, count, max);
-				boundaryfill(frameIn, frame, frameSave, b, x, y + 1, fill,
-						boundary, fillband, count, max);
-				boundaryfill(frameIn, frame, frameSave, b, x, y - 1, fill,
-						boundary, fillband, count, max);
+				if (px < 0 || px >= width || py < 0 || py >= height)
+					continue;
+				if (frameSave.getPixelInt(b, px, py) == fill)
+					continue;
+
+				int level = 0;
+				if (effectContext.option1) {
+					level = frameIn.getPixelInt(b, px, py);
+				} else {
+					level = (int) frameIn.getPixelGrey(px, py);
+				}
+
+				if (level >= boundary)
+					continue;
+
+				frameSave.setPixel(b, px, py, fill);
+				frame.setPixel(fillband, px, py, fill);
+				fillCount++;
+
+				stack.push(new int[]{px + 1, py});
+				stack.push(new int[]{px - 1, py});
+				stack.push(new int[]{px, py + 1});
+				stack.push(new int[]{px, py - 1});
 			}
 		} catch (Throwable t) {
 			System.out.println(t.getMessage());
@@ -6417,7 +6488,6 @@ public class EJEffects {
 			valRed = frameIn.getPixelInt(EFrame.RED, ka, la);
 			valBlue = frameIn.getPixelInt(EFrame.BLUE, ka, la);
 			valGreen = frameIn.getPixelInt(EFrame.GREEN, ka, la);
-			System.out.println("IN edge 1 " + ka + ", 2" + la);
 			count++;
 			val = (int) (((double) (valRed + valBlue + valGreen)) / 3.0);
 			frameIn.setPixel(EFrame.RED, ka, la, 0);
@@ -6457,16 +6527,12 @@ public class EJEffects {
 										la);
 								valGreen = frameIn.getPixelInt(EFrame.GREEN,
 										ka, la);
-								System.out.println("IN edge 2 " + ka + ", 2"
-										+ la);
-
+								
 								if (valRed == 0 && valBlue == 0
 										&& valGreen == 0)
 									return (count);
 								contLoop = false;
-								System.out.println("IN edge 3 " + ka + ", 2"
-										+ la);
-
+								
 							} else {
 								cont = 1;
 							}
@@ -6479,12 +6545,10 @@ public class EJEffects {
 					break;
 			}
 			path.lineTo(ka, la);
-			System.out.println("IN edge 4 " + ka + ", 2" + la);
-
+			
 			if (cont == 0 && contLoop)
 				break;
-			System.out.println("IN edge 5 " + ka + ", 2" + la);
-
+			
 		}
 		if (ka != kafirst || la != lafirst)
 			path.lineTo(kafirst, lafirst);
@@ -6812,6 +6876,9 @@ public class EJEffects {
 	private EFrame doMovie(EFrame frameIn) {
 		EFrame frameOut = new EFrame(frameIn.getBuffer());
 		EFrame frameIn0 = eFrameIn.get(0);
+		if (frameIn0 == null) {
+			return frameOut;
+		}
 		int width = frameIn0.getWidth();
 		int height = frameIn0.getHeight();
 		int numBands = frameIn0.getPixelStride();
@@ -6834,9 +6901,13 @@ public class EJEffects {
 			eFrameWork = eFrameOut;
 		}
 		int count = eFrameWork.getCount();
+		// Movie effect requires at least 2 frames for motion comparison
+		if (count < 2) {
+			return frameOut;
+		}
 		EFrame frameIn1 = eFrameWork.get(1);
 
-		if (frameIn1 == null || frameIn0 == null)
+		if (frameIn1 == null)
 			return frameOut;
 
 		BufferedImage biOut = frameOut.getBufferedImage();
@@ -8651,11 +8722,25 @@ public class EJEffects {
 
 			bStartTime = ejSettings.effectCompo.grabberB.getBeginTime();
 			bEndTime = ejSettings.effectCompo.grabberB.getEndTime();
+
+			// Validate B-roll times before proceeding
+			if (bStartTime == null || bEndTime == null) {
+				System.err.println("DoCompose: B-roll start/end time is null, skipping B-roll");
+				return frameOut;
+			}
+
 			bStartFrame = ejSettings.effectCompo.grabberB.getBeginFrame();
 			bEndFrame = ejSettings.effectCompo.grabberB.getEndFrame();
 
 			bTimeLength = bEndTime.getNanoseconds()
 					- bStartTime.getNanoseconds();
+
+			// Validate time length
+			if (bTimeLength <= 0) {
+				System.err.println("DoCompose: B-roll time length is invalid (" + bTimeLength + "), skipping B-roll");
+				return frameOut;
+			}
+
 			bTimeOffset = (long) ((double) bTimeLength * tboffp);
 			bcompoTime = bTimeOffset + bStartTime.getNanoseconds();
 			System.out.println("broll :" + bcompoTime + ", " + bTimeOffset
@@ -8669,18 +8754,36 @@ public class EJEffects {
 
 			}
 			if (effectContext.option2) {
-
-				workFrame = (int) Math.abs((1 + ((int) Math.abs(seqNumber - 1))
-						/ (int) compoCount));
-				targetFrame = workFrame + (workFrame - 1) * (compoStep - 1)
-						+ bStartFrame;
+				// Calculate which B-roll frame to use based on A-roll sequence number
+				// Map A-roll frames to B-roll frames
+				int brollFrameCount = bEndFrame - bStartFrame + 1;
+				if (brollFrameCount > 0) {
+					// Use seqNumber to step through B-roll frames
+					// compoStep controls how many B-roll frames to advance per A-roll frame
+					targetFrame = bStartFrame + ((seqNumber - 1) * compoStep) % brollFrameCount;
+				} else {
+					targetFrame = bStartFrame;
+				}
 				if (targetFrame > bEndFrame)
 					targetFrame = bEndFrame;
-				// or set broll, to null ??
+				if (targetFrame < bStartFrame) {
+					targetFrame = bStartFrame;
+				}
+				System.out.println("Broll calc: seqNumber=" + seqNumber +
+						", brollFrameCount=" + brollFrameCount +
+						", compoStep=" + compoStep +
+						", targetFrame=" + targetFrame +
+						", bStartFrame=" + bStartFrame +
+						", bEndFrame=" + bEndFrame);
 				broll = ejSettings.effectCompo.grabberB.grabFrame(targetFrame);
 				System.out.println("Broll frames " + targetFrame + ", "
 						+ bStartFrame + ", " + bEndFrame + ", " + compoStep
 						+ ", " + compoCount + ", " + seqNumber);
+
+				// Check if frame grab failed
+				if (broll == null) {
+					System.err.println("DoCompose: Failed to grab B-roll frame " + targetFrame);
+				}
 
 			} else {
 				long nextTime = (long) currentTime + bcompoTime
@@ -8694,6 +8797,10 @@ public class EJEffects {
 				if (nextTime > bEndTime.getNanoseconds()) {
 					nextTime = bEndTime.getNanoseconds();
 				}
+				// Ensure nextTime is not negative
+				if (nextTime < 0) {
+					nextTime = 0;
+				}
 
 				broll = ejSettings.effectCompo.grabberB.grabImage(nextTime);
 				//broll =
@@ -8701,37 +8808,48 @@ public class EJEffects {
 				System.out.println("broll time:" + currentTime + ", "
 						+ bcompoTime + ", " + bStartTime.getNanoseconds());
 
-			}
-			if (broll != null) {
-				System.out.println("DoCompose Scale broll "
-						+ broll.getWidth(null) + ", " + broll.getHeight(null));
-				if (!squeeze) {
-					if ((float) (width * xscalep) != (float) broll
-							.getWidth(null)
-							|| (float) (height * yscalep) != (float) broll
-									.getHeight(null)) {
-						broll = doJAIScale(broll, (float) width
-								* (float) xscalep
-								/ (float) broll.getWidth(null), (float) height
-								* (float) yscalep
-								/ (float) broll.getHeight(null), 0.0F, 0.0F);
-					}
-				} else {
-					if ((float) ((effectParams[1]/effectParams[2])*width * xoffp) != broll.getWidth(null)
-							|| (float) (height * (effectParams[1]/effectParams[2])*yoffp) != (float) broll
-									.getHeight(null)) {
-						broll = doJAIScale(broll, (float) width * (float) (effectParams[1]/effectParams[2])*(float) xoffp
-								/ (float) broll.getWidth(null),
-								(float) height * (float) (effectParams[1]/effectParams[2])*(float) yoffp
-										/ (float) broll.getHeight(null), 0.0F,
-								0.0F);
-					}
+				// Check if image grab failed
+				if (broll == null) {
+					System.err.println("DoCompose: Failed to grab B-roll image at time " + nextTime);
 				}
 
-				//frameOut = doWarpCompo(frameOut,broll);
+			}
+			if (broll != null) {
+				// Validate broll dimensions before scaling
+				int brollWidth = broll.getWidth(null);
+				int brollHeight = broll.getHeight(null);
+				if (brollWidth <= 0 || brollHeight <= 0) {
+					System.err.println("DoCompose: B-roll has invalid dimensions (" + brollWidth + "x" + brollHeight + "), skipping");
+					broll = null;
+				} else {
+					System.out.println("DoCompose Scale broll " + brollWidth + ", " + brollHeight);
+					if (!squeeze) {
+						if ((float) (width * xscalep) != (float) brollWidth
+								|| (float) (height * yscalep) != (float) brollHeight) {
+							broll = doJAIScale(broll, (float) width
+									* (float) xscalep
+									/ (float) brollWidth, (float) height
+									* (float) yscalep
+									/ (float) brollHeight, 0.0F, 0.0F);
+						}
+					} else {
+						if ((float) ((effectParams[1]/effectParams[2])*width * xoffp) != brollWidth
+								|| (float) (height * (effectParams[1]/effectParams[2])*yoffp) != (float) brollHeight) {
+							broll = doJAIScale(broll, (float) width * (float) (effectParams[1]/effectParams[2])*(float) xoffp
+									/ (float) brollWidth,
+									(float) height * (float) (effectParams[1]/effectParams[2])*(float) yoffp
+											/ (float) brollHeight, 0.0F,
+									0.0F);
+						}
+					}
 
-				System.out.println("DoCompose After Scale broll "
-						+ broll.getWidth(null) + ", " + broll.getHeight(null));
+					//frameOut = doWarpCompo(frameOut,broll);
+
+					if (broll != null) {
+						System.out.println("DoCompose After Scale broll "
+								+ broll.getWidth(null) + ", " + broll.getHeight(null));
+					}
+				}
 			}
 		}
 		System.out.println("compose test a");
@@ -8793,8 +8911,13 @@ public class EJEffects {
 		if (compoNumber == 0) {
 			xoffset = (int) (xoffp * (double) width);
 			yoffset = (int) (yoffp * (double) height);
-			frameOut.composite(broll, mask, alphaControls, compoMode, xoffset,
-					yoffset, effectContext.option5, effectContext.option6);
+			// Only composite if broll is available
+			if (broll != null) {
+				frameOut.composite(broll, mask, alphaControls, compoMode, xoffset,
+						yoffset, effectContext.option5, effectContext.option6);
+			} else {
+				System.out.println("DoCompose: Skipping composite - no B-roll available");
+			}
 		} else {
 			if (effectContext.option6) {
 				xoffset = width - (int) Math.ceil((xoffp * (double) width));
@@ -8802,7 +8925,11 @@ public class EJEffects {
 			for (int i = 1; i <= compoNumber && yoffset < height; i++) {
 				System.out.println("compo offset " + xoffset + ", " + yoffset
 						+ ", " + i + ", " + compoNumber);
-				if (compoEffectList != null) {
+
+				// Skip this iteration if broll is null
+				if (broll == null) {
+					System.out.println("DoCompose: Skipping iteration " + i + " - no B-roll available");
+				} else if (compoEffectList != null) {
 					System.out.println("compo effct list "
 							+ compoEffectList.size());
 					newBuffer = frameIn.getBuffer();
@@ -8831,12 +8958,40 @@ public class EJEffects {
 					if (index >= compoEffectList.size())
 						index = compoEffectList.size() - 1;
 					compoEffect = (EJEffects) compoEffectList.get(index);
-					compoEffect.processFrame(newBuffer);
+					System.out.println("DoCompose: calling processFrame on compoEffect");
+					try {
+						compoEffect.processFrame(newBuffer);
+						System.out.println("DoCompose: processFrame completed");
+					} catch (Exception e) {
+						System.err.println("DoCompose: processFrame threw exception: " + e.getMessage());
+						e.printStackTrace();
+					}
+
+					System.out.println("DoCompose: creating BufferToImage");
 					BufferToImage btoi = new BufferToImage(
 							(VideoFormat) newBuffer.getFormat());
 					brolle = btoi.createImage(newBuffer);
-					frameOut.composite(brolle, mask, alphaControls, compoMode,
-							xoffset, yoffset);
+					System.out.println("DoCompose: BufferToImage.createImage returned " + (brolle != null ? "image" : "null"));
+
+					// Fallback if BufferToImage fails - use the processed frame directly
+					if (brolle == null) {
+						System.out.println("DoCompose: BufferToImage failed for processed frame, using EFrame fallback");
+						EFrame processedFrame = new EFrame(newBuffer);
+						RenderedOp rop = processedFrame.getRenderedOp();
+						if (rop != null) {
+							brolle = rop.getAsBufferedImage();
+							System.out.println("DoCompose: EFrame fallback returned " + (brolle != null ? "image" : "null"));
+						}
+					}
+
+					if (brolle != null) {
+						System.out.println("DoCompose: calling composite with brolle");
+						frameOut.composite(brolle, mask, alphaControls, compoMode,
+								xoffset, yoffset);
+						System.out.println("DoCompose: composite completed");
+					} else {
+						System.err.println("DoCompose: Failed to create image for composite, skipping");
+					}
 
 				} else {
 					frameOut.composite(broll, mask, alphaControls, compoMode,
@@ -10095,6 +10250,12 @@ public class EJEffects {
 		float yoffset = (float) ((height - yheight) * effectParams[4]);
 
 		Image image = frameIn.getImage();
+		if (image == null) {
+			image = frameIn.getBufferedImage();
+		}
+		if (image == null) {
+			return frameIn;
+		}
 		image = doJAICrop(image, xoffset, yoffset, xwidth, yheight);
 		image = doJAIScale(image, (float) width / xwidth, (float) height
 				/ yheight, 0.0F, 0.0F);

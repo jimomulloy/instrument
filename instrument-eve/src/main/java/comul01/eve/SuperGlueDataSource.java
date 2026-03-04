@@ -188,8 +188,12 @@ public class SuperGlueDataSource extends PushBufferDataSource {
 		    outputFormats[i] = inputFormatsCurrent[i];
 		} else if (inputFormatsCurrent[i] instanceof RGBFormat) {
 		    outputFormats[i] = preferredVideoFormat;
+		} else if (inputFormatsCurrent[i] instanceof VideoFormat) {
+		    // Handle other video formats (like R210) - they will be converted to RGB by codec chain
+		    System.out.println("SuperGlueDataSource: Non-RGB video format detected: " + inputFormatsCurrent[i]);
+		    outputFormats[i] = preferredVideoFormat;
 		} else {
-		    throw new IOException("Incompatible streams encountered");
+		    throw new IOException("Incompatible streams encountered: " + inputFormatsCurrent[i]);
 		}
 		outputStreams[i] = new SuperGlueStream(outputFormats[i]);
 	    }
