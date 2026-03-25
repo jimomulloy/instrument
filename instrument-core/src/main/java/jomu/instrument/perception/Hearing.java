@@ -1165,7 +1165,8 @@ public class Hearing implements Organ {
 					.getBooleanParameter(InstrumentParameterNames.PERCEPTION_HEARING_AUDIO_RECORD_SWITCH);
 
 			if (recordFile != null && audioRecord) {
-				AudioFormat recordFormat = new AudioFormat(sampleRate, 16, 1, true, true);
+				LOG.severe(">>processMicrophoneStream writer: " + recordFile + ", " + sampleRate);
+				AudioFormat recordFormat = new AudioFormat(sampleRate, 16, 1, false, false);
 				WaveformWriter writer = new WaveformWriter(recordFormat, recordFile);
 				dispatcher.addAudioProcessor(writer);
 				LOG.severe(">>processMicrophoneStream writer: " + recordFile);

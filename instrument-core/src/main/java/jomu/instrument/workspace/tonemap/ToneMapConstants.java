@@ -84,17 +84,17 @@ public interface ToneMapConstants {
 	public static final int INIT_REVERB_SETTING = 64;
 
 	public static final int INIT_SAMPLE_SIZE = 100;
-	public final static int INIT_TIME_END = 60000;
+	public final static int INIT_TIME_END = 1200000;
 
 	public final static int INIT_TIME_INC = 100;
-	public final static int INIT_TIME_MAX = 60000;
+	public final static int INIT_TIME_MAX = 1200000;
 	public final static int INIT_TIME_MIN = 0;
 	public static final int INIT_TIME_SCALE = 100;
 	public final static int INIT_TIME_START = 0;
 	public static final int INIT_VELOCITY_SETTING = 64;
 	public static final int INIT_VOLUME_SETTING = 50;
 
-	public static final double MAX_AUDIO_DURATION = 60.0;
+	public static final double MAX_AUDIO_DURATION = 120.0;
 	public static final int MAX_BPM_SETTING = 180;
 
 	public static final long MAX_CLIP_LENGTH = 2000000;
