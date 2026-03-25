@@ -70,6 +70,7 @@ public class ParametersPanel extends JPanel {
 			"vocal-folk", "vocal-male", "vocal-female", "tapes", "robin", "birds",
 			"blackbird",
 			"bird-alt1",
+			"birds-whiten",
 			"bird-best", "bird-scaled", "bird-mix", "classical", "folk", "folky", "folky-clean", "folk-pluck", "bach",
 			"birds-bach", "birds-x", "beethoven", "brass", "compresschord", "piano-harp", "epiano", "epiano-arp",
 			"epiano-chord",
