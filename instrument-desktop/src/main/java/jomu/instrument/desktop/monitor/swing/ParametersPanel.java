@@ -53,7 +53,7 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = {
-			"default", "fav",
+			"default", "fav", "holst-thin", "chords-sourced",
 			"chords", "chords-blocks", "chords-voice", "chords-lines", "chords-voice",
 			"melody", "melody-clean", "melody-finzi",
 			"genesis-white", "envwhiten", "gencqsquare", "fnzy", "watcher", "beet", "dawson", "yes",
