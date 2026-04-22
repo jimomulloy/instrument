@@ -614,7 +614,6 @@ public class TarsosAudioSynthesizer implements ToneMapConstants, AudioSynthesize
 
 					for (float sample : audioOutSamples) {
 						if (sample > 0) {
-							System.out.println(">>SAMPLE: " + sample);
 							break;
 						}
 					}
