@@ -1631,7 +1631,7 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SYNTHESIS_SWEEP_RANGE,
 							Integer.toString(10));
 					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_NOTATE_SWEEP_RANGE,
-							Integer.toString(20));
+							Integer.toString(10));
 					parameterManager.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_SINK_SWEEP_RANGE,
 							Integer.toString(0));
 				} else {

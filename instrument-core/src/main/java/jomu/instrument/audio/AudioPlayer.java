@@ -104,16 +104,10 @@ public final class AudioPlayer implements AudioProcessor {
 		byte[] lastBuffer = audioEvent.getByteBuffer();
 		int byteOverlap = audioEvent.getOverlap() * format.getFrameSize();
 		int byteStepSize = audioEvent.getBufferSize() * format.getFrameSize() - byteOverlap;
-		LOG.severe(">>>AO 1: " + byteOverlap + ", " + byteStepSize
-				+ ", " + (System.currentTimeMillis() / 1000.0)
-				+ ", " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
-
+	
 		if (audioEvent.getTimeStamp() == 0) {
 			byteOverlap = 0;
 			byteStepSize = audioEvent.getBufferSize() * format.getFrameSize();
-			LOG.severe(">>>AO 2: " + byteOverlap + ", " + byteStepSize
-					+ ", " + (System.currentTimeMillis() / 1000.0)
-					+ ", " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed());
 		}
 		// overlap in samples * nr of bytes / sample = bytes overlap
 

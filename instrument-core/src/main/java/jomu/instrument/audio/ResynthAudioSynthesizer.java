@@ -57,10 +57,6 @@ public class ResynthAudioSynthesizer implements ToneMapConstants, AudioSynthesiz
 
 			}
 
-			LOG.severe(">>>RP after: " + (System.currentTimeMillis() / 1000.0)
-					+ ", " + audioEvent.getTimeStamp() + ", " + audioEvent.getSamplesProcessed()
-					+ ", min: " + smin +
-					", max: " + smax + ", len: " + audioEvent.getFloatBuffer().length);
 			return true;
 		}
 

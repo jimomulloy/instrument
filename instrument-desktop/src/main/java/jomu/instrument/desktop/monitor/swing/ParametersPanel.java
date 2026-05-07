@@ -53,7 +53,7 @@ public class ParametersPanel extends JPanel {
 
 	private final static Integer[] fftSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384, 22050, 32768, 65536, 131072 };
 	private final static String[] styles = {
-			"default", "fav",
+			"default", "birdy", "fav", "holst-thin", "chords-sourced",
 			"chords", "chords-blocks", "chords-voice", "chords-lines", "chords-voice",
 			"melody", "melody-clean", "melody-finzi",
 			"genesis-white", "envwhiten", "gencqsquare", "fnzy", "watcher", "beet", "dawson", "yes",
@@ -70,6 +70,7 @@ public class ParametersPanel extends JPanel {
 			"vocal-folk", "vocal-male", "vocal-female", "tapes", "robin", "birds",
 			"blackbird",
 			"bird-alt1",
+			"birds-whiten",
 			"bird-best", "bird-scaled", "bird-mix", "classical", "folk", "folky", "folky-clean", "folk-pluck", "bach",
 			"birds-bach", "birds-x", "beethoven", "brass", "compresschord", "piano-harp", "epiano", "epiano-arp",
 			"epiano-chord",
