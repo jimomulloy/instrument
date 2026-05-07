@@ -6,7 +6,9 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
@@ -6396,7 +6398,7 @@ public class EJEffects {
 
 		int loopcount = effectContext.count;
 		if (loopcount == 0)
-			loopcount = 6;
+			loopcount = 100;
 
 		System.out.println("walk " + thres + ", " + fp1 + ", " + fp2);
 		int count = 0;
@@ -6430,11 +6432,7 @@ public class EJEffects {
 							amount = edgeWalk(frameOut, frameIn, band, x, y,
 									(int) fp1, (int) thres, (int) fp2, path,
 									loopcount);
-							if (amount > lowt)
-								System.out.println("amount " + amount + ", "
-										+ a + ", " + b + ", " + x + ", " + y
-										+ ", " + band);
-
+				
 						} else {
 							amount = edgeFollow(frameOut, frameIn, x, y,
 									(int) fp1, (int) thres, (int) fp2, path,
@@ -6451,6 +6449,13 @@ public class EJEffects {
 				}
 			}
 		}
+
+		bimg = doRotate(bimg, 180.0);
+		// Flip the image horizontally
+		AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+		tx.translate(-bimg.getWidth(null), 0);
+		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+		bimg = op.filter(bimg, null);
 		frameOut1.setBufferedImage(bimg);
 		return frameOut1;
 
@@ -12262,11 +12267,12 @@ public class EJEffects {
 			pb.addSource(ropIn);
 			pb.add(xOrig);
 			pb.add(yOrig);
-			pb.add(6.27F);
+			//pb.add(6.27F);
+			pb.add(radians);
 			//pb.add(new InterpolationNearest());
 			RenderingHints rh = new RenderingHints(JAI.KEY_BORDER_EXTENDER,
 					BorderExtender.createInstance(BorderExtender.BORDER_COPY));
-
+			System.out.println(">>>Rotate: " + xOrig + ", " + yOrig + ", " + angle);
 			//rh.put(
 			//	RenderingHints.KEY_ANTIALIASING,
 			//	RenderingHints.VALUE_ANTIALIAS_ON);
@@ -12283,6 +12289,41 @@ public class EJEffects {
 		}
 
 		return frameOut;
+	}
+
+	public BufferedImage doRotate(BufferedImage input, double angle) {
+		int width = input.getWidth();
+		int height = input.getHeight();
+
+
+		double radians = Math.toRadians(angle);
+
+		// Rotate about the input image's centre
+		AffineTransform rotate = AffineTransform.getRotateInstance(radians, width / 2.0, height / 2.0);
+
+		Shape rect = new Rectangle(width, height);
+
+		// Work out how big the rotated image would be..
+		Rectangle bounds = rotate.createTransformedShape(rect).getBounds();
+
+		// Shift the rotated image into the centre of the new bounds
+		rotate.preConcatenate(
+				AffineTransform.getTranslateInstance((bounds.width - width) / 2.0, (bounds.height - height) / 2.0));
+
+		BufferedImage output = new BufferedImage(bounds.width, bounds.height, input.getType());
+		Graphics2D g2d = (Graphics2D) output.getGraphics();
+
+		// Fill the background with white
+		g2d.setColor(Color.WHITE);
+		g2d.fill(new Rectangle(width, height));
+
+		RenderingHints hints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		hints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		g2d.setRenderingHints(hints);
+		g2d.drawImage(input, rotate, null);
+
+		return output;
 	}
 
 	private EFrame doJAIEnhance(EFrame frameIn) {
