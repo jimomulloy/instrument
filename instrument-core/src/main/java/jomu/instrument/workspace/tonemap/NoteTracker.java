@@ -1085,24 +1085,28 @@ public class NoteTracker {
 					// }
 				}
 			} else {
-				if (hasBeatNote && barNote == 0) {
+				//if (hasBeatNote && barNote == 0) {
+					System.out.println(">>P3: " + startTime);
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
-							if (lastNote != null && lastNoteEndTime >= startTime) {
-								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
-									cnle.endTime = nnle.endTime;
-								}
-							} else {
-								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
-									cnle.endTime = startTime - incrementTime;
-								}
+							if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+								cnle.endTime = nnle.endTime;
 							}
+//							if (lastNote != null && lastNoteEndTime >= startTime) {
+//								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+//									cnle.endTime = nnle.endTime;
+//								}
+//							} else {
+//								if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
+//									cnle.endTime = startTime - incrementTime;
+//								}
+//							}
 						}
-						if (lastNote != null && lastNoteEndTime < startTime) {
-							track.addNote(nnle);
-						}
+						//if (lastNote != null && lastNoteEndTime < startTime) {
+						//	track.addNote(nnle);
+						//}
 					}
-				}
+				//}
 			}
 		} else if (synthChordParameters.chordPattern == 4) {
 			if (currentNoteSet.isEmpty() && newNotes.isEmpty()) {

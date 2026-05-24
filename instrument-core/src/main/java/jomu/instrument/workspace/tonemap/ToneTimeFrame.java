@@ -726,19 +726,25 @@ public class ToneTimeFrame implements Serializable {
 			scale = 1 / Math.sqrt(scale);
 			double max = AMPLITUDE_FLOOR;
 			for (int i = 0; i < elements.length; i++) {
-				elements[i].amplitude *= scale;
-				if (max < elements[i].amplitude) {
-					max = elements[i].amplitude;
+				if (elements[i] != null) {
+					elements[i].amplitude *= scale;
+					if (max < elements[i].amplitude) {
+						max = elements[i].amplitude;
+					}
 				}
 			}
 			if (ceiling) {
 				for (int i = 0; i < elements.length; i++) {
-					elements[i].amplitude = elements[i].amplitude / max;
+					if (elements[i] != null) {
+						elements[i].amplitude = elements[i].amplitude / max;
+					}	
 				}
 			}
 		} else {
 			for (int i = 0; i < elements.length; i++) {
-				elements[i].amplitude = 0.1 / (double) elements.length;
+				if (elements[i] != null) {
+					elements[i].amplitude = 0.1 / (double) elements.length;
+				}	
 			}
 		}
 		return this;

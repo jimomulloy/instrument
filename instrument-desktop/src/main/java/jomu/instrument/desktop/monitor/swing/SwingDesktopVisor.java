@@ -111,6 +111,7 @@ import jomu.instrument.monitor.Visor;
 import jomu.instrument.store.InstrumentStoreService;
 import jomu.instrument.store.Storage;
 import jomu.instrument.workspace.Workspace;
+import jomu.instrument.workspace.tonemap.PitchSet;
 import jomu.instrument.workspace.tonemap.ToneMap;
 import jomu.instrument.workspace.tonemap.ToneMapElement;
 import jomu.instrument.workspace.tonemap.ToneTimeFrame;
@@ -1934,10 +1935,26 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS, newValue);
 				hearingMinFreqCentsInput.setText(newValue);
+				
+				double minimumFrequencyInHertz = PitchConverter.absoluteCentToHertz(Double.valueOf(newValue));
+				parameterManager
+				 	.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY, Double.toString(minimumFrequencyInHertz));
+				System.out.println(">>PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS: " 
+				 	+ parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
+				System.out.println(">>PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY: " 
+					 	+ parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY));
 			}
 		});
 		hearingMinFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
+		double minimumFrequencyInHertz = 
+				PitchConverter.absoluteCentToHertz(parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
+		parameterManager
+		 	.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY, Double.toString(minimumFrequencyInHertz));
+		System.out.println(">>INIT PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS: " 
+			 	+ parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
+			System.out.println(">>INIT PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY: " 
+				 	+ parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY));
 		instrumentPanel.add(hearingMinFreqCentsLabel);
 		instrumentPanel.add(hearingMinFreqCentsInput);
 
@@ -1950,10 +1967,25 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				newValue = parameterManager
 						.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS, newValue);
 				hearingMaxFreqCentsInput.setText(newValue);
+				double maximumFrequencyInHertz = PitchConverter.absoluteCentToHertz(Double.valueOf(newValue));
+				parameterManager
+				 	.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY, Double.toString(maximumFrequencyInHertz));
+				System.out.println(">>PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS: " 
+				 	+ parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+				System.out.println(">>PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY: " 
+					 	+ parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY));
 			}
 		});
 		hearingMaxFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		double maximumFrequencyInHertz = 
+				PitchConverter.absoluteCentToHertz(parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		parameterManager
+		 	.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY, Double.toString(maximumFrequencyInHertz));
+		System.out.println(">>INIT PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS: " 
+		 	+ parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		System.out.println(">>INIT PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY: " 
+			 	+ parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY));
 		instrumentPanel.add(hearingMaxFreqCentsLabel);
 		instrumentPanel.add(hearingMaxFreqCentsInput);
 
@@ -2892,6 +2924,22 @@ public class SwingDesktopVisor implements Visor, AudioFeatureFrameObserver {
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
 		hearingMaxFreqCentsInput.setText(
 				parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		double minimumFrequencyInHertz = 
+				PitchConverter.absoluteCentToHertz(parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
+		parameterManager
+		 	.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY, Double.toString(minimumFrequencyInHertz));
+		System.out.println(">>INIT PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS: " 
+			 	+ parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MINIMUM_FREQUENCY_CENTS));
+			System.out.println(">>INIT PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY: " 
+				 	+ parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MINIMUM_FREQUENCY));
+		double maximumFrequencyInHertz = 
+				PitchConverter.absoluteCentToHertz(parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		parameterManager
+		 	.setParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY, Double.toString(maximumFrequencyInHertz));
+		System.out.println(">>INIT PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS: " 
+		 	+ parameterManager.getIntParameter(InstrumentParameterNames.PERCEPTION_HEARING_MAXIMUM_FREQUENCY_CENTS));
+		System.out.println(">>INIT PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY: " 
+			 	+ parameterManager.getDoubleParameter(InstrumentParameterNames.PERCEPTION_HEARING_TONEMAP_MAXIMUM_FREQUENCY));	
 		searchCountInput
 				.setText(parameterManager.getParameter(InstrumentParameterNames.PERCEPTION_HEARING_AI_SEARCH_COUNT));
 		persistenceModeInput.setText(
