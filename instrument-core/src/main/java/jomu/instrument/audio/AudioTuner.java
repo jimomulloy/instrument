@@ -1674,34 +1674,36 @@ public class AudioTuner implements ToneMapConstants {
 				int index = pitchSet.getIndex((float) noteFreq);
 				int note = 0;
 				LOG.finer(">>commitNote HARMONIC SEARCH: " + processedNote.note + ", " + processedNote.pitchIndex);
-				do {
-					if (index < length - 1) {
-						ToneMapElement toneMapElement = toneTimeFrame.getElements()[index];
-						note = toneTimeFrame.getPitchSet()
-								.getNote(toneMapElement.getPitchIndex());
-						nle = toneMapElement.noteListElement;
-						if (nle != null) {
-							if (note <= harmonicHighLimit && nle.startTime >= (processedNote.startTime - harmonicSweep)
-									&& nle.endTime <= processedNote.endTime
-									&& (!noteTimbreNotateSwitch || isMatchingTimbre(timeFrames, processedNote, nle))) {
-								harmonicTones.add(nle);
-								LOG.finer(">>commitNote HARMONIC ADD: " + nle.note + ", " + processedNote.note + ", "
-										+ processedNote.pitchIndex);
-							} else {
-								Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
-								if (noteHarmonics.containsKey(processedNote.note)) {
-									noteHarmonics.remove(processedNote.note);
-									if (noteHarmonics.isEmpty()) {
-										commitNote(timeFrames, nle, discardedNotes);
+				if (index > -1) {
+					do {
+						if (index < length - 1) {
+							ToneMapElement toneMapElement = toneTimeFrame.getElements()[index];
+							note = toneTimeFrame.getPitchSet().getNote(toneMapElement.getPitchIndex());
+							nle = toneMapElement.noteListElement;
+							if (nle != null) {
+								if (note <= harmonicHighLimit
+										&& nle.startTime >= (processedNote.startTime - harmonicSweep)
+										&& nle.endTime <= processedNote.endTime && (!noteTimbreNotateSwitch
+												|| isMatchingTimbre(timeFrames, processedNote, nle))) {
+									harmonicTones.add(nle);
+									LOG.finer(">>commitNote HARMONIC ADD: " + nle.note + ", " + processedNote.note
+											+ ", " + processedNote.pitchIndex);
+								} else {
+									Map<Integer, Integer> noteHarmonics = nle.noteHarmonics.getNoteHarmonics();
+									if (noteHarmonics.containsKey(processedNote.note)) {
+										noteHarmonics.remove(processedNote.note);
+										if (noteHarmonics.isEmpty()) {
+											commitNote(timeFrames, nle, discardedNotes);
+										}
 									}
 								}
 							}
 						}
-					}
-					harmonic++;
-					noteFreq = (harmonic + 1) * rootFreq;
-					index = pitchSet.getIndex((float) noteFreq);
-				} while (index < length - 1 && harmonic < harmonics.length && note <= harmonicHighLimit);
+						harmonic++;
+						noteFreq = (harmonic + 1) * rootFreq;
+						index = pitchSet.getIndex((float) noteFreq);
+					} while (index > -1 && index < length - 1 && harmonic < harmonics.length && note <= harmonicHighLimit);
+				}
 			}
 		}
 
