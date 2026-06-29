@@ -1086,7 +1086,6 @@ public class NoteTracker {
 				}
 			} else {
 				//if (hasBeatNote && barNote == 0) {
-					System.out.println(">>P3: " + startTime);
 					for (NoteListElement nnle : newNotes) {
 						for (NoteListElement cnle : currentNotes) {
 							if (nnle.note == cnle.note && (cnle.endTime + incrementTime >= nnle.startTime)) {
